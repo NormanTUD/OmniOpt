@@ -1,0 +1,196 @@
+[4mLog file: /home/h8/s3811141/test/randomtest_29340/omniopt/debuglogs/0[0m
+[34mDEBUG_SUB:	├─ [4mget_working_directory()[0m
+[34mDEBUG_SUB:	├─ [4mget_working_directory()[0m
+[34mDEBUG_SUB:	├─ [4mget_working_directory()[0m
+[34mDEBUG_SUB:	├─ [4mget_environment_variables()[0m
+[34mDEBUG_SUB:	├── [4m_get_project()[0m
+[34mDEBUG_SUB:	├─── [4m_get_environment_variable(SLURM_JOB_NAME)[0m
+[33mWARNING:	├── No project name defined in Slurm-Job[0m
+[34mDEBUG_SUB:	├── [4m_get_number_of_workers()[0m
+[34mDEBUG_SUB:	├─── [4m_get_environment_variable(SLURM_NTASKS)[0m
+[33mWARNING:	├── ntasks not defined in Slurm-Job[0m
+[34mDEBUG_SUB:	├── [4m_get_mem_per_cpu()[0m
+[34mDEBUG_SUB:	├─── [4m_get_environment_variable(SLURM_MEM_PER_CPU)[0m
+[33mWARNING:	├── mempercpu not defined in Slurm-Job[0m
+[34mDEBUG_SUB:	├── [4m_get_gpu_info()[0m
+[34mDEBUG_SUB:	├─── [4m_get_environment_variable(GPU_DEVICE_ORDINAL)[0m
+[36mMESSAGE: 	├── No specific number of GPUs allocated, using the default number: 0[0m
+[34mDEBUG_SUB:	├─ [4mload_needed_modules()[0m
+[34mDEBUG_SUB:	├── [4mmodify_system(eval $(/usr/share/lmod/lmod/libexec/lmod sh --force purge))[0m
+[34mDEBUG_SUB:	├── [4mmodules_load(modenv/scs5, MongoDB/4.0.3, Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4, Python/3.7.4-GCCcore-8.3.0)[0m
+[34mDEBUG_SUB:	├─── [4mmodule_load(modenv/scs5)[0m
+[36mDEBUG:		├─── eval $(/usr/share/lmod/lmod/libexec/lmod sh load modenv/scs5)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(eval $(/usr/share/lmod/lmod/libexec/lmod sh load modenv/scs5))[0m
+[34mDEBUG_SUB:	├─── [4mmodule_load(MongoDB/4.0.3)[0m
+[36mDEBUG:		├─── eval $(/usr/share/lmod/lmod/libexec/lmod sh load MongoDB/4.0.3)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(eval $(/usr/share/lmod/lmod/libexec/lmod sh load MongoDB/4.0.3))[0m
+[34mDEBUG_SUB:	├─── [4mmodule_load(Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4)[0m
+[36mDEBUG:		├─── eval $(/usr/share/lmod/lmod/libexec/lmod sh load Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(eval $(/usr/share/lmod/lmod/libexec/lmod sh load Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4))[0m
+[34mDEBUG_SUB:	├─── [4mmodule_load(Python/3.7.4-GCCcore-8.3.0)[0m
+[36mDEBUG:		├─── eval $(/usr/share/lmod/lmod/libexec/lmod sh load Python/3.7.4-GCCcore-8.3.0)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(eval $(/usr/share/lmod/lmod/libexec/lmod sh load Python/3.7.4-GCCcore-8.3.0))[0m
+[34mDEBUG_SUB:	├── [4mmodify_system(bash test/test_packages.sh)[0m
+[33mWARNING:	├─ Exit-Code: 1
+[0m
+[31mERROR:		The script `bash test/test_packages.sh` did not exit with exit-code 0, but instead 1 (SIG-Code: 0).[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 18118[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 64797[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 23682[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 20803[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 18087[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 4568[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 35891[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 56548[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 23886[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 43846[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(2048, 65500)[0m
+[36mDEBUG:		├── random_number -> 53766[0m
+[32mOK:		get_random_number() test ok[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 15[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 0)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 15[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 1)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 11[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 2)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 14[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 3)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 19[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 4)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 17[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 5)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 12[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 6)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 15[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 7)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 13[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 8)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 15[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 9)[0m
+[34mDEBUG_SUB:	├── [4mget_random_number(10, 20)[0m
+[36mDEBUG:		├── random_number -> 10[0m
+[32mOK:		get_random_number(10, 20) test ok (nr. 10)[0m
+[34mDEBUG_SUB:	├── [4mis_ipv4(120.255.1.102)[0m
+[32mOK:		is_ipv4(120.255.1.102) test ok[0m
+[34mDEBUG_SUB:	├── [4mis_ipv4(120.2255.1.102)[0m
+[32mOK:		is_ipv4(120.2255.1.102) test ok[0m
+[34mDEBUG_SUB:	├── [4mget_local_ip_address()[0m
+[34mDEBUG_SUB:	├── [4mis_ipv4(141.30.73.102)[0m
+[32mOK:		is_ipv4(141.30.73.102) test ok[0m
+[34mDEBUG_SUB:	├── [4mprogram_installed(ls)[0m
+[34mDEBUG_SUB:	├─── [4mmodify_system(which ls > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├── ls already installed[0m
+[32mOK:		program_installed(ls) test ok[0m
+[34mDEBUG_SUB:	├── [4mprogram_installed(askjdasldsfljdgndgjkndfglkdf)[0m
+[34mDEBUG_SUB:	├─── [4mmodify_system(which askjdasldsfljdgndgjkndfglkdf > /dev/null 2> /dev/null)[0m
+[32mOK:		program_installed(askjdasldsfljdgndgjkndfglkdf) test ok[0m
+[34mDEBUG_SUB:	├── [4mget_servers_from_SLURM_NODES(taurusi2012)[0m
+[32mOK:		get_servers_from_SLURM_NODES(taurusi2012) ok[0m
+[34mDEBUG_SUB:	├── [4mread_ini_file(test/projects/DONOTDELETE_testcase/config.ini)[0m
+[32mOK:		read_ini_file ok[0m
+[34mDEBUG_SUB:	├── [4mmodify_system(PYTHONPATH=$PYTHONPATH:/home/h8/s3811141/test/randomtest_29340/omniopt/script/ python3 /home/h8/s3811141/test/randomtest_29340/omniopt/test/tests.py)[0m
+[33mWARNING:	├─ Exit-Code: 1
+[0m
+[31mERROR:		The script `PYTHONPATH=$PYTHONPATH:/home/h8/s3811141/test/randomtest_29340/omniopt/script/ python3 /home/h8/s3811141/test/randomtest_29340/omniopt/test/tests.py` did not exit with exit-code 0, but instead 1 (SIG-Code: 0).[0m
+[34mDEBUG_SUB:	├── [4mcheck_needed_programs()[0m
+[34mDEBUG_SUB:	├─── [4mis_ml()[0m
+[36mDEBUG:		├─── is_ml() -> 0[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(python3)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which python3 > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── python3 already installed[0m
+[32mOK_DEBUG:	├── python3 seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(ssh)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which ssh > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── ssh already installed[0m
+[32mOK_DEBUG:	├── ssh seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(bash)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which bash > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── bash already installed[0m
+[32mOK_DEBUG:	├── bash seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(srun)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which srun > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── srun already installed[0m
+[32mOK_DEBUG:	├── srun seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(pip3)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which pip3 > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── pip3 already installed[0m
+[32mOK_DEBUG:	├── pip3 seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(squeue)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which squeue > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── squeue already installed[0m
+[32mOK_DEBUG:	├── squeue seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(mongod)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which mongod > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── mongod already installed[0m
+[32mOK_DEBUG:	├── mongod seems to be installed correctly.[0m
+[32mOK:		Every needed program is installed[0m
+[34mDEBUG_SUB:	├── [4menvironment_sanity_check()[0m
+[34mDEBUG_SUB:	├─── [4mcheck_needed_programs()[0m
+[34mDEBUG_SUB:	├──── [4mis_ml()[0m
+[36mDEBUG:		├──── is_ml() -> 0[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(python3)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which python3 > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── python3 already installed[0m
+[32mOK_DEBUG:	├─── python3 seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(ssh)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which ssh > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── ssh already installed[0m
+[32mOK_DEBUG:	├─── ssh seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(bash)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which bash > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── bash already installed[0m
+[32mOK_DEBUG:	├─── bash seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(srun)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which srun > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── srun already installed[0m
+[32mOK_DEBUG:	├─── srun seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(pip3)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which pip3 > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── pip3 already installed[0m
+[32mOK_DEBUG:	├─── pip3 seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(squeue)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which squeue > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── squeue already installed[0m
+[32mOK_DEBUG:	├─── squeue seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├──── [4mprogram_installed(mongod)[0m
+[34mDEBUG_SUB:	├───── [4mmodify_system(which mongod > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├──── mongod already installed[0m
+[32mOK_DEBUG:	├─── mongod seems to be installed correctly.[0m
+[34mDEBUG_SUB:	├─── [4mprogram_installed(python3)[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(which python3 > /dev/null 2> /dev/null)[0m
+[36mDEBUG:		├─── python3 already installed[0m
+[34mDEBUG_SUB:	├─── [4mdebug_loaded_modules()[0m
+[34mDEBUG_SUB:	├──── [4mmodify_system(for i in $(seq -f "%03g" $_ModuleTable_Sz_); do eval "echo \$_ModuleTable${i}_"; done | base64 --decode | sed -e 's/,/,\n/g')[0m
+[34mDEBUG_SUB:	├── [4mmodify_system(bash test/run_cpu_test.sh --nocountdown)[0m
+[34mDEBUG_SUB:	├─ [4mEND-BLOCK[0m
+[36mDEBUG:		├─ shutdown_script()[0m

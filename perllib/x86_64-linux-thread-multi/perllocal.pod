@@ -1,0 +1,220 @@
+=head2 Wed Sep  4 11:50:39 2019: C<Module> L<Env::Modify|Env::Modify>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.02>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:54:58 2019: C<Module> L<version|version>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.9924>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:55:01 2019: C<Module> L<CPAN::Meta::YAML|CPAN::Meta::YAML>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.018>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:55:03 2019: C<Module> L<CPAN::Meta::Requirements|CPAN::Meta::Requirements>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.140>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:55:06 2019: C<Module> L<CPAN::Meta|CPAN::Meta>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.150010>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:56:29 2019: C<Module> L<IO::Tty|IO::Tty>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.12>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:57:03 2019: C<Module> L<Test::Simple|Test::Simple>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.302167>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:58:07 2019: C<Module> L<Expect|Expect>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.35>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Sep  4 11:58:17 2019: C<Module> L<Env::Path|Env::Path>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.19>
+
+=item *
+
+C<EXE_FILES: envpath>
+
+=back
+
+=head2 Wed Sep  4 11:58:22 2019: C<Module> L<Shell::GetEnv|Shell::GetEnv>
+
+=over 4
+
+=item *
+
+C<installed into: /home/s3811141/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.10>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+

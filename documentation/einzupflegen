@@ -1,0 +1,29 @@
+===============================================================================
+
+FEHLERMELDUNG wegen Casting:
+
+Traceback (most recent call last):
+    File "./script/main.py", line 138, in <module>
+    max_evals=data["max_evals"]
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/fmin.py", line 307, in fmin
+    return_argmin=return_argmin,
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/base.py", line 635, in fmin
+    return_argmin=return_argmin)
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/fmin.py", line 320, in fmin
+    rval.exhaust()
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/fmin.py", line 199, in exhaust
+    self.run(self.max_evals - n_done, block_until_done=self.async)
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/fmin.py", line 157, in run
+    self.rstate.randint(2 ** 31 - 1))
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/tpe.py", line 878, in suggest
+    print_node_on_error=False)
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/pyll/base.py", line 913, in rec_eval
+    rval = scope._impls[node.name](*args, **kwargs)
+    File "/home/s3811141/.local/lib/python3.5/site-packages/hyperopt/pyll/base.py", line 1079, in bincount
+    return np.bincount(x, weights, minlength)
+    TypeError: Cannot cast array data from dtype('float64') to dtype('int64') according to the rule 'safe'
+
+Grund: Änderungen der Datentypen zum Generieren von Spaces, nachdem bereits Daten in der Tabelle
+waren. Lösung: Tabelle neu anfangen bzw. nicht-Integer x-Werte aus der DB löschen
+
+===============================================================================

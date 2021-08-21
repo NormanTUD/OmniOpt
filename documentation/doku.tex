@@ -1,0 +1,420 @@
+\documentclass[]{scrartcl}
+
+\input{header.tex}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{You probably don't need this document!}
+
+Most probably, you do NOT need this document. For almost all purposes, using the GUI should be sufficient. 
+You can find the GUI under \url{https://imageseg.scads.de/omnioptgui/}.
+
+\section{Author}
+
+The author of this wrapper and documentation is Norman Koch. If any problems
+occur, feel free to contact him via \url{norman.koch@tu-dresden.de}.
+
+\section{Goal}
+
+This python3-script can automatically minimize a given program with a arbitrary number of hyperparameters.
+Doing this, it optimizes it's own search space, i.\,e. it tries some numbers and then approximates
+better and better to the minimum. 
+
+It is based on the module \ctexttt{HyperOpt}\footnote{\url{http://hyperopt.github.io/hyperopt/}}.
+
+\section{Folders and files}
+
+\subsection{Folders}
+
+\subsubsection{documentation}
+
+Contains this document in \LaTeX-format and as PDF.
+
+\subsubsection{projects}
+
+Contains the config files, programs, database-files and so on for all projects in several subfolders.
+
+\subsubsection{script}
+
+Contains the main-script and all of it's python modules.
+
+\subsubsection{test}
+
+Contains the test-suite for running automated tests.
+
+\subsubsection{projects}
+
+Contains the projects for running automated tests.
+
+\subsection{Files}
+
+\subsubsection{./tools/debug.sh}
+
+Contains features for dealing with several \ctexttt{bash}-problems, locally or on Taurus (like loading modules,
+checking for return values, printing output to the command line, ...).
+
+\subsubsection{./script/keras\_output\_parser.pl}
+
+Creates a perl-representation of different learning stages inside a neural network created with Keras. (Still beta!)
+
+\subsubsection{./sbatch.pl}
+
+The main script that launches the optimizer. Can be called via
+
+\subsubsection{./tools/writeip.pl}
+
+Writes the IP of the main server, on which the MongoDB-client is started, into a log file, so workers on
+other nodes can connect to that one specific server.
+
+\subsubsection{./script/getOpts.py}
+
+Offers functions for parsing and checking parameters. \ntbc
+
+\subsubsection{./script/mydebug.py}
+
+Contains functions for printing output and rudimentarily parses the command-line-options and
+the config-file-options, so that it can be determined whether to output debug-texts or not. \ntbc
+
+\subsubsection{./script/mypath.py}
+
+Central file for getting path-information (like the working path). \ntbc
+
+\subsubsection{./script/plot3.py}
+
+Plots a project's data graphically. Parameters:
+
+\begin{verbatim}
+        --project=abc   Names the project that should run
+        --int=1         1 = Convert all values to integers,
+                        0 (or omitted): don't convert to integers
+\end{verbatim}
+
+\subsubsection{./script/termcolor.py}
+
+For outputting colors in the terminal. \ntbc
+
+\subsubsection{./script/dbtocsv.py}
+
+Print's a project's database to a CSV-file or to the screen.
+
+\begin{verbatim}
+        --project=abc           Names the project that should run
+        --filename=abc.csv      Writes it to the file abc.csv (optional)
+\end{verbatim}
+
+\subsubsection{./script/hyperopt-mongo-worker}
+
+The worker script. \ntbc
+
+\subsubsection{./script/mongo\_db\_objective.py}
+
+The file that gets called from the worker. \ntbc
+
+\subsubsection{./script/myfunctions.py}
+
+Contains all kind of functions needed for the program's functionality. \ntbc
+
+\subsubsection{./script/myregexps.py}
+
+A central place for storing regular expressions often needed. \ntbc
+
+\subsubsection{./script/range\_generator.py}
+
+Contains all kinds of ranges that can be specified through config.ini. \ntbc
+
+\section{Parameters}
+
+The parameters are specified in the config.ini of the specific project, which is read by the main-script and
+the hyperopt-worker-script. The config.ini is splitted into several categories.
+
+\subsection{Data types}
+
+Every parameter line has a data type, which is in the curved brackets after the example 
+line in the headline of every subsubsection. For example,
+
+``\ctexttt{precision = 5 (integer)}'' means the line in the config file must be
+like ``\ctexttt{precision = $n$}, where $n$ is an integer (i.\,e. $n \in \mathbb{N}$).
+
+Boolean types are not \ctexttt{true} and \ctexttt{false}, but $0$ ( = \ctexttt{false}) and
+$1$ ( = \ctexttt{true}). The datatype must not be put into the real config file!
+
+\subsection{Comments}
+
+In the config-file, everything after `\#' is commented out, so that
+
+\begin{verbatim}
+[DIMENSIONS]
+dimensions = 1
+
+dim_0_name = cpuparam
+range_generator_0 = hp.choice
+options_0 = 0,1,2,3
+#options_0 = 0,1,2,3 # this line will be ignored
+\end{verbatim}
+
+\subsection{[DATA]}
+
+\subsubsection{precision = 5 (integer)}
+
+This sets the number of shown digits after the decimal point (but it does *not*
+make calculations more accurate).
+
+\subsubsection{max\_evals = 60 (integer)}
+
+This sets the number of evaluations that should be tried out before ending
+the script.
+
+\subsubsection{objective\_program = perl /test.pl (\$x\_0) int(\$x\_1) (string)}
+
+Either this or objective needs to be set!
+
+This sets the program that will run with \$x\_1 being replaced by the x-value of
+the zeroeth dimensions, \$x\_1 by the oneth dimension and so on. The output
+of the script should only be the result and nothing else, though you can
+e.\,g.\ grep and sed for a line containing only the resulting number and use that
+as objective\_program, too. The script's name must be a fully qualifying path,
+not a relative one, for \ctexttt{hyperopt-mongo-worker} to find it.
+
+Also, when writing \ctexttt{int(\$x\_1)}, the value will be rounded down the the
+nearest integer.
+
+The output of the program that runs must either only output it's value (that which
+should be minimized), or, alternatively, the output-line created by the script
+should look like this:
+
+\ctexttt{RESULT: 3.14159265}
+
+See \nameref{parametersubstitution} for details.
+
+\subsubsection{algo\_name = tpe.suggest (string)}
+
+This sets the name of the algorithm that searches in the specified space.
+
+The following algorithms can be used here:
+
+    \paragraph{tpe.suggest}
+        Tree of Parzen Estimators
+
+    \paragraph{hyperopt.rand.suggest}
+        Random Search
+
+\subsection{[DIMENSIONS]}
+
+\subsubsection{dimensions = 2 (integer)}
+
+This sets the number of total dimensions beginning with dimension 0 the search goes through.
+
+\subsubsection{min\_dim\_0 = 0 and max\_dim\_0 = 20 (whole number)}
+
+Specifies the min. and max. values for each dimension. Cannot be left
+empty and must be integer. You can imagine the $x\_0$-values as $x$-axis,
+$x\_1$ and $y$ and so on.
+
+\subsection{[RANGE\_GENERATOR]}
+
+\subsubsection{name = hp.uniform (string)}
+
+Sets the algorithm for the range-generator. The following algorithms are
+allowed:
+
+        \paragraph{hp.choice(label, options)}
+                        Returns one of the options, which should be a list or tuple.
+                        The elements of options can themselves be [nested]
+                        stochastic expressions. In this case, the stochastic choices
+                        that only appear in some of the options become conditional
+                        parameters.
+
+        \paragraph{hp.pchoice(label, p\_options)}
+                        One of the option terms listed in p\_options, a list of pairs
+                        (prob, option) in which the sum of all prob elements should
+                        sum to 1. The pchoice lets a user bias random search to
+                        choose some options more often than others.
+
+        \paragraph{hp.uniform(label, low, high)}
+                        Uniformly between low and high. When optimizing, this
+                        variable is constrained to a two-sided interval.
+
+        \paragraph{hp.quniform(label, low, high, q)}
+                        Drawn by round(uniform(low, high) / q) * q, Suitable for a
+                        discrete value with respect to which the objective is still
+                        somewhat smooth.
+
+        \paragraph{hp.loguniform(label, low, high)}
+                        Drawn by exp(uniform(low, high)). When optimizing, this
+                        variable is constrained to the interval [ $e^\mathrm{low}$,
+                        $e^\mathrm{high}$].
+
+        \paragraph{hp.qloguniform(label, low, high, q)}
+                        By round(exp(uniform(low, high)) / q) * q. Suitable for a
+                        discrete variable with respect to which the objective is
+                        smooth and gets smoother with the increasing size of the
+                        value.
+
+        \paragraph{hp.normal(label, mu, sigma)}
+                        A normally-distributed real value. When optimizing, this is
+                        an unconstrained variable.
+
+        \paragraph{hp.qnormal(label, mu, sigma, q)}
+                        Drawn by round(normal(mu, sigma) / q) * q. Suitable for a
+                        discrete variable that probably takes a value around mu, but
+                        is technically unbounded.
+
+        \paragraph{hp.lognormal(label, mu, sigma)}
+                        Drawn by exp(normal(mu, sigma)). When optimizing, this
+                        variable is constrained to be positive.
+
+        \paragraph{hp.qlognormal(label, mu, sigma, q)}
+                        Drawn by round(exp(normal(mu, sigma))/q)*q. Suitable for a
+                        discrete variable with respect to which the objective is
+                        smooth and gets smoother with the size of the variable,
+                        which is non-negative.
+
+        \paragraph{hp.randint(label, upper)}
+                        Returns a random integer in the range [0, upper). In
+                        contrast to quniform optimization algorithms should assume
+                        no additional correlation in the loss function between
+                        nearby integer values, as compared with more distant integer
+                        values (e.\,g.\ random seeds).
+
+If other parameters are used, e.\,g.\ $q$, then you can set \ctexttt{$q$ = 5} for example in the config-file.
+
+\subsection{[DEBUG]}
+\subsubsection{debug = 1 (boolean)}
+
+Enables debugging-output. Set to 0 to disable.
+
+\subsubsection{debug\_xtreme = 1 (boolean)}
+
+Enables even more debugging-output whereever possible. Set to 0 to disable.
+
+\subsubsection{info = 1 (boolean)}
+
+Enables informational-output whereever possible. Set to 0 to disable.
+
+\subsubsection{warning = 1 (boolean)}
+
+Enables warning-output whereever possible. Set to 0 to disable.
+
+\subsubsection{success = 1 (boolean)}
+
+Enables success-output whereever possible. Set to 0 to disable.
+
+\subsubsection{stack = 0 (boolean)}
+
+Shows the stack for every debug/info/warning message whereever possible,
+very useful for debugging. Set to 1 to enable.
+
+\subsection{[MONGODB]}
+\label{mongodbconfig}
+
+\subsubsection{worker\_last\_job\_timeout = 1 (integer)}
+
+Sets the timeout for the hyperopt-mongo-worker.
+
+\subsubsection{poll\_interval = 0.1 (float)}
+
+Sets the poll-interval for the hyperopt-mongo-worker.
+
+\subsubsection{kill\_after\_n\_no\_results = 10 (integer)}
+
+Sets up a process-wrapper for hyperopt-mongo-worker started as a fork such that after $n$ ``no job found''-messages
+the process gets killed.
+
+\section{MongoDB}
+
+MongoDB is used for storing
+results of done calculations. This may be used as a cache when re-doing similiar calculations (that
+is, calculcations having the same \ctexttt{dbname}-value), or to coordinate multiple machines
+to caculcate values and find the minimums.
+
+\section{Parameter substitution}
+
+\label{parametersubstitution}
+
+In the \ctexttt{objective\_program} section of the config-file, variables can be used. These are:
+
+\ctexttt{(\$x\_0)}, \ctexttt{(\$x\_1)}, \dots, \ctexttt{(\$x\_$n$)}, which all get replaced with the dimension-values generated
+by \ctexttt{fmin}, and \ctexttt{\$mainpath}, which get's replaced to the main-path of the script, that could, for example, be
+\ctexttt{/home/scads/omniopt/script}.
+
+Also, you can use \ctexttt{\$homepath} (which get's the path of the user's home directory) and \ctexttt{\$projectpath}, which
+is the path of the project folder of the running instance.
+
+\subsection{Connect to MongoDB}
+
+Using the IP and port from the \ctexttt{config.ini}, you can connect to the database with
+
+\begin{verbatim}
+    mongo --host 127.0.0.1:1234
+\end{verbatim}
+
+(of course, depending on the server that should be used).
+
+The following commands might be useful:
+
+\begin{verbatim}
+    show dbs;
+    use myprojectname;
+    show collections;
+    db.jobs.find();
+    db.jobs.find().pretty();
+    db.jobs.find().limit(1);
+    db.jobs.find().pretty().limit(1);
+    db.jobs.find(
+        {}, 
+        { "result": 1, "misc.vals": 1 }
+    ).sort( { "result.loss": 1 } ).pretty();
+\end{verbatim}
+
+\section{Get information from inside the script}
+
+Whenever you have MongoDB enabled, you run a program and it has lines like
+
+\begin{verbatim}
+q: 402
+\end{verbatim}
+
+in it's output, you can get those data via the \ctexttt{bash dostuff.sh}. All data in this form (\textit{any number of letters: number})
+gets outputted as CSV-file into STDOUT. Just \ctexttt{grep} for \ctexttt{$>>>$OUTPUTHEADER$>>>$} and \ctexttt{$>>>$OUTPUT$>>>$}. The OUTPUTHEADER
+contains the names of the columns and the OUTPUT contains the columns itself. 
+
+You may have to remove multiple OUTPUTHEADER lines from the Output.
+
+\section{Automated testing}
+
+OmniOpt offers a near-complete test-suite that can be run automatically by starting \ctexttt{perl sbatch.pl --run\_full\_tests --debug}.
+
+\section{Get results}
+
+You can get all the results via the \ctexttt{bash dostuff.sh} without tinkering or memorizing commands.
+
+\section{Troubleshooting}
+
+\subsection{EXCEPTION <class 'AttributeError'> 'NoneType' object has no attribute 'uniform'}
+
+If this occurs, you might created a new job and used the same name/mongo-db-data from an old one which is incompatible.
+Consider moving or deleting all the mongo-db-folders (e.\,g. \ctexttt{projects/projectname/mongodb}) or create a new jobname.
+
+\subsection{Cannot find \ctexttt{hyperopt-mongo-worker}}
+
+Check if the shebang-line is correct and points to a valid python3 program. E.\,g.
+
+\begin{verbatim}
+#!/usr/bin/env python3
+\end{verbatim}
+
+Also make sure that the script is executable. This can be done with
+
+\begin{verbatim}
+chmod +x script/hyperopt-mongo-worker
+\end{verbatim}
+
+\end{document}

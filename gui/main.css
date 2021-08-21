@@ -1,0 +1,70 @@
+body {
+	font-family: Verdana, Geneva, sans-serif
+	font-size: 16px;
+}
+
+tt {
+	font-size: 16px;
+}
+
+th {
+	background-color: blue;
+	color: white;
+}
+
+.parameter {
+	border-style: double;
+	width: 700px;
+}
+
+.parameter_input {
+	min-width: 300px;
+	width: 95%;
+}
+
+#config {
+	max-width: 600px;
+	min-width: 600px;
+	white-space: pre-wrap;
+	overflow: scroll;
+}
+
+#sbatch {
+	max-width: 600px;
+	min-width: 600px;
+	white-space: pre-wrap;
+	overflow: scroll;
+}
+
+.errors {
+	min-width: 590px;
+	max-width: 49%;
+}
+
+table td, table td * { vertical-align: top; margin: 5px; }
+
+.token.comment {
+	color: red !important;
+}
+
+#bashcommand {
+	background-color: #2d2d2d;
+	max-width: 600px;
+	overflow: scroll;
+	white-space: pre-wrap;
+}
+
+#configtable {
+	min-width: 400px;
+	max-width: 500px;
+}
+
+#parameters {
+	max-width: 600px;
+	min-width: 600px;
+}
+
+
+.helpicon {
+	cursor: help;
+}

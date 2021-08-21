@@ -1,0 +1,15 @@
+**.wt
+**.lock
+**.journal
+**.turtle
+**.bson
+**.data
+**.interim
+**Tiger
+**/journal/
+**/ipfiles/
+**/mongodblog
+**/log*.log
+**/singlelogs/**
+**/backup/
+Hist4D

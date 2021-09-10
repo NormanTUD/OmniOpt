@@ -68,3 +68,12 @@ table td, table td * { vertical-align: top; margin: 5px; }
 .helpicon {
 	cursor: help;
 }
+
+#configiniparser {
+	display: none;
+}
+
+#configini {
+	width: 500px;
+	height: 800px;
+}

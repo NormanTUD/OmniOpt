@@ -7,16 +7,15 @@ use Data::Dumper;
 use lib './perllib';
 use Env::Modify;
 
-sub myqx ($);
-sub debug ($);
-
-my %options = (
+our %options = (
         debug => 0,
         project => '',
         int => 0,
         projectdir => './projects',
         query => undef
 );
+
+use OmniOptFunctions;
 
 analyze_args(@ARGV);
 
@@ -78,67 +77,6 @@ sub main {
 
 }
 
-sub read_file {
-        my $file = shift;
-
-        my $contents = '';
-        open my $fh, '<', $file or die "Error opening file $file: $!";
-
-        while (<$fh>) {
-                $contents .= $_;
-        }
-
-        close $fh;
-
-        return $contents;
-}
-
-sub get_id_of_project {
-        my %running_jobs = get_running_jobs();
-
-        foreach my $name (keys %running_jobs) {
-                debug "$name -> $options{project}?";
-                if($name eq $options{project}) {
-                        return $running_jobs{$name};
-                }
-        }
-
-        return undef;
-}
-
-sub get_running_jobs {
-        my $command = 'sacct --format="JobID,State,JobName%100"';
-
-        my @jobs = map { chomp $_; $_; } myqx $command;
-
-        my %running_jobs = ();
-
-        foreach (@jobs) {
-                if(m#^(\d+)\s+RUNNING\s{4,}(.*?)\s*$#) {
-                        my $id = $1;
-                        my $name = $2;
-
-                        $running_jobs{$name} = $id;
-                }
-        }
-
-        return %running_jobs;
-}
-
-sub myqx ($) {
-        my $command = shift;
-
-        debug "command: $command";
-
-        if(wantarray()) {
-                my @res = qx($command);
-                return @res;
-        } else {
-                my $res = qx($command);
-                return $res;
-        }
-}
-
 sub analyze_args {
         my @args = @_;
 
@@ -170,48 +108,4 @@ sub analyze_args {
         } else {
                 die "Unknown project";
         }
-}
-
-sub get_project_folder {
-        my $project = shift;
-
-
-        return "$options{projectdir}/$project/";
-}
-
-sub debug ($) {
-        my $arg = shift;
-        if($options{debug}) {
-                warn "$arg\n";
-        }
-}
-
-sub modules_load {
-        my @modules = @_;
-        foreach my $mod (@modules) {
-                module_load($mod);
-        }
-
-        return 1;
-}
-
-sub modify_system {
-        my $command = shift;
-        debug "modify_system($command)";
-        return Env::Modify::system($command);
-}
-
-sub module_load {
-        my $toload = shift;
-
-        if($toload) {
-                my $lmod_path = $ENV{LMOD_CMD};
-                my $command = "eval \$($lmod_path sh load $toload)";
-                debug $command;
-                local $Env::Modify::CMDOPT{startup} = 1;
-                modify_system($command);
-        } else {
-                warn 'Empty module_load!';
-        }
-        return 1;
 }

@@ -12,6 +12,7 @@ import omnioptstuff
 import subprocess
 import socket
 import sys
+from pathlib import Path
 
 class Timeout():
     """Timeout class using ALARM signal."""
@@ -80,17 +81,13 @@ mongodb-server. It returns true, if the server is reachable, and false, if not
 def mongo_db_already_up(conStr):
     mydebug.debug_xtreme("mongo_db_already_up(" + conStr + ")...")
     client = MongoClient(conStr)
-    mydebug.info("`client` initialized: " + conStr)
     ret = True
     try:
         # The ismaster command is cheap and does not require auth.
-
         mongo_timeout = int(os.getenv("MONGOTIMEOUT", 5))
         with Timeout(mongo_timeout):
-            mydebug.info("checking for `ismaster`: " + conStr)
             client.admin.command('ismaster')
     except ConnectionFailure:
-        mydebug.debug("checking for `ismaster` failed, server is not up")
         ret = False
     except Timeout.Timeout:
         mydebug.debug('Timeout')
@@ -109,7 +106,7 @@ def create_mongo_db_connection_string(data):
 
 def shut_down_mongodb(projectname):
     folder = omnioptstuff.get_project_folder(projectname) + '/mongodb/'
-    command = "mongod --dbpath " + folder + " --shutdown 1>&2"
+    command = "mongod --dbpath " + folder + " --shutdown >/dev/null 2>/dev/null"
     mydebug.debug(command)
     output = subprocess.check_output(command, shell=True)
     if str(output) != "b''":
@@ -134,15 +131,6 @@ def backup_mongo_db(projectname, data):
         output = subprocess.check_output(command, shell=True)
         sys.stderr.write(output)
 
-def start_mongo_db_ml(projectname, data, check_for_running_db=0):
-    start_mongo_db(projectname, data, check_for_running_db)
-
-    conStr = create_mongo_db_connection_string(data)
-    client = MongoClient(conStr)
-    mydebug.info("`client` initialized: " + conStr)
-    client.admin.command({ 'setFeatureCompatibilityVersion': '3.6' })
-    mydebug.info('setFeatureCompatibilityVersion: 3.6')
-
 def file_is_writable (filename):
     returnvalue = 1
     try:
@@ -150,11 +138,7 @@ def file_is_writable (filename):
             pass
     except IOError as x:
         returnvalue = 0
-        print('error, file ', filename, " is not writable; ", x.errno, ',', x.strerror)
-        if x.errno == errno.EACCES:
-            print(filename, 'no perms')
-        elif x.errno == errno.EISDIR:
-            print(filename, 'is directory')
+        print('error, file ' + filename + " is not writable; " + str(x))
     return returnvalue
 
 def start_mongo_db(projectname, data, check_for_running_db=0, tried_again=0):
@@ -167,7 +151,7 @@ def start_mongo_db(projectname, data, check_for_running_db=0, tried_again=0):
                 return 1
     port = os.getenv("mongodbport", data["mongodbport"] or None)
     if port is None or port == "": 
-        port = 56745
+        port = os.getenv("mongodbport", 56741)
     directory = projectname
     logpath = 'mongodb.log'
     projectfolder = omnioptstuff.get_project_folder(projectname)
@@ -183,6 +167,7 @@ def start_mongo_db(projectname, data, check_for_running_db=0, tried_again=0):
                 mydebug.debug("The path is relative, and thus, it's put into the project's folder: " + dbpath)
             else:
                 dbpath = directory
+            ipfilesdir = omnioptstuff.get_project_folder(projectname) + '/ipfiles/'
             mydebug.debug("Checking for path `" + dbpath + "`")
             if not os.path.exists(dbpath):
                 mydebug.debug("`" + dbpath + "` did not exist, creating it now!")
@@ -209,22 +194,33 @@ def start_mongo_db(projectname, data, check_for_running_db=0, tried_again=0):
             if not file_is_writable(logfilepath):
                 print("File " + logfilepath + " is not writeable. Trying to fix that...")
                 try:
-                    os.chmod(logfilepath, 0o644);
+                    if os.path.exists(logpath):
+                        os.chmod(logpath, 0o644);
+                    else:
+                        print("Logpath '%s' could not be found. Trying to create it..." % str(logpath))
+                        Path(logpath).touch()
+                        os.chmod(logpath, 0o644);
+
+                    if os.path.exists(logfilepath):
+                        os.chmod(logfilepath, 0o644);
+                    else:
+                        print("The path '%s' could not be found." % str(logfilepath))
                 except Exception as e:
                     print("Chmodding the file failed. Trying anyways...")
-                    print(e)
+                    print(str(e))
             dbpath = linuxstuff.normalize_path(dbpath) 
-            startDB = premongodb + 'mongod ' + mongo_db_parameter + " --fork --dbpath " + dbpath + " --port " + str(port) + " --logpath " + logfilepath + " --logappend 1>&2"
-            sys.stderr.write(startDB + "\n")
+            startDB = premongodb + 'mongod ' + mongo_db_parameter + " --fork --dbpath " + dbpath + " --port " + str(port) + " --logpath " + logfilepath + " --logappend 1>&2 2>/dev/null >/dev/null"
             mydebug.debug(startDB + "\n")
             mongo = subprocess.Popen(startDB, shell=True, preexec_fn=os.setsid)
             mongo.wait()
             if mongo.returncode:
                 if tried_again == 0:
                     os.system("bash tools/repair_database.sh " + str(dbpath) + " 1")
-                    start_mongo_db(projectname, data, check_for_running_db, tried_again + 1)
+                    return start_mongo_db(projectname, data, check_for_running_db, tried_again + 1)
                 else:
-                    raise Exception("`" + startDB + "` exited with error code " + str(mongo.returncode) + ", that means:\n\t" + get_mongo_db_error_code(mongo.returncode) + "\n")
+                    return_code = mongo.returncode
+                    sys.stderr.write("`" + startDB + "` exited with error code " + str(return_code) + ", that means:\n====================\n" + get_mongo_db_error_code(return_code) + "\n====================\n")
+                    return return_code
             else:
                 mydebug.debug("Starting mongodb with `" + startDB + "` done")
     else:

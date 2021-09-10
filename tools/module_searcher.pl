@@ -17,6 +17,8 @@ my %options = (
         dryrun => 0
 );
 
+use OmniOptFunctions;
+
 analyze_args(@ARGV);
 
 main();
@@ -72,7 +74,6 @@ sub main {
                 print "Trying permutation: \n".join("\n", map { color("underline blue")."ml $_".color("reset") } @{$shuffled})."\n";;
 
                 my $ok = 1;
-                module_purge();
                 module_load("modenv/$options{modenv}");
 
                 foreach my $ml (@{$shuffled}) {
@@ -136,28 +137,6 @@ sub main {
         }
 
         die "\n".color("red")."All possible combinations exhausted, nothing was found.".color("reset")."\n";
-}
-
-sub modify_system {
-        return if $options{dryrun};
-        my $command = shift;
-        return Env::Modify::system($command);
-}
-
-sub module_purge {
-        my $lmod_path = $ENV{LMOD_CMD};
-        my $command = "eval \$($lmod_path sh purge)";
-        local $Env::Modify::CMDOPT{startup} = 1;
-        modify_system($command);
-}
-
-sub module_load {
-        my $toload = shift;
-
-        my $lmod_path = $ENV{LMOD_CMD};
-        my $command = "eval \$($lmod_path sh load $toload)";
-        local $Env::Modify::CMDOPT{startup} = 1;
-        modify_system($command);
 }
 
 sub fisher_yates_shuffle {

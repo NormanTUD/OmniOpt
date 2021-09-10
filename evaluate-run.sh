@@ -13,6 +13,7 @@ export ASKEDTOUPGRADE=0
 export DISPLAYGAUGE=1
 export DEBUG=0
 export LOAD_MODULES=1
+export UPGRADE=1
 
 LMOD_DIR=/usr/share/lmod/lmod/libexec/
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
@@ -35,7 +36,6 @@ trap 'calltracer' ERR
 numberre='^[0-9]+$'
 
 PROJECTDIR=projects
-SHOWTESTPROJECTS=0
 
 echoerr() {
 	echo "$@" 1>&2
@@ -50,7 +50,9 @@ function green_text {
 }
 
 function debug_code {
-	echoerr -e "\e[93m$1\e[0m"
+    if [[ "$DEBUG" -eq "1" ]]; then
+        echoerr -e "\e[93m$1\e[0m"
+    fi
 }
 
 function echo_red {
@@ -68,8 +70,6 @@ This helps graphically to use OmniOpt.
 -p=/path/                                                   Path to available projects
 --projectdir=/path/to/projects/
 
---showtestprojects                                          Show test projects (default is not to show them)
-
 --nogauge                                                   Disables the gauges
 
 -h                                                          This help
@@ -77,8 +77,71 @@ This helps graphically to use OmniOpt.
 
 --d                                                         Enable set -x debugging
 --dont_load_modules                                         Don't load modules
+--no_upgrade                                                Disables upgrades
 --debug
 EOF
+}
+
+function success_whiptail {
+        OLD_NEWT_COLORS=$NEWT_COLORS
+        export NEWT_COLORS='
+root=white,blue
+border=black,green
+window=lightgray,green
+shadow=darkgreen,black
+title=black,green
+button=black,cyan
+actbutton=white,cyan
+compactbutton=black,green
+checkbox=black,green
+actcheckbox=lightgray,cyan
+entry=black,green
+disentry=gray,green
+label=black,green
+listbox=black,green
+actlistbox=black,cyan
+sellistbox=lightgray,black
+actsellistbox=lightgray,black
+textbox=black,green
+acttextbox=black,cyan
+emptyscale=,gray
+fullscale=,cyan
+helpline=white,black
+roottext=lightgrey,black
+'
+        whiptail "$@"
+        export NEWT_COLORS="$OLD_NEWT_COLORS"
+}
+
+function error_whiptail {
+        OLD_NEWT_COLORS=$NEWT_COLORS
+        export NEWT_COLORS='
+root=white,black
+border=black,red
+window=lightgray,red
+shadow=black,darkred
+title=black,red
+button=black,cyan
+actbutton=white,cyan
+compactbutton=black,red
+checkbox=black,red
+actcheckbox=lightgray,cyan
+entry=black,red
+disentry=gray,red
+label=black,red
+listbox=black,red
+actlistbox=black,cyan
+sellistbox=lightgray,black
+actsellistbox=lightgray,black
+textbox=black,red
+acttextbox=black,cyan
+emptyscale=,gray
+fullscale=,cyan
+helpline=white,black
+roottext=lightgrey,black
+'
+        whiptail "$@"
+        export NEWT_COLORS="$OLD_NEWT_COLORS"
 }
 
 for i in "$@"; do
@@ -100,9 +163,8 @@ for i in "$@"; do
             PROJECTDIR="${i#*=}"
             ;;
 
-
-        --showtestprojects)
-            SHOWTESTPROJECTS=1
+        --no_upgrade)
+            UPGRADE=0
             ;;
 
         -h|--help)
@@ -176,6 +238,14 @@ function gaugecommand () {
     rm $COMMANDFILE
 }
 
+
+function info_message_large {
+	MSG=$1
+    eval `resize`
+	echo_green "$MSG"
+	whiptail --title "Info Message" --msgbox "$MSG" $LINES $COLUMNS
+}
+
 function info_message {
 	MSG=$1
 	echo_green "$MSG"
@@ -242,17 +312,19 @@ function list_gpu_log_folders_for_plot_svg {
     elif [[ "$WHATTODO" =~ "q)" ]]; then
         exit
     else
-        ml purge
-        ml matplotlib/3.1.1-foss-2019b-Python-3.7.4
         export SVGFILE=$HOME/${PROJECT}.svg
         CNT=0
         while [[ -e $SVGFILE ]]; do
                 CNT=$(($CNT+1))
                 export SVGFILE=$HOME/${PROJECT}_${CNT}.svg
         done
-        ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-        ml matplotlib/3.1.1-foss-2019b-Python-3.7.4
-        python3 script/plot_gpu.py "$PROJECT" "$LOGDIR/$WHATTODO" "$SVGFILE" && echo_green "Wrote file to ${SVGFILE}" || echo_red "Failed to write to ${SVGFILE}"
+
+        gaugecommand "Plotting GPU-Usage to $SVGFILE" "Please wait, this takes some time" "perl tools/plot_gpu.pl --project=$PROJECT --projectdir=$PROJECTDIR --logdate=$WHATTODO --filename=$SVGFILE"
+        if [[ -e "$SVGFILE" ]]; then
+                info_message "Wrote to file $SVGFILE"
+        else
+                error_message "Failed to write $SVGFILE"
+        fi
         read -rsn1 -p"Press any key to continue";echo
         list_gpu_log_folders_for_plot_svg $PROJECT
     fi
@@ -270,10 +342,7 @@ function list_gpu_log_folders_for_plot {
     elif [[ "$WHATTODO" =~ "q)" ]]; then
         exit
     else
-        ml purge
-        ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-        ml matplotlib/3.1.1-foss-2019b-Python-3.7.4
-        python3 script/plot_gpu.py "$PROJECT" "$LOGDIR/$WHATTODO"
+        gaugecommand "Plotting GPU-Usage" "Please wait, this takes some time" "perl tools/plot_gpu.pl --project=$PROJECT --projectdir=$PROJECTDIR --logdate=$WHATTODO"
         list_gpu_log_folders_for_plot $PROJECT
     fi
 }
@@ -301,7 +370,7 @@ function list_option_for_job {
 
     if [[ -e $THISCONFIGINI ]]; then
         if [[ -d $THISMONGODIR ]]; then
-            args+=("p)" "plot graph" "psvg)" "Plot graph to svg file" "P)" "plot graph with max value" "Psvg)" "Plot graph with max value to svg" "v)" "Plot video"  "r)" "Repair Database" "c)" "get csv to stdout" "C)" "get csv to file" "wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)")
+            args+=("p)" "plot graph" "psvg)" "Plot graph to svg file" "P)" "plot graph with max value" "Psvg)" "Plot graph with max value to svg" "pa)" "Parallel plot" "v)" "Plot video"  "r)" "Repair Database" "c)" "get csv to stdout" "C)" "get csv to file" "wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)")
         fi
 
         args+=("co)" "Show run config")
@@ -311,12 +380,17 @@ function list_option_for_job {
         args+=("s)" "Auto-analyze jobs from singlelogs (may take very long)")
     fi
 
+    if [[ -d $THISPROJECTDIR ]]; then
+        args+=("e)" "Check this project for errors")
+        args+=("d)" "Create debug-zip")
+    fi
+
     if job_is_running $PROJECT; then
         args+=("n)" "Number of jobs with status OK (job must be running)" "N)" "Number of jobs with status OK every 10 seconds (job must be running)" "f)" "Number of jobs with status FAIL (job must be running)")
     fi
     
     if [[ -d "$PROJECTDIR/$PROJECT/logs/" ]]; then
-        if [[ $(ls $PROJECTDIR/$PROJECT/logs/**/*.csv | wc -l 2>/dev/null) -ne "0" ]]; then
+        if [[ $(ls $PROJECTDIR/$PROJECT/logs/*/nvidia*/gpu_usage.csv | wc -l 2>/dev/null) -ne "0" ]]; then
             args+=("g)" "plot gpu usage" "G)" "plot gpu usage to svg file")
         fi
     fi
@@ -328,40 +402,12 @@ function list_option_for_job {
         if [[ "$WHATTODO" =~ "b)" ]]; then
                 list_projects
         elif [[ "$WHATTODO" =~ "s)" ]]; then
-            show_number_of_results $PROJECT           
-        elif [[ "$WHATTODO" =~ "S)" ]]; then
-            # TODO! NEVER GO THIS TO WORK PROPERLY...
-            PARAMS=$(
-                IFS=$'\n'       # make newlines the only separator
-                TEST=
-                COUNTER=1
-                for line in $(cat ~/.*sh_history | sort -nr | uniq | grep -v "\$" | grep "sbatch -J '${PROJECT}'" | egrep "^: [0-9]*:[0-9]+;sbatch" | sed -e 's#^: [0-9]*:[0-9]*;##' | sed -e "s/\"/'/g"); do 
-                        printf "\"$COUNTER\" \"$line\" "
-                        COUNTER=$((COUNTER + 1))
-                done
-            )
-
-            squeue -u$USER
-            echo "whiptail --title 'Previous sbatch commands for project >$PROJECT<' --menu 'Choose an option' $LINES $COLUMNS $(( $LINES - 8 )) $PARAMS 3>&1 1>&2 2>&3"
-            CHOSEN_OPTION=$(eval "whiptail --title 'Previous sbatch commands for project >$PROJECT<' --menu 'Choose an option' $LINES $COLUMNS $(( $LINES - 8 )) $PARAMS 3>&1 1>&2 2>&3")
-            squeue -u$USER
-            # HIER WERDEN SCHON JOBS AUSGEFÜHRT
-            exitstatus=$?
-
-            if [[ $exitstatus == 0 ]]; then
-                THIS_CHOSEN_OPTION=$(cat ~/.*sh_history | sort -nr | uniq | grep -v "\$" | grep "sbatch -J '${PROJECT}'" | egrep "^: [0-9]*:[0-9]+;sbatch" | sed -e 's#^: [0-9]*:[0-9]*;##' | sed -e "s/\"/'/g" | head -n${CHOSEN_OPTION} | tail -n1 | head -n1 | tail -n1)
-                echo_green "Running the following command:"
-                echo_green "$THIS_CHOSEN_OPTION"
-                set -x
-                exit
-            else
-                list_option_for_job $PROJECT
-            fi
+            show_number_of_results $PROJECT
         elif [[ "$WHATTODO" =~ "q)" ]]; then
             exit
         elif [[ "$WHATTODO" =~ "co)" ]]; then
             if [[ -e $THISCONFIGINI ]]; then
-                perl tools/showconfig.pl $PROJECT $THISCONFIGINI | less -R -c
+                perl tools/showconfig.pl $PROJECT $THISCONFIGINI | less -R -c -S
             else
                 whiptail --title "Error" --msgbox "'$THISCONFIGINI' cannot be found" 8 78
             fi
@@ -371,9 +417,51 @@ function list_option_for_job {
                     bash tools/repair_database.sh $PROJECTDIR/$PROJECT
             fi
 
-            WCT_RESULT=$(bash tools/get_wallclock_time.sh --project=$PROJECT --projectdir=$PROJECTDIR)
+            WCT_RESULT_FILE=${RANDOM}.txt
+            while [[ -e $WCT_RESULT_FILE ]]; do
+                    WCT_RESULT_FILE=${RANDOM}.txt
+            done
+            gaugecommand "Loading Wallclock-time" "This may take some time" "bash tools/get_wallclock_time.sh --project=$PROJECT --projectdir=$PROJECTDIR > $WCT_RESULT_FILE"
+            WCT_RESULT=$(cat $WCT_RESULT_FILE)
+            rm $WCT_RESULT_FILE
 
             whiptail --title "Wallclock-Time" --msgbox "$WCT_RESULT" 8 78
+
+            list_option_for_job $PROJECT
+        elif [[ "$WHATTODO" =~ "e)" ]]; then
+            bash tools/error_analyze.sh --project=$PROJECT --projectdir=$PROJECTDIR
+
+            list_option_for_job $PROJECT
+        elif [[ "$WHATTODO" =~ "d)" ]]; then
+            DEBUGFILE=debug.zip
+            let i=0
+            while [[ -e $DEBUGFILE ]]; do
+                DEBUGFILE="debug_${i}.zip"
+                let i++
+            done
+
+            error_analyze_file=error_analyze.log
+            let i=0
+            while [[ -e $error_analyze_file ]]; do
+                error_analyze_file="error_analyze_${i}.log"
+                let i++
+            done
+
+            bash tools/error_analyze.sh --project=$PROJECT --projectdir=$PROJECTDIR --nowhiptail 2>/dev/null > $error_analyze_file
+
+            zip -r $DEBUGFILE $error_analyze_file *.out debuglogs/* $PROJECTDIR/$PROJECT/* -x $PROJECTDIR/$PROJECT/mongodb/\*
+
+            rm $error_analyze_file
+
+            if [[ -e $DEBUGFILE ]]; then
+                if [[ "$USER" -eq "s3811141" ]]; then
+                    info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp_taurus $(pwd)/$DEBUGFILE .\n"
+                else
+                    info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp $USER@taurus.hrsk.tu-dresden.de://$(pwd)/$DEBUGFILE .\n"
+                fi
+            else
+                error_message "Could not write $DEBUFFILE"
+            fi
 
             list_option_for_job $PROJECT
         elif [[ "$WHATTODO" =~ "c)" ]]; then
@@ -381,17 +469,44 @@ function list_option_for_job {
                     bash tools/repair_database.sh $PROJECTDIR/$PROJECT
             fi
 
-            perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR
+            gaugecommand "CSV-Export" "Loading CSV-Export" "perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR"
 
-            if (whiptail --title "Go back to CLI?" --yesno --yes-button "Go back to CLI" --no-button "View STDOUT" "Do you want to go back to the CLI or view the STDOUT?" 8 78); then
-                list_option_for_job $PROJECT
-            else
-                exit 0
-            fi
-        elif [[ "$WHATTODO" =~ "C)" ]]; then
-            csv_filename=$PROJECTDIR/${PROJECT}_$RANDOM.csv
+            read -rsn1 -p"Press any key to continue";echo
+            list_option_for_job $PROJECT
+        elif [[ "$WHATTODO" =~ "pa)" ]]; then
+            CSV_DIR=${PROJECTDIR}/${PROJECT}/csv/
+            mkdir -p $CSV_DIR
+            csv_filename=${CSV_DIR}/${PROJECT}.csv
+            let i=1
             while [[ -e $csv_filename ]]; do
-                csv_filename=$PROJECTDIR/${PROJECT}_$RANDOM.csv
+                csv_filename=${CSV_DIR}/${PROJECT}_${i}.csv
+                let i++
+            done
+
+            if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+                bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+            fi
+
+            gaugecommand "CSV-Export" "Loading CSV-Export, printing to $csv_filename" "perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR --filename=$csv_filename"
+            if [[ -e "$csv_filename" ]]; then
+                if [[ -s "$csv_filename" ]]; then
+                    parallelplot_file=$PROJECTDIR/$PROJECT/parallel/plot.html
+                    bash tools/parallel_plot.sh $csv_filename $parallelplot_file
+                else
+                    whiptail --title "File printed" --msgbox "The file was printed to $csv_filename but is empty" 8 78
+                fi
+            else
+                whiptail --title "File not printed" --msgbox "The file was NOT printed to $csv_filename, this might be a Bug in OmniOpt. Contact <norman.koch@tu-dresden.de>." 8 78
+            fi
+            list_option_for_job $PROJECT
+        elif [[ "$WHATTODO" =~ "C)" ]]; then
+            CSV_DIR=${PROJECTDIR}/${PROJECT}/csv/
+            mkdir -p $CSV_DIR
+            csv_filename=${CSV_DIR}/${PROJECT}.csv
+            let i=1
+            while [[ -e $csv_filename ]]; do
+                csv_filename=${CSV_DIR}/${PROJECT}_${i}.csv
+                let i++
             done
 
             if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
@@ -402,11 +517,19 @@ function list_option_for_job {
             if [[ $? = 0 ]]; then
                 echo "Filename: $csv_filename"
 
-                (perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR > $csv_filename) && (echo "The file was printed to $csv_filename") || (echo "The file could not be printed")
+                gaugecommand "CSV-Export" "Loading CSV-Export, printing to $csv_filename" "perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR --filename=$csv_filename"
+                if [[ -e "$csv_filename" ]]; then
+                    if [[ -s "$csv_filename" ]]; then
+                        whiptail --title "File printed" --msgbox "The file was printed to $csv_filename" 8 78
+                    else
+                        whiptail --title "File printed" --msgbox "The file was printed to $csv_filename but is empty" 8 78
+                    fi
+                else
+                    whiptail --title "File not printed" --msgbox "The file was NOT printed to $csv_filename, this might be a Bug in OmniOpt. Contact <norman.koch@tu-dresden.de>." 8 78
+                fi
             else
                 echo_red "You cancelled the CSV creation"
             fi
-            read -rsn1 -p"Press any key to continue";echo
             list_option_for_job $PROJECT
         elif [[ "$WHATTODO" =~ "p)" ]]; then
             echo_green "Plot"
@@ -1007,7 +1130,16 @@ function show_number_of_results {
             worst_result=$(egrep "RESULT: [0-9]" $THISPROJECTDIR/singlelogs/*.stdout | sed -e 's/.*RESULT: //' | sort -nr | head -n1)
             best_result=$(egrep "RESULT: [0-9]" $THISPROJECTDIR/singlelogs/*.stdout | sed -e 's/.*RESULT: //' | sort -nr | tail -n1)
 
-            whiptail --title "Result-Analysis" --msgbox "There are $number_of_resultfiles_as_whole .stdout files.\n-> $number_of_resultfiles_with_result of them have a 'RESULT'-String.\n-> Of those $number_of_valid_results seem to be valid results\n\nThis leaves us with $number_of_invalid_results invalid evaluations.\n-> $number_of_oom Out-of-Memory-errors were detected.\n-> $number_of_broken_pipes evaluations had broken-pipe-errors.\n-> Number of unfinished jobs: $number_of_unfinished_jobs\nThis means, $number_of_explained_crashes invalid evaluations are explained and $number_of_unexplained_crashes remain unexplained.\n\nWorst result: $worst_result\nBest result: $best_result." 20 90
+            oom_msg=''
+            if [[ "$number_of_oom" -ne "0" ]]; then
+                oom_msg="-> $number_of_oom Out-of-Memory-errors were detected.\n"
+            fi
+            broken_pipe_msg=''
+            if [[ "$number_of_broken_pipes" -ne "0" ]]; then
+                broken_pipe_msg="-> $number_of_broken_pipes broken-pipe-errors were detected.\n"
+            fi
+
+            whiptail --title "Result-Analysis" --msgbox "There are $number_of_resultfiles_as_whole .stdout files.\n-> $number_of_resultfiles_with_result of them have a 'RESULT'-String.\n-> Of those $number_of_valid_results seem to be valid results\n\nThis leaves us with $number_of_invalid_results invalid evaluations.\n${oom_msg}${broken_pipe_msg}-> Number of unfinished jobs: $number_of_unfinished_jobs\nThis means, $number_of_explained_crashes invalid evaluations are explained and $number_of_unexplained_crashes remain unexplained.\n\nWorst result: $worst_result\nBest result: $best_result." 20 90
         fi
     else
         whiptail --title "ERROR" --msgbox "The directory '$THISPROJECTDIR' does not seem to exist." 8 78
@@ -1016,7 +1148,7 @@ function show_number_of_results {
 }
 
 function change_variables {
-MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" 25 120 16 "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "SHOWALLGPUS" "Show all GPUs in GPU-Plot (currently $SHOWALLGPUS)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "SHOWTESTPROJECTS" "Show test projects (currently $SHOWTESTPROJECTS)" "m)" "Main menu" 3>&1 1>&2 2>&3)
+    MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" 25 120 16 "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "SHOWALLGPUS" "Show all GPUs in GPU-Plot (currently $SHOWALLGPUS)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run.sh" "m)" "Main menu" 3>&1 1>&2 2>&3)
     exitstatus=$?
     if [[ $exitstatus == 0 ]]; then
         if [[ "$MENU_CHOICE" =~ "m)" ]]; then
@@ -1045,12 +1177,21 @@ MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" 25 1
             chosenvar=$(whiptail --inputbox "Hide max values in Plot? (0 = no, 1 = yes)" 8 39 "$HIDEMAXVALUESINPLOT" --title "HIDEMAXVALUESINPLOT" 3>&1 1>&2 2>&3)
             eval "export $MENU_CHOICE=$chosenvar"
             change_variables
-        elif [[ "$MENU_CHOICE" =~ "SHOWTESTPROJECTS" ]]; then
-            chosenvar=$(whiptail --inputbox "Show test projects? (0 = no, 1 = yes)" 8 39 "$SHOWTESTPROJECTS" --title "SHOWTESTPROJECTS" 3>&1 1>&2 2>&3)
-            eval "export $MENU_CHOICE=$chosenvar"
-            change_variables
         elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
             chosenvar=$(whiptail --inputbox "Display gauge when possible? (0 = no, 1 = yes)" 8 39 "$DISPLAYGAUGE" --title "DISPLAYGAUGE" 3>&1 1>&2 2>&3)
+            eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "PROJECTDIR" ]]; then
+            chosenvar=$(whiptail --inputbox "Path of Projects" 8 39 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
+            eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "DEBUG" ]]; then
+            chosenvar=$(whiptail --inputbox "Debug" 8 39 "$DEBUG" --title "DEBUG" 3>&1 1>&2 2>&3)
+            if [[ "$chosenvar" -eq "1" ]]; then
+                set -x
+            else
+                set +x
+            fi
             eval "export $MENU_CHOICE=$chosenvar"
             change_variables
         else
@@ -1064,36 +1205,8 @@ MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" 25 1
 }
 
 function list_projects {
-    AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | egrep -v '\b(DONOTDELETE_testcase|testlowmem|test|cpu_test2|cpu_test|gpu_test)$')
-    if [[ "$SHOWTESTPROJECTS" == "1" ]]; then
-        AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
-    fi
+    AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
 	eval `resize`
-
-    if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
-        ASKEDTOUPGRADE=1
-        CURRENTHASH=$(git rev-parse HEAD)
-
-        REMOTEURL=$(git config --get remote.origin.url)
-        REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
-
-        if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
-            green_text "Software seems up-to-date ($CURRENTHASH)"
-        else
-            if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" 8 78); then
-                git pull
-                bash evaluate-run.sh --dont_load_modules $@
-                exit
-            else
-                if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" 8 78); then
-                    echo "Asking again next time"
-                else
-                    echo "OK, not asking again"
-                    touch .dont_ask_upgrade
-                fi
-            fi
-        fi
-    fi
 
     WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "c)" "Change the project dir" "s)" "List running SLURM jobs" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
 
@@ -1108,10 +1221,6 @@ function list_projects {
 		elif [[ "$WHATTODO" =~ "v)" ]]; then
             change_variables
             main
-		elif [[ "$WHATTODO" =~ "u)" ]]; then
-            git pull
-            bash evaluate-run.sh --dont_load_modules $@
-            exit
 		elif [[ "$WHATTODO" =~ "t)" ]]; then
 			perl sbatch.pl --run_tests --debug && info_message "All tests ok." || error_message "At least one of the tests failed."
 			main
@@ -1119,7 +1228,7 @@ function list_projects {
 			perl sbatch.pl --run_full_tests --debug && info_message "All tests ok." || error_message "$? tests failed."
 			main
 		elif [[ "$WHATTODO" =~ "q)" ]]; then
-			echo_green "Exiting"
+			debug_code "Exiting"
 			exit
 		else
 			list_option_for_job "$WHATTODO"
@@ -1132,11 +1241,11 @@ function list_projects {
 
 function main {
 	if [[ -d $PROJECTDIR ]]; then
-		echo_green "The folder '$PROJECTDIR' exists"
+		debug_code "The folder '$PROJECTDIR' exists"
 
 		list_projects
 	else
-		error_message "The folder '$PROJECTDIR' does not exist."
+		debug_code "The folder '$PROJECTDIR' does not exist."
 		change_project_dir
 		if [[ $? = 0 ]]; then
 			main
@@ -1181,6 +1290,34 @@ if [[ $sourced -eq "0" ]]; then
         else
             echo_red "Don't continue on $THISHOSTNAME"
             exit 11
+        fi
+    fi
+
+    if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
+        if [[ "$UPGRADE" -eq "1" ]]; then
+            ASKEDTOUPGRADE=1
+            CURRENTHASH=$(git rev-parse HEAD)
+
+            REMOTEURL=$(git config --get remote.origin.url)
+            REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
+
+            if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
+                debug_code "Software seems up-to-date ($CURRENTHASH)"
+            else
+                if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" 8 78); then
+                    git pull
+                    bash evaluate-run.sh --dont_load_modules --no_upgrade $@
+                    bash zsh/install.sh
+                    exit
+                else
+                    if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" 8 78); then
+                        echo "Asking again next time"
+                    else
+                        echo "OK, not asking again"
+                        touch .dont_ask_upgrade
+                    fi
+                fi
+            fi
         fi
     fi
 

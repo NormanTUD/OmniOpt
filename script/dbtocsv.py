@@ -13,6 +13,17 @@ import re
 import omnioptstuff
 import filestuff
 import mongostuff
+import os
+
+def stderr (msg):
+    sys.stderr.write(msg + "\n")
+    sys.stdout.flush()
+
+def p (percent, status):
+    if os.getenv('DISPLAYGAUGE', None) is not None:
+        stderr("PERCENTGAUGE: %d" % percent)
+        stderr("GAUGESTATUS: %s" % status)
+        sys.stderr.flush()
 
 seperator = ", "
 
@@ -28,6 +39,7 @@ def die(x):
     sys.exit(1)
 
 def main():
+    p(25, "In Python-Script")
     params = myfunctions.parse_params(sys.argv)
     if "project" in params:
         projectname = params["project"]
@@ -47,12 +59,15 @@ def main():
     if "mongodbport" in params:
         data["mongodbport"] = params["mongodbport"]
 
+    p(30, "Starting MongoDB")
     mongostuff.start_mongo_db(projectname, data)
+    p(40, "Started MongoDB")
 
     connect_string = "mongodb://" + data['mongodbmachine'] + ":" + str(data["mongodbport"]) + "/"
     myclient = pymongo.MongoClient(connect_string)
     connect_to_db = data["mongodbdbname"]
     testdb = myclient[connect_to_db]
+    p(50, "Connected to MongoDB")
 
     makeint = params["int"]
 
@@ -65,12 +80,17 @@ def main():
     keys_for_header = []
 
     i = 0
+    p(51, "Getting data")
     for x in jobs.find({"result.loss": { "$ne": float("inf") }}, {"result.all_outputs": 1, "misc.vals": 1, "book_time": 1}):
-        vals = x["misc"]["vals"]
-        vals_2 = x["result"]["all_outputs"]
+        if "misc" in x:
+            if "vals" in x["misc"]:
+                vals = x["misc"]["vals"]
+                if "result" in x:
+                    if "all_outputs" in x["result"]:
+                        vals_2 = x["result"]["all_outputs"]
 
-        keys_for_header = keys_for_header + [*vals, *vals_2]
-        i = i + 1
+                        keys_for_header = keys_for_header + [*vals, *vals_2]
+                        i = i + 1
 
     keys_for_header = set(keys_for_header)
     try:
@@ -130,6 +150,8 @@ def main():
 
         number_of_values = number_of_values + 1
 
+    p(80, "Got data")
+
     rename_keys = []
     for oldkey in dimensions:
         match = re.match('^x_(\d+)$', oldkey)
@@ -149,6 +171,8 @@ def main():
 
     heading = "time" + seperator + seperator.join(str(x) for x in sorted(dimensions.keys())) + "\n"
     csv_file = heading
+
+    p(99, "Printing data")
 
     for row_id in range(0, number_of_values - 1):
         time = 'NaN'
@@ -170,5 +194,6 @@ def main():
     print(csv_file)
     if "filename" in params and params["filename"] is not None:
         filestuff.overwrite_file(params["filename"], csv_file)
+        p(100, "Done")
 
 main()

@@ -251,7 +251,6 @@ def get_choices(myconf, data):
     choices = []
     i = 0
     for this_dim in range(0, maxnumofdims): #dimension_ranges:
-        sys.stderr.write('Defining x_' + str(this_dim))
         this_range_generator = chosen_range_generator['name']
         try:
             this_range_generator = myconf.str_get_config('DIMENSIONS', 'range_generator_' + str(i))
@@ -373,9 +372,30 @@ def find_mongo_info (project, slurmid, data=None, projectdir=None):
             savedport = f.readline()
         result['mongodbport'] = int(savedport)
     else:
-        default_port = str(os.getenv("mongodbport", 56745))
+        default_port = str(os.getenv("mongodbport", 56741))
         if(slurmid != 'None'):
             sys.stderr.write("The file `" + mongodbportfile + "` could not be found! Using " + default_port + " instead\n")
         result['mongodbport'] = default_port
 
     return result
+
+def print_best (myconf, best, best_data):
+    string = "Best result data:\n"
+    string = string + "=========================================\n"
+    for key in best:
+        if key.startswith("x_"):
+            key_nr = key
+            key_nr = key_nr.replace("x_", "")
+            label = get_axis_label(myconf, int(key_nr) + 1)
+            string = string + ("%s = %s" % (str(label), str(best[key]))) + "\n"
+    if(best_data):
+        string = string + "RESULT: " + str(best_data[0]) + "\n"
+    string = string + "=========================================\n"
+    SLURM_JOB_ID = os.getenv("SLURM_JOB_ID", None)
+    if SLURM_JOB_ID is not None:
+        best_file = mypath.mainpath + "/../." + str(SLURM_JOB_ID) + ".log"
+        best_file_handler = open(best_file, 'w')
+        print(string, file=best_file_handler)
+        best_file_handler.close()
+    else:
+        print(string)

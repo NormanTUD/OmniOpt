@@ -11,8 +11,21 @@ import sys
 import os
 import omnioptstuff
 from glob import glob
+
+def stderr (msg):
+    sys.stderr.write(msg + "\n")
+    sys.stdout.flush()
+
+def p (percent, status):
+    if os.getenv('DISPLAYGAUGE', None) is not None:
+        stderr("PERCENTGAUGE: %d" % percent)
+        stderr("GAUGESTATUS: %s" % status)
+
+p(11, "Using TkAgg")
 matplotlib.use('TkAgg')
+p(12, "Used TkAgg")
 print_to_svg = 0
+
 
 projectname = sys.argv[1]
 search_folder = sys.argv[2]
@@ -28,6 +41,7 @@ all_gpus = 0
 if os.environ.get('SHOWALLGPUS') is not None:
     all_gpus = 1
 
+p(30, "Getting data")
 valid_gpus = omnioptstuff.get_valid_gpus_from_logfolder(search_folder)
 if len(valid_gpus) == 0:
     all_gpus = 1
@@ -127,6 +141,7 @@ for csvpath in csvs:
                     graph_data[gpuservername]["mem_utilization"].append(int(utilization_memory))
 
 empty_plots = []
+p(70, "Got data")
 for gpuservername in graph_data:
     if 0 == sum(graph_data[gpuservername]["mem_utilization"]) == sum(graph_data[gpuservername]["gpu_utilization"]):
         empty_plots.append(gpuservername)
@@ -138,6 +153,7 @@ number_of_servers = len(graph_data)
 max_subplot_x, max_subplot_y = get_nearest_prime_factors(number_of_servers)
 print("max_subplot_x: %s, max_subplot_y: %s" % (max_subplot_x, max_subplot_y))
 
+p(99, "Starting plot")
 fig, axs = plt.subplots(max_subplot_x, max_subplot_y, squeeze=False, figsize=(18,8))
 if print_to_svg:
     fig.set_size_inches(20, 15, forward=True)
@@ -186,3 +202,4 @@ if print_to_svg:
     plt.savefig(print_to_svg, format="svg", width=graph_width)
 else:
     plt.show()
+p(100, "Done")

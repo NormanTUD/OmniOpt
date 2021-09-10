@@ -81,15 +81,33 @@
 					"name": "Hardware for Deep Learning (amd64)",
 					"warning": ""
 				}, 
-				"haswell": {
+				"haswell64": {
 					"number_of_workers": 1056,
+					"computation_time": 168,
+					"max_number_of_gpus": 0,
+					"max_mem_per_core": 2541,
+					"mem_per_cpu": 2541,
+					"name": "haswell64 (amd64)",
+					"warning": ""
+				},
+				"haswell128": {
+					"number_of_workers": 80,
+					"computation_time": 168,
+					"max_number_of_gpus": 0,
+					"max_mem_per_core": 5250,
+					"mem_per_cpu": 5250,
+					"name": "haswell128 (amd64)",
+					"warning": ""
+				},
+				"haswell256": {
+					"number_of_workers": 40,
 					"computation_time": 168,
 					"max_number_of_gpus": 0,
 					"max_mem_per_core": 10583,
 					"mem_per_cpu": 10583,
-					"name": "haswell (amd64)",
+					"name": "haswell256 (amd64)",
 					"warning": ""
-				} 
+				}
 			};
 		</script>
 
@@ -113,7 +131,7 @@
 		<ol>
 			<li>Once the job ran, go to the <tt>omniopt</tt>-folder it ran in and run <pre class="language-bash">bash evaluate-run.sh</pre> to gain easy access to the results</li>
 			<li>Anything in the <tt>STRING: FLOAT</tt>-Format will be saved in the DB and can be output to a CSV file via <tt>bash evaluate-run.sh</tt></li>
-			<li>If your program does not seem to run properly, do <pre id="singlelogsfolder" class="language-bash">cd projects/$PROJECTNAME/singlelogs</pre> and look at some of those files (every run creates 3 files, a file without file ending, a <tt>.stderr</tt>-file and a <tt>.stdout</tt>-file, which each contain the strings outputted by your program. If any errors occur, you can most probably find them there)</li>
+			<li>If your program does not seem to run properly, do <pre class="language-bash">bash evaluate-run.sh</pre>, go to your project and run <tt>Check this project for errors</tt>. It will check for the most common errors in your project.</li>
 		</ol>
 
 		<form id="all" oninput="update_config()">
@@ -163,12 +181,12 @@
 								</td>
 							</tr>
 							<tr>
-								<td><span class="helpicon" data-help="If you use a reservation, the job with start immidiately.">Reservation:</span></td>
+								<td><span class="helpicon" data-help="If you use a reservation, the job will start immediately.">Reservation:</span></td>
 								<td><input class="parameter_input" type="text" id="reservation" placeholder="Just leave this empty if you have no reservation" value="<?php print htmlentities(get_get("reservation")); ?>" onkeyup="update_url_param('reservation', this.value)" /></td>
 							</tr>
 							<tr>
 								<td><span class="helpicon" data-help="This option allows you to associate that job to a specific account with higher priorities, so it starts faster.">Account:</span></td>
-								<td><input class="parameter_input" type="text" id="account" placeholder="Just leave this empty if you have no account (not your user, but e.g. p_scads)" value="<?php print htmlentities(get_get("account")); ?>" onkeyup="update_url_param('account', this.value)" /></td>
+								<td><input class="parameter_input" type="text" id="account" placeholder="Name of the HPC-Project, not your username. Can be left empty." value="<?php print htmlentities(get_get("account")); ?>" onkeyup="update_url_param('account', this.value)" /></td>
 							</td>
 							<tr>
 								<td><span class="helpicon" data-help="Every hyperparameter-constellation gets tested on real hardware, and the more workers you assign, the faster many jobs get done. But it might also take longer for slurm to allocate the ressources for you.">Number of workers:</span></td>
@@ -333,6 +351,13 @@
 							<pre id="sbatch"></pre>
 							<div id="downloadlink"></div>
 							<pre id="config"></pre>
+						</div>
+
+						<br>
+						<button type="button" onclick="$('#configiniparser').toggle();" id="toggle_configiniparser">Parse from <tt>config.ini</tt>.</button>
+						<div id="configiniparser">
+							<textarea id="configini" placeholder="Paste your config here and press the button at the end of this dialog"></textarea><br>
+							<button type="button" onclick="parse_from_config_ini()">Parse from <tt>config.ini</tt> now</button>
 						</div>
 					</td>
 				</tr>

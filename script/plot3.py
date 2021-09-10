@@ -311,13 +311,13 @@ def main():
         projectname = params["project"]
     data = get_data(projectname, params)
     start_mongo_db = True
-    if os.getenv("DONTCHECKMONGODBSTART") is None:
+    if "setmongoperparameter" in params and params["setmongoperparameter"] is not None and params["setmongoperparameter"] != "":
         if "mongodbmachine" in params and params["mongodbmachine"] is not None and params["mongodbmachine"] != "":
             data["mongodbmachine"] = params["mongodbmachine"]
             start_mongo_db = False
-        if "mongodbport" in params and params["mongodbport"] is not None and params["mongodbport"] != "":
-            data["mongodbport"] = params["mongodbport"]
-            start_mongo_db = False
+            if "mongodbport" in params and params["mongodbport"] is not None and params["mongodbport"] != "":
+                data["mongodbport"] = params["mongodbport"]
+                start_mongo_db = False
 
     stderr("StartMongoDB: " + str(start_mongo_db))
     stderr(params["mongodbmachine"])

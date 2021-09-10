@@ -1,6 +1,7 @@
 import linuxstuff
+import sys
 
-def get_whole_file (filename):
+def get_whole_file(filename):
     all_of_it = '!!!NO DATA READ!!!'
     with open(filename, 'r') as fh:
         all_of_it = fh.read()

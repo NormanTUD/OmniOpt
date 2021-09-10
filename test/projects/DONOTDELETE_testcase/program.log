@@ -1,0 +1,10 @@
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/DONOTDELETE_testcase/program/testprogram.pl 5 6 7 8
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/DONOTDELETE_testcase/program/testprogram.pl 5 6 7 8
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nsummiert: 26\nloss: 0.5\ntestq: 355\nRESULT: 26\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'summiert: 26\nloss: 0.5\ntestq: 355\nRESULT: 26\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/DONOTDELETE_testcase/program/testprogram.pl 5 6 7 8
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nsummiert: 26\nloss: 0.5\ntestq: 355\nRESULT: 26\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'summiert: 26\nloss: 0.5\ntestq: 355\nRESULT: 26\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>

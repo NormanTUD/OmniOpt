@@ -37,6 +37,7 @@ WARNINGHOME=1
 USEEXISTINGFOLDER=0
 AUTOACCEPTNEWPROJECTNAME=0
 AUTOCONTINUEJOB=0
+INSTALL_ZSH_AUTOCOMP=1
 
 function help () {
 	exitcode=$1
@@ -56,6 +57,7 @@ function help () {
 	echo "--use_existing_folder		Use existing folder (if exists)"
 	echo "--auto_accept_projectname	Auto accept new project name when already exists"
 	echo "--auto_continue_job		Automatically continue old job if it already exists"
+	echo "--no_install_zsh_autocomp         Do not install ZSH-autocompletions automatically"
 	echo "--debug				Enables set -x"
 	exit $exitcode
 }
@@ -111,6 +113,10 @@ for i in "$@"; do
             
 	--autoskip*)
 		AUTOSKIP=1
+		;;
+
+	--no_install_zsh_autocomp*)
+		INSTALL_ZSH_AUTOCOMP=0
 		;;
 
 	--auto_continue_job*)
@@ -269,6 +275,7 @@ if [[ "$NO_CLONE" -eq "0" ]]; then
 	if [[ -d /projects/p_scads/nnopt/bare/ ]]; then
 		total=0
 		CLONECOMMAND="git clone --depth=1 file:///projects/p_scads/nnopt/bare/ $OOFOLDER"
+
 		if [[ $DEBUG == 1 ]]; then
 			$CLONECOMMAND
 		else
@@ -377,6 +384,13 @@ if [[ -e $CONFIG_INI ]]; then
 	fi
 else
 	mv $TMP_CONFIG_INI $CONFIG_INI
+fi
+
+if [[ "$SHELL" =~ "zsh" ]]; then
+	if [[ "$INSTALL_ZSH_AUTOCOMP" -eq "1" ]]; then
+		echo_green "Installing autocompletion for ZSH"
+		bash zsh/install.sh
+	fi
 fi
 
 if [[ $DONTSTARTJOB -eq "0" ]]; then

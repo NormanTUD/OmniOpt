@@ -11,7 +11,18 @@ module () {
 }
 
 
-function echoerr() {    echo "$@" 1>&2
+function echoerr() {
+    echo "$@" 1>&2
+}
+
+function p () {
+        if [[ ! -z $2 ]]; then
+            echoerr "PERCENTGAUGE: $1"
+        fi
+
+        if [[ ! -z $2 ]]; then
+            echoerr "GAUGESTATUS: $2"
+        fi
 }
 
 function red_text {
@@ -63,15 +74,25 @@ for i in $@; do
                         ;;
         esac
 done
+
 if [[ -z "$projectdir" ]]; then red_text "Parameter --projectdir cannot be empty"; help 1; fi
 if [[ -z "$project" ]]; then red_text "Parameter --project cannot be empty"; help 1; fi
 
+p "1" "Loading modules"
+p "2" "Purging old modules"
 ml purge
+p "3" "Loading modenv/scs5"
 ml modenv/scs5
+p "5" "Loading MongoDB/4.0.3"
 ml MongoDB/4.0.3
+p "7" "Loading Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4"
 ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
+p "9" "Loading Python/3.7.4-GCCcore-8.3.0"
 ml Python/3.7.4-GCCcore-8.3.0
+p "10" "Loading matplotlib/3.1.1-foss-2019b-Python-3.7.4"
 ml matplotlib/3.1.1-foss-2019b-Python-3.7.4
+
+p "15" "Loaded all modules"
 
 python3 script/get_wallclock_time.py --projectdir=$projectdir --project=$project
 

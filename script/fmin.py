@@ -15,6 +15,7 @@ import myfunctions
 import omnioptstuff
 import workerstuff
 import mypath
+import atexit
 
 debug('Starting...')
 module_warnings()
@@ -49,15 +50,22 @@ fmin_parameters = {
     'algo':                     data['algo'],
     'max_evals':                data['max_evals'],
     'catch_eval_exceptions':    True,
-    'max_queue_len':            10
+    'max_queue_len':            10,
+    'verbose':                  0
 }
 
 best = fmin(**fmin_parameters)
 debug('Ending fmin')
 best_data = hyperopt.space_eval(space, best)
-if best_data is not None:
-    print("Best result data:")
-    pprint.pprint(best)
-    pprint.pprint(best_data)
-else:
-    warning("Could not get best_data!")
+
+def end_code ():
+    global myconf
+    global best
+    global best_data
+
+    if best_data is not None:
+        omnioptstuff.print_best(myconf, best, best_data)
+    else:
+        warning("Could not get best_data!")
+
+atexit.register(end_code)

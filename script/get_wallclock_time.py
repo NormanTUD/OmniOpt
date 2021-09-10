@@ -46,7 +46,17 @@ eval `/usr/share/lmod/lmod/libexec/lmod $SHELL load modenv/hyperopt`
 
 """
 
+def p (percent, status):
+    if os.getenv('DISPLAYGAUGE', None) is not None:
+        stderr("PERCENTGAUGE: %d" % percent)
+        stderr("GAUGESTATUS: %s" % status)
+
+def stderr (msg):
+    sys.stderr.write(msg + "\n")
+    sys.stdout.flush()
+
 def main():
+    p(20, "Loading main script")
     params = myfunctions.parse_params(sys.argv)
     if "project" in params:
         projectname = params["project"]
@@ -68,6 +78,7 @@ def main():
     if start_mongo_db:
         mongostuff.start_mongo_db(projectname, data)
 
+    p(30, "Connecting to Database")
     connect_string = "mongodb://" + data['mongodbmachine'] + ":" + str(data["mongodbport"]) + "/"
     debug("Connecting to: " + connect_string)
 
@@ -77,10 +88,12 @@ def main():
     db = myclient[connect_to_db]
     myclient.admin.command({'setParameter': 1, 'internalQueryExecMaxBlockingSortBytes': 10*335544320})
     jobs = db["jobs"]
+    p(40, "Connected to Database")
 
     earliest_time = None
     latest_time = None
 
+    p(50, "Finding earliest and latest jobs")
     earliest = jobs.find({"result.endtime": { "$exists": "true" }}, {"result.endtime": 1}).sort("result.endtime", 1).limit(1)
     for doc in earliest:
         earliest_time = int(doc["result"]["endtime"])
@@ -93,6 +106,7 @@ def main():
 
     if latest_time is None:
         raise Exception("latest_time is None")
+    p(90, "Found earliest and latest jobs")
 
     runtime_in_seconds = latest_time - earliest_time
 

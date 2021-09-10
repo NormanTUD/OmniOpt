@@ -13,23 +13,12 @@ import omnioptstuff
 import filestuff
 import shlex
 from pprint import pprint
+import os
+import sys
 
 def dier(data):
     pprint(data)
     exit(1)
-
-def module_load_string(modules):
-    module_load = ''
-    module_load = module_load + "export MODULEPATH=/sw/modules/taurus/applications\n"
-    module_load = module_load + "export MODULEPATH=$MODULEPATH:/sw/modules/taurus/tools\n"
-    module_load = module_load + "export MODULEPATH=$MODULEPATH:/sw/modules/taurus/libraries\n"
-    module_load = module_load + "export MODULEPATH=$MODULEPATH:/sw/modules/taurus/compilers\n"
-    module_load = module_load + "export MODULEPATH=$MODULEPATH:/opt/modules/modulefiles\n"
-    module_load = module_load + "export MODULEPATH=$MODULEPATH:/sw/modules/taurus/environment\n"
-
-    for modname in modules:
-        module_load = module_load + "eval `/usr/share/lmod/lmod/libexec/lmod $SHELL load " + modname + "`\n"
-    return module_load
 
 def initialize_mongotrials_object(projectname, data):
     mydebug.debug('MongoTrials object will be initialized')
@@ -81,27 +70,6 @@ def run_program(program, logfiles):
     }
 
     return array
-
-def get_keras_results_json(filename_log):
-    return {'kerasresults': '{}', 'every_epoch_data': '{}'}
-
-    '''
-    every_epoch_data = None
-    kerasresults = subprocess.run(
-        [
-            'perl',
-            mypath.mainpath + '/keras_output_parser.pl',
-            '--filename=' + filename_log
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    try:
-        every_epoch_data = json.loads(kerasresults.stdout.decode('utf-8'))
-    except:
-        print("kerasresults coult not be decoded:\n" + str(kerasresults.stdout))
-    return {'kerasresults': kerasresults, 'every_epoch_data': every_epoch_data}
-    '''
 
 def get_result_from_output(res, donealready=0):
     re_search = 'RESULT: (' + myregexps.floating_number + ')'
@@ -176,15 +144,10 @@ def get_start_worker_command(start_worker_command, project, myconf, data, projec
         colorprintfgray = 'true'
 
         show_live_output = 0
-        info_filter = "cat"
+        info_filter = "grep -v '^INFO:hyperopt:'"
 
         try:
             show_live_output = myconf.int_get_config('DEBUG', 'show_live_output')
-        except: 
-            pass
-        try:
-            if(myconf.int_get_config('DEBUG', 'stack')):
-                info_filter = "grep -v '^INFO:hyperopt:'"
         except: 
             pass
         
@@ -198,29 +161,47 @@ def get_start_worker_command(start_worker_command, project, myconf, data, projec
 
         start_worker_bash = '''#!/bin/bash -l
 
+echo "Hostname of this worker: $(hostname)"
+
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
 module () {
     eval `$LMOD_CMD sh "$@"`
 }
 
+IPFILESDIR=->ipfilesdir<-
+THISUUID=$(uuidgen)
+THISUUIDFILE=$IPFILESDIR/GPU_${SLURM_JOB_ID}_$(hostname)_${THISUUID}
+GPUFILE=$IPFILESDIR/GPU_${SLURM_JOB_ID}
+NZLOGFILE=${IPFILESDIR}/nz_log_${SLURM_JOB_ID}_${THISUUID}
+GENERALLOGFILE=${IPFILESDIR}/general_log_${SLURM_JOB_ID}_${THISUUID}
+
+function myload {
+    if ! module is-loaded $1; then
+        module load $1 2>> $GENERALLOGFILE >> $GENERALLOGFILE 2>> $GENERALLOGFILE
+    fi       
+}
+
+function myunload {
+    if module is-loaded $1; then
+        module unload $1 2>> $GENERALLOGFILE >> $GENERALLOGFILE 2>> $GENERALLOGFILE
+    fi       
+}
+
 if hostname | grep -i ml > /dev/null; then
-    module load modenv/ml
-    module load TensorFlow/2.0.0-PythonAnaconda-3.7
+    myload modenv/ml
 else
-    module load modenv/scs5
-    module load Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
+    myload modenv/scs5
 fi
 
-THISUUID=$(uuidgen)
-THISUUIDFILE=->ipfilesdir<-/GPU_${SLURM_JOB_ID}_$(hostname)_${THISUUID}
-GPUFILE=->ipfilesdir<-/GPU_${SLURM_JOB_ID}
+myload Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
+myload load TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
-ml TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4 2>/dev/null
 PCIBUS=$(python3 -c "import tensorflow as tf; print(tf.test.gpu_device_name())" 2>&1)
 echo $PCIBUS > $THISUUIDFILE
-cat $THISUUIDFILE | grep pciBusID | sed -e "s/^/Node: $(hostname), CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES, physical GPU -> /"
+cat $THISUUIDFILE | grep pciBusID | sed -e "s/^/Node: $(hostname), CUDA_VISIBLE_DEVICES: $CUDA_VISIBLE_DEVICES, physical GPU -> /" >> $GENERALLOGFILE
 echo "$(hostname):$(cat $THISUUIDFILE | sed -e 's/:.*, pci bus id: /:/' | sed -e 's/, .*//' | sort | sed -e 's/:/-0000/')" >> $GPUFILE
-ml unload TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4 2>/dev/null
+
+myunload TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
 function colorprintfyellow () {
     printf "\\e[93m$1\\e[0m\\n"
@@ -234,20 +215,9 @@ function colorprintfgray () {
     ->colorprintfgray<-
 }
 
-CUDAFILE=->ipfilesdir<-/omniopt_CUDA_VISIBLE_DEVICES_${SLURM_JOB_ID}_$(hostname) 
+CUDAFILE=$IPFILESDIR/omniopt_CUDA_VISIBLE_DEVICES_${SLURM_JOB_ID}_$(hostname) 
 
-let mongotrycount=0
-while ! nc -zvv ->mongodbmachine<- ->mongodbport<-; do 
-    echo "DB not running, sleeping 1 second to try again"
-    sleep 1
-    let mongotrycount++
-    if [[ "$mongotrycount" -eq "300" ]]; then
-        echo "Waited 5 minutes without any progress on waiting for MongoDB. Exiting."
-        exit 1
-    fi
-done
-
-echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
+echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}" >> $GENERALLOGFILE
 
 export CUDA_VISIBLE_DEVICES
 export SLURM_JOB_ID
@@ -326,24 +296,31 @@ else
 fi
 
 if [[ -z $CUDA_VISIBLE_DEVICES ]]; then
-    echo "CUDA_VISIBLE_DEVICES could not be set. Continuing without specified GPUs." >&2
+    echo "CUDA_VISIBLE_DEVICES could not be set. Continuing without specified GPUs." >&2 >> $GENERALLOGFILE
 else
-    echo "CUDA_VISIBLE_DEVICES for this worker: $CUDA_VISIBLE_DEVICES"
+    echo "CUDA_VISIBLE_DEVICES for this worker: $CUDA_VISIBLE_DEVICES" >> $GENERALLOGFILE
 fi
 
 export max_kill=->kill_after_n_no_results<-;
 export counter=0;
 
-#export PYTHONPATH=/sw/installed/Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4/lib/python3.7/site-packages/:->mainpath<-:$PYTHONPATH
 export PYTHONPATH=->mainpath<-:$PYTHONPATH
 
-#echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-#pip3 install --user future 
-#echo "======================================================================"
-#python3 -c "import hyperopt; import six; import pprint; import past; pprint.pprint(past)"
-#echo "======================================================================"
-#echo "PYTHONPATH -> $PYTHONPATH"
-#echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+export MONGODBMACHINE=->mongodbmachine<-
+export MONGODBPORT=->mongodbport<-
+
+warningcounter=$(echo "scale=0; ($max_kill*0.8)/1" | bc)
+
+let mongotrycount=0
+while ! nc -z $MONGODBMACHINE $MONGODBPORT 2>&1 >> $NZLOGFILE; do 
+    echo "DB not running, sleeping 1 second to try again"
+    sleep 1
+    let mongotrycount++
+    if [[ "$mongotrycount" -eq "->waitsecondsnz<-" ]]; then
+        echo "Waited ->waitsecondsnz<- seconds without any progress on waiting for MongoDB on $MONGODBMACHINE:$MONGODBPORT. Exiting."
+        exit 1
+    fi
+done
 
 ->start_worker_command<- 2>&1 | ->info_filter<- 2>&1 | {
     while IFS= read -r line;
@@ -352,8 +329,10 @@ export PYTHONPATH=->mainpath<-:$PYTHONPATH
         if [[ "$(ls $CURRENT_SCRIPT_DIR | grep still_has_jobs | wc -l)" -ne "0" ]]; then
             counter=0
         elif [[ $line =~ .*no\ job\ found.* ]]; then
-            colorprintfyellow "no job found number $counter";
             counter=$((counter+1));
+            if [[ "$counter" -gt "$warningcounter" ]]; then
+                colorprintfyellow "no job found number $counter";
+            fi
             if [[ "$counter" -gt "$max_kill" ]]; then
                 if [[ "$SECONDS" -gt 600 ]]; then
                     for i in `ps -ef| awk \'$3 == \'$$\' { print $2 }\'`;
@@ -372,14 +351,22 @@ export PYTHONPATH=->mainpath<-:$PYTHONPATH
 }
 '''
 
-        start_worker_bash = start_worker_bash.replace("->mainpath<-", str(mypath.mainpath))
-        start_worker_bash = start_worker_bash.replace("->ipfilesdir<-", str(ipfilesdir))
-        start_worker_bash = start_worker_bash.replace("->mongodbport<-", str(data["mongodbport"]))
-        start_worker_bash = start_worker_bash.replace("->mongodbmachine<-", str(data["mongodbmachine"]))
-        start_worker_bash = start_worker_bash.replace("->colorprintfgray<-", str(colorprintfgray))
-        start_worker_bash = start_worker_bash.replace("->kill_after_n_no_results<-", str(kill_after_n_no_results))
-        start_worker_bash = start_worker_bash.replace("->info_filter<-", str(info_filter))
-        start_worker_bash = start_worker_bash.replace("->start_worker_command<-", str(start_worker_command))
+        try:
+            start_worker_bash = start_worker_bash.replace("->mainpath<-", str(mypath.mainpath))
+            start_worker_bash = start_worker_bash.replace("->ipfilesdir<-", str(ipfilesdir))
+            start_worker_bash = start_worker_bash.replace("->waitsecondsnz<-", str(os.getenv('waitsecondsnz', 300)))
+            start_worker_bash = start_worker_bash.replace("->mongodbport<-", str(data["mongodbport"]))
+            start_worker_bash = start_worker_bash.replace("->mongodbmachine<-", str(data["mongodbmachine"]))
+            start_worker_bash = start_worker_bash.replace("->colorprintfgray<-", str(colorprintfgray))
+            start_worker_bash = start_worker_bash.replace("->kill_after_n_no_results<-", str(kill_after_n_no_results))
+            start_worker_bash = start_worker_bash.replace("->info_filter<-", str(info_filter))
+            start_worker_bash = start_worker_bash.replace("->start_worker_command<-", str(start_worker_command))
+        except Exception as e:
+            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            sys.exit(1)
 
         return start_worker_bash
     else:
@@ -398,7 +385,7 @@ def get_main_start_worker_command(data, project, enable_strace=0, enable_python_
         " --last-job-timeout=" + str(data['worker_last_job_timeout']) + " --workdir=" + omnioptstuff.get_project_folder(data['mongodbdbname']) + \
         " --max-jobs=" + str(data['max_evals'])
 
-    tmp_basefolder = '/tmp'
+    tmp_basefolder = omnioptstuff.get_project_folder(data['mongodbdbname']) 
     worker_command_file = tmp_basefolder + '/worker_start_command'
     mydebug.debug('worker_command_file = ' + worker_command_file)
     start_worker_command_bash = "#!/bin/bash\n\n" + start_worker_command + "\n\nrm " + worker_command_file + "\n"

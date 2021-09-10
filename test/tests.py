@@ -53,9 +53,9 @@ testprojectdir = "test/projects/"
 testprojectname = "DONOTDELETE_testcase"
 
 generallogfile = {
-    "stdout": linuxstuff.normalize_path(mypath.mainpath + "/../test/projects/" + testprojectname) + "/TESTLOGS/testlog.stdout",
-    "stderr": linuxstuff.normalize_path(mypath.mainpath + "/../test/projects/" + testprojectname) + "/TESTLOGS/testlog.stderr",
-    "debug": linuxstuff.normalize_path(mypath.mainpath + "/../test/projects/" + testprojectname) + "/TESTLOGS/testlog.debug"
+    "stdout": linuxstuff.normalize_path(mypath.mainpath + "/../test/TESTLOGS/testlog.stdout"),
+    "stderr": linuxstuff.normalize_path(mypath.mainpath + "/../test/TESTLOGS/testlog.stderr"),
+    "debug": linuxstuff.normalize_path(mypath.mainpath + "/../test/TESTLOGS/testlog.debug")
 }
 
 def shellquote(s):
@@ -281,10 +281,10 @@ RESULT: 0.229573468972229
         self.assertTrue(workerstuff.get_result_from_output(string, 0), "0.229573468972229")
 
     def test_output_21(self):
-        self.assertTrue(workerstuff.get_result_from_output_file("script/example.stdout"), "0.232519665992964")
+        self.assertTrue(workerstuff.get_result_from_output_file("test/example.stdout"), "0.232519665992964")
 
     def test_output_22(self):
-        self.assertTrue(workerstuff.get_result_from_output(run_command_get_output("cat script/example.stdout")), "0.232519665992964")
+        self.assertTrue(workerstuff.get_result_from_output(run_command_get_output("cat test/example.stdout")), "0.232519665992964")
 
     def test_valid_ip4(self):
         self.assertTrue(networkstuff.is_valid_ipv4_address('8.9.10.11'))

@@ -9,6 +9,7 @@ from pprint import pprint
 from random import randint
 import socket
 import traceback
+import os
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -60,7 +61,8 @@ def parse_params(argvd):
         'maxtime': None,
         'mongodbmachine': None,
         'mongodbport': None,
-        'debug': None
+        'debug': None,
+        'setmongoperparameter': None
     }
 
     parsed_args = parse_all_arguments(argvd)
@@ -87,22 +89,16 @@ def parse_params(argvd):
     for pname in parameter_names:
         if pname in parsed_args:
             data[pname] = parsed_args[pname]
+
     if data["mongodbmachine"] is None:
         data["mongodbmachine"] = default_ip
+    else:
+        data["setmongoperparameter"] = 1;
+
     if data["mongodbport"] is None:
-        data["mongodbport"] = "56745"
-        # TODO: This was an attempt to fix an error when two different users run a mongo db instance from the same server. But it does not work with shutting down the DB, since
-        # When trying this, it cannot properly determine the DB ports for shutting it down
-        #if data["mongodbmachine"] == default_ip:
-        #    a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #    port_is_open = 0
-        #    while port_is_open == 0:
-        #        randport = randint(2000, 50000)
-        #        print("Trying port " + str(randport))
-        #        data["mongodbport"] = randport
-        #        location = (data["mongodbmachine"], data["mongodbport"])
-        #        port_is_open = a_socket.connect_ex(location)
-        #    a_socket.close()
+        data["mongodbport"] = str(os.getenv("mongodbport", 56741))
+    else:
+        data["setmongoperparameter"] = 1;
 
     if data["projectdir"]:
         data["projectdir"] = data["projectdir"] + "/"

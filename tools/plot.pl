@@ -15,22 +15,7 @@ my $basedirname = dirname(abs_path($0));
 
 use Term::ANSIColor;
 
-
-sub myqx ($;$);
-sub debug ($);
-
-sub p ($;$) {
-        my $percent = shift;
-        my $status = shift // "";
-        if($ENV{DISPLAYGAUGE}) {
-                warn "PERCENTGAUGE: $percent\n";
-                if($status) {
-                        warn "GAUGESTATUS: $status\n";
-                }
-        }
-}
-
-my %options = (
+our %options = (
         debug => 0,
         project => '',
         int => 0,
@@ -43,6 +28,8 @@ my %options = (
         dontloadmodules => 0,
         SHOWFAILEDJOBSINPLOT => exists($ENV{SHOWFAILEDJOBSINPLOT}) ? $ENV{SHOWFAILEDJOBSINPLOT} : 0
 );
+
+use OmniOptFunctions;
 
 analyze_args(@ARGV);
 
@@ -62,13 +49,10 @@ sub main {
         p 10, "Modules loaded";
 
 
-        modify_system("export DONTCHECKMONGODBSTART=1");
         modify_system("export SHOWFAILEDJOBSINPLOT=$options{SHOWFAILEDJOBSINPLOT}");
         modify_system('PYTHONPATH=$HOME/.local/lib/python3.7/site-packages:/software/haswell/Python/3.7.4-GCCcore-8.3.0/lib/python3.7/site-packages:$PYTHONPATH');
         print "If the module past is missing, install the package future via pip3 install --user future\n";
         print "If the module pymongo is missing, install the package future via pip3 install --user pymongo\n";
-
-
 
         if(!$options{nopip}) {
                 myqx("pip3 install --user psutil");
@@ -115,6 +99,7 @@ sub main {
                 my $lockfile = "$projectfolder/mongodb/mongod.lock";
 
                 if(!-e $lockfile) {
+                        modify_system('export mongodbport=$(bash tools/get_open_port.sh)');
                         print myqx($command);
                         if(!$options{keepmongodb}) {
                                 p 99, "Ending MongoDB";
@@ -126,105 +111,6 @@ sub main {
                 }
         }
         p 100, "Ended script";
-}
-
-sub read_file {
-        my $file = shift;
-
-        my $contents = '';
-        open my $fh, '<', $file or die "Error opening file $file: $!";
-
-        while (<$fh>) {
-                $contents .= $_;
-        }
-
-        close $fh;
-
-        return $contents;
-}
-
-sub get_job_work_dir {
-        my $slurmid = shift;
-        my $workdir = '';
-        $workdir = qx(scontrol show job $slurmid | grep WorkDir | sed -e 's/.*=//');
-        chomp $workdir;
-        return $workdir;
-}
-
-sub get_id_of_project {
-        my %running_jobs = get_running_jobs();
-
-        foreach my $name (keys %running_jobs) {
-                debug "$name -> $options{project}?";
-                if($name eq $options{project} || $name eq qq#'$options{project}'#) {
-                        my $job_work_dir = get_job_work_dir($running_jobs{$name});
-                        if ($basedirname =~ m#$job_work_dir/#) {
-                                return $running_jobs{$name};
-                        }
-                }
-        }
-
-        return undef;
-}
-
-sub get_running_jobs {
-        my $command = 'sacct --format="JobID,State,JobName%100"';
-
-        my @jobs = map { chomp $_; $_; } myqx $command;
-
-        my %running_jobs = ();
-
-        foreach (@jobs) {
-                if(m#^(\d+)\s+RUNNING\s{4,}(.*?)\s*$#) {
-                        my $id = $1;
-                        my $name = $2;
-
-                        $running_jobs{$name} = $id;
-                }
-        }
-
-        p 20, "Got running jobs";
-
-        return %running_jobs;
-}
-
-sub get_signal_name {
-        my $signal = shift;
-
-        if($signal =~ m#^\d+$#) {
-                my $name = scalar qx(kill -l $signal);
-                chomp $name;
-                return $name;
-        } else {
-                return "unknown";
-        }
-}
-
-sub myqx ($;$) {
-        my $command = shift;
-        my $die_on_error = shift // 0;
-
-        debug "command: $command";
-
-        if(wantarray()) {
-                my @res = qx($command);
-                my $error_code = $?;
-                my $exit_code = $error_code >> 8;
-                my $signal_code = $error_code & 127;
-                warn color("red")."Exited with $exit_code".color("reset")."\n" if $exit_code;
-                warn color("red")."Program exited, got signal $signal_code (".get_signal_name($signal_code).")".color("reset")."\n" if $signal_code;
-                exit $error_code if($die_on_error && $error_code != 0);
-                return @res;
-        } else {
-                my $res = qx($command);
-                my $error_code = $?;
-                my $exit_code = $error_code >> 8;
-                my $signal_code = $error_code & 127;
-                warn color("red")."Exited with $exit_code".color("reset")."\n" if $exit_code;
-                warn color("red")."Program exited, got signal $signal_code (".get_signal_name($signal_code).")".color("reset")."\n" if $signal_code;
-                exit $error_code if($die_on_error && $error_code != 0);
-                return $res;
-        }
 }
 
 sub help {
@@ -302,55 +188,4 @@ sub analyze_args {
         } else {
                 die "Unknown project";
         }
-}
-
-sub get_project_folder {
-        my $project = shift;
-
-
-        return "$options{projectdir}/$project/";
-}
-
-sub debug ($) {
-        my $arg = shift;
-        if($options{debug}) {
-                warn "$arg\n";
-        }
-}
-
-sub modules_load {
-        my @modules = @_;
-        if($options{dontloadmodules}) {
-                return 1;
-        }
-        foreach my $mod (@modules) {
-                module_load($mod);
-        }
-
-        return 1;
-}
-
-sub modify_system {
-        my $command = shift;
-        debug "modify_system($command)";
-        return Env::Modify::system($command);
-}
-
-sub module_load {
-        my $toload = shift;
-
-        if($options{dontloadmodules}) {
-                return 1;
-        }
-
-        if($toload) {
-                my $lmod_path = $ENV{LMOD_CMD};
-                my $command = "eval \$($lmod_path sh load $toload)";
-                debug $command;
-                local $Env::Modify::CMDOPT{startup} = 1;
-                modify_system($command);
-        } else {
-                warn 'Empty module_load!';
-        }
-        return 1;
 }

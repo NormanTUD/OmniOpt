@@ -8,6 +8,7 @@ function get_url_param (name) {
 	if(urlParams.has(name)) {
 		value = urlParams.get(name);
 	}
+
 	var encodedStr = value.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
 		return '&#' + i.charCodeAt(0) + ';';
 	});
@@ -207,22 +208,49 @@ function update_config () {
 	var config_string = "[DATA]\n";
 
 	var precision = $("#precision").val();
+	var partition = $("#partition").val();
+	var account = $("#account").val();
+	var reservation = $("#reservation").val();
 	var max_evals = $("#max_evals").val();
 	var objective_program = $("#objective_program").val() ;
 	var projectname = $("#projectname").val();
+	var number_of_workers = $("#number_of_workers").val();
+	var enable_gpus = $("#enable_gpus").is(":checked") ? 1 : 0;
+	var mem_per_cpu = $("#mem_per_cpu").val();
+	var computing_time = $("#computing_time").val();
+
+	if(isNumeric(number_of_workers)) {
+		config_string += "number_of_workers = " + number_of_workers + "\n";
+	}
 
 	if(isNumeric(precision)) {
-		config_string += "precision = " + precision + " \n";
+		config_string += "precision = " + precision + "\n";
 	} else {
 		config_string += "# !!! Precision-parameter is empty or not a valid number\n";
 		missing_values++;
 	}
 
-	if(projectname == "cpu_test" || projectname == "cpu_test2" || projectname == "DONOTDELETE_testcase" || projectname == "gpu_test" || projectname == "test" || projectname == "testlowmem") {
-		show_error_message("#invalidprojectnameerror", 'The project name <b>' + projectname + '</b> is already in use by one of the default projects. Choose another one.');
-		projectname = "";
-		missing_values++;
-	} else if(!projectname.match(projectname_regex)) {
+	if(account) {
+		config_string += "account = " + account + "\n";
+	}
+
+	if(reservation) {
+		config_string += "reservation = " + reservation + "\n";
+	}
+
+	if(partition) {
+		config_string += "partition = " + partition + "\n";
+	}
+
+	if(projectname) {
+		config_string += "projectname = " + projectname + "\n";
+	}
+
+	config_string += "enable_gpus = " + (enable_gpus ? 1 : 0) + "\n";
+	config_string += "mem_per_cpu = " + mem_per_cpu + "\n";
+	config_string += "computing_time = " + computing_time + "\n";
+
+	if(!projectname.match(projectname_regex)) {
 		projectname = "";
 		missing_values++;
 	} else if(!projectname.length >= 1) {
@@ -235,7 +263,7 @@ function update_config () {
 
 
 	if(isNumeric(max_evals)) {
-		config_string += "max_evals = " + max_evals + " \n";
+		config_string += "max_evals = " + max_evals + "\n";
 		$("#maxevalserror").html('');
 		$("#maxevalserror").hide();
 	} else {
@@ -244,14 +272,14 @@ function update_config () {
 		missing_values++;
 	}
 
-	config_string += "algo_name = " + $("#algo_name").val() + " \n";
+	config_string += "algo_name = " + $("#algo_name").val() + "\n";
 
 	config_string += "range_generator_name = hp.randint\n";
 
 	if(objective_program.length >= 1) {
 		$("#objectiveprogramerror").hide();
 		$("#objectiveprogramerror").html('');
-		config_string += "objective_program = " + objective_program + " \n";
+		config_string += "objective_program = " + objective_program + "\n";
 		for (var i = 0; i < number_of_parameters; i++) {
 			var regex = new RegExp("\\(\\$x_" + i + "\\)");
 			if(!objective_program.match(regex)) {
@@ -687,7 +715,7 @@ function get_select_type (i) {
 		"<select class='parameter_input' id='type_" + i + "' onchange='change_parameter_and_url(" + i + ", this)'>" +
 		"\t<option value='hp.randint' " + (get_url_param("param_" + i + "_type") == "hp.randint" ? ' selected="true" ' : '') + ">hp.randint: Integer between 0 and a given maximal number</option>" +
 		"\t<option value='' disabled='disabled'>────────────</option>\n" +
-		"\t<option value='hp.choice' " + (get_url_param("param_" + i + "_type") == "hp.choice" ? ' selected="true" ' : '') + ">hp.choice: One of the given options, seperated by comma</option>" +
+		"\t<option value='hp.choice' " + (get_url_param("param_" + i + "_type") == "hp.choice" ? ' selected="true" ' : '') + ">hp.choice: One of the given options, separated by comma</option>" +
 		"\t<option value='hp.choiceint' " + (get_url_param("param_" + i + "_type") == "hp.choiceint" ? ' selected="true" ' : '') + ">hp.choiceint: A pseudo-generator for hp.choice, for using integers between a and b</option>" +
 		"\t<option value='' disabled='disabled'>────────────</option>\n" +
 		"\t<option value='hp.uniform' " + (get_url_param("param_" + i + "_type") == "hp.uniform" ? ' selected="true" ' : '') + ">hp.uniform: Uniformly distributed value between two values</option>" +
@@ -708,7 +736,7 @@ function change_parameter_settings(i) {
 	var set_html = '<div style="background-color: red">Unknown parameter &raquo;' + chosen_type + "&laquo;</div>";
 
 	if (chosen_type == "hp.choice") {
-		set_html = "<input class='parameter_input' id='hp_choice_" + i + "' type='text' placeholder='Comma seperated list of possible values' value='" + get_url_param("param_" + i + "_values") + "' onkeyup='update_url_param(\"param_" + i + "_values\", this.value)' a/>";
+		set_html = "<input class='parameter_input' id='hp_choice_" + i + "' type='text' placeholder='Comma separated list of possible values' value='" + get_url_param("param_" + i + "_values") + "' onkeyup='update_url_param(\"param_" + i + "_values\", this.value)' a/>";
 	} else if (chosen_type == "hp.randint") {
 		set_html = "<input class='parameter_input' id='randint_" + i + "_max' type='number' placeholder='Maximal number' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
 	} else if (chosen_type == "hp.choiceint") {
@@ -717,8 +745,8 @@ function change_parameter_settings(i) {
 		set_html += "<span style='color: orange;'>This is a pseudo-generator that HyperOpt does not really support. Remember this: in the DB, the index of the value will be saved, NOT the actual value listed here. When outputting anything via OmniOpts scripts, you will get results as expected. But if you change the <tt>config.ini</tt>, the results outputted by OmniOpts scripts will change too, even after it already ran!</span>";
 	} else if (chosen_type == "hp.uniform") {
 		set_html = "<p>When optimizing, this variable is constrained to a two-sided interval.</p>";
-		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
-		set_html += "<input class='parameter_input' id='max_" + i + "' type='number' step='any' placeholder='max' value='" + get_url_param("param_" + i + "value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
+		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
+		set_html += "<input class='parameter_input' id='max_" + i + "' type='number' step='any' placeholder='max' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
 	} else if (chosen_type == "hp.loguniform") {
 		set_html = "<p>When optimizing, this variable is constrained to the interval <math>[<msup><mi>e</mi><mn mathvariant='normal'>min</mn></msup>,<mspace width='.1em' /><msup><mi>e</mi><mn mathvariant='normal'>max</mn></msup>]</math>.</p>";
 		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
@@ -822,6 +850,132 @@ function add_listener(id, func) {
 	}
 }
 
+function parseINIString(data){
+    var regex = {
+        section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
+        param: /^\s*([^=]+?)\s*=\s*(.*?)\s*$/,
+        comment: /^\s*;.*$/
+    };
+    var value = {};
+    var lines = data.split(/[\r\n]+/);
+    var section = null;
+    lines.forEach(function(line){
+        if(regex.comment.test(line)) {
+            return;
+        } else if(regex.param.test(line)) {
+            var match = line.match(regex.param);
+            if(section) {
+                value[section][match[1]] = match[2];
+            } else {
+                value[match[1]] = match[2];
+            }
+        } else if (regex.section.test(line)) {
+            var match = line.match(regex.section);
+            value[match[1]] = {};
+            section = match[1];
+        } else if (line.length == 0 && section) {
+            section = null;
+        };
+    });
+    return value;
+}
+
+function set_if_exists(data, category, name, id) {
+	if(category in data) {
+		if(name in data[category]) {
+			var value = data[category][name];
+			var jqid = "#" + id;
+			if($(jqid).is(":checkbox")) {
+				if(value == 1) {
+					$(jqid).prop("checked", true);
+				} else {
+					$(jqid).prop("checked", false);
+				}
+			} else {
+				$(jqid).val(value);
+			}
+		} else {
+			console.log("name " + name + " cannot be found in data[" + category + "]");
+		}
+	} else {
+		console.log("category " + category + " cannot be found in data");
+	}
+}
+
+function parse_from_config_ini () {
+	var data = parseINIString($("#configini").val());
+	
+	set_if_exists(data, "DATA", "projectname", "projectname");
+	set_if_exists(data, "DATA", "partition", "partition");
+	set_if_exists(data, "DATA", "account", "account");
+	set_if_exists(data, "DATA", "reservation", "reservation");
+	set_if_exists(data, "DATA", "precision", "precision");
+	set_if_exists(data, "DATA", "max_evals", "max_evals");
+	set_if_exists(data, "DATA", "algo_name", "algo_name");
+	set_if_exists(data, "DATA", "objective_program", "objective_program");
+	set_if_exists(data, "DATA", "enable_gpus", "enable_gpus");
+	set_if_exists(data, "DATA", "mem_per_cpu", "mem_per_cpu");
+	set_if_exists(data, "DATA", "computing_time", "computing_time");
+
+	set_if_exists(data, "DEBUG", "show_live_output", "show_live_output");
+	set_if_exists(data, "DEBUG", "debug_xtreme", "enable_curl_debug");
+	set_if_exists(data, "DEBUG", "debug", "enable_debug");
+
+	set_if_exists(data, "MONGODB", "worker_last_job_timeout", "worker_last_job_timeout");
+	set_if_exists(data, "MONGODB", "poll_interval", "poll_interval");
+	set_if_exists(data, "MONGODB", "kill_after_n_no_results", "kill_after_n_no_results");
+
+	set_if_exists(data, "DIMENSIONS", "dimensions", "number_of_parameters");
+	change_number_of_parameters();
+	
+	if("DIMENSIONS" in data) {
+		if("dimensions" in data["DIMENSIONS"]) {
+			var number_of_parameters = data["DIMENSIONS"]["dimensions"];
+			for (var i = 0; i < number_of_parameters; i++) {
+				set_if_exists(data, "DIMENSIONS", "dim_" + i + "_name", "parameter_" + i + "_name");
+				set_if_exists(data, "DIMENSIONS", "range_generator_" + i, "type_" + i);
+				change_parameter_and_url(i, $("#" + data["DIMENSIONS"]["range_generator_" + i]));
+
+				if("DIMENSIONS" in data) {
+					var this_range_generator = "range_generator_" + i;
+					if(this_range_generator in data["DIMENSIONS"]) {
+						var this_range_generator = data["DIMENSIONS"][this_range_generator];
+						if(this_range_generator == 'hp.randint') {
+							set_if_exists(data, "DIMENSIONS", "max_dim_" + i, "randint_" + i + "_max");
+						} else if(this_range_generator == 'hp.choice') {
+							set_if_exists(data, "DIMENSIONS", "options_" + i, "hp_choice_" + i);
+						} else if(this_range_generator == 'hp.qnormal' || this_range_generator == "hp.qlognormal") {
+							set_if_exists(data, "DIMENSIONS", "mean_" + i, "mean_" + i);
+							set_if_exists(data, "DIMENSIONS", "sigma_" + i, "sigma_" + i);
+							set_if_exists(data, "DIMENSIONS", "q_" + i, "q_" + i);
+						} else if(this_range_generator == 'hp.normal' || this_range_generator == 'hp.lognormal') {
+							set_if_exists(data, "DIMENSIONS", "mu_" + i, "mu_" + i);
+							set_if_exists(data, "DIMENSIONS", "sigma_" + i, "sigma_" + i);
+						} else if(this_range_generator == 'hp.uniform' || this_range_generator == "hp.loguniform") {
+							set_if_exists(data, "DIMENSIONS", "min_dim_" + i, "min_" + i);
+							set_if_exists(data, "DIMENSIONS", "max_dim_" + i, "max_" + i);
+						} else if(this_range_generator == 'hp.quniform' || this_range_generator == "hp.qloguniform") {
+							set_if_exists(data, "DIMENSIONS", "min_dim_" + i, "min_" + i);
+							set_if_exists(data, "DIMENSIONS", "max_dim_" + i, "max_" + i);
+							set_if_exists(data, "DIMENSIONS", "q_" + i, "q_" + i);
+						} else {
+							alert("Unhandled range generator: " + this_range_generator);
+						}
+					} else {
+						console.log(this_range_generator + " cannot be found in data['DIMENSIONS']");
+					}
+				}
+			}
+		} else {
+			console.log("dimensions not found in data['DIMENSIONS']");
+		}
+	} else {
+		console.log("DIMENSIONS not found in data");
+	}
+
+	update_config();
+}
+
 $(document).ready(function() {
 	change_number_of_parameters();
 	disable_gpu_when_none_available();
@@ -847,7 +1001,7 @@ $(document).ready(function() {
 
 	add_listener("computing_time", show_time_warning);
 
-	add_listener(["max_evals", "number_of_workers", "partition", "mem_per_cpu", "computing_time", "number_of_cpus_per_worker"], update_config);
+	add_listener(["max_evals", "number_of_workers", "partition", "mem_per_cpu", "computing_time", "number_of_cpus_per_worker", "enable_gpus"], update_config);
 
 	document.getElementById("copytoclipboardbutton").addEventListener(
 		"click",
@@ -856,16 +1010,6 @@ $(document).ready(function() {
 	)
 
 	change_number_of_parameters();
-
-	/*
-	window.addEventListener("beforeunload", function (e) {
-		var confirmationMessage = 'It looks like you have been editing something. '
-			+ 'If you leave before saving, your changes will be lost.';
-
-		(e || window.event).returnValue = confirmationMessage; //Gecko + IE
-		return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
-	});
-	*/
 
 	$("tr:even").css("background-color", "#ffffff");
 	$("tr:odd").css("background-color", "#dadada");

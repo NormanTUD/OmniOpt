@@ -79,5 +79,4 @@ from subprocess import Popen, PIPE
 from termcolor import colored
 from urllib.parse import urlparse
 
-
 print("loading worked")

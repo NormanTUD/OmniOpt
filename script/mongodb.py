@@ -21,4 +21,5 @@ if 'project' in params:
     projectname = params['project']
     myconf = set_myconf(projectname)
 data = get_data(projectname, params)
-sys.exit(mongostuff.start_mongo_db(projectname, data))
+exit_code = mongostuff.start_mongo_db(projectname, data)
+sys.exit(exit_code)

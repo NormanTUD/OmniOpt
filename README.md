@@ -139,7 +139,17 @@ to load a certain number of modules in a certain order, before `python3 script/p
 really annoying to remember, just use
 
 ```
-bash tools/plot.sh --project=testproject
+perl tools/plot.pl --project=testproject --projectdir=./projects/
 ```
 
 or use the `evaluate-run.sh`.
+
+## zsh
+
+Autocompletetion for zsh. Use
+
+```
+bash zsh/install.sh
+```
+
+for enabling auto-completion on ZSH after re-starting the ZSH. This must not be done for every repo, once is enough.

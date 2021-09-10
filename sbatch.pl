@@ -2,6 +2,8 @@
 
 #SBATCH --signal=B:USR1@120
 
+my $indentation_multiplier = 4;
+
 use strict;
 use warnings FATAL => 'all';
 
@@ -18,6 +20,7 @@ use Carp;
 use Cwd;
 use File::Copy;
 use Memoize;
+use Sys::Hostname;
 
 sub std_print (@);
 
@@ -31,8 +34,7 @@ use lib './perllib';
 require OmniOptLogo;
 use Env::Modify;
 
-our $debug_log_file = '';
-$debug_log_file = get_log_file_name();
+our $debug_log_file = get_log_file_name();
 
 sub std_print (@) {
         foreach my $msg (@_) {
@@ -46,6 +48,7 @@ sub std_print (@) {
 }
 
 std_print color('underline')."Log file: $debug_log_file".color('reset')."\n";
+
 
 show_logo();
 
@@ -68,6 +71,7 @@ sub debug_system ($);
 sub warning (@);
 sub dryrun (@);
 sub message (@);
+sub message_noindent (@);
 sub ok (@);
 sub ok_debug (@);
 
@@ -96,7 +100,10 @@ my %default_values = (
 
 lock_keys(%default_values);
 
-my %options = (
+debug "Hostname: ".hostname();
+
+my $this_cwd = get_working_directory();
+our %options = (
         project => undef,
         projectpath => undef,
         logpathdate => undef,
@@ -105,6 +112,7 @@ my %options = (
         slurmid => $ENV{SLURM_JOB_ID},
         originalslurmid => $ENV{SLURM_JOB_ID},
         dryrun => 0,
+        ml_dryrun => 0,
         sleepafterfmin => 10,
         mempercpu => $default_values{mempercpu},
         dryrunmsgs => 1,
@@ -117,17 +125,20 @@ my %options = (
         sleep_nvidia_smi => $default_values{sleep_nvidia_smi},
         sleep_db_up => $default_values{sleep_db_up},
         debug_srun => 0,
-        projectdir => get_working_directory().'/projects/',
-        install_despite_dryrun => 0
+        projectdir => $this_cwd.'/projects/',
+        install_despite_dryrun => 0,
+        filter_stdout => 1,
+        run_full_tests => 0,
+        run_tests => 0,
+        help => 0
 );
 
 lock_keys(%options);
 
 my $python = "python3";
 
-my $python_module = "PYTHONPATH=\$PYTHONPATH:".get_working_directory()."/script/ ";
+my $python_module = "PYTHONPATH=\$PYTHONPATH:".$this_cwd."/script/ ";
 
-my $this_cwd = get_working_directory();
 my $script_folder = $this_cwd.'/script';
 my $tools_folder = $this_cwd.'/tools';
 my $test_folder = $this_cwd.'/test';
@@ -145,10 +156,11 @@ my %script_paths = (
 
 lock_keys(%script_paths);
 
-get_environment_variables();
 analyze_args(@ARGV);
+get_environment_variables();
 
 debug_sub 'Checking paths of script_paths';
+$indentation++;
 foreach my $name (keys %script_paths) {
         my $path = $script_paths{$name};
 
@@ -158,6 +170,7 @@ foreach my $name (keys %script_paths) {
                 error "$name: $path -> does not exist!";
         }
 }
+$indentation--;
 
 if(!$options{projectpath}) {
         $options{projectpath} = get_project_folder($options{project});
@@ -168,31 +181,24 @@ if(!$options{projectpath}) {
 $options{logpathdate} = get_log_path_date_folder($options{project});
 
 debug_sub 'Outside of any function';
+$indentation++;
 debug 'Locking keys of %options';
+$indentation--;
 debug_options();
 get_dmesg_start();
 
-END {
-        debug_sub 'END-BLOCK';
-        if($ran_anything) {
-                if($options{debug}) {
-                        get_dmesg('end');
-                }
-        }
-        shutdown_script();
-}
-
 $SIG{USR1} = $SIG{USR2} = \&usr_signal;
 
-debug split(/\R/, Dumper \%ENV);
+debug_env();
 
 main();
 
 sub main {
-        $indentation++;
         debug_sub 'main()';
+        $indentation++;
 
         cancel_message();
+        create_and_delete_random_files_in_subfolders();
         sanity_check();
 
         my %ini_config = read_ini_file("$options{projectpath}/config.ini");
@@ -200,8 +206,6 @@ sub main {
                 $options{debug} = 1;
                 debug "Enabled debug because it was enabled in the config.ini";
         }
-
-        create_and_delete_random_files_in_subfolders();
 
         set_python_path();
 
@@ -230,10 +234,11 @@ sub main {
 
         $indentation--;
 }
+
 sub environment_sanity_check {
-        $indentation++;
         my $errors = 0;
         debug_sub "environment_sanity_check()";
+        $indentation++;
 
         check_needed_programs();
 
@@ -249,16 +254,16 @@ sub environment_sanity_check {
 }
 
 sub show_sys_path {
-        $indentation++;
         debug_sub "show_sys_path()";
+        $indentation++;
         system("whereis $python");
         system("$python $script_paths{show_sys_path}");
         $indentation--;
 }
 
 sub mongodb_already_started {
-        $indentation++;
         debug_sub "mongodb_already_started()";
+        $indentation++;
         my $ret = undef;
         if(program_installed("squeue")) {
                 my $squeue_output = qx(squeue -u \$USER);
@@ -302,9 +307,9 @@ sub mongodb_already_started {
 }
 
 sub read_file_chomp {
-        $indentation++;
         my $filename = shift;
         debug "read_file_chomp($filename)";
+        $indentation++;
         my $contents = read_file($filename);
         chomp $contents;
         $indentation--;
@@ -312,9 +317,9 @@ sub read_file_chomp {
 }
 
 sub read_file {
-        $indentation++;
         my $filename = shift;
         debug "read_file($filename)";
+        $indentation++;
         my $contents = '';
 
         open my $fh, '<', $filename or warn $!;
@@ -327,8 +332,8 @@ sub read_file {
 }
 
 sub keep_db_up {
-        $indentation++;
         debug_sub "keep_db_up()";
+        $indentation++;
         if(!$options{keep_db_up}) {
                 debug "Not checking of DB is up because of --keep_db_up=0";
                 $indentation--;
@@ -365,8 +370,8 @@ sub keep_db_up {
 }
 
 sub run_nvidia_smi_periodically {
-        $indentation++;
         debug_sub "run_nvidia_smi_periodically()";
+        $indentation++;
         if(!$options{run_nvidia_smi}) {
                 debug "Not running nvidia-smi because of --run_nvidia_smi=0";
                 $indentation--;
@@ -385,6 +390,7 @@ sub run_nvidia_smi_periodically {
                 debug "Forking for run_nvidia_smi_periodically()";
                 my $pid = fork();
                 error "ERROR Forking for nvidia-smi: $!" if not defined $pid;
+                error "ERROR Forking for nvidia-smi return pid = -1: $!" if $pid == -1;
                 if (not $pid) {
                         debug "Inside fork";
                         my $slurm_nodes = $ENV{'SLURM_JOB_NODELIST'};
@@ -426,16 +432,16 @@ sub run_nvidia_smi_periodically {
 
 sub cancel_message {
         if(defined $options{originalslurmid}) {
-                message "If you want to cancel this job, please use\n".
-                "\t\t\tscancel --signal=USR1 --batch $options{originalslurmid}\n".
-                "\t\tThis way, the database can be shut down correctly.";
+                message_noindent "If you want to cancel this job, please use;";
+                message_noindent color("bold")."scancel --signal=USR1 --batch $options{originalslurmid}";
+                message_noindent "This way, the database can be shut down correctly.";
         }
 }
 
 
 sub set_python_path {
-        $indentation++;
         debug_sub 'set_python_path()';
+        $indentation++;
 
         my $add_python_path = dirname(__FILE__);
 
@@ -445,12 +451,11 @@ sub set_python_path {
 }
 
 sub load_needed_modules {
-        $indentation++;
         debug_sub 'load_needed_modules()';
+        $indentation++;
 
-        #modify_system("ml --force purge");
         my $lmod_path = $ENV{LMOD_CMD};
-        modify_system("eval \$($lmod_path sh --force purge)");
+        modify_system("eval \$($lmod_path sh --force purge 2>/dev/null)");
 
         my $arch = (POSIX::uname)[4];
 
@@ -477,8 +482,8 @@ sub load_needed_modules {
 }
 
 sub start_fmin_fork {
-        $indentation++;
         debug_sub 'start_fmin_fork()';
+        $indentation++;
         fork_and_dont_wait(start_fmin());
         wait_for_fmin();
         $indentation--;
@@ -490,8 +495,8 @@ sub create_and_delete_random_files_in_subfolders {
         subfolder. This is sometimes neccessary to update the file-system-cache on nodes,
         so that all files appear properly. (Yeah, kind of hacky, but it works...)
 =cut
-        $indentation++;
         debug "create_and_delete_random_files_in_subfolders()";
+        $indentation++;
         opendir(my $dh, $this_cwd);
         my @files = readdir($dh);
         closedir($dh);
@@ -500,29 +505,29 @@ sub create_and_delete_random_files_in_subfolders {
                 next if $folder =~ /^\.\.$/;
                 next if !-d $folder;
 
-                create_and_delete_random_file($folder);
+                create_and_delete_random_file($this_cwd.'/'.$folder);
         }
         $indentation--;
 }
 
 sub create_and_delete_random_file {
-        $indentation++;
         my $folder = shift;
         debug "create_and_delete_random_file($folder)";
+        $indentation++;
 
-        my $file = "$folder/".rand();
+        my $file = "$folder/.".rand();
         while (-e $file) {
-                $file = "$folder/".rand();
+                $file = "$folder/.".rand();
         }
 
-        open my $fh, '>', $file;
+        my $return_value = open my $fh, '>', $file;
 
-        if($?) {
-                warning "ERROR: $? -> $!";
+        if($return_value != 1) {
+                warning "ERROR opening file handle for '$file': $? -> $! ($return_value)";
         } else {
                 print $fh "";
-                unlink($file);
         }
+        unlink($file);
 
         close $fh;
         $indentation--;
@@ -530,8 +535,8 @@ sub create_and_delete_random_file {
 
 
 sub start_worker_fork {
-        $indentation++;
         debug_sub 'start_worker_fork()';
+        $indentation++;
         my $start_worker_command = create_worker_start_command();
         debug $start_worker_command;
         my $ret_code = run_srun($start_worker_command);
@@ -540,8 +545,8 @@ sub start_worker_fork {
 }
 
 sub get_dmesg_start {
-        $indentation++;
         debug_sub 'get_dmesg_start()';
+        $indentation++;
         if($options{debug}) {
                 get_dmesg('start');
         }
@@ -549,16 +554,16 @@ sub get_dmesg_start {
 }
 
 sub write_master_ip_and_port {
-        $indentation++;
         debug_sub 'write_master_ip_and_port()';
+        $indentation++;
         write_master_ip();
         get_open_ports();
         $indentation--;
 }
 
 sub wait_for_unfinished_jobs {
-        $indentation++;
         debug_sub "wait_for_unfinished_jobs()";
+        $indentation++;
         debug 'Waiting for started subjobs to exit';
         wait;
         ok_debug 'Done waiting for started subjobs';
@@ -566,6 +571,7 @@ sub wait_for_unfinished_jobs {
 }
 
 sub wait_for_fmin {
+        debug_sub "wait_for_fmin()";
         $indentation++;
         if(!$options{dryrun}) {
                 debug "Waiting for $options{sleepafterfmin} seconds after starting fmin";
@@ -577,8 +583,8 @@ sub wait_for_fmin {
 }
 
 sub create_worker_start_command {
-        $indentation++;
         debug_sub 'create_worker_start_command()';
+        $indentation++;
         my $slurmparameter = '';
         my $slurm_or_none = 'none';
         if($options{slurmid}) {
@@ -586,7 +592,7 @@ sub create_worker_start_command {
                 $slurm_or_none = $options{slurmid};
         }
 
-        my $command = "$python_module$python $script_paths{worker} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-start-worker.log";
+        my $command = qq#$python_module$python $script_paths{worker} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-start-worker.log | tee -a "$debug_log_file"#;
 
         if(!$options{dryrun}) {
                 my $exit_code_first_try = debug_system($command);
@@ -603,7 +609,7 @@ sub create_worker_start_command {
         }
 
         my $path = "$options{projectdir}/$options{project}/ipfiles/startworker-$slurm_or_none";
-        my $worker_start_command = "bash $path | tee -a $options{logpathdate}/log-worker.log";
+        my $worker_start_command = qq#bash $path 2>&1 | tee -a $options{logpathdate}/log-worker.log | tee -a "$debug_log_file" | grep -v "Hostname of this worker"#;
 
         if(!-e $path) {
                 if($options{dryrun}) {
@@ -613,6 +619,7 @@ sub create_worker_start_command {
                         exit(1);
                 }
         }
+
         $worker_start_command =~ s#/{2,}#/#g;
 
         $indentation--;
@@ -620,8 +627,8 @@ sub create_worker_start_command {
 }
 
 sub db_is_up {
-        $indentation++;
         debug_sub "db_is_up()";
+        $indentation++;
         if(!$master_ip || !$master_port) {
                 $indentation--;
                 return 0;
@@ -637,9 +644,9 @@ sub db_is_up {
 }
 
 sub run_srun {
-        $indentation++;
         my $run = shift;
         debug_sub "run_srun($run)";
+        $indentation++;
 
         my $gpu_options = '';
         my $bash_vars = '';
@@ -662,9 +669,6 @@ sub run_srun {
                 $gpu_options =~ s#\s+# #g;
         }
 
-#### New Code
-
-        #my $command = qq#srun -n1 --export=ALL,CUDA_VISIBLE_DEVICES,CUDA_DEVICE_ORDER=PCI_BUS_ID --exclusive --ntasks-per-core=1 $gpu_options --mpi=none --mem-per-cpu=$options{mempercpu} --no-kill bash -c "$bash_vars$run"#;
         my $command = qq#srun -n1 --export=ALL,CUDA_VISIBLE_DEVICES --exclusive --ntasks-per-core=1 $gpu_options --mpi=none --mem-per-cpu=$options{mempercpu} --no-kill bash -c "$bash_vars$run"#;
         $command =~ s#\s{2,}# #g;
         $command =~ s#/{2,}#/#g;
@@ -686,9 +690,9 @@ sub run_srun {
 }
 
 sub fork_and_dont_wait {
-        $indentation++;
         my $command = shift;
         debug_sub "fork_and_dont_wait($command)";
+        $indentation++;
 
         if(!$options{dryrun}) {
                 my $pid = fork();
@@ -712,41 +716,19 @@ sub fork_and_dont_wait {
         $indentation--;
 }
 
-sub fork_sub_call {
-        $indentation++;
-        my ($subref, @args) = @_;
-
-        if(ref $subref ne 'CODE') {
-                error 'Wrong var-type. Should be subref, nothing else.';
-        } else {
-                my $pid = fork();
-                my $errno = $!;
-                if (defined $pid && $pid == -1) {
-                        error '!!! fork() FAILED AND RETURNED -1 AS PID IN fork_sub_call(). ERRNO: '.$errno.' !!!' if not defined $pid;
-                } else {
-                        if (!defined $pid) {
-                                error 'SOMETHING WENT WRONG WHILE FORKING!';
-                        } elsif ($pid != 0) {
-                                $indentation--;
-                                return &{$subref}->(@args);
-                        } else {
-                                debug "In parent process (fork_sub_call)";
-                        }
-                }
-        }
-        wait();
-        $indentation--;
-}
-
 sub start_fmin {
-        $indentation++;
         debug_sub 'start_fmin()';
+        $indentation++;
         my $slurmparameter = '';
         if($options{slurmid}) {
                 $slurmparameter = " --slurmid=$options{slurmid} ";
         }
 
-        my $command = qq#$python_module$python $script_paths{fmin} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee $options{logpathdate}/log-fmin.log#;
+        my $command = qq#$python_module$python $script_paths{fmin} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-fmin.log | tee -a "$debug_log_file" #;
+
+        if($options{filter_stdout}) {
+            $command .= qq# | grep --line-buffered -v '^INFO:hyperopt' | sed --unbuffered -e 's/INFO:hyperopt.*/\\n/' | grep --line-buffered -v '^DEBUG:hyperopt' | grep --line-buffered -v 'WARNING:hyperopt' | sed --unbuffered -e 's/WARNING:hyperopt.*/\\n/' | sed --unbuffered -e 's/DEBUG:hyperopt.*//' | grep --line-buffered -v 'INFO:root'#;
+        }
 
         debug $command;
         $indentation--;
@@ -754,8 +736,8 @@ sub start_fmin {
 }
 
 sub remove_mongodb_lock_file {
-        $indentation++;
         debug_sub "remove_mongodb_lock_file()";
+        $indentation++;
 
         my $mongodb_dir = $options{projectdir}.'/'.$options{project}.'/mongodb';
         if(-d $mongodb_dir) {
@@ -768,7 +750,7 @@ sub remove_mongodb_lock_file {
                                 unlink $lock_file;
                         }
                 } else {
-                        ok "$lock_file does not exist";
+                        debug "$lock_file does not exist";
                 }
         } else {
                 warning "The dir $mongodb_dir does not exist";
@@ -778,8 +760,8 @@ sub remove_mongodb_lock_file {
 }
 
 sub start_mongo_db_fork {
-        $indentation++;
         debug_sub 'start_mongo_db_fork()';
+        $indentation++;
 
         remove_mongodb_lock_file();
 
@@ -788,12 +770,13 @@ sub start_mongo_db_fork {
         if($options{slurmid}) {
                 $slurmparameter = " --slurmid=$options{slurmid} ";
         }
-        my $command = qq#$python_module$python $script_paths{mongodb} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee $options{logpathdate}/log-mongodb.log#;
+        my $command = qq#$python_module$python $script_paths{mongodb} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-mongodb.log | tee -a "$debug_log_file"#;
         debug $command;
         $indentation-- if $options{dryrun};
+
         return dryrun 'Not starting MongoDB because of --dryrun' if $options{dryrun};
+
         if(my $exit_code = debug_system($command)) {
-                # TODO: mongod --repair --dbpath mongodb --storageEngine wiredTiger
                 warning "ERROR: MongoDB could not start. Exit-Code: $exit_code.";
 
                 my $mongodb_dir = "$options{projectpath}/mongodb";
@@ -837,8 +820,8 @@ sub start_mongo_db_fork {
 }
 
 sub install_needed_packages {
-        $indentation++;
         debug_sub 'install_needed_packages()';
+        $indentation++;
         if($options{dryrun}) {
                 debug "Not installing needed packages because of --dryrun";
                 $indentation--;
@@ -854,7 +837,7 @@ sub install_needed_packages {
         );
 
         if(is_ml()) {
-                warning "No pip3 on ML! Not installing needed packages. Make sure you got them installed by yourself somehow!";
+                debug "No pip3 on ML! Not installing needed packages. Make sure you got them installed by yourself somehow!";
         } else {
                 foreach my $package (@packages) {
                         debug "Trying to install $package if needed";
@@ -865,8 +848,8 @@ sub install_needed_packages {
 }
 
 sub check_networkx_version {
-        $indentation++;
         debug_sub 'check_networkx_version()';
+        $indentation++;
 
         if($options{dryrun}) {
                 $indentation--;
@@ -877,19 +860,20 @@ sub check_networkx_version {
         my $get_version_command = q#pip3 show networkx 2>&1 | grep "Version:" | sed -e 's/Version: //'#;
 
         my $version = debug_qx($get_version_command);
+        chomp $version;
         if($version eq '1.11') {
                 debug_sub 'networkxversion ok (1.11)';
         } else {
-                warning 'The version of networkx is not the one supported by HyperOpt. Using 1.11.';
+                warning 'The version of networkx ('.$version.') is not the one supported by HyperOpt. Using 1.11.';
                 install_via_pip3('networkx==1.11');
         }
         $indentation--;
 }
 
 sub install_via_pip3 {
-        $indentation++;
         my $package = shift;
         debug_sub "install_via_pip3($package)";
+        $indentation++;
 
         $indentation-- if $options{dryrun};
         if(!$options{install_despite_dryrun}) {
@@ -897,7 +881,7 @@ sub install_via_pip3 {
         }
 
         if(program_installed('pip3')) {
-                my $command = "pip3 install --user $package 2>/dev/null";
+                my $command = "pip3 install --user $package 2>/dev/null >/dev/null";
                 debug_system($command);
         } else {
                 warning 'pip3 is not in the $PATH';
@@ -906,8 +890,8 @@ sub install_via_pip3 {
 }
 
 sub create_paths {
-        $indentation++;
         debug_sub 'create_paths()';
+        $indentation++;
         my @folders = (
                 "debuglogs",
                 "$options{projectpath}",
@@ -934,9 +918,9 @@ sub create_paths {
 }
 
 sub get_dmesg {
-        $indentation++;
         my $pos = shift;
         debug_sub "get_dmesg($pos)";
+        $indentation++;
         if($options{debug}) {
                 if($options{originalslurmid}) {
                         if($options{project}) {
@@ -952,8 +936,8 @@ sub get_dmesg {
 }
 
 sub sanity_check {
-        $indentation++;
         debug_sub 'sanity_check()';
+        $indentation++;
 
         if(!$options{sanitycheck}) {
                 message 'Disabled sanity check';
@@ -1019,8 +1003,26 @@ sub sanity_check {
                 } else {
                         ok_debug "There are less than ".MAX_WORKER_WITHOUT_WARNING()." workers allocated";
                 }
+
+                if(is_on_readonly_scratch()) {
+                        no_suicide_error "You seem to be on a read-only mount of scratch. I'm trying anyway, but expect this to fail.";
+                }
         }
         $indentation--;
+}
+
+sub is_on_readonly_scratch {
+        debug "is_on_readonly_scratch()";
+        $indentation++;
+        if($this_cwd =~ m#^/(?:scratch|lustre)/#) {
+                system(qq#mount | grep " ro,|,ro " | egrep "scratch|lustre"#);
+                my $exit_code = $? >> 8;
+                if($exit_code == 0) {
+                        return 1;
+                }
+        }
+        $indentation--;
+        return 0;
 }
 
 sub _help {
@@ -1077,12 +1079,14 @@ Parameters:
 
 Debug and output parameters:
     --nomsgs                                Disables messages
+    --nofilterstdout                        Disables filtering useless messages
     --debug                                 Enables lots and lots of debug outputs
     --dryrun                                Run this script without any side effects (i.e. not creating files, not starting workers etc.)
+    --ml_dryrun                             Load modules despite being in dryrun-mode
     --nowarnings                            Disables the outputting of warnings (not recommended!)
     --nodryrunmsgs                          Disables the outputting of --dryrun-messages
     --run_tests                             Runs a bunch of tests and exits without doing anything else
-    --run_full_tests                        Run testsuite and also run a testjob (takes longer, but is more safety to ensure stability)
+    --run_full_tests                        Run testsuite and also run a testjob (takes longer, but is more safe to ensure stability)
 
 System parameters:
     --only_install_modules                  Only install the neccessary modules
@@ -1090,18 +1094,17 @@ EOF
 }
 
 sub get_project_folder {
-        $indentation++;
         my $projectname = shift;
 
         debug_sub "get_project_folder($projectname)";
-        $indentation--;
+        $indentation++;
         my $projectdir = $options{projectdir};
         foreach (@ARGV) {
                 ### HACKY SOLUTION
                 if(m#--projectdir=(.*)#) {
                         $projectdir = $1;
                         if($projectdir !~ m#^/#) {
-                                $projectdir = get_working_directory()."/$projectdir";
+                                $projectdir = $this_cwd."/$projectdir";
                         }
                         $options{projectdir} = $projectdir;
                 }
@@ -1111,13 +1114,14 @@ sub get_project_folder {
         $options{projectpath} = $str;
 
         $str =~ s#/{2,}#/#g;
+        $indentation--;
         return $str;
 }
 
 sub get_log_path_date_folder {
-        $indentation++;
         my $project = shift;
         debug_sub "get_log_path_date_folder($project)";
+        $indentation++;
         my $date = strftime '%Y-%m-%d_%H-%M-%S', localtime;
         $indentation--;
         return get_project_folder($project)."/logs/$date"
@@ -1126,13 +1130,10 @@ sub get_log_path_date_folder {
 sub analyze_args {
         my @args = @_;
 
-        my $run_tests = 0;
-        my $run_full_tests = 0;
-
         foreach my $arg (@args) {
                 if($arg =~ m#^--project=(.*)$#) {
                         if(defined $options{project}) {
-                                message 'The --project overrides the --jobname of sbatch';
+                                debug 'The --project overrides the --jobname of sbatch';
                         } else {
                                 $options{project} = $1;
                                 $options{logpathdate} = get_log_path_date_folder($1);
@@ -1141,10 +1142,14 @@ sub analyze_args {
                         $options{worker} = $1;
                 } elsif ($arg eq '--dryrun') {
                         $options{dryrun} = 1;
+                } elsif ($arg eq '--ml_dryrun') {
+                        $options{ml_dryrun} = 1;
                 } elsif ($arg eq '--nomsgs') {
                         $options{messages} = 0;
                 } elsif ($arg eq '--nowarnings') {
                         $options{warnings} = 0;
+                } elsif ($arg eq '--nofilterstdout') {
+                        $options{filter_stdout} = 0;
                 } elsif ($arg eq '--nosanitycheck') {
                         $options{sanitycheck} = 0;
                 } elsif ($arg eq '--nodryrunmsgs') {
@@ -1168,18 +1173,19 @@ sub analyze_args {
                 } elsif ($arg =~ m#^--projectdir=(.+)$#) {
                         my $projectdir = $1;
                         if($projectdir !~ m#^/#) {
-                                $projectdir = get_working_directory()."/$projectdir";
+                                $projectdir = $this_cwd."/$projectdir";
                         }
                         $options{projectdir} = $projectdir;
                 } elsif ($arg =~ m#^--only_install_modules$#) {
                         install_needed_packages();
                         exit(0);
                 } elsif ($arg =~ m#^--run_tests$#) {
-                        $run_tests = 1;
+                        $options{run_tests} = 1;
                 } elsif ($arg =~ m#^--run_full_tests$#) {
-                        $run_tests = 1;
-                        $run_full_tests = 1;
+                        $options{run_tests} = 1;
+                        $options{run_full_tests} = 1;
                 } elsif ($arg eq '--help') {
+                        $options{help} = 1;
                         _help();
                         exit(0);
                 } else {
@@ -1191,26 +1197,26 @@ sub analyze_args {
 
         load_needed_modules();
 
-        if($run_tests) {
-                exit(run_tests($run_full_tests));
+        if($options{run_tests}) {
+                exit(run_tests());
         }
 
         error "No project defined. Use sbatch -J \$PROJECTNAME or --project=\$PROJECTNAME to define a project!" unless $options{project};
 }
 
 sub debug_qx ($) {
-        $indentation++;
         my $command = shift;
         debug_sub "debug_qx($command)";
+        $indentation++;
 
         $indentation--;
         return qx($command);
 }
 
 sub debug_system ($) {
-        $indentation++;
         my $command = shift;
         debug_sub "debug_system($command)";
+        $indentation++;
 
         system($command);
         my $error_code = $?;
@@ -1222,8 +1228,9 @@ sub debug_system ($) {
 }
 
 sub is_ml {
-        $indentation++;
         debug_sub "is_ml()";
+        $indentation++;
+
         if(hostname() =~ m#taurusml#) {
                 debug "is_ml() -> 1";
                 $indentation--;
@@ -1236,8 +1243,8 @@ sub is_ml {
 }
 
 sub backup_mongo_db {
-        $indentation++;
         debug_sub 'backup_mongo_db()';
+        $indentation++;
 
         if($options{dryrun}) {
                 dryrun 'Not backing up MongoDB because of --dryrun';
@@ -1261,8 +1268,8 @@ sub backup_mongo_db {
 }
 
 sub end_mongo_db {
-        $indentation++;
         debug_sub 'end_mongo_db()';
+        $indentation++;
 
         $indentation-- if $options{dryrun};
         return dryrun 'Not ending MongoDB because of --dryrun' if $options{dryrun};
@@ -1281,8 +1288,8 @@ sub end_mongo_db {
 }
 
 sub _get_project {
-        $indentation++;
         debug_sub '_get_project()';
+        $indentation++;
         my $tmp_project = _get_environment_variable('SLURM_JOB_NAME');
         if($tmp_project) {
                 if($tmp_project && -e get_project_folder($tmp_project)) {
@@ -1293,24 +1300,28 @@ sub _get_project {
                         warning 'Invalid project name or the project folder does not exist';
                 }
         } else {
-                warning 'No project name defined in Slurm-Job';
+                if(!$options{run_tests} && !$options{run_full_tests}) {
+                        warning 'No project name defined in Slurm-Job';
+                }
         }
         $indentation--;
 }
 
 sub _get_number_of_workers {
-        $indentation++;
         debug_sub '_get_number_of_workers()';
+        $indentation++;
         my $ntasks = _get_environment_variable('SLURM_NTASKS');
         if($ntasks) {
-                if($ntasks && $ntasks =~ m#^\d+$# && $ntasks >= 4) {
+                if($ntasks && $ntasks =~ m#^\d+$# && $ntasks >= 1) {
                         $indentation--;
                         return $ntasks;
                 } else {
                         warning 'Invalid NTASKS ('.$ntasks.'). Should be number and at least 4!';
                 }
         } else {
-                warning 'ntasks not defined in Slurm-Job';
+                if(!$options{run_tests} && !$options{run_full_tests}) {
+                        warning 'ntasks not defined in Slurm-Job';
+                }
         }
 
         $indentation--;
@@ -1318,8 +1329,8 @@ sub _get_number_of_workers {
 }
 
 sub _get_mem_per_cpu {
-        $indentation++;
         debug_sub '_get_mem_per_cpu()';
+        $indentation++;
         my $mempercpu = _get_environment_variable('SLURM_MEM_PER_CPU');
         if($mempercpu) {
                 if($mempercpu && $mempercpu =~ m#^\d+$# && $mempercpu >= 1) {
@@ -1328,7 +1339,9 @@ sub _get_mem_per_cpu {
                         warning 'Invalid MEM_PER_CPU. Should be number and at least 1!';
                 }
         } else {
-                warning 'mempercpu not defined in Slurm-Job';
+                if(!$options{run_tests} && !$options{run_full_tests}) {
+                        warning 'mempercpu not defined in Slurm-Job';
+                }
         }
 
         $indentation--;
@@ -1336,23 +1349,23 @@ sub _get_mem_per_cpu {
 }
 
 sub _get_gpu_info {
-        $indentation++;
         debug_sub '_get_gpu_info()';
+        $indentation++;
         my $gpu_device_ordinal = _get_environment_variable('GPU_DEVICE_ORDINAL');
         if(defined $gpu_device_ordinal && $gpu_device_ordinal !~ /dev/i) {
                 my @gpus = split(/,/, $gpu_device_ordinal);
                 $indentation--;
                 return scalar @gpus;
         } else {
-                message 'No specific number of GPUs allocated, using the default number: '.$default_values{number_of_allocated_gpus};
+                debug 'No specific number of GPUs allocated, using the default number: '.$default_values{number_of_allocated_gpus};
                 $indentation--;
                 return $default_values{number_of_allocated_gpus};
         }
 }
 
 sub get_environment_variables {
-        $indentation++;
         debug_sub 'get_environment_variables()';
+        $indentation++;
 
         _get_project();
         $options{worker} = _get_number_of_workers();
@@ -1364,16 +1377,25 @@ sub get_environment_variables {
 }
 
 sub _get_environment_variable {
-        $indentation++;
         my $name = shift;
         debug_sub "_get_environment_variable($name)";
+        $indentation++;
+        if(exists $ENV{$name}) {
+                if(defined $ENV{$name}) {
+                        debug $ENV{$name};
+                } else {
+                        debug "$name exists in \%ENV, but is undefined";
+                }
+        } else {
+                debug "$name not defined in \%ENV";
+        }
         $indentation--;
         return $ENV{$name};
 }
 
 sub write_master_ip {
-        $indentation++;
         debug_sub 'write_master_ip()';
+        $indentation++;
 
         my $ip = get_local_ip_address();
 
@@ -1410,9 +1432,9 @@ sub write_master_ip {
 }
 
 sub modules_load {
-        $indentation++;
         my @modules = @_;
         debug_sub 'modules_load('.join(', ', @modules).')';
+        $indentation++;
         foreach my $mod (@modules) {
                 module_load($mod);
         }
@@ -1423,8 +1445,8 @@ sub modules_load {
 
 sub modify_system {
         my $command = shift;
-        $indentation++;
         debug_sub("modify_system($command)");
+        $indentation++;
         $indentation--;
         my $return_code = Env::Modify::system($command);
 
@@ -1443,17 +1465,17 @@ sub modify_system {
 }
 
 sub module_load {
-        $indentation++;
         my $toload = shift;
         debug_sub "module_load($toload)";
+        $indentation++;
 
         if($toload) {
-                if($options{dryrun}) {
+                if($options{dryrun} && !$options{ml_dryrun}) {
                         dryrun "Not loading module $toload because of --dryrun";
                 } else {
                         if(exists($ENV{LMOD_CMD})) {
                                 my $lmod_path = $ENV{LMOD_CMD};
-                                my $command = "eval \$($lmod_path sh load $toload)";
+                                my $command = "eval \$($lmod_path sh load $toload 2>/dev/null)";
                                 debug $command;
                                 local $Env::Modify::CMDOPT{startup} = 1;
                                 modify_system($command);
@@ -1469,23 +1491,35 @@ sub module_load {
 }
 
 sub debug_options {
-        $indentation++;
         debug_sub 'debug_options()';
-        debug 'This script file: '.get_working_directory()."/".__FILE__;
-        debug split(/\R/, Dumper \%options);
+        $indentation++;
+        debug 'This script file: '.$this_cwd."/".__FILE__;
+        
+        foreach my $key (sort { $a cmp $b || $a <=> $b } keys %options) {
+                if(exists $options{$key}) {
+                        if(defined $options{$key}) {
+                                debug "$key=$options{$key}";
+                        } else {
+                                debug "Option $key is not defined";
+                        }
+                } else {
+                        debug "Option $key does not exist";
+                }
+        }
+
         $indentation--;
         return 1;
 }
 
 sub program_installed {
-        $indentation++;
         my $program = shift;
         debug_sub "program_installed($program)";
+        $indentation++;
         my $exists = 0;
         my $ret = modify_system(qq#which $program > /dev/null 2> /dev/null#);
 
         if($ret == 0) {
-                debug "$program already installed";
+                debug "$program is installed";
                 $exists = 1;
         } else {
                 warning "$program does not seem to be installed. Please install it!";
@@ -1497,8 +1531,8 @@ sub program_installed {
 
 # https://stackoverflow.com/questions/330458/how-can-i-determine-the-local-machines-ip-addresses-from-perl
 sub get_local_ip_address {
-        $indentation++;
         debug_sub 'get_local_ip_address()';
+        $indentation++;
         my $socket = IO::Socket::INET->new(
                 Proto       => 'udp',
                 PeerAddr    => '198.41.0.4', # a.root-servers.net
@@ -1514,9 +1548,9 @@ sub get_local_ip_address {
 }
 
 sub is_ipv4 {
-        $indentation++;
         my $ip = shift;
         debug_sub "is_ipv4($ip)";
+        $indentation++;
         $indentation--;
         if ($ip =~ /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/) {
                 return 1;
@@ -1526,11 +1560,11 @@ sub is_ipv4 {
 }
 
 sub server_port_is_open {
-        $indentation++;
         my $server = shift;
         my $port = shift;
 
         debug_sub "server_port_is_open($server, $port)";
+        $indentation++;
 
         local $| = 1;
 
@@ -1551,9 +1585,9 @@ sub server_port_is_open {
 }
 
 sub get_servers_from_SLURM_NODES {
-        $indentation++;
         my $string = shift;
         debug_sub "get_servers_from_SLURM_NODES($string)";
+        $indentation++;
 
         my @server = map { chomp; $_ } qx#scontrol show hostname $string#;
 
@@ -1582,10 +1616,10 @@ sub get_servers_from_SLURM_NODES {
 }
 
 sub get_random_number {
-        $indentation++;
         my $minimum = shift // DEFAULT_MIN_RAND_GENERATOR;
         my $maximum = shift // DEFAULT_MAX_RAND_GENERATOR;
         debug_sub "get_random_number($minimum, $maximum)";
+        $indentation++;
         my $x = $minimum + int(rand($maximum - $minimum));
         debug "random_number -> $x";
         $indentation--;
@@ -1593,9 +1627,9 @@ sub get_random_number {
 }
 
 sub test_port_on_multiple_servers {
-        $indentation++;
         my ($port, @servers) = @_;
         debug_sub "test_port_on_multiple_servers($port, (".join(', ', @servers).'))';
+        $indentation++;
         my $is_open_everywhere = 1;
         THISFOREACH: foreach my $server (@servers) {
                 if(!server_port_is_open($server, $port)) {
@@ -1615,8 +1649,8 @@ sub test_port_on_multiple_servers {
 }
 
 sub get_open_ports {
-        $indentation++;
         debug_sub 'get_open_ports()';
+        $indentation++;
 
         my $slurm_nodes = '127.0.0.1';
         if(exists $ENV{'SLURM_JOB_NODELIST'}) {
@@ -1652,9 +1686,9 @@ sub get_open_ports {
 }
 
 sub get_dmesg_general {
-        $indentation++;
         my $type = shift // 'start';
         debug_sub "get_dmesg_general($type)";
+        $indentation++;
         my $slurm_nodes = '127.0.0.1';
         if(exists $ENV{'SLURM_JOB_NODELIST'}) {
                 debug "Environment variable `SLURM_JOB_NODELIST` exists ($ENV{SLURM_JOB_NODELIST})";
@@ -1687,7 +1721,7 @@ sub get_dmesg_general {
 }
 
 sub run_tests {
-        my $run_full_tests = shift // 0;
+        debug "run_tests()";
         $indentation++;
 
         my @failed_tests = ();
@@ -1794,7 +1828,15 @@ sub run_tests {
                 }
         }
 
+        {
+                my $has_error = environment_sanity_check();
+                if($has_error) {
+                        push @failed_tests, "environment_sanity_check()";
+                }
+        }
+
         if (!$ENV{SKIPPYTHONTESTS}){
+                modify_system("export waitsecondsnz=5");
                 run_bash_test("$python_module$python $script_paths{testscript}", \@failed_tests);
         }
 
@@ -1807,18 +1849,13 @@ sub run_tests {
                 }
         }
 
-        {
-                my $has_error = environment_sanity_check();
-                if($has_error) {
-                        push @failed_tests, "environment_sanity_check()";
-                }
-        }
+        if ($options{run_full_tests}) {
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=alpha --projectdir=test/projects --project=gpu_test_alpha --usegpus", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus", \@failed_tests);
 
-        if ($run_full_tests) {
-                run_bash_test("bash test/run_cpu_test.sh --nocountdown", \@failed_tests);
-                run_bash_test("bash test/run_cpu_test_2.sh --nocountdown", \@failed_tests);
-                run_bash_test("bash test/run_gpu_test.sh --nocountdown", \@failed_tests);
-                run_bash_test("bash test/run_gpu_test_alpha.sh --nocountdown", \@failed_tests);
                 run_bash_test("bash test/test_plot.sh", \@failed_tests);
                 run_bash_test("bash test/test_plot_2.sh", \@failed_tests);
                 run_bash_test("bash test/test_export.sh cpu_test", \@failed_tests);
@@ -1857,8 +1894,8 @@ sub run_bash_test {
 }
 
 sub get_working_directory {
-        $indentation++;
         debug_sub "get_working_directory()";
+        $indentation++;
         my $cwd = '';
         if(exists $ENV{SLURM_JOB_ID}) {
                 if(program_installed("scontrol")) {
@@ -1886,9 +1923,9 @@ sub get_working_directory {
 }
 
 sub run_ssh_command_on_all_nodes {
-        $indentation++;
         my $command = shift;
         debug_sub "run_ssh_command_on_all_nodes($command)";
+        $indentation++;
 
         if(exists $ENV{SLURM_JOB_ID} && exists $ENV{SLURM_JOB_NODELIST}) {
                 my @server = get_servers_from_SLURM_NODES($ENV{SLURM_JOB_NODELIST});
@@ -1903,8 +1940,8 @@ sub run_ssh_command_on_all_nodes {
 }
 
 sub check_needed_programs {
-        $indentation++;
         debug_sub "check_needed_programs()";
+        $indentation++;
 
         my $errors = 0;
 
@@ -1913,20 +1950,12 @@ sub check_needed_programs {
                 "ssh",
                 "bash",
                 "srun",
-                "pip3",
                 "squeue",
                 "mongod"
         );
 
-        if(is_ml()) {
-                @needed_programs = (
-                        $python,
-                        "ssh",
-                        "bash",
-                        "srun",
-                        "squeue",
-                        "mongod"
-                );
+        if(!is_ml()) {
+                push @needed_programs, "pip3";
         }
 
         foreach my $program (@needed_programs) {
@@ -1942,6 +1971,7 @@ sub check_needed_programs {
 }
 
 sub get_log_file_name {
+        debug_sub "get_log_file_name()";
         $indentation++;
         my $debug_log_folder = get_working_directory()."/debuglogs/";
         my $j = 0;
@@ -1958,14 +1988,25 @@ sub get_log_file_name {
         return $i;
 }
 
-#### Debug-Outputs
+sub stdout_debug_log ($$) {
+        my $show = shift;
+        my $string = shift;
+
+        if($debug_log_file) {
+                open my $fh, '>>', $debug_log_file;
+                print $fh $string;
+                close $fh;
+        }
+        return unless $show;
+        print $string;
+}
 
 sub stderr_debug_log ($$) {
         my $show = shift;
         my $string = shift;
 
         if($debug_log_file) {
-                open my $fh, '>>', "$debug_log_file";
+                open my $fh, '>>', $debug_log_file;
                 print $fh $string;
                 close $fh;
         }
@@ -1977,7 +2018,7 @@ sub dryrun (@) {
         my @msgs = @_;
         if($options{dryrun}) {
                 my $begin = "DRYRUN:\t\t";
-                my $spaces = "├".$indentation_char x $indentation." ";
+                my $spaces = "├".$indentation_char x ($indentation * $indentation_multiplier)." ";
                 if(@msgs) {
                         foreach my $msg (@msgs) {
                                 $msg = "$begin$spaces".join("\n$begin$spaces", split(/\R/, $msg));
@@ -1990,7 +2031,7 @@ sub dryrun (@) {
 }
 
 sub ok_debug (@) {
-        my $spaces = "├".$indentation_char x $indentation." ";
+        my $spaces = "├".$indentation_char x ($indentation * $indentation_multiplier)." ";
         foreach (@_) {
                 stderr_debug_log $options{debug}, color('green')."OK_DEBUG:\t$spaces$_".color('reset')."\n";
         }
@@ -2002,8 +2043,15 @@ sub ok (@) {
         }
 }
 
+sub message_noindent (@) {
+        foreach (@_) {
+                stderr_debug_log $options{messages}, color('cyan').$_.color('reset')."\n";
+        }
+}
+
+
 sub message (@) {
-        my $spaces = "├".$indentation_char x $indentation." ";
+        my $spaces = "├".$indentation_char x ($indentation * $indentation_multiplier)." ";
         foreach (@_) {
                 stderr_debug_log $options{messages}, color('cyan')."MESSAGE: \t$spaces$_".color('reset')."\n";
         }
@@ -2013,7 +2061,7 @@ sub warning (@) {
         return if !$options{warnings};
         my @warnings = @_;
         my $sub_name = '';
-        my $spaces = "├".$indentation_char x $indentation." ";
+        my $spaces = "├".($indentation_char x ($indentation * $indentation_multiplier))." ";
         foreach my $wrn (@warnings) {
                 stderr_debug_log $options{warnings}, color('yellow')."WARNING$sub_name:\t$spaces$wrn".color('reset')."\n";
         }
@@ -2021,15 +2069,15 @@ sub warning (@) {
 
 sub debug (@) {
         foreach (@_) {
-                my $spaces = "├".$indentation_char x $indentation." ";
+                my $spaces = "├".($indentation_char x ($indentation * $indentation_multiplier))." ";
                 stderr_debug_log $options{debug}, color('cyan')."DEBUG:\t\t$spaces$_".color('reset')."\n";
         }
 }
 
 sub debug_sub (@) {
-        my $spaces = "├─".((($indentation - 1) < 0) ? "" : $indentation_char x ($indentation - 1)." ");
+        my $spaces = "├─".((($indentation - 1) < 0) ? "" : $indentation_char x ($indentation * $indentation_multiplier)." ");
         foreach (@_) {
-                stderr_debug_log $options{debug}, color('blue')."DEBUG_SUB:\t$spaces".color("underline")."$_".color('reset')."\n";
+                stderr_debug_log $options{debug}, color('bold blue')."DEBUG_SUB:\t$spaces".color("underline")."$_".color('reset')."\n";
         }
 }
 
@@ -2070,8 +2118,8 @@ sub read_ini_file {
 }
 
 sub gentle_suicide {
-        $indentation++;
         debug_sub "gentle_suicide()";
+        $indentation++;
         if($options{originalslurmid}) {
                 debug_qx(qq#scancel --signal=USR1 --batch $options{originalslurmid}#);
         }
@@ -2079,12 +2127,70 @@ sub gentle_suicide {
 }
 
 sub debug_loaded_modules {
-        $indentation++;
         debug_sub "debug_loaded_modules()";
+        $indentation++;
         if($options{debug}) {
                 my $command = q#for i in $(seq -f "%03g" $_ModuleTable_Sz_); do eval "echo \$_ModuleTable${i}_"; done | base64 --decode | sed -e 's/,/,\n/g'#;
                 modify_system($command);
                 warn "\n";
         }
         $indentation--;
+}
+
+sub print_possible_errors {
+        debug_sub "print_possible_errors()";
+        $indentation++;
+        if(exists $options{projectdir} && exists $options{project} && defined $options{project} && defined $options{projectdir}) {
+                my $command = qq#bash tools/error_analyze.sh --project=$options{project} --projectdir=$options{projectdir} --nowhiptail 2>/dev/null | tee -a "$debug_log_file"#;
+                my $errors = qx($command);
+
+                my $error_code = $?;
+                my $exit_code = $error_code >> 8;
+                my $sig_code = $error_code & 127;
+                if($exit_code) {
+                        no_suicide_error "The script `$command` did not exit with exit-code 0, but instead $exit_code (SIG-Code: $sig_code)";
+                        print "\n$errors\n";
+                }   
+        } else {
+                if(!$options{run_full_tests} && !$options{run_tests} && !$options{help}) {
+                        if(!exists $options{projectdir} || !defined $options{projectdir}) {
+                                no_suicide_error "--projectdir undefined";
+                        }
+
+                        if(!exists $options{project} || !defined $options{project}) {
+                                no_suicide_error "--project undefined";
+                        }
+                }
+        }
+
+        $indentation--;
+}
+
+sub debug_env {
+        debug_sub "debug_env()";
+        return unless $options{debug};
+        $indentation++;
+        foreach my $key (sort { $a cmp $b || $a <=> $b } keys %ENV) {
+                debug "$key=$ENV{$key}";
+        }
+        $indentation--;
+}
+
+END {
+        debug_sub 'END-BLOCK';
+        if($ran_anything) {
+                if($options{debug}) {
+                        get_dmesg('end');
+                }
+        }
+        shutdown_script();
+        print_possible_errors();
+        if(exists $ENV{SLURM_JOB_ID}) {
+                my $best_file = "./.".$ENV{SLURM_JOB_ID}.".log";
+                if (-e $best_file) {
+                        stdout_debug_log 1, read_file($best_file);
+                }
+                stdout_debug_log 1, "Run ".color("bold")."bash evaluate-run.sh".color("reset")." to review the results in depth\n";
+        }
+        stdout_debug_log 1, "sbatch.pl wallclock-time: ".(time - $^T)."s\n";
 }

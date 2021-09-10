@@ -1,0 +1,100 @@
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 1 50
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 1 50
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.913987044551508\nWELT: 0.749070589055435\nDAS: 0.0833908808800849\nIST: 0.945334411083373\nEIN: 0.901019284164324\nTEST: 0.567545862621031\nRESULT: 50\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.913987044551508\nWELT: 0.749070589055435\nDAS: 0.0833908808800849\nIST: 0.945334411083373\nEIN: 0.901019284164324\nTEST: 0.567545862621031\nRESULT: 50\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 1 50
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.913987044551508\nWELT: 0.749070589055435\nDAS: 0.0833908808800849\nIST: 0.945334411083373\nEIN: 0.901019284164324\nTEST: 0.567545862621031\nRESULT: 50\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.913987044551508\nWELT: 0.749070589055435\nDAS: 0.0833908808800849\nIST: 0.945334411083373\nEIN: 0.901019284164324\nTEST: 0.567545862621031\nRESULT: 50\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.122447966671647\nWELT: 0.457595475341321\nDAS: 0.585361612300527\nIST: 0.858004019220012\nEIN: 0.032413050893485\nTEST: 0.936055453013964\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.122447966671647\nWELT: 0.457595475341321\nDAS: 0.585361612300527\nIST: 0.858004019220012\nEIN: 0.032413050893485\nTEST: 0.936055453013964\nRESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.122447966671647\nWELT: 0.457595475341321\nDAS: 0.585361612300527\nIST: 0.858004019220012\nEIN: 0.032413050893485\nTEST: 0.936055453013964\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.122447966671647\nWELT: 0.457595475341321\nDAS: 0.585361612300527\nIST: 0.858004019220012\nEIN: 0.032413050893485\nTEST: 0.936055453013964\nRESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.471807927199738\nWELT: 0.620312437971251\nDAS: 0.965105638411966\nIST: 0.312674271731289\nEIN: 0.0224106066280747\nTEST: 0.848586989319287\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.471807927199738\nWELT: 0.620312437971251\nDAS: 0.965105638411966\nIST: 0.312674271731289\nEIN: 0.0224106066280747\nTEST: 0.848586989319287\nRESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.471807927199738\nWELT: 0.620312437971251\nDAS: 0.965105638411966\nIST: 0.312674271731289\nEIN: 0.0224106066280747\nTEST: 0.848586989319287\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.471807927199738\nWELT: 0.620312437971251\nDAS: 0.965105638411966\nIST: 0.312674271731289\nEIN: 0.0224106066280747\nTEST: 0.848586989319287\nRESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 2 20
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 2 20
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.682865351977856\nWELT: 0.37003124863574\nDAS: 0.637732515848381\nIST: 0.86359766134678\nEIN: 0.804972568422347\nTEST: 0.590182033352889\nRESULT: 40\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.682865351977856\nWELT: 0.37003124863574\nDAS: 0.637732515848381\nIST: 0.86359766134678\nEIN: 0.804972568422347\nTEST: 0.590182033352889\nRESULT: 40\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 2 20
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.682865351977856\nWELT: 0.37003124863574\nDAS: 0.637732515848381\nIST: 0.86359766134678\nEIN: 0.804972568422347\nTEST: 0.590182033352889\nRESULT: 40\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.682865351977856\nWELT: 0.37003124863574\nDAS: 0.637732515848381\nIST: 0.86359766134678\nEIN: 0.804972568422347\nTEST: 0.590182033352889\nRESULT: 40\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 2 40
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 2 40
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.778677397481264\nWELT: 0.829688722591044\nDAS: 0.151638469929946\nIST: 0.404476689730423\nEIN: 0.218832383293449\nTEST: 0.672441113259978\nRESULT: 80\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.778677397481264\nWELT: 0.829688722591044\nDAS: 0.151638469929946\nIST: 0.404476689730423\nEIN: 0.218832383293449\nTEST: 0.672441113259978\nRESULT: 80\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 2 40
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.778677397481264\nWELT: 0.829688722591044\nDAS: 0.151638469929946\nIST: 0.404476689730423\nEIN: 0.218832383293449\nTEST: 0.672441113259978\nRESULT: 80\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.778677397481264\nWELT: 0.829688722591044\nDAS: 0.151638469929946\nIST: 0.404476689730423\nEIN: 0.218832383293449\nTEST: 0.672441113259978\nRESULT: 80\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.988955871042894\nWELT: 0.499605200343893\nDAS: 0.104805667922971\nIST: 0.634721932324233\nEIN: 0.568106440955564\nTEST: 0.323375907013528\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.988955871042894\nWELT: 0.499605200343893\nDAS: 0.104805667922971\nIST: 0.634721932324233\nEIN: 0.568106440955564\nTEST: 0.323375907013528\nRESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 0 40
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.988955871042894\nWELT: 0.499605200343893\nDAS: 0.104805667922971\nIST: 0.634721932324233\nEIN: 0.568106440955564\nTEST: 0.323375907013528\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.988955871042894\nWELT: 0.499605200343893\nDAS: 0.104805667922971\nIST: 0.634721932324233\nEIN: 0.568106440955564\nTEST: 0.323375907013528\nRESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 10
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 10
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.81783965819432\nWELT: 0.881892858629243\nDAS: 0.424824988973466\nIST: 0.506526575280937\nEIN: 0.115886103024497\nTEST: 0.0782571991294247\nRESULT: 30\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.81783965819432\nWELT: 0.881892858629243\nDAS: 0.424824988973466\nIST: 0.506526575280937\nEIN: 0.115886103024497\nTEST: 0.0782571991294247\nRESULT: 30\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 10
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.81783965819432\nWELT: 0.881892858629243\nDAS: 0.424824988973466\nIST: 0.506526575280937\nEIN: 0.115886103024497\nTEST: 0.0782571991294247\nRESULT: 30\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.81783965819432\nWELT: 0.881892858629243\nDAS: 0.424824988973466\nIST: 0.506526575280937\nEIN: 0.115886103024497\nTEST: 0.0782571991294247\nRESULT: 30\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 50
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 50
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.916781318447651\nWELT: 0.558093546281697\nDAS: 0.190775345350755\nIST: 0.751769325320261\nEIN: 0.69829287974888\nTEST: 0.793252460178323\nRESULT: 150\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.916781318447651\nWELT: 0.558093546281697\nDAS: 0.190775345350755\nIST: 0.751769325320261\nEIN: 0.69829287974888\nTEST: 0.793252460178323\nRESULT: 150\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 50
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.916781318447651\nWELT: 0.558093546281697\nDAS: 0.190775345350755\nIST: 0.751769325320261\nEIN: 0.69829287974888\nTEST: 0.793252460178323\nRESULT: 150\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.916781318447651\nWELT: 0.558093546281697\nDAS: 0.190775345350755\nIST: 0.751769325320261\nEIN: 0.69829287974888\nTEST: 0.793252460178323\nRESULT: 150\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 1 20
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 1 20
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.124336230176599\nWELT: 0.304942658028693\nDAS: 0.38809166549812\nIST: 0.52359744356631\nEIN: 0.711325134977489\nTEST: 0.204445398398079\nRESULT: 20\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.124336230176599\nWELT: 0.304942658028693\nDAS: 0.38809166549812\nIST: 0.52359744356631\nEIN: 0.711325134977489\nTEST: 0.204445398398079\nRESULT: 20\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 1 20
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.124336230176599\nWELT: 0.304942658028693\nDAS: 0.38809166549812\nIST: 0.52359744356631\nEIN: 0.711325134977489\nTEST: 0.204445398398079\nRESULT: 20\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.124336230176599\nWELT: 0.304942658028693\nDAS: 0.38809166549812\nIST: 0.52359744356631\nEIN: 0.711325134977489\nTEST: 0.204445398398079\nRESULT: 20\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 10
+Code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 10
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nHALLO: 0.882964357574568\nWELT: 0.378375420437322\nDAS: 0.881562899836478\nIST: 0.168686606312754\nEIN: 0.260895115451678\nTEST: 0.528685211422257\nRESULT: 30\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.882964357574568\nWELT: 0.378375420437322\nDAS: 0.881562899836478\nIST: 0.168686606312754\nEIN: 0.260895115451678\nTEST: 0.528685211422257\nRESULT: 30\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: perl /home/h8/s3811141/test/randomtest_40254/omniopt/script/../test/projects/cpu_test2/program/program.pl 3 10
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nHALLO: 0.882964357574568\nWELT: 0.378375420437322\nDAS: 0.881562899836478\nIST: 0.168686606312754\nEIN: 0.260895115451678\nTEST: 0.528685211422257\nRESULT: 30\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'HALLO: 0.882964357574568\nWELT: 0.378375420437322\nDAS: 0.881562899836478\nIST: 0.168686606312754\nEIN: 0.260895115451678\nTEST: 0.528685211422257\nRESULT: 30\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>

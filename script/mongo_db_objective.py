@@ -63,11 +63,7 @@ def objective_function_mongodb(parameter):
 
     basepath = pathlib.Path(__file__).parent.absolute()
     still_running_file = os.path.abspath(projectdir + "/" + str(projectname) + "/ipfiles/still_has_jobs_" + uuid.uuid4().hex)
-    #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    #print("still_running_file -> " + str(still_running_file))
-    #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     touch(still_running_file)
-    #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     try:
         f = open(still_running_file)
     except IOError:
@@ -122,8 +118,6 @@ def objective_function_mongodb(parameter):
 
         cprint("Logfile: " + log_files["general_filename_log"], data["show_live_output"])
 
-        #keras_parser = workerstuff.get_keras_results_json(log_files["stdout"])
-
         cprint("RES: " + str(res), data["show_live_output"])
 
         cprint("Writing general log file", data["show_live_output"])
@@ -132,7 +126,6 @@ def objective_function_mongodb(parameter):
             log_files["general_filename_log"],
             specific_log_file,
             res,
-            '', #keras_parser["kerasresults"],
             log_files
         )
 
@@ -178,6 +171,7 @@ def objective_function_mongodb(parameter):
         all_results["starttime"] = times["start"]
         all_results["endtime"] = times["end"]
         all_results["hostname"] = socket.gethostname()
+        all_results["logfile_path"] = specific_log_file
 
         cprint("Returning data", data["show_live_output"])
 
@@ -193,7 +187,6 @@ def objective_function_mongodb(parameter):
             'status': status,
             'all_outputs': all_results,
             'calculation_time': times["end"] - times["start"],
-            #'output': orig_res,
             'output': '',
             'every_epoch_data': '',
             'parameters': xvars

@@ -123,7 +123,7 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
         data["mongodbport"] = int(savedport)
         #print("mongodbport from file: " + str(savedport))
     else:
-        default_port = str(os.getenv("mongodbport", 56745))
+        default_port = str(os.getenv("mongodbport", 56741))
         if(str(os.getenv("SLURM_JOB_ID")) != "None"):
             sys.stderr.write("The file `" + mongodbportfile + "` could not be found! Using " + default_port + "instead\n")
         data["mongodbport"] = default_port

@@ -859,6 +859,9 @@ sub load_needed_modules {
         $indentation++;
 
         my $lmod_path = $ENV{LMOD_CMD};
+	if(!$lmod_path) {
+		warning "lmod could not be found. Are you sure you are running this on a Taurus environment?";
+	}
         modify_system("eval \$($lmod_path sh --force purge 2>/dev/null)");
 
         my $arch = (POSIX::uname)[4];

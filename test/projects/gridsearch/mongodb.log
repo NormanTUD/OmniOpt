@@ -1,0 +1,51 @@
+2022-06-15T19:17:11.644+0200 I CONTROL  [main] ***** SERVER RESTARTED *****
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] MongoDB starting : pid=21883 port=41234 dbpath=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/mongodb 64-bit host=tauruslogin4.taurus.hrsk.tu-dresden.de
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] db version v4.0.3
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] git version: 7ea530946fa7880364d88c8d8b6026bbc9ffa48c
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] OpenSSL version: OpenSSL 1.1.1  11 Sep 2018
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] allocator: tcmalloc
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] modules: none
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten] build environment:
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten]     distarch: x86_64
+2022-06-15T19:17:11.651+0200 I CONTROL  [initandlisten]     target_arch: x86_64
+2022-06-15T19:17:11.652+0200 I CONTROL  [initandlisten] options: { net: { bindIpAll: true, port: 41234 }, processManagement: { fork: true }, storage: { dbPath: "test/projects/gridsearch/mongodb", mmapv1: { smallFiles: true } }, systemLog: { destination: "file", logAppend: true, path: "test/projects/gridsearch/mongodb.log" } }
+2022-06-15T19:17:11.656+0200 I STORAGE  [initandlisten] Detected data files in /home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/mongodb created by the 'wiredTiger' storage engine, so setting the active storage engine to 'wiredTiger'.
+2022-06-15T19:17:11.657+0200 I STORAGE  [initandlisten] wiredtiger_open config: create,cache_size=31567M,session_max=20000,eviction=(threads_min=4,threads_max=4),config_base=false,statistics=(fast),log=(enabled=true,archive=true,path=journal,compressor=snappy),file_manager=(close_idle_time=100000),statistics_log=(wait=0),verbose=(recovery_progress),
+2022-06-15T19:17:14.321+0200 I STORAGE  [initandlisten] WiredTiger message [1655313434:321312][21883:0x7ffac17959c0], txn-recover: Main recovery loop: starting at 4/65536
+2022-06-15T19:17:14.433+0200 I STORAGE  [initandlisten] WiredTiger message [1655313434:433038][21883:0x7ffac17959c0], txn-recover: Recovering log 4 through 5
+2022-06-15T19:17:14.503+0200 I STORAGE  [initandlisten] WiredTiger message [1655313434:503885][21883:0x7ffac17959c0], txn-recover: Recovering log 5 through 5
+2022-06-15T19:17:14.558+0200 I STORAGE  [initandlisten] WiredTiger message [1655313434:558482][21883:0x7ffac17959c0], txn-recover: Set global recovery timestamp: 0
+2022-06-15T19:17:14.575+0200 I RECOVERY [initandlisten] WiredTiger recoveryTimestamp. Ts: Timestamp(0, 0)
+2022-06-15T19:17:14.602+0200 W STORAGE  [initandlisten] Detected configuration for non-active storage engine mmapv1 when current storage engine is wiredTiger
+2022-06-15T19:17:14.602+0200 I CONTROL  [initandlisten] 
+2022-06-15T19:17:14.602+0200 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2022-06-15T19:17:14.602+0200 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2022-06-15T19:17:14.602+0200 I CONTROL  [initandlisten] 
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] 
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] ** WARNING: You are running on a NUMA machine.
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] **          We suggest launching mongod like this to avoid performance problems:
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] **              numactl --interleave=all mongod [other options]
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] 
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] ** WARNING: /proc/sys/vm/zone_reclaim_mode is 1
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] **          We suggest setting it to 0
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] **          http://www.kernel.org/doc/Documentation/sysctl/vm.txt
+2022-06-15T19:17:14.603+0200 W CONTROL  [initandlisten] 
+2022-06-15T19:17:14.603+0200 W CONTROL  [initandlisten] 
+2022-06-15T19:17:14.603+0200 I CONTROL  [initandlisten] 
+2022-06-15T19:17:16.589+0200 I FTDC     [initandlisten] Initializing full-time diagnostic data capture with directory '/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/mongodb/diagnostic.data'
+2022-06-15T19:17:16.602+0200 I NETWORK  [initandlisten] waiting for connections on port 41234
+2022-06-15T19:17:16.606+0200 I NETWORK  [listener] connection accepted from 127.0.0.1:33248 #1 (1 connection now open)
+2022-06-15T19:17:16.622+0200 I NETWORK  [conn1] received client metadata from 127.0.0.1:33248 conn1: { driver: { name: "PyMongo", version: "3.12.0" }, os: { type: "Linux", name: "Linux", architecture: "x86_64", version: "3.10.0-1127.19.1.el7.x86_64" }, platform: "CPython 3.7.4.final.0" }
+2022-06-15T19:17:16.623+0200 I NETWORK  [listener] connection accepted from 127.0.0.1:33250 #2 (2 connections now open)
+2022-06-15T19:17:16.624+0200 I NETWORK  [conn2] received client metadata from 127.0.0.1:33250 conn2: { driver: { name: "PyMongo", version: "3.12.0" }, os: { type: "Linux", name: "Linux", architecture: "x86_64", version: "3.10.0-1127.19.1.el7.x86_64" }, platform: "CPython 3.7.4.final.0" }
+2022-06-15T19:17:16.651+0200 I NETWORK  [conn1] end connection 127.0.0.1:33248 (1 connection now open)
+2022-06-15T19:17:16.651+0200 I NETWORK  [conn2] end connection 127.0.0.1:33250 (0 connections now open)
+2022-06-15T19:17:20.218+0200 I CONTROL  [signalProcessingThread] got signal 15 (Terminated), will terminate after current cmd ends
+2022-06-15T19:17:20.218+0200 I NETWORK  [signalProcessingThread] shutdown: going to close listening sockets...
+2022-06-15T19:17:20.218+0200 I NETWORK  [signalProcessingThread] removing socket file: /tmp/mongodb-41234.sock
+2022-06-15T19:17:20.218+0200 I CONTROL  [signalProcessingThread] Shutting down free monitoring
+2022-06-15T19:17:20.218+0200 I FTDC     [signalProcessingThread] Shutting down full-time diagnostic data capture
+2022-06-15T19:17:20.235+0200 I STORAGE  [signalProcessingThread] WiredTigerKVEngine shutting down
+2022-06-15T19:17:20.312+0200 I STORAGE  [signalProcessingThread] shutdown: removing fs lock...
+2022-06-15T19:17:20.313+0200 I CONTROL  [signalProcessingThread] now exiting
+2022-06-15T19:17:20.313+0200 I CONTROL  [signalProcessingThread] shutting down with code:0

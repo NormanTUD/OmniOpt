@@ -11,10 +11,13 @@ from getOpts import getOpts
 import myfunctions
 import mypath
 import range_generator
-from hyperopt import fmin, tpe, hp
+from hyperopt import fmin, tpe
+from hyperopt.rand import suggest
 import networkstuff
 import linuxstuff
 import omnioptstuff
+
+from simulated_annealing import validate_space_simulated_annealing, simulated_annealing
 
 global myconf
 myconf = None
@@ -25,7 +28,7 @@ def dier(data):
 
 def cprint (param, show_live_output=1):
     if str(show_live_output) == "1":
-        print('\x1b[1;31m' + param + '\x1b[0m')
+        print('\x1b[1;31m' + str(param) + '\x1b[0m')
 
 
 def set_myconf (projectname, projectdirdefault=None):
@@ -68,7 +71,6 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
     global myconf
     projectfolder = omnioptstuff.get_project_folder(projectname, projectdir)
 
-    #dier("mydebug.getdata: %s" % projectfolder)
     config_path = omnioptstuff.get_config_path_by_projectfolder(projectfolder)
     myconf = getOpts(config_path)
 
@@ -83,6 +85,7 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
     debug("Getting config-data")
     data = {}
     data["objective_program"] = None
+    data["seed"] = None
     debug("Objective code WAS none!")
     data["objective_program"] = myconf.get_cli_code('DATA', 'objective_program')
     if data["objective_program"]:
@@ -90,7 +93,6 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
     else:
         debug("objective_program was NOT ok!")
 
-#====================
     mongodbipfolder = projectfolder + "/ipfiles/"
     try:
         os.stat(mongodbipfolder)
@@ -104,7 +106,6 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
         with open(mongodbipfile) as f:
             saved_ip = f.readline()
         if networkstuff.is_valid_ipv4_address(saved_ip):
-            #debug("IP for MongoDB: " + saved_ip)
             data["mongodbmachine"] = saved_ip
         else:
             print("The IP `" + saved_ip + "` is not a valid one!")
@@ -115,7 +116,6 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
 
     mongodbportfile = mongodbipfolder + "mongodbportfile-" + str(os.getenv("SLURM_JOB_ID"))
     mongodbportfile = linuxstuff.normalize_path(mongodbportfile)
-    #debug(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> PORTFILE: " + mongodbportfile)
     if os.path.isfile(mongodbportfile):
         savedport = ''
         with open(mongodbportfile) as f:
@@ -127,7 +127,6 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
         if(str(os.getenv("SLURM_JOB_ID")) != "None"):
             sys.stderr.write("The file `" + mongodbportfile + "` could not be found! Using " + default_port + "instead\n")
         data["mongodbport"] = default_port
-    #====================
     try:
         data["mongodbmachine"] = myconf.str_get_config('MONGODB', 'machine')
     except: 
@@ -152,13 +151,14 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
         raise Exception("Dimensions must at least be 1 or higher and integer-only!")
 
     data["precision"] = myconf.int_get_config("DATA", "precision")
-    #debug("PID: " + str(os.getpid()))
-    #warning("Precision set to " + str(data["precision"]) + ", WARNING: precision is *NOT* accurracy! Don't get fooled by more digits after the decimal point!")
 
     algorithms_desc = range_generator.get_algorithms_list()
     data["algo"] = None
     if data["algo_name"] in algorithms_desc:
-        data["algo"] = eval(data["algo_name"])
+        if data["algo_name"] == "hyperopt.rand.suggest":
+            data["algo"] = suggest
+        else:
+            data["algo"] = eval(data["algo_name"])
 
     if data["algo"] is None:
         possible_algorithms = ''
@@ -174,6 +174,11 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
     except: 
         pass
 
+    try:
+        data["seed"] = myconf.int_get_config('DATA', 'seed')
+    except: 
+        pass
+
     if data["show_stack"] == 0:
         sys.tracebacklimit = 0
 
@@ -183,7 +188,6 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
                 raise Exception("Invalid IP `" + params["mongodbmachine"] + "`. Must be either IPv4 or IPv6-adress!")
             else:
                 data["mongodbmachine"] = params["mongodbmachine"]
-                #print("Set machine to " + data["mongodbmachine"])
 
     return data
 
@@ -257,5 +261,3 @@ def module_warnings():
                 item["error_version"] +  " " + item["text"] + ", use version " + \
                 item["use_version"] + \
                 " if any errors occur! Maybe you need to use a virtualenvironment. See the manual for more details.")
-
-

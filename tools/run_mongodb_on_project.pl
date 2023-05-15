@@ -10,9 +10,9 @@ use Env::Modify;
 our %options = (
         debug => 0,
         project => '',
-        int => 0,
         projectdir => './projects',
-        query => undef
+        query => undef,
+        dontloadmodules => 0
 );
 
 use OmniOptFunctions;
@@ -49,7 +49,7 @@ sub main {
                         chomp $dbip;
                         chomp $dbport;
 
-                        warn "Found the following ip:port: $dbip:$dbport\n";
+                        debug "Found the following ip:port: $dbip:$dbport\n";
                         $command = qq#mongo --quiet mongodb://$dbip:$dbport/$options{project} --eval '$options{query}'#;
                         print myqx($command);
                 } else {
@@ -77,24 +77,45 @@ sub main {
 
 }
 
+sub help {
+        my $exit = shift // 0;
+
+        print <<EOF;
+This script will run a MongoDB-query on a running project.
+
+Example:
+
+perl tools/run_mongodb_on_project.pl --debug --project=testrun --projectdir=projects '--query=db.jobs.find({"result.status": { \$eq: "ok" } }, { "result.loss": 1 } )'
+
+--help                                                  This help
+--debug                                                 Print debug statements
+--project=PROJECTNAME                                   Name of the project
+--query=QUERY                                           Query to be executed
+--projectdir=PROJECT/DIR                                Directory of the projects
+--dontloadmodules                                       Disables loading of modules (faster, but you need to load modules yourself)
+EOF
+
+        if($exit) {
+                exit 0;
+        }
+}
+
 sub analyze_args {
         my @args = @_;
 
         foreach (@args) {
                 if(m#^--debug$#) {
                         $options{debug} = 1;
+                } elsif(m#^--help$#) {
+                        help(1);
+                 } elsif(m#^--dontloadmodules$#) {
+                        $options{dontloadmodules} = 1;
                 } elsif (m#^--project=(.*)$#) {
                         $options{project} = $1;
-                } elsif (m#^--switchaxes$#) {
-                        $options{switchaxes} = 1;
                 } elsif (m#^--query=(.+)$#) {
                         $options{query} = $1;
-                } elsif (m#^--parameter=(.+)$#) {
-                        $options{parameter} = $1;
                 } elsif (m#^--projectdir=(.+)$#) {
                         $options{projectdir} = $1;
-                } elsif (m#^--int$#) {
-                        $options{int} = 1;
                 } else {
                         die "Unknown parameter $_";
                 }

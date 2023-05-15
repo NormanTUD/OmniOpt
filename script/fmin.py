@@ -7,6 +7,8 @@ space to try out.
 import pprint
 import sys
 
+from gridsearch import gridsearch, validate_space_exhaustive_search, ExhaustiveSearchError
+from simulated_annealing import validate_space_simulated_annealing, simulated_annealing
 from mydebug import debug, warning, myconf, get_data, module_warnings, set_myconf
 from mongo_db_objective import objective_function_mongodb
 import hyperopt
@@ -16,6 +18,22 @@ import omnioptstuff
 import workerstuff
 import mypath
 import atexit
+import numpy as np
+import os
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+def dier (msg):
+    pprint.pprint(msg)
 
 debug('Starting...')
 module_warnings()
@@ -43,10 +61,15 @@ debug('Beginning fmin')
 debug('algo = ' + str(data['algo']))
 debug('max_evals = ' + str(data['max_evals']))
 
+if data["algo"] == "gridsearch":
+    validate_space_exhaustive_search(space)
+elif data["algo"] == "annealing":
+    validate_space_simulated_annealing(space)
+
 fmin_parameters = {
     'fn':                       objective_function_mongodb,
     'trials':                   workerstuff.initialize_mongotrials_object(projectname, data),
-    'space':                    [projectname, space, projectdir],
+    'space':                    [projectname, space, projectdir, params],
     'algo':                     data['algo'],
     'max_evals':                data['max_evals'],
     'catch_eval_exceptions':    True,
@@ -54,9 +77,27 @@ fmin_parameters = {
     'verbose':                  0
 }
 
-best = fmin(**fmin_parameters)
-debug('Ending fmin')
-best_data = hyperopt.space_eval(space, best)
+if data["seed"] is not None:
+    os.environ['HYPEROPT_FMIN_SEED'] = str(data["seed"])
+    print("Using seed: %s" % data["seed"])
+    #fmin_parameters["rstate"] = np.random.default_rng(int(data["seed"]))
+
+try:
+    best = fmin(**fmin_parameters)
+    debug('Ending fmin')
+    best_data = hyperopt.space_eval(space, best)
+except Exception as e: 
+    print(f"{bcolors.FAIL}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{bcolors.ENDC}")
+    print(f"{bcolors.FAIL}OmniOpt encountered an error.{bcolors.ENDC}")
+    if len(str(e)):
+        print(e)
+    print("This is probably caused by wrong hyperparameters.")
+    print("Possible error sources:")
+    print("- You have negative values in hp.loguniform entries")
+    print("- hp.choice or hp.uniform you have a lower bound less than 0")
+    print(f"{bcolors.FAIL}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{bcolors.ENDC}")
+
+
 
 def end_code ():
     global myconf

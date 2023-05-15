@@ -13,16 +13,13 @@ class getOpts:
     def __init__(self, config_file):
         self.filename = config_file
         if self.filename is None:
-            print("The config file was empty")
+            sys.stderr.write("The config file was empty!\n")
             sys.exit(1)
         else:
             if not os.path.exists(self.filename):
-                print("The config-file could not be found (searched for it in the path " + self.filename + ")")
+                sys.stderr.write("The config-file could not be found (searched for it in the path " + self.filename + ")\n")
                 self.filename = None
         self.myconfig = self.get_program_config()
-        #print(self.filename)
-        #import sys
-        #sys.exit(0)
 
     def log_file_exists(self, path):
         if os.path.isfile(path):

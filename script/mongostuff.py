@@ -13,6 +13,7 @@ import subprocess
 import socket
 import sys
 from pathlib import Path
+import slurmstuff
 
 class Timeout():
     """Timeout class using ALARM signal."""
@@ -84,7 +85,7 @@ def mongo_db_already_up(conStr):
     ret = True
     try:
         # The ismaster command is cheap and does not require auth.
-        mongo_timeout = int(os.getenv("MONGOTIMEOUT", 5))
+        mongo_timeout = int(os.getenv("MONGOTIMEOUT", 86400 * 7))
         with Timeout(mongo_timeout):
             client.admin.command('ismaster')
     except ConnectionFailure:

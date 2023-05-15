@@ -1,7 +1,9 @@
 def get_algorithms_list():
     algorithms_desc = {
         "hyperopt.rand.suggest": "Random Search",
-        "tpe.suggest": "Tree of Parzen Estimators"
+        "tpe.suggest": "Tree of Parzen Estimators",
+        "gridsearch": "Gridsearch",
+        "simulated_annealing": "Simulated Annealing"
     }
     return algorithms_desc
 
@@ -88,6 +90,12 @@ def get_range_generator_list():
             "In contrast to quniform optimization algorithms should assume no "+
             "additional correlation in the loss function between nearby integer "+
             "values, as compared with more distant integer values (e.g. random seeds)."
+        },
+        {
+            "name": "hp.uniformint",
+            "parameters": "hp.uniformint(label, lower, upper)",
+            "options": ("label", "lower", "upper"),
+            "description": "Returns a uniform integer between lower and upper"
         }
     ]
     return range_generator_dict

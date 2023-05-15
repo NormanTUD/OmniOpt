@@ -15,6 +15,7 @@ import shlex
 from pprint import pprint
 import os
 import sys
+import os.path
 
 def dier(data):
     pprint(data)
@@ -40,9 +41,10 @@ def run_program(program, logfiles):
 
         sp = subprocess.Popen(
             programconverted,
+            universal_newlines=True, 
             stdout=fstdout,
             stderr=fstderr,
-            universal_newlines=True, 
+            encoding='utf-8',
             close_fds=True,
             bufsize=65536
         )
@@ -71,36 +73,22 @@ def run_program(program, logfiles):
 
     return array
 
-def get_result_from_output(res, donealready=0):
-    re_search = 'RESULT: (' + myregexps.floating_number + ')'
-    if donealready == 0:
-        re_search = 'RESULT: (' + myregexps.floating_number + ')\\n'
-    m = re.search(re_search, res)
-    if m:
-        res = m.group(1)
-        mydebug.debug('Found through regex: ' + res)
-        floated = None
-        try:
-            floated = float(res)
-        except:
-            mydebug.error("The code `" + res + "` could not be converted into a float")
-        return floated
-    else:
-        if donealready == 0:
-            return get_result_from_output(res, 1)
-        else:
-            return float('inf')
+def get_re_beginning (projectdir, projectname):
+    if projectdir is not None and projectdir != "" and projectname is not None and projectname != "":
+        re_start = projectdir + "/" + projectname + "/re_start"
+        if os.path.exists(re_start):
+            fline = open(re_start).readline().rstrip()
+            return fline
+    return "RESULT"
 
-def get_result_from_output_file(res):
+def get_result_from_output_file(res, projectdir="", projectname=""):
     file1 = open(res, 'r') 
     Lines = file1.readlines() 
 
     count = 0
-    re_search = 'RESULT: (' + myregexps.floating_number + ')'
     for line in Lines: 
         line = line.splitlines()[0]
-        groups = re.search('RESULT: (' + myregexps.floating_number + ')', line, re.IGNORECASE)
-        #groups = re.search(rf"{re_search}", line, re.IGNORECASE)
+        groups = re.search(get_re_beginning(projectdir, projectname) + ': (' + myregexps.floating_number + ')', line, re.IGNORECASE)
         if groups:
             floated = float(groups.group(1))
             return floated
@@ -113,10 +101,10 @@ def get_data_from_output(res):
         return data
 
     mydebug.debug("get_data_from_output:\n" + str(res))
-    lines = re.findall('[a-zA-Z]+:\\s*' + myregexps.floating_number, res)
+    lines = re.findall('[a-zA-Z0-9]+:\\s*' + myregexps.floating_number, res)
 
     for line in lines:
-        this_match = re.match('^([a-zA-Z]+):\\s*(' + myregexps.floating_number + ")", line)
+        this_match = re.match('^([a-zA-Z0-9]+):\\s*(' + myregexps.floating_number + ")", line)
         if this_match is not None:
             data[this_match.group(1)] = this_match.group(2)
     return data
@@ -136,7 +124,7 @@ def start_worker(data, start_worker_command, myconf, slurmid, projectdir, projec
     except Exception as this_error: 
         print("Unable to create file %s on disk: %s" % (startworkerbashfile, this_error))
 
-def get_start_worker_command(start_worker_command, project, myconf, data, projectdirdefault=None):
+def get_start_worker_command(start_worker_command, project, myconf, data, projectdirdefault=None, waitsecondsnz=300):
     kill_after_n_no_results = myconf.int_get_config('MONGODB', 'kill_after_n_no_results')
     if kill_after_n_no_results:
         mydebug.debug('>>> kill_after_n_no_results defined: >>> ' + str(kill_after_n_no_results) + ", changed start_worker_command accordingly")
@@ -194,7 +182,7 @@ else
 fi
 
 myload Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-myload load TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
+myload TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
 PCIBUS=$(python3 -c "import tensorflow as tf; print(tf.test.gpu_device_name())" 2>&1)
 echo $PCIBUS > $THISUUIDFILE
@@ -295,6 +283,9 @@ else
     echo -n ${CUDA_VISIBLE_DEVICES} >> $CUDAFILE
 fi
 
+echo "HOSTNAME: " >> $GENERALLOGFILE
+hostname >> $GENERALLOGFILE
+
 if [[ -z $CUDA_VISIBLE_DEVICES ]]; then
     echo "CUDA_VISIBLE_DEVICES could not be set. Continuing without specified GPUs." >&2 >> $GENERALLOGFILE
 else
@@ -354,7 +345,7 @@ done
         try:
             start_worker_bash = start_worker_bash.replace("->mainpath<-", str(mypath.mainpath))
             start_worker_bash = start_worker_bash.replace("->ipfilesdir<-", str(ipfilesdir))
-            start_worker_bash = start_worker_bash.replace("->waitsecondsnz<-", str(os.getenv('waitsecondsnz', 300)))
+            start_worker_bash = start_worker_bash.replace("->waitsecondsnz<-", str(os.getenv('waitsecondsnz', waitsecondsnz)))
             start_worker_bash = start_worker_bash.replace("->mongodbport<-", str(data["mongodbport"]))
             start_worker_bash = start_worker_bash.replace("->mongodbmachine<-", str(data["mongodbmachine"]))
             start_worker_bash = start_worker_bash.replace("->colorprintfgray<-", str(colorprintfgray))
@@ -388,7 +379,7 @@ def get_main_start_worker_command(data, project, enable_strace=0, enable_python_
     tmp_basefolder = omnioptstuff.get_project_folder(data['mongodbdbname']) 
     worker_command_file = tmp_basefolder + '/worker_start_command'
     mydebug.debug('worker_command_file = ' + worker_command_file)
-    start_worker_command_bash = "#!/bin/bash\n\n" + start_worker_command + "\n\nrm " + worker_command_file + "\n"
+    start_worker_command_bash = "#!/bin/bash -l\n\n" + start_worker_command + "\n\nrm " + worker_command_file + "\n"
     filestuff.overwrite_file(worker_command_file, start_worker_command_bash)
 
     return start_worker_command

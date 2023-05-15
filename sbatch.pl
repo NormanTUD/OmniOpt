@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+my @ORIGINAL_ARGV = @ARGV;
+
 #SBATCH --signal=B:USR1@120
 
 my $indentation_multiplier = 4;
@@ -21,11 +23,15 @@ use Cwd;
 use File::Copy;
 use Memoize;
 use Sys::Hostname;
+use lib './perllib/';
+use JSON::PP;
+use Digest::MD5 qw#md5_hex#;
 
 sub std_print (@);
 
 memoize 'get_log_path_date_folder';
 memoize 'get_project_folder';
+
 
 my $indentation_char = "─";
 my $indentation = 0;
@@ -47,10 +53,12 @@ sub std_print (@) {
         }
 }
 
-std_print color('underline')."Log file: $debug_log_file".color('reset')."\n";
+std_print mycolor('underline')."Log file: $debug_log_file".mycolor('reset')."\n";
 
 
 show_logo();
+
+std_print(qx(df -h .));
 
 use constant {
         DEFAULT_MIN_RAND_GENERATOR => 2_048,
@@ -123,15 +131,38 @@ our %options = (
         run_nvidia_smi => 1,
         keep_db_up => 1,
         sleep_nvidia_smi => $default_values{sleep_nvidia_smi},
+        run_hook => '',
         sleep_db_up => $default_values{sleep_db_up},
         debug_srun => 0,
         projectdir => $this_cwd.'/projects/',
         install_despite_dryrun => 0,
+        overcommit => 0,
+        overlap => 0,
         filter_stdout => 1,
         run_full_tests => 0,
+        run_multigpu_tests => 1,
         run_tests => 0,
-        help => 0
+        help => 0,
+        num_gpus_per_worker => 0,
+        partition => '',
+        reservation => '',
+        account => '',
+        max_time_per_worker => "01:00:00",
+        no_quota_test => 0,
+        process_limit_check => 1,
+        run_top => 1,
+        fail_random_tests => 0,
+        color => 1,
+        srun_no_exclusive => 0,
+        srun_number_of_nodes => 1,
+        srun_number_of_tasks => 1,
+        srun_ntasks_per_core => 1,
+        srun_cpus_per_task => 1,
+        cpus_per_task => 1,
+        trace_omniopt => 0
 );
+
+autoset_min_gpus_per_worker();
 
 lock_keys(%options);
 
@@ -151,12 +182,16 @@ my %script_paths = (
         mongodb => "$script_folder/mongodb.py",
         backupmongodb => "$script_folder/backupmongodb.py",
         show_sys_path => "$script_folder/show_sys_path.py",
-        loggpu => "$tools_folder/loggpu.sh"
+        loggpu => "$tools_folder/loggpu.sh",
+        check_process_limits => "$tools_folder/check_process_limit.sh",
+        top => "$tools_folder/run_top.sh",
+        lsof_checker => "$tools_folder/lsof_checker.sh"
 );
 
 lock_keys(%script_paths);
 
 analyze_args(@ARGV);
+
 get_environment_variables();
 
 debug_sub 'Checking paths of script_paths';
@@ -189,22 +224,134 @@ get_dmesg_start();
 
 $SIG{USR1} = $SIG{USR2} = \&usr_signal;
 
+sub mycolor {
+        my $colorname = shift;
+        if($options{color}) {
+                return color($colorname);
+        }
+        return '';
+}
+
 debug_env();
 
 main();
 
+sub config_json_preparser {
+        my ($config_json_path, $config_ini_path) = @_;
+
+        my $parsed = decode_json(read_file($config_json_path));
+
+        my $config_ini_file = "";
+        foreach my $key (keys %$parsed) {
+                if($config_ini_file) {
+                        $config_ini_file .= "\n";
+                }
+                $config_ini_file .= "[$key]\n";
+                my $subtree = $parsed->{$key};
+                if(ref $subtree eq "ARRAY") {
+                        if($key eq "DIMENSIONS") {
+                                my $number_of_dimensions = scalar @$subtree;
+                                $config_ini_file .= "dimensions = $number_of_dimensions\n";
+
+
+                                my $i = 0;
+                                foreach my $dim (@$subtree) {
+                                        my %key_mappings = (
+                                                name => sprintf("dim_%d_name", $i),
+                                                max => sprintf("max_dim_%d", $i),
+                                                min => sprintf("min_dim_%d", $i),
+                                                q => sprintf("q_%d", $i),
+                                                sigma => sprintf("sigma_%d", $i),
+                                                mu => sprintf("mu_%d", $i),
+                                                range_generator => sprintf("range_generator_%d", $i),
+                                                options => sprintf("options_%d", $i)
+                                        );
+
+                                        foreach my $dim_item (keys %$dim) {
+                                                $config_ini_file .= $key_mappings{$dim_item}." = ".$dim->{$dim_item}."\n";
+                                        }
+
+                                        $i++;
+                                }
+                        } else {
+                                die "ARRAY in $key";
+                        }
+                } elsif (ref $subtree eq "HASH") {
+                        foreach my $key2 (keys %$subtree) {
+                                my $val = $parsed->{$key}->{$key2};
+
+                                $config_ini_file .= "$key2 = $val\n";
+                        }
+                } else {
+                        die "Unknown data type";
+                }
+        }
+
+        my $i = 0;
+        my $backup_path = "$config_ini_path.$i";
+        my $json_backup_path = "$config_ini_path.$i";
+
+        while (-f "$config_ini_path.$i") {
+                $backup_path = "$config_ini_path.$i";
+                $i++;
+        }
+
+        while (-f "$config_json_path.$i") {
+                $json_backup_path = "$config_json_path.$i";
+                $i++;
+        }
+
+        if(-e $config_ini_path) {
+                move($config_ini_path, $backup_path);
+                copy($config_json_path, $json_backup_path);
+        }
+
+        open my $fh, ">", $config_ini_path;
+        print $fh $config_ini_file;
+
+        close $fh;
+}
+
+sub log_env {
+        debug_sub 'log_env()';
+
+        my $env_str = "";
+        $env_str .= "ENV:\n";
+        $env_str .= ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
+        foreach (sort { $a cmp $b || $a <=> $b } keys %ENV) {
+            $env_str .= "$_=$ENV{$_}\n";
+        }
+        $env_str .= "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+
+        stdout_debug_log(0, $env_str);
+}
+
 sub main {
         debug_sub 'main()';
+
         $indentation++;
 
+        print "Project: $options{project}\n" if $options{project};
         cancel_message();
         create_and_delete_random_files_in_subfolders();
         sanity_check();
 
-        my %ini_config = read_ini_file("$options{projectpath}/config.ini");
+        my $config_path = "$options{projectpath}/config";
+        my $config_json_path = "$config_path.json";
+        my $config_ini_path = "$config_path.ini";
+
+        if(-e $config_json_path) {
+                config_json_preparser($config_json_path, $config_ini_path);
+        }
+
+        my %ini_config = read_ini_file($config_ini_path);
         if(!$options{debug} && exists $ini_config{DEBUG} && exists $ini_config{DEBUG}{debug} && $ini_config{DEBUG}{debug}) {
                 $options{debug} = 1;
                 debug "Enabled debug because it was enabled in the config.ini";
+        }
+
+        if(exists $ini_config{DATA} && $ini_config{DATA}{seed}) {
+                modify_system("export HYPEROPT_FMIN_SEED=".$ini_config{DATA}{seed});
         }
 
         set_python_path();
@@ -226,6 +373,10 @@ sub main {
                 }
 
                 run_nvidia_smi_periodically();
+                run_process_limit_check_periodically();
+                run_top_periodically();
+                run_hook_periodically();
+                run_lsof_periodically();
                 keep_db_up();
                 wait_for_unfinished_jobs();
         } else {
@@ -242,8 +393,8 @@ sub environment_sanity_check {
 
         check_needed_programs();
 
-        if(!program_installed($python)) {
-                error "$python not found!";
+        if(!program_installed(clean_python($python))) {
+                error clean_python($python)." not found!";
                 $errors++;
         }
 
@@ -256,8 +407,8 @@ sub environment_sanity_check {
 sub show_sys_path {
         debug_sub "show_sys_path()";
         $indentation++;
-        system("whereis $python");
-        system("$python $script_paths{show_sys_path}");
+        system("whereis ".clean_python($python));
+        system(clean_python($python)." $script_paths{show_sys_path}");
         $indentation--;
 }
 
@@ -369,6 +520,250 @@ sub keep_db_up {
         $indentation--;
 }
 
+sub run_lsof_periodically  {
+        debug_sub "run_lsof_periodically()";
+        $indentation++;
+        if(!$options{run_top}) {
+                debug "Not running top";
+                $indentation--;
+                return 1;
+        }
+
+        if($options{dryrun}) {
+                debug "Not running top because of --dryrun";
+                $indentation--;
+                return 1;
+        }
+
+        if(exists $ENV{'SLURM_JOB_NODELIST'}) {
+                debug "Environment variable `SLURM_JOB_NODELIST` exists ($ENV{SLURM_JOB_NODELIST}), therefore, I am running process-limit-check periodically";
+
+                debug "Forking for run_top_periodically()";
+                my $pid = fork();
+                error "ERROR Forking for top: $!" if not defined $pid;
+                error "ERROR Forking for top return pid = -1: $!" if $pid == -1;
+
+                if (not $pid) {
+                        debug "Inside fork";
+                        my $slurm_nodes = $ENV{'SLURM_JOB_NODELIST'};
+                        my @server = get_servers_from_SLURM_NODES($slurm_nodes);
+
+                        while (!$received_exit_signal) {
+                                foreach my $this_server (@server) {
+                                        my $command = qq#bash $script_paths{lsof_checker} $options{logpathdate}#;
+                                        my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
+                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $return_code = debug_system($sshcommand);
+                                        if($return_code) {
+                                                warning "$sshcommand seems to have failed! Exit-Code: $return_code";
+                                        }
+                                }
+
+                                debug "Sleeping for 30 seconds before executing lsof'ing on each server again";
+                                sleep 30;
+                        }
+                        exit(0);
+                }
+        } else {
+                message "\$ENV{SLURM_JOB_NODELIST} not defined, are you sure you are in a Slurm-Job? Not running nvidia-smi."
+        }
+        $indentation--;
+}
+
+sub run_top_periodically {
+        debug_sub "run_top_periodically()";
+        $indentation++;
+        if(!$options{run_top}) {
+                debug "Not running top";
+                $indentation--;
+                return 1;
+        }
+
+        if($options{dryrun}) {
+                debug "Not running top because of --dryrun";
+                $indentation--;
+                return 1;
+        }
+
+        if(exists $ENV{'SLURM_JOB_NODELIST'}) {
+                debug "Environment variable `SLURM_JOB_NODELIST` exists ($ENV{SLURM_JOB_NODELIST}), therefore, I am running process-limit-check periodically";
+
+                debug "Forking for run_top_periodically()";
+                my $pid = fork();
+                error "ERROR Forking for top: $!" if not defined $pid;
+                error "ERROR Forking for top return pid = -1: $!" if $pid == -1;
+
+                if (not $pid) {
+                        debug "Inside fork";
+                        my $slurm_nodes = $ENV{'SLURM_JOB_NODELIST'};
+                        my @server = get_servers_from_SLURM_NODES($slurm_nodes);
+
+                        while (!$received_exit_signal) {
+                                foreach my $this_server (@server) {
+                                        my $processchecklogpath = "$options{logpathdate}/process-check-$this_server/";
+                                        my $command = qq#bash $script_paths{top} $options{logpathdate}#;
+                                        my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
+                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $return_code = debug_system($sshcommand);
+                                        if($return_code) {
+                                                warning "$sshcommand seems to have failed! Exit-Code: $return_code";
+                                        }
+                                }
+
+                                debug "Sleeping for 30 seconds before executing top'ing on each server again";
+                                sleep 30;
+                        }
+                        exit(0);
+                }
+        } else {
+                message "\$ENV{SLURM_JOB_NODELIST} not defined, are you sure you are in a Slurm-Job? Not running nvidia-smi."
+        }
+        $indentation--;
+}
+
+sub run_process_limit_check_periodically {
+        debug_sub "run_process_limit_check_periodically()";
+        $indentation++;
+        if(!$options{process_limit_check}) {
+                debug "Not running process-limit-check";
+                $indentation--;
+                return 1;
+        }
+
+        if($options{dryrun}) {
+                debug "Not running process-limit-check because of --dryrun";
+                $indentation--;
+                return 1;
+        }
+
+        if(exists $ENV{'SLURM_JOB_NODELIST'}) {
+                debug "Environment variable `SLURM_JOB_NODELIST` exists ($ENV{SLURM_JOB_NODELIST}), therefore, I am running process-limit-check periodically";
+
+                debug "Forking for run_process_limit_check_periodically()";
+                my $pid = fork();
+                error "ERROR Forking for process-limit-check: $!" if not defined $pid;
+                error "ERROR Forking for process-limit-check return pid = -1: $!" if $pid == -1;
+
+                if (not $pid) {
+                        debug "Inside fork";
+                        my $slurm_nodes = $ENV{'SLURM_JOB_NODELIST'};
+                        my @server = get_servers_from_SLURM_NODES($slurm_nodes);
+
+                        while (!$received_exit_signal) {
+                                foreach my $this_server (@server) {
+                                        my $processchecklogpath = "$options{logpathdate}/process-check-$this_server/";
+                                        if(!-d $processchecklogpath) {
+                                                debug "$processchecklogpath does not exist yet, creating it";
+                                                debug_system("mkdir -p $processchecklogpath") unless -d $processchecklogpath;
+                                        }
+
+                                        my $processchecklogfile = "$processchecklogpath/processcheck.csv";
+
+                                        my $command = qq#bash $script_paths{check_process_limits} $processchecklogfile >> $processchecklogfile#;
+                                        my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
+                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $return_code = debug_system($sshcommand);
+                                        if($return_code) {
+                                                warning "$sshcommand seems to have failed! Exit-Code: $return_code";
+                                        }
+                                }
+
+                                debug "Sleeping for 30 seconds before executing check-process-limit on each server again";
+                                sleep 30;
+                        }
+                        exit(0);
+                }
+        } else {
+                message "\$ENV{SLURM_JOB_NODELIST} not defined, are you sure you are in a Slurm-Job? Not running nvidia-smi."
+        }
+        $indentation--;
+}
+
+sub get_servers_from_SLURM_NODES_lines {
+        my $filename = shift;
+        debug_sub "get_servers_from_SLURM_NODES_lines($filename)";
+        $indentation++;
+
+        if(!-e $filename) {
+                debug "$filename not found!";
+                $indentation--;
+                return +();
+        }
+
+        my @servers = ();
+
+        open my $fh, '<', $filename;
+        while (my $line = <$fh>) {
+                push @servers, get_servers_from_SLURM_NODES($line);
+        }
+        close $fh;
+
+        @servers = uniq(@servers);
+
+        $indentation--;
+
+        return @servers;
+}
+
+sub run_hook_periodically {
+        debug_sub "run_hook_periodically()";
+        $indentation++;
+        if(!$options{run_hook}) {
+                debug "Not running hook because of --run_nvidia_smi=0";
+                $indentation--;
+                return 1;
+        }
+
+        if($options{dryrun}) {
+                debug "Not running hook because of --dryrun";
+                $indentation--;
+                return 1;
+        }
+
+        if(exists $ENV{'SLURM_JOB_NODELIST'}) {
+                debug "Environment variable `SLURM_JOB_NODELIST` exists ($ENV{SLURM_JOB_NODELIST}), therefore, I am running hook periodically";
+
+                debug "Forking for run_hook_periodically()";
+                my $pid = fork();
+                error "ERROR Forking for hook: $!" if not defined $pid;
+                error "ERROR Forking for hook return pid = -1: $!" if $pid == -1;
+
+                if (not $pid) {
+                        debug "Inside fork";
+                        my $slurm_nodes = $ENV{'SLURM_JOB_NODELIST'};
+                        my @server = get_servers_from_SLURM_NODES($slurm_nodes);
+
+                        my $node_file = $options{projectdir}.'/nodes.txt';
+
+                        if(-e $node_file) {
+                                push @server, get_servers_from_SLURM_NODES_lines($node_file)
+                        }
+
+                        @server = uniq(@server);
+
+                        while (!$received_exit_signal) {
+                                foreach my $this_server (@server) {
+                                        my $command = qq#bash #.$options{run_hook};
+                                        my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
+                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $return_code = debug_system($sshcommand);
+                                        if($return_code) {
+                                                warning "$sshcommand seems to have failed! Exit-Code: $return_code";
+                                        }
+                                }
+
+                                debug "Sleeping for $options{sleep_nvidia_smi} (set value via `... sbatch.pl --sleep_nvidia_smi=n ...`) seconds before ".
+                                "executing hook on each server again";
+                                sleep $options{sleep_nvidia_smi};
+                        }
+                        exit(0);
+                }
+        } else {
+                message "\$ENV{SLURM_JOB_NODELIST} not defined, are you sure you are in a Slurm-Job? Not running hook."
+        }
+        $indentation--;
+}
+
 sub run_nvidia_smi_periodically {
         debug_sub "run_nvidia_smi_periodically()";
         $indentation++;
@@ -396,6 +791,14 @@ sub run_nvidia_smi_periodically {
                         my $slurm_nodes = $ENV{'SLURM_JOB_NODELIST'};
                         my @server = get_servers_from_SLURM_NODES($slurm_nodes);
 
+                        my $node_file = $options{projectdir}.'/nodes.txt';
+
+                        if(-e $node_file) {
+                                push @server, get_servers_from_SLURM_NODES_lines($node_file)
+                        }
+
+                        @server = uniq(@server);
+
                         while (!$received_exit_signal) {
                                 foreach my $this_server (@server) {
                                         my $nvidialogpath = "$options{logpathdate}/nvidia-$this_server/";
@@ -411,7 +814,8 @@ sub run_nvidia_smi_periodically {
 
                                         my $ipfiles_dir = $options{projectdir}.'/'.$options{project}.'/ipfiles/';
                                         my $command = qq#bash $script_paths{loggpu} "$nvidialogfile" "$ipfiles_dir" #.$ENV{SLURM_JOB_ID};
-                                        my $sshcommand = "ssh -o LogLevel=ERROR $this_server '$command'";
+                                        my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
+                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
                                         my $return_code = debug_system($sshcommand);
                                         if($return_code) {
                                                 warning "$sshcommand seems to have failed! Exit-Code: $return_code";
@@ -433,7 +837,7 @@ sub run_nvidia_smi_periodically {
 sub cancel_message {
         if(defined $options{originalslurmid}) {
                 message_noindent "If you want to cancel this job, please use;";
-                message_noindent color("bold")."scancel --signal=USR1 --batch $options{originalslurmid}";
+                message_noindent mycolor("bold")."scancel --signal=USR1 --batch $options{originalslurmid}";
                 message_noindent "This way, the database can be shut down correctly.";
         }
 }
@@ -478,6 +882,12 @@ sub load_needed_modules {
         }
 
         modules_load(@modules);
+
+        # ml OpenBLAS/0.3.9-GCC-9.3.0 on ml for installing hyperopt
+
+        if($arch !~ m#ppc64le#) {
+                modify_system(q#export PYTHONPATH=./pymodules_scs5:$PYTHONPATH#);
+        }
         $indentation--;
 }
 
@@ -592,7 +1002,7 @@ sub create_worker_start_command {
                 $slurm_or_none = $options{slurmid};
         }
 
-        my $command = qq#$python_module$python $script_paths{worker} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-start-worker.log | tee -a "$debug_log_file"#;
+        my $command = qq#$python_module$python $script_paths{worker} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} --num_gpus_per_worker=$options{num_gpus_per_worker} --partition=$options{partition} --account=$options{account} --reservation=$options{reservation} --max_time_per_worker=$options{max_time_per_worker} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-start-worker.log | tee -a "$debug_log_file"#;
 
         if(!$options{dryrun}) {
                 my $exit_code_first_try = debug_system($command);
@@ -669,7 +1079,34 @@ sub run_srun {
                 $gpu_options =~ s#\s+# #g;
         }
 
-        my $command = qq#srun -n1 --export=ALL,CUDA_VISIBLE_DEVICES --exclusive --ntasks-per-core=1 $gpu_options --mpi=none --mem-per-cpu=$options{mempercpu} --no-kill bash -c "$bash_vars$run"#;
+        my $exclusive = " --exclusive ";
+        $exclusive = "" if($options{srun_no_exclusive});
+
+        my $number_of_nodes = $options{srun_number_of_nodes};
+        my $number_of_tasks = $options{srun_number_of_tasks};
+        my $ntasks_per_core = $options{srun_ntasks_per_core};
+
+        my $ntasks_per_core_str = " --ntasks-per-core=$ntasks_per_core ";
+        my $cpus_per_task_str = "";
+        
+        if($options{srun_cpus_per_task}) {
+                $cpus_per_task_str = " --cpus-per-task=$options{srun_cpus_per_task} ";
+                $ntasks_per_core_str = "";
+                $exclusive = "";
+        }
+
+        my $overcommit = "";
+
+        if($options{overcommit}) {
+                $overcommit = " --overcommit ";
+        }
+
+        my $overlap = "";
+        if($options{overlap}) {
+                $overlap = " --overlap ";
+        }
+
+        my $command = qq#srun -N$number_of_nodes $overcommit $overlap -n$number_of_tasks --export=ALL,CUDA_VISIBLE_DEVICES $exclusive $ntasks_per_core_str $cpus_per_task_str $gpu_options --mpi=none --mem-per-cpu=$options{mempercpu} --no-kill bash -c "$bash_vars$run"#;
         $command =~ s#\s{2,}# #g;
         $command =~ s#/{2,}#/#g;
 
@@ -724,7 +1161,7 @@ sub start_fmin {
                 $slurmparameter = " --slurmid=$options{slurmid} ";
         }
 
-        my $command = qq#$python_module$python $script_paths{fmin} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-fmin.log | tee -a "$debug_log_file" #;
+        my $command = qq#$python_module$python $script_paths{fmin} --cpus_per_task=$options{cpus_per_task} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} --num_gpus_per_worker=$options{num_gpus_per_worker} --partition=$options{partition} --acount=$options{account} --reservation=$options{reservation} --max_time_per_worker=$options{max_time_per_worker} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-fmin.log | tee -a "$debug_log_file" #;
 
         if($options{filter_stdout}) {
             $command .= qq# | grep --line-buffered -v '^INFO:hyperopt' | sed --unbuffered -e 's/INFO:hyperopt.*/\\n/' | grep --line-buffered -v '^DEBUG:hyperopt' | grep --line-buffered -v 'WARNING:hyperopt' | sed --unbuffered -e 's/WARNING:hyperopt.*/\\n/' | sed --unbuffered -e 's/DEBUG:hyperopt.*//' | grep --line-buffered -v 'INFO:root'#;
@@ -770,7 +1207,7 @@ sub start_mongo_db_fork {
         if($options{slurmid}) {
                 $slurmparameter = " --slurmid=$options{slurmid} ";
         }
-        my $command = qq#$python_module$python $script_paths{mongodb} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-mongodb.log | tee -a "$debug_log_file"#;
+        my $command = qq#$python_module$python $script_paths{mongodb} --max=$options{worker} --project=$options{project} --projectdir=$options{projectdir} --num_gpus_per_worker=$options{num_gpus_per_worker} --partition=$options{partition} --account=$options{account} --reservation=$options{reservation} --max_time_per_worker=$options{max_time_per_worker} $slurmparameter 2>&1 | tee -a $options{logpathdate}/log-mongodb.log | tee -a "$debug_log_file"#;
         debug $command;
         $indentation-- if $options{dryrun};
 
@@ -829,6 +1266,8 @@ sub install_needed_packages {
         }
 
         check_networkx_version();
+        check_pymongo_version();
+
         my @packages = (
                 'dill',
                 'pymongo',
@@ -847,6 +1286,32 @@ sub install_needed_packages {
         $indentation--;
 }
 
+
+sub check_pymongo_version {
+        debug_sub 'check_pymongo_version()';
+        $indentation++;
+
+        if($options{dryrun}) {
+                $indentation--;
+                dryrun 'Not running check_pymongo_version() because of --dryrun';
+                return 1;
+        }
+
+        my $get_version_command = q#pip3 show pymongo 2>&1 | grep "Version:" | sed -e 's/Version: //'#;
+
+        my $version = debug_qx($get_version_command);
+        chomp $version;
+        if($version eq '3.12.0') {
+                debug_sub 'pymongo version ok (3.12.0)';
+        } else {
+                warning 'The version of pymongo ('.$version.') is not the one supported by HyperOpt. Using 3.12.0.';
+                install_via_pip3('pymongo==3.12.0');
+        }
+        $indentation--;
+}
+
+
+
 sub check_networkx_version {
         debug_sub 'check_networkx_version()';
         $indentation++;
@@ -861,12 +1326,14 @@ sub check_networkx_version {
 
         my $version = debug_qx($get_version_command);
         chomp $version;
+=head
         if($version eq '1.11') {
                 debug_sub 'networkxversion ok (1.11)';
         } else {
                 warning 'The version of networkx ('.$version.') is not the one supported by HyperOpt. Using 1.11.';
                 install_via_pip3('networkx==1.11');
         }
+=cut
         $indentation--;
 }
 
@@ -1028,8 +1495,8 @@ sub is_on_readonly_scratch {
 sub _help {
         debug_sub '_help()';
 
-        my $cli_code = color('yellow bold');
-        my $reset = color('reset');
+        my $cli_code = mycolor('yellow bold');
+        my $reset = mycolor('reset');
 
         print <<"EOF";
 === HELP ===
@@ -1073,9 +1540,17 @@ Parameters:
     --sleep_db_up=n                         Check if DB is up every n seconds and restart if it's not (default: $default_values{sleep_db_up})
     --run_nvidia_smi=[01]                   Run (1) or don't run (0) nvidia-smi periodically to get information about the GPU usage of the workers
     --sleep_nvidia_smi=n                    Sleep n seconds after each try to get nvidia-smi-gpu-infos (default: $default_values{sleep_nvidia_smi} seconds)
+    --run_hook=/PATH/OF/BASH/SCRIPT         Run a custom bash script every --sleep_nvidia_smi seconds. Needs to be an absolute path.
     --debug_srun                            Enables debug-output for srun
     --projectdir=/path/to/projects/         This allows you to change the project directory to anything outside of this script path (helpful,
                                             so that the git is kept small), only use absolute paths here!
+    --num_gpus_per_worker=NUMBER            Number of GPUs per worker (default: 0)
+    --partition=PARTITION                   Name of the partition that the code should run on
+    --max_time_per_worker=01:00:00          Max time per worker (only if --num_gpus_per_worker >= 2, default: 1 hour)
+    --reservation=RESERVATION               Name of your reservation
+    --account=ACCOUNT                       Name of the account
+    --overcommit                            Allow overcommitting, default: disabled
+    --overlap                               Allow steps to overlap each other on the CPUs.  By default steps do not share CPUs with other parallel steps.
 
 Debug and output parameters:
     --nomsgs                                Disables messages
@@ -1086,10 +1561,25 @@ Debug and output parameters:
     --nowarnings                            Disables the outputting of warnings (not recommended!)
     --nodryrunmsgs                          Disables the outputting of --dryrun-messages
     --run_tests                             Runs a bunch of tests and exits without doing anything else
+    --no_multigpu_tests                     Disabling multi-gpu-tests
     --run_full_tests                        Run testsuite and also run a testjob (takes longer, but is more safe to ensure stability)
+    --no_quota_test                         Disables quota-test in full-tests
+    --no_process_limit_check                Disables checking every 30 seconds if the process-limit has been reached (useful for debugging why fork may fail)
+    --no_run_top                            Disables auto-top'ing of all servers every 30 seconds
+    --fail_random_tests                     Seemingly stupid option, but useful for testing the advanced test-suite
+    --no_color                              Disable color output
+    --trace_omniopt                         Trace OmniOpt's python-scripts
 
 System parameters:
     --only_install_modules                  Only install the neccessary modules
+
+srun-Parameters:
+    --srun_no_exclusive                     Don't run srun in --exclusive mode
+    --srun_number_of_nodes=10               Don't use default (1) but any number of nodes you want for a worker (-N1)
+    --srun_number_of_tasks=10               Don't use default (1) but any number of tasks you want for a worker (-n1)
+    --srun_ntasks_per_core=10               Don't use default (1) ntasks-per-core, but any number you want for a worker
+    --srun_cpus_per_task=10                 Don't use default (disabled) srun_cpus_per_task, but any number you want
+
 EOF
 }
 
@@ -1138,10 +1628,26 @@ sub analyze_args {
                                 $options{project} = $1;
                                 $options{logpathdate} = get_log_path_date_folder($1);
                         }
+                } elsif ($arg =~ m#^--max_time_per_worker=(.+)$#) {
+                        $options{max_time_per_worker} = $1;
+                } elsif ($arg =~ m#^--partition=(.+)$#) {
+                        $options{partition} = $1;
+                } elsif ($arg =~ m#^--account=(.+)$#) {
+                        $options{account} = $1;
+                } elsif ($arg =~ m#^--reservation=(.+)$#) {
+                        $options{reservation} = $1;
                 } elsif ($arg =~ m#^--worker=(\d+)$#) {
                         $options{worker} = $1;
+                } elsif ($arg eq '--no_color') {
+                        $options{color} = 0;
+                } elsif ($arg eq '--fail_random_tests') {
+                        $options{fail_random_tests} = 1;
+                } elsif ($arg eq '--no_run_top') {
+                        $options{run_top} = 0;
                 } elsif ($arg eq '--dryrun') {
                         $options{dryrun} = 1;
+                } elsif ($arg eq '--no_quota_test') {
+                        $options{no_quota_test} = 1;
                 } elsif ($arg eq '--ml_dryrun') {
                         $options{ml_dryrun} = 1;
                 } elsif ($arg eq '--nomsgs') {
@@ -1154,20 +1660,43 @@ sub analyze_args {
                         $options{sanitycheck} = 0;
                 } elsif ($arg eq '--nodryrunmsgs') {
                         $options{dryrunmsgs} = 0;
+                } elsif ($arg eq '--trace_omniopt') {
+                        $options{trace_omniopt} = 1;
+                        $python = q#python3 -m trace --ignore-dir=$(python3 -c 'import sys ; print(":".join(sys.path)[1:])') -t #;
                 } elsif ($arg eq '--debug') {
                         $options{debug} = 1;
                 } elsif ($arg =~ m#^--run_nvidia_smi=([01])$#) {
                         $options{run_nvidia_smi} = $1;
                 } elsif ($arg =~ m#^--sleep_nvidia_smi=(\d+)$#) {
                         $options{sleep_nvidia_smi} = $1;
+                } elsif ($arg =~ m#^--run_hook=(.*)$#) {
+                        $options{run_hook} = $1;
+                } elsif ($arg =~ m#^--no_process_limit_check$#) {
+                        $options{process_limit_check} = 0;
                 } elsif ($arg =~ m#^--debug_srun$#) {
                         $options{debug_srun} = 1;
+                } elsif ($arg =~ m#^--cpus_per_task=(\d+)$#) {
+                        $options{cpus_per_task} = $1;
+                } elsif ($arg =~ m#^--srun_cpus_per_task=(\d+)$#) {
+                        $options{srun_cpus_per_task} = $1;
+                } elsif ($arg =~ m#^--srun_no_exclusive$#) {
+                        $options{srun_no_exclusive} = 1;
+                } elsif ($arg =~ m#^--srun_number_of_tasks=(\d+)$#) {
+                        $options{srun_number_of_tasks} = $1;
+                } elsif ($arg =~ m#^--srun_number_of_nodes=(\d+)$#) {
+                        $options{srun_number_of_nodes} = $1;
                 } elsif ($arg =~ m#^--keep_db_up=(\d+)$#) {
                         $options{keep_db_up} = $1;
                 } elsif ($arg =~ m#^--sleep_db_up=(\d+)$#) {
                         $options{sleep_db_up} = $1;
+                } elsif ($arg =~ m#^--num_gpus_per_worker=(\d+)$#) {
+                        $options{num_gpus_per_worker} = $1;
                 } elsif ($arg =~ m#^--mempercpu=(\d+)$#) {
                         $options{mempercpu} = $1;
+                } elsif ($arg =~ m#^--overlap$#) {
+                        $options{overlap} = 1;
+                } elsif ($arg =~ m#^--overcommit$#) {
+                        $options{overcommit} = 1;
                 } elsif ($arg =~ m#^--install_despite_dryrun$#) {
                         $options{install_despite_dryrun} = 1;
                 } elsif ($arg =~ m#^--projectdir=(.+)$#) {
@@ -1181,6 +1710,8 @@ sub analyze_args {
                         exit(0);
                 } elsif ($arg =~ m#^--run_tests$#) {
                         $options{run_tests} = 1;
+                } elsif ($arg =~ m#^--no_multigpu_tests$#) {
+                        $options{run_multigpu_tests} = 0;
                 } elsif ($arg =~ m#^--run_full_tests$#) {
                         $options{run_tests} = 1;
                         $options{run_full_tests} = 1;
@@ -1189,17 +1720,20 @@ sub analyze_args {
                         _help();
                         exit(0);
                 } else {
-                        std_print color("red underline")."Unknown command line switch: $arg".color("reset")."\n";
+                        std_print mycolor("red underline")."Unknown command line switch: $arg".mycolor("reset")."\n";
                         _help();
                         exit(1);
                 }
         }
 
+        log_env();
         load_needed_modules();
 
         if($options{run_tests}) {
                 exit(run_tests());
         }
+
+        debug "perl sbatch.pl ".join(" ", @ORIGINAL_ARGV);
 
         error "No project defined. Use sbatch -J \$PROJECTNAME or --project=\$PROJECTNAME to define a project!" unless $options{project};
 }
@@ -1726,12 +2260,21 @@ sub run_tests {
 
         my @failed_tests = ();
 
+        config_json_preparser("test/projects/config_json_test/config.json", "test/projects/config_json_test/config.ini");
+        if(md5_hex(read_file("test/projects/config_json_test/config.ini")) eq "384bf4a9839a9fbb2ad155929dd0be7a") {
+                ok "config_json_preparser test OK";
+        } else {
+                push @failed_tests, "config_json_preparser failed";
+        }
+
         run_bash_test("bash test/test_packages.sh", \@failed_tests);
+
+        run_bash_test("bash test/test_js_syntax.sh gui/main.js", \@failed_tests);
 
         {
                 for my $i (0 .. 10) {
                         my $rand_nr = get_random_number();
-                        if(!($rand_nr >= DEFAULT_MIN_RAND_GENERATOR && $rand_nr <= DEFAULT_MAX_RAND_GENERATOR)) {
+                        if(!($rand_nr >= DEFAULT_MIN_RAND_GENERATOR && $rand_nr <= DEFAULT_MAX_RAND_GENERATOR) || ($options{fail_random_tests} && rand() >= 0.5)) {
                                 no_suicide_error "get_random_number() test failed";
                                 push @failed_tests, "get_random_number()";
                         } else {
@@ -1744,7 +2287,7 @@ sub run_tests {
                 for my $i (0 .. 10) {
                         my ($min, $max) = (10, 20);
                         my $rand_nr = get_random_number($min, $max);
-                        if(!($rand_nr >= $min && $rand_nr <= $max)) {
+                        if(!($rand_nr >= $min && $rand_nr <= $max) || ($options{fail_random_tests} && rand() >= 0.5)) {
                                 no_suicide_error "get_random_number($min, $max) test failed (nr. $i)";
                                 push @failed_tests, "get_random_number()";
                         } else {
@@ -1755,7 +2298,7 @@ sub run_tests {
 
         {
                 my $test_ip_true = "120.255.1.102";
-                if(!is_ipv4($test_ip_true)) {
+                if(!is_ipv4($test_ip_true) || ($options{fail_random_tests} && rand() >= 0.5)) {
                         no_suicide_error "is_ipv4($test_ip_true) test failed";
                         push @failed_tests, "is_ipv4($test_ip_true)";
                 } else {
@@ -1765,7 +2308,7 @@ sub run_tests {
 
         {
                 my $test_ip_false = "120.2255.1.102";
-                if(is_ipv4($test_ip_false)) {
+                if(is_ipv4($test_ip_false) || ($options{fail_random_tests} && rand() >= 0.5)) {
                         no_suicide_error "is_ipv4($test_ip_false) test failed";
                         push @failed_tests, "is_ipv4($test_ip_false)";
                 } else {
@@ -1775,7 +2318,7 @@ sub run_tests {
 
         {
                 my $test_ip_true = get_local_ip_address();
-                if(!is_ipv4($test_ip_true)) {
+                if(!is_ipv4($test_ip_true) || ($options{fail_random_tests} && rand() >= 0.5)) {
                         no_suicide_error "is_ipv4($test_ip_true) test failed";
                         push @failed_tests, "is_ipv4($test_ip_true)";
                 } else {
@@ -1785,7 +2328,7 @@ sub run_tests {
 
         {
                 my $test_program_installed = "ls";
-                if(!program_installed($test_program_installed) eq '/bin/ls') {
+                if(!program_installed($test_program_installed) eq '/bin/ls' || ($options{fail_random_tests} && rand() >= 0.5)) {
                         no_suicide_error "program_installed($test_program_installed) test failed";
                         push @failed_tests, "program_installed($test_program_installed)";
                 } else {
@@ -1849,17 +2392,44 @@ sub run_tests {
                 }
         }
 
-        if ($options{run_full_tests}) {
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=alpha --projectdir=test/projects --project=gpu_test_alpha --usegpus", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus", \@failed_tests);
 
-                run_bash_test("bash test/test_plot.sh", \@failed_tests);
-                run_bash_test("bash test/test_plot_2.sh", \@failed_tests);
+        run_bash_test("bash test/multiparameter_test.sh", \@failed_tests);
+
+        run_bash_test("bash test/config_edit_test.sh", \@failed_tests);
+
+        if ($options{run_full_tests}) {
+                #run_bash_test_noenv("bash test/run_gui_test.sh", \@failed_tests);
+
+                if($options{run_multigpu_tests}) {
+                        run_bash_test_noenv("bash test/test_multigpu.sh 2", \@failed_tests);
+                        run_bash_test_noenv("bash test/test_multigpu.sh 6", \@failed_tests);
+                }
+
+                my $no_quota_test = "";
+                if($options{no_quota_test}) {
+                        $no_quota_test = " --no_quota_test ";
+                }
+
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=config_json_test $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes_rand_search $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2 $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=alpha --projectdir=test/projects --project=gpu_test_alpha --usegpus $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
+                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
+
+                if($ENV{DISPLAY}) {
+                    run_bash_test("bash test/test_plot.sh", \@failed_tests);
+                    run_bash_test("bash test/test_plot_2.sh", \@failed_tests);
+                    run_bash_test("bash test/test_plot_allparamtypes.sh", \@failed_tests);
+                } else {
+                    warn "Cannot run plot tests without ssh -x";
+                }
                 run_bash_test("bash test/test_export.sh cpu_test", \@failed_tests);
                 run_bash_test("bash test/test_export.sh cpu_test2", \@failed_tests);
+                run_bash_test("bash test/test_export.sh allparamtypes", \@failed_tests);
                 run_bash_test("bash test/test_wallclock_time.sh", \@failed_tests);
                 run_bash_test("bash test/test_gpu_plot.sh", \@failed_tests);
         }
@@ -1877,8 +2447,29 @@ sub run_tests {
         }
 }
 
+sub run_bash_test_noenv {
+        my $command = shift;
+        debug_sub "run_bash_test_noenv($command, \\\@failed_tests)";
+        $indentation++;
+        my $failed_tests = shift;
+        my $errors = 0;
+        system($command);
+        my $error_code = $?;
+        my $exit_code = $error_code >> 8;
+        my $sig_code = $error_code & 127;
+        if($exit_code) {
+                no_suicide_error "The script `$command` did not exit with exit-code 0, but instead $exit_code (SIG-Code: $sig_code)";
+                $errors++;
+                push @$failed_tests, $command;
+        }
+        $indentation--;
+        return $errors;
+}
+
 sub run_bash_test {
         my $command = shift;
+        debug_sub "run_bash_test($command, \\\@failed_tests)";
+        $indentation++;
         my $failed_tests = shift;
         my $errors = 0;
         modify_system($command);
@@ -1889,7 +2480,8 @@ sub run_bash_test {
                 no_suicide_error "The script `$command` did not exit with exit-code 0, but instead $exit_code (SIG-Code: $sig_code)";
                 $errors++;
                 push @$failed_tests, $command;
-        }   
+        }
+        $indentation--;
         return $errors;
 }
 
@@ -1922,23 +2514,6 @@ sub get_working_directory {
         return $cwd;
 }
 
-sub run_ssh_command_on_all_nodes {
-        my $command = shift;
-        debug_sub "run_ssh_command_on_all_nodes($command)";
-        $indentation++;
-
-        if(exists $ENV{SLURM_JOB_ID} && exists $ENV{SLURM_JOB_NODELIST}) {
-                my @server = get_servers_from_SLURM_NODES($ENV{SLURM_JOB_NODELIST});
-
-                foreach my $this_server (@server) {
-                        debug_system("ssh -o LogLevel=ERROR $this_server '$command'");
-                }
-        } else {
-                debug "Not in a Slurm-Job, therefore, no allocated nodes.";
-        }
-        $indentation--;
-}
-
 sub check_needed_programs {
         debug_sub "check_needed_programs()";
         $indentation++;
@@ -1946,7 +2521,7 @@ sub check_needed_programs {
         my $errors = 0;
 
         my @needed_programs = (
-                $python,
+                clean_python($python),
                 "ssh",
                 "bash",
                 "srun",
@@ -2022,7 +2597,7 @@ sub dryrun (@) {
                 if(@msgs) {
                         foreach my $msg (@msgs) {
                                 $msg = "$begin$spaces".join("\n$begin$spaces", split(/\R/, $msg));
-                                stderr_debug_log $options{dryrunmsgs}, color('magenta').$msg.color('reset')."\n";
+                                stderr_debug_log $options{dryrunmsgs}, mycolor('magenta').$msg.mycolor('reset')."\n";
                         }
                 }
 
@@ -2033,19 +2608,19 @@ sub dryrun (@) {
 sub ok_debug (@) {
         my $spaces = "├".$indentation_char x ($indentation * $indentation_multiplier)." ";
         foreach (@_) {
-                stderr_debug_log $options{debug}, color('green')."OK_DEBUG:\t$spaces$_".color('reset')."\n";
+                stderr_debug_log $options{debug}, mycolor('green')."OK_DEBUG:\t$spaces$_".mycolor('reset')."\n";
         }
 }
 
 sub ok (@) {
         foreach (@_) {
-                stderr_debug_log 1, color('green')."OK:\t\t$_".color('reset')."\n";
+                stderr_debug_log 1, mycolor('green')."OK:\t\t$_".mycolor('reset')."\n";
         }
 }
 
 sub message_noindent (@) {
         foreach (@_) {
-                stderr_debug_log $options{messages}, color('cyan').$_.color('reset')."\n";
+                stderr_debug_log $options{messages}, mycolor('cyan').$_.mycolor('reset')."\n";
         }
 }
 
@@ -2053,7 +2628,7 @@ sub message_noindent (@) {
 sub message (@) {
         my $spaces = "├".$indentation_char x ($indentation * $indentation_multiplier)." ";
         foreach (@_) {
-                stderr_debug_log $options{messages}, color('cyan')."MESSAGE: \t$spaces$_".color('reset')."\n";
+                stderr_debug_log $options{messages}, mycolor('cyan')."MESSAGE: \t$spaces$_".mycolor('reset')."\n";
         }
 }
 
@@ -2063,33 +2638,33 @@ sub warning (@) {
         my $sub_name = '';
         my $spaces = "├".($indentation_char x ($indentation * $indentation_multiplier))." ";
         foreach my $wrn (@warnings) {
-                stderr_debug_log $options{warnings}, color('yellow')."WARNING$sub_name:\t$spaces$wrn".color('reset')."\n";
+                stderr_debug_log $options{warnings}, mycolor('yellow')."WARNING$sub_name:\t$spaces$wrn".mycolor('reset')."\n";
         }
 }
 
 sub debug (@) {
         foreach (@_) {
                 my $spaces = "├".($indentation_char x ($indentation * $indentation_multiplier))." ";
-                stderr_debug_log $options{debug}, color('cyan')."DEBUG:\t\t$spaces$_".color('reset')."\n";
+                stderr_debug_log $options{debug}, mycolor('cyan')."DEBUG:\t\t$spaces$_".mycolor('reset')."\n";
         }
 }
 
 sub debug_sub (@) {
         my $spaces = "├─".((($indentation - 1) < 0) ? "" : $indentation_char x ($indentation * $indentation_multiplier)." ");
         foreach (@_) {
-                stderr_debug_log $options{debug}, color('bold blue')."DEBUG_SUB:\t$spaces".color("underline")."$_".color('reset')."\n";
+                stderr_debug_log $options{debug}, mycolor('bold blue')."DEBUG_SUB:\t$spaces".mycolor("underline")."$_".mycolor('reset')."\n";
         }
 }
 
 sub no_suicide_error (@) {
         foreach (@_) {
-                stderr_debug_log 1, color('red')."ERROR:\t\t$_.".color('reset')."\n";
+                stderr_debug_log 1, mycolor('red')."ERROR:\t\t$_".mycolor('reset')."\n";
         }
 }
 
 sub error (@) {
         foreach (@_) {
-                stderr_debug_log 1, color('red')."ERROR:\t\t$_.".color('reset')."\n";
+                stderr_debug_log 1, mycolor('red')."ERROR:\t\t$_.".mycolor('reset')."\n";
         }
         gentle_suicide();
         exit 1;
@@ -2141,7 +2716,12 @@ sub print_possible_errors {
         debug_sub "print_possible_errors()";
         $indentation++;
         if(exists $options{projectdir} && exists $options{project} && defined $options{project} && defined $options{projectdir}) {
-                my $command = qq#bash tools/error_analyze.sh --project=$options{project} --projectdir=$options{projectdir} --nowhiptail 2>/dev/null | tee -a "$debug_log_file"#;
+                my $no_quota_test = "";
+                if($options{no_quota_test}) {
+                        $no_quota_test = " --no_quota_test ";
+                }
+                my $command = qq#bash tools/error_analyze.sh --project=$options{project} --projectdir=$options{projectdir} --nowhiptail $no_quota_test 2>/dev/null | tee -a "$debug_log_file"#;
+                debug $command;
                 my $errors = qx($command);
 
                 my $error_code = $?;
@@ -2176,21 +2756,63 @@ sub debug_env {
         $indentation--;
 }
 
+sub autoset_min_gpus_per_worker {
+        debug_sub "autoset_min_gpus_per_worker()";
+        $indentation++;
+        if(exists $ENV{SLURM_STEP_GPUS}) {
+                my $gpu_list = $ENV{SLURM_STEP_GPUS};
+                if($gpu_list) {
+                        debug "$gpu_list";
+                        my @splitted_gpu_string = split(/,/, $gpu_list);
+                        $options{num_gpus_per_worker} = scalar @splitted_gpu_string;
+                        debug "Set num_gpus_per_worker to $options{num_gpus_per_worker}";
+                }
+        }
+        $indentation--;
+}
+
+sub uniq {
+        my %seen;
+        grep !$seen{$_}++, @_;
+}
+
+sub clean_python {
+        my $string = shift;
+
+        $string =~ s#\s.*##g;
+
+        return $string;
+}
+
 END {
-        debug_sub 'END-BLOCK';
-        if($ran_anything) {
-                if($options{debug}) {
-                        get_dmesg('end');
+        if(exists($options{projectdir}) && exists($options{project}) && $options{projectdir} && $options{project}) {
+                my $CSV_DIR = $options{projectdir}."/$options{project}/csv/";
+                system("mkdir -p $CSV_DIR");
+                my $i = 0;
+                my $csv_filename = "${CSV_DIR}/$options{project}_$i.csv";
+                while (-e $csv_filename) {
+                        $i++;
+                        $csv_filename = "${CSV_DIR}/$options{project}_$i.csv"
                 }
-        }
-        shutdown_script();
-        print_possible_errors();
-        if(exists $ENV{SLURM_JOB_ID}) {
-                my $best_file = "./.".$ENV{SLURM_JOB_ID}.".log";
-                if (-e $best_file) {
-                        stdout_debug_log 1, read_file($best_file);
+                my $csv_command = qq(perl script/runningdbtocsv.pl --project=$options{project} --projectdir=$options{projectdir} --filename=$csv_filename);
+                debug $csv_command;
+                debug qx($csv_command);
+
+                debug_sub 'END-BLOCK';
+                if($ran_anything) {
+                        if($options{debug}) {
+                                get_dmesg('end');
+                        }
                 }
-                stdout_debug_log 1, "Run ".color("bold")."bash evaluate-run.sh".color("reset")." to review the results in depth\n";
+                shutdown_script();
+                print_possible_errors();
+                if(exists $ENV{SLURM_JOB_ID}) {
+                        my $best_file = "./.".$ENV{SLURM_JOB_ID}.".log";
+                        if (-e $best_file) {
+                                stdout_debug_log 1, read_file($best_file);
+                        }
+                        stdout_debug_log 1, "Run ".mycolor("bold")."bash evaluate-run.sh".mycolor("reset")." to review the results in depth\n";
+                }
+                stdout_debug_log 1, "sbatch.pl wallclock-time: ".(time - $^T)."s\n";
         }
-        stdout_debug_log 1, "sbatch.pl wallclock-time: ".(time - $^T)."s\n";
 }

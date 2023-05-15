@@ -9,23 +9,40 @@ trap 'calltracer' ERR
 function help () {
         echo "Possible options:"
         echo "  --nocountdown                                   Don't show countdown"
+        echo "  --no_quota_test                                 Disables quota-test"
         echo "  --project=PROJECTNAME                           Using this project"
         echo "  --projectdir=PROJECTDIR                         Using this projectdir"
         echo "  --partition=PARTITION                           Partition name"
-        echo "  --usegpus                                       Use GPUs"
+        echo "  --usegpus(=num)                                 Use GPUs, if num not specified use 1"
         echo "  --help                                          this help"
+        echo "  --time=HH:MM:SS                                 Defaults to 01:00:00"
         echo "  --debug                                         Enables debug mode (set -x)"
         exit $1
 }
+export quota_tests=1
 export nocountdown=0
 export project=
 export partition=
 export projectdir=test/projects/
 export usegpus=0
+export timeparam_str="01:00:00"
+
 for i in $@; do
         case $i in
+                --no_quota_test)
+                        quota_tests=0
+                        shift
+                        ;;
                 --nocountdown)
                         nocountdown=1
+                        shift
+                        ;;
+                --time=*)
+                        timeparam_str="${i#*=}"
+                        shift
+                        ;;
+                --usegpus=*)
+                        usegpus="${i#*=}"
                         shift
                         ;;
                 --usegpus)
@@ -137,21 +154,33 @@ job_still_running () {
 
 if ! sinfo --noheader -p $partition | grep -v resv 2>/dev/null >/dev/null; then
         echo "$partition partition has no available nodes, not doing this test"
-        exit 1
+        exit 5
 fi
 
 GPU_STRING=""
-if [[ "$usegpus" -eq "1" ]]; then
+
+if [[ "$usegpus" -ne "0" ]]; then
         GPU_STRING=" --gres=gpu:1 --gpus-per-task=1 "
+        sbatch_gpu="--num_gpus_per_worker=$usegpus"
 fi
 
-export SBATCH_RESULT=$(sbatch -J $project --cpus-per-task=4 $GPU_STRING --ntasks=1 --time=1:00:00 --mem-per-cpu=2000 --partition=$partition -o $THISLOGPATH sbatch.pl --project=$project --projectdir=$projectdir)
-
+export SBATCH_RESULT=$(sbatch -J $project --cpus-per-task=4 $GPU_STRING --ntasks=1 --time=$timeparam_str --mem-per-cpu=2000 --partition=$partition -o $THISLOGPATH sbatch.pl --project=$project --projectdir=$projectdir --partition=$partition $sbatch_gpu --no_quota_test)
 export SBATCH_ID=$(echo $SBATCH_RESULT | sed -e 's/.* job //')
+
+if [[ -z "$SBATCH_ID" ]]; then
+    exit 11
+fi
+
+sleep 10
+
+if squeue | grep $SBATCH_ID | grep ReqNodeNotAvail; then
+    scancel $SBATCH_ID
+    exit 9
+fi
 
 if [[ -z $SBATCH_ID ]]; then
     echo "ERROR starting sbatch"
-    exit 7
+    exit 6
 fi
 
 echo ""
@@ -168,18 +197,20 @@ echo "Waited $SECONDS seconds before I got the results"
 
 if [[ $(cat $THISLOGPATH | grep "Best result data" | wc -l) == 0 ]]; then
         echo "No jobs were found. The test has failed. Check the log $THISLOGPATH manually."
-        exit 5
+        exit 7
 else
         echo "Jobs were found. The test has succeeded. You can still check the log $THISLOGPATH manually."
-        set +e
-        bash tools/error_analyze.sh --project=$project --projectdir=$projectdir --nowhiptail 2>/dev/null > /dev/null
+        no_quota_test_str=""
+        if [[ "$quota_tests" -eq "0" ]]; then
+            no_quota_test_str=" --no_quota_test "
+        fi
+        bash tools/error_analyze.sh --project=$project --projectdir=$projectdir --nowhiptail $no_quota_test_str 2>/dev/null > /dev/null
         exit_code=$?
-        set -e
         if [[ "$exit_code" -eq "0" ]]; then
             exit 0
         else
             cat $THISLOGPATH
-            echo "But there seems to be an error with error_analyze.sh. Check the output above."
-            exit 6
+            echo "But there seems to be an error with error_analyze.sh. Check the output above. (Exit-Code: $exit_code)"
+            exit 8
         fi
 fi

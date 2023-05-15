@@ -1,0 +1,46 @@
+{
+    "DATA": {
+        "number_of_workers": 5,
+        "num_gpus_per_worker": 1,
+        "precision": 8,
+        "partition": "haswell64",
+        "projectname": "test_project",
+        "enable_gpus": 0,
+        "mem_per_cpu": 2000,
+        "computing_time": 20,
+        "max_evals": 100,
+        "algo_name": "tpe.suggest",
+        "range_generator_name": "hp.randint",
+        "objective_program": "perl -e 'use bigint; print qq#RESULT: #.(($x_0) + ($x_1)).qq#\\n#'"
+    },
+    "DIMENSIONS": [
+    {
+        "name": "AAA",
+        "range_generator": "hp.randint",
+        "max": 10
+    },
+
+    {
+        "name": "BBB",
+        "range_generator": "hp.randint",
+        "max": 20
+    }
+    ],
+    "DEBUG": {
+        "debug_xtreme": 0,
+        "debug": 0,
+        "info": 0,
+        "warning": 0,
+        "success": 0,
+        "stack": 0,
+        "show_live_output": 0,
+        "sbatch_or_srun": "sbatch",
+        "debug_sbatch_srun": 0
+    },
+    "MONGODB": {
+        "worker_last_job_timeout": 7200,
+        "poll_interval": 10,
+        "kill_after_n_no_results": 100000
+    }
+}
+

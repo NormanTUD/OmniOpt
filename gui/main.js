@@ -1,5 +1,12 @@
 var formdata = [];
 
+function log (...args) {
+	for (var i = 0; i < args.length; i++) {
+		console.log(args[i]);
+	}
+}
+
+var valid_grid_search = ['hp.randint', 'hp.quniform', 'hp.qloguniform', 'hp.qnormal', 'hp.qlognormal', 'hp.categorical', 'hp.choice', 'hp.choiceint', 'hp.choicestep'];
 var number_of_parameters = 0;
 var missing_values = 0;
 
@@ -19,19 +26,12 @@ function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
 
-function get_number_of_parameters_from_objective_program () {
-	const re = /\(\$x_\d+\)/g;
-	return ($('#objective_program').val().match(re) || []).filter(onlyUnique).length;
-}
-
 function get_number_of_parameters () {
 	return parseInt($("#number_of_parameters").val());
 }
 
 function show_error_message (divid, msg) {
-	$(divid).show();
-	$(divid).html('');
-	$(divid).html(get_error_string(msg));
+	$(divid).show().html('').html(get_error_string(msg));
 }
 
 function get_error_string (msg) {
@@ -112,6 +112,16 @@ function show_max_worker_warning () {
 			}
 		}
 	}
+}
+
+function show_link_if_available () {
+	var partition = $("#partition").val();
+	if(partition_data[partition]["link"] != "") {
+		$("#link").html("<a target='_blank' href='" + partition_data[partition]["link"] + "'>Link to the HPC Compendium about this hardware</a>");
+	} else {
+		$("#link").html("");
+	}
+	update_config();
 }
 
 function show_warning_if_available () {
@@ -203,9 +213,30 @@ function show_missing_values_error () {
 	}
 }
 
+function replace_varnames_with_numbers (objective_program) {
+	var param_name_items = $('input[id^=parameter_][id$=_name]');
+
+	for (var i = 0; i < param_name_items.length; i++) {
+		var name = $(param_name_items[i]).val();
+
+		var search = "($" + name + ")";
+		var replace_with = "($x_" + i + ")";
+
+		objective_program = objective_program.replaceAll(search, replace_with);
+	}
+
+	
+	return objective_program;
+}
+
 function update_config () {
 	missing_values = 0;
 	var config_string = "[DATA]\n";
+
+	var seed = $("#seed").val();
+	if(seed) {
+		config_string += "seed = " + seed + "\n";
+	}
 
 	var precision = $("#precision").val();
 	var partition = $("#partition").val();
@@ -218,9 +249,14 @@ function update_config () {
 	var enable_gpus = $("#enable_gpus").is(":checked") ? 1 : 0;
 	var mem_per_cpu = $("#mem_per_cpu").val();
 	var computing_time = $("#computing_time").val();
+	var num_gpus_per_worker = $("#number_of_gpus").val();
 
 	if(isNumeric(number_of_workers)) {
 		config_string += "number_of_workers = " + number_of_workers + "\n";
+	}
+
+	if(isNumeric(num_gpus_per_worker)) {
+		config_string += "num_gpus_per_worker = " + num_gpus_per_worker + "\n";
 	}
 
 	if(isNumeric(precision)) {
@@ -276,27 +312,30 @@ function update_config () {
 
 	config_string += "range_generator_name = hp.randint\n";
 
-	if(objective_program.length >= 1) {
+	var num_of_newlines_in_objective_program =  objective_program.split(/\r\n|\r|\n/).length;
+
+	check_param_names();
+
+	if(objective_program.length >= 1 && num_of_newlines_in_objective_program <= 1) {
 		$("#objectiveprogramerror").hide();
 		$("#objectiveprogramerror").html('');
-		config_string += "objective_program = " + objective_program + "\n";
+		config_string += "objective_program = " + replace_varnames_with_numbers(objective_program) + "\n";
 		for (var i = 0; i < number_of_parameters; i++) {
-			var regex = new RegExp("\\(\\$x_" + i + "\\)");
+			var param_name = $("#parameter_" + i + "_name").val()
+			var regex = new RegExp("\\(\\$(?:x_" + i + "|" + param_name + ")\\)");
 			if(!objective_program.match(regex)) {
 				var parameter_name = "($x_" + i + ")";
 				if($("#parameter_" + i + "_name").val()) {
-					parameter_name = $("#parameter_" + i + "_name").val() + " ($x_" + i + ")";
+					parameter_name = "($" + param_name + ")";
 				}
 				config_string += "# !!! Missing parameter " + parameter_name + " in Objective program string" + "\n";
-				missing_values++;
+				//missing_values++;
 			}
 		}
-		
-		//if(get_number_of_parameters_from_objective_program() > get_number_of_parameters()) {
-		//	$("#number_of_parameters").val(get_number_of_parameters_from_objective_program());
-		//	number_of_parameters = $("#number_of_parameters").val();
-		//	change_number_of_parameters();
-		//}
+	} else if (objective_program.length && num_of_newlines_in_objective_program != 0) {
+		config_string += "# !!! Objective Program string contains newlines\n";
+		missing_values++;
+		show_error_message("#objectiveprogramerror", 'Objective program string cannot contain newlines.');
 	} else {
 		config_string += "# !!! Objective Program string is empty\n";
 		missing_values++;
@@ -305,7 +344,7 @@ function update_config () {
 
 	if(number_of_parameters >= 1) {
 		$("#toofewparameterserror").html('');
-		config_string += "[DIMENSIONS]\n";
+		config_string += "\n[DIMENSIONS]\n";
 
 		config_string += "dimensions = " + number_of_parameters + "\n\n";
 
@@ -315,7 +354,7 @@ function update_config () {
 
 			var this_parameter_name_string = "($x_" + i + ")";
 			if(this_parameter_name) {
-				this_parameter_name_string = this_parameter_name + " ($x_" + i + ")";
+				this_parameter_name_string = "($" + this_parameter_name + ")";
 			}
 
 			if(this_parameter_name) {
@@ -329,13 +368,14 @@ function update_config () {
 			if(this_type == "hp.choiceint") {
 				range_generator_name_type = "hp.choice";
 			}
+
 			config_string += "range_generator_" + i + " = " + range_generator_name_type + "\n";
 
 			if(this_type == "hp.choice") {
 				var this_val = $("#hp_choice_" + i).val();
 
 				if(typeof(this_val) !== "undefined" && this_val.length >= 1) {
-					if(1 || isNumericList(this_val)) {
+					if(isNumericList(this_val) || 1) {
 						var re = new RegExp(',{2,}', 'g');
 						var respace = new RegExp('\\s*,\\s*', 'g');
 						this_val = this_val.replace(re, ',');
@@ -345,6 +385,43 @@ function update_config () {
 						config_string += "options_" + i + " = " + this_val + "\n";
 					} else {
 						config_string += "# Parameter " + i + " must consist of numbers only";
+						missing_values++;
+					}
+				} else {
+					config_string += no_value_str(i, this_parameter_name_string, "");
+				}
+			} else if(this_type == "hp.pchoice") {
+				var this_val = $("#hp_pchoice_" + i).val();
+
+				if(typeof(this_val) !== "undefined" && this_val.length >= 1) {
+					var re = new RegExp(',{2,}', 'g');
+					var respace = new RegExp('\\s*,\\s*', 'g');
+					this_val = this_val.replace(re, ',');
+					this_val = this_val.replace(respace, ',');
+					this_val = this_val.replace(/,+$/, '');
+
+					config_string += "options_" + i + " = " + this_val + "\n";
+				} else {
+					config_string += no_value_str(i, this_parameter_name_string, "");
+				}
+
+			} else if(this_type == "hp.choicestep") {
+				var this_min_dim = $("#choiceint_" + i + "_min").val();
+				var this_max_dim = $("#choiceint_" + i + "_max").val();
+				var this_step = $("#choiceint_" + i + "_step").val();
+				if(isNumeric(this_max_dim) && isNumeric(this_min_dim) && isNumeric(this_step)) {
+					if(parseInt(this_min_dim) <= parseInt(this_max_dim)) {
+						var numberArray = [];
+						for (var j = parseInt(this_min_dim); j <= parseInt(this_max_dim); j++) {
+							    numberArray.push(j);
+						}
+
+						config_string += "min_dim_" + i + " = " + this_min_dim + "\n";
+						config_string += "max_dim_" + i + " = " + this_max_dim + "\n";
+						config_string += "step_dim_" + i + " = " + this_step + "\n";
+					} else {
+						config_string += "# !!! Parameter " + this_parameter_name_string + " min-value is not smaller or equal to max value\n";
+						missing_values++;
 					}
 				} else {
 					config_string += no_value_str(i, this_parameter_name_string, "");
@@ -356,7 +433,7 @@ function update_config () {
 					if(parseInt(this_min_dim) <= parseInt(this_max_dim)) {
 						var numberArray = [];
 						for (var j = parseInt(this_min_dim); j <= parseInt(this_max_dim); j++) {
-							numberArray.push(j);
+							    numberArray.push(j);
 						}
 						var pseudostring = numberArray.join(",");
 
@@ -371,7 +448,11 @@ function update_config () {
 			} else if(this_type == "hp.randint") {
 				var this_max_dim = $("#randint_" + i + "_max").val();
 				if(isNumeric(this_max_dim) && this_max_dim >= 0) {
-					config_string += "max_dim_" + i + " = " + this_max_dim + "\n";
+					if(parseInt(this_max_dim) == this_max_dim) {
+						config_string += "max_dim_" + i + " = " + this_max_dim + "\n";
+					} else {
+						config_string += no_value_str(i, this_parameter_name_string, "integer");
+					}
 				} else {
 					config_string += no_value_str(i, this_parameter_name_string, "");
 				}
@@ -397,7 +478,7 @@ function update_config () {
 				} else {
 					config_string += no_value_str(i, this_parameter_name_string, "q");
 				}
-			} else if(this_type == "hp.loguniform" || this_type == "hp.uniform") {
+			} else if(this_type == "hp.loguniform" || this_type == "hp.uniform" || this_type == "hp.uniformint") {
 				var this_min = $("#min_" + i).val();
 				var this_max = $("#max_" + i).val();
 
@@ -523,6 +604,8 @@ function update_config () {
 
 	var enable_debug = $("#enable_debug").is(":checked") ? 1 : 0;
 	var show_live_output = $("#show_live_output").is(":checked") ? 1 : 0;
+	var sbatch_or_srun = $("#sbatch_or_srun").val();
+	var debug_sbatch_srun = $("#debug_sbatch_srun").is(":checked") ? 1 : 0;
 
 	config_string += "[DEBUG]\n";
 	config_string += "debug_xtreme = " + enable_debug + "\n";
@@ -532,6 +615,8 @@ function update_config () {
 	config_string += "success = " + enable_debug + "\n";
 	config_string += "stack = " + enable_debug + "\n";
 	config_string += "show_live_output = " + show_live_output + "\n";
+	config_string += "sbatch_or_srun = " + sbatch_or_srun + "\n";
+	config_string += "debug_sbatch_srun = " + debug_sbatch_srun + "\n";
 
 	config_string += "\n";
 	config_string += "[MONGODB]\n";
@@ -551,6 +636,7 @@ function update_config () {
 	} else {
 		config_string += "poll_interval = " + poll_interval + "\n";
 	}
+
 
 	var kill_after_n_no_results = $("#kill_after_n_no_results").val();
 	if(!isNumeric(worker_last_job_timeout)) {
@@ -573,6 +659,12 @@ function update_config () {
 	var mem_per_cpu = $("#mem_per_cpu").val();
 	var partition = $("#partition").val();
 
+	if(partition == "ml") {
+		show_error_message("#seed_ml_error", 'Warning: Setting the seed does not work on ML.');
+	} else {
+		$("#seed_ml_error").html("").hide();
+	}
+
 	if(mem_per_cpu > 0) {
 		$("#memworkererror").hide();
 		$("#memworkererror").html("");
@@ -592,7 +684,7 @@ function update_config () {
 		$("#singlelogsfolder").html("cd projects/$PROJECTNAME/singlelogs");
 	}
 
-	if(computing_time > 0) {
+	if(computing_time > 0 || computing_time.match(/^\d+(?::\d+)*$/)) {
 		$("#computingtimeerror").hide();
 		$("#computingtimeerror").html("");
 		if(mem_per_cpu > 0) {
@@ -606,15 +698,35 @@ function update_config () {
 							var config_string_echo = config_string;
 							config_string_echo = config_string_echo.replace(/\$/g, "\\$");
 
-							var sbatch_string = "sbatch -J " + projectname + " \\\n";
+							var debug_sbatch_srun = $("#debug_sbatch_srun").is(":checked") ? 1 : 0;
+							var trace_omniopt = $("#trace_omniopt").is(":checked") ? 1 : 0;
+							var sbatch_or_srun = $("#sbatch_or_srun").val();
+							var sbatch_string = sbatch_or_srun + (debug_sbatch_srun ? ' -vvvvvvvvvvv ' : '') + " -J "  + projectname + " \\\n";
 							var enable_gpus = $("#enable_gpus").is(":checked") ? 1 : 0;
 
-							if($("#reservation").val()) {
-								sbatch_string += " --reservation=" + $("#reservation").val() + " \\\n";
+							var number_of_gpus = $("#number_of_gpus").val();
+
+							var reservation_string = " --reservation=" + $("#reservation").val() + " \\\n";;
+							var add_reservation_string_to_sbatch = 0;
+							var add_account_string_to_sbatch = 0;
+							var cpus_per_task = parseInt($("#cpus_per_task").val());
+
+							if(enable_gpus == 1) {
+								if($("#reservation").val()) {
+									if(number_of_gpus <= 1) {
+										sbatch_string += reservation_string;
+									} else {
+										add_reservation_string_to_sbatch = 1;
+									}
+								}
 							}
 
 							if($("#account").val()) {
-								sbatch_string += " -A " + $("#account").val() + " \\\n";
+								if(number_of_gpus == 1) {
+									sbatch_string += " -A " + $("#account").val() + " \\\n";
+								} else {
+									add_account_string_to_sbatch = 1;
+								}
 							}
 
 							var max_number_of_gpus = partition_data[partition]["max_number_of_gpus"];
@@ -628,25 +740,96 @@ function update_config () {
 							}
 
 							if(enable_gpus == 1) {
-								sbatch_string += " --cpus-per-task=" + number_of_cpus_per_worker + " --gres=gpu:" + number_of_allocated_gpus + " \\\n --gpus-per-task=1 \\\n";
+								if(number_of_gpus == 1) {
+									sbatch_string += " --cpus-per-task=" + number_of_cpus_per_worker + " \\\n"
+									sbatch_string += " --gres=gpu:" + number_of_allocated_gpus + " \\\n --gpus-per-task=1 \\\n";
+								}
+							}
+
+							var fmin_partition = partition;
+
+							if(enable_gpus == 1 && number_of_gpus >= 2) {
+								fmin_partition = "haswell";
 							}
 
 							sbatch_string += " --ntasks=" + number_of_workers + " \\\n";
-							sbatch_string += " --time=" + computing_time + ":00:00 \\\n";
+							if(!computing_time.includes(":")) {
+								sbatch_string += " --time=" + computing_time + ":00:00 \\\n";
+							} else {
+								sbatch_string += " --time=" + computing_time + " \\\n";
+							}
 							sbatch_string += " --mem-per-cpu=" + mem_per_cpu + " \\\n";
-							sbatch_string += " --partition=" + partition + " \\\n";
+							sbatch_string += " --partition=" + fmin_partition + " \\\n";
 
-							sbatch_string += " sbatch.pl --project=" + projectname + " ";
+
+							var sbatch_pl_params = "";
+
+							if($("#number_of_cpus_per_worker").val()) {
+								if(parseInt($("#number_of_gpus").val()) >= 1 && $("#enable_gpus").is(":checked")) {
+									sbatch_string += "\\\n --cpus-per-task=" + $("#number_of_cpus_per_worker").val();
+								} else {
+									sbatch_pl_params += "\\\n --srun_cpus_per_task=" + $("#number_of_cpus_per_worker").val();
+								}
+							} else if(cpus_per_task) {
+								sbatch_pl_params += " --srun_cpus_per_task=" + cpus_per_task + " \\\n";
+							}
+
+							if($("#overcommit").is(":checked")) {
+								sbatch_pl_params += " --overcommit \\\n";
+							}
+
+							if($("#overlap").is(":checked")) {
+								sbatch_pl_params += " --overlap \\\n";
+							}
+
+							sbatch_string += " sbatch.pl --project=" + projectname + " \\\n";
 							if(enable_debug == 1) {
 								sbatch_string += " --debug";
 							}
+
+							if(trace_omniopt) {
+								sbatch_string += " --trace_omniopt";
+							}
+
+							if(add_reservation_string_to_sbatch) {
+								sbatch_string += reservation_string;
+							}
+
+							if(add_account_string_to_sbatch) {
+								sbatch_string += " --account=" + $("#account").val() + " \\\n"
+							}
+
+							sbatch_string += sbatch_pl_params;
+
+							sbatch_string += " --partition=" + partition;
+
+							if(enable_gpus == 1) {
+								sbatch_string += "\\\n" + " --num_gpus_per_worker=" + $("#number_of_gpus").val() + " ";
+								if(!computing_time.includes(":")) {
+									sbatch_string += "\\\n" + " --max_time_per_worker=" + computing_time + ":00:00";
+								} else {
+									sbatch_string += "\\\n" + " --max_time_per_worker=" + computing_time;
+								}
+							} else {
+								sbatch_string += "\\\n" + " --num_gpus_per_worker=0 ";
+							}
+
+
+
+
 
 							sbatch_string = sbatch_string.replace(/ {2,}/g, ' ');
 							var sbatch_string_no_newlines = sbatch_string.replace(/\\+\n/g, ' ');
 
 							//var base_url = document.URL.substr(0,document.URL.lastIndexOf('/'));
-							var base_url = "https://imageseg.scads.de/omnioptgui";
+							var base_url = "https://imageseg.scads.ai/omnioptgui";
 							var bash_command = "curl " + base_url + "/omniopt_script.sh 2>/dev/null | bash -s -- --projectname=" + projectname + " --config_file=" + btoa(config_string) + " --sbatch_command=" + btoa(sbatch_string_no_newlines);
+
+							var workdir = $("#workdir").val();
+							if(typeof workdir !== "undefined" && workdir != "") {
+								bash_command = bash_command + " --workdir=" + workdir + " ";
+							}
+
 							if ($("#enable_curl_debug").is(":checked")) {
 								bash_command = bash_command + " --debug ";
 							}
@@ -656,7 +839,7 @@ function update_config () {
 							}
 
 							if (!$("#dont_add_to_shell_history").is(":checked")) {
-								bash_command = bash_command + '; if [[ "$SHELL" == "/bin/bash" ]]; then history -r; elif [[ "$SHELL" == "/bin/zsh" ]]; then fc -R; fi';
+								bash_command = bash_command + '; if [[ "$SHELL" == "/bin/bash" ]]; then history -r 2>&1 >/dev/null; elif [[ "$SHELL" == "/bin/zsh" ]]; then fc -R; fi';
 							} else {
 								bash_command = bash_command + " --dont_add_to_shell_history ";
 							}
@@ -702,6 +885,8 @@ function update_config () {
 	$("#downloadlink").html('<a download="config.ini" href="data:application/octet-stream,' + encodeURIComponent(config_string) + '">Download this <tt>config.ini</tt>.</a>');
 
 	Prism.highlightAll();
+
+	show_multigpu();
 }
 
 function change_parameter_and_url(i, t) {
@@ -711,22 +896,25 @@ function change_parameter_and_url(i, t) {
 
 function get_select_type (i) {
 	var spaces = "&nbsp;&nbsp;&nbsp;&nbsp;";
-	return "<input class='parameter_input' type='text' onkeyup='update_url_param(\"param_" + i + "_name\", this.value)' placeholder='Name of this parameter' id='parameter_" + i + "_name' value='" + get_url_param("param_" + i + "_name") + "' /><br />" +
+	return "<input class='parameter_input' type='text' onkeyup='update_url_param(\"param_" + i + "_name\", this.value)' placeholder='Name of this parameter' id='parameter_" + i + "_name' value='" + get_url_param("param_" + i + "_name") + "' /><br /><span id='param_" + i + "_duplicate_name_error' class='name_error' style='display: none'></span><span id='param_" + i + "_invalid_name_error' class='name_error' style='display: none'></span>" +
 		"<select class='parameter_input' id='type_" + i + "' onchange='change_parameter_and_url(" + i + ", this)'>" +
-		"\t<option value='hp.randint' " + (get_url_param("param_" + i + "_type") == "hp.randint" ? ' selected="true" ' : '') + ">hp.randint: Integer between 0 and a given maximal number</option>" +
-		"\t<option value='' disabled='disabled'>────────────</option>\n" +
-		"\t<option value='hp.choice' " + (get_url_param("param_" + i + "_type") == "hp.choice" ? ' selected="true" ' : '') + ">hp.choice: One of the given options, separated by comma</option>" +
-		"\t<option value='hp.choiceint' " + (get_url_param("param_" + i + "_type") == "hp.choiceint" ? ' selected="true" ' : '') + ">hp.choiceint: A pseudo-generator for hp.choice, for using integers between a and b</option>" +
-		"\t<option value='' disabled='disabled'>────────────</option>\n" +
-		"\t<option value='hp.uniform' " + (get_url_param("param_" + i + "_type") == "hp.uniform" ? ' selected="true" ' : '') + ">hp.uniform: Uniformly distributed value between two values</option>" +
-		"\t<option value='hp.quniform' " + (get_url_param("param_" + i + "_type") == "hp.quniform" ? ' selected="true" ' : '') + "'>hp.quniform: Values like round(uniform(min, max)/q)&#8901;q</option>" +
-		"\t<option value='hp.loguniform' " + (get_url_param("param_" + i + "_type") == "hp.loguniform" ? ' selected="true" ' : '') + "'>hp.loguniform: Values so that the log of the value is uniformly distributed</option>" +
-		"\t<option value='hp.qloguniform' " + (get_url_param("param_" + i + "_type") == "hp.qloguniform" ? ' selected="true" ' : '') + "'>hp.qloguniform: Values like round(exp(uniform(min, max))/q) &#8901;q</option>" +
-		"\t<option value='' disabled='disabled'>────────────</option>\n" +
-		"\t<option value='hp.normal' " + (get_url_param("param_" + i + "_type") == "hp.normal" ? ' selected="true" ' : '') + "'>hp.normal: Real values that are normally distributed with Mean &mu; and Standard deviation &sigma;</option>" +
-		"\t<option value='hp.qnormal' " + (get_url_param("param_" + i + "_type") == "hp.qnormal" ? ' selected="true" ' : '') + "'>hp.qnormal: Values like round(normal(&mu;, &sigma;)/q)&#8901;q</option>" +
-		"\t<option value='hp.lognormal' " + (get_url_param("param_" + i + "_type") == "hp.lognormal" ? ' selected="true" ' : '') + ">hp.lognormal: Values so that the logarithm of normal(&mu;, &sigma;) is normally distributed</option>" +
-		"\t<option value='hp.qlognormal' " + (get_url_param("param_" + i + "_type") == "hp.qlognormal" ? ' selected="true" ' : '') + ">hp.qlognormal: Values like round(exp(lognormal(&mu;, &sigma;))/q)&#8901;q</option>" +
+		"\t<option value='hp.randint' " + (get_url_param("param_" + i + "_type") == "hp.randint" ? ' selected="true" ' : '') + ">randint: Integer between 0 and a given maximal number</option>" +
+		"\t<option value='' disabled='disabled'>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>\n" +
+		"\t<option value='hp.choice' " + (get_url_param("param_" + i + "_type") == "hp.choice" ? ' selected="true" ' : '') + ">choice: One of the given options, separated by comma</option>" +
+		"\t<option value='hp.pchoice' " + (get_url_param("param_" + i + "_type") == "hp.pchoice" ? ' selected="true" ' : '') + ">pchoice: One of the given options with a given probability, separated by comma</option>" +
+		"\t<option value='hp.choiceint' " + (get_url_param("param_" + i + "_type") == "hp.choiceint" ? ' selected="true" ' : '') + ">choiceint: A pseudo-generator for hp.choice, for using integers between a and b</option>" +
+		"\t<option value='hp.choicestep' " + (get_url_param("param_" + i + "_type") == "hp.choicestep" ? ' selected="true" ' : '') + ">choicestep: A pseudo-generator for hp.choice, for using integers between a and b with a certain step size</option>" +
+		"\t<option value='' disabled='disabled'>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>\n" +
+		"\t<option value='hp.uniform' " + (get_url_param("param_" + i + "_type") == "hp.uniform" ? ' selected="true" ' : '') + ">uniform: Uniformly distributed value between two values</option>" +
+		"\t<option value='hp.uniformint' " + (get_url_param("param_" + i + "_type") == "hp.uniformint" ? ' selected="true" ' : '') + ">uniformint: Uniformly distributed integer value between two values</option>" +
+		"\t<option value='hp.quniform' " + (get_url_param("param_" + i + "_type") == "hp.quniform" ? ' selected="true" ' : '') + "'>quniform: Values like round(uniform(min, max)/q)&#8901;q</option>" +
+		"\t<option value='hp.loguniform' " + (get_url_param("param_" + i + "_type") == "hp.loguniform" ? ' selected="true" ' : '') + "'>loguniform: Values so that the log of the value is uniformly distributed</option>" +
+		"\t<option value='hp.qloguniform' " + (get_url_param("param_" + i + "_type") == "hp.qloguniform" ? ' selected="true" ' : '') + "'>qloguniform: Values like round(exp(uniform(min, max))/q) &#8901;q</option>" +
+		"\t<option value='' disabled='disabled'>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>\n" +
+		"\t<option value='hp.normal' " + (get_url_param("param_" + i + "_type") == "hp.normal" ? ' selected="true" ' : '') + "'>normal: Real values that are normally distributed with Mean &mu; and Standard deviation &sigma;</option>" +
+		"\t<option value='hp.qnormal' " + (get_url_param("param_" + i + "_type") == "hp.qnormal" ? ' selected="true" ' : '') + "'>qnormal: Values like round(normal(&mu;, &sigma;)/q)&#8901;q</option>" +
+		"\t<option value='hp.lognormal' " + (get_url_param("param_" + i + "_type") == "hp.lognormal" ? ' selected="true" ' : '') + ">lognormal: Values so that the logarithm of normal(&mu;, &sigma;) is normally distributed</option>" +
+		"\t<option value='hp.qlognormal' " + (get_url_param("param_" + i + "_type") == "hp.qlognormal" ? ' selected="true" ' : '') + ">qlognormal: Values like round(exp(lognormal(&mu;, &sigma;))/q)&#8901;q</option>" +
 		"</select>" +
 		"<div id='type_" + i + "_settings'></div>";
 }
@@ -738,11 +926,22 @@ function change_parameter_settings(i) {
 	if (chosen_type == "hp.choice") {
 		set_html = "<input class='parameter_input' id='hp_choice_" + i + "' type='text' placeholder='Comma separated list of possible values' value='" + get_url_param("param_" + i + "_values") + "' onkeyup='update_url_param(\"param_" + i + "_values\", this.value)' a/>";
 	} else if (chosen_type == "hp.randint") {
-		set_html = "<input class='parameter_input' id='randint_" + i + "_max' type='number' placeholder='Maximal number' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
+		set_html = "<input class='parameter_input' id='randint_" + i + "_max' type='number' placeholder='Maximal number' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' max='9223372036854775807' />";
+	} else if (chosen_type == "hp.pchoice") {
+		set_html = "<p>Example: <tt>a=20,b=70,c=10</tt>: <tt>a</tt> gets chosen with 20% probability, <tt>b</tt> with 70% and <tt>c</tt> with 10%. All percentages should add up to 100%.</p>"
+		set_html += "<input class='parameter_input' id='hp_pchoice_" + i + "' type='text' placeholder='Comma separated list of possible values, with VALUE=PROBABILITY (probability between 0 and 100)' value='" + get_url_param("param_" + i + "_values") + "' onkeyup='update_url_param(\"param_" + i + "_values\", this.value)' a/>";
+	} else if (chosen_type == "hp.choicestep") {
+		set_html = "<input class='parameter_input' id='choiceint_" + i + "_min' type='number' placeholder='Minimal number' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
+		set_html += "<input class='parameter_input' id='choiceint_" + i + "_max' type='number' placeholder='Maximal number' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
+		set_html += "<input class='parameter_input' id='choiceint_" + i + "_step' type='number' placeholder='Step' value='" + get_url_param("param_" + i + "_value_step") + "' onkeyup='update_url_param(\"param_" + i + "_value_step\", this.value)' min='0' />";
 	} else if (chosen_type == "hp.choiceint") {
 		set_html = "<input class='parameter_input' id='choiceint_" + i + "_min' type='number' placeholder='Minimal number' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
 		set_html += "<input class='parameter_input' id='choiceint_" + i + "_max' type='number' placeholder='Maximal number' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
 		set_html += "<span style='color: orange;'>This is a pseudo-generator that HyperOpt does not really support. Remember this: in the DB, the index of the value will be saved, NOT the actual value listed here. When outputting anything via OmniOpts scripts, you will get results as expected. But if you change the <tt>config.ini</tt>, the results outputted by OmniOpts scripts will change too, even after it already ran!</span>";
+	} else if (chosen_type == "hp.uniformint") {
+		set_html = "<p>Return an integer uniformly distributed between the min and max value.</p>";
+		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
+		set_html += "<input class='parameter_input' id='max_" + i + "' type='number' step='any' placeholder='max' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
 	} else if (chosen_type == "hp.uniform") {
 		set_html = "<p>When optimizing, this variable is constrained to a two-sided interval.</p>";
 		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
@@ -750,7 +949,7 @@ function change_parameter_settings(i) {
 	} else if (chosen_type == "hp.loguniform") {
 		set_html = "<p>When optimizing, this variable is constrained to the interval <math>[<msup><mi>e</mi><mn mathvariant='normal'>min</mn></msup>,<mspace width='.1em' /><msup><mi>e</mi><mn mathvariant='normal'>max</mn></msup>]</math>.</p>";
 		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
-		set_html += "<input class='parameter_input' id='max_" + i + "' type='number' step='any' placeholder='max' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_i" + i + "_value_max\", this.value)' min='0' />";
+		set_html += "<input class='parameter_input' id='max_" + i + "' type='number' step='any' placeholder='max' value='" + get_url_param("param_" + i + "_value_max") + "' onkeyup='update_url_param(\"param_" + i + "_value_max\", this.value)' min='0' />";
 	} else if (chosen_type == "hp.quniform") {
 		set_html = '<p>Suitable for a discrete value with respect to which the objective is still somewhat "smooth", but which should be bounded both above and below.</p>';
 		set_html += "<input class='parameter_input' id='min_" + i + "' type='number' step='any' placeholder='min' value='" + get_url_param("param_" + i + "_value_min") + "' onkeyup='update_url_param(\"param_" + i + "_value_min\", this.value)' min='0' />";
@@ -766,7 +965,7 @@ function change_parameter_settings(i) {
 		set_html += "<input class='parameter_input' id='sigma_" + i + "' type='number' step='any' placeholder='Standard deviation &sigma;' value='" + get_url_param("param_" + i + "_sigma") + "' onkeyup='update_url_param(\"param_" + i + "_sigma\", this.value)' min='0' />";
 	} else if (chosen_type == "hp.qnormal") {
 		set_html = "<p>Suitable for a discrete variable that probably takes a value around mu, but is fundamentally unbounded.</p>";
-		set_html += "<input class='parameter_input' id='mu_" + i + "' type='number' step='any' placeholder='Mean &mu;' value='" + get_url_param("param_" + i + "_mu") + "' min='0' />";
+		set_html += "<input class='parameter_input' id='mu_" + i + "' type='number' step='any' placeholder='Mean &mu;' value='" + get_url_param("mu_" + i) + "' min='0' onkeyup='update_url_param(\"mu_" + i + "\", this.value)' />";
 		set_html += "<input class='parameter_input' id='sigma_" + i + "' type='number' step='any' placeholder='Standard deviation &sigma;' value='" + get_url_param("param_" + i + "_sigma") + "' onkeyup='update_url_param(\"param_" + i + "_sigma\", this.value)' min='0' />";
 		set_html += "<input class='parameter_input' id='q_" + i + "' type='number' step='any' placeholder='q' value='" + get_url_param("param_" + i + "_value_q") + "' min='0' onkeyup='update_url_param(\"param_" + i + "_value_q\", this.value)' />";
 	} else if (chosen_type == "hp.lognormal") {
@@ -779,12 +978,26 @@ function change_parameter_settings(i) {
 		set_html += "<input class='parameter_input' id='q_" + i + "' type='number' step='any' placeholder='q' value='" + get_url_param("param_" + i + "_value_q") + "' min='0' onkeyup='update_url_param(\"param_" + i + "_value_q\", this.value)' />";
 	}
 
+	set_html += get_gridsearch_warning(chosen_type);
+
 	$("#type_" + i + "_settings").html(set_html);
 	show_missing_values_error();
 }
 
+function get_gridsearch_warning (chosen_type) {
+	if($("#algo_name").val() != "gridsearch") {
+		return "";
+	}
+
+	if(valid_grid_search.includes(chosen_type)) {
+		return "";
+	}
+
+	return '<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"><span class="ui-icon ui-icon-alert" style="float: left;"></span>' + chosen_type + ' is invalid for grid search. Valid types are: ' + valid_grid_search.join(", ") + "</div>";
+}
+
 function get_parameter_config (i) {
-	return "<div class='parameter' id='parameter_" + i + "'><h3>Parameter <tt>($x_" + i + ")</tt></h3><div class='errors' id='parameter_" + i + "_errors'></div>" + get_select_type(i) + "</div>";
+	return "<div class='parameter' id='parameter_" + i + "'><div class='errors' id='parameter_" + i + "_errors'></div>" + get_select_type(i) + "</div>";
 }
 
 function change_number_of_parameters() {
@@ -806,7 +1019,6 @@ function change_number_of_parameters() {
 			var r = confirm("This will delete the last " + (number_of_parameters - new_number_of_parameters) + " parameter(s) and all entered data for that parameter! Are you sure about this?");
 			if (r == true) {
 				for (var i = number_of_parameters; i >= new_number_of_parameters; i--) {
-
 					$("#parameter_" + i).remove();
 				}
 			} else {
@@ -902,6 +1114,20 @@ function set_if_exists(data, category, name, id) {
 	}
 }
 
+function show_multigpu () {
+	var enable_gpus = $("#enable_gpus").is(":checked") ? 1 : 0;
+	if(enable_gpus) {
+		$("#multigpu").show();
+		if($("#number_of_gpus").val() >= 2) {
+			show_error_message("#multigputext", "Using more than 1 GPU works, but may take more time to allocate sub-jobs.");
+		} else {
+			$("#multigputext").html("");
+		}
+	} else {
+		$("#multigpu").hide();
+	}
+}
+
 function parse_from_config_ini () {
 	var data = parseINIString($("#configini").val());
 	
@@ -916,8 +1142,12 @@ function parse_from_config_ini () {
 	set_if_exists(data, "DATA", "enable_gpus", "enable_gpus");
 	set_if_exists(data, "DATA", "mem_per_cpu", "mem_per_cpu");
 	set_if_exists(data, "DATA", "computing_time", "computing_time");
+	set_if_exists(data, "DATA", "num_gpus_per_worker", "number_of_gpus");
 
 	set_if_exists(data, "DEBUG", "show_live_output", "show_live_output");
+	set_if_exists(data, "DEBUG", "sbatch_or_srun", "sbatch_or_srun");
+	set_if_exists(data, "DEBUG", "debug_sbatch_srun", "debug_sbatch_srun");
+	set_if_exists(data, "DEBUG", "trace_omniopt", "trace_omniopt");
 	set_if_exists(data, "DEBUG", "debug_xtreme", "enable_curl_debug");
 	set_if_exists(data, "DEBUG", "debug", "enable_debug");
 
@@ -942,8 +1172,14 @@ function parse_from_config_ini () {
 						var this_range_generator = data["DIMENSIONS"][this_range_generator];
 						if(this_range_generator == 'hp.randint') {
 							set_if_exists(data, "DIMENSIONS", "max_dim_" + i, "randint_" + i + "_max");
+						} else if(this_range_generator == 'hp.choicestep') {
+							set_if_exists(data, "DIMENSIONS", "min_dim_" + i, "min_dim_" + i);
+							set_if_exists(data, "DIMENSIONS", "max_dim_" + i, "max_dim_" + i);
+							set_if_exists(data, "DIMENSIONS", "step_dim_" + i, "step_dim_" + i);
 						} else if(this_range_generator == 'hp.choice') {
 							set_if_exists(data, "DIMENSIONS", "options_" + i, "hp_choice_" + i);
+						} else if(this_range_generator == 'hp.pchoice') {
+							set_if_exists(data, "DIMENSIONS", "options_" + i, "hp_pchoice_" + i);
 						} else if(this_range_generator == 'hp.qnormal' || this_range_generator == "hp.qlognormal") {
 							set_if_exists(data, "DIMENSIONS", "mean_" + i, "mean_" + i);
 							set_if_exists(data, "DIMENSIONS", "sigma_" + i, "sigma_" + i);
@@ -951,7 +1187,7 @@ function parse_from_config_ini () {
 						} else if(this_range_generator == 'hp.normal' || this_range_generator == 'hp.lognormal') {
 							set_if_exists(data, "DIMENSIONS", "mu_" + i, "mu_" + i);
 							set_if_exists(data, "DIMENSIONS", "sigma_" + i, "sigma_" + i);
-						} else if(this_range_generator == 'hp.uniform' || this_range_generator == "hp.loguniform") {
+						} else if(this_range_generator == 'hp.uniform' || this_range_generator == "hp.loguniform" || this_range_generator == "hp.uniformint") {
 							set_if_exists(data, "DIMENSIONS", "min_dim_" + i, "min_" + i);
 							set_if_exists(data, "DIMENSIONS", "max_dim_" + i, "max_" + i);
 						} else if(this_range_generator == 'hp.quniform' || this_range_generator == "hp.qloguniform") {
@@ -976,10 +1212,37 @@ function parse_from_config_ini () {
 	update_config();
 }
 
+function fill_test_data() {
+	var num_params = $("#number_of_parameters").val();
+	var example_program = "perl -e 'use bignum; print qq#RESULT: #.(";
+	var x = Array();
+	for (var i = 0; i < num_params; i++) {
+		x.push("($x_" + i + ")");
+	}
+	example_program += x.join(" + ");
+	example_program += ").qq#\\n#'";
+
+	$("#objective_program").val(example_program);
+
+	$("#projectname").val("test_project");
+
+	$('#partition').val("haswell64");
+
+	disable_gpu_when_none_available();
+	show_warning_if_available();
+	show_link_if_available();
+	show_time_warning();
+
+	$("#max_evals").val(100);
+
+	update_config();
+}
+
 $(document).ready(function() {
 	change_number_of_parameters();
 	disable_gpu_when_none_available();
 	show_warning_if_available();
+	show_link_if_available();
 	max_memory_per_worker();
 	show_max_worker_warning();
 	show_worker_warning();
@@ -995,13 +1258,14 @@ $(document).ready(function() {
 	add_listener("partition", show_time_warning);
 	add_listener("partition", disable_gpu_when_none_available);
 	add_listener("partition", show_warning_if_available);
+	add_listener("partition", show_link_if_available);
 	//add_listener("partition", use_max_memory_of_partition);
 
 	add_listener("mem_per_cpu", max_memory_per_worker);
 
 	add_listener("computing_time", show_time_warning);
 
-	add_listener(["max_evals", "number_of_workers", "partition", "mem_per_cpu", "computing_time", "number_of_cpus_per_worker", "enable_gpus"], update_config);
+	add_listener(["max_evals", "number_of_workers", "partition", "mem_per_cpu", "computing_time", "number_of_cpus_per_worker", "enable_gpus", "number_of_gpus", "seed"], update_config);
 
 	document.getElementById("copytoclipboardbutton").addEventListener(
 		"click",
@@ -1018,4 +1282,65 @@ $(document).ready(function() {
 		var current_text = $(this).html();
 		$(this).html(current_text + " <span title=\"" + $(this).data("help") + "\">&#x2753;</span>");
 	});
+
+	document.addEventListener('keydown', function(event) {
+		if (event.ctrlKey && event.key === '*') {
+			if (confirm('You pressed ctrl + *. Fill with auto-generated test-data? This may overwrite some of your input, so be careful.')) {
+				fill_test_data();
+			}
+		}
+	});
 });
+
+function get_i_for_param_name (pname) {
+	var param_name_items = $('input[id^=parameter_][id$=_name]');
+
+	var names = [];
+
+	for (var i = 0; i < param_name_items.length; i++) {
+		var t = param_name_items[i];
+
+		var name = $(t).val()
+
+		if(name == pname) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+
+function check_param_names () {
+	var param_name_items = $('input[id^=parameter_][id$=_name]');
+
+	var names = [];
+
+	for (var i = 0; i < param_name_items.length; i++) {
+		var t = param_name_items[i];
+
+		var name = $(t).val()
+
+		var had_error = 0;
+
+		if(names.includes(name)) {
+			show_error_message("#param_" + i + "_duplicate_name_error", "The name of this layer already exists for a previous parameter!");
+			had_error++;
+		}
+
+		if(!name.match(/^[a-zA-Z0-9_]*$/)) {
+			show_error_message("#param_" + i + "_invalid_name_error", "Names for parameters can only consist of alphanumericals and underscores");
+			had_error++;
+		}
+
+		if(had_error) {
+			missing_values++;
+		} else {
+			$("#param_" + i + "_duplicate_name_error").html("").hide();
+			$("#param_" + i + "_invalid_name_error").html("").hide();
+		}
+
+		names.push(name);
+	}
+}
+

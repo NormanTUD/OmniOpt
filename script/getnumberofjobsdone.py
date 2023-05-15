@@ -7,7 +7,6 @@ import time
 from termcolor import colored
 
 from mydebug import debug, error, warning, info, myconf, get_data, set_myconf
-from mongo_db_objective import objective_function_mongodb
 import hyperopt
 import myfunctions
 

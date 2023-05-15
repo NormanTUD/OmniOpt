@@ -107,28 +107,55 @@ def get_parameter_name_from_value (myconf, axis_number, value):
         return value
 
 def get_parameter_value (myconf, axis_number, value):
-    axis_type = get_axis_type(myconf, axis_number)
-    if axis_type == "hp.choice" or axis_type == "hp.choiceint":
-        this_options = myconf.str_get_config('DIMENSIONS', 'options_' + str(axis_number - 1))
-        values = [x.strip() for x in this_options.split(',')]
+    axis_type = get_axis_type(myconf, axis_number - 1)
+    #print("axis-type:", axis_type, "value:", value)
+    if axis_type == "hp.choice" or axis_type == "hp.choiceint" or axis_type == "hp.pchoice" or axis_type == "hp.choicestep":
+        values = []
+
+        if axis_type == "hp.choicestep":
+            min_val = myconf.int_get_config('DIMENSIONS', 'min_dim_' + str(axis_number - 1))
+            max_val = myconf.int_get_config('DIMENSIONS', 'max_dim_' + str(axis_number - 1))
+            step_val = myconf.int_get_config('DIMENSIONS', 'step_dim_' + str(axis_number - 1))
+
+            for x in range(min_val, max_val + step_val, step_val):
+                values.append(x)
+
+        else:
+            this_options = myconf.str_get_config('DIMENSIONS', 'options_' + str(axis_number - 1))
+            values = [x.strip() for x in this_options.split(',')]
+
+            if axis_type == "hp.pchoice":
+                original_values = values
+                values = []
+                for item in original_values:
+                    x, prob = item.split('=')
+                    values.append(x)
+
         if hasattr(value, "__len__"):
             result_array = []
             for item in value:
-                this_value = values[item]
+                this_value = values[int(item)]
                 if not re.match(r'^-?\d+(?:\.\d+)?$', this_value) is None:
                     this_value = float(this_value)
                 result_array.append(this_value)
             return result_array
         else:
-            return values[value]
+            try:
+                return values[value]
+            except:
+                return None
     else:
         return value
 
 def get_axis_type (myconf, number):
     thistype = None
+
+    number = int(number)
+
     try:
-        thistype = myconf.str_get_config('DIMENSIONS', 'range_generator_' + str(number - 1))
+        thistype = myconf.str_get_config('DIMENSIONS', 'range_generator_' + str(number))
     except Exception:
+        sys.stderr.write("Could not get range_generator_%s\n" % str(number))
         thistype = myconf.str_get_config('DATA', 'range_generator_name')
     if thistype is not None:
         return thistype
@@ -142,15 +169,19 @@ def get_axis_type (myconf, number):
 
 def get_axis_label(myconf, number):
     thisname = "*unknown label*"
+
     try:
         thisname = myconf.str_get_config('DIMENSIONS', 'dim_' + str(number - 1) + '_name')
     except Exception:
-        print("Could not get label name from axis " + str(number - 1))
+        print("Could not get label name from axis " + str(number - 1) + "\n")
+
     if thisname is not None:
         return thisname
     else:
         return 'x_' + str(number - 1)
+
     axis_labels = ()
+
     if len(axis_labels) < number:
         return 'x_' + str(number - 1)
     else:
@@ -187,7 +218,7 @@ def get_config_path_by_projectname(projectname, projectdirdefault=None):
         else:
             sys.stderr.write("The file `" + tmp_path + "` did not exist!\n")
     else:
-        sys.stderr.write("Project name was empty!")
+        sys.stderr.write("Project name was empty!\n")
         return None
     return linuxstuff.normalize_path(path)
 
@@ -198,6 +229,55 @@ def create_space(algo_name, myconf, i):
         options_string = myconf.str_get_config('DIMENSIONS', 'options_' + str(i))
         options = []
         for x in options_string.split(','):
+            options.append(x)
+        space = hp.choice(label, options)
+    elif algo_name == 'hp.pchoice':
+        options_string = myconf.str_get_config('DIMENSIONS', 'options_' + str(i))
+        options = []
+
+        sum_prob = 0
+        sum_prob = int(sum_prob)
+
+        for item in options_string.split(','):
+            x, prob = item.split('=')
+            prob = int(prob)
+
+            options.append((prob, x))
+
+            sum_prob = sum_prob + prob
+
+        if sum_prob != 100:
+            mydebug.warning("The sum of all probabilites in %s is not 100, but %f. It gets normalized, so that %f is becoming equal to 100%%." % (label, sum_prob, sum_prob))
+
+            original_options = options
+            options = []
+
+            for item in original_options:
+                normalized_prob = int((item[0] / sum_prob) * 100)
+                options.append((normalized_prob, item[1]))
+
+        
+        original_options = options
+        options = []
+
+        # normalize them back to numbers between 0 and 1
+        for item in original_options:
+            options.append((item[0] / 100, item[1]))
+
+        space = hp.pchoice(label, options)
+    elif algo_name == 'hp.choicestep':
+        low = myconf.float_get_config('DIMENSIONS', 'min_dim_' + str(i))
+        upper = myconf.int_get_config('DIMENSIONS', 'max_dim_' + str(i))
+        step = myconf.int_get_config('DIMENSIONS', 'step_dim_' + str(i))
+        options = []
+        for x in range(int(low), int(upper) + 1, step):
+            options.append(x)
+        space = hp.choice(label, options)
+    elif algo_name == 'hp.choiceint':
+        low = myconf.float_get_config('DIMENSIONS', 'min_dim_' + str(i))
+        upper = myconf.int_get_config('DIMENSIONS', 'max_dim_' + str(i))
+        options = []
+        for x in range(int(low), int(upper) + 1):
             options.append(x)
         space = hp.choice(label, options)
     elif algo_name == 'hp.randint':
@@ -216,6 +296,10 @@ def create_space(algo_name, myconf, i):
         low = myconf.float_get_config('DIMENSIONS', 'min_dim_' + str(i))
         high = myconf.float_get_config('DIMENSIONS', 'max_dim_' + str(i))
         space = hp.loguniform(label, low, high)
+    elif algo_name == 'hp.uniformint':
+        min_dim = myconf.float_get_config('DIMENSIONS', 'min_dim_' + str(i))
+        max_dim = myconf.float_get_config('DIMENSIONS', 'max_dim_' + str(i))
+        space = hp.uniformint(label, min_dim, max_dim)
     elif algo_name == 'hp.qloguniform':
         low = myconf.float_get_config('DIMENSIONS', 'min_dim_' + str(i))
         high = myconf.float_get_config('DIMENSIONS', 'max_dim_' + str(i))
@@ -250,7 +334,7 @@ def get_choices(myconf, data):
     mydebug.debug('Defining variables for dimension')
     choices = []
     i = 0
-    for this_dim in range(0, maxnumofdims): #dimension_ranges:
+    for this_dim in range(0, maxnumofdims):
         this_range_generator = chosen_range_generator['name']
         try:
             this_range_generator = myconf.str_get_config('DIMENSIONS', 'range_generator_' + str(i))
@@ -387,9 +471,8 @@ def print_best (myconf, best, best_data):
             key_nr = key
             key_nr = key_nr.replace("x_", "")
             label = get_axis_label(myconf, int(key_nr) + 1)
-            string = string + ("%s = %s" % (str(label), str(best[key]))) + "\n"
-    if(best_data):
-        string = string + "RESULT: " + str(best_data[0]) + "\n"
+            this_value = get_parameter_value(myconf, int(key_nr) + 1, best[key])
+            string = string + str(label) + " = " + str(this_value) + "\n"
     string = string + "=========================================\n"
     SLURM_JOB_ID = os.getenv("SLURM_JOB_ID", None)
     if SLURM_JOB_ID is not None:

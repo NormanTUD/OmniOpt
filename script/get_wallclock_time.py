@@ -46,6 +46,13 @@ eval `/usr/share/lmod/lmod/libexec/lmod $SHELL load modenv/hyperopt`
 
 """
 
+def readable_time (seconds):
+    hours = seconds // (60*60)
+    seconds %= (60*60)
+    minutes = seconds // 60
+    seconds %= 60
+    return "%02i:%02i:%02i" % (hours, minutes, seconds)
+
 def p (percent, status):
     if os.getenv('DISPLAYGAUGE', None) is not None:
         stderr("PERCENTGAUGE: %d" % percent)
@@ -94,9 +101,9 @@ def main():
     latest_time = None
 
     p(50, "Finding earliest and latest jobs")
-    earliest = jobs.find({"result.endtime": { "$exists": "true" }}, {"result.endtime": 1}).sort("result.endtime", 1).limit(1)
+    earliest = jobs.find({"result.endtime": { "$exists": "true" }, "result.starttime": { "$exists": "true" }}, {"result.starttime": 1}).sort("result.starttime", 1).limit(1)
     for doc in earliest:
-        earliest_time = int(doc["result"]["endtime"])
+        earliest_time = int(doc["result"]["starttime"])
     latest = jobs.find({"result.endtime": { "$exists": "true" }}, {"result.endtime": 1}).sort("result.endtime", -1).limit(1)
     for doc in latest:
         latest_time = int(doc["result"]["endtime"])
@@ -110,8 +117,8 @@ def main():
 
     runtime_in_seconds = latest_time - earliest_time
 
-    wallclock_time = str(time.strftime('%H:%M:%S', time.gmtime(runtime_in_seconds)))
+    wallclock_time = readable_time(runtime_in_seconds)
 
-    print("WallclockTime: %s" % wallclock_time)
+    print("WallclockTime: %s (%s seconds)" % (wallclock_time, str(runtime_in_seconds)))
 
 main()

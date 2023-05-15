@@ -6,5 +6,5 @@ they can easily globally be changed.
 floating_number = r'(?:[+-]?\d+(?:\.\d+)?)'
 floating_number_limited = "^" + floating_number + "$"
 
-integer = r'(?:\d+)'
+integer = r'(?:[+-]?\d+)'
 integer_limited = "^" + integer + "$"

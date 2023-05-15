@@ -79,13 +79,13 @@ def get_and_create_specific_log_folder(projectdir, projectname):
     return specific_log_folder
 
 
-def get_specific_log_file(projectdir, specific_log_folder):
-    specific_log_file = specific_log_folder + str(uuid.uuid1())
+def get_specific_log_file(projectdir, specific_log_folder, md5ofjob):
+    specific_log_file = specific_log_folder + md5ofjob
     while os.path.exists(specific_log_file):
         specific_log_file = specific_log_folder + str(uuid.uuid1())
     return specific_log_file
 
-def create_log_folder_and_get_log_file_path(projectdir, projectname):
+def create_log_folder_and_get_log_file_path(projectdir, projectname, md5ofjob):
     specific_log_folder = get_and_create_specific_log_folder(projectdir, projectname)
-    specific_log_file = get_specific_log_file(projectdir, specific_log_folder)
+    specific_log_file = get_specific_log_file(projectdir, specific_log_folder, md5ofjob)
     return specific_log_file

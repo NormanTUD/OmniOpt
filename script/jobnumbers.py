@@ -8,7 +8,6 @@ import time
 from termcolor import colored
 
 from mydebug import debug, error, warning, info, myconf, get_data, module_warnings, set_myconf
-from mongo_db_objective import objective_function_mongodb
 import myfunctions
 import mongostuff
 

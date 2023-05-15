@@ -26,7 +26,8 @@ our %options = (
         keepmongodb => 0,
         nopip => 0,
         dontloadmodules => 0,
-        SHOWFAILEDJOBSINPLOT => exists($ENV{SHOWFAILEDJOBSINPLOT}) ? $ENV{SHOWFAILEDJOBSINPLOT} : 0
+        SHOWFAILEDJOBSINPLOT => exists($ENV{SHOWFAILEDJOBSINPLOT}) ? $ENV{SHOWFAILEDJOBSINPLOT} : 0,
+        dontchecksqueue => 0
 );
 
 use OmniOptFunctions;
@@ -51,8 +52,10 @@ sub main {
 
         modify_system("export SHOWFAILEDJOBSINPLOT=$options{SHOWFAILEDJOBSINPLOT}");
         modify_system('PYTHONPATH=$HOME/.local/lib/python3.7/site-packages:/software/haswell/Python/3.7.4-GCCcore-8.3.0/lib/python3.7/site-packages:$PYTHONPATH');
-        print "If the module past is missing, install the package future via pip3 install --user future\n";
-        print "If the module pymongo is missing, install the package future via pip3 install --user pymongo\n";
+        if(!$options{nopip}) {
+                print "If the module past is missing, install the package future via pip3 install --user future\n";
+                print "If the module pymongo is missing, install the package future via pip3 install --user pymongo\n";
+        }
 
         if(!$options{nopip}) {
                 myqx("pip3 install --user psutil");
@@ -94,8 +97,6 @@ sub main {
                         die "$ipfilefolder not found";
                 }
         } else {
-                warn "The slurm job for the project `$options{project}` could not be found. Is it running and has the same slurm name? If not, a new database instance will be started and this warning can be ignored.\n";
-
                 my $lockfile = "$projectfolder/mongodb/mongod.lock";
 
                 if(!-e $lockfile) {
@@ -156,6 +157,8 @@ sub analyze_args {
                         help(1);
                 } elsif (m#^--keepmongodb$#) {
                         $options{keepmongodb} = 1;
+                } elsif (m#^--dontchecksqueue$#) {
+                        $options{dontchecksqueue} = 1;
                 } elsif (m#^--nopip$#) {
                         $options{nopip} = 1;
                 } elsif (m#^--dontloadmodules$#) {

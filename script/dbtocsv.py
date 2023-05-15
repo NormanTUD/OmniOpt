@@ -38,6 +38,9 @@ def die(x):
     pprint(x)
     sys.exit(1)
 
+def remove_prefix(s, prefix):
+    return s[len(prefix):] if s.startswith(prefix) else s
+
 def main():
     p(25, "In Python-Script")
     params = myfunctions.parse_params(sys.argv)
@@ -98,6 +101,8 @@ def main():
     except Exception as error:
         True
 
+    p(52, "Reading data")
+
     for x in jobs.find({"result.all_outputs": {"$exists":"true"}}, {"result.all_outputs": 1, "misc.vals": 1, "book_time": 1}):
         t = float("-inf")
         try:
@@ -122,11 +127,12 @@ def main():
         i = 1
 
         input_vals = x["misc"]["vals"]
-        x_counter = 1
         for key in input_vals:
             if key.startswith("x"):
-                input_vals[key] = omnioptstuff.get_parameter_value(myconf, x_counter, input_vals[key])
-                x_counter = x_counter + 1
+                #old_input_key = input_vals[key][0]
+                x_counter = int(remove_prefix(key, "x_")) + 1
+                input_vals[key] = omnioptstuff.get_parameter_value(myconf, x_counter, input_vals[key][0])
+                #sys.stderr.write("x_counter: %s, key: %s, input_vals[key] old: %s, input_vals[key] new: %s\n" % (str(x_counter), str(key), str(old_input_key), str(input_vals[key])))
         output_vals = x["result"]["all_outputs"]
 
         all_vals = {**input_vals,  **output_vals}

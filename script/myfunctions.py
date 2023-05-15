@@ -10,6 +10,7 @@ from random import randint
 import socket
 import traceback
 import os
+import subprocess
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -20,8 +21,6 @@ def dier (msg):
 
 def parse_all_arguments(all_args):
     parsed_args = {}
-    #traceback.print_stack()
-    #print("===================")
 
     for i in range(len(all_args)):
         if i != 0:
@@ -31,7 +30,6 @@ def parse_all_arguments(all_args):
     return parsed_args
 
 def parse_single_argument(str_arg):
-    #print("str_arg = %s" % str_arg)
     prog = re.compile(r"^--(.*?)(?:=(.*))?$")
     result = prog.match(str_arg)
 
@@ -62,7 +60,13 @@ def parse_params(argvd):
         'mongodbmachine': None,
         'mongodbport': None,
         'debug': None,
-        'setmongoperparameter': None
+        'setmongoperparameter': None,
+        'num_gpus_per_worker': 0,
+        'partition': None,
+        'max_time_per_worker': "01:00:00",
+        'reservation': None,
+        'account': None,
+        'cpus_per_task': 4
     }
 
     parsed_args = parse_all_arguments(argvd)
@@ -81,14 +85,25 @@ def parse_params(argvd):
         "maxtime",
         "mongodbmachine",
         "mongodbport",
-        'debug'
+        'debug',
+        'num_gpus_per_worker',
+        'partition',
+        "max_time_per_worker",
+        "reservation",
+        "account",
+        "cpus_per_task"
     ]
 
     default_ip = "127.0.0.1"
 
-    for pname in parameter_names:
-        if pname in parsed_args:
-            data[pname] = parsed_args[pname]
+    for param_name in parameter_names:
+        if param_name in parsed_args:
+            data[param_name] = parsed_args[param_name]
+
+    if data["cpus_per_task"] is None:
+        data["cpus_per_task"] = 4
+    else:
+        data["cpus_per_task"] = int(data["cpus_per_task"])
 
     if data["mongodbmachine"] is None:
         data["mongodbmachine"] = default_ip
@@ -144,4 +159,10 @@ def parse_params(argvd):
             else:
                 sys.stderr.write("`" + str(data['slurmid']) + "` is not a valid slurm id!")
                 data['slurmid'] = None
+
     return data
+
+def get_nodes_from_project (projectdir, project):
+    command = "cat %s/%s/logs/*/log-worker.log | sort | uniq | sed -e 's/.*: //' | sed -e 's/\..*//'" % (projectdir, project)
+    output = subprocess.getoutput(command)
+    return output.splitlines()

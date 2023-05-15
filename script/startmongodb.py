@@ -3,8 +3,7 @@
 import pprint
 import sys
 
-from mydebug import debug, error, warning, info, myconf, get_data, module_warnings, set_myconf
-from mongo_db_objective import objective_function_mongodb
+from mydebug import myconf, get_data, set_myconf
 import myfunctions
 import mongostuff
 

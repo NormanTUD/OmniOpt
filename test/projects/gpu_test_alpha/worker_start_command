@@ -1,6 +1,0 @@
-#!/bin/bash
-
-python3.7 /home/h8/s3811141/test/randomtest_40254/omniopt/script/hyperopt-mongo-worker --reserve-timeout=3600 --max-consecutive-failures=10000 --mongo=172.24.150.55:41587/gpu_test_alpha --poll-interval=10.0 --last-job-timeout=500 --workdir=/home/h8/s3811141/test/randomtest_40254/omniopt/test/projects/gpu_test_alpha --max-jobs=4
-
-rm /home/h8/s3811141/test/randomtest_40254/omniopt/test/projects/gpu_test_alpha/worker_start_command
-

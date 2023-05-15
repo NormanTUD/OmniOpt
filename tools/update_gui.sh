@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 rm -rf gui
 scp -r service@imageseg.scads.de:/var/www/html/omnioptgui/ .

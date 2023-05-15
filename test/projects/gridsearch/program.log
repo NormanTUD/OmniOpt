@@ -1,0 +1,910 @@
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/d4e5965e8f4bb6a1f780e18a1542ddfe.command' --jobname=d4e5965e8f4bb6a1f780e18a1542ddfe
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 4\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 4\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/0a2559d4ed56d9fe326fcb21cb329e5e.command' --jobname=0a2559d4ed56d9fe326fcb21cb329e5e
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 4\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 4\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/5fe9ae9e87710f31309ac7b66d61c1a6.command' --jobname=5fe9ae9e87710f31309ac7b66d61c1a6
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 0\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 0\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 17\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 17\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/0fd564554c93d0aa4ae3d9def82af906.command' --jobname=0fd564554c93d0aa4ae3d9def82af906
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 17\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 17\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/f91997f5607a271b81f5801fefccc293.command' --jobname=f91997f5607a271b81f5801fefccc293
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/f91997f5607a271b81f5801fefccc293.command' --jobname=f91997f5607a271b81f5801fefccc293
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/f91997f5607a271b81f5801fefccc293.command' --jobname=f91997f5607a271b81f5801fefccc293
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/d3a282e0175f358e9adb8aeede680b9b.command' --jobname=d3a282e0175f358e9adb8aeede680b9b
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/80702001372daec07dc7c320211fad11.command' --jobname=80702001372daec07dc7c320211fad11
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/59bdf67dd0f46bcd6a041f1d7c2fefee.command' --jobname=59bdf67dd0f46bcd6a041f1d7c2fefee
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/d1e3139d7bd7be6ffe2403d52b351f88.command' --jobname=d1e3139d7bd7be6ffe2403d52b351f88
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/5700b33e48f227617913577e88645968.command' --jobname=5700b33e48f227617913577e88645968
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/97ebc12c4a1addc9b5010473c9abdf8e.command' --jobname=97ebc12c4a1addc9b5010473c9abdf8e
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/b5457820f04154a908f3a224723ed233.command' --jobname=b5457820f04154a908f3a224723ed233
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/a5c3a7452dce1489b688a256db48c587.command' --jobname=a5c3a7452dce1489b688a256db48c587
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/e675f54543b83125038fee15cd1eac78.command' --jobname=e675f54543b83125038fee15cd1eac78
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/3ccf890c4cf7c210a8db6cb8cfb259ed.command' --jobname=3ccf890c4cf7c210a8db6cb8cfb259ed
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 14\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 14\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/78afdd0f1f65ad808beaf7e5abb780ea.command' --jobname=78afdd0f1f65ad808beaf7e5abb780ea
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 14\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 14\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/904ca754b57d99b98c7613155b2d5fa4.command' --jobname=904ca754b57d99b98c7613155b2d5fa4
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/b879975adb0a02f5c07eb7b34af8fd50.command' --jobname=b879975adb0a02f5c07eb7b34af8fd50
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/676f21afd17fbb0fe8214faf0fad935c.command' --jobname=676f21afd17fbb0fe8214faf0fad935c
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/3af5cf330711c41190e883e8e8f6b8b3.command' --jobname=3af5cf330711c41190e883e8e8f6b8b3
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/cfc9e08faedb5ded75390c7553ca154c.command' --jobname=cfc9e08faedb5ded75390c7553ca154c
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/a8280d7d2226270fc7a823dd87f35920.command' --jobname=a8280d7d2226270fc7a823dd87f35920
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 15\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 15\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/82d81dcb2bd88b5425a132c430e134fd.command' --jobname=82d81dcb2bd88b5425a132c430e134fd
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 15\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 15\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/5685aee3eca5d162a992db9467a78bbe.command' --jobname=5685aee3eca5d162a992db9467a78bbe
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/911e24dfbcb4c34dda7a8b6d55ab63f6.command' --jobname=911e24dfbcb4c34dda7a8b6d55ab63f6
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ce53c84d6543fd972cf974a4b011da11.command' --jobname=ce53c84d6543fd972cf974a4b011da11
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/3f320d4915c1487ace9bc2484199c744.command' --jobname=3f320d4915c1487ace9bc2484199c744
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 15\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 15\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ad7578d3f976eb3a75599c632c393d5d.command' --jobname=ad7578d3f976eb3a75599c632c393d5d
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 15\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 15\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ed9d0fba7e2b17eec47a6cae86874598.command' --jobname=ed9d0fba7e2b17eec47a6cae86874598
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/6b9730872d27fc89f46650e300ac69a4.command' --jobname=6b9730872d27fc89f46650e300ac69a4
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 14\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 14\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/730e115d1618b9b502d076bc717cd8cd.command' --jobname=730e115d1618b9b502d076bc717cd8cd
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 14\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 14\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/e3b115ee5d3b701a6f546c793dc764e2.command' --jobname=e3b115ee5d3b701a6f546c793dc764e2
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/2a0f8febfa1645bf6522a319331bcffd.command' --jobname=2a0f8febfa1645bf6522a319331bcffd
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/230e48f703683e1aa333b974608938a1.command' --jobname=230e48f703683e1aa333b974608938a1
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 2\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 2\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/3baca2075bae0f70430f6b88600276ff.command' --jobname=3baca2075bae0f70430f6b88600276ff
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 2\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 2\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/05705050eaba77092b31839abea324b0.command' --jobname=05705050eaba77092b31839abea324b0
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/c24ba9f99f13b9b8983d2ec64a0388de.command' --jobname=c24ba9f99f13b9b8983d2ec64a0388de
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/4b8efca9bf8a975416c14c928ed86bba.command' --jobname=4b8efca9bf8a975416c14c928ed86bba
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 16\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 16\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/cf08907ba7d269c749d5dcdfd3b898b6.command' --jobname=cf08907ba7d269c749d5dcdfd3b898b6
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 16\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 16\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/78ea326cda00f6cbfc657da06a0e8e14.command' --jobname=78ea326cda00f6cbfc657da06a0e8e14
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/18c740ce95702108b7522fad947e4c68.command' --jobname=18c740ce95702108b7522fad947e4c68
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/89e5e8fb25ea5a944152b2c0524804db.command' --jobname=89e5e8fb25ea5a944152b2c0524804db
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/8234f97c35b846fba3046e429bf2e32f.command' --jobname=8234f97c35b846fba3046e429bf2e32f
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/87995094ee805850f330578aee2e0e1d.command' --jobname=87995094ee805850f330578aee2e0e1d
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/836f2cfd0772a2a4780d23c3c4c649ad.command' --jobname=836f2cfd0772a2a4780d23c3c4c649ad
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/d0b45fd13806a54b1e4029f47d6ddc58.command' --jobname=d0b45fd13806a54b1e4029f47d6ddc58
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/6250d013b3c76a93224ff74b565aeb61.command' --jobname=6250d013b3c76a93224ff74b565aeb61
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/f33059b762969b5fb2e4f1ddcf2018df.command' --jobname=f33059b762969b5fb2e4f1ddcf2018df
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/6266efff4e924a9cef37029f8127f7d0.command' --jobname=6266efff4e924a9cef37029f8127f7d0
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 1\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 1\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/cca4d75604a36f78fc59c9c1776b42eb.command' --jobname=cca4d75604a36f78fc59c9c1776b42eb
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/6e463d388691eb7015d4a1da478a62b2.command' --jobname=6e463d388691eb7015d4a1da478a62b2
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/5d8484150531e59e27165595b7dc0598.command' --jobname=5d8484150531e59e27165595b7dc0598
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/a9006e6b3bddec85c0ba9b2cead82f7e.command' --jobname=a9006e6b3bddec85c0ba9b2cead82f7e
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 14\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 14\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/64b30f4ffc0a1c2df70e0ee62b3a6c38.command' --jobname=64b30f4ffc0a1c2df70e0ee62b3a6c38
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 14\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 14\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/9e573beda1f965018e7e6f89e09783ec.command' --jobname=9e573beda1f965018e7e6f89e09783ec
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 18\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 18\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/9656be5f13690dae1de661f2b644bb42.command' --jobname=9656be5f13690dae1de661f2b644bb42
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 18\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 18\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 16\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 16\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/686522ebbc422471653abbd4491c59ab.command' --jobname=686522ebbc422471653abbd4491c59ab
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 16\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 16\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/c43bb3de314dc3b0f751af2904dc09be.command' --jobname=c43bb3de314dc3b0f751af2904dc09be
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 3\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 3\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/97677bb65981c764a3a52bf72d131ada.command' --jobname=97677bb65981c764a3a52bf72d131ada
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/1ccca954f547988a50b3e9b57d85def4.command' --jobname=1ccca954f547988a50b3e9b57d85def4
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/c43f707e520cf8c9e83c8af2d04ca0e2.command' --jobname=c43f707e520cf8c9e83c8af2d04ca0e2
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/2b439f61bab0d5534a5ec2242bc97fa0.command' --jobname=2b439f61bab0d5534a5ec2242bc97fa0
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 7\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 7\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/fdc59f99de62816174cb19a05386c3e7.command' --jobname=fdc59f99de62816174cb19a05386c3e7
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/64b1ed7c88dc91105055b2b9d5a3b6e4.command' --jobname=64b1ed7c88dc91105055b2b9d5a3b6e4
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 6\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 6\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/9ee21f5d26cbf8cb60e59aac7b8b79ca.command' --jobname=9ee21f5d26cbf8cb60e59aac7b8b79ca
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(0 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 2\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 2\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/78ccb186c2d74e00d9e8e03a5acefe42.command' --jobname=78ccb186c2d74e00d9e8e03a5acefe42
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 2\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 2\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/63c871f88c082bd57d4767139fe396c8.command' --jobname=63c871f88c082bd57d4767139fe396c8
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 15\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 15\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/50e5ac06b3c1c96b60a5c4f9e24d25f1.command' --jobname=50e5ac06b3c1c96b60a5c4f9e24d25f1
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 15\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 15\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/2e2a4f0f3edfff5334bd226b212abea7.command' --jobname=2e2a4f0f3edfff5334bd226b212abea7
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 5 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/5217049233c4d4a36a12ed8789ffb817.command' --jobname=5217049233c4d4a36a12ed8789ffb817
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/453ccc766bf908cfe164b9f7a3494e5a.command' --jobname=453ccc766bf908cfe164b9f7a3494e5a
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/1370bce3f427f9a1546d4459c3af4a1b.command' --jobname=1370bce3f427f9a1546d4459c3af4a1b
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(8 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/d9e6993876dc83d2be2e15f119aebf51.command' --jobname=d9e6993876dc83d2be2e15f119aebf51
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 6 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/6d2b5ff3654accd9f1cf1fb1ae7ff03a.command' --jobname=6d2b5ff3654accd9f1cf1fb1ae7ff03a
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(5 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/0bbb2bf4e635a0aab6247bc3d37c0a19.command' --jobname=0bbb2bf4e635a0aab6247bc3d37c0a19
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(1 + 4 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/b0248dc94a91803c059bf136fe04ab84.command' --jobname=b0248dc94a91803c059bf136fe04ab84
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/7935c705d01f020906a3a61bdc3af281.command' --jobname=7935c705d01f020906a3a61bdc3af281
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ccf5ff2c01260e7132d52f866c506d28.command' --jobname=ccf5ff2c01260e7132d52f866c506d28
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 13\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 13\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 9 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/c1af92e8994f47c40691438319017224.command' --jobname=c1af92e8994f47c40691438319017224
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 11\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 11\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(6 + 3 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/7984185a7400d8443012b17da3e69ed9.command' --jobname=7984185a7400d8443012b17da3e69ed9
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 9\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 9\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 4\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 4\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/4f2d66a29e3b085acf886abe83eef735.command' --jobname=4f2d66a29e3b085acf886abe83eef735
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 4\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 4\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(7 + 1 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/e6ad1d519bb6b3773478efb0f4f07a33.command' --jobname=e6ad1d519bb6b3773478efb0f4f07a33
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 8\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 8\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 0 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 2\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 2\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/0778f36bfe4f071ed1dad5ac5e0f5826.command' --jobname=0778f36bfe4f071ed1dad5ac5e0f5826
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 2\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 2\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 16\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 16\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ec59586de0983a694166bb95d54c69f3.command' --jobname=ec59586de0983a694166bb95d54c69f3
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 16\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 16\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(2 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 4\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 4\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/b9c1bbac6998f16e542d55e0f6554483.command' --jobname=b9c1bbac6998f16e542d55e0f6554483
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 4\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 4\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(4 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/cb507188e0867a024ff6c63378cb2b35.command' --jobname=cb507188e0867a024ff6c63378cb2b35
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 12\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 12\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 7 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/5a428208a6e7de5f8f2054987cdd9cc1.command' --jobname=5a428208a6e7de5f8f2054987cdd9cc1
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 10\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 10\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(9 + 8 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 17\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 17\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ceeb3372ea9d70a7106ff25adb47b974.command' --jobname=ceeb3372ea9d70a7106ff25adb47b974
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 17\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 17\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>
+TRYING parameter_code = perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+Code: perl -e 'use Data::Dumper; print Dumper \@ARGV; print "RESULT: ".(3 + 2 + gridsearch + ($x_3) + ($x_4) + ($x_5) + ($x_6) + ($x_7) + ($x_8) + ($x_9) + ($x_10) + ($x_11) + ($x_12))."\n"'
+DONE RUNNING CODE
+res: {'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+code: bash /home/h8/s3811141/test/randomtest_77962/omniopt/script/..//tools/multigpu.sh --projectfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch --logfolder=/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/ --partition=haswell --account=None --reservation= --num_gpus=0 --programfile='/home/h8/s3811141/test/randomtest_77962/omniopt/test/projects/gridsearch/singlelogs/e5fd45526a4ff2927c265848bbdcc29c.command' --jobname=e5fd45526a4ff2927c265848bbdcc29c
+=========================================
+>>>>>>>>>>>>>>>>>
+Program-Output:
+{'res': 'STDOUT:\nRESULT: 5\n\n\nSTDERR:\n\n\nRETURNCODE:\n0\n\nERRSTR:\n\n', 'stdout': 'RESULT: 5\n', 'stderr': '', 'retcode': 0, 'errstr': ''}
+<=======================================>

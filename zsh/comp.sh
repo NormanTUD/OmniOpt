@@ -42,6 +42,206 @@ function _get_wallclock_time_sh {
     )"
 }
 
+function _whypending {
+    SQUEUE_OUTPUT=$(squeue -o "%i:%j" -u $USER | grep -v "JOBID:NAME")
+    
+    SCANCEL_COMMANDS=(
+    )
+    
+    while IFS= read -r line; do
+        if [[ ! -z $line ]]; then
+            SCANCEL_COMMANDS+=("$line")
+        fi
+    done <<< "$SQUEUE_OUTPUT"
+    
+    SCANCEL_COMMANDS_STR=$(printf "\n'%s'" "${SCANCEL_COMMANDS[@]}")
+    
+    eval "_describe 'command' \"($SCANCEL_COMMANDS_STR)\""
+}
+
+function _slurmlogpath {
+    SQUEUE_OUTPUT=$(squeue -o "%i:%j" -u $USER | grep -v "JOBID:NAME")
+    
+    SCANCEL_COMMANDS=(
+    )
+    
+    while IFS= read -r line; do
+        if [[ ! -z $line ]]; then
+            SCANCEL_COMMANDS+=("$line")
+        fi
+    done <<< "$SQUEUE_OUTPUT"
+    
+    SCANCEL_COMMANDS_STR=$(printf "\n'%s'" "${SCANCEL_COMMANDS[@]}")
+    
+    eval "_describe 'command' \"($SCANCEL_COMMANDS_STR)\""
+}
+
+
+function _scancel {
+    SQUEUE_OUTPUT=$(squeue -o "%i:%j" -u $USER | grep -v "JOBID:NAME")
+    
+    SCANCEL_COMMANDS=(
+        '--signal=:Signal type (USR1, USR2, INT etc.)'
+        '--batch:Send signal to all batch steps'
+    )
+    
+    while IFS= read -r line; do
+        if [[ ! -z $line ]]; then
+            SCANCEL_COMMANDS+=("$line")
+        fi
+    done <<< "$SQUEUE_OUTPUT"
+    
+    SCANCEL_COMMANDS_STR=$(printf "\n'%s'" "${SCANCEL_COMMANDS[@]}")
+    
+    eval "_describe 'command' \"($SCANCEL_COMMANDS_STR)\""
+}
+
+function _ml {
+    ML_COMMANDS=(
+        '-t:Show computer parsable output'
+        'unload:Unload a Module'
+        'spider:Search for a module'
+        'avail:Show available modules'
+        'list:List loaded modules'
+    )
+    
+    ML_COMMANDS_STR=$(printf "\n'%s'" "${ML_COMMANDS[@]}")
+    
+    eval "_describe 'command' \"($ML_COMMANDS_STR)\""
+    _values -s ' ' 'flags' $(ml -t avail | sed -e 's#/$##' | tr '\n' ' ')
+}
+
+function _ftails {
+    SQUEUE_OUTPUT=$(squeue -o "%i:%j" -u $USER | grep -v "JOBID:NAME")
+    
+    SCANCEL_COMMANDS=(
+    )
+    
+    while IFS= read -r line; do
+        if [[ ! -z $line ]]; then
+            SCANCEL_COMMANDS+=("$line")
+        fi
+    done <<< "$SQUEUE_OUTPUT"
+    
+    SCANCEL_COMMANDS_STR=$(printf "\n'%s'" "${SCANCEL_COMMANDS[@]}")
+    
+    eval "_describe 'command' \"($SCANCEL_COMMANDS_STR)\""
+}
+
+function _ws_release {
+    if echo "$words" | egrep "ws_release\s*-F\s*(ssd|scratch|beegfs)" >/dev/null 2>/dev/null; then
+        CHOSEN_FS=$(echo "$words" | sed -e 's/.*-F\s*//' | sed -e 's/\s*//g')
+        OUTPUT=$(ws_list 2>&1 | sed -e "s#$USER-##" | grep -v "is empty" | egrep "directory|filesystem" | sed -e 's#.*:\s*##' | perl -lne "
+                use Data::Dumper; 
+                use strict;
+                use warnings;
+                use autodie;    # 5
+                my (\$i, \$path, \$fs) = (0, undef, undef); 
+                my %val = ();
+                while (<>) { 
+                    chomp; 
+                    if(\$i % 2 == 1) { 
+                        \$path = \$_;
+                    } else { 
+                        if(\$path && \$_) { 
+                            \$val{\$path} = \$_; 
+                        } 
+                    }; 
+                    \$i++ 
+                }; 
+                delete \$val{''}; 
+                foreach (keys %val) {
+                    my \$key = \$_;
+                    my \$v = \$val{\$key};
+                    if(\$v eq qq#$CHOSEN_FS#) {
+                        \$key =~ s#.*/##g;
+                        print qq#\$key\n#;
+                    }
+                }
+            "
+        )
+
+        eval "_describe 'command' \"($OUTPUT)\""
+    else
+        _arguments '-F[Filesystem]:filename:((ssd\:"Use SSD filesystem" scratch\:"Use Scratch filesystem" beegfs\:"Use beegfs"))'
+    fi
+}
+
+function _ws_extend {
+    if echo "$words" | egrep "ws_extend\s*-F\s*(ssd|scratch|beegfs)" >/dev/null 2>/dev/null; then
+        CHOSEN_FS=$(echo "$words" | sed -e 's/.*-F\s*//' | sed -e 's/\s*//g')
+        OUTPUT=$(ws_list 2>&1 | sed -e "s#$USER-##" | grep -v "is empty" | egrep "directory|filesystem" | sed -e 's#.*:\s*##' | perl -lne "
+                use Data::Dumper; 
+                use strict;
+                use warnings;
+                use autodie;    # 5
+                my (\$i, \$path, \$fs) = (0, undef, undef); 
+                my %val = ();
+                while (<>) { 
+                    chomp; 
+                    if(\$i % 2 == 1) { 
+                        \$path = \$_;
+                    } else { 
+                        if(\$path && \$_) { 
+                            \$val{\$path} = \$_; 
+                        } 
+                    }; 
+                    \$i++ 
+                }; 
+                delete \$val{''}; 
+                foreach (keys %val) {
+                    my \$key = \$_;
+                    my \$v = \$val{\$key};
+                    if(\$v eq qq#$CHOSEN_FS#) {
+                        \$key =~ s#.*/##g;
+                        print qq#\$key\n#;
+                    }
+                }
+            "
+        )
+
+        eval "_describe 'command' \"($OUTPUT)\""
+    else
+        _arguments '-F[Filesystem]:filename:((ssd\:"Use SSD filesystem" scratch\:"Use Scratch filesystem" beegfs\:"Use beegfs"))'
+    fi
+}
+
+function _ws_restore {
+    if echo "$words" | egrep "ws_restore\s*-F\s*(ssd|scratch|beegfs)" >/dev/null 2>/dev/null; then
+        CHOSEN_FS=$(echo "$words" | sed -e 's/.*-F\s*//' | sed -e 's/\s*//g')
+        OUTPUT=$(ws_restore -l | grep -v unavailable | perl -e "
+                use Data::Dumper; 
+                \$l = q##; 
+                %h = (); 
+                while (<>) { 
+                    chomp; 
+                    if(/(.*):\s*$/) { 
+                        \$l = \$1; 
+                    } else { 
+                        push @{\$h{\$l}}, \$_; 
+                    } 
+                }; 
+                foreach (@{\$h{$CHOSEN_FS}}) {
+                    print qq#\$_\n#;
+                }
+        "
+
+        )
+
+        eval "_describe 'command' \"($OUTPUT)\""
+    else
+        _arguments '-F[Filesystem]:filename:((ssd\:"Use SSD filesystem" scratch\:"Use Scratch filesystem" beegfs\:"Use beegfs"))'
+    fi
+}
+
+compdef _ml "ml"
+compdef _scancel "scancel"
 compdef _sbatch_pl "sbatch.pl"
 compdef _evaluate_run "evaluate-run.sh"
 compdef _get_wallclock_time_sh "get_wallclock_time.sh"
+compdef _whypending "whypending"
+compdef _ftails "ftails"
+compdef _ws_extend "ws_extend"
+compdef _ws_release "ws_release"
+compdef _ws_restore "ws_restore"
+compdef _slurmlogpath "slurmlogpath"

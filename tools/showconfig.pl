@@ -183,7 +183,7 @@ sub describe_x {
                 my $name = $config{DIMENSIONS}{"dim_${nr}_name"};
 
                 if(length($name) > length($match)) {
-                        $name = "...".substr($name, length($name) - length($match) + 3, length($match));
+                        $name = "…".substr($name, length($name) - length($match) + 3, length($match));
                 } elsif (length($name) < length($match)) {
                         my $j = 0;
                         while (length($name) < length($match)) {
@@ -224,7 +224,7 @@ sub create_str_from_ini {
 
         my @lines = ();
 
-        print color("red")."Press 'q' to exit and return to run-evaluate.sh".color("reset")."\n";
+        #print color("red")."Press 'q' to exit and return to run-evaluate.sh".color("reset")."\n";
 
         my ($yellow, $reset) = (color("yellow"), color("reset"));
 
@@ -242,6 +242,7 @@ sub create_str_from_ini {
         push @lines, die_on_undef [" ", describe_x($objective_program, 0, %config)];
         push @lines, die_on_undef ["Number of hyperparameters", $num_of_params];
         foreach my $this_param_nr (0 .. $num_of_params - 1) {
+print "$this_param_nr\n";
                 push @lines, "-";
                 my $name = $config{DIMENSIONS}{"dim_${this_param_nr}_name"};
 
@@ -257,7 +258,38 @@ sub create_str_from_ini {
                         push @lines, die_on_undef ["Maximum number", $max];
                 } elsif($range_generator eq "hp.choice") {
                         my $choice = $config{DIMENSIONS}{"options_${this_param_nr}"};
+                        $choice =~ s#\s*,\s*#,#g;
+                        my @s = split /\s*,\s*/, $choice;
+                        my $min = $s[0];
+                        my $max = $s[$#s];
+
+                        if($min > $max) {
+                                ($max, $min) = ($min, $max);
+                        }
+
+                        if($choice eq join(",", $min .. $max)) {
+                            my $new_choice = "$min, ..., $max (step-size: 1)";
+                            if(length($new_choice) < length($choice)) {
+                                $choice = $new_choice;
+                            }
+                        } else {
+                        }
+
+
                         push @lines, die_on_undef ["Items", $choice];
+                } elsif($range_generator eq "hp.uniformint") {
+                        my $min = $config{DIMENSIONS}{"min_dim_${this_param_nr}"};
+                        my $max = $config{DIMENSIONS}{"max_dim_${this_param_nr}"};
+                        push @lines, die_on_undef ["Minimum number", $min];
+                        push @lines, die_on_undef ["Maximum number", $max];
+                } elsif($range_generator eq "hp.pchoice") {
+                        my $choice = $config{DIMENSIONS}{"options_${this_param_nr}"};
+                        push @lines, die_on_undef ["Items", $choice];
+                } elsif($range_generator eq "hp.choiceint") {
+                        my $min = $config{DIMENSIONS}{"min_dim_${this_param_nr}"};
+                        my $max = $config{DIMENSIONS}{"max_dim_${this_param_nr}"};
+                        push @lines, die_on_undef ["Minimum number", $min];
+                        push @lines, die_on_undef ["Maximum number", $max];
                 } elsif($range_generator eq "hp.uniform") {
                         my $min = $config{DIMENSIONS}{"min_dim_${this_param_nr}"};
                         my $max = $config{DIMENSIONS}{"max_dim_${this_param_nr}"};
@@ -299,6 +331,13 @@ sub create_str_from_ini {
                         my $sigma = $config{DIMENSIONS}{"sigma_${this_param_nr}"};
                         push @lines, die_on_undef ["Mu", $mu];
                         push @lines, die_on_undef ["Sigma", $sigma];
+                } elsif($range_generator eq "hp.choicestep") {
+                        my $min = $config{DIMENSIONS}{"min_dim_${this_param_nr}"};
+                        my $max = $config{DIMENSIONS}{"max_dim_${this_param_nr}"};
+                        my $step = $config{DIMENSIONS}{"step_dim_${this_param_nr}"};
+                        push @lines, die_on_undef ["Min", $min];
+                        push @lines, die_on_undef ["Max", $max];
+                        push @lines, die_on_undef ["Step", $step];
                 } elsif($range_generator eq "hp.qlognormal") {
                         my $mu = $config{DIMENSIONS}{"mu_${this_param_nr}"};
                         my $sigma = $config{DIMENSIONS}{"sigma_${this_param_nr}"};

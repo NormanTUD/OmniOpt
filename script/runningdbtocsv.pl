@@ -74,7 +74,7 @@ sub main {
                     chomp $dbport;
 
                     warn "Found the following ip:port: $dbip:$dbport\n";
-                    $command = qq#--mongodbmachine=$dbip --mongodbport=$dbport#;
+                    $command .= qq# --mongodbmachine=$dbip --mongodbport=$dbport #;
             } else {
                     die "$ipfilefolder not found";
             }

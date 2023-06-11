@@ -1095,7 +1095,7 @@ sub run_srun {
         if($options{srun_cpus_per_task}) {
                 $cpus_per_task_str = " --cpus-per-task=$options{srun_cpus_per_task} ";
                 $ntasks_per_core_str = "";
-                $exclusive = "";
+                # $exclusive = "";
         }
 
         my $overcommit = "";

@@ -397,13 +397,13 @@
 								<tr>
 									<td>Overlap srun?</td>
 									<td>
-										<input type="checkbox" value="1" id="overlap" />
+										<input type="checkbox" value="1" id="overlap" checked />
 									</td>
 								</tr>
 								<tr>
 									<td>Overcommit srun?</td>
 									<td>
-										<input type="checkbox" value="1" id="overcommit" />
+										<input type="checkbox" value="1" id="overcommit" checked />
 									</td>
 								</tr>
 							</table>

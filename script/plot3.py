@@ -288,7 +288,7 @@ def _plotdata(axarr, axis, data, parameter, switchaxes):
         size_in_px = int(os.environ.get('BUBBLESIZEINPX'))
 
     p(98, "Defining matplotlib data")
-    sc = axarr.scatter(x, y, c=d, s=size_in_px, cmap='jet', edgecolors="none")
+    sc = axarr.scatter(x, y, c=d, s=size_in_px, cmap='RdYlGn', edgecolors="none")
 
     p(98, "Defining colorbar")
     plt.colorbar(sc, ax=axarr)

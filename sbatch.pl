@@ -877,7 +877,6 @@ sub load_needed_modules {
                 );
         } else {
                 push @modules, (
-                        'modenv/scs5',
                         'MongoDB/4.0.3',
                         'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
                         'Python/3.7.4-GCCcore-8.3.0',

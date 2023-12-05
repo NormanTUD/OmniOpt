@@ -876,7 +876,7 @@ sub load_needed_modules {
                         'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
                 );
         } else {
-		if(hostname() !~ m#^n\d+$#) {
+		if(hostname() !~ m#^n\d+$#) { # if not barnard
 			push @modules, (
 				'modenv/scs5',
 				'MongoDB/4.0.3',
@@ -886,7 +886,9 @@ sub load_needed_modules {
 		}
         }
 
-        modules_load(@modules);
+	if(@modules) {
+		modules_load(@modules);
+	}
 
         # ml OpenBLAS/0.3.9-GCC-9.3.0 on ml for installing hyperopt
 

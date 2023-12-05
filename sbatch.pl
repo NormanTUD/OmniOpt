@@ -883,6 +883,9 @@ sub load_needed_modules {
 				'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
 				'Python/3.7.4-GCCcore-8.3.0',
 			);
+		} else {
+			#modify_system("EXPORT PATH=/software/util/slurm/bin/:/software/util/dtwrapper/bin/:\$PATH");
+			#modify_system("");
 		}
         }
 

@@ -1,0 +1,6 @@
+curl_commands/
+debuglogs/
+projects/
+sbatch_commands/
+script/__pycache__/
+slurm-*.out

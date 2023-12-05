@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "hostname:"
+hostname
+echo "hostname end"
+
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
 LMOD_DIR=/software/foundation/x86_64/lmod/lmod/libexec
 

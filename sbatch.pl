@@ -1995,8 +1995,8 @@ sub modify_system {
         my $exit_signal = $return_code & 127;
 
         if($exit_code != 0) {
-                warning "Command: $command\n";
-                warning "Exit-Code: $exit_code\n";
+                warning "Command: $command";
+                warning "Exit-Code: $exit_code";
         }
 
         if($exit_signal != 0) {

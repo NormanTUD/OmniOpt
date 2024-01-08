@@ -872,10 +872,16 @@ sub load_needed_modules {
                 );
         } else {
                 push @modules, (
-                        'modenv/scs5',
-                        'MongoDB/4.0.3',
-                        'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
-                        'Python/3.7.4-GCCcore-8.3.0',
+			'release/23.04',
+			'GCC/11.3.0',
+			'OpenMPI/4.1.4',
+			'Hyperopt/0.2.7',
+			'MongoDB/4.0.3'
+
+			#'modenv/scs5',
+			#'MongoDB/4.0.3',
+			#'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
+			#'Python/3.7.4-GCCcore-8.3.0',
                 );
         }
 
@@ -883,9 +889,9 @@ sub load_needed_modules {
 
         # ml OpenBLAS/0.3.9-GCC-9.3.0 on ml for installing hyperopt
 
-        if($arch !~ m#ppc64le#) {
-                modify_system(q#export PYTHONPATH=./pymodules_scs5:$PYTHONPATH#);
-        }
+	#if($arch !~ m#ppc64le#) {
+	#        modify_system(q#export PYTHONPATH=./pymodules_scs5:$PYTHONPATH#);
+	#}
         $indentation--;
 }
 

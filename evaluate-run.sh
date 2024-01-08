@@ -1595,16 +1595,6 @@ if [[ $sourced == "0" ]]; then
         fi
     fi
 
-    if ! hostname | grep tauruslogin 2>/dev/null >/dev/null; then
-        export THISHOSTNAME=$(hostname | sed -e 's/\..*//')
-        if (whiptail --title "Not on login-node" --yes-button "Continue on $THISHOSTNAME" --no-button "No, do not continue on $THISHOSTNAME" --yesno "It is strongly recommended that this script only get's run at login-nodes and not on compute nodes and you seem to be on a compute-node ($THISHOSTNAME). Are you sure you want to continue?" 10 140); then
-            echo_green "Continue on $THISHOSTNAME"
-        else
-            echo_red "Don't continue on $THISHOSTNAME"
-            exit 11
-        fi
-    fi
-
     if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
         if [[ "$UPGRADE" == "1" ]]; then
             ASKEDTOUPGRADE=1

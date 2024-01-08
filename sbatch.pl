@@ -21,17 +21,12 @@ use IO::Socket::INET;
 use Carp;
 use Cwd;
 use File::Copy;
-use Memoize;
 use Sys::Hostname;
 use lib './perllib/';
 use JSON::PP;
 use Digest::MD5 qw#md5_hex#;
 
 sub std_print (@);
-
-memoize 'get_log_path_date_folder';
-memoize 'get_project_folder';
-
 
 my $indentation_char = "─";
 my $indentation = 0;

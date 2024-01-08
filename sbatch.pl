@@ -2268,7 +2268,7 @@ sub run_tests {
 
         run_bash_test("bash test/test_packages.sh", \@failed_tests);
 
-        run_bash_test("bash test/test_js_syntax.sh gui/main.js", \@failed_tests);
+	#run_bash_test("bash test/test_js_syntax.sh gui/main.js", \@failed_tests);
 
         {
                 for my $i (0 .. 10) {

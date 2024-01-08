@@ -2263,6 +2263,8 @@ sub run_tests {
         debug "run_tests()";
         $indentation++;
 
+        install_needed_packages();
+
         my @failed_tests = ();
 
         config_json_preparser("test/projects/config_json_test/config.json", "test/projects/config_json_test/config.ini");

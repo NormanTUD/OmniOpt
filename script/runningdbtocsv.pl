@@ -52,7 +52,7 @@ sub main {
     warn "If the module past is missing, install the package future via pip3 install --user future\n";
     warn "If the module pymongo is missing, install the package future via pip3 install --user pymongo\n";
 
-    my $command = qq#python3.7 script/dbtocsv.py #.($options{int} ? '--int=1' : '').qq# --project=$options{project} --seperator="$options{seperator}" #;
+    my $command = qq#python3 script/dbtocsv.py #.($options{int} ? '--int=1' : '').qq# --project=$options{project} --seperator="$options{seperator}" #;
 
     if($options{filename}) {
         $command .= qq# --filename="$options{filename}"#;
@@ -85,7 +85,7 @@ sub main {
             my $lockfile = "$projectfolder/mongodb/mongod.lock";
 
             if(!-e $lockfile) {
-                    $command_end_mongodb = qq#python3.7 script/endmongodb.py --project=$options{project} #;
+                    $command_end_mongodb = qq#python3 script/endmongodb.py --project=$options{project} #;
                     if($options{projectdir}) {
                             $command_end_mongodb .= qq#--projectdir=$options{projectdir}#;
                     }

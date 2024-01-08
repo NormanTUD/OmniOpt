@@ -364,7 +364,7 @@ done
         return start_worker_command
 
 def get_main_start_worker_command(data, project, enable_strace=0, enable_python_trace=0):
-    python3path = linuxstuff.normalize_path('python3.7')
+    python3path = linuxstuff.normalize_path('python3')
 
     python_trace = ''
     if enable_python_trace:

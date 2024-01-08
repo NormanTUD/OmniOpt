@@ -18,6 +18,6 @@ mml () {
         fi
 }
 
-mml TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4
+ml release/23.04  GCC/11.3.0  OpenMPI/4.1.4 TensorFlow/2.11.0-CUDA-11.7.0
 
 python3 test/list_num_of_gpus.py

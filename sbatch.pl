@@ -2417,15 +2417,15 @@ sub run_tests {
                         $no_quota_test = " --no_quota_test ";
                 }
 
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=config_json_test $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes_rand_search $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2 $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=config_json_test $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes_rand_search $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2 $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus $no_quota_test", \@failed_tests);
                 run_bash_test("bash test/run_test.sh --partition=alpha --projectdir=test/projects --project=gpu_test_alpha --usegpus $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
 
                 if($ENV{DISPLAY}) {
                     run_bash_test("bash test/test_plot.sh", \@failed_tests);

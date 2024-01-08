@@ -1625,7 +1625,7 @@ if [[ $sourced == "0" ]]; then
         fi
     fi
 
-    modules_to_load=(modenv/scs5 Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4 MongoDB/4.0.3)
+    modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4 Hyperopt/0.2.7)
 
     load_percent=0
     let stepsize=100/${#modules_to_load[*]}

@@ -2,8 +2,6 @@
 
 EXITCODE=0
 
-set -x
-
 export PLOTPATH=$RANDOM.svg
 while [[ -e $PLOTPATH ]]; do
     export PLOTPATH=$RANDOM.svg

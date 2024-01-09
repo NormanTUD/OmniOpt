@@ -54,7 +54,7 @@ def get_mongo_db_error_code(code):
         [100, "Returned by mongod when the process throws an uncaught exception.", "\n\t- Check if the process is already running and if so, use that one or kill that one to start a new one\n\t- check if the mongo db key has the right permissions (usually 400)"]
     ]
 
-    res_text = "Unkown error code!"
+    res_text = "Unkown error code (" + str(code) + ")!"
 
     for ret in codes:
         if ret[0] == code:

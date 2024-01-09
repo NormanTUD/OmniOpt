@@ -42,9 +42,11 @@ sub main {
 
     p(2, "Loading modules");
     modules_load(
-            "modenv/scs5", 
+            "release/23.04", 
             "MongoDB/4.0.3", 
-            "Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4"
+	    "GCC/11.3.0",
+	    "OpenMPI/4.1.4",
+            "Hyperopt/0.2.7"
     );
     p(10, "Loading modules");
 

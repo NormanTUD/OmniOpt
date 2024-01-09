@@ -3,12 +3,12 @@
 # -*- coding: utf-8 -*-
 
 """
-
-ml modenv/scs5
+ml release/23.04
 ml MongoDB/4.0.3
-ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-ml Python/3.7.4-GCCcore-8.3.0
-
+ml GCC/11.3.0
+ml OpenMPI/4.1.4
+ml Hyperopt/0.2.7
+ml matplotlib/3.5.2
 """
 
 import sys

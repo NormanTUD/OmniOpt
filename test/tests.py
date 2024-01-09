@@ -23,7 +23,8 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 def cprint (msg):
-    print("\n" + bcolors.WARNING + msg + bcolors.ENDC)
+    pass
+    #print("\n" + bcolors.WARNING + msg + bcolors.ENDC)
 
 currentdir = os.path.dirname(
     os.path.abspath(
@@ -129,7 +130,6 @@ class TestStringMethods(unittest.TestCase):
     def test_double_test_names(self):
         cprint(inspect.stack()[0][3])
         code_for_check = "cat " + mainpath + "/test/tests.py | grep def | sort | less | uniq -c | egrep -v '^\s+1\s+' | wc -l"
-        print(code_for_check)
         self.assertEqual(run_command_get_output(code_for_check), "0\n")
 
     def test_re(self):
@@ -362,7 +362,6 @@ class TestStringMethods(unittest.TestCase):
     def test_python_files(self):
         cprint(inspect.stack()[0][3])
         for filename in glob.glob("./*/*.py"):
-            print(filename)
             f = open(filename, 'r')
             s = f.read()
             f.close()

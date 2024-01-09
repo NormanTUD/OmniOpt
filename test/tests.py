@@ -296,6 +296,9 @@ class TestStringMethods(unittest.TestCase):
     def test_ping_2(self):
         self.assertFalse(networkstuff.ping("546.5648.564.5646"))
 
+    def test_ping_3(self):
+        self.assertTrue(networkstuff.ping("127.0.0.1"))
+
     def test_mongo_db_error_code(self):
         self.assertEqual(type(mongostuff.get_mongo_db_error_code(0)), str)
 

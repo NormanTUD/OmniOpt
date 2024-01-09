@@ -21,7 +21,7 @@ while [[ -e $PLOTPATH ]]; do
     export PLOTPATH=$RANDOM.svg
 done
 
-perl tools/plot.pl --project=cpu_test --projectdir=test/projects/
+perl tools/plot.pl --project=cpu_test --projectdir=test/projects/ 2>&1 | grep -v "DEBUG:matplotlib"
 
 convert $PLOTPATH ${PLOTPATH}.png
 

@@ -10,14 +10,6 @@ module () {
         eval `$LMOD_CMD sh "$@"`
 }
 
-
-mml () {
-    if ! ml is-loaded $1; then
-        ml $1
-    fi
-}
-
-
 function echoerr() {
     echo "$@" 1>&2
 }
@@ -87,17 +79,17 @@ if [[ -z "$project" ]]; then red_text "Parameter --project cannot be empty"; hel
 
 p "1" "Loading modules"
 p "2" "Purging old modules"
-mml purge
+ml purge
 p "3" "Loading modenv/scs5"
-mml modenv/scs5
+ml release/23.04
 p "5" "Loading MongoDB/4.0.3"
-mml MongoDB/4.0.3
+ml MongoDB/4.0.3
 p "7" "Loading Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4"
-mml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-p "9" "Loading Python/3.7.4-GCCcore-8.3.0"
-mml Python/3.7.4-GCCcore-8.3.0
-p "10" "Loading matplotlib/3.1.1-foss-2019b-Python-3.7.4"
-mml matplotlib/3.1.1-foss-2019b-Python-3.7.4
+ml GCC/11.3.0 OpenMPI/4.1.4 Hyperopt/0.2.7
+#p "9" "Loading Python/3.7.4-GCCcore-8.3.0"
+#ml Python/3.7.4-GCCcore-8.3.0
+p "9" "Loading matplotlib/3.1.1-foss-2019b-Python-3.7.4"
+ml matplotlib/3.5.2
 
 p "15" "Loaded all modules"
 

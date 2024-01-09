@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set -x
-pwd
+#set -x
+#pwd
 
 echoerr() {
 	echo "$@" 1>&2

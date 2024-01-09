@@ -14,7 +14,7 @@ module () {
 
 EXITCODE=0
 
-set -x
+#set -x
 
 export PLOTPATH=$RANDOM.svg
 while [[ -e $PLOTPATH ]]; do

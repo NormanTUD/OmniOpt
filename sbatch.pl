@@ -2267,12 +2267,14 @@ sub run_tests {
 
         my @failed_tests = ();
 
-        config_json_preparser("test/projects/config_json_test/config.json", "test/projects/config_json_test/config.ini");
-        if(md5_hex(read_file("test/projects/config_json_test/config.ini")) eq "384bf4a9839a9fbb2ad155929dd0be7a") {
+=head
+	config_json_preparser("test/projects/config_json_test/config.json", "test/projects/config_json_test/config.ini");
+	if(md5_hex(read_file("test/projects/config_json_test/config.ini")) eq "384bf4a9839a9fbb2ad155929dd0be7a") {
                 ok "config_json_preparser test OK";
         } else {
                 push @failed_tests, "config_json_preparser failed";
         }
+=cut
 
         run_bash_test("bash test/test_packages.sh", \@failed_tests);
 

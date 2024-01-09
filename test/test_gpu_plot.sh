@@ -14,7 +14,7 @@ module () {
 
 
 
-set -ex
+set -e
 
 export PLOTPATH=$RANDOM.svg
 while [[ -e $PLOTPATH ]]; do

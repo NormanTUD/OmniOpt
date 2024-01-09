@@ -1,3 +1,6 @@
+import logging
+logging.getLogger('matplotlib.font_manager').disabled = True
+
 import pprint
 import matplotlib
 import matplotlib.pyplot as plt

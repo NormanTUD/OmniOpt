@@ -36,10 +36,10 @@ sub main {
 
         p 1, "Loading modules...";
         modules_load(
-		"release/23.04"
-		"MongoDB/4.0.3"
-		"GCC/11.3.0"
-		"OpenMPI/4.1.4"
+		"release/23.04",
+		"MongoDB/4.0.3",
+		"GCC/11.3.0",
+		"OpenMPI/4.1.4",
 		"Hyperopt/0.2.7"
         );
         p 10, "Modules loaded";

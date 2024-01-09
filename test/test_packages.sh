@@ -25,6 +25,6 @@ else
 fi
 ml matplotlib/3.5.2
 
-python3 script/test_packages.py
+python3 script/test_packages.py 2>&1 | grep -v 'DEBUG:matplotlib'
 
 exit $?

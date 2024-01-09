@@ -1,5 +1,7 @@
 import logging
 logging.getLogger('matplotlib.font_manager').disabled = True
+pil_logger = logging.getLogger('PIL')
+pil_logger.setLevel(logging.INFO)
 
 import pprint
 import matplotlib
@@ -201,8 +203,7 @@ for gpuservername in graph_data:
 fig.autofmt_xdate()
 fig.tight_layout()
 if print_to_svg:
-    graph_width = os.getenv("SVGEXPORTSIZE", 2000)
-    plt.savefig(print_to_svg, format="svg", width=graph_width)
+    plt.savefig(print_to_svg, format="svg")
 else:
     plt.show()
 p(100, "Done")

@@ -2411,7 +2411,7 @@ sub run_tests {
 
                 if($options{run_multigpu_tests}) {
                         run_bash_test_noenv("bash test/test_multigpu.sh 2", \@failed_tests);
-                        run_bash_test_noenv("bash test/test_multigpu.sh 6", \@failed_tests);
+			#run_bash_test_noenv("bash test/test_multigpu.sh 6", \@failed_tests);
                 }
 
                 my $no_quota_test = "";

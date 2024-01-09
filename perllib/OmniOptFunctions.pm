@@ -67,7 +67,7 @@ sub myqx ($;$) {
         debug "command: $command";
 
         if(wantarray()) {
-                my @res = qx($command);
+                my @res = qx($command 2>&1 | grep -v 'DEBUG:matplotlib.font_manager:findfont');
                 my $error_code = $?;
                 my $exit_code = $error_code >> 8;
                 my $signal_code = $error_code & 127;
@@ -76,7 +76,7 @@ sub myqx ($;$) {
                 exit $error_code if($die_on_error && $error_code != 0);
                 return @res;
         } else {
-                my $res = qx($command);
+                my $res = qx($command 2>&1 | grep -v 'DEBUG:matplotlib.font_manager:findfont');
                 my $error_code = $?;
                 my $exit_code = $error_code >> 8;
                 my $signal_code = $error_code & 127;

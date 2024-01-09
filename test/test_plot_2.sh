@@ -10,7 +10,7 @@ module () {
         eval `$LMOD_CMD sh "$@"`
 }
 
-
+ml release/23.04 GCCcore/11.3.0 ImageMagick/7.1.0-37
 
 EXITCODE=0
 

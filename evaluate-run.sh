@@ -1507,23 +1507,23 @@ function list_projects {
 			change_project_dir
 			main
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
-            plot_multiple_projects
+			plot_multiple_projects
 			main
 		elif [[ "$WHATTODO" =~ "C)" ]]; then
-            csv_multiple_projects
+			csv_multiple_projects
 			main
 		elif [[ "$WHATTODO" =~ "R)" ]]; then
-            restart_old_jobs
+			restart_old_jobs
 			main
 		elif [[ "$WHATTODO" =~ "S)" ]]; then
-            spin_up_temporary_webserver . ""
+			spin_up_temporary_webserver . ""
 			main
 		elif [[ "$WHATTODO" =~ "s)" ]]; then
 			list_running_slurm_jobs
 			main
 		elif [[ "$WHATTODO" =~ "v)" ]]; then
-            change_variables
-            main
+			change_variables
+			main
 		elif [[ "$WHATTODO" =~ "t)" ]]; then
 			perl sbatch.pl --run_tests --debug && info_message "All tests ok." || error_message "At least one of the tests failed."
 			main

@@ -1051,7 +1051,12 @@ button=black,white
 }
 
 function plot_multiple_projects {
-    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
+    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##' 2>/dev/null)
+
+    if [[ -z "$PROJECTS" ]];
+	error_message "No projects found"
+	return
+    fi
 
     PROJECTS_STRING=""
 
@@ -1499,12 +1504,13 @@ function change_variables {
 }
 
 function list_projects {
-    AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+
 	eval `resize`
 
-    # REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
-    # "s)" "List running SLURM jobs"
-    WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "p)" "Plot multiple projects" "R)" "Restart old jobs" "C)" "CSV from multiple projects" "c)" "Change the project dir" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
+	# REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
+	# "s)" "List running SLURM jobs"
+	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "p)" "Plot multiple projects" "R)" "Restart old jobs" "C)" "CSV from multiple projects" "c)" "Change the project dir" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then

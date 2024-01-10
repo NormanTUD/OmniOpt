@@ -1112,7 +1112,12 @@ function restart_old_jobs {
 }
 
 function csv_multiple_projects {
-    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
+    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##' 2>/dev/null)
+
+    if [[ -z "$PROJECTS" ]]; then
+	error_message "No projects found"
+	return
+    fi
 
     PROJECTS_STRING=""
 

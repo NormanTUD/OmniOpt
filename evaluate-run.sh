@@ -1648,30 +1648,30 @@ if [[ $sourced == "0" ]]; then
     if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
         set +x
         (
-            for this_module in ${modules_to_load[*]}; do
-                let load_percent=$load_percent+$stepsize
-                echo "XXX"
-                echo $load_percent
-                echo "Loading modules... ($this_module...)"
-                echo "XXX"
-                if ! ml is-loaded $this_module; then
-                    ml $this_module 2>/dev/null
-                fi
-            done
+		for this_module in ${modules_to_load[*]}; do
+		let load_percent=$load_percent+$stepsize
+		echo "XXX"
+		echo $load_percent
+		echo "Loading modules... ($this_module...)"
+		echo "XXX"
+			if ! ml is-loaded $this_module; then
+				ml $this_module 2>/dev/null
+			fi
+		done
         ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
 
-        if [[ "$DEBUG" -eq "1" ]]; then
-            set -x
-        fi
-    else
-        if [[ "$LOAD_MODULES" -eq "1" ]]; then
-            for this_module in ${modules_to_load[*]}; do
-                if ! ml is-loaded $this_module; then
-                    ml $this_module 2>/dev/null
-                fi
-            done
-        fi
-    fi
+	if [[ "$DEBUG" -eq "1" ]]; then
+		set -x
+	fi
+	else
+		if [[ "$LOAD_MODULES" -eq "1" ]]; then
+			for this_module in ${modules_to_load[*]}; do
+				if ! ml is-loaded $this_module; then
+					ml $this_module 2>/dev/null
+				fi
+			done
+		fi
+	fi
 
 	main
 fi

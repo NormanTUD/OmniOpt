@@ -120,11 +120,11 @@ Parameters:
 
 Needed modules when --dontloadmodules is specified:
 
-ml release/23.04
-ml MongoDB/4.0.3
-ml GCC/11.3.0
-ml OpenMPI/4.1.4
-ml Hyperopt/0.2.7
+ml release/23.04 2>&1 | grep -v load
+ml MongoDB/4.0.3 2>&1 | grep -v load
+ml GCC/11.3.0 2>&1 | grep -v load
+ml OpenMPI/4.1.4 2>&1 | grep -v load
+ml Hyperopt/0.2.7 2>&1 | grep -v load
 EOF
         if($exit) {
                 exit 0;

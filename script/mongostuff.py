@@ -51,7 +51,8 @@ def get_mongo_db_error_code(code):
         [14, 'Returned by MongoDB applications which encounter an unrecoverable error, an uncaught exception or uncaught signal. The system exits without performing a clean shutdown.'],
         [48, 'A newly started mongod or mongos could not start listening for incoming connections, due to an error.'],
         [62, "Returned by mongod if the datafiles in --dbpath are incompatible with the version of mongod currently running.", "delete " + os.path.normpath(mypath.mainpath) + "/./mongodb directory"],
-        [100, "Returned by mongod when the process throws an uncaught exception.", "\n\t- Check if the process is already running and if so, use that one or kill that one to start a new one\n\t- check if the mongo db key has the right permissions (usually 400)"]
+        [100, "Returned by mongod when the process throws an uncaught exception.", "\n\t- Check if the process is already running and if so, use that one or kill that one to start a new one\n\t- check if the mongo db key has the right permissions (usually 400)"],
+        [127, "Error 127 occurs when there is a fatal flaw in starting MongoDB, for example, a library file is missing. Please run the MongoDB command manually and check the standard error for more details"]
     ]
 
     res_text = "Unkown error code (" + str(code) + ")!"
@@ -64,14 +65,21 @@ def get_mongo_db_error_code(code):
 
     if linuxstuff.is_tool('ps'):
         if linuxstuff.is_tool('grep'):
-            psauxfcommand = 'ps auxf | grep mongod | grep -v grep'
+            psauxfcommand = 'ps auxf | grep mongod | grep -v "mongodb.py" | grep -v grep'
             proc = subprocess.Popen(psauxfcommand, stdout=subprocess.PIPE, shell=True)
             (out, err) = proc.communicate()
-            sys.stderr.write("\n\n" + psauxfcommand + ":\n\n" + str(out) + "\n\n")
+
+            out = str(out)
+
+            if out.count("\n") == 0:
+                sys.stderr.write("No MongoDB process found")
+            else:
+                sys.stderr.write("\n\n" + psauxfcommand + ":\n\n" + out + "\n\n")
         else:
             sys.stderr.write("grep not installed!")
     else:
         sys.stderr.write("ps not installed!")
+
     return res_text
 
 """

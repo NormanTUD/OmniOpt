@@ -18,10 +18,10 @@ if [[ $(uname -r) =~ "86_64" ]]; then
 	ml Hyperopt/0.2.7 2>&1 | grep -v loaded
 	ml MongoDB/4.0.3 2>&1 | grep -v loaded
 else
-	ml modenv/ml
-	ml MongoDB/4.0.3
-	ml Python/3.7.4-GCCcore-8.3.0
-	ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
+	ml modenv/ml 2>&1 | grep -v loaded
+	ml MongoDB/4.0.3 2>&1 | grep -v loaded
+	ml Python/3.7.4-GCCcore-8.3.0 2>&1 | grep -v loaded
+	ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4  2>&1 | grep -v loaded
 fi
 ml matplotlib/3.5.2
 

@@ -307,7 +307,9 @@ warningcounter=$(echo "scale=0; ($max_kill*0.8)/1" | bc)
 
 let mongotrycount=0
 while ! nc -z $MONGODBMACHINE $MONGODBPORT 2>&1 >> $NZLOGFILE; do 
-    echo "DB not running, sleeping 1 second to try again"
+    if [[ "$mongotrycount" -eq "0" ]]; then
+        echo "DB not running, sleeping 1 second to try again (trying ->waitsecondsnz<- times maximally before cancelling, only showing the first try)"
+    fi
     sleep 1
     let mongotrycount++
     if [[ "$mongotrycount" -eq "->waitsecondsnz<-" ]]; then

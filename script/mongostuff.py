@@ -72,7 +72,7 @@ def get_mongo_db_error_code(code):
             out = str(out)
 
             if out.count("\n") == 0:
-                sys.stderr.write("No MongoDB process found")
+                sys.stderr.write("No MongoDB process found\n")
             else:
                 sys.stderr.write("\n\n" + psauxfcommand + ":\n\n" + out + "\n\n")
         else:

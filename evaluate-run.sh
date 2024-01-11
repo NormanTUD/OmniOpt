@@ -1051,7 +1051,7 @@ button=black,white
 }
 
 function plot_multiple_projects {
-    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##' 2>/dev/null)
+    PROJECTS=$(ls $PROJECTDIR/*/config.ini 2>/dev/null | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
 
     if [[ -z "$PROJECTS" ]]; then
 	error_message "No projects found (plot_multiple_projects)"
@@ -1117,7 +1117,7 @@ function restart_old_jobs {
 }
 
 function csv_multiple_projects {
-    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##' 2>/dev/null)
+    PROJECTS=$(ls $PROJECTDIR/*/config.ini 2>/dev/null | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
 
     if [[ -z "$PROJECTS" ]]; then
 	error_message "No projects found (csv_multiple_projects)"
@@ -1504,7 +1504,7 @@ function change_variables {
 }
 
 function list_projects {
-	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' 2>/dev/null)
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
 
 	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
 		echo "No projects found (list_projects)"

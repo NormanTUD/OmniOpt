@@ -111,7 +111,7 @@ sub module_load {
                         warn "$toload already loaded\n";
                 } else {
                         my $lmod_path = $ENV{LMOD_CMD};
-                        my $command = "eval \$($lmod_path sh load $toload)";
+                        my $command = "eval \$($lmod_path sh load $toload) 2>&1 | grep -v loaded";
                         debug $command;
                         local $Env::Modify::CMDOPT{startup} = 1;
                         modify_system($command);
@@ -119,6 +119,7 @@ sub module_load {
         } else {
                 warn 'Empty module_load!';
         }
+
         return 1;
 }
 

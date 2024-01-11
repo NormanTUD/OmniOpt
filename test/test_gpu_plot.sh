@@ -23,12 +23,12 @@ done
 
 ml purge
 
-ml release/23.04
-ml MongoDB/4.0.3
-ml GCC/11.3.0
-ml OpenMPI/4.1.4
-ml Hyperopt/0.2.7
-ml matplotlib/3.5.2
+ml release/23.04 2>&1 | grep -v loaded
+ml MongoDB/4.0.3 2>&1 | grep -v loaded
+ml GCC/11.3.0 2>&1 | grep -v loaded
+ml OpenMPI/4.1.4 2>&1 | grep -v loaded
+ml Hyperopt/0.2.7 2>&1 | grep -v loaded
+ml matplotlib/3.5.2 2>&1 | grep -v loaded
 
 python3 script/plot_gpu.py gpu_test test/gpu_plot_data/
 

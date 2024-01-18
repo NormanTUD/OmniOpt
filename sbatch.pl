@@ -324,6 +324,8 @@ sub log_env {
 sub main {
         debug_sub 'main()';
 
+	modify_system(q"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/");
+
         $indentation++;
 
         print "Project: $options{project}\n" if $options{project};

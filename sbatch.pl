@@ -2438,9 +2438,11 @@ sub run_tests {
                 } else {
                     warn "Cannot run plot tests without ssh -x";
                 }
-                run_bash_test("bash test/test_export.sh cpu_test", \@failed_tests);
-                run_bash_test("bash test/test_export.sh cpu_test2", \@failed_tests);
-                run_bash_test("bash test/test_export.sh allparamtypes", \@failed_tests);
+		
+		#run_bash_test("bash test/test_export.sh cpu_test", \@failed_tests);
+		#run_bash_test("bash test/test_export.sh cpu_test2", \@failed_tests);
+		#run_bash_test("bash test/test_export.sh allparamtypes", \@failed_tests);
+		run_bash_test("bash test/test_export.sh gpu_test_alpha", \@failed_tests);
                 run_bash_test("bash test/test_wallclock_time.sh", \@failed_tests);
                 run_bash_test("bash test/test_gpu_plot.sh", \@failed_tests);
         }

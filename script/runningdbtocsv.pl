@@ -12,6 +12,8 @@ STDERR->autoflush(1);
 use lib './perllib';
 use Env::Modify;
 
+modify_system(q"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/");
+
 our %options = (
         debug => 0,
         project => '',

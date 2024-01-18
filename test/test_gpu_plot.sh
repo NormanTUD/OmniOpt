@@ -30,7 +30,7 @@ ml OpenMPI/4.1.4 2>&1 | grep -v loaded
 ml Hyperopt/0.2.7 2>&1 | grep -v loaded
 ml matplotlib/3.5.2 2>&1 | grep -v loaded
 
-python3 script/plot_gpu.py gpu_test test/gpu_plot_data/
+python3 script/plot_gpu.py gpu_test_alpha test/gpu_plot_data/
 
 if grep "Utilization" $PLOTPATH; then
     if grep "gpu_test" $PLOTPATH; then

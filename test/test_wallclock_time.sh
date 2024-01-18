@@ -12,7 +12,7 @@ function green_text {
 	echoerr -e "\e[92m$1\e[0m"
 }
 
-WCT_RESULT=$(bash tools/get_wallclock_time.sh --projectdir=test/projects --project=cpu_test)
+WCT_RESULT=$(bash tools/get_wallclock_time.sh --projectdir=test/projects --project=gpu_test_alpha)
 
 echo -e "\n"
 echo "WCT_RESULT: $WCT_RESULT"

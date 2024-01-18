@@ -12,10 +12,10 @@ ml () {
 }
 
 
-ml modenv/hiera
-ml fosscuda/2020b
-ml scikit-learn/0.23.2
-ml TensorFlow/2.4.1
+ml release/23.04
+ml GCC/11.3.0
+ml OpenMPI/4.1.4
+ml TensorFlow/2.11.0-CUDA-11.7.0
 
 PYTHONOUTPUT=$(python3 -c "import tensorflow as tf; print(tf.test.gpu_device_name())" 2>&1)
 echo $PYTHONOUTPUT

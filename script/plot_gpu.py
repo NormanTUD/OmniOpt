@@ -27,7 +27,12 @@ def p (percent, status):
         stderr("GAUGESTATUS: %s" % status)
 
 p(11, "Using TkAgg")
-matplotlib.use('TkAgg')
+try:
+    matplotlib.use('TkAgg')
+except:
+    print("Using TkAgg failed. Trying to use Agg...")
+    matplotlib.use('Agg')
+
 p(12, "Used TkAgg")
 print_to_svg = 0
 

@@ -5,3 +5,4 @@ sbatch_commands/
 script/__pycache__/
 slurm-*.out
 *.csv
+logfile.txt

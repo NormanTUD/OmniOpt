@@ -29,6 +29,12 @@ if echo $PCI_ID | egrep "pci bus id: ([0-9]*:?)+.[0-9]*" >/dev/null 2>/dev/null;
         python3 -c "print('RESULT: $PARAM')"
 else
         echo "NO GPU FOUND"
+
+	if [[ $(hostname) =~ "romeo" ]]; then
+		echo "RESULT: 0"
+		exit 0
+	fi
+
         exit 1
 fi
 

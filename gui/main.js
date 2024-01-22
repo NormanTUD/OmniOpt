@@ -198,6 +198,13 @@ function isNumericList(str) {
 }
 
 function isNumeric(str) {
+	if(str === 0) {
+		return true;
+	}
+
+	if(typeof str == "number") {
+		return str;
+	}
 	if (typeof str != "string") return false;
 	return !isNaN(str) && !isNaN(parseFloat(str));
 }
@@ -406,9 +413,9 @@ function update_config () {
 				}
 
 			} else if(this_type == "hp.choicestep") {
-				var this_min = $("#choiceint_" + i + "_min").val();
-				var this_max = $("#choiceint_" + i + "_max").val();
-				var this_step = $("#choiceint_" + i + "_step").val();
+				var this_min = parseInt($("#choiceint_" + i + "_min").val());
+				var this_max = parseInt($("#choiceint_" + i + "_max").val());
+				var this_step = parseInt($("#choiceint_" + i + "_step").val());
 
 				if(this_min > this_max) {
 					var tmp = this_min;
@@ -434,14 +441,16 @@ function update_config () {
 					config_string += no_value_str(i, this_parameter_name_string, "");
 				}
 			} else if(this_type == "hp.choiceint") {
-				var this_min = $("#choiceint_" + i + "_min").val();
-				var this_max = $("#choiceint_" + i + "_max").val();
+				var this_min = parseFloat($("#choiceint_" + i + "_min").val());
+				var this_max = parseFloat($("#choiceint_" + i + "_max").val());
 
 				if(this_min > this_max) {
 					var tmp = this_min;
 					this_min = this_max;
 					this_max = tmp;
 				}
+
+				log("min/max:", this_min, this_max);
 
 				if(isNumeric(this_max) && isNumeric(this_min)) {
 					if(parseInt(this_min) <= parseInt(this_max)) {
@@ -819,7 +828,12 @@ function update_config () {
 								sbatch_pl_params += " --overlap \\\n";
 							}
 
-							sbatch_string += " sbatch.pl --project=" + projectname + " \\\n";
+							if(partition == "barnard") {
+								sbatch_string += " run.sh --project=" + projectname + " \\\n";
+							} else {
+								sbatch_string += " sbatch.pl --project=" + projectname + " \\\n";
+							}
+
 							if(enable_debug == 1) {
 								sbatch_string += " --debug";
 							}

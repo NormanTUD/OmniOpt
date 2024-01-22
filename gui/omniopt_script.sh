@@ -478,7 +478,7 @@ if [[ -z $SBATCH_COMMAND ]]; then
         exit 6
 fi
 
-if (hostname | grep taurus 2>/dev/null >/dev/null); then
+if (hostname | egrep "taurus|^login" 2>/dev/null >/dev/null); then
         echo_green 'OK, you seem to be on Taurus'
 else
         if [[ "$FORCE_DISABLE_TAURUS_CHECK" -eq "0" ]]; then
@@ -602,13 +602,13 @@ fi
 
 if [[ "$NO_CLONE" -eq "0" ]]; then
         echo_green 'Cloning OmniOpt...'
-	COPY_FROM="file:///projects/p_scads/nnopt/bare/" # defective now
-	FALLBACK_PATH="https://github.com/NormanTUD/OmniOpt.git"
-        if [[ ! -d "$COPY_FROM" ]]; then
-		echo_yellow "$COPY_FROM doesn't seem to exist. Using $FALLBACK_PATH instead."
-		COPY_FROM=$FALLBACK_PATH
-
-	fi
+	COPY_FROM="https://github.com/NormanTUD/OmniOpt.git"
+	FALLBACK_PATH="file:///projects/p_scads/nnopt/bare/" # defective now
+        #if [[ ! -d "$COPY_FROM" ]]; then
+	#	echo_yellow "$COPY_FROM doesn't seem to exist. Using $FALLBACK_PATH instead."
+	#	COPY_FROM=$FALLBACK_PATH
+	#
+	#fi
 
         #if [[ -d "$COPY_FROM" ]]; then
                 total=0

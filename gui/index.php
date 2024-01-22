@@ -80,6 +80,7 @@
 			var urlParams = new URLSearchParams(window.location.search);
 			// Add new partitions here and they'll automatically be added as option
 			var partition_data = {
+				/*
 				"ml": {
 					"number_of_workers": 180,
 					"computation_time": 168,
@@ -100,6 +101,7 @@
 					"warning": "",
 					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-2-phase-2-intel-haswell-cpus-nvidia-k80-gpus"
 				},
+				 */
 				"alpha": {
 					"number_of_workers": 160,
 					"computation_time": 168,
@@ -110,6 +112,7 @@
 					"warning": "",
 					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/alpha_centauri/"
 				}, 
+				/*
 				"hpdlf": {
 					"number_of_workers": 42,
 					"computation_time": 168,
@@ -147,6 +150,17 @@
 					"max_mem_per_core": 10583,
 					"mem_per_cpu": 10583,
 					"name": "haswell256 (amd64)",
+					"warning": "",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
+				},
+				 */
+				"barnard": {
+					"number_of_workers": 10,
+					"computation_time": 10,
+					"max_number_of_gpus": 0,
+					"max_mem_per_core": 10000,
+					"mem_per_cpu": 1000,
+					"name": "Barnard",
 					"warning": "",
 					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
 				}

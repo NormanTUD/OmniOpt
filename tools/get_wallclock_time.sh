@@ -1,5 +1,7 @@
 #!/bin/bash -l
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64
+
 LMOD_DIR=/usr/share/lmod/lmod/libexec/
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
 

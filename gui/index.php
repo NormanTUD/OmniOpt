@@ -153,7 +153,6 @@
 					"warning": "",
 					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
 				},
-				 */
 				"barnard": {
 					"number_of_workers": 10,
 					"computation_time": 10,
@@ -163,6 +162,17 @@
 					"name": "Barnard",
 					"warning": "",
 					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
+				}
+				 */
+				"romeo": {
+					"number_of_workers": 192,
+					"computation_time": 168,
+					"max_number_of_gpus": 0,
+					"max_mem_per_core": 10000,
+					"mem_per_cpu": 256000,
+					"name": "Romeo",
+					"warning": "",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#romeo"
 				}
 			};
 		</script>

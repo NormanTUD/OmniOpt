@@ -12,6 +12,8 @@ STDERR->autoflush(1);
 use lib './perllib';
 use Env::Modify;
 
+modify_system(q"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/");
+
 our %options = (
         debug => 0,
         project => '',
@@ -42,9 +44,11 @@ sub main {
 
     p(2, "Loading modules");
     modules_load(
-            "modenv/scs5", 
+            "release/23.04", 
             "MongoDB/4.0.3", 
-            "Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4"
+	    "GCC/11.3.0",
+	    "OpenMPI/4.1.4",
+            "Hyperopt/0.2.7"
     );
     p(10, "Loading modules");
 
@@ -52,7 +56,7 @@ sub main {
     warn "If the module past is missing, install the package future via pip3 install --user future\n";
     warn "If the module pymongo is missing, install the package future via pip3 install --user pymongo\n";
 
-    my $command = qq#python3.7 script/dbtocsv.py #.($options{int} ? '--int=1' : '').qq# --project=$options{project} --seperator="$options{seperator}" #;
+    my $command = qq#python3 script/dbtocsv.py #.($options{int} ? '--int=1' : '').qq# --project=$options{project} --seperator="$options{seperator}" #;
 
     if($options{filename}) {
         $command .= qq# --filename="$options{filename}"#;
@@ -85,7 +89,7 @@ sub main {
             my $lockfile = "$projectfolder/mongodb/mongod.lock";
 
             if(!-e $lockfile) {
-                    $command_end_mongodb = qq#python3.7 script/endmongodb.py --project=$options{project} #;
+                    $command_end_mongodb = qq#python3 script/endmongodb.py --project=$options{project} #;
                     if($options{projectdir}) {
                             $command_end_mongodb .= qq#--projectdir=$options{projectdir}#;
                     }

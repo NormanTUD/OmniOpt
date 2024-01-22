@@ -42,7 +42,6 @@ job_still_running () {
 
 trap 'calltracer' ERR
 
-export partition=""
 export num_gpus=0
 export programfile=""
 export maxtime="01:00:00"
@@ -58,7 +57,6 @@ export COUNTDOWN=0
 
 function help () {
         echo "Possible options:"
-        echo "  --partition=PARTITION                           Partition name"
         echo "  --reservation=RESERVATION                       Reservation name"
         echo "  --account=ACCOUNT                               Account name"
         echo "  --num_gpus=NUMBEROFGPUS                         Number of GPUs (default: $num_gpus)"
@@ -123,10 +121,6 @@ for i in "$@"; do
                         programfile="${i#*=}"
                         shift
                         ;;
-                --partition=*)
-                        partition="${i#*=}"
-                        shift
-                        ;;
                 --debug)
                         set -x
                         ;;
@@ -158,11 +152,6 @@ function sleep_or_countdown () {
 }
 
 
-if [[ -z $partition ]]; then
-        echo "--partition is empty"
-        exit 1
-fi
-
 if [[ -z $programfile ]]; then
         echo "--programfile was empty"
         exit 2
@@ -192,7 +181,10 @@ thislogpath=$(echo "$thislogpath" | sed -e 's#//#/#g')
 
 gpu_string=""
 
+echo "hostname (multigpu.sh): $(hostname)"
+
 if [[ "$num_gpus" -lt "2" ]]; then
+
         bash $programfile > "$thislogpath"
 else
         declare -a RESET_VARIABLES=(
@@ -274,7 +266,7 @@ else
             echo "strace-log can be found at $STRACE_FILE" >&2
         fi
 
-        SBATCH_COMMAND="${STRACE}sbatch $SBATCH_DEBUG -J $jobname --cpus-per-task=$cpus_per_task $account_string $reservation_string $gpu_string --ntasks=1 $deadline --time=$maxtime --mem-per-cpu=$max_mem_per_cpu --partition=$partition $programfile"
+        SBATCH_COMMAND="${STRACE}sbatch $SBATCH_DEBUG -J $jobname --cpus-per-task=$cpus_per_task $account_string $reservation_string $gpu_string --ntasks=1 $deadline --time=$maxtime --mem-per-cpu=$max_mem_per_cpu $programfile"
         SBATCH_RESULT=$($SBATCH_COMMAND)
         EXIT_CODE=$?
 

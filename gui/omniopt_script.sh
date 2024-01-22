@@ -1,4 +1,15 @@
 #!/bin/bash
+#
+set -o pipefail
+set -u
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+trap 'calltracer' ERR
+
+
 
 export LC_ALL=en_US.UTF-8
 
@@ -89,6 +100,7 @@ function help () {
         echo "--debug                                     Enables set -x"
         exit "$exitcode"
 }
+
 
 slurmlogpath () {
         if command -v scontrol &> /dev/null
@@ -236,7 +248,7 @@ function error_analyze {
 
 function start_job {
         if [[ $DONTSTARTJOB -eq "0" ]]; then
-                if command -v sbatch; then
+                if command -v sbatch 2>&1 >/dev/null; then
                         START_JOB=0
                         if [[ "$INTERACTIVE" == 1 ]]; then
                                 if (whiptail --title "Run OmniOpt now?" --yesno "Do you want to start the Job $1 now?" 8 78); then
@@ -282,38 +294,43 @@ function start_job {
 
 function continue_old_projects {
         OOFOLDER=$1
-
         PROJECTNAMEOLD=$2
-        if [[ -d "$OOFOLDER/projects/$2" ]]; then
+
+        if [[ -d "$OOFOLDER/projects/$PROJECTNAMEOLD" ]]; then
                 if [[ "$AUTOCONTINUEJOB" -eq "1" ]]; then
                         CONTINUEJOB=1
                 else
                         if [[ "$INTERACTIVE" == "1" ]]; then
-                                if (whiptail --title "The project $2 already exists" --yesno --yes-button "Continue running old project" --no-button "Start new project" "The folder $OOFOLDER/projects/$2 already exists. Do you want to start a new project from scratch or continue running the old one where it left off?" 8 120); then
+                                if (whiptail --title "The project $PROJECTNAMEOLD already exists" --yesno --yes-button "Continue running old project" --no-button "Start new project" "The folder $OOFOLDER/projects/$PROJECTNAMEOLD already exists. Do you want to start a new project from scratch or continue running the old one where it left off?" 8 120); then
                                         CONTINUEJOB=1
                                 else
                                         COUNTER=0
-                                        while [[ -d "$OOFOLDER/projects/${2}_${COUNTER}" ]]; do
+                                        while [[ -d "$OOFOLDER/projects/${PROJECTNAMEOLD}_${COUNTER}" ]]; do
                                                 COUNTER=$(($COUNTER+1))
                                         done
-                                        PROJECTNAME="${2}_${COUNTER}"
+                                        PROJECTNAME="${PROJECTNAMEOLD}_${COUNTER}"
 
                                         if [[ "$AUTOACCEPTNEWPROJECTNAME" -eq "0" ]]; then
-                                                PROJECTNAME=$(whiptail --inputbox "The $PROJECTNAMEOLD already exists. Enter a new name" 8 39 "$2" --title "Project name" 3>&1 1>&2 2>&3)
+                                                PROJECTNAME=$(whiptail --inputbox "The $PROJECTNAMEOLD already exists. Enter a new name" 8 39 "$PROJECTNAMEOLD" --title "Project name" 3>&1 1>&2 2>&3)
                                                 if [[ ! "$?" -eq "0" ]]; then
                                                         exit 3
                                                 fi
                                         fi
                                 fi
                         else
-                                echo_red "The project $2 already exists in $OOFOLDER. Cannot continue in non-interactive mode"
-                                exit 10
+				[ "$(ls -A $OOFOLDER/projects/$PROJECTNAMEOLD/config.ini)" ] && echo_yellow "The project $PROJECTNAMEOLD already exists in $OOFOLDER. Cannot continue this project if it was ran previously in non-interactive mode."
+				#COUNTER=0
+				#while [[ -d "$OOFOLDER/projects/${PROJECTNAMEOLD}_${COUNTER}" ]]; do
+				#	COUNTER=$(($COUNTER+1))
+				#done
+				#PROJECTNAME="${PROJECTNAMEOLD}"
+				#echo_yellow "$OOFOLDER/projects/$PROJECTNAMEOLD already existed. Using $OOFOLDER/projects/$PROJECTNAME"
                         fi
                 fi
         fi
 
         if [[ "$CONTINUEJOB" -eq "0" ]]; then
-                SBATCH_COMMAND=$(echo "$SBATCH_COMMAND" | sed -e "s/\(-J \|--project=\)$PROJECTNAMEOLD/\1$2/g")
+                SBATCH_COMMAND=$(echo "$SBATCH_COMMAND" | sed -e "s/\(-J \|--project=\)$PROJECTNAMEOLD/\1$PROJECTNAMEOLD/g")
         fi
 }
 
@@ -338,7 +355,8 @@ function write_sbatch_command_to_file {
         if [[ -e "$prev_sh_name" ]]; then
                 if [[ -e "$sh_name" ]]; then
                         if [[ "$sh_name" == "$prev_sh_name" ]]; then
-                                echo "\$sh_name and \$prev_sh_name are the same file ($prev_sh_name)"
+                                #echo "\$sh_name and \$prev_sh_name are the same file ($prev_sh_name)"
+				true
                         else
                                 if ! diff -q $prev_sh_name $sh_name &>/dev/null; then
                                         echo "Different. Keeping $prev_sh_name and $sh_name"
@@ -360,16 +378,9 @@ function create_config_file {
         THISPROJECTDIR=projects/${1}/
         mkdir -p "$THISPROJECTDIR" && echo_green 'Project folder creation successful' || echo_red 'Failed to create project folder'
 
-
         TMP_CONFIG_INI=$THISPROJECTDIR/config_tmp
         echo "${2}" > "$TMP_CONFIG_INI"
 	FILE_ENDING="ini"
-	#if [[ $(cat $TMP_CONFIG_INI | egrep -v '^\s*$' | head -n1) == "{" ]]; then
-	if cat $TMP_CONFIG_INI | egrep -v '^\s*$' | grep "^\s*{" 2>/dev/null >/dev/null; then
-		FILE_ENDING="json"
-		echo "It looks as if the config file is not in ini, but json format. This is fine. It will be created as config.json and converted to config.ini with the call of sbatch.pl"
-		echo "${2}" | python -m json.tool > "$TMP_CONFIG_INI"
-	fi
         CONFIG_INI=$THISPROJECTDIR/config.${FILE_ENDING}
 
 
@@ -467,7 +478,7 @@ if [[ -z $SBATCH_COMMAND ]]; then
         exit 6
 fi
 
-if (hostname | grep taurus 2>/dev/null >/dev/null); then
+if (hostname | egrep "taurus|^login" 2>/dev/null >/dev/null); then
         echo_green 'OK, you seem to be on Taurus'
 else
         if [[ "$FORCE_DISABLE_TAURUS_CHECK" -eq "0" ]]; then
@@ -508,7 +519,7 @@ if [[ "$AUTOSKIP" -eq "0" ]]; then
                                         NO_CLONE=1
                                         ASK_FOR_GIT_PULL=1
                                 else
-                                        echo_red "The folder '$OOFOLDER' already exists in this directory. This might lead to problems. Delete this folder or move into another folder before running this script again. Otherwise, you can resubmit jobs from this directory. But be warned if errors occur."
+					echo_red "The folder '$OOFOLDER' already exists in this directory. This might lead to problems. Delete this folder or move into another folder before running this script again. Otherwise, you can resubmit jobs from this directory. But be warned if errors occur. (1)"
                                         COUNTER=0
                                         OOOLD=$OOFOLDER
                                         while [[ -d "${OOFOLDER}_${COUNTER}" ]]; do
@@ -522,7 +533,7 @@ if [[ "$AUTOSKIP" -eq "0" ]]; then
                                         fi
                                 fi
                         else
-                                echo_red "The folder '$OOFOLDER' already exists in this directory. This might lead to problems. Delete this folder or move into another folder before running this script again. Otherwise, you can resubmit jobs from this directory. But be warned if errors occur."
+				echo_red "The folder '$OOFOLDER' already exists in this directory. This might lead to problems. Delete this folder or move into another folder before running this script again. Otherwise, you can resubmit jobs from this directory. But be warned if errors occur. (2)"
                                 COUNTER=0
                                 OOOLD=$OOFOLDER
                                 while [[ -d "${OOFOLDER}_${COUNTER}" ]]; do
@@ -541,11 +552,11 @@ if [[ "$ASK_FOR_GIT_PULL" -eq "1" ]]; then
         CURRENTHASH=$(git rev-parse HEAD)     
 
         REMOTEURL=$(git config --get remote.origin.url)     
+	REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')     
+
         if [[ -z $REMOTEHASH ]]; then
                 echo_red "REMOTEHASH is undefined"
         else
-                REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')     
-
                 if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then      
                         echo_green "Software seems up-to-date ($CURRENTHASH)"      
                 else                     
@@ -591,9 +602,17 @@ fi
 
 if [[ "$NO_CLONE" -eq "0" ]]; then
         echo_green 'Cloning OmniOpt...'
-        if [[ -d /projects/p_scads/nnopt/bare/ ]]; then
+	COPY_FROM="https://github.com/NormanTUD/OmniOpt.git"
+	FALLBACK_PATH="file:///projects/p_scads/nnopt/bare/" # defective now
+        #if [[ ! -d "$COPY_FROM" ]]; then
+	#	echo_yellow "$COPY_FROM doesn't seem to exist. Using $FALLBACK_PATH instead."
+	#	COPY_FROM=$FALLBACK_PATH
+	#
+	#fi
+
+        #if [[ -d "$COPY_FROM" ]]; then
                 total=0
-                CLONECOMMAND="git clone --depth=1 file:///projects/p_scads/nnopt/bare/ $OOFOLDER"
+                CLONECOMMAND="git clone --depth=1 $COPY_FROM $OOFOLDER"
 
                 if [[ $DEBUG == 1 ]]; then
                         $CLONECOMMAND
@@ -621,10 +640,10 @@ if [[ "$NO_CLONE" -eq "0" ]]; then
                         git checkout "$BRANCH"
                         cd -
                 fi
-        else
-                echo_red "The folder /projects/p_scads/nnopt/bare/ does not seem to exist. Cannot continue."
-                exit 7
-        fi
+        #else
+        #        echo_red "The folder $COPY_FROM does not seem to exist. Cannot continue."
+        #        exit 7
+        #fi
 else
         mkdir -p "$OOFOLDER"
 fi
@@ -656,7 +675,8 @@ echo "curl https://imageseg.scads.ai/omnioptgui/omniopt_script.sh 2>/dev/null | 
 if [[ -e "$prev_curl_sh_name" ]]; then
         if [[ -e "$curl_sh_name" ]]; then
                 if [[ "$curl_sh_name" == "$prev_curl_sh_name" ]]; then
-                        echo "\$curl_sh_name and \$prev_curl_sh_name are the same file ($prev_curl_sh_name)"
+			true
+                        #echo "\$curl_sh_name and \$prev_curl_sh_name are the same file ($prev_curl_sh_name)"
                 else
                         if ! diff -q $prev_curl_sh_name $curl_sh_name &>/dev/null; then
                                 echo "Different. Keeping $prev_curl_sh_name and $curl_sh_name"
@@ -673,28 +693,129 @@ else
 fi
 
 
-SEEDS=$(echo "$CONFIG_FILE" | grep "seed" | sed -e 's/.*:\s*//' | sed -e 's/.*=\s*//' | sed -e 's#,$##')
-if [ -z "$SEEDS" ]; then
-        continue_old_projects $OOFOLDER $PROJECTNAME
-        create_config_file $PROJECTNAME "$CONFIG_FILE"
-        error_analyze $PROJECTNAME
-        write_sbatch_command_to_file $PROJECTNAME "$SBATCH_COMMAND"
-        start_job $PROJECTNAME "$SBATCH_COMMAND"
-        add_to_shell_history $SBATCH_COMMAND
+#echo "================="
+#echo "$CONFIG_FILE"
+#echo "================="
+
+wget -nc https://imageseg.scads.de/omnioptgui/jq 2>/dev/null >/dev/null
+chmod +x jq
+
+if ! echo "$CONFIG_FILE" | egrep "^\s*\[DIMENSIONS\]" 2>&1; then
+	echo "Probably got a json file. Parsing this for creating different runs for each seed."
+	# do something with the JSON
+
+	# Extract the seeds from the JSON
+	seeds=$(echo "$CONFIG_FILE" | ./jq -r '.DATA.seed[]' | sed -e 's#\[##' | sed -e 's#\]##' | sed -e 's/\s*,\s*/ /')
+
+	if [[ "$seeds" == "" ]]; then
+		seeds=("empty")
+	fi
+
+	# Loop through the seeds and create a config file for each
+
+	for seed in $seeds; do
+		# Create the config file name
+
+		SEED_PROJECTNAME=${PROJECTNAME}_SEED_${seed}
+		THISPROJECTDIR=projects/$SEED_PROJECTNAME
+		if [[ "$seed" == "empty" ]]; then
+			THISPROJECTDIR=projects/${PROJECTNAME}/
+		fi
+		mkdir -p "$THISPROJECTDIR" && echo_green 'Project folder creation successful' || echo_red 'Failed to create project folder'
+		config_file="$THISPROJECTDIR/config.ini"
+
+		# Extract the relevant data for this seed from the JSON
+		data=$(echo "$CONFIG_FILE" | ./jq -r '.DATA')
+		dimensions=$(echo "$CONFIG_FILE" | ./jq -r '.DIMENSIONS')
+		debug=$(echo "$CONFIG_FILE" | ./jq -r '.DEBUG')
+		mongodb=$(echo "$CONFIG_FILE" | ./jq -r '.MONGODB')
+
+		# Write the data section to the config file
+		echo "[DATA]" > "$config_file"
+		echo "seed = $seed" >> "$config_file"
+		echo "$data" | ./jq -r 'to_entries | .[] | "\(.key) = \(.value)"' | egrep -v "seed\s*=\s*\[" >> "$config_file"
+
+		# Write the debug section to the config file
+		echo "[DEBUG]" >> "$config_file"
+		echo "$debug" | ./jq -r 'to_entries | .[] | "\(.key) = \(.value)"' >> "$config_file"
+
+		# Write the mongodb section to the config file
+		echo "[MONGODB]" >> "$config_file"
+		echo "$mongodb" | ./jq -r 'to_entries | .[] | "\(.key) = \(.value)"' >> "$config_file"
+		
+		# Generate INI file content
+
+		# Read JSON file and parse it using jq
+		dimensions=$(echo "$CONFIG_FILE" | ./jq -r '.DIMENSIONS')
+
+		# Generate INI file content
+		ini="[DIMENSIONS]\n"
+		loop=0
+		for i in $(echo "${dimensions}" | ./jq -r '.[] | @base64'); do
+			dim_name=$(echo ${i} | base64 --decode | ./jq -r '.name')
+			for key in $(echo ${i} | base64 --decode | ./jq -r 'keys[]'); do
+				if [[ "$key" == "name" ]]; then
+					ini+="dim_${loop}_name = ${dim_name}\n"
+				else
+					value=$(echo ${i} | base64 --decode | ./jq -r ".$key")
+					if [[ "$key" == "options" ]]; then
+						value=$(echo ${value[@]} | ./jq -r 'join(",")')
+					fi
+					key=$(echo $key | tr '_' ' ' | sed 's/^./\L&/')
+					if [[ "$key" == *"range generator"* ]]; then
+						key=$(echo $key | sed 's/range generator/range_generator/')
+						ini+="$(echo $key)_${loop} = ${value}\n"
+					elif [[ "$key" == *"options"* ]]; then
+						ini+="$(echo $key)_${loop} = ${value}\n"
+					else
+						ini+="$(echo $key)_dim_${loop} = ${value}\n"
+					fi
+				fi
+			done
+			loop=$((loop+1))
+		done
+		ini+="\ndimensions = ${loop}\n"
+
+		# Write INI file
+		echo -e $ini >> "$config_file"
+
+		SEED_SBATCH_COMMAND=$(echo $SBATCH_COMMAND | sed -e "s/$PROJECTNAME/${SEED_PROJECTNAME}/g")
+
+		continue_old_projects $OOFOLDER $SEED_PROJECTNAME
+		error_analyze $SEED_PROJECTNAME
+		write_sbatch_command_to_file $SEED_PROJECTNAME "$SEED_SBATCH_COMMAND"
+		start_job $SEED_PROJECTNAME "$SEED_SBATCH_COMMAND"
+		add_to_shell_history $SEED_SBATCH_COMMAND
+	done
+
 else
-        echo_green "Found seeds: $SEEDS, creating a project for each one."
-        for SEED in $SEEDS; do
-                SEED_PROJECTNAME=${PROJECTNAME}_SEED_${SEED}
-                SEED_CONFIG_FILE=$(echo "$CONFIG_FILE" | sed -e "s/^seed\s*=.*/seed = $SEED/")
+	echo "Looks like ini"
+	SEEDS=$(echo "$CONFIG_FILE" | grep "seed" | sed -e 's/.*:\s*//' | sed -e 's/.*=\s*//' | sed -e 's#,$##')
+	echo ">>SEEDS: $SEEDS<<"
+	if [ -z "$SEEDS" ]; then
+		continue_old_projects $OOFOLDER $PROJECTNAME
+		create_config_file $PROJECTNAME "$CONFIG_FILE"
+		error_analyze $PROJECTNAME
+		write_sbatch_command_to_file $PROJECTNAME "$SBATCH_COMMAND"
+		start_job $PROJECTNAME "$SBATCH_COMMAND"
+		add_to_shell_history $SBATCH_COMMAND
+	else
+		echo_green "Found seeds: $SEEDS, creating a project for each one."
+		for SEED in $SEEDS; do
+			SEED_PROJECTNAME=${PROJECTNAME}_SEED_${SEED}
+			SEED_CONFIG_FILE=$(echo "$CONFIG_FILE" | sed -e "s/^seed\s*=.*/seed = $SEED/")
 
-                SEED_SBATCH_COMMAND=$(echo $SBATCH_COMMAND | sed -e "s/$PROJECTNAME/${PROJECTNAME}_SEED_${SEED}/g")
-                echo $SEED_SBATCH_COMMAND
+			SEED_SBATCH_COMMAND=$(echo $SBATCH_COMMAND | sed -e "s/$PROJECTNAME/${PROJECTNAME}_SEED_${SEED}/g")
+			echo $SEED_SBATCH_COMMAND
 
-                continue_old_projects $OOFOLDER $SEED_PROJECTNAME
-                create_config_file $SEED_PROJECTNAME "$SEED_CONFIG_FILE"
-                error_analyze $SEED_PROJECTNAME
-                write_sbatch_command_to_file $SEED_PROJECTNAME "$SEED_SBATCH_COMMAND"
-                start_job $SEED_PROJECTNAME "$SEED_SBATCH_COMMAND"
-                add_to_shell_history $SEED_SBATCH_COMMAND
-        done
+			continue_old_projects $OOFOLDER $SEED_PROJECTNAME
+			create_config_file $SEED_PROJECTNAME "$SEED_CONFIG_FILE"
+			error_analyze $SEED_PROJECTNAME
+			write_sbatch_command_to_file $SEED_PROJECTNAME "$SEED_SBATCH_COMMAND"
+			start_job $SEED_PROJECTNAME "$SEED_SBATCH_COMMAND"
+			add_to_shell_history $SEED_SBATCH_COMMAND
+		done
+	fi
 fi
+
+rm jq

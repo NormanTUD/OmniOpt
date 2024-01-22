@@ -20,10 +20,14 @@ mml () {
         fi
 }
 
-mml modenv/scs5
-mml MongoDB/4.0.3
-mml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-mml gnuplot/5.2.6-GCCcore-8.2.0
+mml release/23.04 2>&1 | grep -v load
+mml MongoDB/4.0.3 2>&1 | grep -v load
+mml GCC/11.3.0 2>&1 | grep -v load
+mml OpenMPI/4.1.4 2>&1 | grep -v load
+mml Hyperopt/0.2.7 2>&1 | grep -v load
+mml matplotlib/3.5.2 2>&1 | grep -v load
+mml GCCcore/11.3.0 2>&1 | grep -v load
+mml gnuplot/5.4.4 2>&1 | grep -v load
 
 
 RANDFILE=$RANDOM.txt

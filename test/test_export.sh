@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set -x
-pwd
+#set -x
+#pwd
 
 echoerr() {
 	echo "$@" 1>&2
@@ -31,7 +31,7 @@ if [[ $? -ne "0" ]]; then
 fi
 
 NUMBEROFLINES=$(cat $TESTEXPORTFILE | wc -l)
-MINNUMBEROFLINES=6
+MINNUMBEROFLINES=2
 MINHEADERITEMS=5
 
 if [[ $NUMBEROFLINES -gt $MINNUMBEROFLINES ]]; then

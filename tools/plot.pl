@@ -41,11 +41,12 @@ sub main {
 
         p 1, "Loading modules...";
         modules_load(
-                "modenv/scs5",
-                "MongoDB/4.0.3",
-                "Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4",
-                "Python/3.7.4-GCCcore-8.3.0",
-                "matplotlib/3.1.1-foss-2019b-Python-3.7.4"
+		"release/23.04",
+		"MongoDB/4.0.3",
+		"GCC/11.3.0",
+		"OpenMPI/4.1.4",
+		"Hyperopt/0.2.7",
+		"matplotlib/3.5.2"
         );
         p 10, "Modules loaded";
 
@@ -135,11 +136,12 @@ Parameters:
 
 Needed modules when --dontloadmodules is specified:
 
-ml modenv/scs5
-ml MongoDB/4.0.3
-ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-ml Python/3.7.4-GCCcore-8.3.0
-ml matplotlib/3.1.1-foss-2019b-Python-3.7.4
+ml release/23.04 2>&1 | grep -v load
+ml MongoDB/4.0.3 2>&1 | grep -v load
+ml GCC/11.3.0 2>&1 | grep -v load
+ml OpenMPI/4.1.4 2>&1 | grep -v load
+ml Hyperopt/0.2.7 2>&1 | grep -v load
+ml matplotlib/3.5.2 2>&1 | grep -v load
 
 EOF
         if($exit) {

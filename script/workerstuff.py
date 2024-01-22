@@ -177,12 +177,15 @@ function myunload {
 
 if hostname | grep -i ml > /dev/null; then
     myload modenv/ml
+    myload Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
+    myload TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 else
-    myload modenv/scs5
+    myload release/23.04 2>&1 | grep -v loaded
+    myload GCC/11.3.0 2>&1 | grep -v loaded
+    myload OpenMPI/4.1.4 2>&1 | grep -v loaded
+    myload Hyperopt/0.2.7 2>&1 | grep -v loaded
+    myload TensorFlow/2.11.0-CUDA-11.7.0 2>&1 | grep -v loaded
 fi
-
-myload Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-myload TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
 PCIBUS=$(python3 -c "import tensorflow as tf; print(tf.test.gpu_device_name())" 2>&1)
 echo $PCIBUS > $THISUUIDFILE
@@ -364,7 +367,7 @@ done
         return start_worker_command
 
 def get_main_start_worker_command(data, project, enable_strace=0, enable_python_trace=0):
-    python3path = linuxstuff.normalize_path('python3.7')
+    python3path = linuxstuff.normalize_path('python3')
 
     python_trace = ''
     if enable_python_trace:

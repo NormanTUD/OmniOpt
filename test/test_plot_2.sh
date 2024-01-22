@@ -10,18 +10,18 @@ module () {
         eval `$LMOD_CMD sh "$@"`
 }
 
-
+ml release/23.04 GCCcore/11.3.0 ImageMagick/7.1.0-37
 
 EXITCODE=0
 
-set -x
+#set -x
 
 export PLOTPATH=$RANDOM.svg
 while [[ -e $PLOTPATH ]]; do
     export PLOTPATH=$RANDOM.svg
 done
 
-perl tools/plot.pl --project=cpu_test2 --projectdir=test/projects/
+perl tools/plot.pl --project=cpu_test2 --projectdir=test/projects/ 2>&1 | grep -v "DEBUG:matplotlib"
 
 convert $PLOTPATH ${PLOTPATH}.png
 

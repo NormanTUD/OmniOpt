@@ -1,3 +1,8 @@
+import logging
+logging.getLogger('matplotlib.font_manager').disabled = True
+pil_logger = logging.getLogger('PIL')
+pil_logger.setLevel(logging.INFO)
+
 import pprint
 import matplotlib
 import matplotlib.pyplot as plt
@@ -22,7 +27,12 @@ def p (percent, status):
         stderr("GAUGESTATUS: %s" % status)
 
 p(11, "Using TkAgg")
-matplotlib.use('TkAgg')
+try:
+    matplotlib.use('TkAgg')
+except:
+    print("Using TkAgg failed. Trying to use Agg...")
+    matplotlib.use('Agg')
+
 p(12, "Used TkAgg")
 print_to_svg = 0
 
@@ -198,8 +208,7 @@ for gpuservername in graph_data:
 fig.autofmt_xdate()
 fig.tight_layout()
 if print_to_svg:
-    graph_width = os.getenv("SVGEXPORTSIZE", 2000)
-    plt.savefig(print_to_svg, format="svg", width=graph_width)
+    plt.savefig(print_to_svg, format="svg")
 else:
     plt.show()
 p(100, "Done")

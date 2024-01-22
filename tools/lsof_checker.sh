@@ -15,4 +15,4 @@ while [[ -e $logfile ]]; do
     logfile="$logpath/lsof_$i.txt"
 done
 
-/usr/sbin/lsof -w -u $USER 2>&1 > $logfile
+lsof -w -u $USER 2>&1 > $logfile

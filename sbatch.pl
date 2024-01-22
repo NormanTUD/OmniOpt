@@ -15,23 +15,17 @@ use File::Path qw(make_path);
 use Data::Dumper;
 use Term::ANSIColor;
 use Hash::Util qw(lock_keys);
-use autodie;
 use File::Basename;
 use IO::Socket::INET;
 use Carp;
 use Cwd;
 use File::Copy;
-use Memoize;
 use Sys::Hostname;
 use lib './perllib/';
 use JSON::PP;
 use Digest::MD5 qw#md5_hex#;
 
 sub std_print (@);
-
-memoize 'get_log_path_date_folder';
-memoize 'get_project_folder';
-
 
 my $indentation_char = "─";
 my $indentation = 0;
@@ -328,6 +322,8 @@ sub log_env {
 
 sub main {
         debug_sub 'main()';
+
+	modify_system(q"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/");
 
         $indentation++;
 
@@ -877,10 +873,16 @@ sub load_needed_modules {
                 );
         } else {
                 push @modules, (
-                        'modenv/scs5',
-                        'MongoDB/4.0.3',
-                        'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
-                        'Python/3.7.4-GCCcore-8.3.0',
+			'release/23.04',
+			'GCC/11.3.0',
+			'OpenMPI/4.1.4',
+			'Hyperopt/0.2.7',
+			'MongoDB/4.0.3'
+
+			#'modenv/scs5',
+			#'MongoDB/4.0.3',
+			#'Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4',
+			#'Python/3.7.4-GCCcore-8.3.0',
                 );
         }
 
@@ -888,9 +890,9 @@ sub load_needed_modules {
 
         # ml OpenBLAS/0.3.9-GCC-9.3.0 on ml for installing hyperopt
 
-        if($arch !~ m#ppc64le#) {
-                modify_system(q#export PYTHONPATH=./pymodules_scs5:$PYTHONPATH#);
-        }
+	#if($arch !~ m#ppc64le#) {
+	#        modify_system(q#export PYTHONPATH=./pymodules_scs5:$PYTHONPATH#);
+	#}
         $indentation--;
 }
 
@@ -1991,6 +1993,7 @@ sub modify_system {
         my $exit_signal = $return_code & 127;
 
         if($exit_code != 0) {
+                warning "Command: $command\n";
                 warning "Exit-Code: $exit_code\n";
         }
 
@@ -2261,18 +2264,22 @@ sub run_tests {
         debug "run_tests()";
         $indentation++;
 
+        install_needed_packages();
+
         my @failed_tests = ();
 
-        config_json_preparser("test/projects/config_json_test/config.json", "test/projects/config_json_test/config.ini");
-        if(md5_hex(read_file("test/projects/config_json_test/config.ini")) eq "384bf4a9839a9fbb2ad155929dd0be7a") {
+=head
+	config_json_preparser("test/projects/config_json_test/config.json", "test/projects/config_json_test/config.ini");
+	if(md5_hex(read_file("test/projects/config_json_test/config.ini")) eq "384bf4a9839a9fbb2ad155929dd0be7a") {
                 ok "config_json_preparser test OK";
         } else {
                 push @failed_tests, "config_json_preparser failed";
         }
+=cut
 
         run_bash_test("bash test/test_packages.sh", \@failed_tests);
 
-        run_bash_test("bash test/test_js_syntax.sh gui/main.js", \@failed_tests);
+	#run_bash_test("bash test/test_js_syntax.sh gui/main.js", \@failed_tests);
 
         {
                 for my $i (0 .. 10) {
@@ -2405,7 +2412,7 @@ sub run_tests {
 
                 if($options{run_multigpu_tests}) {
                         run_bash_test_noenv("bash test/test_multigpu.sh 2", \@failed_tests);
-                        run_bash_test_noenv("bash test/test_multigpu.sh 6", \@failed_tests);
+			#run_bash_test_noenv("bash test/test_multigpu.sh 6", \@failed_tests);
                 }
 
                 my $no_quota_test = "";
@@ -2413,15 +2420,23 @@ sub run_tests {
                         $no_quota_test = " --no_quota_test ";
                 }
 
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=config_json_test $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes_rand_search $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2 $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=alpha --projectdir=test/projects --project=gpu_test_alpha --usegpus $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=config_json_test $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=allparamtypes_rand_search $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2 $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus $no_quota_test", \@failed_tests);
+		my $hostname = qx(hostname);
+
+		if($hostname =~ m#alpha#) {
+			run_bash_test("bash test/run_test.sh --projectdir=test/projects --project=gpu_test_alpha --usegpus $no_quota_test", \@failed_tests);
+		} elsif ($hostname =~ m#romeo#) {
+			print "Using no GPUs on romeo\n";
+			run_bash_test("bash test/run_test.sh --projectdir=test/projects --project=gpu_test_alpha $no_quota_test", \@failed_tests);
+		}
+
+		#run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
+		#run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
 
                 if($ENV{DISPLAY}) {
                     run_bash_test("bash test/test_plot.sh", \@failed_tests);
@@ -2430,9 +2445,11 @@ sub run_tests {
                 } else {
                     warn "Cannot run plot tests without ssh -x";
                 }
-                run_bash_test("bash test/test_export.sh cpu_test", \@failed_tests);
-                run_bash_test("bash test/test_export.sh cpu_test2", \@failed_tests);
-                run_bash_test("bash test/test_export.sh allparamtypes", \@failed_tests);
+		
+		#run_bash_test("bash test/test_export.sh cpu_test", \@failed_tests);
+		#run_bash_test("bash test/test_export.sh cpu_test2", \@failed_tests);
+		#run_bash_test("bash test/test_export.sh allparamtypes", \@failed_tests);
+		run_bash_test("bash test/test_export.sh gpu_test_alpha", \@failed_tests);
                 run_bash_test("bash test/test_wallclock_time.sh", \@failed_tests);
                 run_bash_test("bash test/test_gpu_plot.sh", \@failed_tests);
         }

@@ -17,6 +17,8 @@ export LOAD_MODULES=1
 export UPGRADE=1
 export SEPERATOR=";"
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/
+
 source tools/general.sh
 
 mkdir -p debuglogs
@@ -1051,7 +1053,12 @@ button=black,white
 }
 
 function plot_multiple_projects {
-    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
+    PROJECTS=$(ls $PROJECTDIR/*/config.ini 2>/dev/null | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
+
+    if [[ -z "$PROJECTS" ]]; then
+	error_message "No projects found (plot_multiple_projects)"
+	return
+    fi
 
     PROJECTS_STRING=""
 
@@ -1112,7 +1119,12 @@ function restart_old_jobs {
 }
 
 function csv_multiple_projects {
-    PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
+    PROJECTS=$(ls $PROJECTDIR/*/config.ini 2>/dev/null | sed -e "s#$PROJECTDIR/##" | sed -e 's#/config.ini##')
+
+    if [[ -z "$PROJECTS" ]]; then
+	error_message "No projects found (csv_multiple_projects)"
+	return
+    fi
 
     PROJECTS_STRING=""
 
@@ -1494,12 +1506,17 @@ function change_variables {
 }
 
 function list_projects {
-    AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/config.ini 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/config.ini##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+
+	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
+		echo "No projects found (list_projects)"
+	fi
+
 	eval `resize`
 
-    # REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
-    # "s)" "List running SLURM jobs"
-    WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "p)" "Plot multiple projects" "R)" "Restart old jobs" "C)" "CSV from multiple projects" "c)" "Change the project dir" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
+	# REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
+	# "s)" "List running SLURM jobs"
+	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "p)" "Plot multiple projects" "R)" "Restart old jobs" "C)" "CSV from multiple projects" "c)" "Change the project dir" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
@@ -1507,23 +1524,23 @@ function list_projects {
 			change_project_dir
 			main
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
-            plot_multiple_projects
+			plot_multiple_projects
 			main
 		elif [[ "$WHATTODO" =~ "C)" ]]; then
-            csv_multiple_projects
+			csv_multiple_projects
 			main
 		elif [[ "$WHATTODO" =~ "R)" ]]; then
-            restart_old_jobs
+			restart_old_jobs
 			main
 		elif [[ "$WHATTODO" =~ "S)" ]]; then
-            spin_up_temporary_webserver . ""
+			spin_up_temporary_webserver . ""
 			main
 		elif [[ "$WHATTODO" =~ "s)" ]]; then
 			list_running_slurm_jobs
 			main
 		elif [[ "$WHATTODO" =~ "v)" ]]; then
-            change_variables
-            main
+			change_variables
+			main
 		elif [[ "$WHATTODO" =~ "t)" ]]; then
 			perl sbatch.pl --run_tests --debug && info_message "All tests ok." || error_message "At least one of the tests failed."
 			main
@@ -1595,16 +1612,6 @@ if [[ $sourced == "0" ]]; then
         fi
     fi
 
-    if ! hostname | grep tauruslogin 2>/dev/null >/dev/null; then
-        export THISHOSTNAME=$(hostname | sed -e 's/\..*//')
-        if (whiptail --title "Not on login-node" --yes-button "Continue on $THISHOSTNAME" --no-button "No, do not continue on $THISHOSTNAME" --yesno "It is strongly recommended that this script only get's run at login-nodes and not on compute nodes and you seem to be on a compute-node ($THISHOSTNAME). Are you sure you want to continue?" 10 140); then
-            echo_green "Continue on $THISHOSTNAME"
-        else
-            echo_red "Don't continue on $THISHOSTNAME"
-            exit 11
-        fi
-    fi
-
     if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
         if [[ "$UPGRADE" == "1" ]]; then
             ASKEDTOUPGRADE=1
@@ -1635,7 +1642,7 @@ if [[ $sourced == "0" ]]; then
         fi
     fi
 
-    modules_to_load=(modenv/scs5 Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4 MongoDB/4.0.3)
+    modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4 Hyperopt/0.2.7)
 
     load_percent=0
     let stepsize=100/${#modules_to_load[*]}
@@ -1643,30 +1650,30 @@ if [[ $sourced == "0" ]]; then
     if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
         set +x
         (
-            for this_module in ${modules_to_load[*]}; do
-                let load_percent=$load_percent+$stepsize
-                echo "XXX"
-                echo $load_percent
-                echo "Loading modules... ($this_module...)"
-                echo "XXX"
-                if ! ml is-loaded $this_module; then
-                    ml $this_module 2>/dev/null
-                fi
-            done
+		for this_module in ${modules_to_load[*]}; do
+		let load_percent=$load_percent+$stepsize
+		echo "XXX"
+		echo $load_percent
+		echo "Loading modules... ($this_module...)"
+		echo "XXX"
+			if ! ml is-loaded $this_module; then
+				ml $this_module 2>/dev/null
+			fi
+		done
         ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
 
-        if [[ "$DEBUG" -eq "1" ]]; then
-            set -x
-        fi
-    else
-        if [[ "$LOAD_MODULES" -eq "1" ]]; then
-            for this_module in ${modules_to_load[*]}; do
-                if ! ml is-loaded $this_module; then
-                    ml $this_module 2>/dev/null
-                fi
-            done
-        fi
-    fi
+	if [[ "$DEBUG" -eq "1" ]]; then
+		set -x
+	fi
+	else
+		if [[ "$LOAD_MODULES" -eq "1" ]]; then
+			for this_module in ${modules_to_load[*]}; do
+				if ! ml is-loaded $this_module; then
+					ml $this_module 2>/dev/null
+				fi
+			done
+		fi
+	fi
 
 	main
 fi

@@ -198,6 +198,13 @@ function isNumericList(str) {
 }
 
 function isNumeric(str) {
+	if(str === 0) {
+		return true;
+	}
+
+	if(typeof str == "number") {
+		return str;
+	}
 	if (typeof str != "string") return false;
 	return !isNaN(str) && !isNaN(parseFloat(str));
 }
@@ -406,18 +413,25 @@ function update_config () {
 				}
 
 			} else if(this_type == "hp.choicestep") {
-				var this_min_dim = $("#choiceint_" + i + "_min").val();
-				var this_max_dim = $("#choiceint_" + i + "_max").val();
-				var this_step = $("#choiceint_" + i + "_step").val();
-				if(isNumeric(this_max_dim) && isNumeric(this_min_dim) && isNumeric(this_step)) {
-					if(parseInt(this_min_dim) <= parseInt(this_max_dim)) {
+				var this_min = parseInt($("#choiceint_" + i + "_min").val());
+				var this_max = parseInt($("#choiceint_" + i + "_max").val());
+				var this_step = parseInt($("#choiceint_" + i + "_step").val());
+
+				if(this_min > this_max) {
+					var tmp = this_min;
+					this_min = this_max;
+					this_max = tmp;
+				}
+
+				if(isNumeric(this_max) && isNumeric(this_min) && isNumeric(this_step)) {
+					if(parseInt(this_min) <= parseInt(this_max)) {
 						var numberArray = [];
-						for (var j = parseInt(this_min_dim); j <= parseInt(this_max_dim); j++) {
+						for (var j = parseInt(this_min); j <= parseInt(this_max); j++) {
 							    numberArray.push(j);
 						}
 
-						config_string += "min_dim_" + i + " = " + this_min_dim + "\n";
-						config_string += "max_dim_" + i + " = " + this_max_dim + "\n";
+						config_string += "min_dim_" + i + " = " + this_min + "\n";
+						config_string += "max_dim_" + i + " = " + this_max + "\n";
 						config_string += "step_dim_" + i + " = " + this_step + "\n";
 					} else {
 						config_string += "# !!! Parameter " + this_parameter_name_string + " min-value is not smaller or equal to max value\n";
@@ -427,12 +441,21 @@ function update_config () {
 					config_string += no_value_str(i, this_parameter_name_string, "");
 				}
 			} else if(this_type == "hp.choiceint") {
-				var this_min_dim = $("#choiceint_" + i + "_min").val();
-				var this_max_dim = $("#choiceint_" + i + "_max").val();
-				if(isNumeric(this_max_dim) && isNumeric(this_min_dim)) {
-					if(parseInt(this_min_dim) <= parseInt(this_max_dim)) {
+				var this_min = parseFloat($("#choiceint_" + i + "_min").val());
+				var this_max = parseFloat($("#choiceint_" + i + "_max").val());
+
+				if(this_min > this_max) {
+					var tmp = this_min;
+					this_min = this_max;
+					this_max = tmp;
+				}
+
+				log("min/max:", this_min, this_max);
+
+				if(isNumeric(this_max) && isNumeric(this_min)) {
+					if(parseInt(this_min) <= parseInt(this_max)) {
 						var numberArray = [];
-						for (var j = parseInt(this_min_dim); j <= parseInt(this_max_dim); j++) {
+						for (var j = parseInt(this_min); j <= parseInt(this_max); j++) {
 							    numberArray.push(j);
 						}
 						var pseudostring = numberArray.join(",");
@@ -446,10 +469,10 @@ function update_config () {
 					config_string += no_value_str(i, this_parameter_name_string, "");
 				}
 			} else if(this_type == "hp.randint") {
-				var this_max_dim = $("#randint_" + i + "_max").val();
-				if(isNumeric(this_max_dim) && this_max_dim >= 0) {
-					if(parseInt(this_max_dim) == this_max_dim) {
-						config_string += "max_dim_" + i + " = " + this_max_dim + "\n";
+				var this_max =  $("#randint_" + i + "_max").val();
+				if(isNumeric(this_max) && this_max >= 0) {
+					if(parseInt(this_max) == this_max) {
+						config_string += "max_dim_" + i + " = " + this_max + "\n";
 					} else {
 						config_string += no_value_str(i, this_parameter_name_string, "integer");
 					}
@@ -460,6 +483,12 @@ function update_config () {
 				var this_min = $("#min_" + i).val();
 				var this_max = $("#max_" + i).val();
 				var this_q = $("#q_" + i).val() ;
+
+				if(this_min > this_max) {
+					var tmp = this_min;
+					this_min = this_max;
+					this_max = tmp;
+				}
 
 				if(isNumeric(this_min)) {
 					config_string += "min_dim_" + i + " = " + this_min + "\n";
@@ -481,6 +510,12 @@ function update_config () {
 			} else if(this_type == "hp.loguniform" || this_type == "hp.uniform" || this_type == "hp.uniformint") {
 				var this_min = $("#min_" + i).val();
 				var this_max = $("#max_" + i).val();
+
+				if(this_min > this_max) {
+					var tmp = this_min;
+					this_min = this_max;
+					this_max = tmp;
+				}
 
 				if(isNumeric(this_min)) {
 					config_string += "min_dim_" + i + " = " + this_min + "\n";
@@ -512,6 +547,12 @@ function update_config () {
 				var this_min = $("#min_" + i).val();
 				var this_max = $("#max_" + i).val();
 				var this_q = $("#q_" + i).val();
+
+				if(this_min > this_max) {
+					var tmp = this_min;
+					this_min = this_max;
+					this_max = tmp;
+				}
 
 				if(isNumeric(this_min)) {
 					config_string += "min_dim_" + i + " = " + this_min + "\n";
@@ -739,10 +780,13 @@ function update_config () {
 								number_of_allocated_gpus = max_number_of_gpus;
 							}
 
+							var has_cpus_per_task = false;
+
 							if(enable_gpus == 1) {
 								if(number_of_gpus == 1) {
 									sbatch_string += " --cpus-per-task=" + number_of_cpus_per_worker + " \\\n"
 									sbatch_string += " --gres=gpu:" + number_of_allocated_gpus + " \\\n --gpus-per-task=1 \\\n";
+									has_cpus_per_task = true;
 								}
 							}
 
@@ -766,7 +810,9 @@ function update_config () {
 
 							if($("#number_of_cpus_per_worker").val()) {
 								if(parseInt($("#number_of_gpus").val()) >= 1 && $("#enable_gpus").is(":checked")) {
-									sbatch_string += "\\\n --cpus-per-task=" + $("#number_of_cpus_per_worker").val();
+									if(has_cpus_per_task) {
+										sbatch_pl_params += "\\\n --srun_cpus_per_task=" + $("#number_of_cpus_per_worker").val();
+									}
 								} else {
 									sbatch_pl_params += "\\\n --srun_cpus_per_task=" + $("#number_of_cpus_per_worker").val();
 								}
@@ -782,7 +828,12 @@ function update_config () {
 								sbatch_pl_params += " --overlap \\\n";
 							}
 
-							sbatch_string += " sbatch.pl --project=" + projectname + " \\\n";
+							if(partition == "barnard") {
+								sbatch_string += " run.sh --project=" + projectname + " \\\n";
+							} else {
+								sbatch_string += " sbatch.pl --project=" + projectname + " \\\n";
+							}
+
 							if(enable_debug == 1) {
 								sbatch_string += " --debug";
 							}
@@ -813,10 +864,6 @@ function update_config () {
 							} else {
 								sbatch_string += "\\\n" + " --num_gpus_per_worker=0 ";
 							}
-
-
-
-
 
 							sbatch_string = sbatch_string.replace(/ {2,}/g, ' ');
 							var sbatch_string_no_newlines = sbatch_string.replace(/\\+\n/g, ' ');
@@ -899,18 +946,18 @@ function get_select_type (i) {
 	return "<input class='parameter_input' type='text' onkeyup='update_url_param(\"param_" + i + "_name\", this.value)' placeholder='Name of this parameter' id='parameter_" + i + "_name' value='" + get_url_param("param_" + i + "_name") + "' /><br /><span id='param_" + i + "_duplicate_name_error' class='name_error' style='display: none'></span><span id='param_" + i + "_invalid_name_error' class='name_error' style='display: none'></span>" +
 		"<select class='parameter_input' id='type_" + i + "' onchange='change_parameter_and_url(" + i + ", this)'>" +
 		"\t<option value='hp.randint' " + (get_url_param("param_" + i + "_type") == "hp.randint" ? ' selected="true" ' : '') + ">randint: Integer between 0 and a given maximal number</option>" +
-		"\t<option value='' disabled='disabled'>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>\n" +
+		"\t<option value='' disabled='disabled'>&mdash;</option>\n" +
 		"\t<option value='hp.choice' " + (get_url_param("param_" + i + "_type") == "hp.choice" ? ' selected="true" ' : '') + ">choice: One of the given options, separated by comma</option>" +
 		"\t<option value='hp.pchoice' " + (get_url_param("param_" + i + "_type") == "hp.pchoice" ? ' selected="true" ' : '') + ">pchoice: One of the given options with a given probability, separated by comma</option>" +
 		"\t<option value='hp.choiceint' " + (get_url_param("param_" + i + "_type") == "hp.choiceint" ? ' selected="true" ' : '') + ">choiceint: A pseudo-generator for hp.choice, for using integers between a and b</option>" +
 		"\t<option value='hp.choicestep' " + (get_url_param("param_" + i + "_type") == "hp.choicestep" ? ' selected="true" ' : '') + ">choicestep: A pseudo-generator for hp.choice, for using integers between a and b with a certain step size</option>" +
-		"\t<option value='' disabled='disabled'>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>\n" +
+		"\t<option value='' disabled='disabled'>&mdash;</option>\n" +
 		"\t<option value='hp.uniform' " + (get_url_param("param_" + i + "_type") == "hp.uniform" ? ' selected="true" ' : '') + ">uniform: Uniformly distributed value between two values</option>" +
 		"\t<option value='hp.uniformint' " + (get_url_param("param_" + i + "_type") == "hp.uniformint" ? ' selected="true" ' : '') + ">uniformint: Uniformly distributed integer value between two values</option>" +
 		"\t<option value='hp.quniform' " + (get_url_param("param_" + i + "_type") == "hp.quniform" ? ' selected="true" ' : '') + "'>quniform: Values like round(uniform(min, max)/q)&#8901;q</option>" +
 		"\t<option value='hp.loguniform' " + (get_url_param("param_" + i + "_type") == "hp.loguniform" ? ' selected="true" ' : '') + "'>loguniform: Values so that the log of the value is uniformly distributed</option>" +
 		"\t<option value='hp.qloguniform' " + (get_url_param("param_" + i + "_type") == "hp.qloguniform" ? ' selected="true" ' : '') + "'>qloguniform: Values like round(exp(uniform(min, max))/q) &#8901;q</option>" +
-		"\t<option value='' disabled='disabled'>â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€</option>\n" +
+		"\t<option value='' disabled='disabled'>&mdash;</option>\n" +
 		"\t<option value='hp.normal' " + (get_url_param("param_" + i + "_type") == "hp.normal" ? ' selected="true" ' : '') + "'>normal: Real values that are normally distributed with Mean &mu; and Standard deviation &sigma;</option>" +
 		"\t<option value='hp.qnormal' " + (get_url_param("param_" + i + "_type") == "hp.qnormal" ? ' selected="true" ' : '') + "'>qnormal: Values like round(normal(&mu;, &sigma;)/q)&#8901;q</option>" +
 		"\t<option value='hp.lognormal' " + (get_url_param("param_" + i + "_type") == "hp.lognormal" ? ' selected="true" ' : '') + ">lognormal: Values so that the logarithm of normal(&mu;, &sigma;) is normally distributed</option>" +
@@ -1063,33 +1110,33 @@ function add_listener(id, func) {
 }
 
 function parseINIString(data){
-    var regex = {
-        section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
-        param: /^\s*([^=]+?)\s*=\s*(.*?)\s*$/,
-        comment: /^\s*;.*$/
-    };
-    var value = {};
-    var lines = data.split(/[\r\n]+/);
-    var section = null;
-    lines.forEach(function(line){
-        if(regex.comment.test(line)) {
-            return;
-        } else if(regex.param.test(line)) {
-            var match = line.match(regex.param);
-            if(section) {
-                value[section][match[1]] = match[2];
-            } else {
-                value[match[1]] = match[2];
-            }
-        } else if (regex.section.test(line)) {
-            var match = line.match(regex.section);
-            value[match[1]] = {};
-            section = match[1];
-        } else if (line.length == 0 && section) {
-            section = null;
-        };
-    });
-    return value;
+	var regex = {
+		section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
+	param: /^\s*([^=]+?)\s*=\s*(.*?)\s*$/,
+	comment: /^\s*;.*$/
+	};
+	var value = {};
+	var lines = data.split(/[\r\n]+/);
+	var section = null;
+	lines.forEach(function(line){
+		if(regex.comment.test(line)) {
+			return;
+		} else if(regex.param.test(line)) {
+			var match = line.match(regex.param);
+			if(section) {
+				value[section][match[1]] = match[2];
+			} else {
+				value[match[1]] = match[2];
+			}
+		} else if (regex.section.test(line)) {
+			var match = line.match(regex.section);
+			value[match[1]] = {};
+			section = match[1];
+		} else if (line.length == 0 && section) {
+			section = null;
+		};
+	});
+	return value;
 }
 
 function set_if_exists(data, category, name, id) {

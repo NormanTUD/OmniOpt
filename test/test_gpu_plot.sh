@@ -12,23 +12,21 @@ module () {
         eval `$LMOD_CMD sh "$@"`
 }
 
-
-
-set -ex
-
 export PLOTPATH=$RANDOM.svg
 while [[ -e $PLOTPATH ]]; do
     export PLOTPATH=$RANDOM.svg
 done
 
-ml purge
-ml modenv/scs5
-ml MongoDB/4.0.3
-ml Hyperopt/0.2.2-fosscuda-2019b-Python-3.7.4
-ml Python/3.7.4-GCCcore-8.3.0
-ml matplotlib/3.1.1-foss-2019b-Python-3.7.4
+module --force purge
 
-python3 script/plot_gpu.py gpu_test test/gpu_plot_data/
+ml release/23.04
+ml MongoDB/4.0.3
+ml GCC/11.3.0
+ml OpenMPI/4.1.4
+ml Hyperopt/0.2.7
+ml matplotlib/3.5.2
+
+python3 script/plot_gpu.py gpu_test_alpha test/gpu_plot_data/
 
 if grep "Utilization" $PLOTPATH; then
     if grep "gpu_test" $PLOTPATH; then

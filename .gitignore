@@ -1,0 +1,12 @@
+curl_commands/
+debuglogs/
+projects/
+sbatch_commands/
+script/__pycache__/
+slurm-*.out
+*.csv
+logfile.txt
+.*.log
+gui/**/*.swp
+gui/**/*.pl~
+

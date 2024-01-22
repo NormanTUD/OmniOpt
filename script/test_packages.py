@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import sys
+
 import argparse
 import ast
 import codechecker
@@ -18,9 +20,6 @@ import linuxstuff
 import logging
 import logstuff
 import math
-import matplotlib
-import matplotlib.dates as md
-import matplotlib.pyplot as plt
 import mongo_db_objective
 import mongostuff
 import mydebug
@@ -78,5 +77,8 @@ from signal import signal, SIGPIPE, SIG_DFL
 from subprocess import Popen, PIPE
 from termcolor import colored
 from urllib.parse import urlparse
+import matplotlib
+import matplotlib.dates as md
+import matplotlib.pyplot as plt
 
 print("loading worked")

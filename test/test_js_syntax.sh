@@ -9,7 +9,8 @@ module () {
         eval `$LMOD_CMD sh "$@"`
 }
 
-ml nodejs/12.16.1
+ml release/23.04 GCCcore/11.2.0 nodejs/14.17.6
+
 node --check $1
 
 exit $?

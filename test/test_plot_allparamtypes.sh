@@ -2,14 +2,24 @@
 
 EXITCODE=0
 
-set -x
-
 export PLOTPATH=$RANDOM.svg
 while [[ -e $PLOTPATH ]]; do
     export PLOTPATH=$RANDOM.svg
 done
 
-perl tools/plot.pl --project=allparamtypes --projectdir=test/projects/
+LMOD_DIR=/usr/share/lmod/lmod/libexec/
+LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
+
+ml () {
+        eval $($LMOD_DIR/ml_cmd "$@")
+}
+module () {
+        eval `$LMOD_CMD sh "$@"`
+}
+
+ml release/23.04 GCCcore/11.3.0 ImageMagick/7.1.0-37
+
+perl tools/plot.pl --project=allparamtypes --projectdir=test/projects/ 2>&1 | grep -v "DEBUG:matplotlib"
 
 convert $PLOTPATH ${PLOTPATH}.png
 

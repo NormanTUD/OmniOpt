@@ -14,7 +14,7 @@ ml () {
 	eval $($LMOD_DIR/ml_cmd "$@")
 }
 
-ml MongoDB/4.0.3
+ml MongoDB/4.0.3 2>&1 | grep -v loaded
 
 function echo_red {
 	echo -e "\e[31m$1\e[0m"

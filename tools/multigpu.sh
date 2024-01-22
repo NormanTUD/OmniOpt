@@ -181,7 +181,10 @@ thislogpath=$(echo "$thislogpath" | sed -e 's#//#/#g')
 
 gpu_string=""
 
+echo "hostname (multigpu.sh): $(hostname)"
+
 if [[ "$num_gpus" -lt "2" ]]; then
+
         bash $programfile > "$thislogpath"
 else
         declare -a RESET_VARIABLES=(

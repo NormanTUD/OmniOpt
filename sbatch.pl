@@ -2426,7 +2426,15 @@ sub run_tests {
 		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test $no_quota_test", \@failed_tests);
 		#run_bash_test("bash test/run_test.sh --partition=haswell --projectdir=test/projects --project=cpu_test2 $no_quota_test", \@failed_tests);
 		#run_bash_test("bash test/run_test.sh --partition=ml --projectdir=test/projects --project=gpu_test --usegpus $no_quota_test", \@failed_tests);
-                run_bash_test("bash test/run_test.sh --partition=alpha --projectdir=test/projects --project=gpu_test_alpha --usegpus $no_quota_test", \@failed_tests);
+		my $hostname = qx(hostname);
+
+		if($hostname =~ m#alpha#) {
+			run_bash_test("bash test/run_test.sh --projectdir=test/projects --project=gpu_test_alpha --usegpus $no_quota_test", \@failed_tests);
+		} elsif ($hostname =~ m#romeo#) {
+			print "Using no GPUs on romeo\n";
+			run_bash_test("bash test/run_test.sh --projectdir=test/projects --project=gpu_test_alpha $no_quota_test", \@failed_tests);
+		}
+
 		#run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
 		#run_bash_test("bash test/run_test.sh --partition=gpu2 --projectdir=test/projects --project=gpu_test_gpu2 --usegpus $no_quota_test", \@failed_tests);
 

@@ -12,7 +12,6 @@ function help () {
         echo "  --no_quota_test                                 Disables quota-test"
         echo "  --project=PROJECTNAME                           Using this project"
         echo "  --projectdir=PROJECTDIR                         Using this projectdir"
-        echo "  --partition=PARTITION                           Partition name"
         echo "  --usegpus(=num)                                 Use GPUs, if num not specified use 1"
         echo "  --help                                          this help"
         echo "  --time=HH:MM:SS                                 Defaults to 01:00:00"
@@ -22,7 +21,6 @@ function help () {
 export quota_tests=1
 export nocountdown=0
 export project=
-export partition=
 export projectdir=test/projects/
 export usegpus=0
 export timeparam_str="01:00:00"
@@ -49,10 +47,6 @@ for i in $@; do
                         usegpus=1
                         shift
                         ;;
-                --partition=*)
-                        partition="${i#*=}"
-                        shift
-                        ;;
                 --project=*)
                         project="${i#*=}"
                         shift
@@ -74,11 +68,6 @@ for i in $@; do
         esac
 done
 
-
-if [[ -z $partition ]]; then
-        echo "--partition is empty"
-        exit 1
-fi
 
 if [[ -z $projectdir ]]; then
         echo "--projectdir is empty"
@@ -152,11 +141,6 @@ job_still_running () {
         fi
 }
 
-if ! sinfo --noheader -p $partition | grep -v resv 2>/dev/null >/dev/null; then
-        echo "$partition partition has no available nodes, not doing this test"
-        exit 5
-fi
-
 GPU_STRING=""
 
 if [[ "$usegpus" -ne "0" ]]; then
@@ -164,7 +148,7 @@ if [[ "$usegpus" -ne "0" ]]; then
         sbatch_gpu="--num_gpus_per_worker=$usegpus"
 fi
 
-export SBATCH_RESULT=$(sbatch -J $project --cpus-per-task=4 $GPU_STRING --ntasks=1 --time=$timeparam_str --mem-per-cpu=2000 --partition=$partition -o $THISLOGPATH sbatch.pl --project=$project --projectdir=$projectdir --partition=$partition $sbatch_gpu --no_quota_test)
+export SBATCH_RESULT=$(sbatch -J $project --cpus-per-task=4 $GPU_STRING --ntasks=1 --time=$timeparam_str --mem-per-cpu=2000 -o $THISLOGPATH sbatch.pl --project=$project --projectdir=$projectdir $sbatch_gpu --no_quota_test)
 export SBATCH_ID=$(echo $SBATCH_RESULT | sed -e 's/.* job //')
 
 if [[ -z "$SBATCH_ID" ]]; then

@@ -15,7 +15,6 @@ use File::Path qw(make_path);
 use Data::Dumper;
 use Term::ANSIColor;
 use Hash::Util qw(lock_keys);
-use autodie;
 use File::Basename;
 use IO::Socket::INET;
 use Carp;

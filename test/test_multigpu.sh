@@ -13,7 +13,14 @@ echo "Trying multigpu.sh for $NUMGPUS GPUs"
 
 JOBNAME=multigpu_test_${NUMGPUS}
 
-RESULT=$(bash tools/multigpu.sh --jobname=$JOBNAME --partition=alpha --num_gpus=$NUMGPUS --force_redo --maxtime=00:05:00 --programfile=test/list_num_of_gpus.sh | grep Num | sed -e 's/.*: //')
+HOSTNAME=$(hostname)
+
+if [[ $HOSTNAME =~ "romeo" ]]; then
+	echo "Romeo has no GPUs"
+	NUMGPUS=0
+fi
+
+RESULT=$(bash tools/multigpu.sh --jobname=$JOBNAME --num_gpus=$NUMGPUS --force_redo --maxtime=00:05:00 --programfile=test/list_num_of_gpus.sh | grep "Num" | sed -e 's/.*: //')
 
 echo "RESULT >>>"
 echo "$RESULT"

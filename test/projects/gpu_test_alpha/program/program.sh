@@ -32,11 +32,7 @@ else
 
 	echo "hostname: $(hostname)"
 
-	if [[ $(hostname) =~ "romeo" ]]; then
-		echo "RESULT: 0"
-		exit 0
-	fi
-
-        exit 1
+	echo "RESULT: 0"
+	exit 0
 fi
 

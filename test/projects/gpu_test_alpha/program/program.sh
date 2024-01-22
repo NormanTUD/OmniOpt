@@ -30,6 +30,8 @@ if echo $PCI_ID | egrep "pci bus id: ([0-9]*:?)+.[0-9]*" >/dev/null 2>/dev/null;
 else
         echo "NO GPU FOUND"
 
+	echo "hostname: $(hostname)"
+
 	if [[ $(hostname) =~ "romeo" ]]; then
 		echo "RESULT: 0"
 		exit 0

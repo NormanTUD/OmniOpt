@@ -135,7 +135,7 @@ def objective_function_mongodb(parameter):
         if os.path.exists(home + "/.oo_multigpu_debug"):
             debug_string = " --debug "
 
-        run_code = "bash %s/tools/multigpu.sh --projectfolder=%s --logfolder=%s --partition=%s --account=%s --reservation=%s --num_gpus=%d --programfile='%s' --jobname=%s --cpus_per_task=%d %s" % (maindir, logfolder, singlelogs_path, params["partition"], params["account"], params["reservation"], int(params["num_gpus_per_worker"]), program_file, md5ofjob, params["cpus_per_task"], debug_string)
+        run_code = "bash %s/tools/multigpu.sh --projectfolder=%s --logfolder=%s --account=%s --reservation=%s --num_gpus=%d --programfile='%s' --jobname=%s --cpus_per_task=%d %s" % (maindir, logfolder, singlelogs_path, params["account"], params["reservation"], int(params["num_gpus_per_worker"]), program_file, md5ofjob, params["cpus_per_task"], debug_string)
 
         try:
             res = workerstuff.run_program(run_code, log_files)

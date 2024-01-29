@@ -1,0 +1,296 @@
+program_name = "OmniAx"
+
+try:
+    import re
+    import sys
+    import argparse
+    from pprint import pprint
+    import subprocess
+
+    import logging
+    logging.basicConfig()
+    logging.getLogger('foo').setLevel(logging.WARNING)
+except KeyboardInterrupt:
+    sys.exit(0)
+
+class bcolors:
+    header = '\033[95m'
+    blue = '\033[94m'
+    cyan = '\033[96m'
+    green = '\033[92m'
+    warning = '\033[93m'
+    fail = '\033[91m'
+    red = '\033[91m'
+    endc = '\033[0m'
+    bold = '\033[1m'
+    underline = '\033[4m'
+
+def print_color (color, text):
+    col = eval(f"bcolors.{color}");
+    print(f"{col}{text}{bcolors.endc}")
+
+def dier (msg):
+    pprint(msg)
+    sys.exit(2)
+
+def parse_experiment_parameters(args):
+    params = []
+
+    i = 0
+
+    while i < len(args):
+        this_args = args[i]
+        j = 0
+        while j < len(this_args):
+            name = this_args[j]
+
+            param_type = this_args[j + 1]
+
+            valid_types = ["range", "fixed", "choice", "string"]
+            valid_types_string = ', '.join(valid_types)
+
+            if param_type not in valid_types:
+                print_color("red", f"Invalid type {param_type}, valid types are: {valid_types_string}")
+                sys.exit(3)
+
+            if param_type == "range":
+                if len(this_args) != 5 and len(this_args) != 4:
+                    print_color("red", f"--parameter for type range must have 5 parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    sys.exit(11)
+
+                try:
+                    lower_bound = float(this_args[j + 2])
+                except:
+                    print_color("red", f"{this_args[j + 2]} does not seem to be a number")
+                    sys.exit(4)
+
+                try:
+                    upper_bound = float(this_args[j + 3])
+                except:
+                    print_color("red", f"{this_args[j + 3]} does not seem to be a number")
+                    sys.exit(5)
+
+                skip = 5
+
+                try:
+                    value_type = this_args[j + 4]
+                except:
+                    value_type = "float"
+                    skip = 4
+
+                #valid_value_types = ["int", "float", "bool", "str"]
+                valid_value_types = ["int", "float"]
+
+                if value_type not in valid_value_types:
+                    ", ".join(valid_value_types)
+                    print_color("red", f"{value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+                    sys.exit(10)
+
+                param = {
+                    "name": name,
+                    "type": param_type,
+                    "bounds": [lower_bound, upper_bound],
+                    "value_type": value_type
+                }
+
+                params.append(param)
+
+                j += skip
+            else:
+                print_color("red", f"{param_type} not yet implemented.");
+                j += 4
+        i += 1
+
+    return params
+
+print_color("green", program_name)
+
+parser = argparse.ArgumentParser(
+    prog=program_name,
+    description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
+    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --partition=\"alpha\" --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize"
+)
+
+parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
+parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
+parser.add_argument('--timeout_min', help='Timeout for slurm jobs', type=int, default=60)
+parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+parser.add_argument('--partition', help='Name of the partition it should run on', type=str, required=True)
+parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
+
+args = parser.parse_args()
+
+experiment_parameters = parse_experiment_parameters(args.parameter)
+
+print_color("blue", "Experiment Parameters:")
+for param in experiment_parameters:
+    print_color("blue", f"Name: {param['name']}, Type: {param['type']}, Bounds: {param['bounds']}, Type: {param['value_type']}")
+
+def replace_parameters_in_string(parameters, input_string):
+    try:
+        for param_item in parameters:
+            print("param_item:", param_item)
+            input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
+
+        return input_string
+    except Exception as e:
+        print_color("red", f"Error: {e}")
+        return None
+
+def execute_bash_code(code):
+    try:
+        result = subprocess.run(code, shell=True, check=True, text=True, capture_output=True)
+
+        if result.returncode != 0:
+            print(f"Exit-Code: {result.returncode}")
+
+        return result.stdout
+
+    except subprocess.CalledProcessError as e:
+        print(f"Fehler beim Ausführen des Bash-Codes. Exit-Code: {e.returncode}")
+        print(f"Fehlerausgabe: {e.stderr}")
+        return None
+
+def get_result (input_string):
+    try:
+        pattern = r'RESULT:\s*(-?\d+(?:\.\d+)?)'
+
+        match = re.search(pattern, input_string)
+
+        if match:
+            result_number = float(match.group(1))
+            return result_number
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Fehler beim Extrahieren der Zahl: {e}")
+        return None
+
+def evaluate(parameters):
+    global experiment_parameters
+
+    x = parameters["x"]
+    y = parameters["y"]
+
+    print("parameters:", parameters)
+
+    program_string_with_params = replace_parameters_in_string(parameters, args.run_program)
+
+    print_color("green", program_string_with_params)
+
+    output = execute_bash_code(program_string_with_params)
+
+    print(output)
+
+    result = get_result(output)
+
+    print(f"Result: {result}")
+
+    if result:
+        return {"result": float(result)}
+    else:
+        return {"result": None}
+
+try:
+    import time
+    try:
+        import ax
+        from ax.service.ax_client import AxClient, ObjectiveProperties
+        from ax.service.utils.report_utils import exp_to_df
+    except:
+        print_color("red", "ax could not be loaded. Did you create and load the virtual environment properly?")
+        sys.exit(8)
+
+    try:
+        import submitit
+        from submitit import AutoExecutor, LocalJob, DebugJob
+    except:
+        print_color("red", "submitit could not be loaded. Did you create and load the virtual environment properly?")
+        sys.exit(9)
+
+except KeyboardInterrupt:
+    sys.exit(0)
+
+try:
+    ax_client = AxClient(verbose_logging=args.verbose)
+
+    minimize = not args.maximize
+
+    if args.experiment_constraints:
+        ax_client.create_experiment(
+            name="my_experiment",
+            parameters=experiment_parameters,
+            objectives={"result": ObjectiveProperties(minimize=minimize)},
+            parameter_constraints=[args.experiment_constraints]
+        )
+    else:
+        ax_client.create_experiment(
+            name="my_experiment",
+            parameters=experiment_parameters,
+            objectives={"result": ObjectiveProperties(minimize=minimize)}
+        )
+
+    log_folder = "log_test/%j"
+    executor = submitit.AutoExecutor(folder=log_folder)
+
+    executor.update_parameters(
+        timeout_min=args.timeout_min,
+        slurm_partition=args.partition,
+        slurm_gres=f"gpu:{args.gpus}",
+        cpus_per_task=args.cpus_per_task
+    )
+
+    jobs = []
+    submitted_jobs = 0
+    # Run until all the jobs have finished and our budget is used up.
+    while submitted_jobs < args.max_eval or jobs:
+        for job, trial_index in jobs[:]:
+            # Poll if any jobs completed
+            # Local and debug jobs don't run until .result() is called.
+            if job.done() or type(job) in [LocalJob, DebugJob]:
+                result = job.result()
+                try:
+                    ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                    jobs.remove((job, trial_index))
+                except ax.exceptions.core.UserInputError as error:
+                    if "None for metric" in str(error):
+                        print_color("red", "It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.")
+                    else:
+                        print_color("red", error)
+                        sys.exit(1)
+        
+        # Schedule new jobs if there is availablity
+        trial_index_to_param, _ = ax_client.get_next_trials(
+            max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs))
+        for trial_index, parameters in trial_index_to_param.items():
+            try:
+                job = executor.submit(evaluate, parameters)
+                submitted_jobs += 1
+                jobs.append((job, trial_index))
+                time.sleep(1)
+            except submitit.core.utils.FailedJobError as error:
+                if "QOSMinGRES" in str(error) and args.gpus == 0:
+                    print_color("red", f"It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                else:
+                    print_color("red", f"FAILED: {error}")
+
+                sys.exit(2)
+        
+        # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
+        # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
+        time.sleep(1)
+except KeyboardInterrupt:
+    print_color("red", "You pressed CTRL+C. Program execution halted.")
+
+try:
+    best_parameters, (means, covariances) = ax_client.get_best_parameters()
+    print_color("green", f'Best set of parameters: {best_parameters}')
+    print_color("green", f'Mean objective value: {means}')
+except TypeError:
+    print_color("red", "You pressed CTRL+C. Program execution halted.")

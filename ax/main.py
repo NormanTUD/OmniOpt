@@ -385,6 +385,6 @@ except KeyboardInterrupt:
 try:
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
     print_color("green", f'Best set of parameters: {best_parameters}')
-    print_color("green", f'Mean objective value: {means}')
+    print_color("green", f'Mean objective value: {means["result"]}')
 except TypeError:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")

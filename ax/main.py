@@ -32,6 +32,10 @@ def dier (msg):
     sys.exit(2)
 
 file_number = 0
+folder_number = 0
+
+while os.path.exists(f"runs/{folder_number}"):
+    folder_number = folder_number + 1
 
 def create_folder_and_file (folder, extension):
     global file_number
@@ -49,7 +53,7 @@ def create_folder_and_file (folder, extension):
 
         file_number += 1
 
-result_csv_file = create_folder_and_file(f"runs/{file_number}", "csv")
+result_csv_file = create_folder_and_file(f"runs/{folder_number}", "csv")
 
 print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
 
@@ -352,7 +356,7 @@ try:
             objectives={"result": ObjectiveProperties(minimize=minimize)}
         )
 
-    log_folder = f"runs/{file_number}/%j"
+    log_folder = f"runs/{folder_number}/%j"
     executor = submitit.AutoExecutor(folder=log_folder)
 
     executor.update_parameters(

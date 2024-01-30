@@ -17,7 +17,7 @@ try:
         import re
         import sys
         import argparse
-        from pprint import pprint
+        from rich.pretty import pprint
         import subprocess
 
         import logging

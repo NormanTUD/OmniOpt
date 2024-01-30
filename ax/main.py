@@ -4,6 +4,9 @@ try:
     from rich.console import Console
     console = Console()
     with console.status("[bold green]Importing modules...") as status:
+        from rich.traceback import install
+        install(show_locals=True)
+
         from rich.table import Table
         from rich import print
         from rich.progress import Progress

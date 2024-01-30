@@ -157,6 +157,14 @@ def execute_bash_code(code):
         return None
 
 def get_result (input_string):
+    if input_string is None:
+        print("Input-String is None")
+        return None
+
+    if not isinstance(input_string, str):
+        print(f"Type of input_string is not string, but {type(input_string)}")
+        return None
+
     try:
         pattern = r'RESULT:\s*(-?\d+(?:\.\d+)?)'
 
@@ -169,7 +177,7 @@ def get_result (input_string):
             return None
 
     except Exception as e:
-        print(f"Fehler beim Extrahieren der Zahl: {e}")
+        print(f"Error extracting the RESULT-string: {e}")
         return None
 
 def evaluate(parameters):
@@ -186,6 +194,7 @@ def evaluate(parameters):
 
     output = execute_bash_code(program_string_with_params)
 
+    print("Output:")
     print(output)
 
     result = get_result(output)

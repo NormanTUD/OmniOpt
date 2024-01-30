@@ -4,6 +4,7 @@ try:
     from rich.console import Console
     from rich.table import Table
     from rich import print
+    from rich.progress import track
 
     import time
     import csv
@@ -313,7 +314,7 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     while submitted_jobs < args.max_eval or jobs:
-        for job, trial_index in jobs[:]:
+        for job, trial_index in track(jobs[:]):
             # Poll if any jobs completed
             # Local and debug jobs don't run until .result() is called.
             if job.done() or type(job) in [LocalJob, DebugJob]:

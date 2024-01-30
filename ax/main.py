@@ -321,7 +321,7 @@ try:
                     jobs.remove((job, trial_index))
                 except ax.exceptions.core.UserInputError as error:
                     if "None for metric" in str(error):
-                        print_color("red", f"It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string. Error: {error}")
+                        print_color("red", f"It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                     else:
                         print_color("red", error)
                         sys.exit(1)

@@ -144,6 +144,7 @@ parser.add_argument('--partition', help='Name of the partition it should run on'
 parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
 parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+parser.add_argument('--experiment_name', help='Name of the experiment. Default: exp', default="exp", type=str)
 parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
 
 args = parser.parse_args()
@@ -285,14 +286,14 @@ try:
 
     if args.experiment_constraints:
         ax_client.create_experiment(
-            name="my_experiment",
+            name=args.experiment_name,
             parameters=experiment_parameters,
             objectives={"result": ObjectiveProperties(minimize=minimize)},
             parameter_constraints=[args.experiment_constraints]
         )
     else:
         ax_client.create_experiment(
-            name="my_experiment",
+            name=args.experiment_name,
             parameters=experiment_parameters,
             objectives={"result": ObjectiveProperties(minimize=minimize)}
         )

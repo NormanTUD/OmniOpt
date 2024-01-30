@@ -21,12 +21,6 @@ try:
         import subprocess
 
         import logging
-
-        logging.basicConfig(level=logging.WARNING)
-
-        sh_console = logging.StreamHandler()
-        sh_console.setLevel(logging.WARNING)
-        logging.getLogger('').addHandler(sh_console)
 except KeyboardInterrupt:
     sys.exit(0)
 
@@ -93,6 +87,16 @@ def parse_experiment_parameters(args):
                 except:
                     print_color("red", f":warning: {this_args[j + 3]} does not seem to be a number")
                     sys.exit(5)
+
+                if upper_bound == lower_bound:
+                    print_color("red", f"Lower bound and upper bound are equal: {lower_bound}")
+                    sys.exit(13)
+
+                if lower_bound > upper_bound:
+                    print_color("yellow", f"Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+                    tmp = upper_bound
+                    upper_bound = lower_bound
+                    lower_bound = tmp
 
                 skip = 5
 

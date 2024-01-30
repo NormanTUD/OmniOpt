@@ -168,8 +168,6 @@ for row in rows:
 console = Console()
 console.print(table)
 
-sys.exit(0)
-
 
 def replace_parameters_in_string(parameters, input_string):
     try:

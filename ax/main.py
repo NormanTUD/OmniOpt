@@ -1,6 +1,9 @@
 program_name = "OmniAx"
 
 try:
+    from rich.console import Console
+    from rich.table import Table
+
     import time
     import csv
     import os
@@ -151,9 +154,23 @@ args = parser.parse_args()
 
 experiment_parameters = parse_experiment_parameters(args.parameter)
 
-print_color("blue", "Experiment Parameters:")
+rows = []
 for param in experiment_parameters:
-    print_color("blue", f"Name: {param['name']}, Type: {param['type']}, Bounds: {param['bounds']}, Type: {param['value_type']}")
+    rows.append(param["name"], param["type"], param["bounds"], param["value_type"])
+    #print_color("blue", f"Name: {param['name']}, Type: {param['type']}, Bounds: {param['bounds']}, Type: {param['value_type']}")
+
+
+table = Table(title="People")
+columns = ["Name", "Type", "Bounds", "Value-Type"]
+for column in columns:
+    table.add_column(column)
+for row in rows:
+    table.add_row(*row, style='bright_green')
+console = Console()
+console.print(table)
+
+sys.exit(0)
+
 
 def replace_parameters_in_string(parameters, input_string):
     try:

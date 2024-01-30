@@ -244,6 +244,9 @@ def evaluate(parameters):
     headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code"];
     values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code];
 
+    headline = ['None' if element is None else element for element in headline]
+    values = ['None' if element is None else element for element in values]
+
     add_to_csv(result_csv_file, headline, values)
 
     if result:

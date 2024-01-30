@@ -36,11 +36,13 @@ def dier (msg):
     pprint(msg)
     sys.exit(2)
 
+file_number = 0
+
 def create_folder_and_file (folder, extension):
+    global file_number
+
     if not os.path.exists(folder):
         os.makedirs(folder)
-
-    file_number = 0
 
     while True:
         filename = os.path.join(folder, f"{file_number}.{extension}")
@@ -52,7 +54,7 @@ def create_folder_and_file (folder, extension):
 
         file_number += 1
 
-result_csv_file = create_folder_and_file("runs", "csv")
+result_csv_file = create_folder_and_file(f"runs/{file_number}", "csv")
 
 def parse_experiment_parameters(args):
     params = []
@@ -295,7 +297,7 @@ try:
             objectives={"result": ObjectiveProperties(minimize=minimize)}
         )
 
-    log_folder = "logs/%j"
+    log_folder = f"runs/{file_number}/%j"
     executor = submitit.AutoExecutor(folder=log_folder)
 
     executor.update_parameters(

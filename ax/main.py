@@ -384,7 +384,29 @@ except KeyboardInterrupt:
 
 try:
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
-    print_color("green", f'Best set of parameters: {best_parameters}')
-    print_color("green", f'Mean objective value: {means["result"]}')
+
+    
+    best_result = means["result"]
+
+    table = Table(show_header=True, header_style="bold magenta", title="Best parameters")
+
+    # Dynamisch Spaltenüberschriften hinzufügen
+    for key in best_parameters.keys():
+        table.add_column(key)
+
+    table.add_column("result")
+
+    # "best results" als Zeilenüberschrift hinzufügen
+    row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
+    row = [*row_without_result, str(best_result)]
+
+    table.add_row(*row)
+
+
+    # Drucke die Tabelle
+    console.print(table)
+
+    #print_color("green", f'Best set of parameters: {best_parameters}')
+    #print_color("green", f'Mean objective value: {best_result}')
 except TypeError:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")

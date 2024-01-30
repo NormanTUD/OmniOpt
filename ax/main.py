@@ -4,7 +4,7 @@ try:
     from rich.console import Console
     from rich.table import Table
     from rich import print
-    from rich.progress import track
+    from rich.progress import Progress
 
     import time
     import csv
@@ -313,42 +313,48 @@ try:
     jobs = []
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
-    while submitted_jobs < args.max_eval or jobs:
-        for job, trial_index in track(jobs[:]):
-            # Poll if any jobs completed
-            # Local and debug jobs don't run until .result() is called.
-            if job.done() or type(job) in [LocalJob, DebugJob]:
-                result = job.result()
-                try:
-                    ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                    jobs.remove((job, trial_index))
-                except ax.exceptions.core.UserInputError as error:
-                    if "None for metric" in str(error):
-                        print_color("red", f"It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
-                    else:
-                        print_color("red", error)
-                        sys.exit(1)
-        
-        # Schedule new jobs if there is availablity
-        trial_index_to_param, _ = ax_client.get_next_trials(
-            max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs))
-        for trial_index, parameters in trial_index_to_param.items():
-            try:
-                job = executor.submit(evaluate, parameters)
-                submitted_jobs += 1
-                jobs.append((job, trial_index))
-                time.sleep(1)
-            except submitit.core.utils.FailedJobError as error:
-                if "QOSMinGRES" in str(error) and args.gpus == 0:
-                    print_color("red", f"It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                else:
-                    print_color("red", f"FAILED: {error}")
+    with Progress() as progress:
 
-                sys.exit(2)
-        
-        # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
-        # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
-        time.sleep(1)
+        progress_bar = progress.add_task("[cyan]Running jobs...", total=args.max_eval)
+
+        while submitted_jobs < args.max_eval or jobs:
+            for job, trial_index in jobs[:]:
+                # Poll if any jobs completed
+                # Local and debug jobs don't run until .result() is called.
+                if job.done() or type(job) in [LocalJob, DebugJob]:
+                    result = job.result()
+                    try:
+                        ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                        jobs.remove((job, trial_index))
+
+                        progress.update(progress_bar, advance=1)
+                    except ax.exceptions.core.UserInputError as error:
+                        if "None for metric" in str(error):
+                            print_color("red", f"It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                        else:
+                            print_color("red", error)
+                            sys.exit(1)
+            
+            # Schedule new jobs if there is availablity
+            trial_index_to_param, _ = ax_client.get_next_trials(
+                max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs))
+            for trial_index, parameters in trial_index_to_param.items():
+                try:
+                    job = executor.submit(evaluate, parameters)
+                    submitted_jobs += 1
+                    jobs.append((job, trial_index))
+                    time.sleep(1)
+                except submitit.core.utils.FailedJobError as error:
+                    if "QOSMinGRES" in str(error) and args.gpus == 0:
+                        print_color("red", f"It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                    else:
+                        print_color("red", f"FAILED: {error}")
+
+                    sys.exit(2)
+            
+            # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
+            # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
+            time.sleep(1)
 except KeyboardInterrupt:
     print_color("red", "You pressed CTRL+C. Program execution halted.")
 

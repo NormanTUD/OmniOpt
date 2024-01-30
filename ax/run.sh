@@ -62,6 +62,7 @@ if [[ ! -d "$VENV_DIR" ]]; then
 
 	green "Virtual Environment activated. Now installing software. This may take some time."
 
+	ppip Rich
 	ppip submitit
 	ppip ax
 	ppip ax-platform

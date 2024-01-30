@@ -169,12 +169,12 @@ def execute_bash_code(code):
         if result.returncode != 0:
             print(f"Exit-Code: {result.returncode}")
 
-        return result.stdout
+        return [result.stdout, result.returncode]
 
     except subprocess.CalledProcessError as e:
         print(f"Fehler beim Ausführen des Bash-Codes. Exit-Code: {e.returncode}")
         print(f"Fehlerausgabe: {e.stderr}")
-        return None
+        return [None, None]
 
 def get_result (input_string):
     if input_string is None:
@@ -224,8 +224,13 @@ def evaluate(parameters):
     print_color("green", program_string_with_params)
 
     start_time = int(time.time())
-    output = execute_bash_code(program_string_with_params)
+
+    output_and_exit_code = execute_bash_code(program_string_with_params)
+
     end_time = int(time.time())
+
+    output = output_and_exit_code[0]
+    exit_code = output_and_exit_code[1]
 
     run_time = end_time - start_time
 
@@ -236,10 +241,10 @@ def evaluate(parameters):
 
     print(f"Result: {result}")
 
-    headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys];
-    values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values];
+    headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code"];
+    values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code];
 
-    add_to_csv(result_csv_file, headline, parameters_values)
+    add_to_csv(result_csv_file, headline, values)
 
     if result:
         return {"result": float(result)}

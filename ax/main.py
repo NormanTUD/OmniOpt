@@ -51,6 +51,8 @@ def create_folder_and_file (folder, extension):
 
 result_csv_file = create_folder_and_file(f"runs/{file_number}", "csv")
 
+print_color("underline", f"CSV-File: {result_csv_file}")
+
 def parse_experiment_parameters(args):
     params = []
 

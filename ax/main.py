@@ -74,24 +74,24 @@ def parse_experiment_parameters(args):
             valid_types_string = ', '.join(valid_types)
 
             if param_type not in valid_types:
-                print_color("red", f"Invalid type {param_type}, valid types are: {valid_types_string}")
+                print_color("red", f":warning: Invalid type {param_type}, valid types are: {valid_types_string}")
                 sys.exit(3)
 
             if param_type == "range":
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_color("red", f"--parameter for type range must have 5 parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    print_color("red", f":warning: --parameter for type range must have 5 parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
                     sys.exit(11)
 
                 try:
                     lower_bound = float(this_args[j + 2])
                 except:
-                    print_color("red", f"{this_args[j + 2]} does not seem to be a number")
+                    print_color("red", f":warning: {this_args[j + 2]} does not seem to be a number")
                     sys.exit(4)
 
                 try:
                     upper_bound = float(this_args[j + 3])
                 except:
-                    print_color("red", f"{this_args[j + 3]} does not seem to be a number")
+                    print_color("red", f":warning: {this_args[j + 3]} does not seem to be a number")
                     sys.exit(5)
 
                 skip = 5
@@ -107,7 +107,7 @@ def parse_experiment_parameters(args):
 
                 if value_type not in valid_value_types:
                     ", ".join(valid_value_types)
-                    print_color("red", f"{value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+                    print_color("red", f":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     sys.exit(10)
 
                 param = {
@@ -121,7 +121,7 @@ def parse_experiment_parameters(args):
 
                 j += skip
             else:
-                print_color("red", f"{param_type} not yet implemented.");
+                print_color("red", f":warning: {param_type} not yet implemented.");
                 j += 4
         i += 1
 
@@ -172,7 +172,7 @@ def replace_parameters_in_string(parameters, input_string):
 
         return input_string
     except Exception as e:
-        print_color("red", f"Error: {e}")
+        print_color("red", f":warning: Error: {e}")
         return None
 
 def execute_bash_code(code):
@@ -277,14 +277,14 @@ try:
             from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.service.utils.report_utils import exp_to_df
         except:
-            print_color("red", "ax could not be loaded. Did you create and load the virtual environment properly?")
+            print_color("red", ":warning: ax could not be loaded. Did you create and load the virtual environment properly?")
             sys.exit(8)
 
         try:
             import submitit
             from submitit import AutoExecutor, LocalJob, DebugJob
         except:
-            print_color("red", "submitit could not be loaded. Did you create and load the virtual environment properly?")
+            print_color("red", ":warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
             sys.exit(9)
 
 except KeyboardInterrupt:
@@ -339,9 +339,9 @@ try:
                         progress.update(progress_bar, advance=1)
                     except ax.exceptions.core.UserInputError as error:
                         if "None for metric" in str(error):
-                            print_color("red", f"It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                            print_color("red", f":warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                         else:
-                            print_color("red", error)
+                            print_color("red", ":warning: ".error)
                             sys.exit(1)
             
             # Schedule new jobs if there is availablity
@@ -355,9 +355,9 @@ try:
                     time.sleep(1)
                 except submitit.core.utils.FailedJobError as error:
                     if "QOSMinGRES" in str(error) and args.gpus == 0:
-                        print_color("red", f"It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                        print_color("red", f":warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
                     else:
-                        print_color("red", f"FAILED: {error}")
+                        print_color("red", f":warning: FAILED: {error}")
 
                     sys.exit(2)
             
@@ -365,11 +365,11 @@ try:
             # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
             time.sleep(1)
 except KeyboardInterrupt:
-    print_color("red", "You pressed CTRL+C. Program execution halted.")
+    print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")
 
 try:
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
     print_color("green", f'Best set of parameters: {best_parameters}')
     print_color("green", f'Mean objective value: {means}')
 except TypeError:
-    print_color("red", "You pressed CTRL+C. Program execution halted.")
+    print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")

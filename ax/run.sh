@@ -54,11 +54,9 @@ if [[ ! -d "$VENV_DIR" ]]; then
 		exit 2
 	}
 
-	green "Virtual Environment activated. Now installing software"
+	green "Virtual Environment activated. Now installing software. This may take some time."
 
 	ppip submitit
-	ppip logging
-	ppip argparse
 	ppip ax
 fi
 

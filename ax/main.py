@@ -134,7 +134,6 @@ for param in experiment_parameters:
 def replace_parameters_in_string(parameters, input_string):
     try:
         for param_item in parameters:
-            print("param_item:", param_item)
             input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
 
         return input_string

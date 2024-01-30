@@ -295,7 +295,7 @@ try:
             objectives={"result": ObjectiveProperties(minimize=minimize)}
         )
 
-    log_folder = "log_test/%j"
+    log_folder = "logs/%j"
     executor = submitit.AutoExecutor(folder=log_folder)
 
     executor.update_parameters(

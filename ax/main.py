@@ -2,26 +2,28 @@ program_name = "OmniAx"
 
 try:
     from rich.console import Console
-    from rich.table import Table
-    from rich import print
-    from rich.progress import Progress
+    console = Console()
+    with console.status("[bold green]Importing modules...") as status:
+        from rich.table import Table
+        from rich import print
+        from rich.progress import Progress
 
-    import time
-    import csv
-    import os
-    import re
-    import sys
-    import argparse
-    from pprint import pprint
-    import subprocess
+        import time
+        import csv
+        import os
+        import re
+        import sys
+        import argparse
+        from pprint import pprint
+        import subprocess
 
-    import logging
+        import logging
 
-    logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.WARNING)
 
-    console = logging.StreamHandler()
-    console.setLevel(logging.WARNING)
-    logging.getLogger('').addHandler(console)
+        sh_console = logging.StreamHandler()
+        sh_console.setLevel(logging.WARNING)
+        logging.getLogger('').addHandler(sh_console)
 except KeyboardInterrupt:
     sys.exit(0)
 
@@ -157,7 +159,6 @@ for column in columns:
     table.add_column(column)
 for row in rows:
     table.add_row(*row, style='bright_green')
-console = Console()
 console.print(table)
 
 
@@ -266,21 +267,22 @@ def evaluate(parameters):
         return {"result": None}
 
 try:
-    import time
-    try:
-        import ax
-        from ax.service.ax_client import AxClient, ObjectiveProperties
-        from ax.service.utils.report_utils import exp_to_df
-    except:
-        print_color("red", "ax could not be loaded. Did you create and load the virtual environment properly?")
-        sys.exit(8)
+    with console.status("[bold green]Importing modules...") as status:
+        import time
+        try:
+            import ax
+            from ax.service.ax_client import AxClient, ObjectiveProperties
+            from ax.service.utils.report_utils import exp_to_df
+        except:
+            print_color("red", "ax could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(8)
 
-    try:
-        import submitit
-        from submitit import AutoExecutor, LocalJob, DebugJob
-    except:
-        print_color("red", "submitit could not be loaded. Did you create and load the virtual environment properly?")
-        sys.exit(9)
+        try:
+            import submitit
+            from submitit import AutoExecutor, LocalJob, DebugJob
+        except:
+            print_color("red", "submitit could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(9)
 
 except KeyboardInterrupt:
     sys.exit(0)

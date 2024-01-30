@@ -125,7 +125,8 @@ def parse_experiment_parameters(args):
 
                 j += skip
             else:
-                print_color("red", f":warning: {param_type} not yet implemented.");
+                print_color("red", f":warning: Parameter type {param_type} not yet implemented.");
+                sys.exit(14)
                 j += 4
         i += 1
 

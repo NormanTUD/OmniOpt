@@ -16,8 +16,8 @@ try:
     import subprocess
 
     import logging
-    logging.basicConfig()
-    logging.getLogger('foo').setLevel(logging.WARNING)
+
+    logging.basicConfig(level=logging.WARNING)
 except KeyboardInterrupt:
     sys.exit(0)
 

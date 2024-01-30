@@ -1,5 +1,7 @@
 #!/bin/bash
 
+IFS=$'\n'
+
 Green='\033[0;32m'
 Color_Off='\033[0m'
 Red='\033[0;31m'
@@ -61,5 +63,7 @@ if [[ ! -d "$VENV_DIR" ]]; then
 fi
 
 source $VENV_DIR/bin/activate
+
+set -x
 
 python3 main.py $*

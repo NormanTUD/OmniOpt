@@ -216,8 +216,8 @@ def evaluate(parameters):
 
     print("parameters:", parameters)
 
-    parameters_keys = list(data_structure.keys())
-    parameters_values = list(data_structure.values())
+    parameters_keys = list(parameters.keys())
+    parameters_values = list(parameters.values())
 
     program_string_with_params = replace_parameters_in_string(parameters, args.run_program)
 

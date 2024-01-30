@@ -156,12 +156,11 @@ experiment_parameters = parse_experiment_parameters(args.parameter)
 
 rows = []
 for param in experiment_parameters:
-    rows.append(param["name"], param["type"], param["bounds"], param["value_type"])
+    rows.append([str(param["name"]), str(param["type"]), str(param["bounds"][0]), str(param["bounds"][1]), str(param["value_type"])])
     #print_color("blue", f"Name: {param['name']}, Type: {param['type']}, Bounds: {param['bounds']}, Type: {param['value_type']}")
 
-
-table = Table(title="People")
-columns = ["Name", "Type", "Bounds", "Value-Type"]
+table = Table(title="Experiment parameters:")
+columns = ["Name", "Type", "Lower bound", "Upper bound", "Value-Type"]
 for column in columns:
     table.add_column(column)
 for row in rows:

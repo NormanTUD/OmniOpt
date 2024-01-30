@@ -15,6 +15,15 @@ try:
     import subprocess
 
     import logging
+    from rich.logging import RichHandler
+
+    FORMAT = "%(message)s"
+    logging.basicConfig(
+        level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+    )
+
+    log = logging.getLogger("rich")
+
     logging.basicConfig()
     logging.getLogger('foo').setLevel(logging.WARNING)
 except KeyboardInterrupt:

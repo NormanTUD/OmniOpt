@@ -18,6 +18,10 @@ try:
     import logging
 
     logging.basicConfig(level=logging.WARNING)
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.WARNING)
+    logging.getLogger('').addHandler(console)
 except KeyboardInterrupt:
     sys.exit(0)
 

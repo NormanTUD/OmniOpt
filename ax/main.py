@@ -1,6 +1,9 @@
 program_name = "OmniAx"
 
 try:
+    import time
+    import csv
+    import os
     import re
     import sys
     import argparse
@@ -32,6 +35,24 @@ def print_color (color, text):
 def dier (msg):
     pprint(msg)
     sys.exit(2)
+
+def create_folder_and_file (folder, extension):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    file_number = 0
+
+    while True:
+        filename = os.path.join(folder, f"{file_number}.{extension}")
+
+        if not os.path.exists(filename):
+            with open(filename, 'w') as file:
+                pass
+            return filename
+
+        file_number += 1
+
+result_csv_file = create_folder_and_file("runs", "csv")
 
 def parse_experiment_parameters(args):
     params = []
@@ -179,16 +200,34 @@ def get_result (input_string):
         print(f"Error extracting the RESULT-string: {e}")
         return None
 
+def add_to_csv(file_path, heading, data_line):
+    is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
+
+    with open(file_path, 'a', newline='') as file:
+        csv_writer = csv.writer(file)
+
+        if is_empty:
+            csv_writer.writerow(heading)
+
+        csv_writer.writerow(data_line)
+
 def evaluate(parameters):
     global experiment_parameters
 
     print("parameters:", parameters)
 
+    parameters_keys = list(data_structure.keys())
+    parameters_values = list(data_structure.values())
+
     program_string_with_params = replace_parameters_in_string(parameters, args.run_program)
 
     print_color("green", program_string_with_params)
 
+    start_time = int(time.time())
     output = execute_bash_code(program_string_with_params)
+    end_time = int(time.time())
+
+    run_time = end_time - start_time
 
     print("Output:")
     print(output)
@@ -196,6 +235,11 @@ def evaluate(parameters):
     result = get_result(output)
 
     print(f"Result: {result}")
+
+    headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys];
+    values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values];
+
+    add_to_csv(result_csv_file, headline, parameters_values)
 
     if result:
         return {"result": float(result)}

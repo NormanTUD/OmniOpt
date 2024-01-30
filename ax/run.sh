@@ -65,6 +65,4 @@ fi
 
 source $VENV_DIR/bin/activate
 
-set -x
-
 python3 main.py $*

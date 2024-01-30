@@ -169,12 +169,13 @@ def execute_bash_code(code):
         if result.returncode != 0:
             print(f"Exit-Code: {result.returncode}")
 
-        return [result.stdout, result.returncode]
+        return [result.stdout, result.stderr, result.returncode]
 
     except subprocess.CalledProcessError as e:
         print(f"Fehler beim Ausführen des Bash-Codes. Exit-Code: {e.returncode}")
-        print(f"Fehlerausgabe: {e.stderr}")
-        return [None, None]
+        print(f"stdout: {e.stdout}")
+        print(f"stderr: {e.stderr}")
+        return [e.stdout, e.stderr, e.returncode]
 
 def get_result (input_string):
     if input_string is None:
@@ -225,19 +226,20 @@ def evaluate(parameters):
 
     start_time = int(time.time())
 
-    output_and_exit_code = execute_bash_code(program_string_with_params)
+    stdout_stderr_exit_code = execute_bash_code(program_string_with_params)
 
     end_time = int(time.time())
 
-    output = output_and_exit_code[0]
-    exit_code = output_and_exit_code[1]
+    stdout = stdout_stderr_exit_code[0]
+    stderr = stdout_stderr_exit_code[1]
+    exit_code = stdout_stderr_exit_code[2]
 
     run_time = end_time - start_time
 
-    print("Output:")
-    print(output)
+    print("stdout:")
+    print(stdout)
 
-    result = get_result(output)
+    result = get_result(stdout)
 
     print(f"Result: {result}")
 

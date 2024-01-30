@@ -35,7 +35,11 @@ set -e
 LMOD_DIR=/software/foundation/x86_64/lmod/lmod/libexec
 
 ml () {
-        eval "$($LMOD_DIR/ml_cmd "$@")"
+	if [[ -e $LMOD_DIR/ml_cmd ]]; then
+		eval "$($LMOD_DIR/ml_cmd "$@")"
+	else
+		red "Cannot use ml. Are you on Taurus?"
+	fi
 }
 
 green "Loading modules..."

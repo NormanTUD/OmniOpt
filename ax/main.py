@@ -182,9 +182,6 @@ def get_result (input_string):
 def evaluate(parameters):
     global experiment_parameters
 
-    x = parameters["x"]
-    y = parameters["y"]
-
     print("parameters:", parameters)
 
     program_string_with_params = replace_parameters_in_string(parameters, args.run_program)

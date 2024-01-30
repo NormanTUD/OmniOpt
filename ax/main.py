@@ -5,7 +5,7 @@ try:
     console = Console()
     with console.status("[bold green]Importing modules...") as status:
         from rich.traceback import install
-        install(show_locals=True)
+        #install(show_locals=True)
 
         from rich.table import Table
         from rich import print

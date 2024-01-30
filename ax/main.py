@@ -378,7 +378,7 @@ try:
             
             # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
             # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
-            time.sleep(1)
+            time.sleep(0.1)
 except KeyboardInterrupt:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")
 

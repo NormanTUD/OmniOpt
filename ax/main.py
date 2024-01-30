@@ -274,6 +274,7 @@ try:
         import time
         try:
             import ax
+            from ax.utils.common.logger import get_logger
             from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.service.utils.report_utils import exp_to_df
         except:
@@ -286,6 +287,9 @@ try:
         except:
             print_color("red", ":warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
             sys.exit(9)
+
+pprint(get_logger())
+sys.exit(0)
 
 except KeyboardInterrupt:
     sys.exit(0)

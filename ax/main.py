@@ -3,6 +3,7 @@ program_name = "OmniAx"
 try:
     from rich.console import Console
     from rich.table import Table
+    from rich import print
 
     import time
     import csv
@@ -19,21 +20,8 @@ try:
 except KeyboardInterrupt:
     sys.exit(0)
 
-class bcolors:
-    header = '\033[95m'
-    blue = '\033[94m'
-    cyan = '\033[96m'
-    green = '\033[92m'
-    warning = '\033[93m'
-    fail = '\033[91m'
-    red = '\033[91m'
-    endc = '\033[0m'
-    bold = '\033[1m'
-    underline = '\033[4m'
-
 def print_color (color, text):
-    col = eval(f"bcolors.{color}");
-    print(f"{col}{text}{bcolors.endc}")
+    print(f"[{color}]{text}[/{color}]")
 
 def dier (msg):
     pprint(msg)
@@ -157,7 +145,6 @@ experiment_parameters = parse_experiment_parameters(args.parameter)
 rows = []
 for param in experiment_parameters:
     rows.append([str(param["name"]), str(param["type"]), str(param["bounds"][0]), str(param["bounds"][1]), str(param["value_type"])])
-    #print_color("blue", f"Name: {param['name']}, Type: {param['type']}, Bounds: {param['bounds']}, Type: {param['value_type']}")
 
 table = Table(title="Experiment parameters:")
 columns = ["Name", "Type", "Lower bound", "Upper bound", "Value-Type"]

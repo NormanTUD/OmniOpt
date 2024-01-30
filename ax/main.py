@@ -229,6 +229,16 @@ def add_to_csv(file_path, heading, data_line):
 
         csv_writer.writerow(data_line)
 
+def make_strings_equal_length(str1, str2):
+    length_difference = len(str1) - len(str2)
+
+    if length_difference > 0:
+        str2 = str2 + ' ' * length_difference
+    elif length_difference < 0:
+        str2 = str2[:len(str1)]
+
+    return str1, str2
+
 def evaluate(parameters):
     global experiment_parameters
 
@@ -327,8 +337,9 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
+        start_str = "Running jobs... "
 
-        progress_bar = progress.add_task("[cyan]Running jobs...", total=args.max_eval)
+        progress_bar = progress.add_task(f"[cyan]{start_str}", total=args.max_eval)
 
         while submitted_jobs < args.max_eval or jobs:
             for job, trial_index in jobs[:]:

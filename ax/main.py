@@ -144,7 +144,7 @@ parser.add_argument('--partition', help='Name of the partition it should run on'
 parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
 parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-parser.add_argument('--experiment_name', help='Name of the experiment. Default: exp', default="exp", type=str)
+parser.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', default="exp", type=str)
 parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
 
 args = parser.parse_args()

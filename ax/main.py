@@ -124,10 +124,29 @@ def parse_experiment_parameters(args):
                 params.append(param)
 
                 j += skip
+            elif param_type == "fixed":
+                if len(this_args) != 3:
+                    print_color("red", f":warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
+                    sys.exit(11)
+
+                try:
+                    value = float(this_args[j + 2])
+                except:
+                    print_color("red", f":warning: {this_args[j + 2]} does not seem to be a number")
+                    sys.exit(4)
+
+                param = {
+                    "name": name,
+                    "type": "fixed",
+                    "value": value
+                }
+
+                params.append(param)
+
+                j += 3
             else:
                 print_color("red", f":warning: Parameter type {param_type} not yet implemented.");
                 sys.exit(14)
-                j += 4
         i += 1
 
     return params
@@ -159,10 +178,17 @@ experiment_parameters = parse_experiment_parameters(args.parameter)
 
 rows = []
 for param in experiment_parameters:
-    rows.append([str(param["name"]), str(param["type"]), str(param["bounds"][0]), str(param["bounds"][1]), str(param["value_type"])])
+    _type = str(param["type"])
+    if _type == "range":
+        rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "-", str(param["value_type"])])
+    elif _type == "fixed":
+        rows.append([str(param["name"]), _type, "-", "-", str(param["value"]), '-'])
+    else:
+        print_color("red", f"Type {_type} is not yet implemented in the overview table.");
+        sys.exit(15)
 
 table = Table(title="Experiment parameters:")
-columns = ["Name", "Type", "Lower bound", "Upper bound", "Value-Type"]
+columns = ["Name", "Type", "Lower bound", "Upper bound", "Value", "Value-Type"]
 for column in columns:
     table.add_column(column)
 for row in rows:

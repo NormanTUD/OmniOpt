@@ -1,3 +1,7 @@
+import sys
+import os
+import argparse
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from itertools import combinations
@@ -15,6 +19,18 @@ df = pd.DataFrame({
     'y': [123123.0, 5.0, 1000],
     'z': [102.0, 102.0, 4]
 })
+
+
+parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
+parser.add_argument('csv_file', type=str, help='Path to a CSV file')
+args = parser.parse_args()
+
+if not os.path.exists(args.csv_file):
+    print(f'Die Datei {args.csv_file} existiert nicht.')
+    sys.exit(1)
+
+# Lade das DataFrame aus der CSV-Datei
+df = pd.read_csv(args.csv_file)
 
 # Spalten entfernen
 columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']

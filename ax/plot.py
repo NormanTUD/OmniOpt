@@ -21,7 +21,7 @@ if not os.path.exists(args.run_dir + f"/{pd_csv}"):
     sys.exit(1)
 
 maximum = False
-if os.path.exists(args.run_dir + f"/maximum"):
+if os.path.exists(args.run_dir + f"/maximize"):
     maximum = True
 
 # Load the DataFrame from the CSV file

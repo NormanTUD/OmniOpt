@@ -105,7 +105,6 @@ result_csv_file = create_folder_and_file(f"runs/{folder_number}", "csv")
 
 with open(f"runs/{folder_number}/run.sh", 'w') as f:
     print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
-    
 
 print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
 

@@ -37,6 +37,8 @@ try:
         import warnings
         logging.basicConfig(level=logging.ERROR)
 
+        logging.getLogger("ax").setLevel(logging.ERROR)
+        logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
         logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
         logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
@@ -380,9 +382,51 @@ try:
         except:
             print_color("red", ":warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
             sys.exit(7)
-
 except KeyboardInterrupt:
     sys.exit(0)
+
+logging.getLogger("ax").setLevel(logging.ERROR)
+logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
+logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+
+logging.basicConfig(level=logging.ERROR)
+
+logging.getLogger("ax").setLevel(logging.ERROR)
+logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
+logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
+warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
+warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
+warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+
+
+# Setze die Protokollierungsebene auf WARNING
+logging.basicConfig(level=logging.WARNING)
+
+# Setze die Protokollierungsebene für spezifische Module auf WARNING
+logging.getLogger("ax.modelbridge.torch").setLevel(logging.WARNING)
+logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.WARNING)
+
+# Ignoriere alle Runtime-Warnungen
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+# Ignoriere alle Informationsmeldungen
+logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
+logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
+
+# Ignoriere die InputDataWarning spezifisch
+warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+
+
 
 try:
     ax_client = AxClient(verbose_logging=args.verbose)

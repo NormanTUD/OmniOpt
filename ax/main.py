@@ -476,9 +476,8 @@ try:
                         jobs.remove((job, trial_index))
 
 
-                        best_parameters, (means, covariances) = ax_client.get_best_parameters()
-
-                        print(means)
+                        #best_parameters, (means, covariances) = ax_client.get_best_parameters()
+                        #print(means)
 
                         progress.update(progress_bar, advance=1)
                     except ax.exceptions.core.UserInputError as error:

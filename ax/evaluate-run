@@ -4,9 +4,25 @@ PROJECTDIR=runs
 
 source ../tools/general.sh
 
+function inputbox {
+	TITLE=$1
+	MSG=$2
+	DEFAULT=$3
+
+	eval `resize`
+	RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
+	exitstatus=$?
+	if [[ $exitstatus == 0 ]]; then
+		echo "$RESULT"
+	else
+		echo_red "You chose to cancel (1)"
+		exit 1
+	fi
+}
+
 function change_variables {
 	eval `resize`
-	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "SHOWALLGPUS" "Show all GPUs in GPU-Plot (currently $SHOWALLGPUS)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run.sh (currently $DEBUG)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "SEPERATOR" "Seperator for CSV files (currently $SEPERATOR)" "s)" "Save current settings as default for this OmniOpt-installation" "S)" "Save current settings as default for all OmniOpt-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
+	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "SHOWALLGPUS" "Show all GPUs in GPU-Plot (currently $SHOWALLGPUS)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run.sh (currently $DEBUG)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "SEPERATOR" "Seperator for CSV files (currently $SEPERATOR)" "s)" "Save current settings as default for this OmniAx-installation" "S)" "Save current settings as default for all OmniAx-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$MENU_CHOICE" =~ "m)" ]]; then
@@ -134,21 +150,21 @@ function change_variables {
 			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .default_settings
 			echo "export SEPERATOR='$SEPERATOR'" >> .default_settings
 		elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
-			if [[ -e "$HOME/.oo_default_settings" ]]; then
-				rm ~/.oo_default_settings
+			if [[ -e "$HOME/.oax_default_settings" ]]; then
+				rm ~/.oax_default_settings
 			fi
 
-			echo "export NONZERODIGITS=$NONZERODIGITS" >> ~/.oo_default_settings
-			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> ~/.oo_default_settings
-			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oo_default_settings
-			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oo_default_settings
-			echo "export SHOWALLGPUS=$SHOWALLGPUS" >> ~/.oo_default_settings
-			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> ~/.oo_default_settings
-			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oo_default_settings
-			echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oo_default_settings
-			echo "export DEBUG=$DEBUG" >> ~/.oo_default_settings
-			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oo_default_settings
-			echo "export SEPERATOR='$SEPERATOR'" >> ~/.oo_default_settings
+			echo "export NONZERODIGITS=$NONZERODIGITS" >> ~/.oax_default_settings
+			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> ~/.oax_default_settings
+			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oax_default_settings
+			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oax_default_settings
+			echo "export SHOWALLGPUS=$SHOWALLGPUS" >> ~/.oax_default_settings
+			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> ~/.oax_default_settings
+			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oax_default_settings
+			echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
+			echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings
+			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oax_default_settings
+			echo "export SEPERATOR='$SEPERATOR'" >> ~/.oax_default_settings
 		else
 			eval `resize`
 			whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3
@@ -161,7 +177,11 @@ function change_variables {
 }
 
 function change_project_dir {
-	PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
+	if [[ -d "$PROJECTDIR" ]]; then
+		PROJECTDIR=$(inputbox "Projectdir" "The project directory is currently '$PROJECTDIR'. Enter a new Projectdir (relative or absolute) or just press enter to continue using this one" "$PROJECTDIR")
+	else
+		PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
+	fi
 }
 
 function list_projects {
@@ -174,7 +194,7 @@ function list_projects {
 	eval `resize`
 
 	# REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
-	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "Change the project dir" "v)" "Show/Change Variables" "q)" "quit" 3>&1 1>&2 2>&3)
+	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "c)" "Change the project dir" "v)" "Show/Change Variables" "q)" "quit" 3>&1 1>&2 2>&3)
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
@@ -256,7 +276,7 @@ if [[ $sourced == "0" ]]; then
                 debug_code "Software seems up-to-date ($CURRENTHASH)"
             else
                 eval `resize`
-                if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+                if (whiptail --title "There is a new version of OmniAx available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
                     git pull
                     bash evaluate-run.sh --dont_load_modules --no_upgrade $@
                     bash zsh/install.sh

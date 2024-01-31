@@ -8,7 +8,6 @@ from itertools import combinations
 
 parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
 parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-parser.add_argument('--maximum', action='store_true', help='Display maximum result (default: minimum)')
 args = parser.parse_args()
 
 if not os.path.exists(args.run_dir):
@@ -20,6 +19,10 @@ pd_csv = "pd.csv"
 if not os.path.exists(args.run_dir + f"/{pd_csv}"):
     print(f'The file {args.run_dir} does not exist.')
     sys.exit(1)
+
+maximum = False
+if os.path.exists(args.run_dir + f"/maximum"):
+    maximum = True
 
 # Load the DataFrame from the CSV file
 df = pd.read_csv(args.run_dir + f"/{pd_csv}")
@@ -45,7 +48,7 @@ fig, axs = plt.subplots(num_rows, num_cols, figsize=(15, 7))
 # Color assignment for points based on 'result'
 result_column = 'result'
 colors = df[result_column]
-if args.maximum:
+if maximum:
     colors = -colors  # Negate colors for maximum result
 norm = plt.Normalize(colors.min(), colors.max())
 cmap = plt.cm.viridis
@@ -64,11 +67,11 @@ cbar.set_label('Result', rotation=270, labelpad=15)
 
 # Add title with parameters and result
 result_column_values = df[result_column]
-extreme_index = result_column_values.idxmax() if args.maximum else result_column_values.idxmin()
+extreme_index = result_column_values.idxmax() if maximum else result_column_values.idxmin()
 extreme_values = df_filtered.loc[extreme_index].to_dict()
 
 title = "Minimum"
-if args.maximum:
+if maximum:
     title = "Maximum"
 
 title += " of f("

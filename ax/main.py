@@ -264,6 +264,13 @@ args = parser.parse_args()
 
 experiment_parameters = parse_experiment_parameters(args.parameter)
 
+min_or_max = "minimize"
+if args.maximize:
+    min_or_max = "maximize"
+
+with open(f"runs/{folder_number}/{min_or_max}", 'w') as f:
+    print('', file=f)
+
 rows = []
 for param in experiment_parameters:
     _type = str(param["type"])

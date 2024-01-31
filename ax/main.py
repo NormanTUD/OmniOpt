@@ -117,7 +117,7 @@ def parse_experiment_parameters(args):
 
             param_type = this_args[j + 1]
 
-            valid_types = ["range", "fixed", "choice", "string"]
+            valid_types = ["range", "fixed", "choice"]
             valid_types_string = ', '.join(valid_types)
 
             if param_type not in valid_types:
@@ -197,6 +197,22 @@ def parse_experiment_parameters(args):
                 params.append(param)
 
                 j += 3
+            elif param_type == "choice":
+                if len(this_args) != 3:
+                    print_color("red", f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE>");
+                    sys.exit(11)
+
+                values = re.split(r'\s*,\s*', str(this_args[j + 2]))
+
+                param = {
+                    "name": name,
+                    "type": "choice",
+                    "values": values
+                }
+
+                params.append(param)
+
+                j += 3
             else:
                 print_color("red", f":warning: Parameter type {param_type} not yet implemented.");
                 sys.exit(14)
@@ -236,6 +252,8 @@ for param in experiment_parameters:
         rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
     elif _type == "fixed":
         rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
+    elif _type == "choice":
+        rows.append([str(param["name"]), _type, "", "", ", ".join(param["values"]), ""])
     else:
         print_color("red", f"Type {_type} is not yet implemented in the overview table.");
         sys.exit(15)

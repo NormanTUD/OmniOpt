@@ -512,7 +512,7 @@ try:
     
     best_result = means["result"]
 
-    table = Table(show_header=True, header_style="bold magenta", title="Best parameters")
+    table = Table(show_header=True, header_style="bold magenta", title="Best parameters:")
 
     # Dynamisch Spaltenüberschriften hinzufügen
     for key in best_parameters.keys():

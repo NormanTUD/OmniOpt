@@ -1,5 +1,20 @@
 program_name = "OmniAx"
 
+import os
+import sys
+
+def check_environment_variable(variable_name):
+    try:
+        value = os.environ[variable_name]
+        return True
+    except KeyError:
+        return False
+
+if not check_environment_variable("RUN_VIA_RUNSH"):
+    print("Must be run via run.sh, cannot be run as standalone.")
+
+    sys.exit(16)
+
 try:
     from rich.console import Console
     console = Console()
@@ -13,9 +28,7 @@ try:
 
         import time
         import csv
-        import os
         import re
-        import sys
         import argparse
         from rich.pretty import pprint
         import subprocess

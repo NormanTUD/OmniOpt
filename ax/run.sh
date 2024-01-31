@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export RUN_VIA_RUNSH=1
+
 IFS=$'\n'
 
 Green='\033[0;32m'

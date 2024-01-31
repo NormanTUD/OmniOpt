@@ -42,6 +42,7 @@ try:
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
         warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
 except KeyboardInterrupt:
     sys.exit(0)
 

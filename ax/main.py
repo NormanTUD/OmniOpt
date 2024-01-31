@@ -35,14 +35,19 @@ try:
 
         import logging
         import warnings
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.ERROR)
 
-        logging.getLogger("ax.modelbridge.torch").setLevel(logging.WARNING)
-        logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.WARNING)
+        logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+        logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
         warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+        warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
+        warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
+        warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
 except KeyboardInterrupt:
     sys.exit(0)
 

@@ -499,9 +499,11 @@ try:
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
 
-        start_str = f"[cyan]Evaluating hyperparameter constellations, searching minimum ({args.max_eval} in total)..."
+        searching_for = "minimum"
         if args.maximize:
-            start_str = f"[cyan]Evaluating hyperparameter constellations, searching maximum ({args.max_eval} in total)..."
+            searching_for = "maximum"
+
+        start_str = f"[cyan]Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
 
         progress_string = start_str
 

@@ -459,11 +459,14 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
-        start_str = "Running jobs..."
-        for i in range(0, 20):
-            start_str = start_str + " "
+        start_str = "[cyan]Running jobs..."
 
-        progress_bar = progress.add_task(f"[cyan]{start_str}", total=args.max_eval)
+        progress_string = start_str
+
+        for i in range(0, 25):
+            progress_string = progress_string + " "
+
+        progress_bar = progress.add_task(f"{progress_string}", total=args.max_eval)
 
         while submitted_jobs < args.max_eval or jobs:
             for job, trial_index in jobs[:]:
@@ -476,10 +479,14 @@ try:
                         jobs.remove((job, trial_index))
 
 
-                        #best_parameters, (means, covariances) = ax_client.get_best_parameters()
-                        #print(means)
+                        best_parameters, (means, covariances) = ax_client.get_best_parameters()
+                        best_result = means["result"]
 
-                        progress.update(progress_bar, advance=1)
+                        new_desc_string = start_str + f"(best result: {best_result})"
+
+                        new_desc_string = make_strings_equal_length(progress_string, new_desc_string)
+
+                        progress.update(progress_bar, advance=1, description=new_desc_string)
                     except ax.exceptions.core.UserInputError as error:
                         if "None for metric" in str(error):
                             print_color("red", f":warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")

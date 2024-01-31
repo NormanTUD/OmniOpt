@@ -242,7 +242,7 @@ for param in experiment_parameters:
         sys.exit(15)
 
 table = Table(title="Experiment parameters:")
-columns = ["Name", "Type", "Lower bound", "Upper bound", "Value", "Value-Type"]
+columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
 for column in columns:
     table.add_column(column)
 for row in rows:

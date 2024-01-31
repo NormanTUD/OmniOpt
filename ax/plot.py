@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 
 parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
-parser.add_argument('csv_file', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--csv_file', type=str, help='Path to a CSV file', required=True)
 args = parser.parse_args()
 
 if not os.path.exists(args.csv_file):

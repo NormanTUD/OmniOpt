@@ -33,7 +33,13 @@ function list_option_for_job {
 	args=()
 
 	if [[ -e $THISCONFIGINI ]]; then
-		args+=("p)" "2d scatter-plots" "psvg)" "2d scatterplots to svg file" "P)" "2d scatterplots with max value" "Psvg)" "2d scatterplots with max value to svg" "pa)" "Parallel plot" "v)" "Plot video"  "r)" "Repair Database" "c)" "get csv to stdout" "C)" "get csv to file" "wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)" "i)" "Get general info for this job")
+		args+=(
+			"p)" "2d scatter-plots" 
+			"psvg)" "2d scatterplots to svg file" 
+			"P)" "2d scatterplots with max value" 
+			"Psvg)" "2d scatterplots with max value to svg" 
+			"wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)"
+			"i)" "Get general info for this job")
 	fi
 
 	if [[ -d "$THISPROJECTDIR" ]]; then

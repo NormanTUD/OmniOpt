@@ -20,6 +20,400 @@ function inputbox {
 	fi
 }
 
+function list_option_for_job {
+	PROJECT=$1
+	eval `resize`
+
+	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
+	THISCONFIGINI="$THISPROJECTDIR/0.csv"
+
+	args=()
+
+	if [[ -e $THISCONFIGINI ]]; then
+		args+=("p)" "2d scatter-plots" "psvg)" "2d scatterplots to svg file" "P)" "2d scatterplots with max value" "Psvg)" "2d scatterplots with max value to svg" "pa)" "Parallel plot" "v)" "Plot video"  "r)" "Repair Database" "c)" "get csv to stdout" "C)" "get csv to file" "wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)" "i)" "Get general info for this job")
+	fi
+
+	if [[ -d "$THISPROJECTDIR" ]]; then
+		args+=("e)" "Check this project for errors")
+		args+=("d)" "Create debug-zip")
+	fi
+
+	if job_is_running "$PROJECT"; then
+		args+=("n)" "Number of jobs with status OK (job must be running)" "N)" "Number of jobs with status OK every 10 seconds (job must be running)" "f)" "Number of jobs with status FAIL (job must be running)" "l)" "Live plot results (only vaguely)")
+	fi
+
+	if [[ -d "$PROJECTDIR/$PROJECT/logs/" ]]; then
+		if [[ $(ls $PROJECTDIR/$PROJECT/logs/*/nvidia*/gpu_usage.csv | wc -l 2>/dev/null) -ne "0" ]]; then
+			args+=("g)" "Plot GPU usage" "G)" "Plot GPU usage to svg file")
+		fi
+	fi
+
+	WHATTODO=$(whiptail --title "Available options for >${PROJECT}<" --menu "Chose what to do with >$PROJECT<" $LINES $COLUMNS $(( $LINES - 8 )) "${args[@]}" "b)" "back" "q)" "quit" 3>&1 1>&2 2>&3)
+
+	exitstatus=$?
+	if [[ $exitstatus == 0 ]]; then
+		if [[ "$WHATTODO" =~ "b)" ]]; then
+			list_projects
+		elif [[ "$WHATTODO" =~ "q)" ]]; then
+			exit
+		elif [[ "$WHATTODO" =~ "wct)" ]]; then
+			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+				if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+					bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+				fi
+
+				WCT_RESULT_FILE=${RANDOM}.txt
+				while [[ -e $WCT_RESULT_FILE ]]; do
+					WCT_RESULT_FILE=${RANDOM}.txt
+				done
+				gaugecommand "Loading Wallclock-time" "This may take some time" "bash tools/get_wallclock_time.sh --project=$PROJECT --projectdir=$PROJECTDIR > $WCT_RESULT_FILE"
+				WCT_RESULT=$(cat $WCT_RESULT_FILE)
+				rm $WCT_RESULT_FILE
+
+				eval `resize`
+				whiptail --title "Wallclock-Time" --msgbox "$WCT_RESULT" $LINES $COLUMNS $(( $LINES - 8 ))
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot determine wallclock time from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "e)" ]]; then
+			bash tools/error_analyze.sh --project=$PROJECT --projectdir=$PROJECTDIR
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "d)" ]]; then
+			DEBUGFILE=debug.zip
+			let i=0
+			while [[ -e $DEBUGFILE ]]; do
+				DEBUGFILE="debug_${i}.zip"
+				let i++
+			done
+
+			list_installed_modules=list_installed_modules.log
+			let i=0
+			while [[ -e $list_installed_modules ]]; do
+				list_installed_modules="list_installed_modules_${i}.log"
+				let i++
+			done
+
+			error_analyze_file=error_analyze.log
+			let i=0
+			while [[ -e $error_analyze_file ]]; do
+				error_analyze_file="error_analyze_${i}.log"
+				let i++
+			done
+
+			bash tools/error_analyze.sh --project=$PROJECT --projectdir=$PROJECTDIR --nowhiptail 2>/dev/null > $error_analyze_file
+
+			pip3 list > $list_installed_modules
+
+			zip -r $DEBUGFILE $list_installed_modules $error_analyze_file *.out debuglogs/* $PROJECTDIR/$PROJECT/* -x $PROJECTDIR/$PROJECT/mongodb/\*
+
+			rm $error_analyze_file
+
+			if [[ -e $DEBUGFILE ]]; then
+				if (whiptail --title "Make this file available over a webserver?" --yesno "Do you want to make this file available over a webserver?" 8 78); then
+					spin_up_temporary_webserver . $DEBUGFILE
+				else
+					if [[ "$USER" == "s3811141" ]]; then
+						info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp_taurus $(pwd)/$DEBUGFILE .\n"
+					else
+						info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp $USER@taurus.hrsk.tu-dresden.de://$(pwd)/$DEBUGFILE .\n"
+					fi
+				fi
+			else
+				error_message "Could not write $DEBUFFILE"
+			fi
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "c)" ]]; then
+			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			fi
+
+			gaugecommand "CSV-Export" "Loading CSV-Export" "perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR --seperator='$SEPERATOR'"
+
+			read -rsn1 -p"Press any key to continue";echo
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "i)" ]]; then
+			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+				bash tools/show_info_whiptail.sh $PROJECT $PROJECTDIR
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot determine general info from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "pa)" ]]; then
+			CSV_DIR=${PROJECTDIR}/${PROJECT}/csv/
+			mkdir -p $CSV_DIR
+			csv_filename=${CSV_DIR}/${PROJECT}.csv
+			create_csv=1
+
+			if [[ -e $csv_filename ]]; then
+				timestamp=$(date -r $csv_filename)
+				existing_files=("$(basename $csv_filename)" "use this one ($timestamp)")
+				let i=1
+				while [[ -e ${CSV_DIR}/${PROJECT}_${i}.csv ]]; do
+					timestamp=$(date -r ${CSV_DIR}/${PROJECT}_${i}.csv)
+					existing_files+=("${PROJECT}_${i}.csv" "use this one ($timestamp)")
+					let i++
+				done
+
+				option=$(whiptail --title "File already exists. What do you want to do?" --menu "File already exists. What do you want to do?" 25 78 16 \
+					"${existing_files[@]}" \
+					"new" "Create a new one" 3>&1 1>&2 2>&3)
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					if [[ $option == "new" ]]; then
+						let i=1
+						while [[ -e $csv_filename ]]; do
+							csv_filename=${CSV_DIR}/${PROJECT}_${i}.csv
+							let i++
+						done
+					else
+						create_csv=0
+					fi
+				else
+					list_option_for_job $PROJECT
+					return
+				fi
+			fi
+
+			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			fi
+
+			if [[ $create_csv == "1" ]]; then
+				gaugecommand "CSV-Export" "Loading CSV-Export, printing to $csv_filename" "perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR --filename=$csv_filename"
+			else
+				echo "Not re-creating CSV. Using $csv_filename"
+			fi
+
+			if [[ -e "$csv_filename" ]]; then
+				if [[ -s "$csv_filename" ]]; then
+					parallelplot_file=$PROJECTDIR/$PROJECT/parallel-plot/plot.html
+					bash tools/parallel_plot.sh $csv_filename $parallelplot_file
+				else
+					eval `resize`
+					whiptail --title "File printed" --msgbox "The file was printed to $csv_filename but is empty" $LINES $COLUMNS $(( $LINES - 8 ))
+				fi
+			else
+				eval `resize`
+				whiptail --title "File not printed" --msgbox "The file was NOT printed to $csv_filename, this might be a Bug in OmniOpt. Contact <norman.koch@tu-dresden.de>." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "C)" ]]; then
+			CSV_DIR=${PROJECTDIR}/${PROJECT}/csv/
+			mkdir -p $CSV_DIR
+			csv_filename=${CSV_DIR}/${PROJECT}.csv
+			let i=1
+			while [[ -e $csv_filename ]]; do
+				csv_filename=${CSV_DIR}/${PROJECT}_${i}.csv
+				let i++
+			done
+
+			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			fi
+
+			csv_filename=$(inputbox "Filename for the CSV file" "Path of the file for the CSV of $PROJECT" "$csv_filename")
+			if [[ $? = 0 ]]; then
+				echo "Filename: $csv_filename"
+
+				gaugecommand "CSV-Export" "Loading CSV-Export, printing to $csv_filename" "perl script/runningdbtocsv.pl --project=$PROJECT --projectdir=$PROJECTDIR --filename=$csv_filename --seperator='$SEPERATOR'"
+				if [[ -e "$csv_filename" ]]; then
+					if [[ -s "$csv_filename" ]]; then
+						eval `resize`
+						whiptail --title "File printed" --msgbox "The file was printed to $csv_filename" $LINES $COLUMNS $(( $LINES - 8 ))
+					else
+						eval `resize`
+						whiptail --title "File printed" --msgbox "The file was printed to $csv_filename but is empty" $LINES $COLUMNS $(( $LINES - 8 ))
+					fi
+				else
+					whiptail --title "File not printed" --msgbox "The file was NOT printed to $csv_filename, this might be a Bug in OmniOpt. Contact <norman.koch@tu-dresden.de>." 30 78
+				fi
+			else
+				echo_red "You cancelled the CSV creation"
+			fi
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "p)" ]]; then
+			echo_green "Plot"
+			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			fi
+			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/"
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "psvg)" ]]; then
+			SVGDIR=$PROJECTDIR/$PROJECT/2d-scatterplots/
+			mkdir -p $SVGDIR
+			export PLOTPATH=$SVGDIR/${PROJECT}.svg
+			export CNT=0
+			while [[ -e $PLOTPATH ]]; do
+				export CNT=$(($CNT+1))
+				export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}.svg
+			done
+
+			echo_green "Plot"
+			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			fi
+
+			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/"
+				if [[ -e "$PLOTPATH" ]]; then
+					info_message "Wrote to file $PLOTPATH"
+				else
+					error_message "Failed to write $PLOTPATH"
+				fi
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+
+			export PLOTPATH=
+			list_option_for_job $PROJECT
+
+		elif [[ "$WHATTODO" =~ "P)" ]]; then
+			echo_green "Plot with max value"
+
+			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+				maxvalue=$(inputbox "Max value for plot" "Enter a max value for plotting $PROJECT (float)" "0.1")
+				echo_green "Got maxvalue = ${maxvalue}"
+				if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+					bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+				fi
+				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/ --maxvalue=$maxvalue"
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "v)" ]]; then
+			length_in_seconds=$(inputbox "How many seconds should the video have?" "Number of seconds of the video" "30")
+			number_of_frames=$((20 * $length_in_seconds))
+			echo_green "Got number_of_frames= ${number_of_frames}"
+			max_value=$(inputbox "Should there be a max value?" "Max value? (leave empty for none)" "")
+			echo_green "Got max_value = ${max_value}"
+
+			echo_green "Plotvideo"
+			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			fi
+
+			if [[ -z $max_value ]]; then
+				srun tools/animation.sh --project=$PROJECT --frameno=$number_of_frames --create_video
+			else
+				srun tools/animation.sh --project=$PROJECT --frameno=$number_of_frames --maxvalue=$max_value --create_video
+			fi
+
+			export PLOTPATH=
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "Psvg)" ]]; then
+			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+				maxvalue=$(inputbox "Max value for plot" "Enter a max value for plotting $PROJECT (float)" "0.1")
+				echo_green "Got maxvalue = ${maxvalue}"
+
+				SVGDIR=$PROJECTDIR/$PROJECT/2d-scatterplots/
+				mkdir -p $SVGDIR
+
+				export PLOTPATH=$SVGDIR/${PROJECT}_limit_${maxvalue}.svg
+				CNT=0
+				while [[ -e $PLOTPATH ]]; do
+					CNT=$(($CNT+1))
+					export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}_limit_${maxvalue}_%s.svg
+				done
+
+				echo_green "Plot"
+				if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
+					bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+				fi
+
+				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/ --maxvalue=$maxvalue"
+
+
+				if [[ -e "$PLOTPATH" ]]; then
+					info_message "Wrote to file $PLOTPATH"
+				else
+					error_message "Failed to write $PLOTPATH"
+				fi
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+
+			export PLOTPATH=
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "l)" ]]; then
+			bash tools/live_plot.sh $PROJECTDIR $PROJECT
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "r)" ]]; then
+			echo_green "Repair database"
+			bash tools/repair_database.sh $PROJECTDIR/$PROJECT
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "g)" ]]; then
+			echo_green "Plot GPU usage"
+			list_gpu_log_folders_for_plot $PROJECT
+		elif [[ "$WHATTODO" =~ "G)" ]]; then
+			echo_green "Plot GPU usage to SVG"
+			list_gpu_log_folders_for_plot_svg $PROJECT
+		elif [[ "$WHATTODO" =~ "n)" ]]; then
+			NUMBER_OF_OK_JOBS=$(perl tools/run_mongodb_on_project.pl --project=$PROJECT --projectdir=$PROJECTDIR --query='db.jobs.find({"result.status": { $eq: "ok" } }, { "result.loss": 1 } ).count()' 2>/dev/null)
+			if [[ "$NUMBER_OF_OK_JOBS" == "" ]]; then
+				NUMBER_OF_OK_JOBS="*an unknown number of* (check if the job is running)"
+			fi
+			info_message "There are $NUMBER_OF_OK_JOBS jobs with status OK in the DB of $PROJECT"
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "N)" ]]; then
+			NUMBER_OF_OK_JOBS=$(perl tools/run_mongodb_on_project.pl --project=$PROJECT --projectdir=$PROJECTDIR --query='db.jobs.find({"result.status": { $eq: "ok" } }, { "result.loss": 1 } ).count()' 2>/dev/null) 
+			set +x
+			while [ 1 ]; do
+				{
+					for ((i = 0 ; i <= 100 ; i+=5)); do
+						if [[ i -eq 0 ]]; then
+							NUMBER_OF_OK_JOBS=$(perl tools/run_mongodb_on_project.pl --project=$PROJECT --projectdir=$PROJECTDIR --query='db.jobs.find({"result.status": { $eq: "ok" } }, { "result.loss": 1 } ).count()' 2>/dev/null) 
+						fi
+						sleep 0.05
+						echo $i
+						read -t 0.1 -N 1 input
+						if [[ $input == 'q' ]] || [[ $input == "Q" ]];then
+							exit 1
+						fi
+					done
+				} | whiptail --gauge "Currently, there are $NUMBER_OF_OK_JOBS status OK Jobs in the DB for ${PROJECT}. Wait or keep pressing CTRL-c to exit..." 6 120 0
+				echo "Press CTRL-C to cancel now"
+				sleep 1
+			done
+			if [[ "$DEBUG" == "1" ]]; then
+				set -x
+			fi
+
+			list_option_for_job $PROJECT
+		elif [[ "$WHATTODO" =~ "f)" ]]; then
+			NUMBER_OF_FAILED_JOBS=$(perl tools/run_mongodb_on_project.pl --project=$PROJECT --projectdir=$PROJECTDIR --query='db.jobs.find({"result.status": { $eq: "fail" } }, { "result.loss": 1 } ).count()' 2>/dev/null)
+			if [[ "$NUMBER_OF_OK_JOBS" == "" ]]; then
+				NUMBER_OF_FAILED_JOBS="*an unknown number of* (check if the job is running)"
+			fi
+			error_message "There are $NUMBER_OF_FAILED_JOBS jobs with status FAIL in the DB of $PROJECT"
+			list_option_for_job $PROJECT
+		else
+			echo_red "ADA2"
+		fi
+	else
+		echo_red "You chose to cancel (2)"
+		exit 1
+	fi
+}
+
 function change_variables {
 	eval `resize`
 	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "SHOWALLGPUS" "Show all GPUs in GPU-Plot (currently $SHOWALLGPUS)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run.sh (currently $DEBUG)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "SEPERATOR" "Seperator for CSV files (currently $SEPERATOR)" "s)" "Save current settings as default for this OmniAx-installation" "S)" "Save current settings as default for all OmniAx-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)

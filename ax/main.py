@@ -498,7 +498,7 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
-        start_str = f"[cyan]Evaluating different hyperparameter constellations ({args.max_eval} in total)..."
+        start_str = f"[cyan]Evaluating hyperparameter constellations ({args.max_eval} in total)..."
 
         progress_string = start_str
 

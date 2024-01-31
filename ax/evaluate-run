@@ -1,7 +1,28 @@
 #!/bin/bash
 
+PROJECTDIR=runs
+
+source ../tools/general.sh
+
+function change_project_dir {
+	PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
+}
+
 function main {
-	echo "main"
+	if [[ -d $PROJECTDIR ]]; then
+		debug_code "The folder '$PROJECTDIR' exists"
+
+		list_projects
+	else
+		debug_code "The folder '$PROJECTDIR' does not exist."
+		change_project_dir
+		if [[ $? = 0 ]]; then
+			main
+		else
+			exit $?
+		fi
+		main
+	fi
 }
 
 # https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced

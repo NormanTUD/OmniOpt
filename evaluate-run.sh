@@ -1572,7 +1572,7 @@ function main {
 		else
 			exit $?
 		fi
-        main
+		main
 	fi
 }
 

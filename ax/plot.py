@@ -6,23 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from itertools import combinations
 
-# Annahme: df ist dein DataFrame
-# Ersetze dies durch deinen tatsächlichen DataFrame-Namen
-
-df = pd.DataFrame({
-    'trial_index': [0, 1, 2],
-    'arm_name': ['0_0', '1_0', '2_0'],
-    'trial_status': ['COMPLETED', 'COMPLETED', 'COMPLETED'],
-    'generation_method': ['Sobol', 'Sobol', 'Sobol'],
-    'result': [12.145566, -765.380083, -4.341217],
-    'x': [-236.854434, -770.380083, 1],
-    'y': [123123.0, 5.0, 1000],
-    'z': [102.0, 102.0, 4]
-})
-
-
 parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
-parser.add_argument('csv_file', type=str, help='Path to a CSV file')
+parser.add_argument('csv_file', type=str, help='Path to a CSV file', required=True)
 args = parser.parse_args()
 
 if not os.path.exists(args.csv_file):

@@ -495,7 +495,7 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
-        start_str = "[cyan]Running jobs..."
+        start_str = "[cyan]Evaluating different hyperparameter constellations..."
 
         progress_string = start_str
 

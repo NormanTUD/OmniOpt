@@ -583,3 +583,5 @@ try:
     console.print(table)
 except KeyboardInterrupt:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")
+except TypeError:
+    print_color("red", ":warning: The program has been halted without attaining any tangible results.")

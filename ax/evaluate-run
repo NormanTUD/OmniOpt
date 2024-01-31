@@ -4,6 +4,162 @@ PROJECTDIR=runs
 
 source ../tools/general.sh
 
+function change_variables {
+	eval `resize`
+	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "SHOWALLGPUS" "Show all GPUs in GPU-Plot (currently $SHOWALLGPUS)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run.sh (currently $DEBUG)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "SEPERATOR" "Seperator for CSV files (currently $SEPERATOR)" "s)" "Save current settings as default for this OmniOpt-installation" "S)" "Save current settings as default for all OmniOpt-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
+	exitstatus=$?
+	if [[ $exitstatus == 0 ]]; then
+		if [[ "$MENU_CHOICE" =~ "m)" ]]; then
+			main
+		elif [[ "$MENU_CHOICE" =~ "SHOWALLGPUS" ]]; then
+			DEFAULTNO=''
+			if [[ "$SHOWALLGPUS" == "0" ]]; then
+				DEFAULTNO=" --defaultno "
+			fi
+
+			eval `resize`
+			if (whiptail --title "Show all GPUs in plot?" --yesno "Show all GPUs instead of the ones from the log file only in GPU-Plot?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+				export SHOWALLGPUS=1
+			else
+				export SHOWALLGPUS=0
+			fi
+
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "SEPERATOR" ]]; then
+			chosenvar=$(whiptail --inputbox "Seperator for CSV Files?" 8 39 "$SEPERATOR" --title "SEPERATOR" 3>&1 1>&2 2>&3)
+			eval "export $MENU_CHOICE=$chosenvar"
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "BUBBLESIZEINPX" ]]; then
+			chosenvar=$(whiptail --inputbox "Size of the plot bubbles in px?" 8 39 "$BUBBLESIZEINPX" --title "BUBBLESIZEINPX" 3>&1 1>&2 2>&3)
+			eval "export $MENU_CHOICE=$chosenvar"
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "NONZERODIGITS" ]]; then
+			chosenvar=$(whiptail --inputbox "Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
+			while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
+				chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
+			done
+			eval "export $MENU_CHOICE=$chosenvar"
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "SVGEXPORTSIZE" ]]; then
+			chosenvar=$(whiptail --inputbox "Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
+			while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
+				chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
+			done
+			eval "export $MENU_CHOICE=$chosenvar"
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "SHOWFAILEDJOBSINPLOT" ]]; then
+			DEFAULTNO=''
+			if [[ "$SHOWFAILEDJOBSINPLOT" == "0" ]]; then
+				DEFAULTNO=" --defaultno "
+			fi
+
+			eval `resize`
+			if (whiptail --title "Show invalid jobs in plot?" --yesno "Do you want to show invalid jobs with really high values in plot?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+				export SHOWFAILEDJOBSINPLOT=1
+			else
+				export SHOWFAILEDJOBSINPLOT=0
+			fi
+
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "HIDEMAXVALUESINPLOT" ]]; then
+			DEFAULTNO=''
+			if [[ "$HIDEMAXVALUESINPLOT" == "0" ]]; then
+				DEFAULTNO=" --defaultno "
+			fi
+
+			eval `resize`
+			if (whiptail --title "Hide max-values-string in plot?" --yesno "Do you want to hide the 'max value' string in plots?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+				export HIDEMAXVALUESINPLOT=1
+			else
+				export HIDEMAXVALUESINPLOT=0
+			fi
+
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "SCIENTIFICNOTATION" ]]; then
+			chosenvar=$(whiptail --inputbox "Use scientific notation? 0 = no, 1 = yes with 1 decimal point, 2 = yes with 2 decimal points, ..." 8 80 "$SCIENTIFICNOTATION" --title "SCIENTIFICNOTATION" 3>&1 1>&2 2>&3)
+			eval "export $MENU_CHOICE=$chosenvar"
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
+			DEFAULTNO=''
+			if [[ "$DISPLAYGAUGE" == "0" ]]; then
+				DEFAULTNO=" --defaultno "
+			fi
+
+			eval `resize`
+			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge whereever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+				export DISPLAYGAUGE=1
+			else
+				export DISPLAYGAUGE=0
+			fi
+
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "PROJECTDIR" ]]; then
+			chosenvar=$(whiptail --inputbox "Path of Projects" 8 80 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
+			while [[ ! -d $chosenvar ]]; do
+				chosenvar=$(whiptail --inputbox "The path you chose does not exist. Choose another project path:" 8 80 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
+			done
+			eval "export $MENU_CHOICE=$chosenvar"
+
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "DEBUG" ]]; then
+			DEFAULTNO=''
+			if [[ "$DEBUG" == "0" ]]; then
+				DEFAULTNO=" --defaultno "
+			fi
+
+			eval `resize`
+			if (whiptail --title "Enable debug?" --yesno "Do you want to enable debug?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+				export DEBUG=1
+				set -x
+			else
+				export DEBUG=0
+				set +x
+			fi
+
+			change_variables
+		elif [[ "$MENU_CHOICE" =~ "s)" ]]; then
+			if [[ -e ".default_settings" ]]; then
+				rm .default_settings
+			fi
+
+			echo "export NONZERODIGITS=$NONZERODIGITS" >> .default_settings
+			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> .default_settings
+			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .default_settings
+			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .default_settings
+			echo "export SHOWALLGPUS=$SHOWALLGPUS" >> .default_settings
+			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> .default_settings
+			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .default_settings
+			echo "export PROJECTDIR=$PROJECTDIR" >> .default_settings
+			echo "export DEBUG=$DEBUG" >> .default_settings
+			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .default_settings
+			echo "export SEPERATOR='$SEPERATOR'" >> .default_settings
+		elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
+			if [[ -e "$HOME/.oo_default_settings" ]]; then
+				rm ~/.oo_default_settings
+			fi
+
+			echo "export NONZERODIGITS=$NONZERODIGITS" >> ~/.oo_default_settings
+			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> ~/.oo_default_settings
+			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oo_default_settings
+			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oo_default_settings
+			echo "export SHOWALLGPUS=$SHOWALLGPUS" >> ~/.oo_default_settings
+			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> ~/.oo_default_settings
+			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oo_default_settings
+			echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oo_default_settings
+			echo "export DEBUG=$DEBUG" >> ~/.oo_default_settings
+			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oo_default_settings
+			echo "export SEPERATOR='$SEPERATOR'" >> ~/.oo_default_settings
+		else
+			eval `resize`
+			whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3
+			change_variables
+		fi
+	else
+		echo_red "You chose to cancel (3)"
+		exit 1
+	fi
+}
+
 function change_project_dir {
 	PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
 }
@@ -18,37 +174,18 @@ function list_projects {
 	eval `resize`
 
 	# REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
-	# "s)" "List running SLURM jobs"
-	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "p)" "Plot multiple projects" "R)" "Restart old jobs" "C)" "CSV from multiple projects" "c)" "Change the project dir" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
+	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "Change the project dir" "v)" "Show/Change Variables" "q)" "quit" 3>&1 1>&2 2>&3)
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$WHATTODO" =~ "c)" ]]; then
 			change_project_dir
 			main
-		elif [[ "$WHATTODO" =~ "p)" ]]; then
-			plot_multiple_projects
-			main
-		elif [[ "$WHATTODO" =~ "C)" ]]; then
-			csv_multiple_projects
-			main
-		elif [[ "$WHATTODO" =~ "R)" ]]; then
-			restart_old_jobs
-			main
 		elif [[ "$WHATTODO" =~ "S)" ]]; then
 			spin_up_temporary_webserver . ""
 			main
-		elif [[ "$WHATTODO" =~ "s)" ]]; then
-			list_running_slurm_jobs
-			main
 		elif [[ "$WHATTODO" =~ "v)" ]]; then
 			change_variables
-			main
-		elif [[ "$WHATTODO" =~ "t)" ]]; then
-			perl sbatch.pl --run_tests --debug && info_message "All tests ok." || error_message "At least one of the tests failed."
-			main
-		elif [[ "$WHATTODO" =~ "T)" ]]; then
-			perl sbatch.pl --run_full_tests --debug && info_message "All tests ok." || error_message "$? tests failed."
 			main
 		elif [[ "$WHATTODO" =~ "q)" ]]; then
 			debug_code "Exiting"

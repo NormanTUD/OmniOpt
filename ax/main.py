@@ -456,7 +456,9 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
-        start_str = "Running jobs... "
+        start_str = "Running jobs..."
+        for i in range(0, 10):
+            start_str = start_str + " "
 
         progress_bar = progress.add_task(f"[cyan]{start_str}", total=args.max_eval)
 

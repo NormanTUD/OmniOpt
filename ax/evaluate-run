@@ -8,6 +8,60 @@ function change_project_dir {
 	PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
 }
 
+function list_projects {
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/0.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/0.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+
+	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
+		echo "No projects found (list_projects)"
+	fi
+
+	eval `resize`
+
+	# REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
+	# "s)" "List running SLURM jobs"
+	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "p)" "Plot multiple projects" "R)" "Restart old jobs" "C)" "CSV from multiple projects" "c)" "Change the project dir" "v)" "Show/Change Variables" "t)" "Run OmniOpt-Tests (fast)" "T)" "Run OmniOpt-Tests (complete)" "q)" "quit" 3>&1 1>&2 2>&3)
+
+	exitstatus=$?
+	if [[ $exitstatus == 0 ]]; then
+		if [[ "$WHATTODO" =~ "c)" ]]; then
+			change_project_dir
+			main
+		elif [[ "$WHATTODO" =~ "p)" ]]; then
+			plot_multiple_projects
+			main
+		elif [[ "$WHATTODO" =~ "C)" ]]; then
+			csv_multiple_projects
+			main
+		elif [[ "$WHATTODO" =~ "R)" ]]; then
+			restart_old_jobs
+			main
+		elif [[ "$WHATTODO" =~ "S)" ]]; then
+			spin_up_temporary_webserver . ""
+			main
+		elif [[ "$WHATTODO" =~ "s)" ]]; then
+			list_running_slurm_jobs
+			main
+		elif [[ "$WHATTODO" =~ "v)" ]]; then
+			change_variables
+			main
+		elif [[ "$WHATTODO" =~ "t)" ]]; then
+			perl sbatch.pl --run_tests --debug && info_message "All tests ok." || error_message "At least one of the tests failed."
+			main
+		elif [[ "$WHATTODO" =~ "T)" ]]; then
+			perl sbatch.pl --run_full_tests --debug && info_message "All tests ok." || error_message "$? tests failed."
+			main
+		elif [[ "$WHATTODO" =~ "q)" ]]; then
+			debug_code "Exiting"
+			exit
+		else
+			list_option_for_job "$WHATTODO"
+		fi
+	else
+		echo_red "You chose to cancel (4)"
+		exit 1
+	fi
+}
+
 function main {
 	if [[ -d $PROJECTDIR ]]; then
 		debug_code "The folder '$PROJECTDIR' exists"

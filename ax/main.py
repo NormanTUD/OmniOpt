@@ -235,7 +235,7 @@ for param in experiment_parameters:
     if _type == "range":
         rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
     elif _type == "fixed":
-        rows.append([str(param["name"]), _type, "", "", str(param["value"]), '-'])
+        rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
     else:
         print_color("red", f"Type {_type} is not yet implemented in the overview table.");
         sys.exit(15)

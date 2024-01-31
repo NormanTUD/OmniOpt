@@ -52,12 +52,10 @@ try:
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
 
 
-        # Setze die Protokollierungsebene auf WARNING
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.ERROR)
 
-        # Setze die Protokollierungsebene für spezifische Module auf WARNING
-        logging.getLogger("ax.modelbridge.torch").setLevel(logging.WARNING)
-        logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.WARNING)
+        logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+        logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
 
         # Ignoriere alle Runtime-Warnungen
         warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -407,12 +405,9 @@ warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.t
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
 
 
-# Setze die Protokollierungsebene auf WARNING
-logging.basicConfig(level=logging.WARNING)
-
-# Setze die Protokollierungsebene für spezifische Module auf WARNING
-logging.getLogger("ax.modelbridge.torch").setLevel(logging.WARNING)
-logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.WARNING)
+logging.basicConfig(level=logging.ERROR)
+logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
 
 # Ignoriere alle Runtime-Warnungen
 warnings.filterwarnings("ignore", category=RuntimeWarning)

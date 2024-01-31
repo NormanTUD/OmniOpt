@@ -103,9 +103,6 @@ function list_option_for_job {
 
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			echo_green "Plot"
-			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
-				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
-			fi
 			if [[ -d "$PROJECTDIR/$PROJECT/$NUMBER/0.csv" ]]; then
 				python3 plot.py $PROJECTDIR/$PROJECT/$NUMBER/
 			else
@@ -127,9 +124,6 @@ function list_option_for_job {
 			done
 
 			echo_green "Plot"
-			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
-				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
-			fi
 
 			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
 				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/"
@@ -155,9 +149,6 @@ function list_option_for_job {
 			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
 				maxvalue=$(inputbox "Max value for plot" "Enter a max value for plotting $PROJECT (float)" "0.1")
 				echo_green "Got maxvalue = ${maxvalue}"
-				if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
-					bash tools/repair_database.sh $PROJECTDIR/$PROJECT
-				fi
 				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/ --maxvalue=$maxvalue"
 			else
 				eval `resize`
@@ -184,9 +175,6 @@ function list_option_for_job {
 				done
 
 				echo_green "Plot"
-				if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
-					bash tools/repair_database.sh $PROJECTDIR/$PROJECT
-				fi
 
 				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/ --maxvalue=$maxvalue"
 

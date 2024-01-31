@@ -560,7 +560,7 @@ try:
     for key in best_parameters.keys():
         table.add_column(key)
 
-    table.add_column("result")
+    table.add_column("result (inexact)")
 
     # "best results" als Zeilenüberschrift hinzufügen
     row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];

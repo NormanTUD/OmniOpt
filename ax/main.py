@@ -48,6 +48,26 @@ try:
         warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+
+
+        # Setze die Protokollierungsebene auf WARNING
+        logging.basicConfig(level=logging.WARNING)
+
+        # Setze die Protokollierungsebene für spezifische Module auf WARNING
+        logging.getLogger("ax.modelbridge.torch").setLevel(logging.WARNING)
+        logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.WARNING)
+
+        # Ignoriere alle Runtime-Warnungen
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+        # Ignoriere alle Informationsmeldungen
+        logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
+        logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
+
+        # Ignoriere die InputDataWarning spezifisch
+        warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
 except KeyboardInterrupt:
     sys.exit(0)
 

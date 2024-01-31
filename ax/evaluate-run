@@ -187,9 +187,6 @@ function change_project_dir {
 function list_projects {
 	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/0.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/0.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
 
-	echo "AVAILABLE_PROJECTS:"
-	echo ">>$AVAILABLE_PROJECTS<<"
-
 	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
 		echo_red "No projects found (list_projects)"
 	fi

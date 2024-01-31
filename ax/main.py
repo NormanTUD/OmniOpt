@@ -244,14 +244,14 @@ print_color("green", program_name)
 parser = argparse.ArgumentParser(
     prog=program_name,
     description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
-    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --partition=alpha --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize"
+    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --partition=alpha --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
 )
 
 parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
 parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
 parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
-parser.add_argument('--timeout_min', help='Timeout for slurm jobs', type=int, default=60)
+parser.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
 parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 parser.add_argument('--partition', help='Name of the partition it should run on', type=str, required=True)
 parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)

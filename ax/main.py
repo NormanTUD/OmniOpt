@@ -68,6 +68,7 @@ try:
         warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 except KeyboardInterrupt:
     sys.exit(0)
 
@@ -103,6 +104,18 @@ def create_folder_and_file (folder, extension):
 result_csv_file = create_folder_and_file(f"runs/{folder_number}", "csv")
 
 print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
+
+def sort_numerically_or_alphabetically(arr):
+    try:
+        # Check if all elements can be converted to numbers
+        numbers = [float(item) for item in arr]
+        # If successful, order them numerically
+        sorted_arr = sorted(numbers)
+    except ValueError:
+        # If there's an error, order them alphabetically
+        sorted_arr = sorted(arr)
+
+    return sorted_arr
 
 def parse_experiment_parameters(args):
     params = []
@@ -204,9 +217,12 @@ def parse_experiment_parameters(args):
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
+                values = sort_numerically_or_alphabetically(values)
+
                 param = {
                     "name": name,
                     "type": "choice",
+                    "is_ordered": True,
                     "values": values
                 }
 
@@ -253,7 +269,10 @@ for param in experiment_parameters:
     elif _type == "fixed":
         rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
     elif _type == "choice":
-        rows.append([str(param["name"]), _type, "", "", ", ".join(param["values"]), ""])
+        values = param["values"]
+        values = [str(item) for item in values]
+
+        rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
     else:
         print_color("red", f"Type {_type} is not yet implemented in the overview table.");
         sys.exit(15)

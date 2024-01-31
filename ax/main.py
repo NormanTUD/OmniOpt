@@ -499,8 +499,7 @@ try:
 
         progress_string = start_str
 
-        for i in range(0, 25):
-            progress_string = progress_string + " "
+        progress_string = progress_string
 
         progress_bar = progress.add_task(f"{progress_string}", total=args.max_eval)
 

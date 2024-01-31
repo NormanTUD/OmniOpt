@@ -6,14 +6,14 @@ from itertools import combinations
 # Ersetze dies durch deinen tatsächlichen DataFrame-Namen
 
 df = pd.DataFrame({
-    'trial_index': [0, 1],
-    'arm_name': ['0_0', '1_0'],
-    'trial_status': ['COMPLETED', 'COMPLETED'],
-    'generation_method': ['Sobol', 'Sobol'],
-    'result': [122886.145566, -765.380083],
-    'x': [-236.854434, -770.380083],
-    'y': [123123.0, 5.0],
-    'z': [102.0, 102.0]
+    'trial_index': [0, 1, 2],
+    'arm_name': ['0_0', '1_0', '2_0'],
+    'trial_status': ['COMPLETED', 'COMPLETED', 'COMPLETED'],
+    'generation_method': ['Sobol', 'Sobol', 'Sobol'],
+    'result': [12.145566, -765.380083, -4.341217],
+    'x': [-236.854434, -770.380083, 1],
+    'y': [123123.0, 5.0, 1000],
+    'z': [102.0, 102.0, 4]
 })
 
 # Spalten entfernen

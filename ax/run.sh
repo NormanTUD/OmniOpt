@@ -68,6 +68,7 @@ if [[ ! -d "$VENV_DIR" ]]; then
 	ppip submitit
 	ppip ax
 	ppip ax-platform
+	ppip Pyarrow
 	ppip matplotlib
 fi
 

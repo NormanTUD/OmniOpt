@@ -589,5 +589,11 @@ except KeyboardInterrupt:
 except TypeError:
     print_color("red", ":warning: The program has been halted without attaining any tangible results.")
 
-print(type(ax_client.get_trials_data_frame()))
-print(ax_client.get_trials_data_frame())
+pd_csv = f'runs/{folder_number}/pd.csv'
+print_color("green", f"Saving result pandas data frame to {pd_csv}")
+try:
+    pd_frame = ax_client.get_trials_data_frame()
+    pd_frame.to_csv(pd_csv, index=False)
+except Exception as e:
+    print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+    sys.exit(17)

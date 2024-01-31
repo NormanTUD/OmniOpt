@@ -2,6 +2,7 @@
 
 PROJECTDIR=runs
 
+source .shellscript_functions
 source ../tools/general.sh
 
 function inputbox {
@@ -38,10 +39,6 @@ function list_option_for_job {
 	if [[ -d "$THISPROJECTDIR" ]]; then
 		args+=("e)" "Check this project for errors")
 		args+=("d)" "Create debug-zip")
-	fi
-
-	if job_is_running "$PROJECT"; then
-		args+=("n)" "Number of jobs with status OK (job must be running)" "N)" "Number of jobs with status OK every 10 seconds (job must be running)" "f)" "Number of jobs with status FAIL (job must be running)" "l)" "Live plot results (only vaguely)")
 	fi
 
 	if [[ -d "$PROJECTDIR/$PROJECT/logs/" ]]; then
@@ -139,7 +136,7 @@ function list_option_for_job {
 			read -rsn1 -p"Press any key to continue";echo
 			list_option_for_job $PROJECT
 		elif [[ "$WHATTODO" =~ "i)" ]]; then
-			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
+			if [[ -d "$PROJECTDIR/$PROJECT/" ]]; then
 				bash tools/show_info_whiptail.sh $PROJECT $PROJECTDIR
 			else
 				eval `resize`
@@ -245,11 +242,11 @@ function list_option_for_job {
 			if [[ -e $PROJECTDIR/$PROJECT/mongodb/mongod.lock ]]; then
 				bash tools/repair_database.sh $PROJECTDIR/$PROJECT
 			fi
-			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
-				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/"
+			if [[ -d "$PROJECTDIR/$PROJECT/$NUMBER/0.csv" ]]; then
+				python3 plot.py $PROJECTDIR/$PROJECT/$NUMBER/
 			else
 				eval `resize`
-				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/$NUMBER/0.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 			list_option_for_job $PROJECT
 		elif [[ "$WHATTODO" =~ "psvg)" ]]; then

@@ -581,5 +581,5 @@ try:
 
     # Drucke die Tabelle
     console.print(table)
-except TypeError:
+except KeyboardInterrupt:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")

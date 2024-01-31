@@ -34,6 +34,14 @@ try:
         import subprocess
 
         import logging
+        import warnings
+        logging.basicConfig(level=logging.WARNING)
+
+        logging.getLogger("ax.modelbridge.torch").setLevel(logging.WARNING)
+        logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.WARNING)
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
+        warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
 except KeyboardInterrupt:
     sys.exit(0)
 

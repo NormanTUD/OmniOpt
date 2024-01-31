@@ -475,6 +475,11 @@ try:
                         ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                         jobs.remove((job, trial_index))
 
+
+                        best_parameters, (means, covariances) = ax_client.get_best_parameters()
+
+                        print(means)
+
                         progress.update(progress_bar, advance=1)
                     except ax.exceptions.core.UserInputError as error:
                         if "None for metric" in str(error):

@@ -79,10 +79,31 @@ def dier (msg):
     pprint(msg)
     sys.exit(10)
 
+parser = argparse.ArgumentParser(
+    prog=program_name,
+    description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
+    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --partition=alpha --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
+)
+
+parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
+parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
+parser.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
+parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+parser.add_argument('--partition', help='Name of the partition it should run on', type=str, required=True)
+parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+parser.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
+parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
+
+args = parser.parse_args()
+
 file_number = 0
 folder_number = 0
 
-while os.path.exists(f"runs/{folder_number}"):
+while os.path.exists(f"runs/{args.experiment_name}/{folder_number}"):
     folder_number = folder_number + 1
 
 def create_folder_and_file (folder, extension):
@@ -101,9 +122,9 @@ def create_folder_and_file (folder, extension):
 
         file_number += 1
 
-result_csv_file = create_folder_and_file(f"runs/{folder_number}", "csv")
+result_csv_file = create_folder_and_file(f"runs/{args.experiment_name}/{folder_number}", "csv")
 
-with open(f"runs/{folder_number}/run.sh", 'w') as f:
+with open(f"runs/{args.experiment_name}/{folder_number}/run.sh", 'w') as f:
     print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
 
 print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
@@ -241,34 +262,13 @@ def parse_experiment_parameters(args):
 
 print_color("green", program_name)
 
-parser = argparse.ArgumentParser(
-    prog=program_name,
-    description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
-    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --partition=alpha --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
-)
-
-parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
-parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
-parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
-parser.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
-parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-parser.add_argument('--partition', help='Name of the partition it should run on', type=str, required=True)
-parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-parser.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', default="exp", type=str)
-parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
-
-args = parser.parse_args()
-
 experiment_parameters = parse_experiment_parameters(args.parameter)
 
 min_or_max = "minimize"
 if args.maximize:
     min_or_max = "maximize"
 
-with open(f"runs/{folder_number}/{min_or_max}", 'w') as f:
+with open(f"runs/{args.experiment_name}/{folder_number}/{min_or_max}", 'w') as f:
     print('', file=f)
 
 rows = []
@@ -494,7 +494,7 @@ try:
             objectives={"result": ObjectiveProperties(minimize=minimize)}
         )
 
-    log_folder = f"runs/{folder_number}/%j"
+    log_folder = f"runs/{args.experiment_name}/{folder_number}/%j"
     executor = submitit.AutoExecutor(folder=log_folder)
 
     executor.update_parameters(
@@ -596,7 +596,7 @@ except KeyboardInterrupt:
 except TypeError:
     print_color("red", ":warning: The program has been halted without attaining any tangible results.")
 
-pd_csv = f'runs/{folder_number}/pd.csv'
+pd_csv = f'runs/{args.experiment_name}/{folder_number}/pd.csv'
 print_color("green", f"Saving result pandas data frame to {pd_csv}")
 try:
     pd_frame = ax_client.get_trials_data_frame()

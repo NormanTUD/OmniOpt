@@ -60,9 +60,14 @@ cbar.set_label('Result', rotation=270, labelpad=15)
 result_column_values = df[result_column]
 extreme_index = result_column_values.idxmax() if args.maximum else result_column_values.idxmin()
 extreme_values = df_filtered.loc[extreme_index].to_dict()
-title = "f("
+
+title = "Minimum"
+if args.maximum:
+    title = "Maximum"
+
+title += " of f("
 title += ', '.join([f"{key} = {value}" for key, value in extreme_values.items()])
-title += f") = {result_column_values[extreme_index]}"
+title += f") at {result_column_values[extreme_index]}"
 fig.suptitle(title)
 
 plt.show()

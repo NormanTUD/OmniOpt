@@ -22,10 +22,12 @@ function inputbox {
 
 function list_option_for_job {
 	PROJECT=$1
+	NUMBER=$2
+
 	eval `resize`
 
 	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
-	THISCONFIGINI="$THISPROJECTDIR/0.csv"
+	THISCONFIGINI="$THISPROJECTDIR/$NUMBER/0.csv"
 
 	args=()
 
@@ -604,7 +606,7 @@ function list_projects {
 			debug_code "Exiting"
 			exit
 		else
-			list_option_for_job "$WHATTODO"
+			list_option_for_job "$WHATTODO" "0"
 		fi
 	else
 		echo_red "You chose to cancel (4)"

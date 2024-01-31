@@ -277,7 +277,7 @@ for param in experiment_parameters:
         print_color("red", f"Type {_type} is not yet implemented in the overview table.");
         sys.exit(15)
 
-table = Table(title="Experiment parameters:")
+table = Table(header_style="bold", title="Experiment parameters:")
 columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
 for column in columns:
     table.add_column(column)
@@ -495,7 +495,7 @@ try:
     submitted_jobs = 0
     # Run until all the jobs have finished and our budget is used up.
     with Progress() as progress:
-        start_str = "[cyan]Evaluating different hyperparameter constellations..."
+        start_str = f"[cyan]Evaluating different hyperparameter constellations ({args.max_eval} in total)..."
 
         progress_string = start_str
 
@@ -554,7 +554,7 @@ try:
     
     best_result = means["result"]
 
-    table = Table(show_header=True, header_style="bold magenta", title="Best parameters:")
+    table = Table(show_header=True, header_style="bold", title="Best parameters:")
 
     # Dynamisch Spaltenüberschriften hinzufügen
     for key in best_parameters.keys():

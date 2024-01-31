@@ -185,15 +185,17 @@ function change_project_dir {
 }
 
 function list_projects {
-	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/0.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/0.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/**/0.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/0.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }')
+
+	echo "AVAILABLE_PROJECTS:"
+	echo "$AVAILABLE_PROJECTS"
 
 	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
-		echo "No projects found (list_projects)"
+		echo_red "No projects found (list_projects)"
 	fi
 
 	eval `resize`
 
-	# REMOVED BECAUSE IT IS TOO BUGGY AND PROBABLY NOONE USES IT:
 	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "c)" "Change the project dir" "v)" "Show/Change Variables" "q)" "quit" 3>&1 1>&2 2>&3)
 
 	exitstatus=$?

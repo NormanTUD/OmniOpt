@@ -394,6 +394,7 @@ logging.getLogger("ax").setLevel(logging.ERROR)
 logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
 logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
 logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
 warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
@@ -402,6 +403,7 @@ warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispa
 warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
 warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
 
 

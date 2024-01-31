@@ -7,16 +7,22 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 
 parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
-parser.add_argument('--csv_file', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
 parser.add_argument('--maximum', action='store_true', help='Display maximum result (default: minimum)')
 args = parser.parse_args()
 
-if not os.path.exists(args.csv_file):
-    print(f'Die Datei {args.csv_file} existiert nicht.')
+if not os.path.exists(args.run_dir):
+    print(f'The folder {args.run_dir} does not exist.')
+    sys.exit(1)
+
+pd_csv = "pd.csv"
+
+if not os.path.exists(args.run_dir + f"/{pd_csv}"):
+    print(f'The file {args.run_dir} does not exist.')
     sys.exit(1)
 
 # Load the DataFrame from the CSV file
-df = pd.read_csv(args.csv_file)
+df = pd.read_csv(args.run_dir + f"/{pd_csv}")
 
 # Remove specified columns
 columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']

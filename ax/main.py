@@ -68,6 +68,7 @@ try:
         warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+        warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
 except KeyboardInterrupt:
     sys.exit(0)
 
@@ -422,7 +423,7 @@ logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
-
+warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
 
 
 try:

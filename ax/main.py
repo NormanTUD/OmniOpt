@@ -42,7 +42,7 @@ def print_color (color, text):
 
 def dier (msg):
     pprint(msg)
-    sys.exit(2)
+    sys.exit(10)
 
 file_number = 0
 folder_number = 0
@@ -93,7 +93,7 @@ def parse_experiment_parameters(args):
             if param_type == "range":
                 if len(this_args) != 5 and len(this_args) != 4:
                     print_color("red", f":warning: --parameter for type range must have 5 parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
-                    sys.exit(11)
+                    sys.exit(9)
 
                 try:
                     lower_bound = float(this_args[j + 2])
@@ -131,7 +131,7 @@ def parse_experiment_parameters(args):
                 if value_type not in valid_value_types:
                     ", ".join(valid_value_types)
                     print_color("red", f":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-                    sys.exit(10)
+                    sys.exit(8)
 
                 param = {
                     "name": name,
@@ -152,7 +152,7 @@ def parse_experiment_parameters(args):
                     value = float(this_args[j + 2])
                 except:
                     print_color("red", f":warning: {this_args[j + 2]} does not seem to be a number")
-                    sys.exit(4)
+                    sys.exit(12)
 
                 param = {
                     "name": name,
@@ -338,14 +338,14 @@ try:
             from ax.service.utils.report_utils import exp_to_df
         except:
             print_color("red", ":warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(8)
+            sys.exit(6)
 
         try:
             import submitit
             from submitit import AutoExecutor, LocalJob, DebugJob
         except:
             print_color("red", ":warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(9)
+            sys.exit(7)
 
 except KeyboardInterrupt:
     sys.exit(0)

@@ -68,6 +68,7 @@ if [[ ! -d "$VENV_DIR" ]]; then
 	ppip submitit
 	ppip ax
 	ppip ax-platform
+	ppip matplotlib
 fi
 
 source $VENV_DIR/bin/activate

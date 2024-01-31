@@ -465,6 +465,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
 
 
 try:
@@ -587,3 +588,6 @@ except KeyboardInterrupt:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")
 except TypeError:
     print_color("red", ":warning: The program has been halted without attaining any tangible results.")
+
+print(type(ax_client.get_trials_data_frame()))
+print(ax_client.get_trials_data_frame())

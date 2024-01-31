@@ -72,4 +72,4 @@ fi
 
 source $VENV_DIR/bin/activate
 
-python3 main.py $*
+python3 main.py $* 2>/dev/null

@@ -424,6 +424,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.u
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
 warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
 
 
 try:
@@ -478,15 +479,11 @@ try:
                         ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                         jobs.remove((job, trial_index))
 
+                        #best_parameters, (means, covariances) = ax_client.get_best_parameters()
+                        #best_result = means["result"]
+                        #new_desc_string = f"best result: {best_result}"
 
-                        best_parameters, (means, covariances) = ax_client.get_best_parameters()
-                        best_result = means["result"]
-
-                        new_desc_string = start_str + f"(best result: {best_result})"
-
-                        new_desc_string = make_strings_equal_length(progress_string, new_desc_string)
-
-                        progress.update(progress_bar, advance=1, description=new_desc_string)
+                        progress.update(progress_bar, advance=1)
                     except ax.exceptions.core.UserInputError as error:
                         if "None for metric" in str(error):
                             print_color("red", f":warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
@@ -540,8 +537,5 @@ try:
 
     # Drucke die Tabelle
     console.print(table)
-
-    #print_color("green", f'Best set of parameters: {best_parameters}')
-    #print_color("green", f'Mean objective value: {best_result}')
 except TypeError:
     print_color("red", ":warning: You pressed CTRL+C. Program execution halted.")

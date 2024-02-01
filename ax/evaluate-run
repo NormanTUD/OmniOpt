@@ -83,7 +83,6 @@ function list_option_for_job {
 
 	if [[ -e $THISMAINCSV ]]; then
 		args+=(
-			"wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)"
 			"i)" "Get general info for this job"
 		)
 	fi
@@ -320,11 +319,10 @@ function list_option_for_job {
 			fi
 
 			list_option_for_job $PROJECT $NUMBER
-		elif [[ "$WHATTODO" =~ "wct)" ]]; then
-			info_message_large "$(print_wallclock_time $PROJECT $NUMBER)"
-
-			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "i)" ]]; then
+
+			WALLCLOCK_TIME=$(print_wallclock_time $PROJECT $NUMBER)
+
 			list_option_for_job $PROJECT $NUMBER
 		else
 			echo_red "Unknown option: $WHATTODO (Line $LINENO)"

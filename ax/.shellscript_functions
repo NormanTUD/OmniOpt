@@ -6,7 +6,7 @@ Green='\033[0;32m'
 Color_Off='\033[0m'
 Red='\033[0;31m'
 
-VENV_DIR=$HOME/.omniax
+VENV_DIR=$HOME/.omniax_$(uname -m)
 
 function red {
 	echo -e "${Red}$1${Color_Off}"

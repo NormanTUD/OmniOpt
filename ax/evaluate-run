@@ -474,7 +474,6 @@ function chose_project_number {
 		OLD_IFS=$IFS
 		unset IFS
 		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e 'while (<>) { chomp; print "$_ $_\n"; }')
-		echo $available_numbers
 
 		eval `resize`
 

@@ -28,7 +28,7 @@ function list_option_for_job {
 	eval `resize`
 
 	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
-	THISCONFIGINI="$THISPROJECTDIR/$NUMBER/0.csv"
+	THISCONFIGINI="$THISPROJECTDIR/$NUMBER/pd.csv"
 
 	args=()
 
@@ -52,7 +52,7 @@ function list_option_for_job {
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$WHATTODO" =~ "b)" ]]; then
-			list_projects
+			chose_project_number $PROJECT
 		elif [[ "$WHATTODO" =~ "q)" ]]; then
 			exit
 		elif [[ "$WHATTODO" =~ "d)" ]]; then
@@ -92,11 +92,11 @@ function list_option_for_job {
 
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			echo_green "Plot"
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/0.csv" ]]; then
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 			else
 				eval `resize`
-				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/0.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
+				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "psvg)" ]]; then
@@ -132,7 +132,7 @@ function list_option_for_job {
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
 			echo_green "Plot with min/max value"
 
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/0.csv" ]]; then
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
 				maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
 
@@ -454,7 +454,7 @@ function chose_project_number {
 }
 
 function list_projects {
-	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/0.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/0.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/pd.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/pd.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
 
 	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
 		echo_red "No projects found (list_projects)"

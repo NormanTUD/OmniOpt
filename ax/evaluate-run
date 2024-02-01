@@ -727,7 +727,6 @@ else # All other shells: examine $0 for known shell binary filenames
 fi
 
 if [[ $sourced == "0" ]]; then
-
     if [[ -z $DISPLAY ]]; then
         if (whiptail --title "No X-Server detected" --yes-button "Continue without X-Server" --no-button "No, do not Continue without X-Server" --yesno "Without X-Server, some tools (like Graph-plotting with GUI) do not work, but some others (like plotting to SVG-files) still do. If you want to use the script fully, please use 'ssh -X $USER@taurus.hrsk.tu-dresden.de', then 'cd $(pwd)' and re-start this script" 10 120); then
             echo_green "Continue without X-Server"

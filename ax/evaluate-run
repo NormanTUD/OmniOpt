@@ -171,10 +171,14 @@ function list_option_for_job {
 	args=()
 
 	if [[ -e $THISPDCSV ]]; then
+		if [[ ! -z $DISPLAY ]]; then
+			args+=(
+				"p)" "2d scatter-plots" 
+				"P)" "2d scatterplots with min/max value" 
+			)
+		fi
 		args+=(
-			"p)" "2d scatter-plots" 
 			"psvg)" "2d scatterplots to svg file" 
-			"P)" "2d scatterplots with min/max value" 
 			"Psvg)" "2d scatterplots with min/max value to svg" 
 		)
 	fi

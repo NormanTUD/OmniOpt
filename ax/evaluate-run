@@ -632,7 +632,7 @@ function chose_project_number {
 	else 
 		OLD_IFS=$IFS
 		unset IFS
-		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e 'while (<>) { chomp; print "$_ $_\n"; } | sort -nr | tac')
+		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e 'while (<>) { chomp; print "$_ $_\n"; }' | sort -nr | tac)
 
 		eval `resize`
 

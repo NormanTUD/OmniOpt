@@ -47,7 +47,7 @@ function list_option_for_job {
 		args+=("d)" "Create debug-zip")
 	fi
 
-	WHATTODO=$(whiptail --title "Available options for >${PROJECT}<" --menu "Chose what to do with >$PROJECT<" $LINES $COLUMNS $(( $LINES - 8 )) "${args[@]}" "b)" "back" "q)" "quit" 3>&1 1>&2 2>&3)
+	WHATTODO=$(whiptail --title "Available options for >${PROJECT}< (run number $NUMBER)" --menu "Chose what to do with >$PROJECT<" $LINES $COLUMNS $(( $LINES - 8 )) "${args[@]}" "b)" "back" "q)" "quit" 3>&1 1>&2 2>&3)
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
@@ -58,7 +58,7 @@ function list_option_for_job {
 		elif [[ "$WHATTODO" =~ "d)" ]]; then
 			DEBUGFILE=debug.zip
 			let i=0
-			while [[ -e $DEBUGFILE ]]; do
+			while [[ -e "$DEBUGFILE" ]]; do
 				DEBUGFILE="debug_${i}.zip"
 				let i++
 			done
@@ -70,20 +70,9 @@ function list_option_for_job {
 				let i++
 			done
 
-			error_analyze_file=error_analyze.log
-			let i=0
-			while [[ -e $error_analyze_file ]]; do
-				error_analyze_file="error_analyze_${i}.log"
-				let i++
-			done
-
-			bash tools/error_analyze.sh --project=$PROJECT --projectdir=$PROJECTDIR --nowhiptail 2>/dev/null > $error_analyze_file
-
 			pip3 list > $list_installed_modules
 
-			zip -r $DEBUGFILE $list_installed_modules $error_analyze_file *.out debuglogs/* $PROJECTDIR/$PROJECT/* -x $PROJECTDIR/$PROJECT/mongodb/\*
-
-			rm $error_analyze_file
+			zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/*
 
 			if [[ -e $DEBUGFILE ]]; then
 				if (whiptail --title "Make this file available over a webserver?" --yesno "Do you want to make this file available over a webserver?" 8 78); then
@@ -422,6 +411,48 @@ function change_project_dir {
 	fi
 }
 
+function chose_project_number {
+	PROJECT=$1
+
+	num_of_subfolder_numbers=$(ls $PROJECTDIR/$PROJECT | wc -l)
+
+	if [[ $num_of_subfolder_numbers -eq 0 ]]; then
+		echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
+		list_projects
+	elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
+		echo_green "Only found one subfolder. Using it."
+
+		CHOSEN=$(ls $PROJECTDIR/$PROJECT | head -n1)
+
+		list_option_for_job "$WHATTODO" $CHOSEN
+	else 
+		OLD_IFS=$IFS
+		unset IFS
+		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e 'while (<>) { chomp; print "$_ $_\n"; }')
+		echo $available_numbers
+
+		eval `resize`
+
+		CHOSEN=$(whiptail --title "Available project-numbers for ${PROJECTDIR}/$PROJECT" --menu "Chose any of the available project numbers:" $LINES $COLUMNS $(( $LINES - 8 )) $available_numbers "b)" "Go back" "q)" "quit" 3>&1 1>&2 2>&3)
+		exitstatus=$?
+
+		IFS=$OLD_IFS
+
+		if [[ $exitstatus == 0 ]]; then
+			if [[ "$CHOSEN" =~ "b)" ]]; then
+				list_projects
+			elif [[ "$CHOSEN" =~ "q)" ]]; then
+				exit
+			else
+				list_option_for_job "$WHATTODO" "$CHOSEN"
+			fi
+		else
+			echo_red "You chose to cancel (5)"
+			exit 0
+		fi
+	fi
+}
+
 function list_projects {
 	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/0.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/0.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
 
@@ -454,7 +485,7 @@ function list_projects {
 			debug_code "Exiting"
 			exit
 		else
-			list_option_for_job "$WHATTODO" "0"
+			chose_project_number "$WHATTODO"
 		fi
 	else
 		echo_red "You chose to cancel (4)"

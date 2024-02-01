@@ -36,8 +36,8 @@ function list_option_for_job {
 		args+=(
 			"p)" "2d scatter-plots" 
 			"psvg)" "2d scatterplots to svg file" 
-			"P)" "2d scatterplots with max value" 
-			"Psvg)" "2d scatterplots with max value to svg" 
+			"P)" "2d scatterplots with min/max value" 
+			"Psvg)" "2d scatterplots with min/max value to svg" 
 			"wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)"
 			"i)" "Get general info for this job")
 	fi
@@ -141,15 +141,71 @@ function list_option_for_job {
 			list_option_for_job $PROJECT
 
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
+			echo_green "Plot with min/max value"
 
-			echo_red "NOT YET IMPLEMENTED"; exit
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/0.csv" ]]; then
+				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
+				maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
 
-			echo_green "Plot with max value"
+				if [ -n "$minvalue" ]; then
+					# Check if $minvalue is a number (integer or float, positive or negative)
+					if [[ "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+						echo "\$minvalue is a valid number."
+					else
+						echo "\$minvalue is not a valid number. Setting it to empty."
+						minvalue=""
+					fi
+				else
+					echo "\$minvalue is not set."
+				fi
 
-			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
-				maxvalue=$(inputbox "Max value for plot" "Enter a max value for plotting $PROJECT (float)" "0.1")
+
+				if [ -n "$maxvalue" ]; then
+					# Check if $maxvalue is a number (integer or float, positive or negative)
+					if [[ "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+						echo "\$maxvalue is a valid number."
+					else
+						echo "\$maxvalue is not a valid number. Setting it to empty."
+						maxvalue=""
+					fi
+				else
+					echo "\$maxvalue is not set."
+				fi
+
+				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
+					# Check if minvalue is greater than maxvalue
+					if [ "$minvalue" -gt "$maxvalue" ]; then
+						echo "minvalue is greater than maxvalue. Swapping values."
+
+						# Swap values
+						temp="$minvalue"
+						minvalue="$maxvalue"
+						maxvalue="$temp"
+
+						echo "minvalue: $minvalue, maxvalue: $maxvalue"
+					else
+						echo "minvalue is less than or equal to maxvalue. No need to swap."
+					fi
+				else
+					echo "Either minvalue or maxvalue is not set."
+				fi
+
+				echo_green "Got minvalue = ${minvalue}"
 				echo_green "Got maxvalue = ${maxvalue}"
-				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/ --maxvalue=$maxvalue"
+
+				if [[ -z "$minvalue" ]]; then
+					if [[ -z "$maxvalue" ]]; then
+						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+					else
+						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
+					fi
+				else
+					if [[ -z "$maxvalue" ]]; then
+						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
+					else
+						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
+					fi
+				fi
 			else
 				eval `resize`
 				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))

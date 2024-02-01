@@ -99,7 +99,7 @@ function list_option_for_job {
 				error_message "Could not write $DEBUFFILE"
 			fi
 
-			list_option_for_job $PROJECT
+			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			echo_green "Plot"
@@ -109,7 +109,7 @@ function list_option_for_job {
 				eval `resize`
 				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/0.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
-			list_option_for_job $PROJECT
+			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "psvg)" ]]; then
 
 			echo_red "NOT YET IMPLEMENTED"; exit
@@ -138,7 +138,7 @@ function list_option_for_job {
 			fi
 
 			export PLOTPATH=
-			list_option_for_job $PROJECT
+			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
 			echo_green "Plot with min/max value"
@@ -211,7 +211,7 @@ function list_option_for_job {
 				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 
-			list_option_for_job $PROJECT
+			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "Psvg)" ]]; then
 
 			echo_red "NOT YET IMPLEMENTED"; exit
@@ -247,7 +247,7 @@ function list_option_for_job {
 
 			export PLOTPATH=
 
-			list_option_for_job $PROJECT
+			list_option_for_job $PROJECT $NUMBER
 
 		else
 			echo_red "ADA2"

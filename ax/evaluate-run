@@ -28,18 +28,19 @@ function list_option_for_job {
 	eval `resize`
 
 	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
-	THISCONFIGINI="$THISPROJECTDIR/$NUMBER/pd.csv"
+	THISPDCSV="$THISPROJECTDIR/$NUMBER/pd.csv"
 
 	args=()
 
-	if [[ -e $THISCONFIGINI ]]; then
+	if [[ -e $THISPDCSV ]]; then
 		args+=(
 			"p)" "2d scatter-plots" 
 			"psvg)" "2d scatterplots to svg file" 
 			"P)" "2d scatterplots with min/max value" 
 			"Psvg)" "2d scatterplots with min/max value to svg" 
 			"wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)"
-			"i)" "Get general info for this job")
+			"i)" "Get general info for this job"
+		)
 	fi
 
 	if [[ -d "$THISPROJECTDIR" ]]; then

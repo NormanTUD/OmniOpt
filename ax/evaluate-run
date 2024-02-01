@@ -28,6 +28,38 @@ function inputbox {
 	fi
 }
 
+function print_wallclock_time {
+	file_path="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+
+	awk -F',' '{print $1,$2}' "$file_path" | sed '1d' > temp_file
+
+	min_time=$(awk '{print $1}' temp_file | sort -n | head -n 1)
+	max_time=$(awk '{print $2}' temp_file | sort -n | tail -n 1)
+
+	rm temp_file
+
+	absolute_runtime=$((max_time - min_time))
+
+	days=$((absolute_runtime / 86400))
+	hours=$(( (absolute_runtime % 86400) / 3600 ))
+	minutes=$(( (absolute_runtime % 3600) / 60 ))
+	remaining_seconds=$((absolute_runtime % 60))
+
+	human_readable=""
+	if [ $days -gt 0 ]; then
+	    human_readable+=" ${days}d"
+	fi
+	if [ $hours -gt 0 ]; then
+	    human_readable+=" ${hours}h"
+	fi
+	if [ $minutes -gt 0 ]; then
+	    human_readable+=" ${minutes}m"
+	fi
+	human_readable+=" ${remaining_seconds}s"
+
+	echo "Wallclock time for $PROJECT (run nr. $NUMBER): ${absolute_runtime}s ($human_readable)"
+}
+
 function list_option_for_job {
 	PROJECT=$1
 	NUMBER=$2
@@ -289,45 +321,10 @@ function list_option_for_job {
 
 			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "wct)" ]]; then
+			info_message_large "$(print_wallclock_time $PROJECT $NUMBER)"
 
-			file_path="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
-
-			# Ausgabe der Spalten start_time und end_time
-			awk -F',' '{print $1,$2}' "$file_path" | sed '1d' > temp_file
-
-			# Berechnung der minimalen und maximalen Zeit
-			min_time=$(awk '{print $1}' temp_file | sort -n | head -n 1)
-			max_time=$(awk '{print $2}' temp_file | sort -n | tail -n 1)
-
-			rm temp_file
-
-			# Berechnung der absoluten Laufzeit
-			absolute_runtime=$((max_time - min_time))
-
-			# Ausgabe der Ergebnisse
-			echo "Absolute Laufzeit: $absolute_runtime"
-
-			# Berechnung der Tage, Stunden, Minuten und Sekunden
-			days=$((absolute_runtime / 86400))
-			hours=$(( (absolute_runtime % 86400) / 3600 ))
-			minutes=$(( (absolute_runtime % 3600) / 60 ))
-			remaining_seconds=$((absolute_runtime % 60))
-
-			# Formatierung des Ergebnisses
-			human_readable=""
-			if [ $days -gt 0 ]; then
-			    human_readable+=" ${days}d"
-			fi
-			if [ $hours -gt 0 ]; then
-			    human_readable+=" ${hours}h"
-			fi
-			if [ $minutes -gt 0 ]; then
-			    human_readable+=" ${minutes}m"
-			fi
-			human_readable+=" ${remaining_seconds}s"
-
-			info_message_large "Wallclock time for $PROJECT (run nr. $NUMBER): ${absolute_runtime}s ($human_readable)"
-
+			list_option_for_job $PROJECT $NUMBER
+		elif [[ "$WHATTODO" =~ "i)" ]]; then
 			list_option_for_job $PROJECT $NUMBER
 		else
 			echo_red "Unknown option: $WHATTODO (Line $LINENO)"

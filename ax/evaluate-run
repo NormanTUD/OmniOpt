@@ -100,35 +100,25 @@ function list_option_for_job {
 			fi
 			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "psvg)" ]]; then
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
+				SVGDIR=$PROJECTDIR/$PROJECT/$NUMBER/2d-scatterplots/
+				mkdir -p $SVGDIR
+				export PLOTPATH=$SVGDIR/${PROJECT}.svg
+				export CNT=0
+				while [[ -e $PLOTPATH ]]; do
+					export CNT=$(($CNT+1))
+					export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}.svg
+				done
 
-			echo_red "NOT YET IMPLEMENTED"; exit
+				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH
 
-			SVGDIR=$PROJECTDIR/$PROJECT/2d-scatterplots/
-			mkdir -p $SVGDIR
-			export PLOTPATH=$SVGDIR/${PROJECT}.svg
-			export CNT=0
-			while [[ -e $PLOTPATH ]]; do
-				export CNT=$(($CNT+1))
-				export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}.svg
-			done
-
-			echo_green "Plot"
-
-			if [[ -d "$PROJECTDIR/$PROJECT/singlelogs" ]]; then
-				gaugecommand "Graph-Creation" "Please wait, this takes some time..." "perl tools/plot.pl --project=$PROJECT --projectdir=${PROJECTDIR}/"
-				if [[ -e "$PLOTPATH" ]]; then
-					info_message "Wrote to file $PLOTPATH"
-				else
-					error_message "Failed to write $PLOTPATH"
-				fi
+				eval `resize`
+				whiptail --title "File saved" --msgbox "The file $PLOTPATH was saved (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			else
 				eval `resize`
-				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
-
-			export PLOTPATH=
 			list_option_for_job $PROJECT $NUMBER
-
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
 			echo_green "Plot with min/max value"
 

@@ -48,7 +48,7 @@ if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
 	ml release/23.04 GCCcore/12.2.0 Python/3.10.8
 
 	if [[ $(uname -m) == "ppc64le" ]]; then
-		ml OpenBLAS/0.3.21
+		ml GCC/12.2.0 OpenBLAS/0.3.21
 	fi
 fi
 

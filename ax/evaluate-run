@@ -751,7 +751,6 @@ if [[ $sourced == "0" ]]; then
                 if (whiptail --title "There is a new version of OmniAx available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
                     git pull
                     bash ./evaluate-run --dont_load_modules --no_upgrade $@
-                    bash zsh/install.sh
                     exit
                 else
                     eval `resize`

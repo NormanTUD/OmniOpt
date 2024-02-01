@@ -322,7 +322,11 @@ function list_option_for_job {
 		elif [[ "$WHATTODO" =~ "i)" ]]; then
 			WALLCLOCK_TIME="$(print_wallclock_time $PROJECT $NUMBER)"
 
-			info_message_large "$WALLCLOCK_TIME"
+			NUMBEROFJOBS="Number of jobs (failed and successful): $(cat $PROJECTDIR/$PROJECT/$NUMBER/0.csv | grep -v 'start_time,end_time' | wc -l)"
+
+			GENERAL_INFO="$NUMBEROFJOBS\n$WALLCLOCK_TIME"
+
+			info_message_large "$GENERAL_INFO"
 
 			list_option_for_job $PROJECT $NUMBER
 		else

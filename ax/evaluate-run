@@ -29,6 +29,7 @@ function list_option_for_job {
 
 	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
 	THISPDCSV="$THISPROJECTDIR/$NUMBER/pd.csv"
+	THISMAINCSV="$THISPROJECTDIR/$NUMBER/0.csv"
 
 	args=()
 
@@ -38,6 +39,11 @@ function list_option_for_job {
 			"psvg)" "2d scatterplots to svg file" 
 			"P)" "2d scatterplots with min/max value" 
 			"Psvg)" "2d scatterplots with min/max value to svg" 
+		)
+	fi
+
+	if [[ -e $THISMAINCSV ]]; then
+		args+=(
 			"wct)" "Get wallclock-time of all jobs (only useful for jobs that ran once)"
 			"i)" "Get general info for this job"
 		)
@@ -275,7 +281,26 @@ function list_option_for_job {
 			fi
 
 			list_option_for_job $PROJECT $NUMBER
+		elif [[ "$WHATTODO" =~ "wct)" ]]; then
 
+			file_path="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+
+			# Ausgabe der Spalten start_time und end_time
+			awk -F',' '{print $1,$2}' "$file_path" | sed '1d' > temp_file
+
+			# Berechnung der minimalen und maximalen Zeit
+			min_time=$(awk '{print $1}' temp_file | sort -n | head -n 1)
+			max_time=$(awk '{print $2}' temp_file | sort -n | tail -n 1)
+
+			rm temp_file
+
+			# Berechnung der absoluten Laufzeit
+			absolute_runtime=$((max_time - min_time))
+
+			# Ausgabe der Ergebnisse
+			echo "Absolute Laufzeit: $absolute_runtime"
+
+			exit
 		else
 			echo_red "Unknown option: $WHATTODO (Line $LINENO)"
 		fi

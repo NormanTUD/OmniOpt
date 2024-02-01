@@ -152,6 +152,12 @@ def parse_experiment_parameters(args):
         while j < len(this_args):
             name = this_args[j]
 
+            invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code"]
+
+            if name in invalid_names:
+                print_color("red", f"Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
+                sys.exit(18)
+
             param_type = this_args[j + 1]
 
             valid_types = ["range", "fixed", "choice"]

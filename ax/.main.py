@@ -341,8 +341,6 @@ def make_strings_equal_length(str1, str2):
     return str1, str2
 
 def evaluate(parameters):
-    global experiment_parameters
-
     print("parameters:", parameters)
 
     parameters_keys = list(parameters.keys())

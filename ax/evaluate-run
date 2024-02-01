@@ -1,6 +1,30 @@
 #!/bin/bash
 
+mkdir -p debuglogs
+bash_logname=debuglogs/evaluate_run.log
+let i=1
+while [[ -e $bash_logname ]]; do
+    bash_logname=debuglogs/evaluate_run_${i}.log
+    let i++
+done
+exec 1> >(tee -ia $bash_logname)
+exec 2> >(tee -ia $bash_logname >& 2)
+
 PROJECTDIR=runs
+
+export BUBBLESIZEINPX=7
+export NONZERODIGITS=2
+export SHOWFAILEDJOBSINPLOT=0
+export SVGEXPORTSIZE=2000
+export SHOWALLGPUS=0
+export HIDEMAXVALUESINPLOT=0
+export ASKEDTOUPGRADE=0
+export DISPLAYGAUGE=1
+export SCIENTIFICNOTATION=4
+export DEBUG=0
+export LOAD_MODULES=1
+export UPGRADE=1
+
 
 source .shellscript_functions
 source ../tools/general.sh

@@ -320,8 +320,9 @@ function list_option_for_job {
 
 			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "i)" ]]; then
+			WALLCLOCK_TIME="$(print_wallclock_time $PROJECT $NUMBER)"
 
-			WALLCLOCK_TIME=$(print_wallclock_time $PROJECT $NUMBER)
+			info_message_large "$WALLCLOCK_TIME"
 
 			list_option_for_job $PROJECT $NUMBER
 		else

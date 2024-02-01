@@ -444,7 +444,7 @@ function chose_project_number {
 			elif [[ "$CHOSEN" =~ "q)" ]]; then
 				exit
 			else
-				list_option_for_job "$WHATTODO" "$CHOSEN"
+				list_option_for_job "$PROJECT" "$CHOSEN"
 			fi
 		else
 			echo_red "You chose to cancel (5)"

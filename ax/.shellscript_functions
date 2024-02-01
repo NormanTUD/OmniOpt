@@ -42,9 +42,11 @@ ml () {
 	fi
 }
 
-green "Loading modules..."
 
-ml release/23.04 GCCcore/12.2.0 Python/3.10.8
+if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
+	green "Loading modules..."
+	ml release/23.04 GCCcore/12.2.0 Python/3.10.8
+fi
 
 if [[ ! -d "$VENV_DIR" ]]; then
 	green "Environment $VENV_DIR was not found. Creating it..."

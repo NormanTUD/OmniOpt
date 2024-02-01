@@ -35,9 +35,6 @@ trap 'calltracer' ERR
 
 numberre='^[0-9]+$'
 
-source .shellscript_functions
-source ../tools/general.sh
-
 if [[ -e ".oax_default_settings" ]]; then
     source ".oax_default_settings"
 fi
@@ -101,6 +98,10 @@ for i in "$@"; do
             ;;
     esac
 done
+
+
+source .shellscript_functions
+source ../tools/general.sh
 
 function info_message_large {
 	MSG=$1

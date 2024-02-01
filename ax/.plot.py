@@ -10,6 +10,8 @@ from itertools import combinations
 parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
 parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
 parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+parser.add_argument('--max', type=float, help='Maximum value', default=None)
+parser.add_argument('--min', type=float, help='Minimum value', default=None)
 args = parser.parse_args()
 
 # Check if the specified directory exists
@@ -48,6 +50,11 @@ non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_fi
 if not non_empty_graphs:
     print('No non-empty graphs to display.')
     sys.exit(1)
+
+if args.min is not None:
+    df['result'] = df['result'].clip(lower=args.min)
+if args.max is not None:
+    df['result'] = df['result'].clip(upper=args.max)
 
 # Matplotlib figure creation
 num_subplots = len(non_empty_graphs)

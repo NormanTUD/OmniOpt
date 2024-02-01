@@ -107,7 +107,7 @@ function list_option_for_job {
 				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 			else
 				eval `resize`
-				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/$NUMBER/0.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/0.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 			list_option_for_job $PROJECT
 		elif [[ "$WHATTODO" =~ "psvg)" ]]; then

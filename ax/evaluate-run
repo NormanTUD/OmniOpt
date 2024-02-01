@@ -134,9 +134,7 @@ function list_option_for_job {
 
 				if [ -n "$minvalue" ]; then
 					# Check if $minvalue is a number (integer or float, positive or negative)
-					if [[ "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$minvalue is a valid number."
-					else
+					if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
 						echo "\$minvalue is not a valid number. Setting it to empty."
 						minvalue=""
 					fi
@@ -147,9 +145,7 @@ function list_option_for_job {
 
 				if [ -n "$maxvalue" ]; then
 					# Check if $maxvalue is a number (integer or float, positive or negative)
-					if [[ "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$maxvalue is a valid number."
-					else
+					if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
 						echo "\$maxvalue is not a valid number. Setting it to empty."
 						maxvalue=""
 					fi
@@ -204,9 +200,7 @@ function list_option_for_job {
 
 				if [ -n "$minvalue" ]; then
 					# Check if $minvalue is a number (integer or float, positive or negative)
-					if [[ "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$minvalue is a valid number."
-					else
+					if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
 						echo "\$minvalue is not a valid number. Setting it to empty."
 						minvalue=""
 					fi
@@ -217,9 +211,7 @@ function list_option_for_job {
 
 				if [ -n "$maxvalue" ]; then
 					# Check if $maxvalue is a number (integer or float, positive or negative)
-					if [[ "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$maxvalue is a valid number."
-					else
+					if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
 						echo "\$maxvalue is not a valid number. Setting it to empty."
 						maxvalue=""
 					fi

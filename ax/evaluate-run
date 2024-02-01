@@ -285,7 +285,7 @@ function list_option_for_job {
 			list_option_for_job $PROJECT $NUMBER
 
 		else
-			echo_red "Unknown option: $WHATTODO"
+			echo_red "Unknown option: $WHATTODO (Line $LINENO)"
 		fi
 	else
 		echo_red "You chose to cancel (2)"

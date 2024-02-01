@@ -27,6 +27,14 @@ export DEBUG=0
 export LOAD_MODULES=1
 export UPGRADE=1
 
+function calltracer () {
+    echo 'Last file/last line:'
+    caller
+}
+trap 'calltracer' ERR
+
+numberre='^[0-9]+$'
+
 source .shellscript_functions
 source ../tools/general.sh
 
@@ -38,6 +46,61 @@ if [[ -e "$HOME/.oax_default_settings" ]]; then
     echo "Loading $HOME/.oax_default_settings"
     source "$HOME/.oax_default_settings"
 fi
+
+function this_help {
+	cat <<'EOF'
+This helps graphically to use OmniOpt.
+
+-p=/path/                                                   Path to available projects
+--projectdir=/path/to/projects/
+
+--nogauge                                                   Disables the gauges
+
+-h                                                          This help
+--help
+
+--d                                                         Enable set -x debugging
+--dont_load_modules                                         Don't load modules
+--no_upgrade                                                Disables upgrades
+--debug
+EOF
+}
+
+for i in "$@"; do
+    case $i in
+        -d|--debug)
+            DEBUG=1
+            set -x
+            ;;
+
+        --nogauge)
+            export DISPLAYGAUGE=0
+            ;;
+
+        --dont_load_modules)
+            export LOAD_MODULES=0
+            ;;
+
+        -p=*|--projectdir=*)
+            PROJECTDIR="${i#*=}"
+            ;;
+
+        --no_upgrade)
+            UPGRADE=0
+            ;;
+
+        -h|--help)
+            this_help
+            exit 0
+            ;;
+
+        *)
+            echo_red "Unknown option $i"
+            this_help
+            exit 1
+            ;;
+    esac
+done
 
 function info_message_large {
 	MSG=$1

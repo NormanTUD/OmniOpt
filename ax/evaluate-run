@@ -5,6 +5,13 @@ PROJECTDIR=runs
 source .shellscript_functions
 source ../tools/general.sh
 
+function info_message_large {
+	MSG=$1
+	eval `resize`
+	echo_green "$MSG"
+	whiptail --title "Info Message" --msgbox "$MSG" $LINES $COLUMNS
+}
+
 function inputbox {
 	TITLE=$1
 	MSG=$2
@@ -300,7 +307,28 @@ function list_option_for_job {
 			# Ausgabe der Ergebnisse
 			echo "Absolute Laufzeit: $absolute_runtime"
 
-			exit
+			# Berechnung der Tage, Stunden, Minuten und Sekunden
+			days=$((absolute_runtime / 86400))
+			hours=$(( (absolute_runtime % 86400) / 3600 ))
+			minutes=$(( (absolute_runtime % 3600) / 60 ))
+			remaining_seconds=$((absolute_runtime % 60))
+
+			# Formatierung des Ergebnisses
+			human_readable=""
+			if [ $days -gt 0 ]; then
+			    human_readable+=" ${days}d"
+			fi
+			if [ $hours -gt 0 ]; then
+			    human_readable+=" ${hours}h"
+			fi
+			if [ $minutes -gt 0 ]; then
+			    human_readable+=" ${minutes}m"
+			fi
+			human_readable+=" ${remaining_seconds}s"
+
+			info_message_large "Wallclock time for $PROJECT (run nr. $NUMBER): ${absolute_runtime}s ($human_readable)"
+
+			list_option_for_job $PROJECT $NUMBER
 		else
 			echo_red "Unknown option: $WHATTODO (Line $LINENO)"
 		fi

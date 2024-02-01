@@ -96,10 +96,10 @@ title += " of f("
 title += ', '.join([f"{key} = {value}" for key, value in extreme_values.items()])
 title += f") at {result_column_values[extreme_index]}"
 
-if args.min:
+if args.min is not None:
     title += f", minimum value: {args.min}"
 
-if args.max:
+if args.max is not None:
     title += f", maximum value: {args.max}"
 
 # Set the title for the figure

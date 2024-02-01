@@ -428,6 +428,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
 warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
+warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
+warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
 
 try:
     ax_client = AxClient(verbose_logging=args.verbose)

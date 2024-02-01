@@ -374,8 +374,14 @@ function list_projects {
 	fi
 
 	eval `resize`
+	
+	OLD_IFS=$IFS
+
+	unset IFS
 
 	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "c)" "Change the project dir" "v)" "Show/Change Variables" "q)" "quit" 3>&1 1>&2 2>&3)
+
+	IFS=$OLD_IFS
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then

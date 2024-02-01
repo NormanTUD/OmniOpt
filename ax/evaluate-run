@@ -10,6 +10,8 @@ done
 exec 1> >(tee -ia $bash_logname)
 exec 2> >(tee -ia $bash_logname >& 2)
 
+export BASH_XTRACEFD="$FD"
+
 PROJECTDIR=runs
 
 export BUBBLESIZEINPX=7
@@ -28,6 +30,15 @@ export UPGRADE=1
 
 source .shellscript_functions
 source ../tools/general.sh
+
+if [[ -e ".oax_default_settings" ]]; then
+    source ".oax_default_settings"
+fi
+
+if [[ -e "$HOME/.oax_default_settings" ]]; then
+    echo "Loading $HOME/.oax_default_settings"
+    source "$HOME/.oax_default_settings"
+fi
 
 function info_message_large {
 	MSG=$1
@@ -495,19 +506,19 @@ function change_variables {
 
 			change_variables
 		elif [[ "$MENU_CHOICE" =~ "s)" ]]; then
-			if [[ -e ".default_settings" ]]; then
-				rm .default_settings
+			if [[ -e ".oax_default_settings" ]]; then
+				rm .oax_default_settings
 			fi
 
-			echo "export NONZERODIGITS=$NONZERODIGITS" >> .default_settings
-			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> .default_settings
-			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .default_settings
-			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .default_settings
-			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> .default_settings
-			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .default_settings
-			echo "export PROJECTDIR=$PROJECTDIR" >> .default_settings
-			echo "export DEBUG=$DEBUG" >> .default_settings
-			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .default_settings
+			echo "export NONZERODIGITS=$NONZERODIGITS" >> .oax_default_settings
+			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> .oax_default_settings
+			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .oax_default_settings
+			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .oax_default_settings
+			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> .oax_default_settings
+			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .oax_default_settings
+			echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
+			echo "export DEBUG=$DEBUG" >> .oax_default_settings
+			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .oax_default_settings
 		elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
 			if [[ -e "$HOME/.oax_default_settings" ]]; then
 				rm ~/.oax_default_settings

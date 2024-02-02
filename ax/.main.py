@@ -41,6 +41,22 @@ try:
         import warnings
         logging.basicConfig(level=logging.ERROR)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+        import time
+        try:
+            import ax
+            from ax.service.ax_client import AxClient, ObjectiveProperties
+            from ax.service.utils.report_utils import exp_to_df
+        except:
+            print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(6)
+
+        try:
+            import submitit
+            from submitit import AutoExecutor, LocalJob, DebugJob
+        except:
+            print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(7)
 except KeyboardInterrupt:
     sys.exit(0)
 
@@ -315,26 +331,6 @@ def evaluate(parameters):
         return {"result": float(result)}
     else:
         return {"result": None}
-
-try:
-    with console.status("[bold green]Importing modules...") as status:
-        import time
-        try:
-            import ax
-            from ax.service.ax_client import AxClient, ObjectiveProperties
-            from ax.service.utils.report_utils import exp_to_df
-        except:
-            print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(6)
-
-        try:
-            import submitit
-            from submitit import AutoExecutor, LocalJob, DebugJob
-        except:
-            print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(7)
-except KeyboardInterrupt:
-    sys.exit(0)
 
 def disable_logging ():
     logging.basicConfig(level=logging.ERROR)

@@ -46,7 +46,7 @@ fi
 
 function this_help {
 	cat <<'EOF'
-This helps graphically to use OmniOpt.
+This helps graphically to use OmniAx.
 
 -p=/path/                                                   Path to available projects
 --projectdir=/path/to/projects/

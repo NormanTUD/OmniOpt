@@ -545,7 +545,7 @@ def main ():
                 # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
                 time.sleep(0.1)
     except KeyboardInterrupt:
-        print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+        print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
 
     try:
         best_parameters, (means, covariances) = ax_client.get_best_parameters()

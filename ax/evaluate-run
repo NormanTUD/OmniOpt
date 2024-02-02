@@ -783,7 +783,7 @@ if [[ $sourced == "0" ]]; then
 		echo $load_percent
 		echo "Loading modules... ($this_module...)"
 		echo "XXX"
-		if ! ml is-loaded $this_module; then
+		if ! myml is-loaded $this_module; then
 			ml $this_module 2>/dev/null
 		fi
 		done
@@ -795,8 +795,8 @@ if [[ $sourced == "0" ]]; then
 	else
 		if [[ "$LOAD_MODULES" -eq "1" ]]; then
 			for this_module in ${modules_to_load[*]}; do
-				if ! ml is-loaded $this_module; then
-					ml $this_module 2>/dev/null
+				if ! myml is-loaded $this_module; then
+					myml $this_module 2>/dev/null
 				fi
 			done
 		fi

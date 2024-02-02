@@ -49,7 +49,11 @@ try:
         import warnings
         logging.basicConfig(level=logging.ERROR)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+except ModuleNotFoundError as e:
+    print(f"Error: {e}")
+    sys.exit(20)
 except KeyboardInterrupt:
+    print("\n:warning: You pressed CTRL+C. Program execution halted.")
     sys.exit(0)
 
 def print_color (color, text):

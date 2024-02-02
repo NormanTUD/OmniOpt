@@ -238,7 +238,6 @@ function list_option_for_job {
 			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
-			echo_green "Plot"
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 			else

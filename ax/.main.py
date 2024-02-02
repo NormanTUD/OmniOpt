@@ -7,6 +7,23 @@ result_csv_file = None
 import os
 import sys
 
+def print_color (color, text):
+    END = '\033[1;37;0m'
+
+    color_shell = END
+
+    if color == "red":
+        color_shell = '\033[1;31;48m'
+    elif color == "yellow":
+        color_shell = '\033[1;33;48m'
+    elif color == "green":
+        color_shell = '\033[1;32;48m'
+    else:
+        print(f"Color {color} not found.")
+        sys.exit(20)
+
+    print(f"{color_shell}{text}{END}")
+
 def check_environment_variable(variable_name):
     try:
         value = os.environ[variable_name]
@@ -22,6 +39,7 @@ if not check_environment_variable("RUN_VIA_RUNSH"):
 try:
     from rich.console import Console
     console = Console()
+
     with console.status("[bold green]Importing modules...") as status:
         #from rich.traceback import install
         #install(show_locals=True)
@@ -59,9 +77,11 @@ try:
             sys.exit(7)
 except KeyboardInterrupt:
     sys.exit(0)
+except ModuleNotFoundError as e:
+    str_e = str(e)
 
-def print_color (color, text):
-    print(f"[{color}]{text}[/{color}]")
+    print_color("red", "Error: " + str_e)
+    sys.exit(19)
 
 def dier (msg):
     pprint(msg)

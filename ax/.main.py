@@ -336,6 +336,37 @@ try:
 except KeyboardInterrupt:
     sys.exit(0)
 
+def disable_logging ():
+    logging.basicConfig(level=logging.ERROR)
+
+    logging.getLogger("ax").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+    logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
+
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
+
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
+    warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
+
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
+    warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
+    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
+    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
+
 def main ():
     global args
     global file_number
@@ -361,7 +392,6 @@ def main ():
     parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
 
     args = parser.parse_args()
-
 
     while os.path.exists(f"runs/{args.experiment_name}/{folder_number}"):
         folder_number = folder_number + 1
@@ -407,35 +437,8 @@ def main ():
         table.add_row(*row, style='bright_green')
     console.print(table)
 
-    logging.basicConfig(level=logging.ERROR)
-
-    logging.getLogger("ax").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
-    logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
-
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
-
-    warnings.filterwarnings("ignore", category=RuntimeWarning)
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
-    warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
-
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
-    warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
-    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
-    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
+    if not args.verbose:
+        disable_logging()
 
     try:
         ax_client = AxClient(verbose_logging=args.verbose)

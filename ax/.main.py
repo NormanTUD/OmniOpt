@@ -331,8 +331,11 @@ try:
             import ax
             from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.service.utils.report_utils import exp_to_df
-        except:
+        except ModuleNotFoundError as e:
             print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(6)
+        except KeyboardInterrupt:
+            print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
             sys.exit(6)
 
         try:

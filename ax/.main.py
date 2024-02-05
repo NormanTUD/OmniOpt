@@ -395,6 +395,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
+    warnings.filterwarnings("ignore", category=UserWarning, module="botorch.optim.fit")
 
 def main ():
     global args

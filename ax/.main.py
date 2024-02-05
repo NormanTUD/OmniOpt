@@ -425,6 +425,7 @@ def main ():
     optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
     optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
     optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+    optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 
     debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 
@@ -560,10 +561,14 @@ def main ():
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)
 
+
+        # 'name': <class 'str'>, 'mem_gb': <class 'float'>, 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
+
         executor.update_parameters(
             timeout_min=args.timeout_min,
             slurm_gres=f"gpu:{args.gpus}",
-            cpus_per_task=args.cpus_per_task
+            cpus_per_task=args.cpus_per_task,
+            stderr_to_stdout=args.stderr_to_stdout,
         )
 
         jobs = []

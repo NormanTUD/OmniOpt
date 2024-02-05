@@ -322,6 +322,8 @@ try:
         try:
             import ax
             from ax.service.ax_client import AxClient, ObjectiveProperties
+            from ax.storage.json_store.save import save_experiment
+            from ax.storage.json_store.load import load_experiment
             from ax.service.utils.report_utils import exp_to_df
         except ModuleNotFoundError as e:
             print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
@@ -396,12 +398,14 @@ def main ():
 
     args = parser.parse_args()
 
-    while os.path.exists(f"runs/{args.experiment_name}/{folder_number}"):
+    current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
+    while os.path.exists(f"{current_run_folder}"):
+        current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
         folder_number = folder_number + 1
 
-    result_csv_file = create_folder_and_file(f"runs/{args.experiment_name}/{folder_number}", "csv")
+    result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
-    with open(f"runs/{args.experiment_name}/{folder_number}/run.sh", 'w') as f:
+    with open(f"{current_run_folder}/run.sh", 'w') as f:
         print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
 
     print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
@@ -413,7 +417,7 @@ def main ():
     if args.maximize:
         min_or_max = "maximize"
 
-    with open(f"runs/{args.experiment_name}/{folder_number}/{min_or_max}", 'w') as f:
+    with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
         print('', file=f)
 
     rows = []
@@ -464,7 +468,7 @@ def main ():
                 objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
             )
 
-        log_folder = f"runs/{args.experiment_name}/{folder_number}/%j"
+        log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)
 
         executor.update_parameters(
@@ -477,7 +481,6 @@ def main ():
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
         with Progress() as progress:
-
             searching_for = "minimum"
             if args.maximize:
                 searching_for = "maximum"
@@ -505,6 +508,9 @@ def main ():
                             #new_desc_string = f"best result: {best_result}"
 
                             progress.update(progress_bar, advance=1)
+
+                            checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
+                            ax_client.save_to_json_file(filepath=checkpoint_filepath)
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
@@ -564,7 +570,7 @@ def main ():
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any tangible results.")
 
-    pd_csv = f'runs/{args.experiment_name}/{folder_number}/pd.csv'
+    pd_csv = f'{current_run_folder}/pd.csv'
     print_color("green", f"Saving result pandas data frame to {pd_csv}")
     try:
         pd_frame = ax_client.get_trials_data_frame()

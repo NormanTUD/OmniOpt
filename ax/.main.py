@@ -433,6 +433,8 @@ def main ():
     print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
     print_color("green", program_name)
 
+    experiment_parameters = None
+
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args.parameter)
 
@@ -483,19 +485,26 @@ def main ():
         if args.load_checkpoint:
             ax_client = (AxClient.load_from_json_file(args.load_checkpoint))
 
-            new_params = ax_client.experiment.parameters
-
-            dier(new_params)
+            experiment_parameters = ax_client.experiment.parameters
 
             with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
                 print(f"Continuation from checkpoint {args.load_checkpoint}", file=f)
 
-            experiment = ax_client.create_experiment(
-                name=args.experiment_name,
-                parameters=new_params,
-                objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
-                parameter_constraints=[args.experiment_constraints]
-            )
+            if ax_client.experiment.search_space.parameter_constraints:
+                experiment = ax_client.create_experiment(
+                    name=args.experiment_name,
+                    parameters=experiment_parameters,
+                    objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+                    parameter_constraints=[ax_client.experiment.search_space.parameter_constraints]
+                )
+            else:
+                experiment = ax_client.create_experiment(
+                    name=args.experiment_name,
+                    parameters=experiment_parameters,
+                    objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
+                )
+
+
         else:
             if args.experiment_constraints:
                 experiment = ax_client.create_experiment(

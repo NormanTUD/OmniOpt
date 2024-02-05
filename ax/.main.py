@@ -427,7 +427,7 @@ def main ():
     required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint to be loaded", type=str, default=None)
 
     optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-    optional.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=0.3)
+    optional.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
     optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
     optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
     optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)

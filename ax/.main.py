@@ -30,7 +30,7 @@ spec.loader.exec_module(my_module)
 
 try:
     from rich.console import Console
-    console = Console(force_terminal=True)
+    console = Console(force_terminal=True, force_interactive=True)
     with console.status("[bold green]Importing modules...") as status:
         #from rich.traceback import install
         #install(show_locals=True)

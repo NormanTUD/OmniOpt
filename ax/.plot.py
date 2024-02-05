@@ -63,7 +63,7 @@ def main():
     if 'result' in df_filtered.columns:
         df_filtered = df_filtered.drop(columns='result')
 
-    dier(df_filtered)
+    num_entries = len(df_filtered)
 
     # Create combinations of parameters
     parameter_combinations = list(combinations(df_filtered.columns, 2))

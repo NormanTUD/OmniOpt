@@ -6,6 +6,7 @@ result_csv_file = None
 
 import os
 import sys
+import json
 
 import importlib.util 
 spec = importlib.util.spec_from_file_location(
@@ -438,6 +439,11 @@ def main ():
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args.parameter)
 
+        checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
+
+        with open(checkpoint_filepath, "w") as outfile:
+            json.dump(experiment_parameters, outfile)
+
     min_or_max = "minimize"
     if args.maximize:
         min_or_max = "maximize"
@@ -485,11 +491,21 @@ def main ():
         if args.load_checkpoint:
             ax_client = (AxClient.load_from_json_file(args.load_checkpoint))
 
-            experiment_parameters = ax_client.experiment.parameters
+            checkpoint_params_file = args.load_checkpoint + ".parameters.json"
+
+            if not os.path.exists(checkpoint_params_file):
+                print_color("red", f"{checkpoint_params_file} not found. Cannot continue without.")
+                sys.exit(22)
+
+            f = open(checkpoint_params_file)
+            experiment_parameters = json.load(f)
+            f.close()
 
             with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
                 print(f"Continuation from checkpoint {args.load_checkpoint}", file=f)
 
+
+            """
             if ax_client.experiment.search_space.parameter_constraints:
                 experiment = ax_client.create_experiment(
                     name=args.experiment_name,
@@ -503,7 +519,7 @@ def main ():
                     parameters=experiment_parameters,
                     objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
                 )
-
+            """
 
         else:
             if args.experiment_constraints:

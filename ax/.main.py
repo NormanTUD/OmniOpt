@@ -683,6 +683,13 @@ def main ():
 
         # Drucke die Tabelle
         console.print(table)
+
+        with console.capture() as capture:
+            console.print(table)
+        table_str = capture.get()
+
+        with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
+            text_file.write(table_str)
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:

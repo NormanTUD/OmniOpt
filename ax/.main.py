@@ -1,19 +1,19 @@
 program_name = "OmniAx"
+file_number = 0
+folder_number = 0
+args = None
+result_csv_file = None
 
 import os
 import sys
 
-def check_environment_variable(variable_name):
-    try:
-        value = os.environ[variable_name]
-        return True
-    except KeyError:
-        return False
-
-if not check_environment_variable("RUN_VIA_RUNSH"):
-    print("Must be run via run.sh, cannot be run as standalone.")
-
-    sys.exit(16)
+import importlib.util 
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=".helpers.py",
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
 
 try:
     from rich.console import Console
@@ -37,7 +37,11 @@ try:
         import warnings
         logging.basicConfig(level=logging.ERROR)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+except ModuleNotFoundError as e:
+    print(f"Error: {e}")
+    sys.exit(20)
 except KeyboardInterrupt:
+    print("\n:warning: You pressed CTRL+C. Program execution halted.")
     sys.exit(0)
 
 def print_color (color, text):
@@ -46,32 +50,6 @@ def print_color (color, text):
 def dier (msg):
     pprint(msg)
     sys.exit(10)
-
-parser = argparse.ArgumentParser(
-    prog=program_name,
-    description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
-    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
-)
-
-parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
-parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
-parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
-parser.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
-parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-parser.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
-parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
-
-args = parser.parse_args()
-
-file_number = 0
-folder_number = 0
-
-while os.path.exists(f"runs/{args.experiment_name}/{folder_number}"):
-    folder_number = folder_number + 1
 
 def create_folder_and_file (folder, extension):
     global file_number
@@ -88,13 +66,6 @@ def create_folder_and_file (folder, extension):
             return filename
 
         file_number += 1
-
-result_csv_file = create_folder_and_file(f"runs/{args.experiment_name}/{folder_number}", "csv")
-
-with open(f"runs/{args.experiment_name}/{folder_number}/run.sh", 'w') as f:
-    print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
-
-print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
 
 def sort_numerically_or_alphabetically(arr):
     try:
@@ -233,42 +204,6 @@ def parse_experiment_parameters(args):
 
     return params
 
-print_color("green", program_name)
-
-experiment_parameters = parse_experiment_parameters(args.parameter)
-
-min_or_max = "minimize"
-if args.maximize:
-    min_or_max = "maximize"
-
-with open(f"runs/{args.experiment_name}/{folder_number}/{min_or_max}", 'w') as f:
-    print('', file=f)
-
-rows = []
-for param in experiment_parameters:
-    _type = str(param["type"])
-    if _type == "range":
-        rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
-    elif _type == "fixed":
-        rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
-    elif _type == "choice":
-        values = param["values"]
-        values = [str(item) for item in values]
-
-        rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
-    else:
-        print_color("red", f"Type {_type} is not yet implemented in the overview table.");
-        sys.exit(15)
-
-table = Table(header_style="bold", title="Experiment parameters:")
-columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
-for column in columns:
-    table.add_column(column)
-for row in rows:
-    table.add_row(*row, style='bright_green')
-console.print(table)
-
-
 def replace_parameters_in_string(parameters, input_string):
     try:
         for param_item in parameters:
@@ -388,8 +323,11 @@ try:
             import ax
             from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.service.utils.report_utils import exp_to_df
-        except:
+        except ModuleNotFoundError as e:
             print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(6)
+        except KeyboardInterrupt:
+            print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
             sys.exit(6)
 
         try:
@@ -401,159 +339,237 @@ try:
 except KeyboardInterrupt:
     sys.exit(0)
 
-logging.basicConfig(level=logging.ERROR)
+def disable_logging ():
+    logging.basicConfig(level=logging.ERROR)
 
-logging.getLogger("ax").setLevel(logging.ERROR)
-logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
-logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
-logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
-logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
-logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
-logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
+    logging.getLogger("ax").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
+    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+    logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
 
-warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
-warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
-warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
+    warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
 
-warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
-warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
-warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
-warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
-warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
-warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
-warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
+    warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
+    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
+    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
 
-try:
-    ax_client = AxClient(verbose_logging=args.verbose)
+def main ():
+    global args
+    global file_number
+    global folder_number
+    global result_csv_file
 
-    minimize = not args.maximize
-
-    if args.experiment_constraints:
-        ax_client.create_experiment(
-            name=args.experiment_name,
-            parameters=experiment_parameters,
-            objectives={"result": ObjectiveProperties(minimize=minimize)},
-            parameter_constraints=[args.experiment_constraints]
-        )
-    else:
-        ax_client.create_experiment(
-            name=args.experiment_name,
-            parameters=experiment_parameters,
-            objectives={"result": ObjectiveProperties(minimize=minimize)}
-        )
-
-    log_folder = f"runs/{args.experiment_name}/{folder_number}/%j"
-    executor = submitit.AutoExecutor(folder=log_folder)
-
-    executor.update_parameters(
-        timeout_min=args.timeout_min,
-        slurm_gres=f"gpu:{args.gpus}",
-        cpus_per_task=args.cpus_per_task
+    parser = argparse.ArgumentParser(
+        prog=program_name,
+        description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
+        epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
     )
 
-    jobs = []
-    submitted_jobs = 0
-    # Run until all the jobs have finished and our budget is used up.
-    with Progress() as progress:
+    parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+    parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
+    parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+    parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
+    parser.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
+    parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+    parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+    parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+    parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+    parser.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
+    parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
 
-        searching_for = "minimum"
-        if args.maximize:
-            searching_for = "maximum"
+    args = parser.parse_args()
 
-        start_str = f"[cyan]Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
+    while os.path.exists(f"runs/{args.experiment_name}/{folder_number}"):
+        folder_number = folder_number + 1
 
-        progress_string = start_str
+    result_csv_file = create_folder_and_file(f"runs/{args.experiment_name}/{folder_number}", "csv")
 
-        progress_string = progress_string
+    with open(f"runs/{args.experiment_name}/{folder_number}/run.sh", 'w') as f:
+        print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
 
-        progress_bar = progress.add_task(f"{progress_string}", total=args.max_eval)
+    print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
+    print_color("green", program_name)
 
-        while submitted_jobs < args.max_eval or jobs:
-            for job, trial_index in jobs[:]:
-                # Poll if any jobs completed
-                # Local and debug jobs don't run until .result() is called.
-                if job.done() or type(job) in [LocalJob, DebugJob]:
-                    result = job.result()
-                    try:
-                        ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                        jobs.remove((job, trial_index))
+    experiment_parameters = parse_experiment_parameters(args.parameter)
 
-                        #best_parameters, (means, covariances) = ax_client.get_best_parameters()
-                        #best_result = means["result"]
-                        #new_desc_string = f"best result: {best_result}"
+    min_or_max = "minimize"
+    if args.maximize:
+        min_or_max = "maximize"
 
-                        progress.update(progress_bar, advance=1)
-                    except ax.exceptions.core.UserInputError as error:
-                        if "None for metric" in str(error):
-                            print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
-                        else:
-                            print_color("red", f"\n:warning: {error}")
-                            sys.exit(1)
-            
-            # Schedule new jobs if there is availablity
-            trial_index_to_param, _ = ax_client.get_next_trials(
-                max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+    with open(f"runs/{args.experiment_name}/{folder_number}/{min_or_max}", 'w') as f:
+        print('', file=f)
+
+    rows = []
+    for param in experiment_parameters:
+        _type = str(param["type"])
+        if _type == "range":
+            rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
+        elif _type == "fixed":
+            rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
+        elif _type == "choice":
+            values = param["values"]
+            values = [str(item) for item in values]
+
+            rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
+        else:
+            print_color("red", f"Type {_type} is not yet implemented in the overview table.");
+            sys.exit(15)
+
+    table = Table(header_style="bold", title="Experiment parameters:")
+    columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
+    for column in columns:
+        table.add_column(column)
+    for row in rows:
+        table.add_row(*row, style='bright_green')
+    console.print(table)
+
+    if not args.verbose:
+        disable_logging()
+
+    try:
+        ax_client = AxClient(verbose_logging=args.verbose)
+
+        minimize = not args.maximize
+
+        if args.experiment_constraints:
+            ax_client.create_experiment(
+                name=args.experiment_name,
+                parameters=experiment_parameters,
+                objectives={"result": ObjectiveProperties(minimize=minimize)},
+                parameter_constraints=[args.experiment_constraints]
+            )
+        else:
+            ax_client.create_experiment(
+                name=args.experiment_name,
+                parameters=experiment_parameters,
+                objectives={"result": ObjectiveProperties(minimize=minimize)}
             )
 
-            for trial_index, parameters in trial_index_to_param.items():
-                try:
-                    job = executor.submit(evaluate, parameters)
-                    submitted_jobs += 1
-                    jobs.append((job, trial_index))
-                    time.sleep(1)
-                except submitit.core.utils.FailedJobError as error:
-                    if "QOSMinGRES" in str(error) and args.gpus == 0:
-                        print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                    else:
-                        print_color("red", f"\n:warning: FAILED: {error}")
+        log_folder = f"runs/{args.experiment_name}/{folder_number}/%j"
+        executor = submitit.AutoExecutor(folder=log_folder)
 
-                    sys.exit(2)
-            
-            # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
-            # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
-            time.sleep(0.1)
-except KeyboardInterrupt:
-    print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+        executor.update_parameters(
+            timeout_min=args.timeout_min,
+            slurm_gres=f"gpu:{args.gpus}",
+            cpus_per_task=args.cpus_per_task
+        )
 
-try:
-    best_parameters, (means, covariances) = ax_client.get_best_parameters()
+        jobs = []
+        submitted_jobs = 0
+        # Run until all the jobs have finished and our budget is used up.
+        with Progress() as progress:
 
-    
-    best_result = means["result"]
+            searching_for = "minimum"
+            if args.maximize:
+                searching_for = "maximum"
 
-    table = Table(show_header=True, header_style="bold", title="Best parameters:")
+            start_str = f"[cyan]Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
 
-    # Dynamisch Spaltenüberschriften hinzufügen
-    for key in best_parameters.keys():
-        table.add_column(key)
+            progress_string = start_str
 
-    table.add_column("result (inexact)")
+            progress_string = progress_string
 
-    # "best results" als Zeilenüberschrift hinzufügen
-    row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
-    row = [*row_without_result, str(best_result)]
+            progress_bar = progress.add_task(f"{progress_string}", total=args.max_eval)
 
-    table.add_row(*row)
+            while submitted_jobs < args.max_eval or jobs:
+                for job, trial_index in jobs[:]:
+                    # Poll if any jobs completed
+                    # Local and debug jobs don't run until .result() is called.
+                    if job.done() or type(job) in [LocalJob, DebugJob]:
+                        result = job.result()
+                        try:
+                            ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                            jobs.remove((job, trial_index))
 
+                            #best_parameters, (means, covariances) = ax_client.get_best_parameters()
+                            #best_result = means["result"]
+                            #new_desc_string = f"best result: {best_result}"
 
-    # Drucke die Tabelle
-    console.print(table)
-except KeyboardInterrupt:
-    print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-except TypeError:
-    print_color("red", "\n:warning: The program has been halted without attaining any tangible results.")
+                            progress.update(progress_bar, advance=1)
+                        except ax.exceptions.core.UserInputError as error:
+                            if "None for metric" in str(error):
+                                print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                            else:
+                                print_color("red", f"\n:warning: {error}")
+                                sys.exit(1)
+                
+                # Schedule new jobs if there is availablity
+                trial_index_to_param, _ = ax_client.get_next_trials(
+                    max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+                )
 
-pd_csv = f'runs/{args.experiment_name}/{folder_number}/pd.csv'
-print_color("green", f"Saving result pandas data frame to {pd_csv}")
-try:
-    pd_frame = ax_client.get_trials_data_frame()
-    pd_frame.to_csv(pd_csv, index=False)
-except Exception as e:
-    print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
-    sys.exit(17)
+                for trial_index, parameters in trial_index_to_param.items():
+                    try:
+                        job = executor.submit(evaluate, parameters)
+                        submitted_jobs += 1
+                        jobs.append((job, trial_index))
+                        time.sleep(1)
+                    except submitit.core.utils.FailedJobError as error:
+                        if "QOSMinGRES" in str(error) and args.gpus == 0:
+                            print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                        else:
+                            print_color("red", f"\n:warning: FAILED: {error}")
+
+                        sys.exit(2)
+                
+                # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
+                # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
+                time.sleep(0.1)
+    except KeyboardInterrupt:
+        print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
+
+    try:
+        best_parameters, (means, covariances) = ax_client.get_best_parameters()
+
+        
+        best_result = means["result"]
+
+        table = Table(show_header=True, header_style="bold", title="Best parameters:")
+
+        # Dynamisch Spaltenüberschriften hinzufügen
+        for key in best_parameters.keys():
+            table.add_column(key)
+
+        table.add_column("result (inexact)")
+
+        # "best results" als Zeilenüberschrift hinzufügen
+        row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
+        row = [*row_without_result, str(best_result)]
+
+        table.add_row(*row)
+
+        # Drucke die Tabelle
+        console.print(table)
+    except KeyboardInterrupt:
+        print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+    except TypeError:
+        print_color("red", "\n:warning: The program has been halted without attaining any tangible results.")
+
+    pd_csv = f'runs/{args.experiment_name}/{folder_number}/pd.csv'
+    print_color("green", f"Saving result pandas data frame to {pd_csv}")
+    try:
+        pd_frame = ax_client.get_trials_data_frame()
+        pd_frame.to_csv(pd_csv, index=False)
+    except Exception as e:
+        print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+        sys.exit(17)
+
+if __name__ == "__main__":
+    main()

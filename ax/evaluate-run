@@ -46,7 +46,7 @@ fi
 
 function this_help {
 	cat <<'EOF'
-This helps graphically to use OmniOpt.
+This helps graphically to use OmniAx.
 
 -p=/path/                                                   Path to available projects
 --projectdir=/path/to/projects/
@@ -238,7 +238,6 @@ function list_option_for_job {
 			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
-			echo_green "Plot"
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 			else
@@ -788,7 +787,7 @@ if [[ $sourced == "0" ]]; then
 		echo $load_percent
 		echo "Loading modules... ($this_module...)"
 		echo "XXX"
-		if ! ml is-loaded $this_module; then
+		if ! myml is-loaded $this_module; then
 			ml $this_module 2>/dev/null
 		fi
 		done
@@ -800,8 +799,8 @@ if [[ $sourced == "0" ]]; then
 	else
 		if [[ "$LOAD_MODULES" -eq "1" ]]; then
 			for this_module in ${modules_to_load[*]}; do
-				if ! ml is-loaded $this_module; then
-					ml $this_module 2>/dev/null
+				if ! myml is-loaded $this_module; then
+					myml $this_module 2>/dev/null
 				fi
 			done
 		fi

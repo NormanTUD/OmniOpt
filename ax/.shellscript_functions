@@ -34,21 +34,18 @@ set -e
 
 LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
 
-ml () {
+myml () {
 	if [[ -e $LMOD_DIR/ml_cmd ]]; then
 		eval "$($LMOD_DIR/ml_cmd "$@")"
-	else
-		red "Cannot use ml. Are you on Taurus?"
 	fi
 }
 
 
 if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-	green "Loading modules..."
-	ml release/23.04 GCCcore/12.2.0 Python/3.10.8
+	myml release/23.04 GCCcore/12.2.0 Python/3.10.8
 
 	if [[ $(uname -m) == "ppc64le" ]]; then
-		ml GCC/12.2.0 OpenBLAS/0.3.21
+		myml GCC/12.2.0 OpenBLAS/0.3.21
 	fi
 fi
 

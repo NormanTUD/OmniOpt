@@ -196,7 +196,7 @@ def parse_experiment_parameters(args):
                 j += 3
             elif param_type == "choice":
                 if len(this_args) != 3:
-                    print_color("red", f"\n:warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE>");
+                    print_color("red", f"\n:warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
                     sys.exit(11)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))

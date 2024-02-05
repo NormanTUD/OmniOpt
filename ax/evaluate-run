@@ -604,8 +604,6 @@ function chose_project_number {
 		echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
 		list_projects
 	elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
-		echo_green "Only found one subfolder. Using it."
-
 		CHOSEN=$(ls $PROJECTDIR/$PROJECT | head -n1)
 
 		list_option_for_job "$WHATTODO" $CHOSEN

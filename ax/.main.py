@@ -1,4 +1,5 @@
 program_name = "OmniAx"
+current_run_folder = None
 file_number = 0
 folder_number = 0
 args = None
@@ -400,6 +401,7 @@ def main ():
     global file_number
     global folder_number
     global result_csv_file
+    global current_run_folder
 
     parser = argparse.ArgumentParser(
         prog=program_name,
@@ -451,6 +453,11 @@ def main ():
         folder_number = folder_number + 1
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
+
+    with open(f"{current_run_folder}/env", 'a') as f:
+        env = dict(os.environ)
+        for key in env:
+            print(str(key) + " = " + str(env[key]), file=f)
 
     with open(f"{current_run_folder}/run.sh", 'w') as f:
         print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)

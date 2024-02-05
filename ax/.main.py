@@ -480,7 +480,7 @@ def main ():
         experiment = None
 
         if args.load_checkpoint:
-            experiment = (AxClient.load_from_json_file(args.load_checkpoint))
+            experiment = (ax_client.load_from_json_file(args.load_checkpoint))
         else:
             if args.experiment_constraints:
                 experiment = ax_client.create_experiment(

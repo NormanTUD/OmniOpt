@@ -430,6 +430,7 @@ def main ():
     optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
     optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
     optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
+    optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 
     debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 
@@ -447,9 +448,9 @@ def main ():
             sys.exit(21)
 
 
-    current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
+    current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
     while os.path.exists(f"{current_run_folder}"):
-        current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
+        current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
         folder_number = folder_number + 1
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")

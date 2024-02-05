@@ -385,16 +385,19 @@ def main ():
     )
 
 
-    required = parser.add_argument_group('Required arguments')
-    optional = parser.add_argument_group('Optional')
-    debug = parser.add_argument_group('Debug')
+    required = parser.add_argument_group('Required arguments', "These options have to be set")
+    required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
+    optional = parser.add_argument_group('Optional', "These options are optional")
+    debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
     required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
     required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
-    required.add_argument('--parameter', action='append', nargs='+', required=True, help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>")
     required.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
     required.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
     required.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
+
+    required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
+    required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint to be loaded", type=str, default=None)
 
     optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
     optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
@@ -405,6 +408,11 @@ def main ():
     debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 
     args = parser.parse_args()
+
+    if args.parameter is None and args.load_checkpoint is None:
+        print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
+        sys.exit(19)
+
 
     current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
     while os.path.exists(f"{current_run_folder}"):

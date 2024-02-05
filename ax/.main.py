@@ -481,8 +481,20 @@ def main ():
         experiment = None
 
         if args.load_checkpoint:
-            experiment = (ax_client.load_from_json_file(args.load_checkpoint))
-            gs = choose_generation_strategy(
+            ax_client = (AxClient.load_from_json_file(args.load_checkpoint))
+
+            new_params = ax_client.experiment.parameters
+
+            dier(new_params)
+
+            with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
+                print(f"Continuation from checkpoint {args.load_checkpoint}", file=f)
+
+            experiment = ax_client.create_experiment(
+                name=args.experiment_name,
+                parameters=new_params,
+                objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+                parameter_constraints=[args.experiment_constraints]
             )
         else:
             if args.experiment_constraints:

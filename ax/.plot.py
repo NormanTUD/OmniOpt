@@ -2,6 +2,15 @@ import sys
 import os
 import argparse
 
+try:
+    from rich.pretty import pprint
+except ModuleNotFoundError:
+    from pprint import pprint
+
+def dier (msg):
+    pprint(msg)
+    sys.exit(10)
+
 import importlib.util 
 spec = importlib.util.spec_from_file_location(
     name="helpers",

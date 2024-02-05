@@ -7,6 +7,16 @@ result_csv_file = None
 import os
 import sys
 import json
+import signal
+
+class userSignal (Exception):
+    pass
+
+def receive_usr_signal (signum, stack):
+    raise userSignal("USR-signal received")
+
+signal.signal(signal.SIGUSR1, receive_usr_signal)
+signal.signal(signal.SIGUSR2, receive_usr_signal)
 
 import importlib.util 
 spec = importlib.util.spec_from_file_location(
@@ -43,6 +53,9 @@ except ModuleNotFoundError as e:
     sys.exit(20)
 except KeyboardInterrupt:
     print("\n:warning: You pressed CTRL+C. Program execution halted.")
+    sys.exit(0)
+except userSignal:
+    print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
     sys.exit(0)
 
 def print_color (color, text):
@@ -338,10 +351,16 @@ try:
         try:
             import submitit
             from submitit import AutoExecutor, LocalJob, DebugJob
+        except userSignal:
+            print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+            sys.exit(0)
         except:
             print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
             sys.exit(7)
 except KeyboardInterrupt:
+    sys.exit(0)
+except userSignal:
+    print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
     sys.exit(0)
 
 def disable_logging ():
@@ -612,6 +631,8 @@ def main ():
                 time.sleep(0.1)
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
+    except userSignal:
+        print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
 
     try:
         best_parameters, (means, covariances) = ax_client.get_best_parameters()
@@ -639,6 +660,9 @@ def main ():
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any tangible results.")
+    except userSignal:
+        print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+        sys.exit(0)
 
     pd_csv = f'{current_run_folder}/pd.csv'
     print_color("green", f"Saving result pandas data frame to {pd_csv}")

@@ -10,6 +10,7 @@ import socket
 import sys
 import json
 import signal
+import tqdm
 
 class userSignal (Exception):
     pass

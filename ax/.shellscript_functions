@@ -78,6 +78,7 @@ if [[ ! -d "$VENV_DIR" ]]; then
 	ppip matplotlib
 	ppip Pyarrow
 	ppip textual
+	ppip tqdm
 fi
 
 source $VENV_DIR/bin/activate

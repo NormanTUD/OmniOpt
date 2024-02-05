@@ -437,28 +437,33 @@ function list_option_for_job {
 
 			# Inline Perl script to extract and print "exit_code" column
 			FAILED_JOBS=$(perl -MText::CSV -e '
-				my $csv = Text::CSV->new({ binary => 1, auto_diag => 1 });
-				open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
+open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
 
-				    # Read header line
-				    my $header = $csv->getline($fh);
+# Read header line
+my $header = <$fh>;
+chomp $header;
+my @headers = split(",", $header);
 
-				    # Find the index of the "exit_code" column
-				    my $exit_code_index = -1;
-				    for my $i (0..$#{$header}) {
-					    if ($header->[$i] eq "exit_code") {
-						    $exit_code_index = $i;
-						    last;
-					    }
-				    }
+# Find the index of the "exit_code" column
+my $exit_code_index = -1;
+for my $i (0..$#headers) {
+    if ($headers[$i] eq "exit_code") {
+        $exit_code_index = $i;
+        last;
+    }
+}
 
-				    # Check if "exit_code" column exists in the CSV file
-				    die "Error: exit_code column not found in the CSV file.\n" if $exit_code_index == -1;
+# Check if "exit_code" column exists in the CSV file
+die "Error: exit_code column not found in the CSV file.\n" if $exit_code_index == -1;
 
-				    # Print "exit_code" values
-				    while (my $row = $csv->getline($fh)) {
-					    print "$row->[$exit_code_index]\n";
-				    }
+# Print "exit_code" values
+while (my $line = <$fh>) {
+    chomp $line;
+    my @values = split(",", $line);
+    print "$values[$exit_code_index]\n";
+}
+
+close $fh;
 			' "$input_file" | egrep -v '^\s*0\s*$' | wc -l)
 
 			FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"

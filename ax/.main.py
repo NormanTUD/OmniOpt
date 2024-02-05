@@ -403,12 +403,13 @@ def main ():
         current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
         folder_number = folder_number + 1
 
+    print_color("blue", f"Current run folder: {current_run_folder}")
+
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
     with open(f"{current_run_folder}/run.sh", 'w') as f:
         print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
 
-    print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
     print_color("green", program_name)
 
     experiment_parameters = parse_experiment_parameters(args.parameter)

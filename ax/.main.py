@@ -323,7 +323,6 @@ try:
             import ax
             from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.storage.json_store.save import save_experiment
-            from ax.storage.json_store.load import load_experiment
             from ax.service.utils.report_utils import exp_to_df
         except ModuleNotFoundError as e:
             print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
@@ -402,7 +401,6 @@ def main ():
     optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
     optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
     optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-
     optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 
     debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
@@ -482,7 +480,7 @@ def main ():
         experiment = None
 
         if args.load_checkpoint:
-            experiment = load_experiment(args.load_checkpoint)
+            experiment = ax_client.load_from_json_file(args.load_checkpoint)
         else:
             if args.experiment_constraints:
                 experiment = ax_client.create_experiment(

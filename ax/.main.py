@@ -5,6 +5,7 @@ args = None
 result_csv_file = None
 
 import os
+import socket
 import sys
 import json
 import signal
@@ -317,8 +318,8 @@ def evaluate(parameters):
 
     print(f"Result: {result}")
 
-    headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code"];
-    values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code];
+    headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "hostname"];
+    values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, socket.gethostname()];
 
     headline = ['None' if element is None else element for element in headline]
     values = ['None' if element is None else element for element in values]

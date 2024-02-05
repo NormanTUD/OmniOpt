@@ -312,7 +312,9 @@ def evaluate(parameters):
 
     add_to_csv(result_csv_file, headline, values)
 
-    if type(result) == int or type(result) == float:
+    if type(result) == int:
+        return {"result": int(result)}
+    elif type(result) == float:
         return {"result": float(result)}
     else:
         return {"result": None}

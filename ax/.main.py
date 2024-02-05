@@ -446,20 +446,22 @@ def main ():
     try:
         ax_client = AxClient(verbose_logging=args.verbose)
 
-        minimize = not args.maximize
+        minimize_or_maximize = not args.maximize
+
+        experiment = None
 
         if args.experiment_constraints:
-            ax_client.create_experiment(
+            experiment = ax_client.create_experiment(
                 name=args.experiment_name,
                 parameters=experiment_parameters,
-                objectives={"result": ObjectiveProperties(minimize=minimize)},
+                objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 parameter_constraints=[args.experiment_constraints]
             )
         else:
-            ax_client.create_experiment(
+            experiment = ax_client.create_experiment(
                 name=args.experiment_name,
                 parameters=experiment_parameters,
-                objectives={"result": ObjectiveProperties(minimize=minimize)}
+                objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
             )
 
         log_folder = f"runs/{args.experiment_name}/{folder_number}/%j"

@@ -422,6 +422,7 @@ def main ():
     required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint to be loaded", type=str, default=None)
 
     optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+    optional.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
     optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
     optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
     optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
@@ -562,13 +563,14 @@ def main ():
         executor = submitit.AutoExecutor(folder=log_folder)
 
 
-        # 'name': <class 'str'>, 'mem_gb': <class 'float'>, 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
+        # 'name': <class 'str'>, 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
         executor.update_parameters(
             timeout_min=args.timeout_min,
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,
             stderr_to_stdout=args.stderr_to_stdout,
+            mem_gb=args.mem_gb,
         )
 
         jobs = []

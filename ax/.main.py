@@ -322,6 +322,7 @@ try:
         try:
             import ax
             from ax.service.ax_client import AxClient, ObjectiveProperties
+            from ax.modelbridge.dispatch_utils import choose_generation_strategy
             from ax.storage.json_store.save import save_experiment
             from ax.service.utils.report_utils import exp_to_df
         except ModuleNotFoundError as e:
@@ -481,6 +482,8 @@ def main ():
 
         if args.load_checkpoint:
             experiment = (ax_client.load_from_json_file(args.load_checkpoint))
+            gs = choose_generation_strategy(
+            )
         else:
             if args.experiment_constraints:
                 experiment = ax_client.create_experiment(

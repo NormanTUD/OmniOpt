@@ -271,8 +271,6 @@ function list_option_for_job {
 			fi
 			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
-			echo_green "Plot with min/max value"
-
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
 				maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
@@ -283,8 +281,6 @@ function list_option_for_job {
 						echo "\$minvalue is not a valid number. Setting it to empty."
 						minvalue=""
 					fi
-				else
-					echo "\$minvalue is not set."
 				fi
 
 
@@ -294,30 +290,19 @@ function list_option_for_job {
 						echo "\$maxvalue is not a valid number. Setting it to empty."
 						maxvalue=""
 					fi
-				else
-					echo "\$maxvalue is not set."
 				fi
 
 				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
 					# Check if minvalue is greater than maxvalue
 					if [ "$minvalue" -gt "$maxvalue" ]; then
-						echo "minvalue is greater than maxvalue. Swapping values."
-
 						# Swap values
 						temp="$minvalue"
 						minvalue="$maxvalue"
 						maxvalue="$temp"
-
-						echo "minvalue: $minvalue, maxvalue: $maxvalue"
 					else
 						echo "minvalue is less than or equal to maxvalue. No need to swap."
 					fi
-				else
-					echo "Either minvalue or maxvalue is not set."
 				fi
-
-				echo_green "Got minvalue = ${minvalue}"
-				echo_green "Got maxvalue = ${maxvalue}"
 
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
@@ -349,8 +334,6 @@ function list_option_for_job {
 						echo "\$minvalue is not a valid number. Setting it to empty."
 						minvalue=""
 					fi
-				else
-					echo "\$minvalue is not set."
 				fi
 
 
@@ -360,30 +343,19 @@ function list_option_for_job {
 						echo "\$maxvalue is not a valid number. Setting it to empty."
 						maxvalue=""
 					fi
-				else
-					echo "\$maxvalue is not set."
 				fi
 
 				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
 					# Check if minvalue is greater than maxvalue
 					if [ "$minvalue" -gt "$maxvalue" ]; then
-						echo "minvalue is greater than maxvalue. Swapping values."
-
 						# Swap values
 						temp="$minvalue"
 						minvalue="$maxvalue"
 						maxvalue="$temp"
-
-						echo "minvalue: $minvalue, maxvalue: $maxvalue"
 					else
 						echo "minvalue is less than or equal to maxvalue. No need to swap."
 					fi
-				else
-					echo "Either minvalue or maxvalue is not set."
 				fi
-
-				echo_green "Got minvalue = ${minvalue}"
-				echo_green "Got maxvalue = ${maxvalue}"
 
 				SVGDIR=$PROJECTDIR/$PROJECT/$NUMBER/2d-scatterplots/
 				mkdir -p $SVGDIR

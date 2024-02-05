@@ -650,9 +650,9 @@ def main ():
         print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
 
     try:
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
         best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
-        
         best_result = means["result"]
 
         table = Table(show_header=True, header_style="bold", title="Best parameters:")

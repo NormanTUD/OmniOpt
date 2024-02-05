@@ -576,6 +576,7 @@ def main ():
         # 'name': <class 'str'>, 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
         executor.update_parameters(
+            name=args.experiment_name,
             timeout_min=args.timeout_min,
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,

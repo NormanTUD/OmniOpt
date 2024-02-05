@@ -10,7 +10,7 @@ import socket
 import sys
 import json
 import signal
-import tqdm
+from tqdm import tqdm
 
 class userSignal (Exception):
     pass
@@ -597,18 +597,19 @@ def main ():
         jobs = []
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
-        with Progress() as progress:
-            searching_for = "minimum"
-            if args.maximize:
-                searching_for = "maximum"
+
+        searching_for = "minimum"
+        if args.maximize:
+            searching_for = "maximum"
+
+        with tqdm(total=args.max_eval, desc=f"Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)...") as progress_bar:
+
 
             start_str = f"[cyan]Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
 
             progress_string = start_str
 
             progress_string = progress_string
-
-            progress_bar = progress.add_task(f"{progress_string}", total=args.max_eval)
 
             while submitted_jobs < args.max_eval or jobs:
                 for job, trial_index in jobs[:]:
@@ -624,7 +625,7 @@ def main ():
                             #best_result = means["result"]
                             #new_desc_string = f"best result: {best_result}"
 
-                            progress.update(progress_bar, advance=1)
+                            progress_bar.update(1)
 
                             checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
                             ax_client.save_to_json_file(filepath=checkpoint_filepath)

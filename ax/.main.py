@@ -512,6 +512,14 @@ def main ():
             table.add_row(*row, style='bright_green')
         console.print(table)
 
+
+        with console.capture() as capture:
+            console.print(table)
+        table_str = capture.get()
+
+        with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
+            text_file.write(table_str)
+
     if not args.verbose:
         disable_logging()
 

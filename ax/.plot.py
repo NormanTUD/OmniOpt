@@ -30,10 +30,12 @@ except ModuleNotFoundError as e:
 def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
+
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
+
     args = parser.parse_args()
 
     # Check if the specified directory exists
@@ -47,7 +49,7 @@ def main():
     csv_file_path = os.path.join(args.run_dir, pd_csv)
     if not os.path.exists(csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
-        sys.exit(1)
+        sys.exit(3)
 
     # Check if the "--save_to_file" parameter is provided
     save_to_file = args.save_to_file is not None
@@ -65,6 +67,9 @@ def main():
 
     num_entries = len(df_filtered)
 
+    if num_entries is None or num_entries == 0:
+        sys.exit(4)
+
     # Create combinations of parameters
     parameter_combinations = list(combinations(df_filtered.columns, 2))
 
@@ -73,7 +78,7 @@ def main():
 
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
-        sys.exit(1)
+        sys.exit(2)
 
     if args.min is not None:
         df['result'] = df['result'].clip(lower=args.min)
@@ -119,6 +124,8 @@ def main():
     title += " of f("
     title += ', '.join([f"{key} = {value}" for key, value in extreme_values.items()])
     title += f") at {result_column_values[extreme_index]}"
+
+    title += f"\nNumber of evaluations shown: {num_entries}"
 
     if args.min is not None:
         title += f", minimum value: {args.min}"

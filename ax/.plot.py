@@ -7,7 +7,7 @@ try:
 except ModuleNotFoundError:
     from pprint import pprint
 
-def dier (msg):
+def dier(msg):
     pprint(msg)
     sys.exit(10)
 
@@ -26,6 +26,10 @@ try:
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(0)
+
+# Get shell variables or use default values
+BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 10))
+SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))
 
 def main():
     # Parse command line arguments
@@ -104,7 +108,7 @@ def main():
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
-        scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm)
+        scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
         axs[row, col].set_xlabel(param1)
         axs[row, col].set_ylabel(param2)
 

@@ -384,17 +384,25 @@ def main ():
         epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
     )
 
-    parser.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
-    parser.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
-    parser.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-    parser.add_argument('--parameter', action='append', nargs='+', required=True, help='Experiment parameters in the format: name type lower_bound upper_bound')
-    parser.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
-    parser.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-    parser.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-    parser.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-    parser.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-    parser.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
-    parser.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
+
+    required = parser.add_argument_group('Required arguments')
+    optional = parser.add_argument_group('Optional')
+    debug = parser.add_argument_group('Debug')
+
+    required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+    required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
+    required.add_argument('--parameter', action='append', nargs='+', required=True, help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>")
+    required.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
+    required.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
+    required.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
+
+    optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+    optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+    optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+
+    optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+
+    debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 
     args = parser.parse_args()
 

@@ -412,6 +412,13 @@ def main ():
     if args.parameter is None and args.load_checkpoint is None:
         print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
         sys.exit(19)
+    elif args.parameter is not None and args.load_checkpoint is not None:
+        print_color("red", "You cannot use --parameter and --load_checkpoint. You have to decide for one.");
+        sys.exit(20)
+    elif args.load_checkpoint:
+        if not os.path.exists(args.load_checkpoint):
+            print_color("red", f"{args.load_checkpoint} could not be found!")
+            sys.exit(21)
 
 
     current_run_folder = f"runs/{args.experiment_name}/{folder_number}"
@@ -427,7 +434,8 @@ def main ():
     print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
     print_color("green", program_name)
 
-    experiment_parameters = parse_experiment_parameters(args.parameter)
+    if args.parameter:
+        experiment_parameters = parse_experiment_parameters(args.parameter)
 
     min_or_max = "minimize"
     if args.maximize:
@@ -436,29 +444,32 @@ def main ():
     with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
         print('', file=f)
 
-    rows = []
-    for param in experiment_parameters:
-        _type = str(param["type"])
-        if _type == "range":
-            rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
-        elif _type == "fixed":
-            rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
-        elif _type == "choice":
-            values = param["values"]
-            values = [str(item) for item in values]
 
-            rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
-        else:
-            print_color("red", f"Type {_type} is not yet implemented in the overview table.");
-            sys.exit(15)
+    if args.parameter:
+        rows = []
 
-    table = Table(header_style="bold", title="Experiment parameters:")
-    columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
-    for column in columns:
-        table.add_column(column)
-    for row in rows:
-        table.add_row(*row, style='bright_green')
-    console.print(table)
+        for param in experiment_parameters:
+            _type = str(param["type"])
+            if _type == "range":
+                rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
+            elif _type == "fixed":
+                rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
+            elif _type == "choice":
+                values = param["values"]
+                values = [str(item) for item in values]
+
+                rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
+            else:
+                print_color("red", f"Type {_type} is not yet implemented in the overview table.");
+                sys.exit(15)
+
+        table = Table(header_style="bold", title="Experiment parameters:")
+        columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
+        for column in columns:
+            table.add_column(column)
+        for row in rows:
+            table.add_row(*row, style='bright_green')
+        console.print(table)
 
     if not args.verbose:
         disable_logging()
@@ -470,19 +481,22 @@ def main ():
 
         experiment = None
 
-        if args.experiment_constraints:
-            experiment = ax_client.create_experiment(
-                name=args.experiment_name,
-                parameters=experiment_parameters,
-                objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
-                parameter_constraints=[args.experiment_constraints]
-            )
+        if args.load_checkpoint:
+            experiment = load_experiment(args.load_checkpoint)
         else:
-            experiment = ax_client.create_experiment(
-                name=args.experiment_name,
-                parameters=experiment_parameters,
-                objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
-            )
+            if args.experiment_constraints:
+                experiment = ax_client.create_experiment(
+                    name=args.experiment_name,
+                    parameters=experiment_parameters,
+                    objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+                    parameter_constraints=[args.experiment_constraints]
+                )
+            else:
+                experiment = ax_client.create_experiment(
+                    name=args.experiment_name,
+                    parameters=experiment_parameters,
+                    objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
+                )
 
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)

@@ -1,4 +1,4 @@
-program_name = "OmniAx"
+program_name = "OmniOpt2"
 current_run_folder = None
 file_number = 0
 folder_number = 0

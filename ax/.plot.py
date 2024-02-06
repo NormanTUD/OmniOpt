@@ -63,7 +63,8 @@ def main():
     df = pd.read_csv(csv_file_path)
 
     # Remove pseudo-values for invalid executions
-    df = df[~df[args.result_column].isin([99999999999999999999999999999999999999999999999999999999999, -99999999999999999999999999999999999999999999999999999999999])]
+    rows_to_remove = df[df[args.result_column].isin([99999999999999999999999999999999999999999999999999999999999, -99999999999999999999999999999999999999999999999999999999999])].index
+    df.drop(rows_to_remove, inplace=True)
 
     # Remove specified columns
     columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']

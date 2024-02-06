@@ -17,7 +17,6 @@ try:
 except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
     sys.exit(24)
-
 class userSignal (Exception):
     pass
 
@@ -69,6 +68,23 @@ except userSignal:
 
 def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
+
+def is_executable_in_path(executable_name):
+    for path in os.environ.get('PATH', '').split(':'):
+        executable_path = os.path.join(path, executable_name)
+        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
+            return True
+    return False
+
+def check_slurm_job_id():
+    if is_executable_in_path('sbatch'):
+        slurm_job_id = os.environ.get('SLURM_JOB_ID')
+        if slurm_job_id is not None and not slurm_job_id.isdigit():
+            print_color("red", "Not a valid SLURM_JOB_ID.")
+        elif slurm_job_id is None:
+            print_color("red", "You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. " +
+                "This may cause the system to slow down for all other users. It is recommended uou run the main script in a Slurm job."
+            )
 
 def dier (msg):
     pprint(msg)
@@ -411,6 +427,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
 def main ():
+    check_slurm_job_id()
     global args
     global file_number
     global folder_number

@@ -218,7 +218,7 @@ function list_option_for_job {
 
 			pip3 list > $list_installed_modules
 
-			zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/*
+			zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/* debuglogs
 
 			if [[ -e $DEBUGFILE ]]; then
 				if (whiptail --title "Make this file available over a webserver?" --yesno "Do you want to make this file available over a webserver?" 8 78); then

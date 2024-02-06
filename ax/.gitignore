@@ -2,3 +2,5 @@ log_test
 runs
 logs
 __pycache__
+debug*.zip
+list_installed_modules*.log

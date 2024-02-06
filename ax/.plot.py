@@ -79,7 +79,14 @@ def main():
         sys.exit(6)
 
     # Remove specified columns
-    columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    columns_to_remove = []
+    existing_columns = df.columns.values.tolist()
+
+    for col in existing_columns:
+        if col in all_columns_to_remove:
+            columns_to_remove.append(col)
+
     df_filtered = df.drop(columns=columns_to_remove)
 
     if args.result_column in df_filtered.columns:

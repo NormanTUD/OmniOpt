@@ -660,6 +660,30 @@ def main ():
 
                             checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
                             ax_client.save_to_json_file(filepath=checkpoint_filepath)
+
+                            pd_csv = f'{current_run_folder}/pd.csv'
+                            try:
+                                import logging
+                                logger = logging.getLogger()
+                                logger.setLevel(logging.ERROR)
+
+                                logger = logging.getLogger("ax")
+                                logger.setLevel(logging.ERROR)
+
+                                logger = logging.getLogger("ax.service")
+                                logger.setLevel(logging.ERROR)
+
+                                logger = logging.getLogger("ax.service.utils")
+                                logger.setLevel(logging.ERROR)
+
+                                logger = logging.getLogger("ax.service.utils.report_utils")
+                                logger.setLevel(logging.ERROR)
+
+                                pd_frame = ax_client.get_trials_data_frame()
+                                pd_frame.to_csv(pd_csv, index=False)
+                            except Exception as e:
+                                print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
@@ -744,6 +768,22 @@ def main ():
     pd_csv = f'{current_run_folder}/pd.csv'
     print_color("green", f"Saving result pandas data frame to {pd_csv}")
     try:
+        import logging
+        logger = logging.getLogger()
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service.utils")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service.utils.report_utils")
+        logger.setLevel(logging.ERROR)
+
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False)
     except Exception as e:

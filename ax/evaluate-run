@@ -399,14 +399,8 @@ function list_option_for_job {
 
 			NUMBEROFJOBS="Number of jobs (failed and successful): $total_jobs"
 
-			# Check if Perl and Text::CSV module are installed
-			if ! command -v perl &> /dev/null || ! perl -MText::CSV -e 1; then
-				echo "Error: Perl or Text::CSV module not installed. Please install them to run this script."
-				exit 1
-			fi
-
 			# Inline Perl script to extract and print "exit_code" column
-			FAILED_JOBS=$(perl -MText::CSV -e '
+			FAILED_JOBS=$(perl -e '
 open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
 
 # Read header line

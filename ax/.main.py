@@ -73,7 +73,7 @@ except userSignalOne:
     print("\n:warning: USR1 signal was sent. Cancelling.")
     sys.exit(0)
 except userSignalTwo:
-    print("\n:warning: USR1 signal was sent. Cancelling.")
+    print("\n:warning: USR2 signal was sent. Cancelling.")
     sys.exit(0)
 
 def print_color (color, text):
@@ -395,7 +395,7 @@ try:
             print("\n:warning: USR1 signal was sent. Cancelling.")
             sys.exit(0)
         except userSignalTwo:
-            print("\n:warning: USR1 signal was sent. Cancelling.")
+            print("\n:warning: USR2 signal was sent. Cancelling.")
             sys.exit(0)
         except:
             print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
@@ -406,7 +406,7 @@ except userSignalOne:
     print("\n:warning: USR1 signal was sent. Cancelling.")
     sys.exit(0)
 except userSignalTwo:
-    print("\n:warning: USR1 signal was sent. Cancelling.")
+    print("\n:warning: USR2 signal was sent. Cancelling.")
     sys.exit(0)
 
 def disable_logging ():
@@ -709,7 +709,7 @@ def main ():
         print("\n:warning: USR1 signal was sent. Cancelling.")
         sys.exit(0)
     except userSignalTwo:
-        print("\n:warning: USR1 signal was sent. Cancelling.")
+        print("\n:warning: USR2 signal was sent. Cancelling.")
         sys.exit(0)
 
     try:
@@ -749,7 +749,7 @@ def main ():
         print("\n:warning: USR1 signal was sent. Cancelling.")
         sys.exit(0)
     except userSignalTwo:
-        print("\n:warning: USR1 signal was sent. Cancelling.")
+        print("\n:warning: USR2 signal was sent. Cancelling.")
         sys.exit(0)
 
     pd_csv = f'{current_run_folder}/pd.csv'

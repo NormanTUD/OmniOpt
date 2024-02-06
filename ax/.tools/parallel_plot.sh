@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source tools/general.sh
+source .tools/general.sh
 
 CSVFILE=$1
 OUTPUTPATH=$2

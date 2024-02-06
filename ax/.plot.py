@@ -66,6 +66,9 @@ def main():
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)
+    except pd.errors.ParserError as e:
+        print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
+        sys.exit(6)
 
     try:
         negative_rows_to_remove = df[df[args.result_column].astype(str) == '-1e+59'].index

@@ -1,3 +1,6 @@
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR
+
 export RUN_VIA_RUNSH=1
 
 export PYTHONDONTWRITEBYTECODE=1
@@ -81,4 +84,3 @@ if [[ ! -d "$VENV_DIR" ]]; then
 fi
 
 source $VENV_DIR/bin/activate
-

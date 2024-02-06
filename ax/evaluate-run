@@ -190,7 +190,6 @@ function list_option_for_job {
 	fi
 
 	if [[ -d "$THISPROJECTDIR" ]]; then
-		args+=("e)" "Check this project for errors")
 		args+=("d)" "Create debug-zip")
 	fi
 

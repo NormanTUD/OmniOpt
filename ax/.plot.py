@@ -98,7 +98,17 @@ def main():
 
     # Color assignment for points based on 'result'
     result_column = 'result'
-    colors = df[result_column]
+    try:
+        colors = df[result_column]
+    except KeyError as e:
+        if str(e) == "'result'":
+            print(f"Could not find any results in {csv_file_path}")
+            sys.exit(3)
+        else:
+            print(f"Key-Error: {e}")
+            sys.exit(4)
+
+
     if args.run_dir + "/maximize" in os.listdir(args.run_dir):
         colors = -colors  # Negate colors for maximum result
     norm = plt.Normalize(colors.min(), colors.max())

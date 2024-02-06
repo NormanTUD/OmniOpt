@@ -67,12 +67,16 @@ def main():
         print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)
 
-    negative_rows_to_remove = df[df[args.result_column].astype(str) == '-1e+59'].index
-    positive_rows_to_remove = df[df[args.result_column].astype(str) == '1e+59'].index
+    try:
+        negative_rows_to_remove = df[df[args.result_column].astype(str) == '-1e+59'].index
+        positive_rows_to_remove = df[df[args.result_column].astype(str) == '1e+59'].index
 
-    # Entferne die Zeilen mit den spezifischen Werten
-    df.drop(negative_rows_to_remove, inplace=True)
-    df.drop(positive_rows_to_remove, inplace=True)
+        # Entferne die Zeilen mit den spezifischen Werten
+        df.drop(negative_rows_to_remove, inplace=True)
+        df.drop(positive_rows_to_remove, inplace=True)
+    except KeyError:
+        print(f"column named `{args.result_column}` could not be found in {csv_file_path}.")
+        sys.exit(6)
 
     # Remove specified columns
     columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']

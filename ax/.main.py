@@ -148,10 +148,10 @@ def parse_experiment_parameters(args):
                 sys.exit(18)
 
             if name in param_names:
-                print_color("red", f"{name} is not unique. Names for parameters must be unique!")
+                print_color("red", f"Parameter name '{name}' is not unique. Names for parameters must be unique!")
                 sys.exit(1)
 
-            param_names.push(name)
+            param_names.append(name)
 
             param_type = this_args[j + 1]
 

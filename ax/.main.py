@@ -570,6 +570,9 @@ def main ():
 
         with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
             text_file.write(table_str)
+    else:
+        print_color("red", f"No parameters defined")
+        sys.exit(26)
 
     if not args.verbose:
         disable_logging()

@@ -219,11 +219,7 @@ def parse_experiment_parameters(args):
                     print_color("red", f"\n:warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
                     sys.exit(11)
 
-                try:
-                    value = float(this_args[j + 2])
-                except:
-                    print_color("red", f"\n:warning: {this_args[j + 2]} is not a number")
-                    sys.exit(12)
+                value = this_args[j + 2]
 
                 param = {
                     "name": name,

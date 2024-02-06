@@ -8,7 +8,6 @@ result_csv_file = None
 import sys
 
 try:
-    import shlex
     import os
     import socket
     import json

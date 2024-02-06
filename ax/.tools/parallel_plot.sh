@@ -75,7 +75,7 @@ chosen_option=$(whiptail --title "Choose CSV-titles to plot" --checklist "Check/
 if [[ "$?" == 0 ]]; then
     export enabled_titles=$(echo $chosen_option | sed -e 's/" "/,/g' | sed -e 's/"//g')
 
-    python3 tools/create_parallel_plot.py $CSVFILE $OUTPUTPATH
+    python3 .tools/create_parallel_plot.py $CSVFILE $OUTPUTPATH
     if [[ "$?" -eq "0" ]]; then
         echo "Creating $OUTPUTPATH seemed to be succesful"
         if [[ -z $DONTSTARTFIREFOX ]]; then

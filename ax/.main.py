@@ -191,10 +191,8 @@ def parse_experiment_parameters(args):
 
                 valid_value_types = ["int", "float"]
 
-                valid_value_types_string = ", ".join(valid_value_types)
-
                 if value_type not in valid_value_types:
-                    ", ".join(valid_value_types)
+                    valid_value_types_string = ", ".join(valid_value_types)
                     print_color("red", f"\n:warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     sys.exit(8)
 

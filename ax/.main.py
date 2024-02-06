@@ -665,7 +665,7 @@ def main ():
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                             else:
                                 print_color("red", f"\n:warning: {error}")
-                                sys.exit(1)
+                                sys.exit(25)
                 
                 # Schedule new jobs if there is availablity
                 try:

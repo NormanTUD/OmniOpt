@@ -39,6 +39,7 @@ def main():
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
+    parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
 
     args = parser.parse_args()
 
@@ -65,9 +66,10 @@ def main():
     columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     df_filtered = df.drop(columns=columns_to_remove)
 
-    # Ensure 'result' is not x or y
-    if 'result' in df_filtered.columns:
-        df_filtered = df_filtered.drop(columns='result')
+    df = df[~df[args.result_column].isin([99999999999999999999999999999999999999999999999999999999999, -99999999999999999999999999999999999999999999999999999999999])]
+
+    if args.result_column in df_filtered.columns:
+        df_filtered = df_filtered.drop(columns=args.result_column)
 
     num_entries = len(df_filtered)
 
@@ -85,9 +87,9 @@ def main():
         sys.exit(2)
 
     if args.min is not None:
-        df['result'] = df['result'].clip(lower=args.min)
+        df[args.result_column] = df[args.result_column].clip(lower=args.min)
     if args.max is not None:
-        df['result'] = df['result'].clip(upper=args.max)
+        df[args.result_column] = df[args.result_column].clip(upper=args.max)
 
     # Matplotlib figure creation
     num_subplots = len(non_empty_graphs)
@@ -96,12 +98,10 @@ def main():
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15, 7))
 
-    # Color assignment for points based on 'result'
-    result_column = 'result'
     try:
-        colors = df[result_column]
+        colors = df[args.result_column]
     except KeyError as e:
-        if str(e) == "'result'":
+        if str(e) == "'" + args.result_column + "'":
             print(f"Could not find any results in {csv_file_path}")
             sys.exit(3)
         else:
@@ -124,10 +124,10 @@ def main():
 
     # Color bar addition
     cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-    cbar.set_label('Result', rotation=270, labelpad=15)
+    cbar.set_label(args.result_column, rotation=270, labelpad=15)
 
     # Add title with parameters and result
-    result_column_values = df[result_column]
+    result_column_values = df[args.result_column]
     extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 

@@ -769,7 +769,6 @@ def main ():
         sys.exit(0)
 
     pd_csv = f'{current_run_folder}/pd.csv'
-    print_color("green", f"Saving result pandas data frame to {pd_csv}")
     try:
         import logging
         logger = logging.getLogger()

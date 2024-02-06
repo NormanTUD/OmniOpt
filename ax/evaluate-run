@@ -203,17 +203,17 @@ function list_option_for_job {
 			exit
 		elif [[ "$WHATTODO" =~ "d)" ]]; then
 			DEBUGFILE=debug.zip
-			let i=0
+			i=0
 			while [[ -e "$DEBUGFILE" ]]; do
 				DEBUGFILE="debug_${i}.zip"
-				let i++
+				i=$((i+1))
 			done
 
 			list_installed_modules=list_installed_modules.log
-			let i=0
+			i=0
 			while [[ -e $list_installed_modules ]]; do
 				list_installed_modules="list_installed_modules_${i}.log"
-				let i++
+				i=$((i+1))
 			done
 
 			pip3 list > $list_installed_modules

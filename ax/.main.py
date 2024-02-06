@@ -409,7 +409,7 @@ def main ():
     parser = argparse.ArgumentParser(
         prog=program_name,
         description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
-        epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout_min=10"
+        epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout=10"
     )
 
 
@@ -420,7 +420,7 @@ def main ():
 
     required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
     required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
-    required.add_argument('--timeout_min', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
+    required.add_argument('--timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
     required.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
     required.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
 
@@ -587,7 +587,7 @@ def main ():
 
         executor.update_parameters(
             name=args.experiment_name,
-            timeout_min=args.timeout_min,
+            timeout_min=args.timeout,
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,
             stderr_to_stdout=args.stderr_to_stdout,

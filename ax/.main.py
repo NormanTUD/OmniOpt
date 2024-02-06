@@ -759,7 +759,7 @@ def main ():
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:
-        print_color("red", "\n:warning: The program has been halted without attaining any tangible results.")
+        print_color("red", "\n:warning: The program has been halted without attaining any results.")
     except userSignalOne:
         print("\n:warning: USR1 signal was sent. Cancelling.")
         sys.exit(0)

@@ -69,6 +69,9 @@ def main():
     except pd.errors.ParserError as e:
         print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
         sys.exit(6)
+    except UnicodeDecodeError:
+        print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
+        sys.exit(7)
 
     try:
         negative_rows_to_remove = df[df[args.result_column].astype(str) == '-1e+59'].index

@@ -156,9 +156,9 @@ def parse_experiment_parameters(args):
             param_type = this_args[j + 1]
 
             valid_types = ["range", "fixed", "choice"]
-            valid_types_string = ', '.join(valid_types)
 
             if param_type not in valid_types:
+                valid_types_string = ', '.join(valid_types)
                 print_color("red", f"\n:warning: Invalid type {param_type}, valid types are: {valid_types_string}")
                 sys.exit(3)
 

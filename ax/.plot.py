@@ -60,7 +60,12 @@ def main():
     save_to_file = args.save_to_file is not None
 
     # Load the DataFrame from the CSV file
-    df = pd.read_csv(csv_file_path)
+    df = None
+    try:
+        df = pd.read_csv(csv_file_path)
+    except pd.errors.EmptyDataError:
+        print(f"{csv_file_path} has no lines to parse.")
+        sys.exit(5)
 
     negative_rows_to_remove = df[df[args.result_column].astype(str) == '-1e+59'].index
     positive_rows_to_remove = df[df[args.result_column].astype(str) == '1e+59'].index

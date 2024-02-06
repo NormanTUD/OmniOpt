@@ -30,11 +30,10 @@ csv_titles_on_or_off () {
 		"run_time"
 		"program_string"
 		"exit_code"
-		"hostname^M"
 		"hostname"
-
         )
-        if [[ "${droparray[*]}" =~ "${colname}" ]]; then
+
+	if [[ "${droparray[*]}" =~ "${colname}" || "${colname}" == "hostname"* ]]; then
                 echo "OFF"
         else
                 echo "ON"

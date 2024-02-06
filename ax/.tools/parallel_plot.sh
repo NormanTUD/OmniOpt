@@ -38,7 +38,7 @@ csv_titles_on_or_off () {
 
 	# Check if colname matches any element in droparray
 	for item in "${droparray[@]}"; do
-		if [[ "$colname" == "$item" ]]; then
+		if [[ "$colname" == "$item" || "$colname" == "hostname"* ]]; then
 			result="OFF"
 			break
 		fi

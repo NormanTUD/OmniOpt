@@ -149,6 +149,11 @@ def main():
         axs[row, col].set_xlabel(param1)
         axs[row, col].set_ylabel(param2)
 
+    for i in range(len(parameter_combinations), num_rows*num_cols):
+        row = i // num_cols
+        col = i % num_cols
+        axs[row, col].set_visible(False)
+
     # Color bar addition
     cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
     cbar.set_label(args.result_column, rotation=270, labelpad=15)

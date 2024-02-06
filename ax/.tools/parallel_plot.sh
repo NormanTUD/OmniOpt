@@ -23,21 +23,28 @@ else
 fi
 
 csv_titles_on_or_off () {
-        colname=$1
-        droparray=(
-                "start_time"
+	colname=$1
+	droparray=(
+		"start_time"
 		"end_time"
 		"run_time"
 		"program_string"
 		"exit_code"
 		"hostname"
-        )
+	)
 
-	if [[ "${droparray[*]}" =~ "${colname}" || "${colname}" == "hostname"* ]]; then
-                echo "OFF"
-        else
-                echo "ON"
-        fi
+	# Set default value to "ON"
+	result="ON"
+
+	# Check if colname matches any element in droparray
+	for item in "${droparray[@]}"; do
+		if [[ "$colname" == "$item" ]]; then
+			result="OFF"
+			break
+		fi
+	done
+
+	echo "$result"
 }
 
 readarray -t titles < <(cat $CSVFILE | head -n1 | sed -e 's/,/\n/g' | egrep -v '^\s*$')

@@ -70,7 +70,6 @@ def main():
     columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     df_filtered = df.drop(columns=columns_to_remove)
 
-
     if args.result_column in df_filtered.columns:
         df_filtered = df_filtered.drop(columns=args.result_column)
 

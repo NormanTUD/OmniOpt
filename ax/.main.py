@@ -339,10 +339,11 @@ def evaluate(parameters):
     elif type(result) == float:
         return {"result": float(result)}
     else:
+        max_val = 99999999999999999999999999999999999999999999999999999999999
         if args.maximize:
-            return {"result": -float("inf")}
+            return {"result": -max_val}
         else:
-            return {"result": float("inf")}
+            return {"result": max_val}
 
 try:
     with console.status("[bold green]Importing modules...") as status:

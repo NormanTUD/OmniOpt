@@ -58,7 +58,7 @@ csv_titles_on_or_off () {
         fi
 }
 
-readarray -t titles < <(cat $CSVFILE | head -n1 | sed -e 's/;/\n/g' | egrep -v '^\s*$')
+readarray -t titles < <(cat $CSVFILE | head -n1 | sed -e 's/,/\n/g' | egrep -v '^\s*$')
 
 if [[ ${#titles[@]} -eq 1 ]]; then
     error_message "Only one column ($titles) found. Need at least two."
@@ -73,7 +73,7 @@ done
 eval `resize`
 chosen_option=$(whiptail --title "Choose CSV-titles to plot" --checklist "Check/uncheck the titles you want to plot with the spacebar and press enter" $LINES $COLUMNS $(( $LINES - 8 )) "${options[@]}" 3>&1 1>&2 2>&3)
 if [[ "$?" == 0 ]]; then
-    export enabled_titles=$(echo $chosen_option | sed -e 's/" "/;/g' | sed -e 's/"//g')
+    export enabled_titles=$(echo $chosen_option | sed -e 's/" "/,/g' | sed -e 's/"//g')
 
     python3 tools/create_parallel_plot.py $CSVFILE $OUTPUTPATH
     if [[ "$?" -eq "0" ]]; then

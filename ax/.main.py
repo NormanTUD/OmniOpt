@@ -5,12 +5,18 @@ folder_number = 0
 args = None
 result_csv_file = None
 
-import os
-import socket
 import sys
-import json
-import signal
-from tqdm import tqdm
+
+try:
+    import shlex
+    import os
+    import socket
+    import json
+    import signal
+    from tqdm import tqdm
+except ModuleNotFoundError as e:
+    print(f"Error loading module: {e}")
+    sys.exit(24)
 
 class userSignal (Exception):
     pass
@@ -464,7 +470,7 @@ def main ():
             print(str(key) + " = " + str(env[key]), file=f)
 
     with open(f"{current_run_folder}/run.sh", 'w') as f:
-        print('bash run.sh "' + '" "'.join(sys.argv[1:]) + '"', file=f)
+        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
 
     print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
     print_color("green", program_name)
@@ -484,7 +490,7 @@ def main ():
         min_or_max = "maximize"
 
     with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
-        print('', file=f)
+        print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
 
     if args.parameter:

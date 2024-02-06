@@ -79,6 +79,7 @@ if [[ ! -d "$VENV_DIR" ]]; then
 	ppip Pyarrow
 	ppip textual
 	ppip tqdm
+	ppip shlex
 fi
 
 source $VENV_DIR/bin/activate

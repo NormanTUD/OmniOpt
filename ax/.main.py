@@ -131,6 +131,8 @@ def sort_numerically_or_alphabetically(arr):
 def parse_experiment_parameters(args):
     params = []
 
+    param_names = []
+
     i = 0
 
     while i < len(args):
@@ -144,6 +146,12 @@ def parse_experiment_parameters(args):
             if name in invalid_names:
                 print_color("red", f"Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
                 sys.exit(18)
+
+            if name in param_names:
+                print_color("red", f"{name} is not unique. Names for parameters must be unique!")
+                sys.exit(1)
+
+            param_names.push(name)
 
             param_type = this_args[j + 1]
 

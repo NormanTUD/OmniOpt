@@ -62,11 +62,13 @@ def main():
     # Load the DataFrame from the CSV file
     df = pd.read_csv(csv_file_path)
 
+    # Remove pseudo-values for invalid executions
+    df = df[~df[args.result_column].isin([99999999999999999999999999999999999999999999999999999999999, -99999999999999999999999999999999999999999999999999999999999])]
+
     # Remove specified columns
     columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     df_filtered = df.drop(columns=columns_to_remove)
 
-    df = df[~df[args.result_column].isin([99999999999999999999999999999999999999999999999999999999999, -99999999999999999999999999999999999999999999999999999999999])]
 
     if args.result_column in df_filtered.columns:
         df_filtered = df_filtered.drop(columns=args.result_column)

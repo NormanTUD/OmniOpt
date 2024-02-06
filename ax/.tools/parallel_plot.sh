@@ -13,11 +13,11 @@ fi
 
 mkdir -p $(dirname $OUTPUTPATH)
 
-if [[ -e tools/parallel_venv/bin/activate ]]; then
-    source tools/parallel_venv/bin/activate
+if [[ -e .tools/parallel_venv/bin/activate ]]; then
+    source .tools/parallel_venv/bin/activate
 else
-    python3 -m venv tools/parallel_venv
-    source tools/parallel_venv/bin/activate
+    python3 -m venv .tools/parallel_venv
+    source .tools/parallel_venv/bin/activate
     pip3 install pandas 
     pip3 install hiplot
 fi

@@ -4,3 +4,4 @@ logs
 __pycache__
 debug*.zip
 list_installed_modules*.log
+.tools/parallel_venv/

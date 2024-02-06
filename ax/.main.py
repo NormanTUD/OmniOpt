@@ -144,11 +144,11 @@ def parse_experiment_parameters(args):
             invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code"]
 
             if name in invalid_names:
-                print_color("red", f"Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
+                print_color("red", f"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
                 sys.exit(18)
 
             if name in param_names:
-                print_color("red", f"Parameter name '{name}' is not unique. Names for parameters must be unique!")
+                print_color("red", f"\n:warning: Parameter name '{name}' is not unique. Names for parameters must be unique!")
                 sys.exit(1)
 
             param_names.append(name)

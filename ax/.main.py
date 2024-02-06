@@ -189,7 +189,6 @@ def parse_experiment_parameters(args):
                     value_type = "float"
                     skip = 4
 
-                #valid_value_types = ["int", "float", "bool", "str"]
                 valid_value_types = ["int", "float"]
 
                 valid_value_types_string = ", ".join(valid_value_types)

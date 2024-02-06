@@ -17,14 +17,21 @@ try:
 except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
     sys.exit(24)
-class userSignal (Exception):
+
+class userSignalOne (Exception):
     pass
 
-def receive_usr_signal (signum, stack):
-    raise userSignal("USR-signal received")
+class userSignalTwo (Exception):
+    pass
 
-signal.signal(signal.SIGUSR1, receive_usr_signal)
-signal.signal(signal.SIGUSR2, receive_usr_signal)
+def receive_usr_signal_one (signum, stack):
+    raise userSignalOne("USR1-signal received")
+
+def receive_usr_signal_two (signum, stack):
+    raise userSignalTwo("USR2-signal received")
+
+signal.signal(signal.SIGUSR1, receive_usr_signal_one)
+signal.signal(signal.SIGUSR2, receive_usr_signal_two)
 
 import importlib.util 
 spec = importlib.util.spec_from_file_location(
@@ -62,8 +69,11 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     print("\n:warning: You pressed CTRL+C. Program execution halted.")
     sys.exit(0)
-except userSignal:
-    print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+except userSignalOne:
+    print("\n:warning: USR1 signal was sent. Cancelling.")
+    sys.exit(0)
+except userSignalTwo:
+    print("\n:warning: USR1 signal was sent. Cancelling.")
     sys.exit(0)
 
 def print_color (color, text):
@@ -381,16 +391,22 @@ try:
         try:
             import submitit
             from submitit import AutoExecutor, LocalJob, DebugJob
-        except userSignal:
-            print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+        except userSignalOne:
+            print("\n:warning: USR1 signal was sent. Cancelling.")
+            sys.exit(0)
+        except userSignalTwo:
+            print("\n:warning: USR1 signal was sent. Cancelling.")
             sys.exit(0)
         except:
             print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
             sys.exit(7)
 except KeyboardInterrupt:
     sys.exit(0)
-except userSignal:
-    print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+except userSignalOne:
+    print("\n:warning: USR1 signal was sent. Cancelling.")
+    sys.exit(0)
+except userSignalTwo:
+    print("\n:warning: USR1 signal was sent. Cancelling.")
     sys.exit(0)
 
 def disable_logging ():
@@ -689,8 +705,12 @@ def main ():
                 time.sleep(0.1)
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
-    except userSignal:
-        print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+    except userSignalOne:
+        print("\n:warning: USR1 signal was sent. Cancelling.")
+        sys.exit(0)
+    except userSignalTwo:
+        print("\n:warning: USR1 signal was sent. Cancelling.")
+        sys.exit(0)
 
     try:
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
@@ -725,8 +745,11 @@ def main ():
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any tangible results.")
-    except userSignal:
-        print("\n:warning: USR1 or USR2 signal was sent. Cancelling.")
+    except userSignalOne:
+        print("\n:warning: USR1 signal was sent. Cancelling.")
+        sys.exit(0)
+    except userSignalTwo:
+        print("\n:warning: USR1 signal was sent. Cancelling.")
         sys.exit(0)
 
     pd_csv = f'{current_run_folder}/pd.csv'

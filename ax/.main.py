@@ -162,13 +162,13 @@ def parse_experiment_parameters(args):
                 try:
                     lower_bound = float(this_args[j + 2])
                 except:
-                    print_color("red", f"\n:warning: {this_args[j + 2]} does not seem to be a number")
+                    print_color("red", f"\n:warning: {this_args[j + 2]} is not a number")
                     sys.exit(4)
 
                 try:
                     upper_bound = float(this_args[j + 3])
                 except:
-                    print_color("red", f"\n:warning: {this_args[j + 3]} does not seem to be a number")
+                    print_color("red", f"\n:warning: {this_args[j + 3]} is not a number")
                     sys.exit(5)
 
                 if upper_bound == lower_bound:
@@ -214,7 +214,7 @@ def parse_experiment_parameters(args):
                 try:
                     value = float(this_args[j + 2])
                 except:
-                    print_color("red", f"\n:warning: {this_args[j + 2]} does not seem to be a number")
+                    print_color("red", f"\n:warning: {this_args[j + 2]} is not a number")
                     sys.exit(12)
 
                 param = {

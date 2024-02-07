@@ -23,9 +23,11 @@ class userSignalOne (Exception):
     pass
 
 class userSignalTwo (Exception):
+    end_program()
     pass
 
 class userSignalInt (Exception):
+    end_program()
     pass
 
 def receive_usr_signal_one (signum, stack):

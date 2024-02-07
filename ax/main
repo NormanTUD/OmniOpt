@@ -27,7 +27,7 @@ trap 'kill -QUIT "$python_pid"' QUIT
 cleanup() {
 	if [[ ! -z $python_pid ]]; then
 		echo "Exiting..."
-		kill -TERM "$python_pid" &>/dev/null
+		kill -USR1 "$python_pid" &>/dev/null
 		exit 0
 	else
 		echo "Python pid not found. Cannot clean up"

@@ -723,10 +723,8 @@ def main ():
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
     except userSignalOne:
         print("\n:warning: USR1 signal was sent. Cancelling.")
-        sys.exit(0)
     except userSignalTwo:
         print("\n:warning: USR2 signal was sent. Cancelling.")
-        sys.exit(0)
 
     try:
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")

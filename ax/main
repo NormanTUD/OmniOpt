@@ -17,7 +17,4 @@ cd $SCRIPT_DIR
 
 source .shellscript_functions
 
-export SLURM_EXPORT_ENV=NONE
-export SLURM_STEP_NODELIST=
-
 python3 .main.py $*

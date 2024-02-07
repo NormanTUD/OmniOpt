@@ -20,17 +20,17 @@ except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
     sys.exit(24)
 
-class userSignalOne (Exception):
+class signalUSR (Exception):
     pass
 
-class userSignalInt (Exception):
+class signalINT (Exception):
     pass
 
 def receive_usr_signal_one (signum, stack):
-    raise userSignalOne("USR1-signal received")
+    raise signalUSR("USR1-signal received")
 
 def receive_usr_signal_int (signum, stack):
-    raise userSignalInt("INT-signal received")
+    raise signalINT("INT-signal received")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
 signal.signal(signal.SIGUSR2, receive_usr_signal_one)
@@ -74,10 +74,10 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     print("\n:warning: You pressed CTRL+C. Program execution halted.")
     sys.exit(0)
-except userSignalOne:
+except signalUSR:
     print("\n:warning: USR1 signal was sent. Cancelling loading modules.")
     sys.exit(0)
-except userSignalInt:
+except signalINT:
     print("\n:warning: INT signal was sent. Cancelling loading modules.")
     sys.exit(0)
 
@@ -404,10 +404,10 @@ try:
             sys.exit(7)
 except KeyboardInterrupt:
     sys.exit(0)
-except userSignalOne:
+except signalUSR:
     print("\n:warning: USR1 signal was sent. Cancelling loading ax.")
     sys.exit(0)
-except userSignalInt:
+except signalINT:
     print("\n:warning: INT signal was sent. Cancelling loading ax.")
     sys.exit(0)
 
@@ -533,10 +533,10 @@ def end_program ():
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
-    except userSignalOne:
+    except signalUSR:
         print("\n:warning: USR1 signal was sent. Ending program will still run.")
         show_end_table_and_save_end_files()
-    except userSignalInt:
+    except signalINT:
         print("\n:warning: Int signal was sent. Ending program will still run.")
         show_end_table_and_save_end_files()
 
@@ -840,10 +840,10 @@ def main ():
                 time.sleep(0.1)
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
-    except userSignalOne:
+    except signalUSR:
         print("\n:warning: USR1 signal was sent. Cancelling optimization.")
         end_program()
-    except userSignalInt:
+    except signalINT:
         print("\n:warning: Int signal was sent. Cancelling optimization.")
         end_program()
     

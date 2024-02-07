@@ -23,23 +23,17 @@ except ModuleNotFoundError as e:
 class userSignalOne (Exception):
     pass
 
-class userSignalTwo (Exception):
-    pass
-
 class userSignalInt (Exception):
     pass
 
 def receive_usr_signal_one (signum, stack):
     raise userSignalOne("USR1-signal received")
 
-def receive_usr_signal_two (signum, stack):
-    raise userSignalTwo("USR2-signal received")
-
 def receive_usr_signal_int (signum, stack):
     raise userSignalInt("INT-signal received")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
-signal.signal(signal.SIGUSR2, receive_usr_signal_two)
+signal.signal(signal.SIGUSR2, receive_usr_signal_one)
 signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGQUIT, receive_usr_signal_int)
@@ -82,9 +76,6 @@ except KeyboardInterrupt:
     sys.exit(0)
 except userSignalOne:
     print("\n:warning: USR1 signal was sent. Cancelling loading modules.")
-    sys.exit(0)
-except userSignalTwo:
-    print("\n:warning: USR2 signal was sent. Cancelling loading modules.")
     sys.exit(0)
 except userSignalInt:
     print("\n:warning: INT signal was sent. Cancelling loading modules.")
@@ -416,9 +407,6 @@ except KeyboardInterrupt:
 except userSignalOne:
     print("\n:warning: USR1 signal was sent. Cancelling loading ax.")
     sys.exit(0)
-except userSignalTwo:
-    print("\n:warning: USR2 signal was sent. Cancelling loading ax.")
-    sys.exit(0)
 except userSignalInt:
     print("\n:warning: INT signal was sent. Cancelling loading ax.")
     sys.exit(0)
@@ -547,9 +535,6 @@ def end_program ():
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
     except userSignalOne:
         print("\n:warning: USR1 signal was sent. Ending program will still run.")
-        show_end_table_and_save_end_files()
-    except userSignalTwo:
-        print("\n:warning: USR2 signal was sent. Ending program will still run.")
         show_end_table_and_save_end_files()
     except userSignalInt:
         print("\n:warning: Int signal was sent. Ending program will still run.")
@@ -857,9 +842,6 @@ def main ():
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
     except userSignalOne:
         print("\n:warning: USR1 signal was sent. Cancelling optimization.")
-        end_program()
-    except userSignalTwo:
-        print("\n:warning: USR2 signal was sent. Cancelling optimization.")
         end_program()
     except userSignalInt:
         print("\n:warning: Int signal was sent. Cancelling optimization.")

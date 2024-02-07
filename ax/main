@@ -17,7 +17,7 @@ cd $SCRIPT_DIR
 
 source .shellscript_functions
 
-for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##'); do
+for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
 	echo "Unsetting $(env | grep $i)"
 	unset $i
 done

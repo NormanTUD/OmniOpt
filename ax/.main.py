@@ -1,3 +1,4 @@
+ax_client = None
 program_name = "OmniOpt2"
 current_run_folder = None
 file_number = 0
@@ -447,12 +448,93 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="botorch.optim.fit")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
+def end_program ():
+    global ax_client
+    global console
+    global current_run_folder
+
+    if current_run_folder is None:
+        print("current_run_folder was empty. Not running end-algorithm.")
+        return
+
+    if ax_client is None:
+        print("ax_client was empty. Not running end-algorithm.")
+        return
+
+    if console is None:
+        print("console was empty. Not running end-algorithm.")
+        return
+
+    try:
+        warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
+        best_parameters, (means, covariances) = ax_client.get_best_parameters()
+
+        best_result = means["result"]
+
+        table = Table(show_header=True, header_style="bold", title="Best parameters:")
+
+        # Dynamisch Spaltenüberschriften hinzufügen
+        for key in best_parameters.keys():
+            table.add_column(key)
+
+        table.add_column("result (inexact)")
+
+        # "best results" als Zeilenüberschrift hinzufügen
+        row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
+        row = [*row_without_result, str(best_result)]
+
+        table.add_row(*row)
+
+        # Drucke die Tabelle
+        console.print(table)
+
+        with console.capture() as capture:
+            console.print(table)
+        table_str = capture.get()
+
+        with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
+            text_file.write(table_str)
+    except KeyboardInterrupt:
+        print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+    except TypeError:
+        print_color("red", "\n:warning: The program has been halted without attaining any results.")
+    except userSignalOne:
+        print("\n:warning: USR1 signal was sent. Cancelling.")
+        sys.exit(0)
+    except userSignalTwo:
+        print("\n:warning: USR2 signal was sent. Cancelling.")
+        sys.exit(0)
+
+    pd_csv = f'{current_run_folder}/pd.csv'
+    try:
+        logger = logging.getLogger()
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service.utils")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service.utils.report_utils")
+        logger.setLevel(logging.ERROR)
+
+        pd_frame = ax_client.get_trials_data_frame()
+        pd_frame.to_csv(pd_csv, index=False)
+    except Exception as e:
+        print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+        sys.exit(17)
+
 def main ():
     global args
     global file_number
     global folder_number
     global result_csv_file
     global current_run_folder
+    global ax_client
 
     check_slurm_job_id()
 
@@ -725,69 +807,8 @@ def main ():
         print("\n:warning: USR1 signal was sent. Cancelling.")
     except userSignalTwo:
         print("\n:warning: USR2 signal was sent. Cancelling.")
-
-    try:
-        warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
-        best_parameters, (means, covariances) = ax_client.get_best_parameters()
-
-        best_result = means["result"]
-
-        table = Table(show_header=True, header_style="bold", title="Best parameters:")
-
-        # Dynamisch Spaltenüberschriften hinzufügen
-        for key in best_parameters.keys():
-            table.add_column(key)
-
-        table.add_column("result (inexact)")
-
-        # "best results" als Zeilenüberschrift hinzufügen
-        row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
-        row = [*row_without_result, str(best_result)]
-
-        table.add_row(*row)
-
-        # Drucke die Tabelle
-        console.print(table)
-
-        with console.capture() as capture:
-            console.print(table)
-        table_str = capture.get()
-
-        with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
-            text_file.write(table_str)
-    except KeyboardInterrupt:
-        print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-    except TypeError:
-        print_color("red", "\n:warning: The program has been halted without attaining any results.")
-    except userSignalOne:
-        print("\n:warning: USR1 signal was sent. Cancelling.")
-        sys.exit(0)
-    except userSignalTwo:
-        print("\n:warning: USR2 signal was sent. Cancelling.")
-        sys.exit(0)
-
-    pd_csv = f'{current_run_folder}/pd.csv'
-    try:
-        logger = logging.getLogger()
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service.utils")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service.utils.report_utils")
-        logger.setLevel(logging.ERROR)
-
-        pd_frame = ax_client.get_trials_data_frame()
-        pd_frame.to_csv(pd_csv, index=False)
-    except Exception as e:
-        print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
-        sys.exit(17)
+    
+    end_program()
 
 if __name__ == "__main__":
     main()

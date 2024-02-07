@@ -13,8 +13,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	fi
 fi
 
-echo "SCRIPT_DIR: $SCRIPT_DIR"
-
 cd $SCRIPT_DIR
 
 source .shellscript_functions

@@ -25,9 +25,11 @@ class userSignalTwo (Exception):
     pass
 
 def receive_usr_signal_one (signum, stack):
+    end_program()
     raise userSignalOne("USR1-signal received")
 
 def receive_usr_signal_two (signum, stack):
+    end_program()
     raise userSignalTwo("USR2-signal received")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)

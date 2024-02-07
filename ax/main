@@ -2,6 +2,26 @@
 
 #SBATCH --signal=B:USR1@120
 
+forward_signal() {
+	local signal="$1"
+	echo "Forwarding signal $signal to child process"
+	kill "-$signal" "$child_pid"
+}
+
+cleanup() {
+	echo "Cleaning up and exiting"
+	kill "$child_pid" 2>/dev/null
+	exit
+}
+
+for sig in $(trap -l); do
+    case $sig in
+        INT|TERM|USR1|USR2|HUP|QUIT|ABRT|ALRM|PIPE|TTIN|TTOU|PROF|SYS|VTALRM|STKFLT|PWR|UNUSED)
+            trap "forward_signal $sig" "$sig"
+            ;;
+    esac
+done
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
@@ -24,4 +44,7 @@ for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); d
 	unset $i
 done
 
-python3 .main.py $*
+python3 .main.py $* &
+child_pid=$!
+
+wait "$child_pid"

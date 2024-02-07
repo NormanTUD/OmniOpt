@@ -511,23 +511,23 @@ def end_program ():
     global console
     global current_run_folder
 
-    print("A")
-
-    if current_run_folder is None:
-        print("current_run_folder was empty. Not running end-algorithm.")
-        return
-
-    if ax_client is None:
-        print("ax_client was empty. Not running end-algorithm.")
-        return
-
-    if console is None:
-        print("console was empty. Not running end-algorithm.")
-        return
-
-    print("B")
-
     try:
+        print("A")
+
+        if current_run_folder is None:
+            print("current_run_folder was empty. Not running end-algorithm.")
+            return
+
+        if ax_client is None:
+            print("ax_client was empty. Not running end-algorithm.")
+            return
+
+        if console is None:
+            print("console was empty. Not running end-algorithm.")
+            return
+
+        print("B")
+
         print("C")
         show_end_table_and_save_end_files()
         print("D")

@@ -467,32 +467,40 @@ def show_end_table_and_save_end_files ():
         print("End table already shown, not doing it again")
         return
 
+    print("[show_end_table_and_save_end_files] Ignoring warnings")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
+
+    print("[show_end_table_and_save_end_files] Getting best params")
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
     best_result = means["result"]
 
+    print("[show_end_table_and_save_end_files] Creating table")
     table = Table(show_header=True, header_style="bold", title="Best parameters:")
 
     # Dynamisch Spaltenüberschriften hinzufügen
     for key in best_parameters.keys():
         table.add_column(key)
 
+    print("[show_end_table_and_save_end_files] Add last column to table")
     table.add_column("result (inexact)")
 
-    # "best results" als Zeilenüberschrift hinzufügen
+    print("[show_end_table_and_save_end_files] Defining rows")
     row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
     row = [*row_without_result, str(best_result)]
 
+    print("[show_end_table_and_save_end_files] Adding rows to table")
     table.add_row(*row)
 
-    # Drucke die Tabelle
+    print("[show_end_table_and_save_end_files] Printing table")
     console.print(table)
 
+    print("[show_end_table_and_save_end_files] Capturing table")
     with console.capture() as capture:
         console.print(table)
     table_str = capture.get()
 
+    print("[show_end_table_and_save_end_files] Printing captured table to file")
     with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
         text_file.write(table_str)
 

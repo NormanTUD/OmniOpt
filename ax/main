@@ -2,13 +2,6 @@
 
 #SBATCH --signal=B:USR1@120
 
-trap 'kill -INT "$python_pid"' INT
-trap 'kill -TERM "$python_pid"' TERM
-trap 'kill -USR1 "$python_pid"' USR1
-trap 'kill -USR2 "$python_pid"' USR2
-trap 'kill -STOP "$python_pid"' STOP
-trap 'kill -QUIT "$python_pid"' QUIT
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
@@ -24,8 +17,12 @@ fi
 
 cd $SCRIPT_DIR
 
-
-cd $SCRIPT_DIR
+trap 'kill -INT "$python_pid"' INT
+trap 'kill -TERM "$python_pid"' TERM
+trap 'kill -USR1 "$python_pid"' USR1
+trap 'kill -USR2 "$python_pid"' USR2
+trap 'kill -STOP "$python_pid"' STOP
+trap 'kill -QUIT "$python_pid"' QUIT
 
 source .shellscript_functions
 

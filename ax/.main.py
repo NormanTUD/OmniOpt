@@ -577,6 +577,8 @@ def main ():
     if not args.verbose:
         disable_logging()
 
+    jobs = []
+
     try:
         ax_client = AxClient(verbose_logging=args.verbose)
 
@@ -629,7 +631,6 @@ def main ():
             mem_gb=args.mem_gb,
         )
 
-        jobs = []
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
 
@@ -723,8 +724,14 @@ def main ():
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
     except userSignalOne:
         print("\n:warning: USR1 signal was sent. Cancelling.")
+        for job, trial_index in jobs[:]:
+            print(f"Cancelling {job.job_id}")
+            job._interrupt()
     except userSignalTwo:
         print("\n:warning: USR2 signal was sent. Cancelling.")
+        for job, trial_index in jobs[:]:
+            print(f"Cancelling {job.job_id}")
+            job._interrupt()
 
     try:
         warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")

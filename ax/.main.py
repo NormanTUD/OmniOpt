@@ -41,6 +41,9 @@ def receive_usr_signal_int (signum, stack):
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
 signal.signal(signal.SIGUSR2, receive_usr_signal_two)
 signal.signal(signal.SIGINT, receive_usr_signal_int)
+signal.signal(signal.SIGTERM, receive_usr_signal_int)
+signal.signal(signal.SIGSTOP, receive_usr_signal_int)
+signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
 import importlib.util 
 spec = importlib.util.spec_from_file_location(

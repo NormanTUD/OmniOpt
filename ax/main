@@ -39,9 +39,9 @@ trap cleanup EXIT
 
 source .shellscript_functions
 
-for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
-	unset $i
-done
+#for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
+#	unset $i
+#done
 
 python3 .main.py $* &
 python_pid=$!

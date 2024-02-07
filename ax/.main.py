@@ -448,12 +448,13 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
 def main ():
-    check_slurm_job_id()
     global args
     global file_number
     global folder_number
     global result_csv_file
     global current_run_folder
+
+    check_slurm_job_id()
 
     parser = argparse.ArgumentParser(
         prog=program_name,

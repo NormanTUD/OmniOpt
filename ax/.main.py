@@ -665,7 +665,6 @@ def main ():
 
                             pd_csv = f'{current_run_folder}/pd.csv'
                             try:
-                                import logging
                                 logger = logging.getLogger()
                                 logger.setLevel(logging.ERROR)
 
@@ -769,7 +768,6 @@ def main ():
 
     pd_csv = f'{current_run_folder}/pd.csv'
     try:
-        import logging
         logger = logging.getLogger()
         logger.setLevel(logging.ERROR)
 

@@ -24,6 +24,18 @@ trap 'kill -USR2 "$python_pid"' USR2
 trap 'kill -STOP "$python_pid"' STOP
 trap 'kill -QUIT "$python_pid"' QUIT
 
+cleanup() {
+	if [[ -z $python_pid ]]; then
+		echo "Exiting..."
+		kill -TERM "$python_pid" &>/dev/null
+		exit 0
+	else
+		echo "Python pid not found. Cannot clean up"
+	fi
+}
+
+trap cleanup EXIT
+
 source .shellscript_functions
 
 for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do

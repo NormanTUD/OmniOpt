@@ -649,8 +649,8 @@ def main ():
                     # Poll if any jobs completed
                     # Local and debug jobs don't run until .result() is called.
                     if job.done() or type(job) in [LocalJob, DebugJob]:
-                        result = job.result()
                         try:
+                            result = job.result()
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                             jobs.remove((job, trial_index))
 
@@ -684,7 +684,9 @@ def main ():
                                 pd_frame.to_csv(pd_csv, index=False)
                             except Exception as e:
                                 print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
-
+                        except submitit.core.utils.UncompletedJobError as error:
+                                print_color("red", str(error))
+                                sys.exit(27)
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")

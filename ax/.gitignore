@@ -6,3 +6,4 @@ debug*.zip
 list_installed_modules*.log
 .tools/parallel_venv/
 *.html
+log

@@ -454,47 +454,47 @@ def show_end_table_and_save_end_files ():
     global shown_end_table
 
     if shown_end_table:
-        print("End table already shown, not doing it again")
+        #print("End table already shown, not doing it again")
         return
 
-    print("[show_end_table_and_save_end_files] Ignoring warnings")
+    #print("[show_end_table_and_save_end_files] Ignoring warnings")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
 
-    print("[show_end_table_and_save_end_files] Getting best params")
+    #print("[show_end_table_and_save_end_files] Getting best params")
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
     best_result = means["result"]
 
-    print("[show_end_table_and_save_end_files] Creating table")
+    #print("[show_end_table_and_save_end_files] Creating table")
     table = Table(show_header=True, header_style="bold", title="Best parameters:")
 
     # Dynamisch Spaltenüberschriften hinzufügen
     for key in best_parameters.keys():
         table.add_column(key)
 
-    print("[show_end_table_and_save_end_files] Add last column to table")
+    #print("[show_end_table_and_save_end_files] Add last column to table")
     table.add_column("result (inexact)")
 
-    print("[show_end_table_and_save_end_files] Defining rows")
+    #print("[show_end_table_and_save_end_files] Defining rows")
     row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
     row = [*row_without_result, str(best_result)]
 
-    print("[show_end_table_and_save_end_files] Adding rows to table")
+    #print("[show_end_table_and_save_end_files] Adding rows to table")
     table.add_row(*row)
 
-    print("[show_end_table_and_save_end_files] Printing table")
+    #print("[show_end_table_and_save_end_files] Printing table")
     console.print(table)
 
-    print("[show_end_table_and_save_end_files] Capturing table")
+    #print("[show_end_table_and_save_end_files] Capturing table")
     with console.capture() as capture:
         console.print(table)
     table_str = capture.get()
 
-    print("[show_end_table_and_save_end_files] Printing captured table to file")
+    #print("[show_end_table_and_save_end_files] Printing captured table to file")
     with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
         text_file.write(table_str)
 
-    print("Setting shown_end_table = true")
+    #print("Setting shown_end_table = true")
     shown_end_table = True
 
 def end_program ():
@@ -510,7 +510,7 @@ def end_program ():
     global current_run_folder
 
     try:
-        print("A")
+        #print("A")
 
         if current_run_folder is None:
             print("current_run_folder was empty. Not running end-algorithm.")
@@ -524,11 +524,11 @@ def end_program ():
             print("console was empty. Not running end-algorithm.")
             return
 
-        print("B")
+        #print("B")
 
-        print("C")
+        #print("C")
         show_end_table_and_save_end_files()
-        print("D")
+        #print("D")
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:

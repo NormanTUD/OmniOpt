@@ -452,6 +452,8 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
 def end_program ():
+    global end_program_ran
+
     if end_program_ran:
         return
 

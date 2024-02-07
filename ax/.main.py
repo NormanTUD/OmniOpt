@@ -1,4 +1,5 @@
 ax_client = None
+end_program_ran = False
 program_name = "OmniOpt2"
 current_run_folder = None
 file_number = 0
@@ -451,6 +452,10 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
 def end_program ():
+    if end_program_ran:
+        return
+
+    end_program_ran = True
     global ax_client
     global console
     global current_run_folder

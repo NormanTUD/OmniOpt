@@ -2,38 +2,10 @@
 
 #SBATCH --signal=B:USR1@120
 
-forward_signal() {
-	local signal="$1"
-	echo "Forwarding signal $signal to child process"
-	kill "-$signal" "$child_pid"
-}
-
-cleanup() {
-	echo "Cleaning up and exiting"
-	kill "$child_pid" 2>/dev/null
-	exit
-}
-
-for sig in $(trap -l); do
-    case $sig in
-        INT|TERM|USR1|USR2|HUP|QUIT|ABRT|ALRM|PIPE|TTIN|TTOU|PROF|SYS|VTALRM|STKFLT|PWR|UNUSED)
-            trap "forward_signal $sig" "$sig"
-            ;;
-    esac
-done
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-if [ -n "${SLURM_JOB_ID:-}" ] ; then
-	SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-	SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
-
-	if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
-		SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
-	else
-		echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
-	fi
-fi
+trap 'kill -INT "$python_pid"' INT
+trap 'kill -TERM "$python_pid"' TERM
+trap 'kill -USR1 "$python_pid"' USR1
+trap 'kill -USR2 "$python_pid"' USR2
 
 cd $SCRIPT_DIR
 
@@ -45,6 +17,6 @@ for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); d
 done
 
 python3 .main.py $* &
-child_pid=$!
+python_pid=$!
 
-wait "$child_pid"
+wait "$python_pid"

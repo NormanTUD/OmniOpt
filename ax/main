@@ -26,7 +26,6 @@ trap 'kill -QUIT "$python_pid"' QUIT
 
 cleanup() {
 	if [[ ! -z $python_pid ]]; then
-		echo "Exiting..."
 		kill -USR1 "$python_pid" &>/dev/null
 		exit 0
 	else

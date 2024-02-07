@@ -467,8 +467,6 @@ def end_program ():
     global console
     global current_run_folder
 
-    exit_ok = False
-
     if current_run_folder is None:
         print("current_run_folder was empty. Not running end-algorithm.")
         return
@@ -512,19 +510,14 @@ def end_program ():
             text_file.write(table_str)
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-        exit_ok = True
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
-        exit_ok = True
     except userSignalOne:
         print("\n:warning: USR1 signal was sent. Ending program will still run.")
-        exit_ok = True
     except userSignalTwo:
         print("\n:warning: USR2 signal was sent. Ending program will still run.")
-        exit_ok = True
     except userSignalInt:
         print("\n:warning: Int signal was sent. Ending program will still run.")
-        exit_ok = True
 
     pd_csv = f'{current_run_folder}/pd.csv'
     try:
@@ -549,8 +542,7 @@ def end_program ():
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
         sys.exit(17)
 
-    if exit_ok:
-        sys.exit(0)
+    sys.exit(0)
 
 def main ():
     global args

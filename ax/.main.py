@@ -411,13 +411,13 @@ try:
 except KeyboardInterrupt:
     sys.exit(0)
 except userSignalOne:
-    print("\n:warning: USR1 signal was sent. Cancelling.")
+    print("\n:warning: USR1 signal was sent. Cancelling loading ax.")
     sys.exit(0)
 except userSignalTwo:
-    print("\n:warning: USR2 signal was sent. Cancelling.")
+    print("\n:warning: USR2 signal was sent. Cancelling loading ax.")
     sys.exit(0)
 except userSignalInt:
-    print("\n:warning: INT signal was sent. Cancelling.")
+    print("\n:warning: INT signal was sent. Cancelling loading ax.")
     sys.exit(0)
 
 def disable_logging ():

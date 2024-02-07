@@ -17,4 +17,9 @@ cd $SCRIPT_DIR
 
 source .shellscript_functions
 
+for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##'); do
+	echo "Unsetting $(env | grep $i)"
+	unset $i
+done
+
 python3 .main.py $*

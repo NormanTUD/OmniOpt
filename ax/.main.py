@@ -497,6 +497,7 @@ def end_program ():
         return
 
     end_program_ran = True
+
     global ax_client
     global console
     global current_run_folder

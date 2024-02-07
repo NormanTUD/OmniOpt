@@ -6,6 +6,7 @@ file_number = 0
 folder_number = 0
 args = None
 result_csv_file = None
+shown_end_table = False
 
 import sys
 
@@ -460,6 +461,11 @@ def show_end_table_and_save_end_files ():
     global ax_client
     global console
     global current_run_folder
+    global shown_end_table
+
+    if shown_end_table:
+        print("End table already shown, not doing it again")
+        return
 
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
@@ -490,6 +496,9 @@ def show_end_table_and_save_end_files ():
     with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
         text_file.write(table_str)
 
+    print("Setting shown_end_table = true")
+    shown_end_table = True
+
 def end_program ():
     global end_program_ran
 
@@ -501,6 +510,8 @@ def end_program ():
     global ax_client
     global console
     global current_run_folder
+
+    print("A")
 
     if current_run_folder is None:
         print("current_run_folder was empty. Not running end-algorithm.")
@@ -514,8 +525,12 @@ def end_program ():
         print("console was empty. Not running end-algorithm.")
         return
 
+    print("B")
+
     try:
+        print("C")
         show_end_table_and_save_end_files()
+        print("D")
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
     except TypeError:

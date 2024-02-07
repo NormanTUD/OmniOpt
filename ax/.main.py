@@ -52,7 +52,7 @@ spec.loader.exec_module(my_module)
 try:
     from rich.console import Console
     console = Console(force_terminal=True, force_interactive=True)
-    with console.status("[bold green]Importing modules...") as status:
+    with console.status("[bold green]Importing rich, time, csv, re, argparse, subprocess and logging...") as status:
         #from rich.traceback import install
         #install(show_locals=True)
 
@@ -386,7 +386,7 @@ def evaluate(parameters):
             return {"result": max_val}
 
 try:
-    with console.status("[bold green]Importing modules...") as status:
+    with console.status("[bold green]Importing ax and submitit...") as status:
         import time
         try:
             import ax

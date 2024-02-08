@@ -1,4 +1,4 @@
-original_print = print
+print_debug = print
 
 ax_client = None
 end_program_ran = False
@@ -467,9 +467,6 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="botorch.optim.fit")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
-def print_debug (msg):
-    original_print(msg)
-
 def show_end_table_and_save_end_files ():
     global ax_client
     global console
@@ -872,16 +869,18 @@ def main ():
                 # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
                 # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
                 time.sleep(0.1)
+        end_program()
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
     except signalUSR:
-        print("\n:warning: USR1 signal was sent. Cancelling optimization.")
+        print("\n:warning: USR1 signal was sent. Cancelling optimization. Running end_program.")
         end_program()
+        print("\n:warning: end_program ran.")
     except signalINT:
-        print("\n:warning: Int signal was sent. Cancelling optimization.")
+        print("\n:warning: Int signal was sent. Cancelling optimization Running end_program.")
         end_program()
+        print("\n:warning: end_program ran.")
     
-    end_program()
 
 if __name__ == "__main__":
     main()

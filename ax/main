@@ -47,6 +47,7 @@ signal_handler() {
 }
 
 cleanup() {
+	echo "Running cleanup"
 	if [[ ! -z $python_pid ]]; then
 		if ps -p $python_pid > /dev/null; then
 			kill -USR1 "$python_pid" &>/dev/null

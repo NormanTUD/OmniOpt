@@ -817,8 +817,10 @@ def main ():
             while submitted_jobs < args.max_eval or jobs:
                 # Schedule new jobs if there is availablity
                 try:
+                    calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+
                     trial_index_to_param, _ = ax_client.get_next_trials(
-                        max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+                        max_trials=calculated_max_trials
                     )
 
                     for trial_index, parameters in trial_index_to_param.items():

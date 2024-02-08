@@ -486,6 +486,7 @@ def show_end_table_and_save_end_files ():
     print_debug("[show_end_table_and_save_end_files] Getting best params")
     best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
+    print_debug("[show_end_table_and_save_end_files] Got best params")
     best_result = means["result"]
 
     print_debug("[show_end_table_and_save_end_files] Creating table")

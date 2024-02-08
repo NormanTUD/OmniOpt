@@ -2,7 +2,7 @@
 
 send_usr_signal_to_script=0
 
-echo "main-PID: $$"
+#echo "main-PID: $$"
 
 #SBATCH --signal=B:USR1@30
 

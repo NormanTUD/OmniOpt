@@ -41,7 +41,7 @@ LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
 
 myml () {
 	if [[ -e $LMOD_DIR/ml_cmd ]]; then
-		eval "$($LMOD_DIR/ml_cmd "$@")"
+		eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
 	fi
 }
 

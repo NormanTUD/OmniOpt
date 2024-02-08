@@ -614,6 +614,39 @@ def end_program ():
 
     sys.exit(0)
 
+def save_checkpoint ():
+    global current_run_folder
+    global ax_client
+
+    checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
+    ax_client.save_to_json_file(filepath=checkpoint_filepath)
+
+def save_pd_csv ():
+    global current_run_folder
+    global ax_client
+
+    pd_csv = f'{current_run_folder}/pd.csv'
+    try:
+        logger = logging.getLogger()
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service.utils")
+        logger.setLevel(logging.ERROR)
+
+        logger = logging.getLogger("ax.service.utils.report_utils")
+        logger.setLevel(logging.ERROR)
+
+        pd_frame = ax_client.get_trials_data_frame()
+        pd_frame.to_csv(pd_csv, index=False)
+    except Exception as e:
+        print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+
 def main ():
     global args
     global file_number
@@ -854,30 +887,8 @@ def main ():
 
                             progress_bar.update(1)
 
-                            checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
-                            ax_client.save_to_json_file(filepath=checkpoint_filepath)
-
-                            pd_csv = f'{current_run_folder}/pd.csv'
-                            try:
-                                logger = logging.getLogger()
-                                logger.setLevel(logging.ERROR)
-
-                                logger = logging.getLogger("ax")
-                                logger.setLevel(logging.ERROR)
-
-                                logger = logging.getLogger("ax.service")
-                                logger.setLevel(logging.ERROR)
-
-                                logger = logging.getLogger("ax.service.utils")
-                                logger.setLevel(logging.ERROR)
-
-                                logger = logging.getLogger("ax.service.utils.report_utils")
-                                logger.setLevel(logging.ERROR)
-
-                                pd_frame = ax_client.get_trials_data_frame()
-                                pd_frame.to_csv(pd_csv, index=False)
-                            except Exception as e:
-                                print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+                            save_checkpoint()
+                            save_pd_csv()
                         except submitit.core.utils.UncompletedJobError as error:
                                 print_color("red", str(error))
                                 sys.exit(27)

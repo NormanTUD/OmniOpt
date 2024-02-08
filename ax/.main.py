@@ -786,6 +786,8 @@ def main ():
             cpus_per_task=args.cpus_per_task,
             stderr_to_stdout=args.stderr_to_stdout,
             mem_gb=args.mem_gb,
+            signal_delay_s=30,
+            use_srun=False
         )
 
         jobs = []

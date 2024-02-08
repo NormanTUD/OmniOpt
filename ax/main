@@ -19,7 +19,7 @@ run_before_end () {
 			echo "Already sent user signal to python PID $python_pid. Not doing that again."
 		fi
 	else
-		echo "Sleep time is negative. Not sending signal."
+		echo "It is recommended that you run this in a slurm job."
 	fi
 }
 

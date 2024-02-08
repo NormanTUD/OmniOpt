@@ -815,13 +815,13 @@ def main ():
             progress_string = progress_string
 
             while submitted_jobs < args.max_eval or jobs:
-                
                 # Schedule new jobs if there is availablity
                 try:
                     trial_index_to_param, _ = ax_client.get_next_trials(
                         max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
                     )
 
+                    pprint(trial_index_to_param.items())
                     for trial_index, parameters in trial_index_to_param.items():
                         try:
                             new_job = executor.submit(evaluate, parameters)

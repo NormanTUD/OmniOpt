@@ -872,9 +872,9 @@ def main ():
 
                     for trial_index, parameters in trial_index_to_param.items():
                         try:
-                            job = executor.submit(evaluate, parameters)
+                            new_job = executor.submit(evaluate, parameters)
                             submitted_jobs += 1
-                            jobs.append((job, trial_index))
+                            jobs.append((new_job, trial_index))
                             time.sleep(1)
                         except submitit.core.utils.FailedJobError as error:
                             if "QOSMinGRES" in str(error) and args.gpus == 0:

@@ -1,3 +1,5 @@
+original_print = print
+
 ax_client = None
 end_program_ran = False
 program_name = "OmniOpt2"
@@ -448,7 +450,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
 def print_debug (msg):
-    print(msg)
+    original_print(msg)
 
 def show_end_table_and_save_end_files ():
     global ax_client

@@ -499,53 +499,62 @@ def show_end_table_and_save_end_files ():
     with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
         text_file.write(table_str)
 
-    print_debug("Setting shown_end_table = true")
+    print_debug("[show_end_table_and_save_end_files] Setting shown_end_table = true")
     shown_end_table = True
 
 def end_program ():
+    print_debug("[end_program] end_program started")
     global end_program_ran
 
     if end_program_ran:
+        print_debug("[end_program] end_program_ran was true. Returning.")
         return
 
     end_program_ran = True
+    print_debug("[end_program] Setting end_program_ran = True")
 
     global ax_client
     global console
     global current_run_folder
 
     try:
-        #print("A")
-
         if current_run_folder is None:
-            print("current_run_folder was empty. Not running end-algorithm.")
+            print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
             return
 
         if ax_client is None:
-            print("ax_client was empty. Not running end-algorithm.")
+            print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
             return
 
         if console is None:
-            print("console was empty. Not running end-algorithm.")
+            print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
-        #print("B")
-
-        #print("C")
+        print_debug("[end_program] calling show_end_table_and_save_end_files")
         show_end_table_and_save_end_files()
-        #print("D")
+        print_debug("[end_program] show_end_table_and_save_end_files called")
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+        print("\n:warning: USR1 signal was sent. Ending program will still run.")
+        print_debug("[end_program] calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
+        show_end_table_and_save_end_files()
+        print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
     except signalUSR:
         print("\n:warning: USR1 signal was sent. Ending program will still run.")
+        print_debug("[end_program] calling show_end_table_and_save_end_files (in signalUSR)")
         show_end_table_and_save_end_files()
+        print_debug("[end_program] show_end_table_and_save_end_files called (in signalUSR)")
     except signalINT:
         print("\n:warning: Int signal was sent. Ending program will still run.")
+        print_debug("[end_program] calling show_end_table_and_save_end_files (in signalINT)")
         show_end_table_and_save_end_files()
+        print_debug("[end_program] show_end_table_and_save_end_files called (in signalINT)")
 
     pd_csv = f'{current_run_folder}/pd.csv'
+    print_debug(f"[end_program] Trying to save file to {pd_csv}")
+
     try:
         logger = logging.getLogger()
         logger.setLevel(logging.ERROR)
@@ -564,6 +573,7 @@ def end_program ():
 
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False)
+        print_debug(f"[end_program] Saved file to {pd_csv}")
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
         sys.exit(17)

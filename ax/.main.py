@@ -468,6 +468,9 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
 
 def show_end_table_and_save_end_files ():
+    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
+
     global ax_client
     global console
     global current_run_folder

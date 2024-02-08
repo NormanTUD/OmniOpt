@@ -1,10 +1,27 @@
 #!/bin/bash
 
 send_usr_signal_to_script=0
+python_pid=
 
-#echo "main-PID: $$"
+JOB_START_TIME=$SLURM_JOB_START_TIME
+JOB_END_TIME=$SLURM_JOB_END_TIME
 
-#SBATCH --signal=R:USR1@30
+run_before_end () {
+	sleep_time=$((JOB_END_TIME - JOB_START_TIME - 30))
+	# Überprüfen, ob die Zeitdifferenz positiv ist, um zu vermeiden, dass das Skript im negativen Bereich schläft
+	if [ $sleep_time -gt 0 ]; then
+		sleep $sleep_time
+
+		if [[ $send_usr_signal_to_script -eq 0 ]]; then
+			send_usr_signal_to_script=1
+			kill -USR1 "$python_pid"
+		else
+			echo "Already sent user signal to python PID $python_pid. Not doing that again."
+		fi
+	else
+		echo "Sleep time is negative. Not sending signal."
+	fi
+}
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -21,33 +38,6 @@ fi
 
 cd $SCRIPT_DIR
 
-for sig in {1..64}; do
-	# Ignoriere Signal 17 (SIGCHLD)
-	if [ "$sig" != "17" ]; then
-		trap 'signal_handler $sig' $sig
-	fi
-done
-
-signal_handler() {
-	# Signalnummer extrahieren
-	sig_num=$1
-	# Signalnamen extrahieren
-	sig_name=$(kill -l $sig_num)
-
-	# Ignoriere Signal 17 (SIGCHLD)
-	if [ "$sig_num" != "17" ]; then
-		if [[ $send_usr_signal_to_script -eq 0 ]]; then
-			echo "Got signal $sig_num ($sig_name), sending USR1 to python script with PID $python_pid (script-runtime: $SECONDS seconds)"
-			send_usr_signal_to_script=1
-			kill -USR1 "$python_pid"
-		else
-			echo "Already sent user signal to python PID $python_pid. Not doing that again."
-		fi
-	fi
-}
-
-
-
 source .shellscript_functions
 
 for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
@@ -56,5 +46,7 @@ done
 
 python3 .main.py $* &
 python_pid=$!
+
+run_before_end &
 
 wait "$python_pid"

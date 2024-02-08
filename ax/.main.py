@@ -1,4 +1,8 @@
-print_debug = print
+
+def print_debug (msg):
+    pass
+
+#print_debug = print
 
 ax_client = None
 end_program_ran = False

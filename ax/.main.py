@@ -334,11 +334,11 @@ def make_strings_equal_length(str1, str2):
     return str1, str2
 
 def evaluate(parameters):
-    signal.signal(signal.SIGUSR1, receive_usr_signal_one)
-    signal.signal(signal.SIGUSR2, receive_usr_signal_one)
-    signal.signal(signal.SIGINT, receive_usr_signal_int)
-    signal.signal(signal.SIGTERM, receive_usr_signal_int)
-    signal.signal(signal.SIGQUIT, receive_usr_signal_int)
+    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
     max_val = 99999999999999999999999999999999999999999999999999999999999
 
@@ -470,6 +470,9 @@ def disable_logging ():
 def show_end_table_and_save_end_files ():
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
     global ax_client
     global console

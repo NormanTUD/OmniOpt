@@ -22,7 +22,7 @@ cd $SCRIPT_DIR
 for sig in {1..64}; do
 	# Ignoriere Signal 17 (SIGCHLD)
 	if [ "$sig" != "17" ]; then
-		trap 'kill -USR1 "$python_pid"' $sig
+		trap 'signal_handler $sig' $sig
 	fi
 done
 

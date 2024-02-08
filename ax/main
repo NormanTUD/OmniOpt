@@ -51,7 +51,7 @@ cleanup() {
 		if ps -p $python_pid > /dev/null; then
 			kill -USR1 "$python_pid" &>/dev/null
 		else
-			echo "Python pid already exited. Not sending another USR1"
+			echo "Python pid $python_pid already exited. Not sending another USR1"
 		fi
 	else
 		echo "Python pid not found. Cannot clean up"

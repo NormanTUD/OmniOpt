@@ -478,6 +478,11 @@ def show_end_table_and_save_end_files ():
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.cross_validation")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge")
+    warnings.filterwarnings("ignore", category=Warning, module="ax")
+
     global ax_client
     global console
     global current_run_folder

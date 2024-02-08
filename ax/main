@@ -19,12 +19,26 @@ fi
 
 cd $SCRIPT_DIR
 
-trap 'kill -USR1 "$python_pid"' INT
-trap 'kill -USR1 "$python_pid"' TERM
-trap 'kill -USR1 "$python_pid"' USR1
-trap 'kill -USR2 "$python_pid"' USR2
-trap 'kill -USR1 "$python_pid"' STOP
-trap 'kill -USR1 "$python_pid"' QUIT
+for sig in {1..64}; do
+	# Ignoriere Signal 17 (SIGCHLD)
+	if [ "$sig" != "17" ]; then
+		trap 'kill -USR1 "$python_pid"' $sig
+	fi
+done
+
+signal_handler() {
+	# Signalnummer extrahieren
+	sig_num=$1
+	# Signalnamen extrahieren
+	sig_name=$(kill -l $sig_num)
+
+	# Ignoriere Signal 17 (SIGCHLD)
+	if [ "$sig_num" != "17" ]; then
+		echo "Signal $sig_num ($sig_name) erhalten."
+		trap 'kill -USR1 "$python_pid"' STOP
+		exit
+	fi
+}
 
 cleanup() {
 	if [[ ! -z $python_pid ]]; then

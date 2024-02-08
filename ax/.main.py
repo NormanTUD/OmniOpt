@@ -881,10 +881,6 @@ def main ():
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                             jobs.remove((job, trial_index))
 
-                            #best_parameters, (means, covariances) = ax_client.get_best_parameters()
-                            #best_result = means["result"]
-                            #new_desc_string = f"best result: {best_result}"
-
                             progress_bar.update(1)
 
                             save_checkpoint()

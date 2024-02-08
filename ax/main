@@ -4,7 +4,7 @@ send_usr_signal_to_script=0
 
 #echo "main-PID: $$"
 
-#SBATCH --signal=B:USR1@30
+#SBATCH --signal=USR1@30
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -36,30 +36,17 @@ signal_handler() {
 
 	# Ignoriere Signal 17 (SIGCHLD)
 	if [ "$sig_num" != "17" ]; then
-		if [[ $send_usr_signal_to_script -eq 0 ]]; then
+		#if [[ $send_usr_signal_to_script -eq 0 ]]; then
 			echo "Got signal $sig_num ($sig_name), sending USR1 to python script with PID $python_pid"
 			send_usr_signal_to_script=1
 			kill -USR1 "$python_pid"
-		else
-			echo "Already sent user signal to python PID $python_pid. Not doing that again."
-		fi
+		#else
+		#	echo "Already sent user signal to python PID $python_pid. Not doing that again."
+		#fi
 	fi
 }
 
-cleanup() {
-	echo "Running cleanup"
-	if [[ ! -z $python_pid ]]; then
-		if ps -p $python_pid > /dev/null; then
-			kill -USR1 "$python_pid" &>/dev/null
-		else
-			echo "Python pid $python_pid already exited. Not sending another USR1"
-		fi
-	else
-		echo "Python pid not found. Cannot clean up"
-	fi
-}
 
-trap cleanup EXIT
 
 source .shellscript_functions
 

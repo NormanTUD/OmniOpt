@@ -29,10 +29,10 @@ class signalINT (Exception):
     pass
 
 def receive_usr_signal_one (signum, stack):
-    raise signalUSR("USR1-signal received")
+    raise signalUSR(f"USR1-signal received ({signum})")
 
 def receive_usr_signal_int (signum, stack):
-    raise signalINT("INT-signal received")
+    raise signalINT(f"INT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
 signal.signal(signal.SIGUSR2, receive_usr_signal_one)

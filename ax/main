@@ -4,9 +4,7 @@ send_usr_signal_to_script=0
 
 #echo "main-PID: $$"
 
-#SBATCH --signal=USR1@60
-#SBATCH --signal=A:USR1@60
-#SBATCH --signal=M:USR1@60
+#SBATCH --signal=R:USR1@30
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

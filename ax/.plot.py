@@ -21,6 +21,8 @@ spec.loader.exec_module(my_module)
 
 try:
     import pandas as pd
+
+    import matplotlib
     import matplotlib.pyplot as plt
     from itertools import combinations
 except ModuleNotFoundError as e:
@@ -43,6 +45,9 @@ def main():
 
     args = parser.parse_args()
 
+    if not args.save_to_file:
+        matplotlib.use('TkAgg')
+
     # Check if the specified directory exists
     if not os.path.exists(args.run_dir):
         print(f'The folder {args.run_dir} does not exist.')
@@ -55,9 +60,6 @@ def main():
     if not os.path.exists(csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(3)
-
-    # Check if the "--save_to_file" parameter is provided
-    save_to_file = args.save_to_file is not None
 
     # Load the DataFrame from the CSV file
     df = None
@@ -183,7 +185,7 @@ def main():
     fig.suptitle(title)
 
     # Show the plot or save it to a file based on the command line argument
-    if save_to_file:
+    if args.save_to_file:
         plt.savefig(args.save_to_file)
     else:
         plt.show()

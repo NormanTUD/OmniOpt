@@ -293,7 +293,7 @@ function list_option_for_job {
 
 				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
 					# Check if minvalue is greater than maxvalue
-					if [[ "$minvalue" -gt "$maxvalue" ]]; then
+					if (( $(echo "$maxvalue > $minvalue" |bc -l) )); then
 						# Swap values
 						temp="$minvalue"
 						minvalue="$maxvalue"
@@ -346,7 +346,7 @@ function list_option_for_job {
 
 				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
 					# Check if minvalue is greater than maxvalue
-					if [[ "$minvalue" -gt "$maxvalue" ]]; then
+					if (( $(echo "$maxvalue > $minvalue" |bc -l) )); then
 						# Swap values
 						temp="$minvalue"
 						minvalue="$maxvalue"

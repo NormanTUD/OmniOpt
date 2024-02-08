@@ -736,7 +736,7 @@ if [[ $sourced == "0" ]]; then
         fi
     fi
 
-    modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4 Hyperopt/0.2.7)
+    modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4)
 
     load_percent=0
     let stepsize=100/${#modules_to_load[*]}

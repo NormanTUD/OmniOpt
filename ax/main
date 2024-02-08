@@ -35,7 +35,7 @@ signal_handler() {
 	# Ignoriere Signal 17 (SIGCHLD)
 	if [ "$sig_num" != "17" ]; then
 		echo "Signal $sig_num ($sig_name) erhalten."
-		trap 'kill -USR1 "$python_pid"' STOP
+		kill -USR1 "$python_pid" &>/dev/null
 		exit
 	fi
 }

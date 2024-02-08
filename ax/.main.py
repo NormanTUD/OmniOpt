@@ -551,7 +551,7 @@ def end_program ():
         print_debug("[end_program] show_end_table_and_save_end_files called")
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-        print("\n:warning: USR1 signal was sent. Ending program will still run.")
+        print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")

@@ -36,13 +36,13 @@ signal_handler() {
 
 	# Ignoriere Signal 17 (SIGCHLD)
 	if [ "$sig_num" != "17" ]; then
-		#if [[ $send_usr_signal_to_script -eq 0 ]]; then
-		echo "Got signal $sig_num ($sig_name), sending USR1 to python script with PID $python_pid (script-runtime: $SECONDS seconds)"
+		if [[ $send_usr_signal_to_script -eq 0 ]]; then
+			echo "Got signal $sig_num ($sig_name), sending USR1 to python script with PID $python_pid (script-runtime: $SECONDS seconds)"
 			send_usr_signal_to_script=1
 			kill -USR1 "$python_pid"
-		#else
-		#	echo "Already sent user signal to python PID $python_pid. Not doing that again."
-		#fi
+		else
+			echo "Already sent user signal to python PID $python_pid. Not doing that again."
+		fi
 	fi
 }
 

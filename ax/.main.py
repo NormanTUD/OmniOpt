@@ -334,52 +334,70 @@ def make_strings_equal_length(str1, str2):
     return str1, str2
 
 def evaluate(parameters):
-    print("parameters:", parameters)
+    signal.signal(signal.SIGUSR1, receive_usr_signal_one)
+    signal.signal(signal.SIGUSR2, receive_usr_signal_one)
+    signal.signal(signal.SIGINT, receive_usr_signal_int)
+    signal.signal(signal.SIGTERM, receive_usr_signal_int)
+    signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
-    parameters_keys = list(parameters.keys())
-    parameters_values = list(parameters.values())
+    max_val = 99999999999999999999999999999999999999999999999999999999999
 
-    program_string_with_params = replace_parameters_in_string(parameters, args.run_program)
+    return_in_case_of_error = None
 
-    print_color("green", program_string_with_params)
-
-    start_time = int(time.time())
-
-    stdout_stderr_exit_code = execute_bash_code(program_string_with_params)
-
-    end_time = int(time.time())
-
-    stdout = stdout_stderr_exit_code[0]
-    stderr = stdout_stderr_exit_code[1]
-    exit_code = stdout_stderr_exit_code[2]
-
-    run_time = end_time - start_time
-
-    print("stdout:")
-    print(stdout)
-
-    result = get_result(stdout)
-
-    print(f"Result: {result}")
-
-    headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "hostname"];
-    values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, socket.gethostname()];
-
-    headline = ['None' if element is None else element for element in headline]
-    values = ['None' if element is None else element for element in values]
-
-    add_to_csv(result_csv_file, headline, values)
-
-    if type(result) == int:
-        return {"result": int(result)}
-    elif type(result) == float:
-        return {"result": float(result)}
+    if args.maximize:
+        return_in_case_of_error = {"result": -max_val}
     else:
-        max_val = 99999999999999999999999999999999999999999999999999999999999
-        if args.maximize:
-            return {"result": -max_val}
+        return_in_case_of_error = {"result": max_val}
+
+    try:
+        print("parameters:", parameters)
+
+        parameters_keys = list(parameters.keys())
+        parameters_values = list(parameters.values())
+
+        program_string_with_params = replace_parameters_in_string(parameters, args.run_program)
+
+        print_color("green", program_string_with_params)
+
+        start_time = int(time.time())
+
+        stdout_stderr_exit_code = execute_bash_code(program_string_with_params)
+
+        end_time = int(time.time())
+
+        stdout = stdout_stderr_exit_code[0]
+        stderr = stdout_stderr_exit_code[1]
+        exit_code = stdout_stderr_exit_code[2]
+
+        run_time = end_time - start_time
+
+        print("stdout:")
+        print(stdout)
+
+        result = get_result(stdout)
+
+        print(f"Result: {result}")
+
+        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "hostname"];
+        values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, socket.gethostname()];
+
+        headline = ['None' if element is None else element for element in headline]
+        values = ['None' if element is None else element for element in values]
+
+        add_to_csv(result_csv_file, headline, values)
+
+        if type(result) == int:
+            return {"result": int(result)}
+        elif type(result) == float:
+            return {"result": float(result)}
         else:
-            return {"result": max_val}
+            return return_in_case_of_error
+    except signalUSR:
+        print("\n:warning: USR1 signal was sent. Cancelling evaluation.")
+        return return_in_case_of_error
+    except signalINT:
+        print("\n:warning: Int signal was sent. Cancelling evaluation.")
+        return return_in_case_of_error
 
 try:
     with console.status("[bold green]Importing ax and submitit...") as status:

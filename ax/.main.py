@@ -549,25 +549,25 @@ def end_program ():
             print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
-        print_debug("[end_program] calling show_end_table_and_save_end_files")
+        print_debug("[end_program] Calling show_end_table_and_save_end_files")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called")
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
         print("\n:warning: USR1 signal was sent. Ending program will still run.")
-        print_debug("[end_program] calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
+        print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
     except signalUSR:
         print("\n:warning: USR1 signal was sent. Ending program will still run.")
-        print_debug("[end_program] calling show_end_table_and_save_end_files (in signalUSR)")
+        print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalUSR)")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in signalUSR)")
     except signalINT:
         print("\n:warning: Int signal was sent. Ending program will still run.")
-        print_debug("[end_program] calling show_end_table_and_save_end_files (in signalINT)")
+        print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalINT)")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in signalINT)")
 

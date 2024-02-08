@@ -815,6 +815,29 @@ def main ():
             progress_string = progress_string
 
             while submitted_jobs < args.max_eval or jobs:
+                
+                # Schedule new jobs if there is availablity
+                try:
+                    trial_index_to_param, _ = ax_client.get_next_trials(
+                        max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+                    )
+
+                    for trial_index, parameters in trial_index_to_param.items():
+                        try:
+                            new_job = executor.submit(evaluate, parameters)
+                            submitted_jobs += 1
+                            jobs.append((new_job, trial_index))
+                            time.sleep(1)
+                        except submitit.core.utils.FailedJobError as error:
+                            if "QOSMinGRES" in str(error) and args.gpus == 0:
+                                print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                            else:
+                                print_color("red", f"\n:warning: FAILED: {error}")
+
+                            sys.exit(2)
+                except botorch.exceptions.errors.InputDataError as e:
+                    print_color("red", f"Error: {e}")
+
                 for job, trial_index in jobs[:]:
                     # Poll if any jobs completed
                     # Local and debug jobs don't run until .result() is called.
@@ -863,28 +886,6 @@ def main ():
                             else:
                                 print_color("red", f"\n:warning: {error}")
                                 sys.exit(25)
-                
-                # Schedule new jobs if there is availablity
-                try:
-                    trial_index_to_param, _ = ax_client.get_next_trials(
-                        max_trials=min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
-                    )
-
-                    for trial_index, parameters in trial_index_to_param.items():
-                        try:
-                            new_job = executor.submit(evaluate, parameters)
-                            submitted_jobs += 1
-                            jobs.append((new_job, trial_index))
-                            time.sleep(1)
-                        except submitit.core.utils.FailedJobError as error:
-                            if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                            else:
-                                print_color("red", f"\n:warning: FAILED: {error}")
-
-                            sys.exit(2)
-                except botorch.exceptions.errors.InputDataError as e:
-                    print_color("red", f"Error: {e}")
                 
                 # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
                 # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.

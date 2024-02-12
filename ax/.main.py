@@ -812,7 +812,7 @@ def main ():
             experiment_args = {
                 "name": args.experiment_name,
                 "parameters": experiment_parameters,
-                "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)}
+                "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 "choose_generation_strategy_kwargs": {
                     "num_trials": args.max_eval,
                     "max_parallelism_override": args.num_parallel_jobs,

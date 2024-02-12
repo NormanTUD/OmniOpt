@@ -834,7 +834,7 @@ def main ():
 
         executor.update_parameters(
             name=args.experiment_name,
-            timeout_min=args.timeout,
+            timeout_min=args.worker_timeout,
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,
             stderr_to_stdout=args.stderr_to_stdout,

@@ -808,19 +808,17 @@ def main ():
             with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
                 print(f"Continuation from checkpoint {args.load_checkpoint}", file=f)
         else:
+
+            experiment_args = {
+                "name": args.experiment_name,
+                "parameters": experiment_parameters,
+                "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)}
+            }
+
             if args.experiment_constraints:
-                experiment = ax_client.create_experiment(
-                    name=args.experiment_name,
-                    parameters=experiment_parameters,
-                    objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)},
-                    parameter_constraints=[args.experiment_constraints]
-                )
-            else:
-                experiment = ax_client.create_experiment(
-                    name=args.experiment_name,
-                    parameters=experiment_parameters,
-                    objectives={"result": ObjectiveProperties(minimize=minimize_or_maximize)}
-                )
+                experiment_args["parameter_constraints"] = [args.experiment_constraints]
+
+            experiment = ax_client.create_experiment(**experiment_args)
 
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)

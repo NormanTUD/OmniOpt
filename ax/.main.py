@@ -15,6 +15,41 @@ result_csv_file = None
 shown_end_table = False
 
 import sys
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog=program_name,
+    description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
+    epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout=10"
+)
+
+
+required = parser.add_argument_group('Required arguments', "These options have to be set")
+required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
+optional = parser.add_argument_group('Optional', "These options are optional")
+debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
+
+required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
+required.add_argument('--timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
+required.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
+required.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
+
+required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
+required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint to be loaded", type=str, default=None)
+
+optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+optional.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
+optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
+optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+
+debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+
+args = parser.parse_args()
+
 
 try:
     import os
@@ -656,39 +691,6 @@ def main ():
     global ax_client
 
     check_slurm_job_id()
-
-    parser = argparse.ArgumentParser(
-        prog=program_name,
-        description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
-        epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout=10"
-    )
-
-
-    required = parser.add_argument_group('Required arguments', "These options have to be set")
-    required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
-    optional = parser.add_argument_group('Optional', "These options are optional")
-    debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
-
-    required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
-    required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
-    required.add_argument('--timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
-    required.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
-    required.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
-
-    required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
-    required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint to be loaded", type=str, default=None)
-
-    optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-    optional.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
-    optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-    optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-    optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-    optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
-    optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
-
-    debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-
-    args = parser.parse_args()
 
     if args.parameter is None and args.load_checkpoint is None:
         print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")

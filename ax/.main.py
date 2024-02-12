@@ -45,6 +45,7 @@ optional.add_argument('--experiment_constraints', help='Constraints for paramete
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 optional.add_argument('--gres', help='gres-option given to sbatch.', default="", type=str)
+optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)

@@ -10,6 +10,12 @@ function calltracer () {
 
 trap 'calltracer' ERR
 
+slurmlogpath () {
+	if command -v scontrol 2>/dev/null >/dev/null; then
+		scontrol show job $1 | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} StdOut | sed -e 's/^\s*StdOut=//'
+	fi
+}
+
 function echoerr() {
         echo "$@" 1>&2
 }
@@ -45,6 +51,7 @@ export gres=
 export time=
 export experiment_name=
 export help=0
+export follow=0
 
 for i in $@; do
         case $i in
@@ -61,6 +68,9 @@ for i in $@; do
                         ;;
                 --gres=*)
                         gres="${i#*=}"
+                        ;;
+		--follow)
+			follow=1
                         ;;
                 --help*)
 			help=1
@@ -160,8 +170,21 @@ else
 	fi
 
 	if [[ $exit_code -eq 0 ]]; then
-		started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
-		echo "Started job nr.: >$started_job_nr<"
+		if [[ $follow -eq 1 ]]; then
+			started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
+			if command -v sbatch 2>/dev/null >/dev/null; then
+				LOG_PATH=$(slurmlogpath $started_job_nr)
+
+				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed..."
+				echo ""
+
+				while ! [[ -e $LOG_PATH ]]; do
+					sleep 1
+				done
+
+				tail -n1000000 -f $LOG_PATH
+			fi
+		fi
 	else
 		red_text "Failed to start sbatch job. Exit-Code: $exit_code"
 	fi

@@ -808,7 +808,6 @@ def main ():
             with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
                 print(f"Continuation from checkpoint {args.load_checkpoint}", file=f)
         else:
-
             experiment_args = {
                 "name": args.experiment_name,
                 "parameters": experiment_parameters,

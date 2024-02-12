@@ -19,12 +19,25 @@ function red_text {
 }
 
 minutes_to_hh_mm_ss() {
-	local total_minutes="$1"
-	local hours=$(( total_minutes / 60 ))
-	local minutes=$(( total_minutes % 60 ))
-	local seconds=$(( minutes * 60 ))
+	var=$1
 
-	printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
+	number_re='^[0-9]+$'
+	time_re='^[0-9]+:[0-9]+:[0-9]+$'
+
+	if [[ $var =~ $number_re ]] ; then
+		local total_minutes="$var"
+		local hours=$(( total_minutes / 60 ))
+		local minutes=$(( total_minutes % 60 ))
+		local seconds=00
+
+		printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
+	elif [[ $var =~ $time_re ]]; then
+		echo $var
+	else
+		red_text "ERROR: $var is not a valid input. Must be a number or HH:MM:SS"
+
+		exit 103
+	fi
 }
 
 export mem_gb=

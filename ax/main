@@ -1,6 +1,65 @@
 #!/bin/bash
 
-send_usr_signal_to_script=0
+set -e
+set -o pipefail
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+
+trap 'calltracer' ERR
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+export mem_gb=
+export gres=
+export time=
+export help=0
+
+for i in $@; do
+        case $i in
+                --mem_gb=*)
+                        mem_gb="${i#*=}"
+                        re='^[+-]?[0-9]+$'
+                        if ! [[ $mem_gb =~ $re ]] ; then
+                                red_text "error: Not a INT: $i" >&2
+				exit 100
+                        fi
+                        ;;
+                --gres=*)
+                        gres="${i#*=}"
+                        ;;
+                --help*)
+			help=1
+                        ;;
+                --time=*)
+                        time="${i#*=}"
+                        ;;
+                --debug)
+                        set -x
+                        ;;
+        esac
+done
+if [[ $help -eq 0 ]]; then
+	if [[ -z "$mem_gb" ]]; then
+		red_text "Parameter --mem_gb cannot be empty";
+		exit 101
+	fi
+
+	if [[ -z "$time" ]]; then
+		red_text "Parameter --time cannot be empty";
+		exit 102
+	fi
+fi
+
+sent_usr_signal_to_script=0
 python_pid=
 
 JOB_START_TIME=$SLURM_JOB_START_TIME
@@ -12,8 +71,8 @@ run_before_end () {
 	if [ $sleep_time -gt 0 ]; then
 		sleep $sleep_time
 
-		if [[ $send_usr_signal_to_script -eq 0 ]]; then
-			send_usr_signal_to_script=1
+		if [[ $sent_usr_signal_to_script -eq 0 ]]; then
+			sent_usr_signal_to_script=1
 			kill -USR1 "$python_pid"
 		else
 			echo "Already sent user signal to python PID $python_pid. Not doing that again."

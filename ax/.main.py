@@ -1,9 +1,3 @@
-
-def print_debug (msg):
-    pass
-
-#print_debug = print
-
 ax_client = None
 end_program_ran = False
 program_name = "OmniOpt2"
@@ -47,9 +41,13 @@ optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for 
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
 
 args = parser.parse_args()
 
+def print_debug (msg):
+    if args.debug:
+        print(msg)
 
 try:
     import os

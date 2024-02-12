@@ -47,7 +47,7 @@ minutes_to_hh_mm_ss() {
 }
 
 export mem_gb=
-export gres=
+export gpus=0
 export time=
 export experiment_name=
 export help=0
@@ -59,15 +59,20 @@ for i in $@; do
                         mem_gb="${i#*=}"
                         re='^[+-]?[0-9]+$'
                         if ! [[ $mem_gb =~ $re ]] ; then
-                                red_text "error: Not a INT: $i" >&2
+                                red_text "error: --mem_gb not a INT: $i" >&2
 				exit 100
                         fi
                         ;;
                 --experiment_name=*)
                         experiment_name="${i#*=}"
                         ;;
-                --gres=*)
-                        gres="${i#*=}"
+                --gpus=*)
+                        gpus="${i#*=}"
+                        re='^[+-]?[0-9]+$'
+                        if ! [[ $gpus =~ $re ]] ; then
+                                red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+                        fi
                         ;;
 		--follow)
 			follow=1
@@ -161,8 +166,8 @@ else
 	sbatch_result=""
 	exit_code=""
 
-	if [[ ! -z $gres ]]; then
-		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=$gres $SCRIPT_DIR/main $* | tee /dev/stderr)
+	if [[ $gpus -ne 0 ]]; then
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/main $* | tee /dev/stderr)
 		exit_code=$?
 	else
 		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $* | tee /dev/stderr)

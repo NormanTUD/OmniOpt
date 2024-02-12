@@ -856,8 +856,6 @@ def main ():
                 try:
                     calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
 
-                    calculated_max_trials = 1
-
                     trial_index_to_param, _ = ax_client.get_next_trials(
                         max_trials=calculated_max_trials
                     )

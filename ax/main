@@ -75,19 +75,21 @@ JOB_START_TIME=$SLURM_JOB_START_TIME
 JOB_END_TIME=$SLURM_JOB_END_TIME
 
 run_before_end () {
-	sleep_time=$((JOB_END_TIME - JOB_START_TIME - 30))
-	# Überprüfen, ob die Zeitdifferenz positiv ist, um zu vermeiden, dass das Skript im negativen Bereich schläft
-	if [ $sleep_time -gt 0 ]; then
-		sleep $sleep_time
+	if command -v sbatch >/dev/null; then
+		sleep_time=$((JOB_END_TIME - JOB_START_TIME - 30))
+		# Überprüfen, ob die Zeitdifferenz positiv ist, um zu vermeiden, dass das Skript im negativen Bereich schläft
+		if [ $sleep_time -gt 0 ]; then
+			sleep $sleep_time
 
-		if [[ $sent_usr_signal_to_script -eq 0 ]]; then
-			sent_usr_signal_to_script=1
-			kill -USR1 "$python_pid"
+			if [[ $sent_usr_signal_to_script -eq 0 ]]; then
+				sent_usr_signal_to_script=1
+				kill -USR1 "$python_pid"
+			else
+				echo "Already sent user signal to python PID $python_pid. Not doing that again."
+			fi
 		else
-			echo "Already sent user signal to python PID $python_pid. Not doing that again."
+			echo "It is recommended that you run this in a slurm job."
 		fi
-	else
-		echo "It is recommended that you run this in a slurm job."
 	fi
 }
 

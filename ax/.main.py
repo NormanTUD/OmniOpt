@@ -822,7 +822,7 @@ def main ():
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)
 
-        # 'name': <class 'str'>, 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
+        # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
         executor.update_parameters(
             name=args.experiment_name,

@@ -112,7 +112,6 @@ cd $SCRIPT_DIR
 
 source .shellscript_functions
 
-
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the main job, unset all SLURM variables
 	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do

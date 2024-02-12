@@ -17,13 +17,11 @@ def dier (msg):
     pprint(msg)
     sys.exit(10)
 
-
 parser = argparse.ArgumentParser(
     prog=program_name,
     description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
     epilog="Example:\n\npython3 run.py --num_parallel_jobs=1 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --timeout=10"
 )
-
 
 required = parser.add_argument_group('Required arguments', "These options have to be set")
 required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
@@ -707,7 +705,6 @@ def main ():
             print_color("red", f"{args.load_checkpoint} could not be found!")
             sys.exit(21)
 
-
     current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
     while os.path.exists(f"{current_run_folder}"):
         current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
@@ -743,7 +740,6 @@ def main ():
     with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
-
     if args.parameter:
         rows = []
 
@@ -769,7 +765,6 @@ def main ():
         for row in rows:
             table.add_row(*row, style='bright_green')
         console.print(table)
-
 
         with console.capture() as capture:
             console.print(table)
@@ -823,7 +818,6 @@ def main ():
 
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)
-
 
         # 'name': <class 'str'>, 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 

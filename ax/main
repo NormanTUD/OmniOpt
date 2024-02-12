@@ -148,9 +148,21 @@ else
 
 	formatted_time=$(minutes_to_hh_mm_ss $time)
 
+	sbatch_result=""
+	exit_code=""
+
 	if [[ ! -z $gres ]]; then
-		sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=$gres $SCRIPT_DIR/main $*
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=$gres $SCRIPT_DIR/main $* | tee /dev/stderr)
+		exit_code=$?
 	else
-		sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $*
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $* | tee /dev/stderr)
+		exit_code=$?
+	fi
+
+	if [[ $exit_code -eq 0 ]]; then
+		started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
+		echo "Started job nr.: >$started_job_nr<"
+	else
+		red_text "Failed to start sbatch job. Exit-Code: $exit_code"
 	fi
 fi

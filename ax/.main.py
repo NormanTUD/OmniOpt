@@ -782,7 +782,7 @@ def main ():
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
-    print_overview_table(experiment_parameters)
+        print_overview_table(experiment_parameters)
 
     if not args.verbose:
         disable_logging()

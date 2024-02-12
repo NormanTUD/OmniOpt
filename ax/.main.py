@@ -458,6 +458,7 @@ try:
             import ax
             import botorch
             from ax.service.ax_client import AxClient, ObjectiveProperties
+            import ax.exceptions.core
             from ax.modelbridge.dispatch_utils import choose_generation_strategy
             from ax.storage.json_store.save import save_experiment
             from ax.service.utils.report_utils import exp_to_df
@@ -875,6 +876,8 @@ def main ():
 
                             sys.exit(2)
                 except botorch.exceptions.errors.InputDataError as e:
+                    print_color("red", f"Error: {e}")
+                except ax.exceptions.core.DataRequiredError:
                     print_color("red", f"Error: {e}")
 
                 for job, trial_index in jobs[:]:

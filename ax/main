@@ -111,7 +111,7 @@ cd $SCRIPT_DIR
 source .shellscript_functions
 
 
-if [ -n "${SLURM_JOB_ID:-}" ] ; then
+if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the main job, unset all SLURM variables
 	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
 		unset $i
@@ -127,9 +127,11 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 else
 	IFS=$' '
 
+	formatted_time=$(minutes_to_hh_mm_ss $time)
+
 	if [[ ! -z $gres ]]; then
-		sbatch --time=$(minutes_to_hh_mm_ss $time) --mem=${mem_gb}GB --gres=$gres $SCRIPT_DIR/main $*
+		sbatch --time=$formatted_time --mem=${mem_gb}GB --gres=$gres $SCRIPT_DIR/main $*
 	else
-		sbatch --time=$(minutes_to_hh_mm_ss $time) --mem=${mem_gb}GB $SCRIPT_DIR/main $*
+		sbatch --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $*
 	fi
 fi

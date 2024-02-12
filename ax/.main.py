@@ -51,6 +51,17 @@ debug.add_argument('--debug', help='Enable debugging', action='store_true', defa
 
 args = parser.parse_args()
 
+if args.parameter is None and args.load_checkpoint is None:
+    print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
+    sys.exit(19)
+elif args.parameter is not None and args.load_checkpoint is not None:
+    print_color("red", "You cannot use --parameter and --load_checkpoint. You have to decide for one.");
+    sys.exit(20)
+elif args.load_checkpoint:
+    if not os.path.exists(args.load_checkpoint):
+        print_color("red", f"{args.load_checkpoint} could not be found!")
+        sys.exit(21)
+
 def print_debug (msg):
     if args.debug:
         print(msg)
@@ -684,54 +695,9 @@ def save_pd_csv ():
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
-def main ():
+def print_overview_table (experiment_parameters):
     global args
-    global file_number
-    global folder_number
-    global result_csv_file
     global current_run_folder
-    global ax_client
-
-    check_slurm_job_id()
-
-    if args.parameter is None and args.load_checkpoint is None:
-        print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
-        sys.exit(19)
-    elif args.parameter is not None and args.load_checkpoint is not None:
-        print_color("red", "You cannot use --parameter and --load_checkpoint. You have to decide for one.");
-        sys.exit(20)
-    elif args.load_checkpoint:
-        if not os.path.exists(args.load_checkpoint):
-            print_color("red", f"{args.load_checkpoint} could not be found!")
-            sys.exit(21)
-
-    current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
-    while os.path.exists(f"{current_run_folder}"):
-        current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
-        folder_number = folder_number + 1
-
-    result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
-
-    with open(f"{current_run_folder}/env", 'a') as f:
-        env = dict(os.environ)
-        for key in env:
-            print(str(key) + " = " + str(env[key]), file=f)
-
-    with open(f"{current_run_folder}/run.sh", 'w') as f:
-        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
-
-    print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
-    print_color("green", program_name)
-
-    experiment_parameters = None
-
-    if args.parameter:
-        experiment_parameters = parse_experiment_parameters(args.parameter)
-
-        checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
-
-        with open(checkpoint_filepath, "w") as outfile:
-            json.dump(experiment_parameters, outfile)
 
     min_or_max = "minimize"
     if args.maximize:
@@ -775,6 +741,46 @@ def main ():
     else:
         print_color("red", f"No parameters defined")
         sys.exit(26)
+
+def main ():
+    global args
+    global file_number
+    global folder_number
+    global result_csv_file
+    global current_run_folder
+    global ax_client
+
+    check_slurm_job_id()
+
+    current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
+    while os.path.exists(f"{current_run_folder}"):
+        current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
+        folder_number = folder_number + 1
+
+    result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
+
+    with open(f"{current_run_folder}/env", 'a') as f:
+        env = dict(os.environ)
+        for key in env:
+            print(str(key) + " = " + str(env[key]), file=f)
+
+    with open(f"{current_run_folder}/run.sh", 'w') as f:
+        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
+
+    print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
+    print_color("green", program_name)
+
+    experiment_parameters = None
+
+    if args.parameter:
+        experiment_parameters = parse_experiment_parameters(args.parameter)
+
+        checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
+
+        with open(checkpoint_filepath, "w") as outfile:
+            json.dump(experiment_parameters, outfile)
+
+    print_overview_table(experiment_parameters)
 
     if not args.verbose:
         disable_logging()
@@ -851,6 +857,8 @@ def main ():
                 # Schedule new jobs if there is availablity
                 try:
                     calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+
+                    calculated_max_trials = 1
 
                     trial_index_to_param, _ = ax_client.get_next_trials(
                         max_trials=calculated_max_trials

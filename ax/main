@@ -40,6 +40,7 @@ cd $SCRIPT_DIR
 
 source .shellscript_functions
 
+# To start all subjobs indenpedently from the main job, unset all SLURM variables
 for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
 	unset $i
 done

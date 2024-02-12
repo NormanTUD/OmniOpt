@@ -11,6 +11,13 @@ shown_end_table = False
 import sys
 import argparse
 
+from pprint import pprint
+
+def dier (msg):
+    pprint(msg)
+    sys.exit(10)
+
+
 parser = argparse.ArgumentParser(
     prog=program_name,
     description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
@@ -26,7 +33,7 @@ debug = parser.add_argument_group('Debug', "These options are mainly useful for 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
 required.add_argument('--timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
-required.add_argument('--run_program', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
+required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
 required.add_argument('--experiment_name', help='Name of the experiment. Not really used anywhere. Default: exp', type=str, required=True)
 
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
@@ -39,6 +46,7 @@ optional.add_argument('--maximize', help='Maximize instead of minimize (which is
 optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+optional.add_argument('--gres', help='gres-option given to sbatch.', default="", type=str)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
@@ -139,10 +147,6 @@ def check_slurm_job_id():
             print_color("red", "You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. " +
                 "This may cause the system to slow down for all other users. It is recommended uou run the main script in a Slurm job."
             )
-
-def dier (msg):
-    pprint(msg)
-    sys.exit(10)
 
 def create_folder_and_file (folder, extension):
     global file_number
@@ -392,7 +396,9 @@ def evaluate(parameters):
         parameters_keys = list(parameters.keys())
         parameters_values = list(parameters.values())
 
-        program_string_with_params = replace_parameters_in_string(parameters, args.run_program)
+        joined_run_program = " ".join(args.run_program[0])
+
+        program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
 
         print_color("green", program_string_with_params)
 

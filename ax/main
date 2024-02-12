@@ -18,6 +18,15 @@ function red_text {
         echoerr -e "\e[31m$1\e[0m"
 }
 
+minutes_to_hh_mm_ss() {
+	local total_minutes="$1"
+	local hours=$(( total_minutes / 60 ))
+	local minutes=$(( total_minutes % 60 ))
+	local seconds=$(( minutes * 60 ))
+
+	printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
+}
+
 export mem_gb=
 export gres=
 export time=
@@ -85,13 +94,15 @@ run_before_end () {
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
-	SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-	SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
+	if [[ -z $DEBUG_SLURM ]]; then
+		SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
+		SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
 
-	if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
-		SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
-	else
-		echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
+		if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
+			SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
+		else
+			echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
+		fi
 	fi
 fi
 
@@ -99,14 +110,26 @@ cd $SCRIPT_DIR
 
 source .shellscript_functions
 
-# To start all subjobs indenpedently from the main job, unset all SLURM variables
-for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
-	unset $i
-done
 
-python3 .main.py $* &
-python_pid=$!
+if [ -n "${SLURM_JOB_ID:-}" ] ; then
+	# To start all subjobs indenpedently from the main job, unset all SLURM variables
+	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID); do
+		unset $i
+	done
 
-run_before_end &
+	IFS=$' '
+	python3 .main.py $* &
+	python_pid=$!
 
-wait "$python_pid"
+	run_before_end &
+
+	wait "$python_pid"
+else
+	IFS=$' '
+
+	if [[ ! -z $gres ]]; then
+		sbatch --time=$(minutes_to_hh_mm_ss $time) --mem=${mem_gb}GB --gres=$gres $SCRIPT_DIR/main $*
+	else
+		sbatch --time=$(minutes_to_hh_mm_ss $time) --mem=${mem_gb}GB $SCRIPT_DIR/main $*
+	fi
+fi

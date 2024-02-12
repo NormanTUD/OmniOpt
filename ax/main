@@ -56,7 +56,7 @@ for i in $@; do
                         ;;
         esac
 done
-if [[ $help -eq 0 ]]; then
+if [[ $help -eq 0 ]] || ! command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then
 		red_text "Parameter --mem_gb cannot be empty";
 		exit 101

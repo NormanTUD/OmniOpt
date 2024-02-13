@@ -46,9 +46,10 @@
 					var value = $("#" + item.id).val();
 					if (item.type === "checkbox") {
 						value = $("#" + item.id).is(":checked") ? "1" : "0";
-					}
-
-					if (item.type === "text" && value === "") {
+						if (value === "1") {
+							command += " --" + item.id;
+						}
+					} else if (item.type === "text" && value === "") {
 						errors.push("Field '" + item.label + "' is required.");
 					} else if (item.type === "number" && isNaN(value)) {
 						errors.push("Invalid value for '" + item.label + "'. Must be a number.");

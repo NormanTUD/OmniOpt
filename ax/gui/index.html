@@ -29,12 +29,12 @@
 
 			var tableData = [
 				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)" },
-				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker" },
-				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)" },
-				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)" },
-				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations" },
-				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations" },
-				{ label: "GPUs", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs" },
+				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 0 },
+				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1 },
+				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)", min: 1 },
+				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1 },
+				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations", min: 0 },
+				{ label: "GPUs", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs", min: 0 },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1 },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
@@ -57,8 +57,20 @@
 						}
 					} else if (item.type === "text" && value === "") {
 						errors.push("Field '" + item.label + "' is required.");
-					} else if (item.type === "number" && isNaN(value)) {
-						errors.push("Invalid value for '" + item.label + "'. Must be a number.");
+					} else if (item.type === "number") {
+						var numValue = parseFloat(value);
+						if (isNaN(numValue)) {
+							errors.push("Invalid value for '" + item.label + "'. Must be a number.");
+						} else if (item.min && item.max && (numValue < item.min || numValue > item.max)) {
+							errors.push("Value for '" + item.label + "' must be between " + item.min + " and " + item.max + ".");
+						} else if (item.min && (numValue < item.min)) {
+							errors.push("Value for '" + item.label + "' must be larger than " + item.min + ".");
+						} else if (item.max && (numValue > item.max)) {
+							errors.push("Value for '" + item.label + "' must be smaller than" + item.max + ".");
+						} else {
+							value = numValue.toString();
+							command += " --" + item.id + "='" + value + "'";
+						}
 					} else {
 						command += " --" + item.id + "='" + value + "'";
 					}
@@ -138,7 +150,9 @@
 					$("#warnings").html("").hide();
 				}
 
-				updateUrl(); // Update URL mit den aktuellen Parametern
+				updateUrl
+
+(); // Update URL mit den aktuellen Parametern
 			}
 
 			function updateOptions(select) {
@@ -277,7 +291,7 @@
 					var labelCell = $("<td>").text(item.label);
 					var valueCell = $("<td>").attr("colspan", "2");
 
-					var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder });
+					var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 
 					if (item.type === "checkbox") {
 						input.prop("checked", item.value);

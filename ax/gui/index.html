@@ -90,6 +90,12 @@
 					command += " --verbose";
 				}
 
+				var maximize = $("#maximize").is(":checked");
+
+				if(maximize) {
+					command += " --maximize";
+				}
+
 				var run_program = $("#run_program").val();
 
 				if(!run_program.match(/\w+/)) {
@@ -304,6 +310,10 @@
 						<tr>
 							<td>Debug</td>
 							<td colspan=2><input id="debug" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Maximize?</td>
+							<td colspan=2><input id="maximize" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
 						</tr>
 						<tr>
 							<td>Run program</td>

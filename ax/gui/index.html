@@ -329,7 +329,7 @@
 					var parameterName = $(this).find(".parameterName").val();
 
 					if(parameterName && !parameterName.match(/^\w+$/)) {
-						errors.push(`Parameter name "${parameterName}" does have invalid characters. Must be all letters.`)
+						console.error(`Parameter name "${parameterName}" does have invalid characters. Must be all letters.`)
 					} else if (parameterName) {
 						if (option === "range") {
 							var minValue = $(this).find(".minValue").val();
@@ -354,8 +354,6 @@
 							params.push("parameter_" + parameterIndex + "_type=" + option);
 							params.push("parameter_" + parameterIndex + "_value=" + fixedValue);
 						}
-					} else {
-						errors.push(`Invalid parameter ${parameterIndex}`)
 					}
 					parameterIndex++;
 				});

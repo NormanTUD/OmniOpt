@@ -756,6 +756,10 @@ def check_equation (variables, equation):
 
     equation = equation.replace("\\*", "*")
     equation = equation.replace(" * ", "*")
+    equation = equation.replace(">=", " >= ")
+    equation = equation.replace("<=", " <= ")
+
+    equation = re.sub(r'\s+', ' ', equation)
     
     #equation = equation.replace("", "")
 

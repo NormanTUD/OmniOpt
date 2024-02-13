@@ -69,7 +69,11 @@
 							errors.push("Value for '" + item.label + "' must be smaller than" + item.max + ".");
 						} else {
 							value = numValue.toString();
-							command += " --" + item.id + "='" + value + "'";
+							if (item.type == "number") {
+								command += " --" + item.id + "=" + value;										
+							} else {
+								command += " --" + item.id + "='" + value + "'";
+							}
 						}
 					} else {
 						command += " --" + item.id + "='" + value + "'";

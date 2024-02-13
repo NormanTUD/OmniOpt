@@ -911,8 +911,6 @@ def main ():
 
                 equation = check_equation(variables, constraints_string)
 
-                print(equation)
-
                 if equation:
                     experiment_args["parameter_constraints"] = [constraints_string]
                 else:

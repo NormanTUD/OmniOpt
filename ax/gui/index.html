@@ -376,6 +376,15 @@
 					}
 				});
 
+				var num_parameters = urlParams.get("num_parameters");
+				if (num_parameters) {
+					for (var k = 0; k < num_parameters; k++) {
+						$("#add_row_button").click();
+					}
+				} else {
+					$("#add_row_button").click();
+				}
+
 				var parameterIndex = 0;
 				$(".configRow").each(function(index) {
 					var parameterName = urlParams.get("parameter_" + parameterIndex + "_name");
@@ -396,8 +405,7 @@
 					}
 					parameterIndex++;
 				});
-
-				$("#add_row_button").click();
+	
 				update_command();
 
 				initialized = true;

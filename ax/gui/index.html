@@ -379,7 +379,6 @@
 				var num_parameters = urlParams.get("num_parameters");
 				if (num_parameters) {
 					for (var k = 0; k < num_parameters; k++) {
-						log("k: " + k)
 						$("#main_add_row_button").click();
 					}
 				} else {
@@ -392,6 +391,7 @@
 					var option = urlParams.get("parameter_" + parameterIndex + "_type");
 
 					if (parameterName && option) {
+						      log("parameterName:", parameterName)
 						$(this).find(".parameterName").val(parameterName);
 						$(this).find(".optionSelect").val(option).trigger('change');
 						if (option === 'range') {

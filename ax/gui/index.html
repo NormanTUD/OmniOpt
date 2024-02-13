@@ -162,6 +162,10 @@
 			function updateOptions(select) {
 				var selectedOption = select.value;
 				var valueCell = select.parentNode.nextSibling;
+				var paramName = $(select).parent().parent().find(".parameterName").val();
+				log($(select).parent());
+
+
 				if (selectedOption === 'range') {
 					valueCell.innerHTML = `<table>
 					<tr>
@@ -169,7 +173,7 @@
 						Name:
 					    </td>
 					    <td>
-						<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='text' class='parameterName'>
+						<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'>
 					    </td>
 					</tr>
 					<tr>
@@ -207,7 +211,7 @@
 							Name:
 						    </td>
 						    <td>
-							<input  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='parameterName'>
+							<input  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'>
 						    </td>
 						</tr>
 						<tr>
@@ -222,7 +226,7 @@
 							Name:
 						    </td>
 						    <td>
-							<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='text' class='parameterName'>
+							<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}"  type='text' class='parameterName'>
 						    </td>
 						</tr>
 						<tr>
@@ -391,7 +395,7 @@
 					var option = urlParams.get("parameter_" + parameterIndex + "_type");
 
 					if (parameterName && option) {
-						      log("parameterName:", parameterName)
+						      log("parameterName:", parameterName, "this:", this, "find .parameterName", $(this).find(".parameterName"))
 						$(this).find(".parameterName").val(parameterName);
 						$(this).find(".optionSelect").val(option).trigger('change');
 						if (option === 'range') {

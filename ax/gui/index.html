@@ -124,9 +124,16 @@
 					var value;
 
 					if (option === "range") {
-						var minValue = $(this).find(".minValue").val();
-						var maxValue = $(this).find(".maxValue").val();
+						var minValue = parseFloat($(this).find(".minValue").val());
+						var maxValue = parseFloat($(this).find(".maxValue").val());
 						var numberType = $("#numberTypeSelect").val();
+
+						if (minValue >= maxValue) {
+							errors.push("Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.");
+						} else if (minValue === maxValue) {
+							warnings.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
+						}
+
 						value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
 					} else if (option === "choice") {
 						var choiceValues = $(this).find(".choiceValues").val();

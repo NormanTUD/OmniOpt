@@ -37,6 +37,14 @@
 					command += " --mem_gb=" + mem_gb;
 				}
 
+				var time = $("#time").val();
+
+				if(!time.match(/^\d+$/)) {
+					errors.push("Invalid time value. Must be a number.");
+				} else {
+					command += " --time=" + time;
+				}
+
 				var worker_timeout = $("#worker_timeout").val();
 
 				if(!worker_timeout.match(/^\d+$/)) {
@@ -284,6 +292,10 @@
 							<td colspan=2><input id="mem_gb" type="number" value="1" placeholder="Memory in GB per worker" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
 						</tr>
 						<tr>
+							<td>Timeout for the main program</td>
+							<td colspan=2><input id="time" type="number" value="60" placeholder="Timeout for the whole program (minutes)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
 							<td>Timeout for a single worker</td>
 							<td colspan=2><input id="worker_timeout" type="number" value="60" placeholder="Timeout for a single worker (minutes)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
 						</tr>
@@ -343,32 +355,12 @@
 
 A hyperparameter optimizer for the HPC-system of the TU Dresden
 
-Required arguments:
-  These options have to be set
-
-  --num_parallel_jobs NUM_PARALLEL_JOBS
-                        Number of parallel slurm jobs
-  --run_program RUN_PROGRAM [RUN_PROGRAM ...]
-                        A program that should be run. Use, for example, $x for the parameter named x.
-
-Required arguments that allow a choice:
-  Of these arguments, one has to be set to continue.
-
-  --parameter PARAMETER [PARAMETER ...]
-                        Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list
-                        of values>
-  --load_checkpoint LOAD_CHECKPOINT
-                        Path of a checkpoint to be loaded
-
 Optional:
   These options are optional
 
   --cpus_per_task CPUS_PER_TASK
                         CPUs per task
   --gpus GPUS           Number of GPUs
-  --maximize            Maximize instead of minimize (which is default)
-  --experiment_constraints EXPERIMENT_CONSTRAINTS [EXPERIMENT_CONSTRAINTS ...]
-                        Constraints for parameters. Example: x + y <= 2.0
   --stderr_to_stdout    Redirect stderr to stdout for subjobs
   --run_dir RUN_DIR     Directory, in which runs should be saved. Default: runs
 

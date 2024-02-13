@@ -163,7 +163,6 @@
 				var selectedOption = select.value;
 				var valueCell = select.parentNode.nextSibling;
 				var paramName = $(select).parent().parent().find(".parameterName").val();
-				log($(select).parent());
 
 
 				if (selectedOption === 'range') {
@@ -395,7 +394,6 @@
 					var option = urlParams.get("parameter_" + parameterIndex + "_type");
 
 					if (parameterName && option) {
-						      log("parameterName:", parameterName, "this:", this, "find .parameterName", $(this).find(".parameterName"))
 						$(this).find(".parameterName").val(parameterName);
 						$(this).find(".optionSelect").val(option).trigger('change');
 						if (option === 'range') {

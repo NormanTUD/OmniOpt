@@ -70,13 +70,13 @@
 						} else {
 							value = numValue.toString();
 							if (item.type == "number") {
-								command += " --" + item.id + "=" + value;										
+								command += " --" + item.id + " " + value;										
 							} else {
-								command += " --" + item.id + "='" + value + "'";
+								command += " --" + item.id + " '" + value + "'";
 							}
 						}
 					} else {
-						command += " --" + item.id + "='" + value + "'";
+						command += " --" + item.id + " '" + value + "'";
 					}
 				});
 

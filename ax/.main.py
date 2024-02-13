@@ -8,6 +8,7 @@ args = None
 result_csv_file = None
 shown_end_table = False
 
+import re
 import sys
 import argparse
 
@@ -118,7 +119,6 @@ try:
 
         import time
         import csv
-        import re
         import argparse
         from rich.pretty import pprint
         import subprocess
@@ -747,13 +747,17 @@ def print_overview_table (experiment_parameters):
         sys.exit(26)
 
 def check_equation (variables, equation):
-    import re
     if not (">=" in equation or "<=" in equation):
         return False
 
     comparer_in_middle = re.search("(^(<=|>=))|((<=|>=)$)", equation)
     if comparer_in_middle:
         return False
+
+    equation = equation.replace("\\*", "*")
+    equation = equation.replace(" * ", "*")
+    
+    #equation = equation.replace("", "")
 
     regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
     result_array = re.split(regex_pattern, equation)
@@ -811,11 +815,11 @@ def check_equation (variables, equation):
     order_check = re.match(regex_order, parsed_order_string)
 
     if order_check:
-        return True
+        return equation
     else:
         return False
 
-    return True
+    return equation
 
 def main ():
     global args
@@ -899,7 +903,11 @@ def main ():
                 
                 variables = [item['name'] for item in experiment_parameters]
 
-                if check_equation(variables, constraints_string):
+                equation = check_equation(variables, constraints_string)
+
+                print(equation)
+
+                if equation:
                     experiment_args["parameter_constraints"] = [constraints_string]
                 else:
                     print_color("red", "Experiment constraints are invalid.")

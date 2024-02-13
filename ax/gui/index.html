@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>OmniOpt2 GUI</title>
+		<style>
+			.color_red {
+				color: red;
+			}
+		</style>
+		<script
+			  src="https://code.jquery.com/jquery-3.7.1.js"
+			  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+			  crossorigin="anonymous"></script>
+		<script>
+			function update_command () {
+				var errors = [];
+				var command = "./main";
+
+				var experiment_name = $("#experiment_name").val();
+				
+				if(!experiment_name.match(/^\w+$/)) {
+					errors.push("Invalid experiment name. Must consist of letters only.");
+				} else {
+					command += " --experiment_name='" + experiment_name + "'";
+				}
+
+				var mem_gb = $("#mem_gb").val();
+
+				if(!mem_gb.match(/^\d+$/)) {
+					errors.push("Invalid mem_gb value. Must be a number.");
+				} else {
+					command += " --mem_gb=" + mem_gb;
+				}
+
+				var worker_timeout = $("#worker_timeout").val();
+
+				if(!worker_timeout.match(/^\d+$/)) {
+					errors.push("Invalid worker_timeout value. Must be a number.");
+				} else {
+					command += " --worker_timeout=" + worker_timeout;
+				}
+
+				var max_eval = $("#max_eval").val();
+
+				if(!max_eval.match(/^\d+$/)) {
+					errors.push("Invalid max_eval value. Must be a number.");
+				} else {
+					command += " --max_eval=" + max_eval;
+				}
+
+				var num_parallel_jobs = $("#num_parallel_jobs").val();
+
+				if(!num_parallel_jobs.match(/^\d+$/)) {
+					errors.push("Invalid num_parallel_jobs value. Must be a number.");
+				} else {
+					command += " --num_parallel_jobs=" + num_parallel_jobs;
+				}
+
+				var gpus = $("#gpus").val();
+
+				if(!gpus.match(/^\d+$/)) {
+					errors.push("Invalid gpus value. Must be a number.");
+				} else {
+					if(gpus >= 1) {
+						command += " --gpus=" + gpus;
+					}
+				}
+
+				var debug = $("#debug").is(":checked");
+
+				if(debug) {
+					command += " --debug";
+				}
+
+				var verbose = $("#verbose").is(":checked");
+
+				if(verbose) {
+					command += " --verbose";
+				}
+
+				var run_program = $("#run_program").val();
+				
+				if(!run_program.match(/\w+/)) {
+					errors.push("Invalid --run_program.");
+				} else {
+					command += " --run_program='" + run_program + "'";
+				}
+
+				if(errors.length) {
+					$("#command").html("<span class='color_red'>" + errors.join("<br>")  + "</span>");
+				} else {
+					$("#command").text(command);
+				}
+			}
+
+			function updateOptions(select) {
+				var selectedOption = select.value;
+				var valueCell = select.parentNode.nextSibling;
+				if (selectedOption === 'range') {
+					valueCell.innerHTML = `<table>
+					<tr>
+					    <td>
+						Min: <input type='number' class='valueInput'>
+					    </td>
+					</tr>
+					<tr>
+					    <td>
+						Max: <input type='number' class='valueInput'>
+					    </td>
+					</tr>
+				    </table>`;
+				} else if (selectedOption === 'choice') {
+					valueCell.innerHTML = "Values (comma separated): <input type='text' class='valueInput'>";
+				} else if (selectedOption === 'fixed') {
+					valueCell.innerHTML = "Value: <input type='text' class='valueInput'>";
+				}
+			}
+
+			function addRow(button) {                                 
+				// Funktion zum Hinzufügen einer neuen Zeile      
+				var table = document.getElementById("config_table");
+				var rowIndex = button.parentNode.parentNode.rowIndex; // Index der aktuellen Zeile
+				var newRow = table.insertRow(rowIndex + 1); // Neue Zeile nach der aktuellen einfügen
+
+				// Neue Zellen für die Zeile erstellen            
+				var optionCell = newRow.insertCell(0);            
+				var valueCell = newRow.insertCell(1);             
+				var buttonCell = newRow.insertCell(2);            
+
+				// Inhalt der Zellen setzen                       
+				optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
+				valueCell.innerHTML = ""; // Leerer Platz für die Optionen
+
+				buttonCell.innerHTML = "<button onclick='removeRow(this)'>-</button>"; // Minus-Button für die neue Zeile
+				button.parentNode.innerHTML = "<button onclick='addRow(this)'>+</button>"; // Plus-Button in der aktuellen Zeile entfernen
+
+				updateOptions(optionCell.firstChild); // Direkt die Optionen aktualisieren
+
+				// Klassen hinzufügen
+				newRow.classList.add('configRow');
+				optionCell.firstChild.classList.add('optionSelect');
+				valueCell.firstChild.classList.add('valueInput');
+
+				update_command(); // Befehl aktualisieren         
+			}
+
+			function removeRow(button) {
+				// Funktion zum Entfernen der aktuellen Zeile
+				var table = document.getElementById("config_table");
+				var rowIndex = button.parentNode.parentNode.rowIndex; // Index der aktuellen Zeile
+				var rowCount = table.rows.length;
+				if (rowCount > 2) { // Stellen Sie sicher, dass mindestens eine Zeile unentfernbar ist
+					table.deleteRow(rowIndex); // Aktuelle Zeile entfernen
+					updateButtons(); // Plus- und Minus-Buttons aktualisieren
+					update_command(); // Befehl aktualisieren
+				}
+			}
+
+			function updateButtons() {
+				// Funktion zum Aktualisieren der Plus- und Minus-Buttons in jeder Zeile
+				var table = document.getElementById("config_table");
+				var rows = table.rows;
+				for (var i = 1; i < rows.length - 1; i++) {
+					if (rows[i].cells.length >= 3) { // Überprüfen, ob die Zeile mindestens drei Zellen hat
+						rows[i].cells[2].innerHTML = "<button onclick='removeRow(this)'>-</button>"; // Minus-Button
+					}
+				}
+				rows[rows.length - 1].cells[2].innerHTML = "<button onclick='addRow(this)'>+</button>"; // Plus-Button
+			}
+		</script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td>
+					<table id="config_table" border=1>
+						<tr>
+							<th>Option</th>
+							<th colspan=2>Value</th>
+						</tr>
+						<tr>
+							<td>Experiment name</td>
+							<td colspan=2><input id="experiment_name" type="text" value="" placeholder="Name of your experiment (only letters)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Memory (in GB)</td>
+							<td colspan=2><input id="mem_gb" type="number" value="1" placeholder="Memory in GB per worker" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Timeout for a single worker</td>
+							<td colspan=2><input id="worker_timeout" type="number" value="60" placeholder="Timeout for a single worker (minutes)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Maximal number of evaluations</td>
+							<td colspan=2><input id="max_eval" type="number" value="500" placeholder="Maximum number of evaluations" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Number of maximum parallel evaluations</td>
+							<td colspan=2><input id="num_parallel_jobs" type="number" value="500" placeholder="Maximum number of parallel evaluations" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>GPUs</td>
+							<td colspan=2><input id="gpus" type="number" value="0" placeholder="Number of GPUs" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Verbose</td>
+							<td colspan=2><input id="verbose" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Debug</td>
+							<td colspan=2><input id="debug" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+						<tr>
+							<td>Run program</td>
+							<td colspan=2><input id="run_program" type="text" value="" placeholder="Your program with parameters" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
+						</tr>
+
+						<tr>
+							<td colspan=3>
+								<button id="first_row_button" onclick="addRow(this)">+</button>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td>
+					<code id="command"></code>
+				</td>
+			</tr>
+		</table>
+
+		<script>
+			$("#first_row_button").click();
+
+			update_command();
+		</script>
+<!--
+./main --parameter x range -100000 100000 int --parameter y range -100000 100000 int --parameter z range -100000 100000 float --parameter a choice a,b,c,d,e,f --run_program 'bash ~/test.sh $x $y $z $testadfsdfsdf_asd $hallowelt $HALLOWELT' --time=1 --experiment_name=choice_test --parameter hallowelt fixed 10 --parameter testadfsdfsdf_asd range -5 5 int --parameter ahallowelt range 0 1 --parameter xay fixed 5 --parameter 53dsf fixed sdf
+
+A hyperparameter optimizer for the HPC-system of the TU Dresden
+
+Required arguments:
+  These options have to be set
+
+  --num_parallel_jobs NUM_PARALLEL_JOBS
+                        Number of parallel slurm jobs
+  --run_program RUN_PROGRAM [RUN_PROGRAM ...]
+                        A program that should be run. Use, for example, $x for the parameter named x.
+
+Required arguments that allow a choice:
+  Of these arguments, one has to be set to continue.
+
+  --parameter PARAMETER [PARAMETER ...]
+                        Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list
+                        of values>
+  --load_checkpoint LOAD_CHECKPOINT
+                        Path of a checkpoint to be loaded
+
+Optional:
+  These options are optional
+
+  --cpus_per_task CPUS_PER_TASK
+                        CPUs per task
+  --gpus GPUS           Number of GPUs
+  --maximize            Maximize instead of minimize (which is default)
+  --experiment_constraints EXPERIMENT_CONSTRAINTS [EXPERIMENT_CONSTRAINTS ...]
+                        Constraints for parameters. Example: x + y <= 2.0
+  --stderr_to_stdout    Redirect stderr to stdout for subjobs
+  --run_dir RUN_DIR     Directory, in which runs should be saved. Default: runs
+
+Bash:
+  These options are for the main worker bash script, not the python script itself
+
+  --time TIME           Time for the main job
+  --follow              Automatically follow log file of sbatch
+-->
+	</body>
+</html>

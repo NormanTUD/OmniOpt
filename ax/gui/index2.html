@@ -58,6 +58,41 @@
 			}
 		});
 
+				var parameters = [];
+				$(".configRow").each(function() {
+					var option = $(this).find(".optionSelect").val();
+					var parameterName = $(this).find(".parameterName").val();
+					var value;
+
+					if (option === "range") {
+						var minValue = parseFloat($(this).find(".minValue").val());
+						var maxValue = parseFloat($(this).find(".maxValue").val());
+						var numberType = $("#numberTypeSelect").val();
+
+						if (minValue >= maxValue) {
+							errors.push("Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.");
+						} else if (minValue === maxValue) {
+							warnings.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
+						}
+
+						value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
+					} else if (option === "choice") {
+						var choiceValues = $(this).find(".choiceValues").val();
+						value = `${parameterName} choice ${choiceValues}`;
+					} else if (option === "fixed") {
+						var fixedValue = $(this).find(".fixedValue").val();
+						value = `${parameterName} fixed ${fixedValue}`;
+					}
+
+					if (parameterName && value) {
+						parameters.push(value);
+					}
+				});
+
+				if (parameters.length > 0) {
+					command += " --parameter " + parameters.join(" --parameter ");
+				}
+
 		if (errors.length) {
 			$("#command").html("<span class='color_red'>" + errors.join("<br>") + "</span>");
 		} else {

@@ -901,8 +901,9 @@ def main ():
 
 
             if args.experiment_constraints:
-                if check_experiment_constraints(parameters.keys(), " ".join(args.experiment_constraints)):
-                    experiment_args["parameter_constraints"] = [" ".join(args.experiment_constraints)]
+                constraints_string = " ".join(args.experiment_constraints)
+                if check_experiment_constraints(experiment_parameters.keys(), constraints_string):
+                    experiment_args["parameter_constraints"] = [constraints_string]
                 else:
                     print_color("red", "Experiment constraints are invalid.")
                     sys.exit(28)

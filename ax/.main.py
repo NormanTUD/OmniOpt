@@ -522,6 +522,8 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
     warnings.filterwarnings("ignore", category=UserWarning, module="botorch.optim.fit")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
 
 def show_end_table_and_save_end_files ():
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)

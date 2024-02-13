@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<title>OmniOpt2 GUI</title>
 		<style>
 			.color_red {
-				color: red;
+			color: red;
 			}
 
 			.color_orange {
@@ -21,148 +22,120 @@
 		</style>
 		<script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
 		<script>
-			function update_command () {
+			var initialized = false;
+
+			var l = console.log;
+			var log = console.log;
+
+			var tableData = [
+				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)" },
+				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker" },
+				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)" },
+				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)" },
+				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations" },
+				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations" },
+				{ label: "GPUs", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs" },
+				{ label: "Follow", id: "follow", type: "checkbox", value: 1 },
+				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
+				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
+				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
+				{ label: "Run program", id: "run_program", type: "text", value: "", placeholder: "Your program with parameters" }
+			];
+
+
+			function update_command() {
 				var errors = [];
 				var warnings = [];
 				var command = "./main";
 
-				var experiment_name = $("#experiment_name").val();
-
-				if(!experiment_name.match(/^\w+$/)) {
-					errors.push("Invalid experiment name. Must consist of letters only.");
-				} else {
-					command += " --experiment_name='" + experiment_name + "'";
-				}
-
-				var mem_gb = $("#mem_gb").val();
-
-				if(!mem_gb.match(/^\d+$/)) {
-					errors.push("Invalid mem_gb value. Must be a number.");
-				} else {
-					command += " --mem_gb=" + mem_gb;
-				}
-
-				var time = $("#time").val();
-
-				if(!time.match(/^\d+$/)) {
-					errors.push("Invalid time value. Must be a number.");
-				} else {
-					command += " --time=" + time;
-				}
-
-				var worker_timeout = $("#worker_timeout").val();
-
-				if(!worker_timeout.match(/^\d+$/)) {
-					errors.push("Invalid worker_timeout value. Must be a number.");
-				} else {
-					command += " --worker_timeout=" + worker_timeout;
-				}
-
-				var max_eval = $("#max_eval").val();
-
-				if(!max_eval.match(/^\d+$/)) {
-					errors.push("Invalid max_eval value. Must be a number.");
-				} else {
-					command += " --max_eval=" + max_eval;
-				}
-
-				var num_parallel_jobs = $("#num_parallel_jobs").val();
-
-				if(!num_parallel_jobs.match(/^\d+$/)) {
-					errors.push("Invalid num_parallel_jobs value. Must be a number.");
-				} else {
-					command += " --num_parallel_jobs=" + num_parallel_jobs;
-				}
-
-				var gpus = $("#gpus").val();
-
-				if(!gpus.match(/^\d+$/)) {
-					errors.push("Invalid gpus value. Must be a number.");
-				} else {
-					if(gpus >= 1) {
-						command += " --gpus=" + gpus;
+				tableData.forEach(function(item) {
+					var value = $("#" + item.id).val();
+					if (item.type === "checkbox") {
+						value = $("#" + item.id).is(":checked") ? "1" : "0";
+						if (value === "1") {
+							command += " --" + item.id;
+						}
+					} else if (item.type === "text" && value === "") {
+						errors.push("Field '" + item.label + "' is required.");
+					} else if (item.type === "number" && isNaN(value)) {
+						errors.push("Invalid value for '" + item.label + "'. Must be a number.");
+					} else {
+						command += " --" + item.id + "='" + value + "'";
 					}
-				}
-
-				var debug = $("#debug").is(":checked");
-
-				if(debug) {
-					command += " --debug";
-				}
-
-
-				var follow = $("#follow").is(":checked");
-
-				if(follow) {
-					command += " --follow";
-				}
-
-				var verbose = $("#verbose").is(":checked");
-
-				if(verbose) {
-					command += " --verbose";
-				}
-
-				var maximize = $("#maximize").is(":checked");
-
-				if(maximize) {
-					command += " --maximize";
-				}
-
-				var run_program = $("#run_program").val();
-
-				if(!run_program.match(/\w+/)) {
-					errors.push("Invalid --run_program.");
-				} else {
-					command += " --run_program='" + run_program + "'";
-				}
+				});
 
 				var parameters = [];
+
+				var i = 0;
+
+
 				$(".configRow").each(function() {
 					var option = $(this).find(".optionSelect").val();
 					var parameterName = $(this).find(".parameterName").val();
 					var value;
 
-					if (option === "range") {
-						var minValue = parseFloat($(this).find(".minValue").val());
-						var maxValue = parseFloat($(this).find(".maxValue").val());
-						var numberType = $("#numberTypeSelect").val();
+					if(parameterName) {
+						if (option === "range") {
+							var minValue = parseFloat($(this).find(".minValue").val());
+							var maxValue = parseFloat($(this).find(".maxValue").val());
+							var numberType = $("#numberTypeSelect").val();
 
-						if (minValue >= maxValue) {
-							errors.push("Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.");
-						} else if (minValue === maxValue) {
-							warnings.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
+							if (minValue >= maxValue) {
+								errors.push("Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.");
+							} else if (minValue === maxValue) {
+								warnings.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
+							}
+
+							var is_ok = true;
+
+							if(isNaN(minValue)) {
+								errors.push("minValue for parameter " + parameterName + " is not a number")
+								is_ok = false;
+							}
+
+							if(isNaN(maxValue)) {
+								errors.push("maxValue for parameter " + parameterName + " is not a number");
+								is_ok = false;
+							}
+
+							if(is_ok) {
+								value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
+							}
+						} else if (option === "choice") {
+							var choiceValues = $(this).find(".choiceValues").val();
+							value = `${parameterName} choice ${choiceValues}`;
+						} else if (option === "fixed") {
+							var fixedValue = $(this).find(".fixedValue").val();
+							value = `${parameterName} fixed ${fixedValue}`;
 						}
 
-						value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
-					} else if (option === "choice") {
-						var choiceValues = $(this).find(".choiceValues").val();
-						value = `${parameterName} choice ${choiceValues}`;
-					} else if (option === "fixed") {
-						var fixedValue = $(this).find(".fixedValue").val();
-						value = `${parameterName} fixed ${fixedValue}`;
+						if (parameterName && value) {
+							parameters.push(value);
+						}
+					} else {
+						warnings.push("Parameter nr. " + i + " has no name. Ignoring it.");
 					}
 
-					if (parameterName && value) {
-						parameters.push(value);
-					}
+					i++;
 				});
 
 				if (parameters.length > 0) {
 					command += " --parameter " + parameters.join(" --parameter ");
 				}
 
-				if(errors.length) {
-					$("#command").html("<span class='color_red'>" + errors.join("<br>")  + "</span>");
+				if (errors.length) {
+					$("#command").html("<span class='color_red'>" + errors.join("<br>") + "</span>");
 				} else {
 					$("#command").text(command);
 				}
 
-				if(warnings.length) {
-					$("#warnings").html("<span class='color_orange'>" + warnings.join("<br>")  + "</span>").show();
+				if (warnings.length) {
+					$("#warnings").html("<span class='color_orange'>" + warnings.join("<br>") + "</span>").show();
 				} else {
 					$("#warnings").html("").hide();
 				}
+
+				updateUrl(); // Update URL mit den aktuellen Parametern
 			}
 
 			function updateOptions(select) {
@@ -290,71 +263,136 @@
 				}
 				rows[rows.length - 1].cells[2].innerHTML = "<button onclick='addRow(this)'>+</button>"; // Plus-Button
 			}
+
+			// Funktion zum Erstellen der Tabelle basierend auf den Daten
+			function createTable() {
+				var table = $("#config_table");
+				var tbody = table.find("tbody");
+
+				tableData.forEach(function(item) {
+					var row = $("<tr>");
+					var labelCell = $("<td>").text(item.label);
+					var valueCell = $("<td>").attr("colspan", "2");
+
+					var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder });
+
+					if (item.type === "checkbox") {
+						input.prop("checked", item.value);
+					}
+
+					input.on({
+						change: update_command,
+						keyup: update_command,
+						click: update_command
+					});
+
+					valueCell.append(input);
+					row.append(labelCell, valueCell);
+					tbody.append(row);
+				});
+
+				// Plus-Button hinzufügen
+				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' id='add_row_button'>+</button></td></tr>");
+			}
+
+			// Funktion zum Aktualisieren des Befehls
+			function updateUrl() {
+				var params = [];
+				tableData.forEach(function(item) {
+					params.push(item.id + "=" + $("#" + item.id).val());
+				});
+
+				var parameterIndex = 0;
+				$(".configRow").each(function() {
+					var option = $(this).find(".optionSelect").val();
+					var parameterName = $(this).find(".parameterName").val();
+
+					if (parameterName) {
+						if (option === "range") {
+							var minValue = $(this).find(".minValue").val();
+							var maxValue = $(this).find(".maxValue").val();
+							var numberType = $(this).find(".numberTypeSelect").val();
+
+							params.push("parameter_" + parameterIndex + "_name=" + parameterName);
+							params.push("parameter_" + parameterIndex + "_type=" + option);
+							params.push("parameter_" + parameterIndex + "_min=" + minValue);
+							params.push("parameter_" + parameterIndex + "_max=" + maxValue);
+							params.push("parameter_" + parameterIndex + "_number_type=" + numberType);
+						} else if (option === "choice") {
+							var choiceValues = $(this).find(".choiceValues").val();
+
+							params.push("parameter_" + parameterIndex + "_name=" + parameterName);
+							params.push("parameter_" + parameterIndex + "_type=" + option);
+							params.push("parameter_" + parameterIndex + "_values=" + choiceValues);
+						} else if (option === "fixed") {
+							var fixedValue = $(this).find(".fixedValue").val();
+
+							params.push("parameter_" + parameterIndex + "_name=" + parameterName);
+							params.push("parameter_" + parameterIndex + "_type=" + option);
+							params.push("parameter_" + parameterIndex + "_value=" + fixedValue);
+						}
+					}
+					parameterIndex++;
+				});
+
+				if (initialized) {
+					var url = window.location.origin + window.location.pathname + "?" + params.join("&");
+					window.history.replaceState(null, null, url);
+				}
+			}
+
+
+			$(document).ready(function() {
+				createTable();
+
+				var urlParams = new URLSearchParams(window.location.search);
+				tableData.forEach(function(item) {
+					var paramValue = urlParams.get(item.id);
+					if (paramValue !== null) {
+						$("#" + item.id).val(paramValue).trigger('change');
+					}
+				});
+
+				var parameterIndex = 0;
+				$(".configRow").each(function(index) {
+					var parameterName = urlParams.get("parameter_" + parameterIndex + "_name");
+					var option = urlParams.get("parameter_" + parameterIndex + "_type");
+
+					if (parameterName && option) {
+						$(this).find(".parameterName").val(parameterName);
+						$(this).find(".optionSelect").val(option).trigger('change');
+						if (option === 'range') {
+							$(this).find(".minValue").val(urlParams.get("parameter_" + parameterIndex + "_min"));
+							$(this).find(".maxValue").val(urlParams.get("parameter_" + parameterIndex + "_max"));
+							$(this).find(".numberTypeSelect").val(urlParams.get("parameter_" + parameterIndex + "_number_type"));
+						} else if (option === 'choice') {
+							$(this).find(".choiceValues").val(urlParams.get("parameter_" + parameterIndex + "_values"));
+						} else if (option === 'fixed') {
+							$(this).find(".fixedValue").val(urlParams.get("parameter_" + parameterIndex + "_value"));
+						}
+					}
+					parameterIndex++;
+				});
+
+				$("#add_row_button").click();
+				update_command();
+
+				initialized = true;
+			});
 		</script>
 	</head>
 	<body>
 		<table>
 			<tr>
 				<td>
-					<table id="config_table" border=1>
-						<tr>
-							<th>Option</th>
-							<th colspan=2>Value</th>
-						</tr>
-						<tr>
-							<td>Experiment name</td>
-							<td colspan=2><input id="experiment_name" type="text" value="" placeholder="Name of your experiment (only letters)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Memory (in GB)</td>
-							<td colspan=2><input id="mem_gb" type="number" value="1" placeholder="Memory in GB per worker" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Timeout for the main program</td>
-							<td colspan=2><input id="time" type="number" value="60" placeholder="Timeout for the whole program (minutes)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Timeout for a single worker</td>
-							<td colspan=2><input id="worker_timeout" type="number" value="60" placeholder="Timeout for a single worker (minutes)" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Maximal number of evaluations</td>
-							<td colspan=2><input id="max_eval" type="number" value="500" placeholder="Maximum number of evaluations" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Number of maximum parallel evaluations</td>
-							<td colspan=2><input id="num_parallel_jobs" type="number" value="500" placeholder="Maximum number of parallel evaluations" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>GPUs</td>
-							<td colspan=2><input id="gpus" type="number" value="0" placeholder="Number of GPUs" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Follow</td>
-							<td colspan=2><input id="follow" checked type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Verbose</td>
-							<td colspan=2><input id="verbose" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Debug</td>
-							<td colspan=2><input id="debug" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Maximize?</td>
-							<td colspan=2><input id="maximize" type="checkbox" value="1" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-						<tr>
-							<td>Run program</td>
-							<td colspan=2><input id="run_program" type="text" value="" placeholder="Your program with parameters" style="width: 300px" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" /></td>
-						</tr>
-
-						<tr>
-							<td colspan=3>
-								<button id="first_row_button" onclick="addRow(this)">+</button>
-							</td>
-						</tr>
+					<table id="config_table" border="1">
+						<thead>
+							<tr>
+								<th>Option</th>
+								<th colspan="2">Value</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
 					</table>
 				</td>
 				<td>
@@ -363,11 +401,5 @@
 				</td>
 			</tr>
 		</table>
-
-		<script>
-			$("#first_row_button").click();
-
-			update_command();
-		</script>
 	</body>
 </html>

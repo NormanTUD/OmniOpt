@@ -20,7 +20,7 @@
 				background-color: #cfcfcf;
 			}
 		</style>
-		<script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
+		<script src="jquery-3.7.1.js" crossorigin="anonymous"></script>
 		<script>
 			var initialized = false;
 
@@ -328,7 +328,9 @@
 					var option = $(this).find(".optionSelect").val();
 					var parameterName = $(this).find(".parameterName").val();
 
-					if (parameterName) {
+					if(parameterName && !parameterName.match(/^\w+$/)) {
+						errors.push(`Parameter name "${parameterName}" does have invalid characters. Must be all letters.`)
+					} else if (parameterName) {
 						if (option === "range") {
 							var minValue = $(this).find(".minValue").val();
 							var maxValue = $(this).find(".maxValue").val();
@@ -352,6 +354,8 @@
 							params.push("parameter_" + parameterIndex + "_type=" + option);
 							params.push("parameter_" + parameterIndex + "_value=" + fixedValue);
 						}
+					} else {
+						errors.push(`Invalid parameter ${parameterIndex}`)
 					}
 					parameterIndex++;
 				});

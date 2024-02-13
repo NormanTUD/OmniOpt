@@ -795,8 +795,8 @@ def check_equation (variables, equation):
                 "value": item
             })
         else:
-            print("Unknown item: ", item)
-            sys.exit(10)
+            print_color("red", f"constraint error: Invalid item {item}")
+            return False
 
 
     parsed_order_string = ";".join(parsed_order)
@@ -816,12 +816,6 @@ def check_equation (variables, equation):
         return False
 
     return True
-
-def check_experiment_constraints(variables, constraints):
-    if check_equation(variables, constraints):
-        return True
-    
-    return False
 
 def main ():
     global args
@@ -905,7 +899,7 @@ def main ():
                 
                 variables = [item['name'] for item in experiment_parameters]
 
-                if check_experiment_constraints(variables, constraints_string):
+                if check_equation(variables, constraints_string):
                     experiment_args["parameter_constraints"] = [constraints_string]
                 else:
                     print_color("red", "Experiment constraints are invalid.")

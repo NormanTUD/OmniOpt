@@ -359,7 +359,7 @@
 				});
 
 				if (initialized) {
-					var url = window.location.origin + window.location.pathname + "?" + params.join("&");
+					var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".configRow").length;
 					window.history.replaceState(null, null, url);
 				}
 			}

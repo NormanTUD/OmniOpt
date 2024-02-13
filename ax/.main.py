@@ -919,7 +919,11 @@ def main ():
                     print_color("red", "Experiment constraints are invalid.")
                     sys.exit(28)
 
-            experiment = ax_client.create_experiment(**experiment_args)
+            try:
+                experiment = ax_client.create_experiment(**experiment_args)
+            except ValueError as error:
+                print_color("red", f"An error has occured: {error}")
+                sys.exit(29)
 
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)

@@ -901,8 +901,11 @@ def main ():
 
 
             if args.experiment_constraints:
-                constraints_string = " ".join(args.experiment_constraints)
-                if check_experiment_constraints(experiment_parameters.keys(), constraints_string):
+                constraints_string = " ".join(args.experiment_constraints[0])
+                
+                variables = [item['name'] for item in experiment_parameters]
+
+                if check_experiment_constraints(variables, constraints_string):
                     experiment_args["parameter_constraints"] = [constraints_string]
                 else:
                     print_color("red", "Experiment constraints are invalid.")

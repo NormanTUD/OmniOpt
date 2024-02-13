@@ -819,7 +819,7 @@ def main ():
                 "choose_generation_strategy_kwargs": {
                     "num_trials": args.max_eval,
                     "max_parallelism_override": args.num_parallel_jobs,
-                    },
+                },
             }
 
             if args.experiment_constraints:

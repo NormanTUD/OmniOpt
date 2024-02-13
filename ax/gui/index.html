@@ -7,6 +7,10 @@
 				color: red;
 			}
 
+			.color_orange {
+				color: orange;
+			}
+
 			#config_table > tbody > tr:nth-child(odd) {
 				background-color: #ffffff;
 			}
@@ -19,6 +23,7 @@
 		<script>
 			function update_command () {
 				var errors = [];
+				var warnings = [];
 				var command = "./main";
 
 				var experiment_name = $("#experiment_name").val();
@@ -144,6 +149,12 @@
 					$("#command").html("<span class='color_red'>" + errors.join("<br>")  + "</span>");
 				} else {
 					$("#command").text(command);
+				}
+
+				if(warnings.length) {
+					$("#warnings").html("<span class='color_orange'>" + warnings.join("<br>")  + "</span>").show();
+				} else {
+					$("#warnings").html("").hide();
 				}
 			}
 
@@ -341,6 +352,7 @@
 				</td>
 				<td>
 					<code id="command"></code>
+					<div id="warnings" style="display: none"></div>
 				</td>
 			</tr>
 		</table>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<title>OmniOpt2 GUI</title>
 		<style>
 			.color_red {
@@ -21,6 +22,11 @@
 		</style>
 		<script src="https://code.jquery.com/jquery-3.7.1.js" crossorigin="anonymous"></script>
 		<script>
+			var initialized = false;
+
+			var l = console.log;
+			var log = console.log;
+
 			var tableData = [
 				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)" },
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker" },
@@ -324,15 +330,20 @@
 					}
 				});
 
-				var url = window.location.origin + window.location.pathname + "?" + params.join("&");
-				window.history.replaceState(null, null, url);
+				if(initialized) {
+					var url = window.location.origin + window.location.pathname + "?" + params.join("&");
+					window.history.replaceState(null, null, url);
+				}
 			}
 
 			$(document).ready(function() {
+				createTable();
+
 				var urlParams = new URLSearchParams(window.location.search);
 				tableData.forEach(function(item) {
 					var paramValue = urlParams.get(item.id);
 					if (paramValue !== null) {
+						log("#" + item.id + " = " + paramValue);
 						$("#" + item.id).val(paramValue).trigger('change');
 					}
 				});
@@ -352,9 +363,10 @@
 					}
 				});
 
-				createTable();
 				$("#add_row_button").click();
 				update_command();
+
+				initialized = true;
 			});
 		</script>
 	</head>

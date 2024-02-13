@@ -249,7 +249,7 @@
 				valueCell.innerHTML = ""; // Leerer Platz für die Optionen
 
 				buttonCell.innerHTML = "<button onclick='removeRow(this)'>-</button>"; // Minus-Button für die neue Zeile
-				button.parentNode.innerHTML = "<button onclick='addRow(this)'>+</button>"; // Plus-Button in der aktuellen Zeile entfernen
+				button.parentNode.innerHTML = "<button id='main_add_row_button' onclick='addRow(this)'>+</button>"; // Plus-Button in der aktuellen Zeile entfernen
 
 				updateOptions(optionCell.firstChild); // Direkt die Optionen aktualisieren
 
@@ -282,7 +282,7 @@
 						rows[i].cells[2].innerHTML = "<button onclick='removeRow(this)'>-</button>"; // Minus-Button
 					}
 				}
-				rows[rows.length - 1].cells[2].innerHTML = "<button onclick='addRow(this)'>+</button>"; // Plus-Button
+				rows[rows.length - 1].cells[2].innerHTML = "<button id='add_row_button' onclick='addRow(this)'>+</button>"; // Plus-Button
 			}
 
 			// Funktion zum Erstellen der Tabelle basierend auf den Daten
@@ -313,7 +313,7 @@
 				});
 
 				// Plus-Button hinzufügen
-				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' id='add_row_button'>+</button></td></tr>");
+				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' id='main_add_row_button'>+</button></td></tr>");
 			}
 
 			// Funktion zum Aktualisieren des Befehls
@@ -379,10 +379,11 @@
 				var num_parameters = urlParams.get("num_parameters");
 				if (num_parameters) {
 					for (var k = 0; k < num_parameters; k++) {
-						$("#add_row_button").click();
+						log("k: " + k)
+						$("#main_add_row_button").click();
 					}
 				} else {
-					$("#add_row_button").click();
+					$("#main_add_row_button").click();
 				}
 
 				var parameterIndex = 0;

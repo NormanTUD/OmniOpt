@@ -746,6 +746,78 @@ def print_overview_table (experiment_parameters):
         print_color("red", f"No parameters defined")
         sys.exit(26)
 
+def check_equation (variables, equation):
+    import re
+    if not (">=" in equation or "<=" in equation):
+        return False
+
+    comparer_in_middle = re.search("(^(<=|>=))|((<=|>=)$)", equation)
+    if comparer_in_middle:
+        return False
+
+    regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
+    result_array = re.split(regex_pattern, equation)
+    result_array = [item for item in result_array if item.strip()]
+
+    parsed = []
+    parsed_order = []
+
+    comparer_found = False
+
+    for item in result_array:
+        if item in ["+", "*", "-", "/"]:
+            parsed_order.append("operator")
+            parsed.append({
+                "type": "operator",
+                "value": item
+            })
+        elif item in [">=", "<="]:
+            if comparer_found:
+                print("There is already one comparision operator! Cannot have more than one in an equation!")
+                return False
+            comparer_found = True
+
+            parsed_order.append("comparer")
+            parsed.append({
+                "type": "comparer",
+                "value": item
+            })
+        elif re.match(r'^\d+$', item):
+            parsed_order.append("number")
+            parsed.append({
+                "type": "number",
+                "value": item
+            })
+        elif item in variables:
+            parsed_order.append("variable")
+            parsed.append({
+                "type": "variable",
+                "value": item
+            })
+        else:
+            print("Unknown item: ", item)
+            sys.exit(10)
+
+
+    parsed_order_string = ";".join(parsed_order)
+
+    number_or_variable = "(?:(?:number|variable);*)"
+    number_or_variable_and_operator = f"(?:{number_or_variable};operator;*)"
+    comparer = "(?:comparer;)"
+    equation_part = f"{number_or_variable_and_operator}*{number_or_variable}"
+
+    regex_order = f"^{equation_part}{comparer}{equation_part}$"
+
+    order_check = re.match(regex_order, parsed_order_string)
+
+    if order_check:
+        return True
+    else:
+        return False
+
+    return True
+
+
 def main ():
     global args
     global file_number

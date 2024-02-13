@@ -817,6 +817,11 @@ def check_equation (variables, equation):
 
     return True
 
+def check_experiment_constraints(variables, constraints):
+    if check_equation(variables, constraints):
+        return True
+    
+    return False
 
 def main ():
     global args
@@ -894,8 +899,13 @@ def main ():
                 },
             }
 
+
             if args.experiment_constraints:
-                experiment_args["parameter_constraints"] = [args.experiment_constraints]
+                if check_experiment_constraints(parameters.keys(), args.experiment_constraints):
+                    experiment_args["parameter_constraints"] = [args.experiment_constraints]
+                else:
+                    print_color("red", "Experiment constraints are invalid.")
+                    sys.exit(28)
 
             experiment = ax_client.create_experiment(**experiment_args)
 

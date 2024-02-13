@@ -128,6 +128,8 @@
 				} else {
 					$("#warnings").html("").hide();
 				}
+
+				updateUrl(); // Update URL mit den aktuellen Parametern
 			}
 
 			function updateOptions(select) {
@@ -288,8 +290,68 @@
 			}
 
 			// Funktion zum Aktualisieren des Befehls
+			function updateUrl() {
+				var params = [];
+				tableData.forEach(function(item) {
+					params.push(item.id + "=" + $("#" + item.id).val());
+				});
+				$(".configRow").each(function(index) {
+					var option = $(this).find(".optionSelect").val();
+					var parameterName = $(this).find(".parameterName").val();
+					var value;
+
+					if(parameterName) {
+						if (option === "range") {
+							var minValue = $(this).find(".minValue").val();
+							var maxValue = $(this).find(".maxValue").val();
+							var numberType = $("#numberTypeSelect").val();
+
+							params.push(parameterName + "=" + option);
+							params.push(parameterName + "_min=" + minValue);
+							params.push(parameterName + "_max=" + maxValue);
+							params.push(parameterName + "_type=" + numberType);
+						} else if (option === "choice") {
+							var choiceValues = $(this).find(".choiceValues").val();
+
+							params.push(parameterName + "=" + option);
+							params.push(parameterName + "_values=" + choiceValues);
+						} else if (option === "fixed") {
+							var fixedValue = $(this).find(".fixedValue").val();
+
+							params.push(parameterName + "=" + option);
+							params.push(parameterName + "_value=" + fixedValue);
+						}
+					}
+				});
+
+				var url = window.location.origin + window.location.pathname + "?" + params.join("&");
+				window.history.replaceState(null, null, url);
+			}
 
 			$(document).ready(function() {
+				var urlParams = new URLSearchParams(window.location.search);
+				tableData.forEach(function(item) {
+					var paramValue = urlParams.get(item.id);
+					if (paramValue !== null) {
+						$("#" + item.id).val(paramValue).trigger('change');
+					}
+				});
+				$(".configRow").each(function(index) {
+					var option = urlParams.get($(this).find(".parameterName").val());
+					if (option !== null) {
+						$(this).find(".optionSelect").val(option).trigger('change');
+						if (option === 'range') {
+							$(this).find(".minValue").val(urlParams.get($(this).find(".parameterName").val() + "_min"));
+							$(this).find(".maxValue").val(urlParams.get($(this).find(".parameterName").val() + "_max"));
+							$("#numberTypeSelect").val(urlParams.get($(this).find(".parameterName").val() + "_type"));
+						} else if (option === 'choice') {
+							$(this).find(".choiceValues").val(urlParams.get($(this).find(".parameterName").val() + "_values"));
+						} else if (option === 'fixed') {
+							$(this).find(".fixedValue").val(urlParams.get($(this).find(".parameterName").val() + "_value"));
+						}
+					}
+				});
+
 				createTable();
 				$("#add_row_button").click();
 				update_command();

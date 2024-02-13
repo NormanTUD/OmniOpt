@@ -42,7 +42,7 @@ required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint
 optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-optional.add_argument('--experiment_constraints', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 
@@ -901,8 +901,8 @@ def main ():
 
 
             if args.experiment_constraints:
-                if check_experiment_constraints(parameters.keys(), args.experiment_constraints):
-                    experiment_args["parameter_constraints"] = [args.experiment_constraints]
+                if check_experiment_constraints(parameters.keys(), " ".join(args.experiment_constraints)):
+                    experiment_args["parameter_constraints"] = [" ".join(args.experiment_constraints)]
                 else:
                     print_color("red", "Experiment constraints are invalid.")
                     sys.exit(28)

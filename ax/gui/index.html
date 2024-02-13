@@ -67,14 +67,16 @@
 				var parameters = [];
 
 				var i = 0;
-
+				var parameter_names = [];
 
 				$(".configRow").each(function() {
 					var option = $(this).find(".optionSelect").val();
-					var parameterName = $(this).find(".parameterName").val();
+					var parameterName = $(this).find(".parameterName").val().trim();
 					var value;
 
-					if(parameterName) {
+					if(parameter_names.includes(parameterName)) {
+						errors.push(`Parameter name "${parameterName}" already exists. Can only be defined once!`)	
+					} else if(parameterName) {
 						if (option === "range") {
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
@@ -111,6 +113,7 @@
 
 						if (parameterName && value) {
 							parameters.push(value);
+							parameter_names.push(parameterName);
 						}
 					} else {
 						warnings.push("Parameter nr. " + i + " has no name. Ignoring it.");

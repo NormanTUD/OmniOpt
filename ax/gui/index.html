@@ -124,12 +124,12 @@
 					var partitionInfo = partition_data[partition];
 
 					if (partitionInfo) {
-						$("#mem_gb").val(Math.floor(partitionInfo.max_mem_per_core / 1000));
-						$("#time").val(partitionInfo.computation_time);
-						$("#worker_timeout").val(partitionInfo.computation_time);
-						$("#max_eval").val(partitionInfo.number_of_workers);
-						$("#num_parallel_jobs").val(partitionInfo.number_of_workers);
-						$("#gpus").val(partitionInfo.max_number_of_gpus);
+						$("#mem_gb").attr("max", Math.floor(partitionInfo.max_mem_per_core / 1000));
+						$("#time").attr("max", partitionInfo.computation_time);
+						$("#worker_timeout").attr("max", partitionInfo.computation_time);
+						$("#max_eval").attr("max", partitionInfo.number_of_workers);
+						$("#num_parallel_jobs").attr("max", partitionInfo.number_of_workers);
+						$("#gpus").attr("max", partitionInfo.max_number_of_gpus);
 					}
 				});
 			}

@@ -96,13 +96,16 @@
 				var i = 0;
 				var parameter_names = [];
 
-				$(".configRow").each(function() {
+				$(".parameterRow").each(function() {
 					var option = $(this).find(".optionSelect").val();
 					var parameterName = $(this).find(".parameterName").val().trim();
-					var value;
+					var _value;
 
 					if(parameter_names.includes(parameterName)) {
-						errors.push(`Parameter name "${parameterName}" already exists. Can only be defined once!`)	
+						var err_msg = `Parameter name "${parameterName}" already exists. Can only be defined once!`;
+						errors.push(err_msg)
+
+						$($(".parameterRow")[i]).css("background-color", "red")
 					} else if(parameterName) {
 						if (option === "range") {
 							var minValue = parseFloat($(this).find(".minValue").val()).toLocaleString('fullwide', {useGrouping:false});
@@ -128,22 +131,27 @@
 							}
 
 							if(is_ok) {
-								value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
+								_value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
 							}
 						} else if (option === "choice") {
 							var choiceValues = $(this).find(".choiceValues").val();
-							value = `${parameterName} choice ${choiceValues}`;
+							_value = `${parameterName} choice ${choiceValues}`;
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();
-							value = `${parameterName} fixed ${fixedValue}`;
+							_value = `${parameterName} fixed ${fixedValue}`;
 						}
 
-						if (parameterName && value) {
-							parameters.push(value);
+						if (parameterName && _value) {
+							parameters.push(_value);
 							parameter_names.push(parameterName);
+
+							$($(".parameterRow")[i]).css("background-color", "")
 						}
 					} else {
-						warnings.push("Parameter nr. " + i + " has no name. Ignoring it.");
+						var warn_msg = "Parameter nr. " + i + " has no name. Ignoring it."
+						warnings.push(warn_msg);
+
+						$($(".parameterRow")[i]).css("background-color", "orange")
 					}
 
 					i++;
@@ -272,7 +280,7 @@
 				updateOptions(optionCell.firstChild); // Direkt die Optionen aktualisieren
 
 				// Klassen hinzufügen
-				newRow.classList.add('configRow');
+				newRow.classList.add('parameterRow');
 				optionCell.firstChild.classList.add('optionSelect');
 				valueCell.firstChild.classList.add('valueInput');
 
@@ -329,7 +337,7 @@
 				});
 
 				var parameterIndex = 0;
-				$(".configRow").each(function() {
+				$(".parameterRow").each(function() {
 					var option = $(this).find(".optionSelect").val();
 					var parameterName = $(this).find(".parameterName").val();
 
@@ -364,7 +372,7 @@
 				});
 
 				if (initialized) {
-					var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".configRow").length;
+					var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".parameterRow").length;
 					try {
 						window.history.replaceState(null, null, url);
 					} catch (err) {
@@ -402,7 +410,7 @@
 				}
 
 				var parameterIndex = 0;
-				$(".configRow").each(function(index) {
+				$(".parameterRow").each(function(index) {
 					var parameterName = urlParams.get("parameter_" + parameterIndex + "_name");
 					var option = urlParams.get("parameter_" + parameterIndex + "_type");
 

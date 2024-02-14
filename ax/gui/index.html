@@ -28,7 +28,7 @@
 				border-radius: 10px;
 				text-align: center;
 			}
-			
+
 			.add_parameter {
 				background-color: #90ee90;
 			}
@@ -92,7 +92,7 @@
 						} else {
 							value = numValue.toString();
 							if (item.type == "number") {
-								command += " --" + item.id + " " + value;										
+								command += " --" + item.id + " " + value;
 							} else {
 								command += " --" + item.id + " '" + value + "'";
 							}
@@ -444,7 +444,7 @@
 					}
 					parameterIndex++;
 				});
-	
+
 				update_command();
 
 				initialized = true;

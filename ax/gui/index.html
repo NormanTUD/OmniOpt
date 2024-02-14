@@ -164,6 +164,10 @@
 				var valueCell = select.parentNode.nextSibling;
 				var paramName = $(select).parent().parent().find(".parameterName").val();
 
+				if(paramName === undefined) {
+					paramName = "";
+				}
+
 
 				if (selectedOption === 'range') {
 					valueCell.innerHTML = `<table>

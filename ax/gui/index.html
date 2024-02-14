@@ -417,9 +417,21 @@
 				}
 
 				if (!errors.length) {
-					$("#command_element").text(command).show();
+					$("#command_element").text(command).show().parent().show();
+
+					var base_url = location.protocol + '//' + location.host + "/" + location.pathname;
+
+					base_url = base_url.replaceAll(/\/+/g, "/");
+
+					base_url = base_url.replace(/^http:\//, "http://")
+					base_url = base_url.replace(/^https:\//, "https://")
+
+					var curl_command = `curl ${base_url}`;
+
+					$("#curl_command").text(curl_command).show().parent().show();
 				} else {
-					$("#command_element").text("").hide();
+					$("#command_element").text("").hide().parent().hide();
+					$("#curl_command").text("").hide().parent().hide();
 				}
 
 				updateUrl();
@@ -692,7 +704,12 @@
 					</table>
 				</td>
 				<td class='half_width_td'>
-					<code id="command_element"></code>
+					<div id="commands">
+						<code id="command_element"></code>
+						<br>
+						<br>
+						<code id="curl_command"></code>
+					</div>
 					<div id="warnings" style="display: none"></div>
 				</td>
 			</tr>

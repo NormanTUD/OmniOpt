@@ -519,6 +519,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge")
     warnings.filterwarnings("ignore", category=Warning, module="ax")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.best_point")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")

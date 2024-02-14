@@ -320,6 +320,7 @@ def replace_parameters_in_string(parameters, input_string):
     try:
         for param_item in parameters:
             input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
+            input_string = input_string.replace(f"$({param_item})", str(parameters[param_item]))
 
         return input_string
     except Exception as e:

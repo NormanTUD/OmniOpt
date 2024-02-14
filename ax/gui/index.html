@@ -376,6 +376,8 @@
 						if(err.includes("The operation is insecure") && !shown_operation_insecure_without_server) {
 							log(err);
 							shown_operation_insecure_without_server = true;
+						} else if (!err.includes("The operation is insecure")) {
+							console.error(err);
 						}
 					}
 				}

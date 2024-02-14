@@ -268,7 +268,7 @@
 							var test_this_var_name = variables_in_run_program[k];
 
 							if(!existing_parameter_names.includes(test_this_var_name)) {
-								var err_msg = `${test_this_var_name} not in existing defined parameters.`;
+								var err_msg = `<code>$(${test_this_var_name})</code> not in existing defined parameters.`;
 								new_errors.push(err_msg)
 							}
 						}
@@ -277,7 +277,7 @@
 							var test_this_var_name = existing_parameter_names[k];
 
 							if(!variables_in_run_program.includes(test_this_var_name)) {
-								var err_msg = `${test_this_var_name} is defined but not used.`;
+								var err_msg = `<code>$(${test_this_var_name})</code> is defined but not used.`;
 								new_errors.push(err_msg)
 							}
 						}
@@ -290,7 +290,6 @@
 						}
 
 						command += " --" + item.id + " '" + value + "'";
-						$("#" + item.id + "_error").html("").hide();
 						$("#" + item.id).css("background-color", "");
 					} else {
 						command += " --" + item.id + " '" + value + "'";

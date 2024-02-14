@@ -173,7 +173,33 @@
 				});
 			}
 
+			function set_min_max () {
+				// Gehe alle Input-Felder auf der Seite durch
+				document.querySelectorAll('input').forEach(input => {
+					// Überprüfe, ob das Input-Feld Mindest- oder Höchstwert hat
+					if (input.hasAttribute('min') || input.hasAttribute('max')) {
+						// Hole die Mindest- und Höchstwerte (falls vorhanden)
+						const min = input.hasAttribute('min') ? parseFloat(input.getAttribute('min')) : null;
+						const max = input.hasAttribute('max') ? parseFloat(input.getAttribute('max')) : null;
+
+						// Überprüfe den aktuellen Wert des Input-Feldes
+						let value = parseFloat(input.value);
+
+						// Wenn ein Mindestwert vorhanden ist und der aktuelle Wert kleiner ist, setze ihn auf den Mindestwert
+						if (min !== null && (isNaN(value) || value < min)) {
+							input.value = min;
+						}
+						// Wenn ein Höchstwert vorhanden ist und der aktuelle Wert größer ist, setze ihn auf den Höchstwert
+						else if (max !== null && value > max) {
+							input.value = max;
+						}
+					}
+				});
+			}
+
 			function update_command() {
+				set_min_max();
+
 				var errors = [];
 				var warnings = [];
 				var command = "./main";

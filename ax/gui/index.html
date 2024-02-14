@@ -259,7 +259,7 @@
 						warn_msg += err_msg;
 
 						$($(".parameterRow")[i]).css("background-color", "red")
-					} else if(parameterName) {
+					} else if(parameterName.match(/^\w+$/)) {
 						if (option === "range") {
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
@@ -305,6 +305,10 @@
 
 							$($(".parameterRow")[i]).css("background-color", "orange")
 						}
+					} else if(parameterName && !parameterName.match(/^\w+$/)) {
+						warn_msg += "Name contains invalid characters. Must be all-letters.<br>"
+
+						$($(".parameterRow")[i]).css("background-color", "orange")
 					} else {
 						warn_msg += "Name is missing.<br>"
 

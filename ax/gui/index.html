@@ -29,6 +29,10 @@
 				text-align: center;
 			}
 
+			input {
+				width: 100%;
+			}
+
 			.add_parameter {
 				background-color: #90ee90;
 			}
@@ -187,8 +191,8 @@
 			function set_min_max () {
 				document.querySelectorAll('input').forEach(input => {
 					if (input.hasAttribute('min') || input.hasAttribute('max')) {
-						const min = input.hasAttribute('min') ? parseFloat(input.getAttribute('min')) : null;
-						const max = input.hasAttribute('max') ? parseFloat(input.getAttribute('max')) : null;
+						var min = input.hasAttribute('min') ? parseFloat(input.getAttribute('min')) : null;
+						var max = input.hasAttribute('max') ? parseFloat(input.getAttribute('max')) : null;
 
 						let value = parseFloat(input.value);
 
@@ -199,6 +203,21 @@
 						}
 					}
 				});
+			}
+			
+			function get_var_names_from_run_program (run_program_string) {
+				var pattern = /\$?\([a-zA-Z_]+\)|\$[a-zA-Z_]+/g;
+				var variableNames = [];
+
+				let match;
+				while ((match = pattern.exec(run_program_string)) !== null) {
+					let varName = match[0];
+					varName = varName.replace(/^\$/, '');
+					varName = varName.replace(/^\$?\(|\)$/g, '');
+					variableNames.push(varName);
+				}
+
+				return variableNames;
 			}
 
 			function update_command() {
@@ -239,6 +258,41 @@
 								command += " --" + item.id + " '" + value + "'";
 							}
 						}
+					} else if (item.id == "run_program") {
+						var variables_in_run_program = get_var_names_from_run_program(value);
+						var existing_parameter_names = $(".parameterName").map(function() { return $(this).val(); }).get();
+
+						var new_errors = [];
+
+						for (var k = 0; k < variables_in_run_program.length; k++) {
+							var test_this_var_name = variables_in_run_program[k];
+
+							if(!existing_parameter_names.includes(test_this_var_name)) {
+								var err_msg = `${test_this_var_name} not in existing defined parameters.`;
+								new_errors.push(err_msg)
+							}
+						}
+
+						for (var k = 0; k < existing_parameter_names.length; k++) {
+							var test_this_var_name = existing_parameter_names[k];
+
+							if(!variables_in_run_program.includes(test_this_var_name)) {
+								var err_msg = `${test_this_var_name} is defined but not used.`;
+								new_errors.push(err_msg)
+							}
+						}
+
+						if(new_errors.length) {
+							var err_msg = new_errors.join("<br>");
+							$("#run_program_error").html(err_msg).show();
+						} else {
+							log("HIDING ERRORS");
+							$("#run_program_error").html("").hide();
+						}
+
+						command += " --" + item.id + " '" + value + "'";
+						$("#" + item.id + "_error").html("").hide();
+						$("#" + item.id).css("background-color", "");
 					} else {
 						command += " --" + item.id + " '" + value + "'";
 						$("#" + item.id + "_error").html("").hide();

@@ -50,6 +50,7 @@
 			var log = console.log;
 
 			var tableData = [
+				{ label: "Partition", id: "partition", type: "select", value: "", options: [] },
 				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)" },
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 0 },
 				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1 },
@@ -64,6 +65,74 @@
 				{ label: "Run program", id: "run_program", type: "text", value: "", placeholder: "Your program with parameters" }
 			];
 
+			var partition_data = {
+				"ml": {
+					"number_of_workers": 180,
+					"computation_time": 168,
+					"max_number_of_gpus": 6,
+					"max_mem_per_core": 63500,
+					"mem_per_cpu": 63500,
+					"name": "ml (Machine Learning, ppc64le)",
+					"warning": "It is not recommended to use the /scratch or /lustre-filesystem on the ML partition",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#ibm-power9-nodes-for-machine-learning"
+				},
+				"alpha": {
+					"number_of_workers": 160,
+					"computation_time": 168,
+					"max_number_of_gpus": 8,
+					"max_mem_per_core": 49500,
+					"mem_per_cpu": 49500,
+					"name": "alpha (Alpha Centauri, amd64)",
+					"warning": "",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/alpha_centauri/"
+				},
+				"barnard": {
+					"number_of_workers": 10,
+					"computation_time": 10,
+					"max_number_of_gpus": 0,
+					"max_mem_per_core": 10000,
+					"mem_per_cpu": 1000,
+					"name": "Barnard",
+					"warning": "",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
+				},
+				"romeo": {
+					"number_of_workers": 192,
+					"computation_time": 168,
+					"max_number_of_gpus": 0,
+					"max_mem_per_core": 10000,
+					"mem_per_cpu": 256000,
+					"name": "Romeo",
+					"warning": "",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#romeo"
+				}
+			};
+
+
+			function updatePartitionOptions() {
+				var partitionSelect = $("#partition");
+				partitionSelect.empty();
+
+				$.each(partition_data, function(key, value) {
+					partitionSelect.append($("<option></option>")
+						.attr("value", key)
+						.text(value.name));
+				});
+
+				partitionSelect.on("change", function() {
+					var partition = $(this).val();
+					var partitionInfo = partition_data[partition];
+
+					if (partitionInfo) {
+						$("#mem_gb").val(Math.floor(partitionInfo.max_mem_per_core / 1000));
+						$("#time").val(partitionInfo.computation_time);
+						$("#worker_timeout").val(partitionInfo.computation_time);
+						$("#max_eval").val(partitionInfo.number_of_workers);
+						$("#num_parallel_jobs").val(partitionInfo.number_of_workers);
+						$("#gpus").val(partitionInfo.max_number_of_gpus);
+					}
+				});
+			}
 
 			function update_command() {
 				var errors = [];
@@ -302,23 +371,38 @@
 					var labelCell = $("<td>").text(item.label);
 					var valueCell = $("<td>").attr("colspan", "2");
 
-					var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
+					if (item.type === "select") {
+						var select = $("<select>").attr("id", item.id);
+						$.each(item.options, function(index, option) {
+							select.append($("<option></option>")
+								.attr("value", option.value)
+								.text(option.text));
+						});
+						valueCell.append(select);
+					} else {
+						var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 
-					if (item.type === "checkbox") {
-						input.prop("checked", item.value);
+						if (item.type === "checkbox") {
+							input.prop("checked", item.value);
+						}
+
+						input.on({
+							change: update_command,
+							keyup: update_command,
+							click: update_command
+						});
+
+						valueCell.append(input);
 					}
 
-					input.on({
-						change: update_command,
-						keyup: update_command,
-						click: update_command
-					});
+					if (item.id !== "partition") {
+						valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
+					}
 
-					valueCell.append(input);
-					valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
 					row.append(labelCell, valueCell);
 					tbody.append(row);
 				});
+
 				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td></tr>");
 			}
 
@@ -383,6 +467,7 @@
 
 			$(document).ready(function() {
 				createTable();
+				updatePartitionOptions();
 
 				var urlParams = new URLSearchParams(window.location.search);
 				tableData.forEach(function(item) {

@@ -193,9 +193,7 @@
 					$("#warnings").html("").hide();
 				}
 
-				updateUrl
-
-(); // Update URL mit den aktuellen Parametern
+				updateUrl();
 			}
 
 			function updateOptions(select) {
@@ -280,44 +278,38 @@
 			}
 
 			function addRow(button) {
-				// Funktion zum Hinzufügen einer neuen Zeile
 				var table = document.getElementById("config_table");
-				var rowIndex = button.parentNode.parentNode.rowIndex; // Index der aktuellen Zeile
-				var newRow = table.insertRow(rowIndex + 1); // Neue Zeile nach der aktuellen einfügen
+				var rowIndex = button.parentNode.parentNode.rowIndex;
+				var newRow = table.insertRow(rowIndex + 1);
 
-				// Neue Zellen für die Zeile erstellen
 				var optionCell = newRow.insertCell(0);
 				var valueCell = newRow.insertCell(1);
 				var buttonCell = newRow.insertCell(2);
 
-				// Inhalt der Zellen setzen
 				optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
-				valueCell.innerHTML = ""; // Leerer Platz für die Optionen
+				valueCell.innerHTML = "";
 
-				buttonCell.innerHTML = "<button class='remove_parameter' onclick='removeRow(this)'>Remove</button>"; // Minus-Button für die neue Zeile
+				buttonCell.innerHTML = "<button class='remove_parameter' onclick='removeRow(this)'>Remove</button>";
 
-				updateOptions(optionCell.firstChild); // Direkt die Optionen aktualisieren
+				updateOptions(optionCell.firstChild);
 
-				// Klassen hinzufügen
 				newRow.classList.add('parameterRow');
 				optionCell.firstChild.classList.add('optionSelect');
 				valueCell.firstChild.classList.add('valueInput');
 
-				update_command(); // Befehl aktualisieren
+				update_command();
 			}
 
 			function removeRow(button) {
-				// Funktion zum Entfernen der aktuellen Zeile
 				var table = document.getElementById("config_table");
-				var rowIndex = button.parentNode.parentNode.rowIndex; // Index der aktuellen Zeile
+				var rowIndex = button.parentNode.parentNode.rowIndex;
 				var rowCount = table.rows.length;
-				if (rowCount > 2) { // Stellen Sie sicher, dass mindestens eine Zeile unentfernbar ist
-					table.deleteRow(rowIndex); // Aktuelle Zeile entfernen
-					update_command(); // Befehl aktualisieren
+				if (rowCount > 2) {
+					table.deleteRow(rowIndex);
+					update_command();
 				}
 			}
 
-			// Funktion zum Erstellen der Tabelle basierend auf den Daten
 			function createTable() {
 				var table = $("#config_table");
 				var tbody = table.find("tbody");
@@ -344,11 +336,9 @@
 					row.append(labelCell, valueCell);
 					tbody.append(row);
 				});
-				// Plus-Button hinzufügen
 				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td></tr>");
 			}
 
-			// Funktion zum Aktualisieren des Befehls
 			function updateUrl() {
 				var params = [];
 				tableData.forEach(function(item) {

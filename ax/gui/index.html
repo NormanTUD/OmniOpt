@@ -64,8 +64,48 @@
 			}
 
 			button {
-				border-radius: 10px;
+				margin: 5px;
+				background-color: #36A9AE;
+				background-image: linear-gradient(#37ADB2, #329CA0);
+				border: 1px solid #2A8387;
+				border-radius: 4px;
+				box-shadow: rgba(0, 0, 0, 0.12) 0 1px 1px;
+				color: #FFFFFF;
+				cursor: pointer;
+				display: block;
+				font-family: -apple-system,".SFNSDisplay-Regular","Helvetica Neue",Helvetica,Arial,sans-serif;
+				font-size: 17px;
+				line-height: 100%;
+				outline: 0;
+				padding: 11px 15px 12px;
 				text-align: center;
+				transition: box-shadow .05s ease-in-out,opacity .05s ease-in-out;
+				user-select: none;
+				-webkit-user-select: none;
+				touch-action: manipulation;
+			}
+
+			button:hover {
+				box-shadow: rgba(255, 255, 255, 0.3) 0 0 2px inset, rgba(0, 0, 0, 0.4) 0 1px 2px;
+				text-decoration: none;
+				transition-duration: .15s, .15s;
+			}
+
+			button:active {
+				box-shadow: rgba(0, 0, 0, 0.15) 0 2px 4px inset, rgba(0, 0, 0, 0.4) 0 1px 1px;
+			}
+
+			button:disabled {
+				cursor: not-allowed;
+				opacity: .6;
+			}
+
+			button:disabled:active {
+				pointer-events: none;
+			}
+
+			button:disabled:hover {
+				box-shadow: none;
 			}
 
 			input {
@@ -77,7 +117,9 @@
 			}
 
 			.remove_parameter {
-				background-color: #f1807e;
+				background-color: #f1807e !important;
+				background-image: linear-gradient(#db4a44, #f24f49);
+				border: 1px solid #db4a44;
 			}
 
 			.half_width_td {

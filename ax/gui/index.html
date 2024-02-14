@@ -419,14 +419,14 @@
 				if (!errors.length) {
 					$("#command_element").text(command).show().parent().show();
 
-					var base_url = location.protocol + '//' + location.host + "/" + location.pathname;
+					var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
 
 					base_url = base_url.replaceAll(/\/+/g, "/");
 
 					base_url = base_url.replace(/^http:\//, "http://")
 					base_url = base_url.replace(/^https:\//, "https://")
 
-					var curl_command = `curl ${base_url}`;
+					var curl_command = `curl ${base_url}install_omniax.sh`;
 
 					$("#curl_command").text(curl_command).show().parent().show();
 				} else {

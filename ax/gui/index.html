@@ -140,12 +140,12 @@
 							var is_ok = true;
 
 							if(isNaN(minValue)) {
-								warn_msg += "minValue for parameter " + parameterName + " is not a number";
+								warn_msg += "minValue for parameter " + parameterName + " is not a number.<br>";
 								is_ok = false;
 							}
 
 							if(isNaN(maxValue)) {
-								warn_msg += "maxValue for parameter " + parameterName + " is not a number";
+								warn_msg += "maxValue for parameter " + parameterName + " is not a number.<br>";
 								is_ok = false;
 							}
 
@@ -168,10 +168,6 @@
 						} else {
 							if(!parameterName) {
 								warn_msg += "No parameter name<br>";
-							}
-
-							if(!_value) {
-								warn_msg += "Value missing<br>";
 							}
 
 							$($(".parameterRow")[i]).css("background-color", "orange")

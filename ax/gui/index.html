@@ -118,32 +118,34 @@
 					var parameterName = $(this).find(".parameterName").val().trim();
 					var _value;
 
+					var warn_msg = "";
+
 					if(parameter_names.includes(parameterName)) {
 						var err_msg = `Parameter name "${parameterName}" already exists. Can only be defined once!`;
-						errors.push(err_msg)
+						warn_msg += err_msg;
 
 						$($(".parameterRow")[i]).css("background-color", "red")
 					} else if(parameterName) {
 						if (option === "range") {
-							var minValue = parseFloat($(this).find(".minValue").val()).toLocaleString('fullwide', {useGrouping:false});
-							var maxValue = parseFloat($(this).find(".maxValue").val()).toLocaleString('fullwide', {useGrouping:false});
+							var minValue = parseFloat($(this).find(".minValue").val());
+							var maxValue = parseFloat($(this).find(".maxValue").val());
 							var numberType = $("#numberTypeSelect").val();
 
 							if (minValue >= maxValue) {
-								errors.push("Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.");
+								warn_msg += "Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.";
 							} else if (minValue === maxValue) {
-								warnings.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
+								warn_msg += "Warning: The minimum and maximum values for parameter " + parameterName + " are equal.<br>";
 							}
 
 							var is_ok = true;
 
 							if(isNaN(minValue)) {
-								errors.push("minValue for parameter " + parameterName + " is not a number")
+								warn_msg += "minValue for parameter " + parameterName + " is not a number";
 								is_ok = false;
 							}
 
 							if(isNaN(maxValue)) {
-								errors.push("maxValue for parameter " + parameterName + " is not a number");
+								warn_msg += "maxValue for parameter " + parameterName + " is not a number";
 								is_ok = false;
 							}
 
@@ -164,14 +166,27 @@
 
 							$($(".parameterRow")[i]).css("background-color", "")
 						} else {
+							if(!parameterName) {
+								warn_msg += "No parameter name<br>";
+							}
+
+							if(!_value) {
+								warn_msg += "Value missing<br>";
+							}
 
 							$($(".parameterRow")[i]).css("background-color", "orange")
 						}
 					} else {
-						var warn_msg = "Parameter nr. " + i + " has no name. Ignoring it."
-						warnings.push(warn_msg);
+						warn_msg += "Parameter nr. " + i + " has no name. Ignoring it.<br>"
 
 						$($(".parameterRow")[i]).css("background-color", "orange")
+					}
+
+
+					if(warn_msg) {
+						$($(".parameterError")[i]).html(warn_msg).show();
+					} else {
+						$($(".parameterError")[i]).html("").hide();
 					}
 
 					i++;
@@ -181,16 +196,8 @@
 					command += " --parameter " + parameters.join(" --parameter ");
 				}
 
-				if (errors.length) {
-					//$("#command").html("<span class='color_red'>" + errors.join("<br>") + "</span>");
-				} else {
+				if (!errors.length) {
 					$("#command").text(command);
-				}
-
-				if (warnings.length) {
-					$("#warnings").html("<span class='color_orange'>" + warnings.join("<br>") + "</span>").show();
-				} else {
-					$("#warnings").html("").hide();
 				}
 
 				updateUrl();
@@ -253,6 +260,8 @@
 						</tr>
 					</table>`;
 				}
+
+				valueCell.innerHTML += "<div style='display: none' class='error_element parameterError'></div>"
 			}
 
 			function addRow(button) {

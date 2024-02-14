@@ -94,8 +94,8 @@
 						errors.push(`Parameter name "${parameterName}" already exists. Can only be defined once!`)	
 					} else if(parameterName) {
 						if (option === "range") {
-							var minValue = parseFloat($(this).find(".minValue").val());
-							var maxValue = parseFloat($(this).find(".maxValue").val());
+							var minValue = parseFloat($(this).find(".minValue").val()).toLocaleString('fullwide', {useGrouping:false});
+							var maxValue = parseFloat($(this).find(".maxValue").val()).toLocaleString('fullwide', {useGrouping:false});
 							var numberType = $("#numberTypeSelect").val();
 
 							if (minValue >= maxValue) {

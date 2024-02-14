@@ -68,7 +68,6 @@ fi
 
 cd $TO_DIR/ax/
 
-set -x
 START_COMMAND=$(echo $START_COMMAND_BASE64 | base64 --decode)
 
 if [[ $? -eq 0 ]]; then

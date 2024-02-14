@@ -417,7 +417,9 @@
 				}
 
 				if (!errors.length) {
-					$("#command").text(command);
+					$("#command_element").text(command).show();
+				} else {
+					$("#command_element").text("").hide();
 				}
 
 				updateUrl();
@@ -690,7 +692,7 @@
 					</table>
 				</td>
 				<td class='half_width_td'>
-					<code id="command"></code>
+					<code id="command_element"></code>
 					<div id="warnings" style="display: none"></div>
 				</td>
 			</tr>

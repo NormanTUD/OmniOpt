@@ -205,16 +205,18 @@
 				});
 			}
 			
-			function get_var_names_from_run_program (run_program_string) {
-				var pattern = /\$?\([a-zA-Z_]+\)|\$[a-zA-Z_]+/g;
-				var variableNames = [];
+			function get_var_names_from_run_program(run_program_string) {
+				const pattern = /\$?\([a-zA-Z_]+\)|\$[a-zA-Z_]+/g;
+				const variableNames = [];
 
 				let match;
 				while ((match = pattern.exec(run_program_string)) !== null) {
 					let varName = match[0];
 					varName = varName.replace(/^\$/, '');
 					varName = varName.replace(/^\$?\(|\)$/g, '');
-					variableNames.push(varName);
+					if (/^[a-zA-Z_]+$/.test(varName)) {
+						variableNames.push(varName);
+					}
 				}
 
 				return variableNames;
@@ -260,7 +262,14 @@
 						}
 					} else if (item.id == "run_program") {
 						var variables_in_run_program = get_var_names_from_run_program(value);
-						var existing_parameter_names = $(".parameterName").map(function() { const val = $(this).val(); return /^\s*$/.test(val) ? null : val; }).get().filter(Boolean);
+						var existing_parameter_names = $(".parameterName").map(function() {
+							const val = $(this).val();
+							var ret = null;
+							if(!/^\s*$/.test(val) && /^[a-zA-Z_]+$/.test(val)) {
+								ret = val;
+							}
+							return ret;
+						}).get().filter(Boolean);
 
 						var new_errors = [];
 
@@ -315,7 +324,7 @@
 						warn_msg += err_msg;
 
 						$($(".parameterRow")[i]).css("background-color", "red")
-					} else if(parameterName.match(/^\w+$/)) {
+					} else if(parameterName.match(/^[a-zA-Z_]+$/)) {
 						if (option === "range") {
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
@@ -383,7 +392,7 @@
 
 							$($(".parameterRow")[i]).css("background-color", "orange")
 						}
-					} else if(parameterName && !parameterName.match(/^\w+$/)) {
+					} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
 						warn_msg += "Name contains invalid characters. Must be all-letters.<br>"
 
 						$($(".parameterRow")[i]).css("background-color", "orange")

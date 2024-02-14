@@ -266,8 +266,8 @@
 				optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 				valueCell.innerHTML = ""; // Leerer Platz für die Optionen
 
-				buttonCell.innerHTML = "<button onclick='removeRow(this)'>-</button>"; // Minus-Button für die neue Zeile
-				button.parentNode.innerHTML = "<button id='main_add_row_button' onclick='addRow(this)'>+</button>"; // Plus-Button in der aktuellen Zeile entfernen
+				buttonCell.innerHTML = "<button onclick='removeRow(this)'>1-</button>"; // Minus-Button für die neue Zeile
+				button.parentNode.innerHTML = "<button id='main_add_row_button' onclick='addRow(this)'>C+</button>"; // Plus-Button in der aktuellen Zeile entfernen
 
 				updateOptions(optionCell.firstChild); // Direkt die Optionen aktualisieren
 
@@ -286,21 +286,8 @@
 				var rowCount = table.rows.length;
 				if (rowCount > 2) { // Stellen Sie sicher, dass mindestens eine Zeile unentfernbar ist
 					table.deleteRow(rowIndex); // Aktuelle Zeile entfernen
-					updateButtons(); // Plus- und Minus-Buttons aktualisieren
 					update_command(); // Befehl aktualisieren
 				}
-			}
-
-			function updateButtons() {
-				// Funktion zum Aktualisieren der Plus- und Minus-Buttons in jeder Zeile
-				var table = document.getElementById("config_table");
-				var rows = table.rows;
-				for (var i = 1; i < rows.length - 1; i++) {
-					if (rows[i].cells.length >= 3) { // Überprüfen, ob die Zeile mindestens drei Zellen hat
-						rows[i].cells[2].innerHTML = "<button onclick='removeRow(this)'>-</button>"; // Minus-Button
-					}
-				}
-				rows[rows.length - 1].cells[2].innerHTML = "<button id='add_row_button' onclick='addRow(this)'>+</button>"; // Plus-Button
 			}
 
 			// Funktion zum Erstellen der Tabelle basierend auf den Daten
@@ -330,9 +317,8 @@
 					row.append(labelCell, valueCell);
 					tbody.append(row);
 				});
-
 				// Plus-Button hinzufügen
-				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' id='main_add_row_button'>+</button></td></tr>");
+				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' id='main_add_row_button'>A+</button></td></tr>");
 			}
 
 			// Funktion zum Aktualisieren des Befehls

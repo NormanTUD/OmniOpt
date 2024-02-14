@@ -23,6 +23,7 @@
 		<script src="jquery-3.7.1.js"></script>
 		<script>
 			var initialized = false;
+			var shown_operation_insecure_without_server = false;
 
 			var l = console.log;
 			var log = console.log;
@@ -367,7 +368,16 @@
 
 				if (initialized) {
 					var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".configRow").length;
-					window.history.replaceState(null, null, url);
+					try {
+						window.history.replaceState(null, null, url);
+					} catch (err) {
+						err = "" + err;
+
+						if(err.includes("The operation is insecure") && !shown_operation_insecure_without_server) {
+							log(err);
+							shown_operation_insecure_without_server = true;
+						}
+					}
 				}
 			}
 

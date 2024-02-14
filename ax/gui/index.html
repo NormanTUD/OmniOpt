@@ -208,51 +208,33 @@
 
 				if (selectedOption === 'range') {
 					valueCell.innerHTML = `<table>
-					<tr>
-					    <td>
-						Name:
-					    </td>
-					    <td>
-						<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'>
-					    </td>
-					</tr>
-					<tr>
-					    <td>
-						Min:
-					    </td>
-					    <td>
-						<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='number' class='minValue'>
-					    </td>
-					</tr>
-					<tr>
-					    <td>
-						Max:
-					    </td>
-					    <td>
-						<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='number' class='maxValue'>
-					    </td>
-					</tr>
-					<tr>
-					    <td>
-						Type:
-					    </td>
-					    <td>
-						<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" id="numberTypeSelect">
-							<option value="float">Float</option>
-							<option value="int">Integer</option>
-						</select>
-					    </td>
-					</tr>
+						<tr>
+							<td>Name:</td>
+							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+						</tr>
+						<tr>
+							<td>Min:</td>
+							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='number' class='minValue'></td>
+						</tr>
+						<tr>
+							<td>Max:</td>
+							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='number' class='maxValue'></td>
+						</tr>
+						<tr>
+							<td>Type:</td>
+							<td>
+								<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" id="numberTypeSelect">
+									<option value="float">Float</option>
+									<option value="int">Integer</option>
+								</select>
+							</td>
+						</tr>
 				    </table>`;
 				} else if (selectedOption === 'choice') {
 					valueCell.innerHTML = `<table>
 						<tr>
-						    <td>
-							Name:
-						    </td>
-						    <td>
-							<input  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'>
-						    </td>
+							<td>Name:</td>
+							<td><input  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 						</tr>
 						<tr>
 							<td>Values (comma separated):</td>
@@ -262,12 +244,8 @@
 				} else if (selectedOption === 'fixed') {
 					valueCell.innerHTML = `<table>
 						<tr>
-						    <td>
-							Name:
-						    </td>
-						    <td>
-							<input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}"  type='text' class='parameterName'>
-						    </td>
+							<td>Name:</td>
+							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}"  type='text' class='parameterName'></td>
 						</tr>
 						<tr>
 							<td>Value:</td>

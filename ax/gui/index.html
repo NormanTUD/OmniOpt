@@ -287,6 +287,10 @@
 							}
 						} else if (option === "choice") {
 							var choiceValues = $(this).find(".choiceValues").val();
+
+							choiceValues = choiceValues.replaceAll(/\s/g, ",");
+							choiceValues = choiceValues.replaceAll(/,,*/g, ",");
+
 							_value = `${parameterName} choice ${choiceValues}`;
 
 							if(!choiceValues.match(/./)) {

@@ -4,6 +4,10 @@
 		<meta charset="UTF-8">
 		<title>OmniOpt2 GUI</title>
 		<style>
+			.code_bg {
+				background-color: #C0C0C0;
+			}
+	
 			#commands {
 				line-break: anywhere;
 			}
@@ -752,14 +756,18 @@
 				</td>
 				<td class='half_width_td'>
 					<div id="commands">
-						<code id="curl_command"></code>
+						<div class="code_bg">
+							<code id="curl_command"></code>
+						</div>
 						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_curl">Copy to clipboard</button></div>
 						<div id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
 
 						<br>
 						<br>
 
-						<code id="command_element"></code>
+						<div class="code_bg">
+							<code id="command_element"></code>
+						</div>
 						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_main">Copy to clipboard</button></div>
 						<div id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
 					</div>

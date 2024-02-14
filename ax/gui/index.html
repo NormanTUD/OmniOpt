@@ -431,7 +431,7 @@
 				}
 
 				if (!errors.length) {
-					$("#command_element").text(command).show().parent().show();
+					$("#command_element").text(command).show().parent().show().parent().show();
 
 					var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
 
@@ -444,10 +444,10 @@
 
 					var curl_command = `curl ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
 
-					$("#curl_command").text(curl_command).show().parent().show();
+					$("#curl_command").text(curl_command).show().parent().show().parent().show();
 				} else {
-					$("#command_element").text("").hide().parent().hide();
-					$("#curl_command").text("").hide().parent().hide();
+					$("#command_element").text("").hide().parent().hide().parent().hide();
+					$("#curl_command").text("").hide().parent().hide().parent().hide();
 				}
 
 				updateUrl();

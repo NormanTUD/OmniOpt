@@ -19,6 +19,10 @@
 			#config_table > tbody > tr:nth-child(even) {
 				background-color: #cfcfcf;
 			}
+
+			.error_element {
+				background-color: red;
+			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script>
@@ -57,7 +61,11 @@
 							command += " --" + item.id;
 						}
 					} else if (item.type === "text" && value === "") {
-						errors.push("Field '" + item.label + "' is required.");
+						var this_error = "Field '" + item.label + "' is required.";
+						$("#" + item.id + "_error").html(this_error).show();
+						$("#" + item.id).css("background-color", "red");
+
+						errors.push(this_error);
 					} else if (item.type === "number") {
 						var numValue = parseFloat(value);
 						if (isNaN(numValue)) {
@@ -78,6 +86,8 @@
 						}
 					} else {
 						command += " --" + item.id + " '" + value + "'";
+						$("#" + item.id + "_error").html("").hide();
+						$("#" + item.id).css("background-color", "inherit");
 					}
 				});
 
@@ -316,6 +326,7 @@
 					});
 
 					valueCell.append(input);
+					valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
 					row.append(labelCell, valueCell);
 					tbody.append(row);
 				});

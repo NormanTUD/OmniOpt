@@ -9,11 +9,18 @@ args = None
 result_csv_file = None
 shown_end_table = False
 
-import re
-import sys
-import argparse
-
-from pprint import pprint
+try:
+    import re
+    import sys
+    import argparse
+    import time
+    from pprint import pprint
+except ModuleNotFoundError as e:
+    print(f"Base modules could not be loaded: {e}")
+    sys.exit(31)
+except KeyboardInterrupt:
+    print("You cancelled loading the basic modules")
+    sys.exit(32)
 
 def dier (msg):
     pprint(msg)
@@ -459,8 +466,7 @@ def evaluate(parameters):
         return return_in_case_of_error
 
 try:
-    with console.status("[bold green]Importing ax and submitit...") as status:
-        import time
+    with console.status("[bold green]Importing ax...") as status:
         try:
             import ax
             import botorch
@@ -471,11 +477,22 @@ try:
             from ax.service.utils.report_utils import exp_to_df
         except ModuleNotFoundError as e:
             print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(6)
+            sys.exit(33)
         except KeyboardInterrupt:
             print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-            sys.exit(6)
+            sys.exit(34)
 
+    with console.status("[bold green]Importing botorch...") as status:
+        try:
+            import botorch
+        except ModuleNotFoundError as e:
+            print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+            sys.exit(35)
+        except KeyboardInterrupt:
+            print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+            sys.exit(36)
+
+    with console.status("[bold green]Importing submitit...") as status:
         try:
             import submitit
             from submitit import AutoExecutor, LocalJob, DebugJob

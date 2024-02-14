@@ -129,6 +129,7 @@
 						if (option === "range") {
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
+
 							var numberType = $("#numberTypeSelect").val();
 
 							if (minValue === maxValue) {
@@ -171,7 +172,7 @@
 							$($(".parameterRow")[i]).css("background-color", "orange")
 						}
 					} else {
-						warn_msg += "Parameter nr. " + i + " has no name. Ignoring it.<br>"
+						warn_msg += "Name is missing.<br>"
 
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					}

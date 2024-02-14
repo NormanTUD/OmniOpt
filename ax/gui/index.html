@@ -131,9 +131,7 @@
 							var maxValue = parseFloat($(this).find(".maxValue").val());
 							var numberType = $("#numberTypeSelect").val();
 
-							if (minValue >= maxValue) {
-								warn_msg += "Invalid range for parameter " + parameterName + ". The minimum value must be less than the maximum value.";
-							} else if (minValue === maxValue) {
+							if (minValue === maxValue) {
 								warn_msg += "Warning: The minimum and maximum values for parameter " + parameterName + " are equal.<br>";
 							}
 

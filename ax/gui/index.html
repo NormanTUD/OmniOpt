@@ -36,6 +36,10 @@
 			.remove_parameter {
 				background-color: #f1807e;
 			}
+
+			.half_width_td {
+				width: 50%;
+			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script>
@@ -454,7 +458,7 @@
 	<body>
 		<table>
 			<tr>
-				<td>
+				<td class='half_width_td'>
 					<table id="config_table" border="1">
 						<thead>
 							<tr>
@@ -465,7 +469,7 @@
 						<tbody></tbody>
 					</table>
 				</td>
-				<td>
+				<td class='half_width_td'>
 					<code id="command"></code>
 					<div id="warnings" style="display: none"></div>
 				</td>

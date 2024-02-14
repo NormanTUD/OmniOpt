@@ -327,11 +327,11 @@
 					var parameterName = $(this).find(".parameterName").val().trim();
 					var _value;
 
-					var warn_msg = "";
+					var warn_msg = [];
 
 					if(parameter_names.includes(parameterName)) {
 						var err_msg = `Parameter name "${parameterName}" already exists. Can only be defined once!`;
-						warn_msg += err_msg;
+						warn_msg.push(err_msg);
 
 						$($(".parameterRow")[i]).css("background-color", "red")
 					} else if(parameterName.match(/^[a-zA-Z_]+$/)) {
@@ -342,18 +342,18 @@
 							var numberType = $("#numberTypeSelect").val();
 
 							if (minValue === maxValue) {
-								warn_msg += "Warning: The minimum and maximum values for parameter " + parameterName + " are equal.<br>";
+								warn_msg.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
 							}
 
 							var is_ok = true;
 
 							if(isNaN(minValue)) {
-								warn_msg += "minValue for parameter " + parameterName + " is not a number.<br>";
+								warn_msg.push("minValue for parameter " + parameterName + " is not a number.");
 								is_ok = false;
 							}
 
 							if(isNaN(maxValue)) {
-								warn_msg += "maxValue for parameter " + parameterName + " is not a number.<br>";
+								warn_msg.push("maxValue for parameter " + parameterName + " is not a number.");
 								is_ok = false;
 							}
 
@@ -373,7 +373,7 @@
 							_value = `${parameterName} choice ${choiceValues}`;
 
 							if(!choiceValues.match(/./)) {
-								warn_msg += "Values are missing.<br>"
+								warn_msg.push("Values are missing.");
 
 								$($(".parameterRow")[i]).css("background-color", "orange")
 							}
@@ -382,7 +382,7 @@
 							_value = `${parameterName} fixed ${fixedValue}`;
 
 							if(!fixedValue.match(/./)) {
-								warn_msg += "Value is missing.<br>"
+								warn_msg.push("Value is missing.");
 
 								$($(".parameterRow")[i]).css("background-color", "orange")
 							}
@@ -392,29 +392,29 @@
 							parameters.push(_value);
 							parameter_names.push(parameterName);
 
-							if(!warn_msg) {
+							if(!warn_msg.length) {
 								$($(".parameterRow")[i]).css("background-color", "")
 							}
 						} else {
 							if(!parameterName) {
-								warn_msg += "No parameter name<br>";
+								warn_msg.push("No parameter name");
 							}
 
 							$($(".parameterRow")[i]).css("background-color", "orange")
 						}
 					} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
-						warn_msg += "Name contains invalid characters. Must be all-letters.<br>"
+						warn_msg.push("Name contains invalid characters. Must be all-letters.");
 
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					} else {
-						warn_msg += "Name is missing.<br>"
+						warn_msg.push("Name is missing.");
 
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					}
 
 
-					if(warn_msg) {
-						$($(".parameterError")[i]).html(warn_msg).show();
+					if(warn_msg.length) {
+						$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show();
 					} else {
 						$($(".parameterError")[i]).html("").hide();
 					}

@@ -4,6 +4,10 @@
 		<meta charset="UTF-8">
 		<title>OmniOpt2 GUI</title>
 		<style>
+			body {
+				font-family: Verdana, sans-serif;
+			}
+
 			.code_bg {
 				background-color: #C0C0C0;
 			}
@@ -29,7 +33,7 @@
 			}
 
 			.error_element {
-				background-color: red;
+				background-color: #e57373;
 			}
 
 			button {
@@ -249,7 +253,7 @@
 						if(item.required) {
 							var this_error = "Field '" + item.label + "' is required.";
 							$("#" + item.id + "_error").html(this_error).show();
-							$("#" + item.id).css("background-color", "red");
+							$("#" + item.id).css("background-color", "#e57373");
 
 							errors.push(this_error);
 						}
@@ -333,7 +337,7 @@
 						var err_msg = `Parameter name "${parameterName}" already exists. Can only be defined once!`;
 						warn_msg.push(err_msg);
 
-						$($(".parameterRow")[i]).css("background-color", "red")
+						$($(".parameterRow")[i]).css("background-color", "#e57373")
 					} else if(parameterName.match(/^[a-zA-Z_]+$/)) {
 						if (option === "range") {
 							var minValue = parseFloat($(this).find(".minValue").val());

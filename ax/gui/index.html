@@ -66,17 +66,6 @@
 			];
 
 			var partition_data = {
-				"ml": {
-					"number_of_workers": 180,
-					"computation_time": 168,
-					"max_number_of_gpus": 6,
-					"min_number_of_gpus": 0,
-					"max_mem_per_core": 63500,
-					"mem_per_cpu": 63500,
-					"name": "ml (Machine Learning, ppc64le)",
-					"warning": "It is not recommended to use the /scratch or /lustre-filesystem on the ML partition",
-					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#ibm-power9-nodes-for-machine-learning"
-				},
 				"alpha": {
 					"number_of_workers": 160,
 					"computation_time": 168,
@@ -88,6 +77,18 @@
 					"warning": "",
 					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/alpha_centauri/"
 				},
+				"ml": {
+					"number_of_workers": 180,
+					"computation_time": 168,
+					"max_number_of_gpus": 6,
+					"min_number_of_gpus": 0,
+					"max_mem_per_core": 63500,
+					"mem_per_cpu": 63500,
+					"name": "ml (Machine Learning, ppc64le)",
+					"warning": "It is not recommended to use the /scratch or /lustre-filesystem on the ML partition",
+					"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#ibm-power9-nodes-for-machine-learning"
+				},
+
 				"barnard": {
 					"number_of_workers": 10,
 					"computation_time": 10,

@@ -108,7 +108,7 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
-import importlib.util 
+import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=".helpers.py",
@@ -331,6 +331,9 @@ def replace_parameters_in_string(parameters, input_string):
         for param_item in parameters:
             input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
             input_string = input_string.replace(f"$({param_item})", str(parameters[param_item]))
+
+            input_string = input_string.replace(f"%{param_item}", str(parameters[param_item]))
+            input_string = input_string.replace(f"%({param_item})", str(parameters[param_item]))
 
         return input_string
     except Exception as e:
@@ -786,7 +789,6 @@ def check_equation (variables, equation):
     equation = equation.replace("<=", " <= ")
 
     equation = re.sub(r'\s+', ' ', equation)
-    
     #equation = equation.replace("", "")
 
     regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
@@ -931,7 +933,7 @@ def main ():
 
             if args.experiment_constraints:
                 constraints_string = " ".join(args.experiment_constraints[0])
-                
+
                 variables = [item['name'] for item in experiment_parameters]
 
                 equation = check_equation(variables, constraints_string)
@@ -1027,8 +1029,8 @@ def main ():
                             else:
                                 print_color("red", f"\n:warning: {error}")
                                 sys.exit(25)
-                
-                # Sleep for a bit before checking the jobs again to avoid overloading the cluster. 
+
+                # Sleep for a bit before checking the jobs again to avoid overloading the cluster.
                 # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
                 time.sleep(0.1)
         end_program()
@@ -1042,7 +1044,6 @@ def main ():
         print("\n:warning: Int signal was sent. Cancelling optimization Running end_program.")
         end_program()
         print("\n:warning: end_program ran.")
-    
 
 if __name__ == "__main__":
     main()

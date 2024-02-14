@@ -215,14 +215,14 @@
 			}
 			
 			function get_var_names_from_run_program(run_program_string) {
-				const pattern = /\$?\([a-zA-Z_]+\)|\$[a-zA-Z_]+/g;
+				const pattern = /(?:\$|\%)?\([a-zA-Z_]+\)|(?:\$|%)[a-zA-Z_]+/g;
 				const variableNames = [];
 
 				let match;
 				while ((match = pattern.exec(run_program_string)) !== null) {
 					let varName = match[0];
-					varName = varName.replace(/^\$/, '');
-					varName = varName.replace(/^\$?\(|\)$/g, '');
+					varName = varName.replace(/^(\$|%)/, '');
+					varName = varName.replace(/^(\$|%)?\(|\)$/g, '');
 					if (/^[a-zA-Z_]+$/.test(varName)) {
 						variableNames.push(varName);
 					}
@@ -288,7 +288,7 @@
 							var test_this_var_name = variables_in_run_program[k];
 
 							if(!existing_parameter_names.includes(test_this_var_name)) {
-								var err_msg = `<code>$(${test_this_var_name})</code> not in existing defined parameters.`;
+								var err_msg = `<code>%(${test_this_var_name})</code> not in existing defined parameters.`;
 								new_errors.push(err_msg)
 							}
 						}
@@ -297,7 +297,7 @@
 							var test_this_var_name = existing_parameter_names[k];
 
 							if(!variables_in_run_program.includes(test_this_var_name)) {
-								var err_msg = `<code>$(${test_this_var_name})</code> is defined but not used.`;
+								var err_msg = `<code>%(${test_this_var_name})</code> is defined but not used.`;
 								new_errors.push(err_msg)
 							}
 						}

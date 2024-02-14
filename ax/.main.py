@@ -1,4 +1,5 @@
 ax_client = None
+jobs = []
 end_program_ran = False
 program_name = "OmniOpt2"
 current_run_folder = None
@@ -669,6 +670,9 @@ def end_program ():
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
         sys.exit(17)
 
+    for job, trial_index in jobs[:]:
+        job.cancel()
+
     sys.exit(0)
 
 def save_checkpoint ():
@@ -837,6 +841,7 @@ def main ():
     global result_csv_file
     global current_run_folder
     global ax_client
+    global jobs
 
     check_slurm_job_id()
 
@@ -942,7 +947,6 @@ def main ():
             slurm_use_srun=False
         )
 
-        jobs = []
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
 

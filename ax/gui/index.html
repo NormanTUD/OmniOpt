@@ -5,7 +5,7 @@
 		<title>OmniOpt2 GUI</title>
 		<style>
 			.color_red {
-			color: red;
+				color: red;
 			}
 
 			.color_orange {
@@ -22,6 +22,19 @@
 
 			.error_element {
 				background-color: red;
+			}
+
+			button {
+				border-radius: 10px;
+				text-align: center;
+			}
+			
+			.add_parameter {
+				background-color: #90ee90;
+			}
+
+			.remove_parameter {
+				background-color: #f1807e;
 			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
@@ -146,6 +159,9 @@
 							parameter_names.push(parameterName);
 
 							$($(".parameterRow")[i]).css("background-color", "")
+						} else {
+
+							$($(".parameterRow")[i]).css("background-color", "orange")
 						}
 					} else {
 						var warn_msg = "Parameter nr. " + i + " has no name. Ignoring it."
@@ -274,8 +290,7 @@
 				optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 				valueCell.innerHTML = ""; // Leerer Platz für die Optionen
 
-				buttonCell.innerHTML = "<button onclick='removeRow(this)'>1-</button>"; // Minus-Button für die neue Zeile
-				button.parentNode.innerHTML = "<button id='main_add_row_button' onclick='addRow(this)'>C+</button>"; // Plus-Button in der aktuellen Zeile entfernen
+				buttonCell.innerHTML = "<button class='remove_parameter' onclick='removeRow(this)'>Remove</button>"; // Minus-Button für die neue Zeile
 
 				updateOptions(optionCell.firstChild); // Direkt die Optionen aktualisieren
 
@@ -326,7 +341,7 @@
 					tbody.append(row);
 				});
 				// Plus-Button hinzufügen
-				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' id='main_add_row_button'>A+</button></td></tr>");
+				tbody.append("<tr><td colspan='3'><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td></tr>");
 			}
 
 			// Funktion zum Aktualisieren des Befehls

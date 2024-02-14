@@ -75,7 +75,7 @@
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
-				{ label: "Run program", id: "run_program", type: "text", value: "", placeholder: "Your program with parameters", "required": true }
+				{ label: "Run program", id: "run_program", type: "text", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code>bash run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' }
 			];
 
 			var partition_data = {
@@ -582,6 +582,10 @@
 
 					if (item.id !== "partition") {
 						valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
+					}
+
+					if (item.info) {
+						valueCell.append($(`<div class='info_element' id="${item.id}_info">${item.info}</div>`));
 					}
 
 					row.append(labelCell, valueCell);

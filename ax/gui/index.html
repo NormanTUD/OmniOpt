@@ -147,9 +147,15 @@
 							}
 						});
 
-						$("#max_eval").attr("max", partitionInfo.number_of_workers).each(function() {
-							if ($(this).val() > $(this).attr("max")) {
-								$(this).val($(this).attr("max"));
+						$("#max_eval").attr("min", 1).each(function() {
+							if ($(this).val() > $(this).attr("min")) {
+								$(this).val($(this).attr("min"));
+							}
+						});
+
+						$("#num_parallel_jobs").attr("min", 1).each(function() {
+							if ($(this).val() > $(this).attr("min")) {
+								$(this).val($(this).attr("min"));
 							}
 						});
 

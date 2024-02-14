@@ -290,6 +290,10 @@
 
 							choiceValues = choiceValues.replaceAll(/\s/g, ",");
 							choiceValues = choiceValues.replaceAll(/,,*/g, ",");
+							choiceValues = choiceValues.replaceAll(/,,*$/g, "");
+							choiceValues = choiceValues.replaceAll(/^,,*/g, "");
+
+							choiceValues = [...new Set(choiceValues.split(','))].join(',');
 
 							_value = `${parameterName} choice ${choiceValues}`;
 

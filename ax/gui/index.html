@@ -171,7 +171,11 @@
 							}
 						});
 					}
+
+					updateUrl();
 				});
+
+				updateUrl();
 			}
 
 			function set_min_max () {
@@ -541,6 +545,9 @@
 					parameterIndex++;
 				});
 
+
+				params.push("partition=" + $("#partition").val());
+
 				if (initialized) {
 					var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".parameterRow").length;
 					try {
@@ -557,7 +564,6 @@
 					}
 				}
 			}
-
 
 			$(document).ready(function() {
 				createTable();

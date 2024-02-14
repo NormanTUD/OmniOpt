@@ -469,7 +469,6 @@ try:
     with console.status("[bold green]Importing ax...") as status:
         try:
             import ax
-            import botorch
             from ax.service.ax_client import AxClient, ObjectiveProperties
             import ax.exceptions.core
             from ax.modelbridge.dispatch_utils import choose_generation_strategy

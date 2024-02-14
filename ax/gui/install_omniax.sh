@@ -2,6 +2,18 @@
 
 START_COMMAND_BASE64=$1
 
+export reservation=""
+for i in $@; do
+	case $i in
+		--reservation=*)
+			reservation="${i#*=}"
+			;;
+		--debug)
+			set -x
+			;;
+	esac
+done
+
 if [[ -z $START_COMMAND_BASE64 ]]; then
 	echo "Missing argument for start-command (must be in base64)"
 	exit 1
@@ -38,6 +50,10 @@ function echo_red {
 function echo_headline {
         echo -e "\e[4m\e[96m$1\e[0m"
 }
+
+if [[ ! -z $reservation ]]; then
+	export SBATCH_RESERVATION=$reservation
+fi
 
 COPY_FROM="https://github.com/NormanTUD/OmniOpt.git"
 

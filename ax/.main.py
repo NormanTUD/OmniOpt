@@ -51,6 +51,7 @@ optional.add_argument('--run_dir', help='Directory, in which runs should be save
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
 bash.add_argument('--partition', help='Partition to be run on', default="", type=str)
+bash.add_argument('--reservation', help='Reservation', default="", type=str)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)

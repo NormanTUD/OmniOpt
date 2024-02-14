@@ -303,8 +303,7 @@
 						}
 
 						if(new_errors.length) {
-							var err_msg = new_errors.join("<br>");
-							$("#run_program_error").html(err_msg).show();
+							$("#run_program_error").html(string_or_array_to_list(new_errors)).show();
 						} else {
 							$("#run_program_error").html("").hide();
 						}
@@ -544,6 +543,21 @@
 				if (rowCount > 2) {
 					table.deleteRow(rowIndex);
 					update_command();
+				}
+			}
+
+			function string_or_array_to_list (input) {
+				if (typeof input === 'string') {
+					return input;
+				} else if (Array.isArray(input)) {
+					if (input.length === 1) {
+						return input[0];
+					} else {
+						const listItems = input.map(item => `<li>${item}</li>`);
+						return `<ul>${listItems.join('')}</ul>`;
+					}
+				} else {
+					throw new Error('Invalid input type. Only strings or arrays are allowed.');
 				}
 			}
 

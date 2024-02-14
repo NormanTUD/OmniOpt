@@ -692,7 +692,48 @@
 				initialized = true;
 
 				updateUrl();
+
+				document.getElementById("copytoclipboardbutton_curl").addEventListener(
+					"click",
+					copy_bashcommand_to_clipboard_curl,
+					false
+				);
+
+				document.getElementById("copytoclipboardbutton_main").addEventListener(
+					"click",
+					copy_bashcommand_to_clipboard_main,
+					false
+				);
 			});
+
+			function copy_to_clipboard(text) {
+				var dummy = document.createElement("textarea");
+				document.body.appendChild(dummy);
+				dummy.value = text;
+				dummy.select();
+				document.execCommand("copy");
+				document.body.removeChild(dummy);
+			}
+
+			function copy_bashcommand_to_clipboard_main () {
+				var serialized = $("#command_element").text();
+				copy_to_clipboard(serialized);
+
+				$('#copied_main').show();
+				setTimeout(function() { 
+					$('#copied_main').fadeOut(); 
+				}, 5000);
+			}
+
+			function copy_bashcommand_to_clipboard_curl () {
+				var serialized = $("#curl_command").text();
+				copy_to_clipboard(serialized);
+
+				$('#copied_curl').show();
+				setTimeout(function() { 
+					$('#copied_curl').fadeOut(); 
+				}, 5000);
+			}
 		</script>
 	</head>
 	<body>
@@ -711,10 +752,16 @@
 				</td>
 				<td class='half_width_td'>
 					<div id="commands">
-						<code id="command_element"></code>
-						<br>
-						<br>
 						<code id="curl_command"></code>
+						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_curl">Copy to clipboard</button></div>
+						<div id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
+
+						<br>
+						<br>
+
+						<code id="command_element"></code>
+						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_main">Copy to clipboard</button></div>
+						<div id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
 					</div>
 					<div id="warnings" style="display: none"></div>
 				</td>

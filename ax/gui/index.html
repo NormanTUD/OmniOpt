@@ -288,16 +288,30 @@
 						} else if (option === "choice") {
 							var choiceValues = $(this).find(".choiceValues").val();
 							_value = `${parameterName} choice ${choiceValues}`;
+
+							if(!choiceValues.match(/./)) {
+								warn_msg += "Values are missing.<br>"
+
+								$($(".parameterRow")[i]).css("background-color", "orange")
+							}
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();
 							_value = `${parameterName} fixed ${fixedValue}`;
+
+							if(!fixedValue.match(/./)) {
+								warn_msg += "Value is missing.<br>"
+
+								$($(".parameterRow")[i]).css("background-color", "orange")
+							}
 						}
 
 						if (parameterName && _value) {
 							parameters.push(_value);
 							parameter_names.push(parameterName);
 
-							$($(".parameterRow")[i]).css("background-color", "")
+							if(!warn_msg) {
+								$($(".parameterRow")[i]).css("background-color", "")
+							}
 						} else {
 							if(!parameterName) {
 								warn_msg += "No parameter name<br>";

@@ -4,6 +4,10 @@
 		<meta charset="UTF-8">
 		<title>OmniOpt2 GUI</title>
 		<style>
+			#commands {
+				line-break: anywhere;
+			}
+
 			.color_red {
 				color: red;
 			}
@@ -426,7 +430,9 @@
 					base_url = base_url.replace(/^http:\//, "http://")
 					base_url = base_url.replace(/^https:\//, "https://")
 
-					var curl_command = `curl ${base_url}install_omniax.sh`;
+					var base_64_string = btoa(command);
+
+					var curl_command = `curl ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
 
 					$("#curl_command").text(curl_command).show().parent().show();
 				} else {

@@ -280,7 +280,8 @@
 			function addRow(button) {
 				var table = document.getElementById("config_table");
 				var rowIndex = button.parentNode.parentNode.rowIndex;
-				var newRow = table.insertRow(rowIndex + 1);
+				var numberOfParams = $(".parameterRow").length;
+				var newRow = table.insertRow(rowIndex + numberOfParams + 1);
 
 				var optionCell = newRow.insertCell(0);
 				var valueCell = newRow.insertCell(1);

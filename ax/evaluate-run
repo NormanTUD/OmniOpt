@@ -238,7 +238,12 @@ function list_option_for_job {
 
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
-				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+				set +e
+				OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
+				if [[ $? -ne 0 ]]; then
+					error_message "$OUTPUT"
+				fi
+				set -e
 			else
 				eval `resize`
 				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
@@ -255,7 +260,12 @@ function list_option_for_job {
 					export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}.svg
 				done
 
-				./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH
+				set +e
+				OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
+				if [[ $? -ne 0 ]]; then
+					error_message "$OUTPUT"
+				fi
+				set -e
 
 				eval `resize`
 				if [[ -e "$PLOTPATH" ]]; then
@@ -305,15 +315,35 @@ function list_option_for_job {
 
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
+						set +e
 						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					else
+						set +e
 						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					fi
 				else
 					if [[ -z "$maxvalue" ]]; then
+						set +e
 						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					else
+						set +e
 						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					fi
 				fi
 			else
@@ -367,15 +397,35 @@ function list_option_for_job {
 
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH
+						set +e
+						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					else
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH
+						set +e
+						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH)
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					fi
 				else
 					if [[ -z "$maxvalue" ]]; then
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH
+						set +e
+						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH)
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					else
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH
+						set +e
+						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH)
+						if [[ $? -ne 0 ]]; then
+							error_message "$OUTPUT"
+						fi
+						set -e
 					fi
 				fi
 

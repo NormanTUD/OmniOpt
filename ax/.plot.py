@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import math
 
 try:
     from rich.pretty import pprint
@@ -9,7 +10,7 @@ except ModuleNotFoundError:
 
 def dier(msg):
     pprint(msg)
-    sys.exit(10)
+    sys.exit(9)
 
 import importlib.util 
 spec = importlib.util.spec_from_file_location(
@@ -59,7 +60,7 @@ def main():
     csv_file_path = os.path.join(args.run_dir, pd_csv)
     if not os.path.exists(csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
-        sys.exit(3)
+        sys.exit(10)
 
     # Load the DataFrame from the CSV file
     df = None
@@ -70,7 +71,7 @@ def main():
         sys.exit(5)
     except pd.errors.ParserError as e:
         print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
-        sys.exit(6)
+        sys.exit(12)
     except UnicodeDecodeError:
         print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
         sys.exit(7)
@@ -135,7 +136,7 @@ def main():
             sys.exit(3)
         else:
             print(f"Key-Error: {e}")
-            sys.exit(4)
+            sys.exit(8)
 
 
     if args.run_dir + "/maximize" in os.listdir(args.run_dir):
@@ -168,6 +169,13 @@ def main():
 
     # Add title with parameters and result
     result_column_values = df[args.result_column]
+    filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
+    number_of_non_nan_results = len(filtered_data)
+
+    if number_of_non_nan_results == 0:
+        print("No values were found. Every evaluation found evaluated to NaN.")
+        sys.exit(11)
+
     extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 

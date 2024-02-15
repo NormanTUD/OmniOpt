@@ -206,7 +206,7 @@ def main():
     number_of_non_nan_results = len(filtered_data)
 
     if number_of_non_nan_results == 0:
-        print("No values were found. Every evaluation found evaluated to NaN.")
+        print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
     extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()

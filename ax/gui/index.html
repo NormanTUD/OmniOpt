@@ -110,8 +110,12 @@
 				box-shadow: none;
 			}
 
+			select {
+				width: 98%;
+			}
+			
 			input {
-				width: 100%;
+				width: 95%;
 			}
 
 			.add_parameter {
@@ -150,7 +154,7 @@
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
-				{ label: "Run program", id: "run_program", type: "text", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code>bash run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' }
+				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code>bash run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' }
 			];
 
 			var partition_data = {
@@ -333,7 +337,7 @@
 						if (value === "1") {
 							command += " --" + item.id;
 						}
-					} else if (item.type === "text" && value === "") {
+					} else if ((item.type === "textarea" || item.type === "text") && value === "") {
 						if(item.required) {
 							var this_error = "Field '" + item.label + "' is required.";
 							$("#" + item.id + "_error").html(this_error).show();
@@ -684,6 +688,21 @@
 								.text(option.text));
 						});
 						valueCell.append(select);
+					} else if (item.type === "textarea") {
+						var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
+						$(input).css({"width": "95%", "height": "95%"});
+
+						if (item.type === "checkbox") {
+							input.prop("checked", item.value);
+						}
+
+						input.on({
+							change: update_command,
+							keyup: update_command,
+							click: update_command
+						});
+
+						valueCell.append(input);
 					} else {
 						var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 

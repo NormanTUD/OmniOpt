@@ -287,6 +287,14 @@
 				});
 			}
 			
+			function quote_variables (input) {
+				return input.replace(/%(\((\w+)\)|(\w+))/g, function(match, p1, p2, p3) {
+					var variable = p2 || p3;
+					return "'%(" + variable + ")'";
+				});
+			}
+
+
 			function get_var_names_from_run_program(run_program_string) {
 				const pattern = /(?:\$|\%)?\([a-zA-Z_]+\)|(?:\$|%)[a-zA-Z_]+/g;
 				const variableNames = [];
@@ -346,6 +354,11 @@
 						}
 					} else if (item.id == "run_program") {
 						var variables_in_run_program = get_var_names_from_run_program(value);
+						log("before quote:", value);
+						value = quote_variables(value);
+						alert("hallo");
+						log("after quote:", value);
+
 						var existing_parameter_names = $(".parameterName").map(function() {
 							const val = $(this).val();
 							var ret = null;

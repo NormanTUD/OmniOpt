@@ -167,7 +167,6 @@ def main():
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-
     # Color bar addition
     cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
     cbar.set_label(args.result_column, rotation=270, labelpad=15)

@@ -144,6 +144,12 @@
 				return Prism.highlight(code, Prism.languages.bash, 'bash');
 			}
 
+			function highlight_all_bash () {
+				$(".highlight_me").each(function (i, e) {
+					$(e).html(highlight_bash($(e).text()));
+				});
+			}
+
 			var initialized = false;
 			var shown_operation_insecure_without_server = false;
 
@@ -164,7 +170,7 @@
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
-				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code>bash run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' }
+				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' }
 			];
 
 			var partition_data = {
@@ -748,6 +754,8 @@
 				});
 
 				tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td><td colspan='2'></td></tr>");
+
+				highlight_all_bash();
 			}
 
 			function updateUrl() {

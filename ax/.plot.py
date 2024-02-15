@@ -161,33 +161,46 @@ def main():
     norm = plt.Normalize(colors.min(), colors.max())
     cmap = plt.cm.viridis
 
-    # Loop over non-empty combinations and create 2D plots
-    if num_subplots == 1:
-        if len(non_empty_graphs[0]) == 1:
+    # Loop über non-empty combinations und Erstellung von 2D-Plots
+    if num_subplots == 1: 
+        if len(non_empty_graphs[0]) == 1:        
             ax = axs  # Use the single axis
             scatter = ax.plot(df_filtered[non_empty_graphs[0][0]], colors, 'o')
             ax.set_xlabel(non_empty_graphs[0][0])
             ax.set_ylabel(args.result_column)
-        else:
+            # Farbgebung und Legende für das einzelne Scatterplot
+            norm = plt.Normalize(colors.min(), colors.max())
+            cmap = plt.cm.viridis
+            cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+            cbar.set_label(args.result_column)
+        else:                     
             scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             axs.set_xlabel(non_empty_graphs[0][0])
             axs.set_ylabel(non_empty_graphs[0][1])
-    else:
+            # Farbgebung und Legende für das einzelne Scatterplot
+            cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
+            cbar.set_label(args.result_column, rotation=270, labelpad=15)
+    else:                                                         
         for i, (param1, param2) in enumerate(non_empty_graphs):
-            row = i // num_cols
+            row = i // num_cols   
             col = i % num_cols
             scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-            axs[row, col].set_xlabel(param1)
+            axs[row, col].set_xlabel(param1)                                                                         
             axs[row, col].set_ylabel(param2)
+                               
+        for i in range(len(parameter_combinations), num_rows*num_cols):
+            row = i // num_cols                      
+            col = i % num_cols        
+            axs[row, col].set_visible(False)   
+
+        # Color bar addition für mehrere Subplots
+        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1) 
+        cbar.set_label(args.result_column, rotation=270, labelpad=15)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
         row = i // num_cols
         col = i % num_cols
         axs[row, col].set_visible(False)
-
-    # Color bar addition
-    cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-    cbar.set_label(args.result_column, rotation=270, labelpad=15)
 
     # Add title with parameters and result
     result_column_values = df[args.result_column]

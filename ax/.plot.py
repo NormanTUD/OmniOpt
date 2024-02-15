@@ -111,10 +111,21 @@ def main():
         sys.exit(4)
 
     # Create combinations of parameters
-    parameter_combinations = list(combinations(df_filtered.columns, 2))
+    r = 2
 
-    # Check if there are non-empty graphs to display
-    non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
+    if len(list(df_filtered.columns)) == 1:
+        r = 1
+
+    parameter_combinations = list(combinations(df_filtered.columns, r))
+
+    if len(parameter_combinations) == 1:
+        param = parameter_combinations[0][0]
+        if df_filtered[param].notna().any():
+            non_empty_graphs = [(param,)]
+        else:
+            non_empty_graphs = []
+    else:
+        non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
 
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
@@ -152,9 +163,15 @@ def main():
 
     # Loop over non-empty combinations and create 2D plots
     if num_subplots == 1:
-        scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-        axs.set_xlabel(non_empty_graphs[0][0])
-        axs.set_ylabel(non_empty_graphs[0][1])
+        if len(non_empty_graphs[0]) == 1:
+            ax = axs  # Use the single axis
+            scatter = ax.plot(df_filtered[non_empty_graphs[0][0]], colors, 'o')
+            ax.set_xlabel(non_empty_graphs[0][0])
+            ax.set_ylabel(args.result_column)
+        else:
+            scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+            axs.set_xlabel(non_empty_graphs[0][0])
+            axs.set_ylabel(non_empty_graphs[0][1])
     else:
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols

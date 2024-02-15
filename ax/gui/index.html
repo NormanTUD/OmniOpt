@@ -523,10 +523,26 @@
 
 					base_url = base_url.replace(/^http:\//, "http://")
 					base_url = base_url.replace(/^https:\//, "https://")
+					base_url = base_url.replace(/^file:\//, "file://")
 
 					var base_64_string = btoa(command);
 
-					var curl_command = `curl ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
+					var curl_or_cat = "curl";
+
+					if (base_url.startsWith("file://")) {
+						curl_or_cat = "cat";
+
+						var filename = location.pathname.substring(location.pathname.lastIndexOf('/')+1)
+
+						var _re_ = new RegExp(`${filename}/?$`);
+
+						base_url = base_url.replace(_re_, "");
+
+						base_url = base_url.replace(/^file:\//, "/")
+						base_url = base_url.replace(/^\/\//, "/")
+					}
+
+					var curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
 
 					$("#curl_command").text(curl_command).show().parent().show().parent().show();
 				} else {

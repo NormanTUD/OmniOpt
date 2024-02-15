@@ -749,7 +749,7 @@
 			function updateUrl() {
 				var params = [];
 				tableData.forEach(function(item) {
-					params.push(item.id + "=" + $("#" + item.id).val());
+					params.push(item.id + "=" + encodeURIComponent($("#" + item.id).val()));
 				});
 
 				var parameterIndex = 0;
@@ -765,30 +765,30 @@
 							var maxValue = $(this).find(".maxValue").val();
 							var numberType = $(this).find(".numberTypeSelect").val();
 
-							params.push("parameter_" + parameterIndex + "_name=" + parameterName);
-							params.push("parameter_" + parameterIndex + "_type=" + option);
-							params.push("parameter_" + parameterIndex + "_min=" + minValue);
-							params.push("parameter_" + parameterIndex + "_max=" + maxValue);
-							params.push("parameter_" + parameterIndex + "_number_type=" + numberType);
+							params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
+							params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
+							params.push("parameter_" + parameterIndex + "_min=" + encodeURIComponent(minValue));
+							params.push("parameter_" + parameterIndex + "_max=" + encodeURIComponent(maxValue));
+							params.push("parameter_" + parameterIndex + "_number_type=" + encodeURIComponent(numberType));
 						} else if (option === "choice") {
 							var choiceValues = $(this).find(".choiceValues").val();
 
-							params.push("parameter_" + parameterIndex + "_name=" + parameterName);
-							params.push("parameter_" + parameterIndex + "_type=" + option);
-							params.push("parameter_" + parameterIndex + "_values=" + choiceValues);
+							params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
+							params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
+							params.push("parameter_" + parameterIndex + "_values=" + encodeURIComponent(choiceValues));
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();
 
-							params.push("parameter_" + parameterIndex + "_name=" + parameterName);
-							params.push("parameter_" + parameterIndex + "_type=" + option);
-							params.push("parameter_" + parameterIndex + "_value=" + fixedValue);
+							params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
+							params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
+							params.push("parameter_" + parameterIndex + "_value=" + encodeURIComponent(fixedValue));
 						}
 					}
 					parameterIndex++;
 				});
 
 
-				params.push("partition=" + $("#partition").val());
+				params.push("partition=" + encodeURIComponent($("#partition").val()));
 
 				if (initialized) {
 					var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".parameterRow").length;

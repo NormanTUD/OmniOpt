@@ -287,13 +287,18 @@
 				});
 			}
 			
-			function quote_variables (input) {
-				return input.replace(/%(\((\w+)\)|(\w+))/g, function(match, p1, p2, p3) {
-					var variable = p2 || p3;
-					return "'%(" + variable + ")'";
+			function quote_variables(input) {
+				return input.replace(/(["'])(.*?)\1|%(\((\w+)\)|(\w+))/g, function(match, quotes, insideQuotes, p1, p2, p3) {
+					if (quotes) {
+						// Wenn die Variable bereits in Anführungszeichen steht, gib sie unverändert zurück
+						return match;
+					} else {
+						// Wenn die Variable nicht in Anführungszeichen steht, füge Anführungszeichen hinzu
+						var variable = p2 || p3;
+						return "'%(" + variable + ")'";
+					}
 				});
 			}
-
 
 			function get_var_names_from_run_program(run_program_string) {
 				const pattern = /(?:\$|\%)?\([a-zA-Z_]+\)|(?:\$|%)[a-zA-Z_]+/g;

@@ -10,6 +10,7 @@ result_csv_file = None
 shown_end_table = False
 
 try:
+    import base64
     import re
     import sys
     import argparse
@@ -64,6 +65,18 @@ debug.add_argument('--verbose', help='Verbose logging', action='store_true', def
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
 
 args = parser.parse_args()
+
+def decode_if_base64(input_str):
+    try:
+        decoded_bytes = base64.b64decode(input_str)
+        decoded_str = decoded_bytes.decode('utf-8')
+        return decoded_str
+    except Exception as e:
+        return input_str
+
+args.run_program = decode_if_base64(args.run_program)
+
+print("run_program:", run_program)
 
 if args.parameter is None and args.load_checkpoint is None:
     print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")

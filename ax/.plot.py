@@ -49,7 +49,7 @@ def main():
 
     args = parser.parse_args()
 
-    result_column = args.result_column
+    result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
     if not args.save_to_file:
         matplotlib.use('TkAgg')

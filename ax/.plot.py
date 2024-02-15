@@ -107,6 +107,7 @@ def main():
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:
+        print(f"No entries in {pd_csv}")
         sys.exit(4)
 
     # Create combinations of parameters

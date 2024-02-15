@@ -354,10 +354,7 @@
 						}
 					} else if (item.id == "run_program") {
 						var variables_in_run_program = get_var_names_from_run_program(value);
-						log("before quote:", value);
 						value = quote_variables(value);
-						alert("hallo");
-						log("after quote:", value);
 
 						var existing_parameter_names = $(".parameterName").map(function() {
 							const val = $(this).val();

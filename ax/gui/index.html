@@ -5,6 +5,10 @@
 		<title>OmniOpt2 GUI</title>
 		<link href="prism.css" rel="stylesheet" />
 		<style>
+			.no_linebreak {
+				line-break: auto;
+			}
+
 			h2 {
 				margin: 0px;
 				padding: 0px;
@@ -927,6 +931,10 @@
 				</td>
 				<td class='half_width_td'>
 					<div id="commands">
+						<h2>Install</h2>
+
+						<p class="no_linebreak">Run this to install OmniOpt and run this command. First time installation may take up to 30 minutes.</p>
+
 						<div class="dark_code_bg">
 							<code id="curl_command_highlighted"></code>
 							<code style="display: none" id="curl_command"></code>
@@ -936,6 +944,10 @@
 
 						<br>
 						<br>
+
+						<h2>Run</h2>
+
+						<p class="no_linebreak">Run this when you already have OmniOpt installed.</p>
 
 						<div class="dark_code_bg">
 							<code id="command_element_highlighted"></code>

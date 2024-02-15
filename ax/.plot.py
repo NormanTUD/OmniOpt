@@ -124,12 +124,14 @@ def main():
     if args.max is not None:
         df[args.result_column] = df[args.result_column].clip(upper=args.max)
 
-    # Matplotlib figure creation
     num_subplots = len(non_empty_graphs)
-    num_rows = 1 if num_subplots == 1 else 2  # Number of rows in the plot
-    num_cols = num_subplots  # Calculate the number of columns
 
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(15, 7))
+    # Calculate optimal number of rows and columns for subplot layout
+    num_cols = math.ceil(math.sqrt(num_subplots))
+    num_rows = math.ceil(num_subplots / num_cols)
+
+    # Matplotlib figure creation with adjusted subplot layout
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
     try:
         colors = df[args.result_column]

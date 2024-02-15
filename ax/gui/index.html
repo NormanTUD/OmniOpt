@@ -364,8 +364,6 @@
 							}
 						}
 					} else if (item.id == "run_program") {
-						value = value.replaceAll(/"/g, "\\\"");
-						value = value.replaceAll(/'/g, "\\\'");
 						var variables_in_run_program = get_var_names_from_run_program(value);
 						value = quote_variables(value);
 
@@ -404,6 +402,7 @@
 							$("#run_program_error").html("").hide();
 						}
 
+						value = btoa(value)
 						command += " --" + item.id + " " + value;
 						$("#" + item.id).css("background-color", "");
 					} else {

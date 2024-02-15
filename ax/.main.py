@@ -74,9 +74,10 @@ def decode_if_base64(input_str):
     except Exception as e:
         return input_str
 
-args.run_program = decode_if_base64(args.run_program)
+joined_run_program = " ".join(args.run_program[0])
+joined_run_program = decode_if_base64(joined_run_program)
 
-print("run_program:", run_program)
+print("run_program:", joined_run_program)
 
 if args.parameter is None and args.load_checkpoint is None:
     print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
@@ -434,8 +435,6 @@ def evaluate(parameters):
 
         parameters_keys = list(parameters.keys())
         parameters_values = list(parameters.values())
-
-        joined_run_program = " ".join(args.run_program[0])
 
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
 

@@ -364,6 +364,8 @@
 							}
 						}
 					} else if (item.id == "run_program") {
+						value = value.replaceAll(/"/g, "\\\"");
+						value = value.replaceAll(/'/g, "\\\'");
 						var variables_in_run_program = get_var_names_from_run_program(value);
 						value = quote_variables(value);
 

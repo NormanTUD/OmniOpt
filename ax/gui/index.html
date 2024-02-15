@@ -3,14 +3,22 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>OmniOpt2 GUI</title>
+		<link href="prism.css" rel="stylesheet" />
 		<style>
 			h2 {
+				color: white;
 				margin: 0px;
 				padding: 0px;
 			}
 
 			body {
 				font-family: Verdana, sans-serif;
+				background-color: #3c3c3c;
+			}
+
+			.dark_code_bg {
+				color: white;
+				background-color: #000000;
 			}
 
 			.code_bg {
@@ -135,6 +143,10 @@
 		<script src="jquery-3.7.1.js"></script>
 		<script src="prism.js"></script>
 		<script>
+			function highlight_bash (code) {
+				return Prism.highlight(code, Prism.languages.bash, 'bash');
+			}
+
 			var initialized = false;
 			var shown_operation_insecure_without_server = false;
 
@@ -523,8 +535,6 @@
 				}
 
 				if (!errors.length) {
-					$("#command_element").text(command).show().parent().show().parent().show();
-
 					var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
 
 					base_url = base_url.replaceAll(/\/+/g, "/");
@@ -552,10 +562,17 @@
 
 					var curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
 
-					$("#curl_command").text(curl_command).show().parent().show().parent().show();
+					$("#command_element_highlighted").html(highlight_bash(command)).show().parent().show().parent().show();
+					$("#curl_command_highlighted").html(highlight_bash(curl_command)).show().parent().show().parent().show();
+
+					$("#command_element").text(command);
+					$("#curl_command").text(curl_command);
 				} else {
-					$("#command_element").text("").hide().parent().hide().parent().hide();
-					$("#curl_command").text("").hide().parent().hide().parent().hide();
+					$("#command_element_highlighted").html("").hide().parent().hide().parent().hide();
+					$("#curl_command_highlighted").html("").hide().parent().hide().parent().hide();
+
+					$("#command_element").text("");
+					$("#curl_command").text("");
 				}
 
 				updateUrl();
@@ -905,8 +922,9 @@
 				</td>
 				<td class='half_width_td'>
 					<div id="commands">
-						<div class="code_bg">
-							<code class='language-bash' id="curl_command"></code>
+						<div class="dark_code_bg">
+							<code id="curl_command_highlighted"></code>
+							<code style="display: none" id="curl_command"></code>
 						</div>
 						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_curl">Copy to clipboard</button></div>
 						<div id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
@@ -914,8 +932,9 @@
 						<br>
 						<br>
 
-						<div class="code_bg">
-							<code class='language-bash' id="command_element"></code>
+						<div class="dark_code_bg">
+							<code id="command_element_highlighted"></code>
+							<code style="display: none" id="command_element"></code>
 						</div>
 						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_main">Copy to clipboard</button></div>
 						<div id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>

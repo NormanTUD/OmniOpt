@@ -107,7 +107,7 @@ def main():
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:
-        print(f"No entries in {pd_csv}")
+        print(f"No entries in {csv_file_path}, or all entries are 1e+59 (the value meaning execution failed)")
         sys.exit(4)
 
     # Create combinations of parameters

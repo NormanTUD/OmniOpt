@@ -49,6 +49,8 @@ def main():
 
     args = parser.parse_args()
 
+    result_column = args.result_column
+
     if not args.save_to_file:
         matplotlib.use('TkAgg')
 
@@ -80,14 +82,14 @@ def main():
         sys.exit(7)
 
     try:
-        negative_rows_to_remove = df[df[args.result_column].astype(str) == '-1e+59'].index
-        positive_rows_to_remove = df[df[args.result_column].astype(str) == '1e+59'].index
+        negative_rows_to_remove = df[df[result_column].astype(str) == '-1e+59'].index
+        positive_rows_to_remove = df[df[result_column].astype(str) == '1e+59'].index
 
         # Entferne die Zeilen mit den spezifischen Werten
         df.drop(negative_rows_to_remove, inplace=True)
         df.drop(positive_rows_to_remove, inplace=True)
     except KeyError:
-        print(f"column named `{args.result_column}` could not be found in {csv_file_path}.")
+        print(f"column named `{result_column}` could not be found in {csv_file_path}.")
         sys.exit(6)
 
     # Remove specified columns
@@ -101,8 +103,8 @@ def main():
 
     df_filtered = df.drop(columns=columns_to_remove)
 
-    if args.result_column in df_filtered.columns:
-        df_filtered = df_filtered.drop(columns=args.result_column)
+    if result_column in df_filtered.columns:
+        df_filtered = df_filtered.drop(columns=result_column)
 
     num_entries = len(df_filtered)
 
@@ -132,9 +134,9 @@ def main():
         sys.exit(2)
 
     if args.min is not None:
-        df[args.result_column] = df[args.result_column].clip(lower=args.min)
+        df[result_column] = df[result_column].clip(lower=args.min)
     if args.max is not None:
-        df[args.result_column] = df[args.result_column].clip(upper=args.max)
+        df[result_column] = df[result_column].clip(upper=args.max)
 
     num_subplots = len(non_empty_graphs)
 
@@ -146,9 +148,9 @@ def main():
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
     try:
-        colors = df[args.result_column]
+        colors = df[result_column]
     except KeyError as e:
-        if str(e) == "'" + args.result_column + "'":
+        if str(e) == "'" + result_column + "'":
             print(f"Could not find any results in {csv_file_path}")
             sys.exit(3)
         else:
@@ -167,17 +169,17 @@ def main():
             ax = axs  # Use the single axis
             scatter = ax.scatter(df_filtered[non_empty_graphs[0][0]], range(len(df_filtered)), c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             ax.set_xlabel(non_empty_graphs[0][0])
-            ax.set_ylabel(args.result_column)
+            ax.set_ylabel(result_column)
             # Farbgebung und Legende für das einzelne Scatterplot
             cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
-            cbar.set_label(args.result_column, rotation=270, labelpad=15)
+            cbar.set_label(result_column, rotation=270, labelpad=15)
         else:                     
             scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             axs.set_xlabel(non_empty_graphs[0][0])
             axs.set_ylabel(non_empty_graphs[0][1])
             # Farbgebung und Legende für das einzelne Scatterplot
             cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-            cbar.set_label(args.result_column, rotation=270, labelpad=15)
+            cbar.set_label(result_column, rotation=270, labelpad=15)
     else:                                                         
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols   
@@ -193,7 +195,7 @@ def main():
 
         # Color bar addition für mehrere Subplots
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1) 
-        cbar.set_label(args.result_column, rotation=270, labelpad=15)
+        cbar.set_label(result_column, rotation=270, labelpad=15)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
         row = i // num_cols
@@ -201,7 +203,7 @@ def main():
         axs[row, col].set_visible(False)
 
     # Add title with parameters and result
-    result_column_values = df[args.result_column]
+    result_column_values = df[result_column]
     filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
     number_of_non_nan_results = len(filtered_data)
 

@@ -3,6 +3,9 @@ import os
 import argparse
 import math
 
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 try:
     from rich.pretty import pprint
 except ModuleNotFoundError:

@@ -165,14 +165,12 @@ def main():
     if num_subplots == 1: 
         if len(non_empty_graphs[0]) == 1:        
             ax = axs  # Use the single axis
-            scatter = ax.plot(df_filtered[non_empty_graphs[0][0]], colors, 'o')
+            scatter = ax.scatter(df_filtered[non_empty_graphs[0][0]], range(len(df_filtered)), c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             ax.set_xlabel(non_empty_graphs[0][0])
             ax.set_ylabel(args.result_column)
             # Farbgebung und Legende für das einzelne Scatterplot
-            norm = plt.Normalize(colors.min(), colors.max())
-            cmap = plt.cm.viridis
-            cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
-            cbar.set_label(args.result_column)
+            cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
+            cbar.set_label(args.result_column, rotation=270, labelpad=15)
         else:                     
             scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             axs.set_xlabel(non_empty_graphs[0][0])

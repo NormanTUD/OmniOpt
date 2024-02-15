@@ -79,7 +79,10 @@ if [[ "$INTERACTIVE" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; th
 		done
 	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt for optimizing project '$PROJECTNAME'" 8 78 0 && echo_green 'Cloning successful' || echo_red 'Cloning failed'
 else
-	$CLONECOMMAND
+	$CLONECOMMAND || {
+		echo_red "Git cloning failed."
+		exit 2
+	}
 fi
 
 cd $TO_DIR/ax/

@@ -164,7 +164,7 @@
 			var tableData = [
 				{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true },
 				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true, 'regex': '^[a-zA-Z0-9_]+$'},
-				{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]$" },
+				{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]+$" },
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1 },
 				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1 },
 				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)", min: 1 },

@@ -168,8 +168,8 @@
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1 },
 				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1 },
 				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)", min: 1 },
-				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1 },
-				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations", min: 1 },
+				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000 },
+				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations", 'min': 1, 'max': 100000000 },
 				{ label: "GPUs", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs", min: 0 },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1 },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
@@ -383,6 +383,11 @@
 						}
 					} else if (item.type === "number") {
 						var numValue = parseFloat(value);
+
+						if(item.id == "max_eval") {
+							console.log(numValue, item.max, item);
+						}
+
 						if (isNaN(numValue)) {
 							errors.push("Invalid value for '" + item.label + "'. Must be a number.");
 						} else if (item.min && item.max && (numValue < item.min || numValue > item.max)) {

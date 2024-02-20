@@ -512,7 +512,7 @@
 									$($(".parameterRow")[i]).css("background-color", "orange")
 								}
 							} else {
-								warn_msg(`choiceValues not defined.`);
+								warn_msg.push(`choiceValues not defined.`);
 							}
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();

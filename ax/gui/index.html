@@ -384,10 +384,6 @@
 					} else if (item.type === "number") {
 						var numValue = parseFloat(value);
 
-						if(item.id == "max_eval") {
-							console.log(numValue, item.max, item);
-						}
-
 						if (isNaN(numValue)) {
 							errors.push("Invalid value for '" + item.label + "'. Must be a number.");
 						} else if (item.min && item.max && (numValue < item.min || numValue > item.max)) {

@@ -496,19 +496,23 @@
 						} else if (option === "choice") {
 							var choiceValues = $(this).find(".choiceValues").val();
 
-							choiceValues = choiceValues.replaceAll(/\s/g, ",");
-							choiceValues = choiceValues.replaceAll(/,,*/g, ",");
-							choiceValues = choiceValues.replaceAll(/,,*$/g, "");
-							choiceValues = choiceValues.replaceAll(/^,,*/g, "");
+							if(choiceValues !== undefined) {
+								choiceValues = choiceValues.replaceAll(/\s/g, ",");
+								choiceValues = choiceValues.replaceAll(/,,*/g, ",");
+								choiceValues = choiceValues.replaceAll(/,,*$/g, "");
+								choiceValues = choiceValues.replaceAll(/^,,*/g, "");
 
-							choiceValues = [...new Set(choiceValues.split(','))].join(',');
+								choiceValues = [...new Set(choiceValues.split(','))].join(',');
 
-							_value = `${parameterName} choice ${choiceValues}`;
+								_value = `${parameterName} choice ${choiceValues}`;
 
-							if(!choiceValues.match(/./)) {
-								warn_msg.push("Values are missing.");
+								if(!choiceValues.match(/./)) {
+									warn_msg.push("Values are missing.");
 
-								$($(".parameterRow")[i]).css("background-color", "orange")
+									$($(".parameterRow")[i]).css("background-color", "orange")
+								}
+							} else {
+								warn_msg(`choiceValues not defined.`);
 							}
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();

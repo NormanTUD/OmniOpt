@@ -163,7 +163,7 @@
 
 			var tableData = [
 				{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true },
-				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true },
+				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true, 'regex': '^[a-zA-Z]+$'},
 				{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false },
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 0 },
 				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1 },
@@ -353,6 +353,21 @@
 
 				tableData.forEach(function(item) {
 					var value = $("#" + item.id).val();
+
+					if(item.regex) {
+						var re = new RegExp(item.regex, "i")
+
+						var text = $("#" + item.id).val();
+
+						if(!text.match(re)) {
+							var this_error = `The element "${item.id}" does not match regex /${item.regex}/.`;
+							errors.push(this_error)
+							$("#" + item.id + "_error").html(this_error).show();
+						} else {
+							$("#" + item.id + "_error").html("").hide();
+						}
+					}
+
 					if (item.type === "checkbox") {
 						value = $("#" + item.id).is(":checked") ? "1" : "0";
 						if (value === "1") {
@@ -427,9 +442,11 @@
 						command += " --" + item.id + " " + value;
 						$("#" + item.id).css("background-color", "");
 					} else {
-						command += " --" + item.id + " " + value;
-						$("#" + item.id + "_error").html("").hide();
-						$("#" + item.id).css("background-color", "");
+						if(!errors.length) {
+							command += " --" + item.id + " " + value;
+							$("#" + item.id + "_error").html("").hide();
+							$("#" + item.id).css("background-color", "");
+						}
 					}
 				});
 

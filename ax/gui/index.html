@@ -514,7 +514,9 @@
 							var fixedValue = $(this).find(".fixedValue").val();
 							_value = `${parameterName} fixed ${fixedValue}`;
 
-							if(!fixedValue.match(/./)) {
+							if(fixedValue === undefined) {
+								warn_msg.push("Value is missing.");
+							} else if(!fixedValue.match(/./)) {
 								warn_msg.push("Value is missing.");
 
 								$($(".parameterRow")[i]).css("background-color", "orange")

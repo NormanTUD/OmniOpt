@@ -1,0 +1,196 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+
+trap 'calltracer' ERR
+
+slurmlogpath () {
+	if command -v scontrol 2>/dev/null >/dev/null; then
+		scontrol show job $1 | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} StdOut | sed -e 's/^\s*StdOut=//'
+	fi
+}
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+minutes_to_hh_mm_ss() {
+	var=$1
+
+	number_re='^[0-9]+$'
+	time_re='^[0-9]+:[0-9]+:[0-9]+$'
+
+	if [[ $var =~ $number_re ]] ; then
+		local total_minutes="$var"
+		local hours=$(( total_minutes / 60 ))
+		local minutes=$(( total_minutes % 60 ))
+		local seconds=00
+
+		printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
+	elif [[ $var =~ $time_re ]]; then
+		echo $var
+	else
+		red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS"
+
+		exit 103
+	fi
+}
+
+export mem_gb=
+export gpus=0
+export time=
+export experiment_name=
+export help=0
+export follow=0
+
+for i in $@; do
+        case $i in
+                --mem_gb=*)
+                        mem_gb="${i#*=}"
+                        re='^[+-]?[0-9]+$'
+                        if ! [[ $mem_gb =~ $re ]] ; then
+                                red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+                        fi
+                        ;;
+                --experiment_name=*)
+                        experiment_name="${i#*=}"
+                        ;;
+                --gpus=*)
+                        gpus="${i#*=}"
+                        re='^[+-]?[0-9]+$'
+                        if ! [[ $gpus =~ $re ]] ; then
+                                red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+                        fi
+                        ;;
+		--follow)
+			follow=1
+                        ;;
+                --help*)
+			help=1
+                        ;;
+                --time=*)
+                        time="${i#*=}"
+                        ;;
+                --debug)
+                        set -x
+                        ;;
+        esac
+done
+
+if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
+	if [[ -z "$mem_gb" ]]; then
+		red_text "Parameter --mem_gb cannot be empty";
+		exit 101
+	fi
+
+	if [[ -z "$time" ]]; then
+		red_text "Parameter --time cannot be empty";
+		exit 102
+	fi
+fi
+
+sent_usr_signal_to_script=0
+python_pid=
+
+JOB_START_TIME=$SLURM_JOB_START_TIME
+JOB_END_TIME=$SLURM_JOB_END_TIME
+
+run_before_end () {
+	if command -v sbatch >/dev/null; then
+		sleep_time=$((JOB_END_TIME - JOB_START_TIME - 30))
+		# Überprüfen, ob die Zeitdifferenz positiv ist, um zu vermeiden, dass das Skript im negativen Bereich schläft
+		if [ $sleep_time -gt 0 ]; then
+			sleep $sleep_time
+
+			if [[ $sent_usr_signal_to_script -eq 0 ]]; then
+				sent_usr_signal_to_script=1
+				kill -USR1 "$python_pid"
+			else
+				echo "Already sent user signal to python PID $python_pid. Not doing that again."
+			fi
+		else
+			echo "It is recommended that you run this in a slurm job."
+		fi
+	fi
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+if [ -n "${SLURM_JOB_ID:-}" ] ; then
+	if [[ -z $DEBUG_SLURM ]]; then
+		SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
+		SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
+
+		if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
+			SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
+		else
+			echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
+		fi
+	fi
+fi
+
+cd $SCRIPT_DIR
+
+source .shellscript_functions
+
+if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
+	# To start all subjobs indenpedently from the main job, unset all SLURM variables
+	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
+		unset $i
+	done
+
+	IFS=$' '
+	python3 .main.py $* &
+	python_pid=$!
+
+	run_before_end &
+
+	wait "$python_pid"
+else
+	IFS=$' '
+
+	formatted_time=$(minutes_to_hh_mm_ss $time)
+
+	sbatch_result=""
+	exit_code=""
+
+	if [[ $gpus -ne 0 ]]; then
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/main $* | tee /dev/stderr)
+		exit_code=$?
+	else
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $* | tee /dev/stderr)
+		exit_code=$?
+	fi
+
+	if [[ $exit_code -eq 0 ]]; then
+		if [[ $follow -eq 1 ]]; then
+			started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
+			if command -v sbatch 2>/dev/null >/dev/null; then
+				LOG_PATH=$(slurmlogpath $started_job_nr)
+
+				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed..."
+				echo ""
+
+				while ! [[ -e $LOG_PATH ]]; do
+					sleep 1
+				done
+
+				tail -n1000000 -f $LOG_PATH
+			fi
+		fi
+	else
+		red_text "Failed to start sbatch job. Exit-Code: $exit_code"
+	fi
+fi

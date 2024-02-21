@@ -9,4 +9,4 @@ logfile.txt
 .*.log
 gui/**/*.swp
 gui/**/*.pl~
-
+tools/parallel_venv/

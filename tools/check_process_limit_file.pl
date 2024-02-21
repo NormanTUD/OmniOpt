@@ -18,7 +18,7 @@ sub get_errors_from_file {
             my $used_processes = $splitted[2];
             my $max_processes = $splitted[3];
             if($used_processes >= int($percent_limit * $max_processes)) {
-                push @errors, "Almost reached limit of $max_processes ($used_processes used processes) on $hostname at time $splitted[0]. This may explain failing forks.";
+                push @errors, "Almost reached limit of $max_processes ($used_processes used processes) on $hostname at time $splitted[0]. This may explain failing forks.\n";
             }
         }
         $i++;

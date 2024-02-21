@@ -3,6 +3,9 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 pil_logger = logging.getLogger('PIL')
 pil_logger.setLevel(logging.INFO)
 
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 import pprint
 import matplotlib
 import matplotlib.pyplot as plt

@@ -25,7 +25,7 @@ def gridsearch(new_ids, domain, trials, seed, nbMaxSucessiveFailures=1000):
     hashset = set([hash(frozenset([(key, value[0]) if len(value) > 0 else ((key, None))
                                    for key, value in trial['misc']['vals'].items()])) for trial in trials.trials])
 
-    rng = np.random.RandomState(seed)
+    rng = np.random.default_rng(seed)
     rval = []
     for _, new_id in enumerate(new_ids):
         newSample = False

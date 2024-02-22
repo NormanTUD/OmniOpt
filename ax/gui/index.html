@@ -395,9 +395,9 @@
 						} else {
 							value = numValue.toString();
 							if (item.type == "number") {
-								command += " --" + item.id + " " + value;
+								command += " --" + item.id + "=" + value;
 							} else {
-								command += " --" + item.id + " '" + value + "'";
+								command += " --" + item.id + "='" + value + "'";
 							}
 						}
 					} else if (item.id == "run_program") {
@@ -440,11 +440,11 @@
 						}
 
 						value = btoa(value)
-						command += " --" + item.id + " " + value;
+						command += " --" + item.id + "=" + value;
 						$("#" + item.id).css("background-color", "");
 					} else {
 						if(!errors.length) {
-							command += " --" + item.id + " " + value;
+							command += " --" + item.id + "=" + value;
 							$("#" + item.id + "_error").html("").hide();
 							$("#" + item.id).css("background-color", "");
 						}

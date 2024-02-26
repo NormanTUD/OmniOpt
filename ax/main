@@ -53,6 +53,8 @@ export experiment_name=
 export help=0
 export follow=0
 
+args_string=""
+
 args=("$@")
 k=0
 while [ $k -lt ${#args[@]} ]; do
@@ -70,6 +72,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_mem_gb ]]; then
                                 red_text "--mem_gb was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --mem_gb=$mem_gb "
+
                         ;;
                 --mem_gb)
                         old_mem_gb=$mem_gb
@@ -86,9 +91,10 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_mem_gb ]]; then
                                 red_text "--mem_gb was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --mem_gb=$mem_gb "
+
                         ;;
-
-
 
                 --gpus=*)
                         old_gpus=$gpus
@@ -101,6 +107,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_gpus ]]; then
                                 red_text "--gpus was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --gpus=$gpus "
+
                         ;;
                 --gpus)
                         old_gpus=$gpus
@@ -117,6 +126,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_gpus ]]; then
                                 red_text "--gpus was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --gpus=$gpus "
+
                         ;;
 
 		--experiment_name=*)
@@ -126,6 +138,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_experiment_name ]]; then
                                 red_text "--experiment_name was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --experiment_name=$experiment_name"
+
                         ;;
                 --experiment_name)
                         old_experiment_name=$experiment_name
@@ -138,6 +153,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_experiment_name ]]; then
                                 red_text "--experiment_name was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --experiment_name=$experiment_name"
+
                         ;;
 
 		--time=*)
@@ -147,6 +165,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_time ]]; then
                                 red_text "--time was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --time=$time "
+
                         ;;
                 --time)
                         old_time=$time
@@ -159,6 +180,9 @@ while [ $k -lt ${#args[@]} ]; do
                         if [[ ! -z $old_time ]]; then
                                 red_text "--time was specified more than once. Using the last one."
                         fi
+
+			args_string+=" --time=$time "
+
                         ;;
 
 		--follow)
@@ -166,24 +190,33 @@ while [ $k -lt ${#args[@]} ]; do
                         ;;
                 --help*)
 			help=1
+			args_string+=" --help "
                         ;;
                 --debug)
                         set -x
                         ;;
+
+		*)
+			args_string+=" $i "
+			;;
         esac
 	k=$((k+1))
 done
+
+args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
 
 if [[ -z $gpus ]]; then
 	gpus=0
 fi
 
-echo "mem_gb=$mem_gb"
-echo "gpus=$gpus"
-echo "time=$time"
-echo "experiment_name=$experiment_name"
-echo "help=$help"
-echo "follow=$follow"
+#echo "args_string: $args_string"
+
+#echo "mem_gb=$mem_gb"
+#echo "gpus=$gpus"
+#echo "time=$time"
+#echo "experiment_name=$experiment_name"
+#echo "help=$help"
+#echo "follow=$follow"
 
 if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then
@@ -248,7 +281,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	done
 
 	IFS=$' '
-	python3 .main.py $* &
+	python3 .main.py $args_string &
 	python_pid=$!
 
 	run_before_end &

@@ -71,6 +71,7 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_mem_gb ]]; then
                                 red_text "--mem_gb was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
                         fi
 
 			args_string+=" --mem_gb=$mem_gb "
@@ -90,6 +91,7 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_mem_gb ]]; then
                                 red_text "--mem_gb was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
                         fi
 
 			args_string+=" --mem_gb=$mem_gb "
@@ -106,6 +108,7 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_gpus ]]; then
                                 red_text "--gpus was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
                         fi
 
 			args_string+=" --gpus=$gpus "
@@ -125,6 +128,7 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_gpus ]]; then
                                 red_text "--gpus was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
                         fi
 
 			args_string+=" --gpus=$gpus "
@@ -137,9 +141,10 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_experiment_name ]]; then
                                 red_text "--experiment_name was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--experiment_name=[0-9a-zA-Z_]*\s\s*# #')
                         fi
 
-			args_string+=" --experiment_name=$experiment_name"
+			args_string+=" --experiment_name=$experiment_name "
 
                         ;;
                 --experiment_name)
@@ -152,9 +157,10 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_experiment_name ]]; then
                                 red_text "--experiment_name was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--experiment_name=[0-9a-zA-Z_]*\s\s*# #')
                         fi
 
-			args_string+=" --experiment_name=$experiment_name"
+			args_string+=" --experiment_name=$experiment_name "
 
                         ;;
 
@@ -164,6 +170,7 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_time ]]; then
                                 red_text "--time was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--time=[0-9a-zA-Z_]*\s\s*# #')
                         fi
 
 			args_string+=" --time=$time "
@@ -179,6 +186,7 @@ while [ $k -lt ${#args[@]} ]; do
 
                         if [[ ! -z $old_time ]]; then
                                 red_text "--time was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--time=[0-9a-zA-Z_]*\s\s*# #')
                         fi
 
 			args_string+=" --time=$time "

@@ -330,12 +330,12 @@ else
 				spin[2]="|"
 				spin[3]="/"
 
-				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed..."
+				echo ""
 				echo ""
 
 				while ! [[ -e $LOG_PATH ]]; do
 					for i in "${spin[@]}"; do
-						echo -ne "\b$i"
+						echo -ne "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed... \b$i"
 						sleep 0.1
 					done
 				done

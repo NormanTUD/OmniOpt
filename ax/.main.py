@@ -1,7 +1,7 @@
 ax_client = None
 jobs = []
 end_program_ran = False
-program_name = "OmniOpt2"
+program_name = "OmniOpt"
 current_run_folder = None
 file_number = 0
 folder_number = 0

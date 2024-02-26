@@ -47,47 +47,145 @@ minutes_to_hh_mm_ss() {
 }
 
 export mem_gb=
-export gpus=0
+export gpus=
 export time=
 export experiment_name=
 export help=0
 export follow=0
 
-for i in $@; do
+args=("$@")
+k=0
+while [ $k -lt ${#args[@]} ]; do
+	i="${args[k]}"
+
         case $i in
                 --mem_gb=*)
+                        old_mem_gb=$mem_gb
                         mem_gb="${i#*=}"
-                        re='^[+-]?[0-9]+$'
-                        if ! [[ $mem_gb =~ $re ]] ; then
+                        if ! [[ $mem_gb =~ $int_re ]] ; then
                                 red_text "error: --mem_gb not a INT: $i" >&2
-				exit 100
+                                exit 100
+                        fi
+
+                        if [[ ! -z $old_mem_gb ]]; then
+                                red_text "--mem_gb was specified more than once. Using the last one."
                         fi
                         ;;
-                --experiment_name=*)
-                        experiment_name="${i#*=}"
+                --mem_gb)
+                        old_mem_gb=$mem_gb
+
+                        shift
+			k=$((k+1))
+
+                        mem_gb="${args[k]}"
+                        if ! [[ $mem_gb =~ $int_re ]] ; then
+                                red_text "error: --mem_gb not a INT: $i" >&2
+                                exit 100
+                        fi
+
+                        if [[ ! -z $old_mem_gb ]]; then
+                                red_text "--mem_gb was specified more than once. Using the last one."
+                        fi
                         ;;
+
+
+
                 --gpus=*)
+                        old_gpus=$gpus
                         gpus="${i#*=}"
-                        re='^[+-]?[0-9]+$'
-                        if ! [[ $gpus =~ $re ]] ; then
+                        if ! [[ $gpus =~ $int_re ]] ; then
                                 red_text "error: --gpus not a INT: $i" >&2
-				exit 100
+                                exit 100
+                        fi
+
+                        if [[ ! -z $old_gpus ]]; then
+                                red_text "--gpus was specified more than once. Using the last one."
                         fi
                         ;;
+                --gpus)
+                        old_gpus=$gpus
+
+                        shift
+
+			k=$((k+1))
+                        gpus="${args[k]}"
+                        if ! [[ $gpus =~ $int_re ]] ; then
+                                red_text "error: --gpus not a INT: $i" >&2
+                                exit 100
+                        fi
+
+                        if [[ ! -z $old_gpus ]]; then
+                                red_text "--gpus was specified more than once. Using the last one."
+                        fi
+                        ;;
+
+		--experiment_name=*)
+                        old_experiment_name=$experiment_name
+                        experiment_name="${i#*=}"
+
+                        if [[ ! -z $old_experiment_name ]]; then
+                                red_text "--experiment_name was specified more than once. Using the last one."
+                        fi
+                        ;;
+                --experiment_name)
+                        old_experiment_name=$experiment_name
+
+                        shift
+
+			k=$((k+1))
+                        experiment_name="${args[k]}"
+
+                        if [[ ! -z $old_experiment_name ]]; then
+                                red_text "--experiment_name was specified more than once. Using the last one."
+                        fi
+                        ;;
+
+		--time=*)
+                        old_time=$time
+                        time="${i#*=}"
+
+                        if [[ ! -z $old_time ]]; then
+                                red_text "--time was specified more than once. Using the last one."
+                        fi
+                        ;;
+                --time)
+                        old_time=$time
+
+                        shift
+
+			k=$((k+1))
+                        time="${args[k]}"
+
+                        if [[ ! -z $old_time ]]; then
+                                red_text "--time was specified more than once. Using the last one."
+                        fi
+                        ;;
+
 		--follow)
 			follow=1
                         ;;
                 --help*)
 			help=1
                         ;;
-                --time=*)
-                        time="${i#*=}"
-                        ;;
                 --debug)
                         set -x
                         ;;
         esac
+	k=$((k+1))
 done
+
+if [[ -z $gpus ]]; then
+	gpus=0
+fi
+
+echo "mem_gb=$mem_gb"
+echo "gpus=$gpus"
+echo "time=$time"
+echo "experiment_name=$experiment_name"
+echo "help=$help"
+echo "follow=$follow"
+
+exit 1
 
 if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then

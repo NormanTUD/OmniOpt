@@ -185,8 +185,6 @@ echo "experiment_name=$experiment_name"
 echo "help=$help"
 echo "follow=$follow"
 
-exit 1
-
 if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then
 		red_text "Parameter --mem_gb cannot be empty";

@@ -46,6 +46,8 @@ minutes_to_hh_mm_ss() {
 	fi
 }
 
+int_re='^[+-]?[0-9]+$'
+
 export mem_gb=
 export gpus=
 export time=

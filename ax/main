@@ -325,11 +325,19 @@ else
 			if command -v sbatch 2>/dev/null >/dev/null; then
 				LOG_PATH=$(slurmlogpath $started_job_nr)
 
+				spin[0]="-"
+				spin[1]="\\"
+				spin[2]="|"
+				spin[3]="/"
+
 				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed..."
 				echo ""
 
 				while ! [[ -e $LOG_PATH ]]; do
-					sleep 1
+					for i in "${spin[@]}"; do
+						echo -ne "\b$i"
+						sleep 0.1
+					done
 				done
 
 				tail -n1000000 -f $LOG_PATH

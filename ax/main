@@ -220,6 +220,7 @@ if [[ -z $gpus ]]; then
 fi
 
 #echo "args_string: $args_string"
+#exit
 
 #echo "mem_gb=$mem_gb"
 #echo "gpus=$gpus"
@@ -227,6 +228,22 @@ fi
 #echo "experiment_name=$experiment_name"
 #echo "help=$help"
 #echo "follow=$follow"
+
+
+if [[ -z $time ]]; then
+	red_text "--time is missing"
+	exit 104
+fi
+
+if [[ -z $mem_gb ]]; then
+	red_text "--mem_gb is missing"
+	exit 104
+fi
+
+if [[ -z $experiment_name ]]; then
+	red_text "--experiment_name is missing"
+	exit 104
+fi
 
 if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then

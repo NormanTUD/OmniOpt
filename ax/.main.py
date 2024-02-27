@@ -10,6 +10,7 @@ result_csv_file = None
 shown_end_table = False
 
 try:
+    import socket
     import os
     import stat
     import pwd
@@ -480,6 +481,8 @@ def check_file_info(file_path):
     string += f"Aktueller Benutzer: {current_user}\n"
     string += f"Gruppen des Benutzers: {user_groups}\n"
     string += f"Gruppen des Benutzers: {user_group_names}\n"
+
+    string += f"Hostname: {socket.gethostname()}"
 
     return string
 

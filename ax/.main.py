@@ -10,6 +10,9 @@ result_csv_file = None
 shown_end_table = False
 
 try:
+    import os
+    import stat
+    import pwd
     import base64
     import re
     import sys
@@ -416,6 +419,68 @@ def make_strings_equal_length(str1, str2):
 
     return str1, str2
 
+def find_file_paths(_text):
+    file_paths = []
+
+    words = _text.split()
+
+    for word in words:
+        if os.path.exists(word):
+            file_paths.append(word)
+
+    return file_paths
+
+def check_file_info(file_path):
+    if not os.path.exists(file_path):
+        print(f"Die Datei {file_path} existiert nicht.")
+        return
+
+    if not os.access(file_path, os.R_OK):
+        print(f"Die Datei {file_path} ist nicht lesbar.")
+        return
+
+    file_stat = os.stat(file_path)
+
+    uid = file_stat.st_uid
+    gid = file_stat.st_gid
+
+    username = pwd.getpwuid(uid).pw_name
+    groupname = pwd.getpwuid(gid).pw_name
+
+    size = file_stat.st_size
+    permissions = stat.filemode(file_stat.st_mode)
+
+    access_time = file_stat.st_atime
+    modification_time = file_stat.st_mtime
+    status_change_time = file_stat.st_ctime
+
+    string = ""
+
+    string += f"Datei: {file_path}\n"
+    string += f"Größe: {size} Bytes\n"
+    string += f"Berechtigungen: {permissions}\n"
+    string += f"Besitzer: {username}\n"
+    string += f"Gruppe: {groupname}\n"
+    string += f"Letzter Zugriff: {access_time}\n"
+    string += f"Letzte Änderung: {modification_time}\n"
+    string += f"Letzter Statuswechsel: {status_change_time}\n"
+
+    return string
+
+def find_file_paths_and_print_infos (_text):
+    file_paths = find_file_paths(_text)
+
+    string = "";
+
+    if file_paths:
+        string += "\n========\nDEBUG INFOS START:\n"
+        for file_path in file_paths:
+            string += "\n"
+            string += check_file_info(file_path)
+        string += "\n========\nDEBUG INFOS END\n"
+
+    return string
+
 def evaluate(parameters):
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -441,6 +506,10 @@ def evaluate(parameters):
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
 
         program_string = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
+
+        string = find_file_paths_and_print_infos(program_string_with_params)
+
+        print("Debug-Infos:", string)
 
         print_color("green", program_string_with_params)
 

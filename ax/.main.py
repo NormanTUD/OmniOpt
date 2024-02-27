@@ -305,6 +305,8 @@ def parse_experiment_parameters(args):
 
                 value = this_args[j + 2]
 
+                value = value.replace('\r', ' ').replace('\n', ' ')
+
                 param = {
                     "name": name,
                     "type": "fixed",
@@ -437,6 +439,8 @@ def evaluate(parameters):
         parameters_values = list(parameters.values())
 
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
+
+        program_string = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
         print_color("green", program_string_with_params)
 

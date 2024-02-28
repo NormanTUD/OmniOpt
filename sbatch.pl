@@ -857,6 +857,7 @@ sub load_needed_modules {
         my $lmod_path = $ENV{LMOD_CMD};
 	if(!$lmod_path) {
 		warning "lmod could not be found. Are you sure you are running this on a Taurus environment?";
+		return;
 	}
         modify_system("eval \$($lmod_path sh --force purge 2>/dev/null)");
 
@@ -1767,7 +1768,7 @@ sub debug_system ($) {
         my $error_code = $?;
         my $exit_code = $error_code >> 8;
         my $signal_code = $error_code & 127;
-        debug "EXIT-Code: $exit_code, Signal: $signal_code";
+        debug "Command: >$command<, EXIT-Code: $exit_code, Signal: $signal_code";
         $indentation--;
         return $exit_code;
 }

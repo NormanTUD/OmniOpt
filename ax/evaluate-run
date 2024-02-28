@@ -47,7 +47,7 @@ fi
 
 function this_help {
 	cat <<'EOF'
-This helps graphically to use OmniOpt2.
+This helps graphically to use OmniOpt.
 
 -p=/path/                                                   Path to available projects
 --projectdir=/path/to/projects/
@@ -499,7 +499,7 @@ close $fh;
 
 function change_variables {
 	eval `resize`
-	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run (currently $DEBUG)" "OO_RESULT_COLUMN_NAME" "The name of the result column in scatter plots (default: result, currently: $OO_RESULT_COLUMN_NAME)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "s)" "Save current settings as default for this OmniOpt2-installation" "S)" "Save current settings as default for all OmniOpt2-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
+	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run (currently $DEBUG)" "OO_RESULT_COLUMN_NAME" "The name of the result column in scatter plots (default: result, currently: $OO_RESULT_COLUMN_NAME)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "s)" "Save current settings as default for this OmniOpt-installation" "S)" "Save current settings as default for all OmniOpt-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$MENU_CHOICE" =~ "m)" ]]; then
@@ -776,7 +776,7 @@ if [[ $sourced == "0" ]]; then
                 debug_code "Software seems up-to-date ($CURRENTHASH)"
             else
                 eval `resize`
-                if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+                if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
                     git pull
                     bash ./evaluate-run --dont_load_modules --no_upgrade $@
                     exit

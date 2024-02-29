@@ -471,7 +471,7 @@
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
 
-							var numberType = $("#numberTypeSelect").val();
+							var numberType = $($(".numberTypeSelect")[i]).val();
 
 							if (minValue === maxValue) {
 								warn_msg.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
@@ -640,7 +640,7 @@
 						<tr>
 							<td>Type:</td>
 							<td>
-								<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" id="numberTypeSelect">
+								<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
 									<option value="float">Float</option>
 									<option value="int">Integer</option>
 								</select>

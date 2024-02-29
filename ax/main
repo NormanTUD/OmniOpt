@@ -233,7 +233,7 @@ if command -v whiptail 2>/dev/null >/dev/null; then
 			else
 				eval `resize`
 				if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-					echo_yellow "Asking again next time"
+					echo "Asking again next time if you want to upgrade"
 				else
 					green_text "OK, not asking again"
 					touch .dont_ask_upgrade_main

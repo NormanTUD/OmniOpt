@@ -249,16 +249,6 @@ if [[ -z $gpus ]]; then
 	gpus=0
 fi
 
-#echo "args_string: $args_string"
-#exit
-
-#echo "mem_gb=$mem_gb"
-#echo "gpus=$gpus"
-#echo "time=$time"
-#echo "experiment_name=$experiment_name"
-#echo "help=$help"
-#echo "follow=$follow"
-
 if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then
 		red_text "Parameter --mem_gb is missing or empty";

@@ -224,7 +224,7 @@ if [[ ! -e .dont_ask_upgrade_main ]]; then
 	REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
 
 	if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
-		echo_green "Software seems up-to-date ($CURRENTHASH)"
+		green_text "Software seems up-to-date ($CURRENTHASH)"
 	else
 		eval `resize`
 		if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
@@ -236,7 +236,7 @@ if [[ ! -e .dont_ask_upgrade_main ]]; then
 			if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 				echo_yellow "Asking again next time"
 			else
-				echo_green "OK, not asking again"
+				green_text "OK, not asking again"
 				touch .dont_ask_upgrade_main
 			fi
 		fi

@@ -216,6 +216,19 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
+import re
+
+def looks_like_int(x):
+    if isinstance(x, int):
+        return True
+    elif isinstance(x, float):
+        return x.is_integer()
+    elif isinstance(x, str):
+        return bool(re.match(r'^\d+$', x))
+    else:
+        return False
+
+
 def parse_experiment_parameters(args):
     params = []
 
@@ -291,6 +304,16 @@ def parse_experiment_parameters(args):
                     valid_value_types_string = ", ".join(valid_value_types)
                     print_color("red", f"\n:warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     sys.exit(8)
+
+                if value_type == "int":
+                    if not looks_like_int(lower_bound):
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}")
+                        sys.exit(37)
+
+                    if not looks_like_int(upper_bound):
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}")
+                        sys.exit(38)
+
 
                 param = {
                     "name": name,

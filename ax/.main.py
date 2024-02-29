@@ -84,10 +84,10 @@ joined_run_program = decode_if_base64(joined_run_program)
 print("Program to evaluated: ", joined_run_program)
 
 if args.parameter is None and args.load_checkpoint is None:
-    print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
+    print("Either --parameter or --load_checkpoint is required. Both were not found.")
     sys.exit(19)
 elif args.parameter is not None and args.load_checkpoint is not None:
-    print_color("red", "You cannot use --parameter and --load_checkpoint. You have to decide for one.");
+    print("You cannot use --parameter and --load_checkpoint. You have to decide for one.");
     sys.exit(20)
 elif args.load_checkpoint:
     if not os.path.exists(args.load_checkpoint):

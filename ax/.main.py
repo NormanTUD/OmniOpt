@@ -91,7 +91,7 @@ elif args.parameter is not None and args.load_checkpoint is not None:
     sys.exit(20)
 elif args.load_checkpoint:
     if not os.path.exists(args.load_checkpoint):
-        print_color("red", f"{args.load_checkpoint} could not be found!")
+        print("red", f"{args.load_checkpoint} could not be found!")
         sys.exit(21)
 
 def print_debug (msg):

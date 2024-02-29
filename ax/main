@@ -230,7 +230,7 @@ if [[ ! -e .dont_ask_upgrade_main ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
 		else
 			eval `resize`
 			if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-				echo "Asking again next time"
+				echo_yellow "Asking again next time"
 			else
 				echo_green "OK, not asking again"
 				touch .dont_ask_upgrade_main

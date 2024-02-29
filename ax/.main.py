@@ -216,6 +216,19 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
+import re
+
+def looks_like_int(x):
+    if isinstance(x, int):
+        return True
+    elif isinstance(x, float):
+        return x.is_integer()
+    elif isinstance(x, str):
+        return bool(re.match(r'^\d+$', x))
+    else:
+        return False
+
+
 def parse_experiment_parameters(args):
     params = []
 
@@ -291,6 +304,16 @@ def parse_experiment_parameters(args):
                     valid_value_types_string = ", ".join(valid_value_types)
                     print_color("red", f"\n:warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     sys.exit(8)
+
+                if value_type == "int":
+                    if not looks_like_int(lower_bound):
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}")
+                        sys.exit(37)
+
+                    if not looks_like_int(upper_bound):
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}")
+                        sys.exit(38)
+
 
                 param = {
                     "name": name,
@@ -446,7 +469,6 @@ def check_file_info(file_path):
     gid = file_stat.st_gid
 
     username = pwd.getpwuid(uid).pw_name
-    groupname = pwd.getpwuid(gid).pw_name
 
     size = file_stat.st_size
     permissions = stat.filemode(file_stat.st_mode)
@@ -454,9 +476,6 @@ def check_file_info(file_path):
     access_time = file_stat.st_atime
     modification_time = file_stat.st_mtime
     status_change_time = file_stat.st_ctime
-
-    current_user = os.getlogin()
-    user_groups = os.getgroups()
 
     # Gruppennamen zu den Gruppen-IDs finden
     group_names = {}
@@ -466,21 +485,15 @@ def check_file_info(file_path):
             group_names[int(parts[2])] = parts[0]
 
     # Gruppennamen für die Benutzergruppen abrufen
-    user_group_names = [group_names.get(group_id, str(group_id)) for group_id in user_groups]
-
     string = ""
 
     string += f"Datei: {file_path}\n"
     string += f"Größe: {size} Bytes\n"
     string += f"Berechtigungen: {permissions}\n"
     string += f"Besitzer: {username}\n"
-    string += f"Gruppe: {groupname}\n"
     string += f"Letzter Zugriff: {access_time}\n"
     string += f"Letzte Änderung: {modification_time}\n"
     string += f"Letzter Statuswechsel: {status_change_time}\n"
-    string += f"Aktueller Benutzer: {current_user}\n"
-    string += f"Gruppen des Benutzers: {user_groups}\n"
-    string += f"Gruppen des Benutzers: {user_group_names}\n"
 
     string += f"Hostname: {socket.gethostname()}"
 
@@ -524,9 +537,13 @@ def evaluate(parameters):
 
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
 
-        program_string = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
+        program_string_with_params = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
         string = find_file_paths_and_print_infos(program_string_with_params)
+
+        #import base64
+        #base64_debugging_string = base64.b64decode(program_string_with_params)
+        #print(f"Base64 debugging string: {base64_debugging_string}")
 
         print("Debug-Infos:", string)
 

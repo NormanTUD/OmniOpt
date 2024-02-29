@@ -537,9 +537,13 @@ def evaluate(parameters):
 
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
 
-        program_string = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
+        program_string_with_params = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
         string = find_file_paths_and_print_infos(program_string_with_params)
+
+        #import base64
+        #base64_debugging_string = base64.b64decode(program_string_with_params)
+        #print(f"Base64 debugging string: {base64_debugging_string}")
 
         print("Debug-Infos:", string)
 

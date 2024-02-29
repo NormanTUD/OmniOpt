@@ -213,7 +213,7 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
-if [[ ! -e .dont_ask_upgrade_main ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
+if [[ ! -e .dont_ask_upgrade_main ]]; then
 	CURRENTHASH=$(git rev-parse HEAD)
 
 	REMOTEURL=$(git config --get remote.origin.url)

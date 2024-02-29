@@ -477,9 +477,6 @@ def check_file_info(file_path):
     modification_time = file_stat.st_mtime
     status_change_time = file_stat.st_ctime
 
-    current_user = os.getlogin()
-    user_groups = os.getgroups()
-
     # Gruppennamen zu den Gruppen-IDs finden
     group_names = {}
     with open('/etc/group', 'r') as group_file:
@@ -488,8 +485,6 @@ def check_file_info(file_path):
             group_names[int(parts[2])] = parts[0]
 
     # Gruppennamen für die Benutzergruppen abrufen
-    user_group_names = [group_names.get(group_id, str(group_id)) for group_id in user_groups]
-
     string = ""
 
     string += f"Datei: {file_path}\n"
@@ -499,9 +494,6 @@ def check_file_info(file_path):
     string += f"Letzter Zugriff: {access_time}\n"
     string += f"Letzte Änderung: {modification_time}\n"
     string += f"Letzter Statuswechsel: {status_change_time}\n"
-    string += f"Aktueller Benutzer: {current_user}\n"
-    string += f"Gruppen des Benutzers: {user_groups}\n"
-    string += f"Gruppen des Benutzers: {user_group_names}\n"
 
     string += f"Hostname: {socket.gethostname()}"
 

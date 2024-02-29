@@ -224,9 +224,7 @@ if command -v whiptail 2>/dev/null >/dev/null; then
 		REMOTEURL=$(git config --get remote.origin.url)
 		REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
 
-		if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
-			green_text "Software seems up-to-date ($CURRENTHASH)"
-		else
+		if [ ! "$CURRENTHASH" = "$REMOTEHASH" ]; then
 			eval `resize`
 			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 				git pull

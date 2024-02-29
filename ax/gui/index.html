@@ -260,13 +260,13 @@
 						});
 
 						$("#max_eval").attr("min", 1).each(function() {
-							if ($(this).val() > $(this).attr("min")) {
+							if ($(this).val() < $(this).attr("min")) {
 								$(this).val($(this).attr("min"));
 							}
 						});
 
 						$("#num_parallel_jobs").attr("min", 1).each(function() {
-							if ($(this).val() > $(this).attr("min")) {
+							if ($(this).val() < $(this).attr("min")) {
 								$(this).val($(this).attr("min"));
 							}
 						});

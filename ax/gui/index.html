@@ -290,10 +290,10 @@
 						});
 					}
 
-					updateUrl();
+					update_url();
 				});
 
-				updateUrl();
+				update_url();
 			}
 
 			function set_min_max () {
@@ -606,7 +606,7 @@
 					$("#curl_command").text("");
 				}
 
-				updateUrl();
+				update_url();
 			}
 
 			function updateOptions(select) {
@@ -786,7 +786,15 @@
 				highlight_all_bash();
 			}
 
-			function updateUrl() {
+			function update_url() {
+				var url = window.location.href;
+
+				var index = url.indexOf("no_update_url");
+
+				if (index !== -1) {
+					return;
+				}
+
 				var params = [];
 				tableData.forEach(function(item) {
 					params.push(item.id + "=" + encodeURIComponent($("#" + item.id).val()));
@@ -893,7 +901,7 @@
 
 				initialized = true;
 
-				updateUrl();
+				update_url();
 
 				document.getElementById("copytoclipboardbutton_curl").addEventListener(
 					"click",

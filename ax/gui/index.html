@@ -226,7 +226,7 @@
 				}
 			};
 
-			function updatePartitionOptions() {
+			function update_partition_options() {
 				var partitionSelect = $("#partition");
 				partitionSelect.empty();
 
@@ -857,7 +857,7 @@
 
 			$(document).ready(function() {
 				createTable();
-				updatePartitionOptions();
+				update_partition_options();
 
 				var urlParams = new URLSearchParams(window.location.search);
 				tableData.forEach(function(item) {

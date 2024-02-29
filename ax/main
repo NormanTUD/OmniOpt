@@ -327,6 +327,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	done
 
 	IFS=$' '
+	echo "python3 .main.py $args_string"
 	python3 .main.py $args_string &
 	python_pid=$!
 

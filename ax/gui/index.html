@@ -66,7 +66,6 @@
 				border-bottom: 1px solid #36A9AE;
 			}
 
-
 			#config_table tbody tr {
 				border-bottom: 1px solid #dddddd;
 			}
@@ -551,7 +550,6 @@
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					}
 
-
 					if(warn_msg.length) {
 						$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show();
 					} else {
@@ -624,7 +622,6 @@
 				if(paramName === undefined) {
 					paramName = "";
 				}
-
 
 				if (selectedOption === 'range') {
 					valueCell.innerHTML = `<table>
@@ -841,7 +838,6 @@
 					}
 					parameterIndex++;
 				});
-
 
 				params.push("partition=" + encodeURIComponent($("#partition").val()));
 

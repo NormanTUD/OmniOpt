@@ -565,7 +565,7 @@
 					command += " --parameter " + parameters.join(" --parameter ");
 				}
 
-				if (!errors.length) {
+				if (!errors.length && $(".optionSelect").length) {
 					var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
 
 					base_url = base_url.replaceAll(/\/+/g, "/");

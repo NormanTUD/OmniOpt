@@ -469,7 +469,6 @@ def check_file_info(file_path):
     gid = file_stat.st_gid
 
     username = pwd.getpwuid(uid).pw_name
-    groupname = pwd.getpwuid(gid).pw_name
 
     size = file_stat.st_size
     permissions = stat.filemode(file_stat.st_mode)
@@ -497,7 +496,6 @@ def check_file_info(file_path):
     string += f"Größe: {size} Bytes\n"
     string += f"Berechtigungen: {permissions}\n"
     string += f"Besitzer: {username}\n"
-    string += f"Gruppe: {groupname}\n"
     string += f"Letzter Zugriff: {access_time}\n"
     string += f"Letzte Änderung: {modification_time}\n"
     string += f"Letzter Statuswechsel: {status_change_time}\n"

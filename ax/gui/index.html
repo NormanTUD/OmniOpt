@@ -565,7 +565,14 @@
 					command += " --parameter " + parameters.join(" --parameter ");
 				}
 
-				if (!errors.length && $(".optionSelect").length) {
+				var errors_visible = false;
+				$(".parameterError").each(function (i, e) {
+					if($(e).is(":visible")) {
+						errors_visible = true;
+					}
+				});
+
+				if (!errors.length && $(".optionSelect").length && !errors_visible) {
 					var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
 
 					base_url = base_url.replaceAll(/\/+/g, "/");

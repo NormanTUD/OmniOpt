@@ -229,7 +229,7 @@ if [[ ! -e .dont_ask_upgrade_main ]]; then
 		eval `resize`
 		if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 			git pull
-			./main $*
+			eval "./main $args_string"
 			exit
 		else
 			eval `resize`

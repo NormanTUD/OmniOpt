@@ -149,10 +149,6 @@ def get_start_worker_command(start_worker_command, project, myconf, data, projec
 
         start_worker_bash = '''#!/bin/bash -l
 
-set -e
-set -o pipefail
-set -u
-
 function calltracer () {
         echo 'Last file/last line:'
         caller
@@ -331,6 +327,10 @@ while ! nc -z $MONGODBMACHINE $MONGODBPORT 2>&1 >> $NZLOGFILE; do
         exit 1
     fi
 done
+
+set -e
+set -o pipefail
+set -u
 
 ->start_worker_command<- 2>&1 | ->info_filter<- 2>&1 | {
     while IFS= read -r line;

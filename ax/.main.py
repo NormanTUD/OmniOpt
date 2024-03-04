@@ -265,7 +265,7 @@ def parse_experiment_parameters(args):
 
             if param_type == "range":
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_color("red", f"\n:warning: --parameter for type range must have 5 parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    print_color("red", f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
                     sys.exit(9)
 
                 try:

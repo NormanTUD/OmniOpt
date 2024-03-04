@@ -1096,8 +1096,11 @@ def main ():
         if args.maximize:
             searching_for = "maximum"
 
-        with tqdm(total=args.max_eval, disable=False, desc=f"Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)...") as progress_bar:
-            start_str = f"[cyan]Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
+
+        base_desc = f"Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
+
+        with tqdm(total=args.max_eval, disable=False, desc=base_desc) as progress_bar:
+            start_str = f"[cyan]{base_desc}"
 
             progress_string = start_str
 

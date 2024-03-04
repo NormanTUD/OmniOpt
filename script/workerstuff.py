@@ -149,6 +149,22 @@ def get_start_worker_command(start_worker_command, project, myconf, data, projec
 
         start_worker_bash = '''#!/bin/bash -l
 
+set -e
+set -o pipefail
+set -u
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+trap 'calltracer' ERR
+
+_term() { 
+    echo "Caught SIGTERM signal!" 
+}
+
+trap _term SIGTERM
+
 echo "Hostname of this worker: $(hostname)"
 
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod

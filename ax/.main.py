@@ -823,6 +823,8 @@ def save_checkpoint ():
     checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
     ax_client.save_to_json_file(filepath=checkpoint_filepath)
 
+    print_debug("Checkpoint saved")
+
 def save_pd_csv ():
     global current_run_folder
     global ax_client
@@ -846,6 +848,7 @@ def save_pd_csv ():
 
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False)
+        print_debug("pd.csv saved")
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
@@ -1106,12 +1109,17 @@ def main ():
                 try:
                     calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
 
+                    print_debug(f"Trying to get the next {calculated_max_trials} trials.")
+
                     trial_index_to_param, _ = ax_client.get_next_trials(
                         max_trials=calculated_max_trials
                     )
 
+                    print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+
                     for trial_index, parameters in trial_index_to_param.items():
                         try:
+                            print_debug(f"Trying to start new job.")
                             new_job = executor.submit(evaluate, parameters)
                             submitted_jobs += 1
                             jobs.append((new_job, trial_index))
@@ -1134,6 +1142,7 @@ def main ():
                     if job.done() or type(job) in [LocalJob, DebugJob]:
                         try:
                             result = job.result()
+                            print_debug("Got job result")
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                             jobs.remove((job, trial_index))
 

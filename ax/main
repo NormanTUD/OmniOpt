@@ -351,7 +351,7 @@ else
 				spin[2]="|"
 				spin[3]="/"
 
-				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed..."
+				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed. CTRL-c does NOT cancel the optimization, only the tail..."
 				echo ""
 
 				while ! [[ -e $LOG_PATH ]]; do

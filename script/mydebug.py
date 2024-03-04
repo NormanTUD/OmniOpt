@@ -18,6 +18,7 @@ import linuxstuff
 import omnioptstuff
 
 from simulated_annealing import validate_space_simulated_annealing, simulated_annealing
+from gridsearch import gridsearch
 
 global myconf
 myconf = None

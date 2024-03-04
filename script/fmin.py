@@ -80,7 +80,7 @@ fmin_parameters = {
 if data["seed"] is not None:
     os.environ['HYPEROPT_FMIN_SEED'] = str(data["seed"])
     print("Using seed: %s" % data["seed"])
-    #fmin_parameters["rstate"] = np.random.default_rng(int(data["seed"]))
+    # fmin_parameters["rstate"] = np.random.default_rng(int(data["seed"]))
 
 try:
     best = fmin(**fmin_parameters)

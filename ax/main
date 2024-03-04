@@ -316,6 +316,10 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 		unset $i
 	done
 
+	if [[ ! -z $SLURM_JOB_ID ]]; then
+		echo -e "To cancel, use '\e[31mscancel --signal=USR1 $SLURM_JOB_ID[0m'"
+	fi
+
 	IFS=$' '
 	echo "python3 .main.py $args_string"
 	python3 .main.py $args_string &
@@ -360,6 +364,8 @@ else
 						sleep 0.1
 					done
 				done
+
+				echo ""
 
 				tail -n1000000 -f $LOG_PATH
 			fi

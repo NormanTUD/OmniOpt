@@ -317,7 +317,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	done
 
 	if [[ ! -z $SLURM_JOB_ID ]]; then
-		echo -e "To cancel, use '\e[31mscancel --signal=USR1 $SLURM_JOB_ID\e[0m'"
+		echo -e "To cancel, use '\e[31mscancel $SLURM_JOB_ID\e[0m'"
 	fi
 
 	IFS=$' '

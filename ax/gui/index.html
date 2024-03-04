@@ -596,7 +596,13 @@
 						base_url = base_url.replace(/^\/\//, "/")
 					}
 
-					var curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
+					var curl_command = "";
+
+					if(curl_or_cat == "curl") {
+						curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -s -- "${base_64_string}"`;
+					} else {
+						curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
+					}
 
 					$("#command_element_highlighted").html(highlight_bash(command)).show().parent().show().parent().show();
 					$("#curl_command_highlighted").html(highlight_bash(curl_command)).show().parent().show().parent().show();

@@ -84,14 +84,14 @@ joined_run_program = decode_if_base64(joined_run_program)
 print("Program to evaluated: ", joined_run_program)
 
 if args.parameter is None and args.load_checkpoint is None:
-    print_color("red", "Either --parameter or --load_checkpoint is required. Both were not found.")
+    print("Either --parameter or --load_checkpoint is required. Both were not found.")
     sys.exit(19)
 elif args.parameter is not None and args.load_checkpoint is not None:
-    print_color("red", "You cannot use --parameter and --load_checkpoint. You have to decide for one.");
+    print("You cannot use --parameter and --load_checkpoint. You have to decide for one.");
     sys.exit(20)
 elif args.load_checkpoint:
     if not os.path.exists(args.load_checkpoint):
-        print_color("red", f"{args.load_checkpoint} could not be found!")
+        print("red", f"{args.load_checkpoint} could not be found!")
         sys.exit(21)
 
 def print_debug (msg):
@@ -216,6 +216,19 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
+import re
+
+def looks_like_int(x):
+    if isinstance(x, int):
+        return True
+    elif isinstance(x, float):
+        return x.is_integer()
+    elif isinstance(x, str):
+        return bool(re.match(r'^\d+$', x))
+    else:
+        return False
+
+
 def parse_experiment_parameters(args):
     params = []
 
@@ -252,7 +265,7 @@ def parse_experiment_parameters(args):
 
             if param_type == "range":
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_color("red", f"\n:warning: --parameter for type range must have 5 parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    print_color("red", f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
                     sys.exit(9)
 
                 try:
@@ -291,6 +304,16 @@ def parse_experiment_parameters(args):
                     valid_value_types_string = ", ".join(valid_value_types)
                     print_color("red", f"\n:warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     sys.exit(8)
+
+                if value_type == "int":
+                    if not looks_like_int(lower_bound):
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}")
+                        sys.exit(37)
+
+                    if not looks_like_int(upper_bound):
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}")
+                        sys.exit(38)
+
 
                 param = {
                     "name": name,
@@ -446,7 +469,6 @@ def check_file_info(file_path):
     gid = file_stat.st_gid
 
     username = pwd.getpwuid(uid).pw_name
-    groupname = pwd.getpwuid(gid).pw_name
 
     size = file_stat.st_size
     permissions = stat.filemode(file_stat.st_mode)
@@ -454,9 +476,6 @@ def check_file_info(file_path):
     access_time = file_stat.st_atime
     modification_time = file_stat.st_mtime
     status_change_time = file_stat.st_ctime
-
-    current_user = os.getlogin()
-    user_groups = os.getgroups()
 
     # Gruppennamen zu den Gruppen-IDs finden
     group_names = {}
@@ -466,21 +485,15 @@ def check_file_info(file_path):
             group_names[int(parts[2])] = parts[0]
 
     # Gruppennamen für die Benutzergruppen abrufen
-    user_group_names = [group_names.get(group_id, str(group_id)) for group_id in user_groups]
-
     string = ""
 
     string += f"Datei: {file_path}\n"
     string += f"Größe: {size} Bytes\n"
     string += f"Berechtigungen: {permissions}\n"
     string += f"Besitzer: {username}\n"
-    string += f"Gruppe: {groupname}\n"
     string += f"Letzter Zugriff: {access_time}\n"
     string += f"Letzte Änderung: {modification_time}\n"
     string += f"Letzter Statuswechsel: {status_change_time}\n"
-    string += f"Aktueller Benutzer: {current_user}\n"
-    string += f"Gruppen des Benutzers: {user_groups}\n"
-    string += f"Gruppen des Benutzers: {user_group_names}\n"
 
     string += f"Hostname: {socket.gethostname()}"
 
@@ -524,9 +537,13 @@ def evaluate(parameters):
 
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
 
-        program_string = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
+        program_string_with_params = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
         string = find_file_paths_and_print_infos(program_string_with_params)
+
+        #import base64
+        #base64_debugging_string = base64.b64decode(program_string_with_params)
+        #print(f"Base64 debugging string: {base64_debugging_string}")
 
         print("Debug-Infos:", string)
 
@@ -806,6 +823,8 @@ def save_checkpoint ():
     checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
     ax_client.save_to_json_file(filepath=checkpoint_filepath)
 
+    print_debug("Checkpoint saved")
+
 def save_pd_csv ():
     global current_run_folder
     global ax_client
@@ -829,6 +848,7 @@ def save_pd_csv ():
 
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False)
+        print_debug("pd.csv saved")
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
@@ -1029,8 +1049,7 @@ def main ():
                 "parameters": experiment_parameters,
                 "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 "choose_generation_strategy_kwargs": {
-                    "num_trials": args.max_eval,
-                    "max_parallelism_override": args.num_parallel_jobs,
+                    "num_trials": args.max_eval
                 },
             }
 
@@ -1089,12 +1108,17 @@ def main ():
                 try:
                     calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
 
+                    print_debug(f"Trying to get the next {calculated_max_trials} trials.")
+
                     trial_index_to_param, _ = ax_client.get_next_trials(
                         max_trials=calculated_max_trials
                     )
 
+                    print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+
                     for trial_index, parameters in trial_index_to_param.items():
                         try:
+                            print_debug(f"Trying to start new job.")
                             new_job = executor.submit(evaluate, parameters)
                             submitted_jobs += 1
                             jobs.append((new_job, trial_index))
@@ -1117,6 +1141,7 @@ def main ():
                     if job.done() or type(job) in [LocalJob, DebugJob]:
                         try:
                             result = job.result()
+                            print_debug("Got job result")
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                             jobs.remove((job, trial_index))
 

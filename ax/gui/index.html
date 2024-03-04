@@ -66,7 +66,6 @@
 				border-bottom: 1px solid #36A9AE;
 			}
 
-
 			#config_table tbody tr {
 				border-bottom: 1px solid #dddddd;
 			}
@@ -170,8 +169,8 @@
 				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)", min: 1 },
 				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000 },
 				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations", 'min': 1, 'max': 100000000 },
-				{ label: "GPUs", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs", min: 0, max: 10 },
-				{ label: "Follow", id: "follow", type: "checkbox", value: 1 },
+				{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10 },
+				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<tt>tail -f</tt> the <tt>.out</tt>-file automatically, so you can see the output as soon as it appears." },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
@@ -203,7 +202,7 @@
 				},
 
 				"barnard": {
-					"number_of_workers": 10,
+					"number_of_workers": 100,
 					"computation_time": 10 * 60,
 					"max_number_of_gpus": 0,
 					"min_number_of_gpus": 0,
@@ -226,8 +225,7 @@
 				}
 			};
 
-
-			function updatePartitionOptions() {
+			function update_partition_options() {
 				var partitionSelect = $("#partition");
 				partitionSelect.empty();
 
@@ -261,13 +259,13 @@
 						});
 
 						$("#max_eval").attr("min", 1).each(function() {
-							if ($(this).val() > $(this).attr("min")) {
+							if ($(this).val() < $(this).attr("min")) {
 								$(this).val($(this).attr("min"));
 							}
 						});
 
 						$("#num_parallel_jobs").attr("min", 1).each(function() {
-							if ($(this).val() > $(this).attr("min")) {
+							if ($(this).val() < $(this).attr("min")) {
 								$(this).val($(this).attr("min"));
 							}
 						});
@@ -291,10 +289,10 @@
 						});
 					}
 
-					updateUrl();
+					update_url();
 				});
 
-				updateUrl();
+				update_url();
 			}
 
 			function set_min_max () {
@@ -473,7 +471,7 @@
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
 
-							var numberType = $("#numberTypeSelect").val();
+							var numberType = $($(".numberTypeSelect")[i]).val();
 
 							if (minValue === maxValue) {
 								warn_msg.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");
@@ -552,7 +550,6 @@
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					}
 
-
 					if(warn_msg.length) {
 						$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show();
 					} else {
@@ -566,7 +563,14 @@
 					command += " --parameter " + parameters.join(" --parameter ");
 				}
 
-				if (!errors.length) {
+				var errors_visible = false;
+				$(".parameterError").each(function (i, e) {
+					if($(e).is(":visible")) {
+						errors_visible = true;
+					}
+				});
+
+				if (!errors.length && $(".optionSelect").length && !errors_visible) {
 					var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
 
 					base_url = base_url.replaceAll(/\/+/g, "/");
@@ -592,7 +596,13 @@
 						base_url = base_url.replace(/^\/\//, "/")
 					}
 
-					var curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
+					var curl_command = "";
+
+					if(curl_or_cat == "curl") {
+						curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -s -- "${base_64_string}"`;
+					} else {
+						curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
+					}
 
 					$("#command_element_highlighted").html(highlight_bash(command)).show().parent().show().parent().show();
 					$("#curl_command_highlighted").html(highlight_bash(curl_command)).show().parent().show().parent().show();
@@ -607,7 +617,7 @@
 					$("#curl_command").text("");
 				}
 
-				updateUrl();
+				update_url();
 			}
 
 			function updateOptions(select) {
@@ -618,7 +628,6 @@
 				if(paramName === undefined) {
 					paramName = "";
 				}
-
 
 				if (selectedOption === 'range') {
 					valueCell.innerHTML = `<table>
@@ -637,7 +646,7 @@
 						<tr>
 							<td>Type:</td>
 							<td>
-								<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" id="numberTypeSelect">
+								<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
 									<option value="float">Float</option>
 									<option value="int">Integer</option>
 								</select>
@@ -722,7 +731,7 @@
 				}
 			}
 
-			function createTable() {
+			function create_table() {
 				var table = $("#config_table");
 				var tbody = table.find("tbody");
 
@@ -787,7 +796,15 @@
 				highlight_all_bash();
 			}
 
-			function updateUrl() {
+			function update_url() {
+				var url = window.location.href;
+
+				var index = url.indexOf("no_update_url");
+
+				if (index !== -1) {
+					return;
+				}
+
 				var params = [];
 				tableData.forEach(function(item) {
 					params.push(item.id + "=" + encodeURIComponent($("#" + item.id).val()));
@@ -828,7 +845,6 @@
 					parameterIndex++;
 				});
 
-
 				params.push("partition=" + encodeURIComponent($("#partition").val()));
 
 				if (initialized) {
@@ -849,8 +865,8 @@
 			}
 
 			$(document).ready(function() {
-				createTable();
-				updatePartitionOptions();
+				create_table();
+				update_partition_options();
 
 				var urlParams = new URLSearchParams(window.location.search);
 				tableData.forEach(function(item) {
@@ -894,7 +910,7 @@
 
 				initialized = true;
 
-				updateUrl();
+				update_url();
 
 				document.getElementById("copytoclipboardbutton_curl").addEventListener(
 					"click",

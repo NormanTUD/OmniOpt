@@ -20,6 +20,10 @@ function echoerr() {
         echo "$@" 1>&2
 }
 
+function green_text {
+        echoerr -e "\033[0;32m$1\e[0m"
+}
+
 function red_text {
         echoerr -e "\e[31m$1\e[0m"
 }
@@ -213,21 +217,37 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
+if command -v whiptail 2>/dev/null >/dev/null; then
+	if [[ ! -e .dont_ask_upgrade_main ]]; then
+		CURRENTHASH=$(git rev-parse HEAD)
+
+		REMOTEURL=$(git config --get remote.origin.url)
+		REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
+
+		if [ ! "$CURRENTHASH" = "$REMOTEHASH" ]; then
+			eval `resize`
+			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+				git pull
+				eval "./main $args_string"
+				exit
+			else
+				eval `resize`
+				if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+					echo "Asking again next time if you want to upgrade"
+				else
+					green_text "OK, not asking again"
+					touch .dont_ask_upgrade_main
+				fi
+			fi
+		fi
+	fi
+fi
+
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
 
 if [[ -z $gpus ]]; then
 	gpus=0
 fi
-
-#echo "args_string: $args_string"
-#exit
-
-#echo "mem_gb=$mem_gb"
-#echo "gpus=$gpus"
-#echo "time=$time"
-#echo "experiment_name=$experiment_name"
-#echo "help=$help"
-#echo "follow=$follow"
 
 if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 	if [[ -z "$mem_gb" ]]; then
@@ -296,7 +316,12 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 		unset $i
 	done
 
+	if [[ ! -z $SLURM_JOB_ID ]]; then
+		echo -e "To cancel, use '\e[31mscancel $SLURM_JOB_ID\e[0m'"
+	fi
+
 	IFS=$' '
+	echo "python3 .main.py $args_string"
 	python3 .main.py $args_string &
 	python_pid=$!
 
@@ -330,8 +355,7 @@ else
 				spin[2]="|"
 				spin[3]="/"
 
-				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed..."
-				echo ""
+				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed. CTRL-c does NOT cancel the optimization, only the tail..."
 
 				while ! [[ -e $LOG_PATH ]]; do
 					for i in "${spin[@]}"; do
@@ -339,6 +363,8 @@ else
 						sleep 0.1
 					done
 				done
+
+				echo ""
 
 				tail -n1000000 -f $LOG_PATH
 			fi

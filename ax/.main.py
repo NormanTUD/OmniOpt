@@ -162,7 +162,7 @@ except KeyboardInterrupt:
     print("\n:warning: You pressed CTRL+C. Program execution halted.")
     sys.exit(0)
 except signalUSR:
-    print("\n:warning: USR1 signal was sent. Cancelling loading modules.")
+    print("\n:warning: USR1-Signal was sent. Cancelling loading modules.")
     sys.exit(0)
 except signalINT:
     print("\n:warning: INT signal was sent. Cancelling loading modules.")
@@ -477,13 +477,6 @@ def check_file_info(file_path):
     modification_time = file_stat.st_mtime
     status_change_time = file_stat.st_ctime
 
-    # Gruppennamen zu den Gruppen-IDs finden
-    group_names = {}
-    with open('/etc/group', 'r') as group_file:
-        for line in group_file:
-            parts = line.split(':')
-            group_names[int(parts[2])] = parts[0]
-
     # Gruppennamen für die Benutzergruppen abrufen
     string = ""
 
@@ -583,10 +576,10 @@ def evaluate(parameters):
         else:
             return return_in_case_of_error
     except signalUSR:
-        print("\n:warning: USR1 signal was sent. Cancelling evaluation.")
+        print("\n:warning: USR1-Signal was sent. Cancelling evaluation.")
         return return_in_case_of_error
     except signalINT:
-        print("\n:warning: Int signal was sent. Cancelling evaluation.")
+        print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
         return return_in_case_of_error
 
 try:
@@ -625,7 +618,7 @@ try:
 except KeyboardInterrupt:
     sys.exit(0)
 except signalUSR:
-    print("\n:warning: USR1 signal was sent. Cancelling loading ax.")
+    print("\n:warning: USR1-Signal was sent. Cancelling loading ax.")
     sys.exit(0)
 except signalINT:
     print("\n:warning: INT signal was sent. Cancelling loading ax.")
@@ -775,12 +768,12 @@ def end_program ():
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
     except signalUSR:
-        print("\n:warning: USR1 signal was sent. Ending program will still run.")
+        print("\n:warning: USR1-Signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalUSR)")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in signalUSR)")
     except signalINT:
-        print("\n:warning: Int signal was sent. Ending program will still run.")
+        print("\n:warning: INT-Signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalINT)")
         show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in signalINT)")
@@ -1169,11 +1162,11 @@ def main ():
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
     except signalUSR:
-        print("\n:warning: USR1 signal was sent. Cancelling optimization. Running end_program.")
+        print("\n:warning: USR1-Signal was sent. Cancelling optimization. Running end_program.")
         end_program()
         print("\n:warning: end_program ran.")
     except signalINT:
-        print("\n:warning: Int signal was sent. Cancelling optimization Running end_program.")
+        print("\n:warning: INT-Signal was sent. Cancelling optimization Running end_program.")
         end_program()
         print("\n:warning: end_program ran.")
 

@@ -126,10 +126,19 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
+def find_helpers_path():
+    python_path = os.getenv("PYTHONPATH", "").split(":")
+    for path in python_path:
+        helpers_path = os.path.join(path, ".helpers.py")
+        if os.path.exists(helpers_path):
+            return helpers_path
+    return None
+
+helpers_file = find_helpers_path()
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
-    location=".helpers.py",
+    location=helpers_file,
 )
 my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
@@ -1147,7 +1156,6 @@ def main ():
                             save_pd_csv()
                         except submitit.core.utils.UncompletedJobError as error:
                                 print_color("red", str(error))
-                                sys.exit(27)
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")

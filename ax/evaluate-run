@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd $(pwd)
+
 mkdir -p debuglogs
 bash_logname=debuglogs/evaluate_run.log
 let i=1
@@ -12,7 +14,7 @@ exec 2> >(tee -ia $bash_logname >& 2)
 
 export BASH_XTRACEFD="$FD"
 
-PROJECTDIR=runs
+PROJECTDIR=$(pwd)/runs
 
 export BUBBLESIZEINPX=7
 export NONZERODIGITS=2
@@ -102,7 +104,7 @@ done
 
 
 source .shellscript_functions
-source ../tools/general.sh
+source .general.sh
 
 function info_message_large {
 	MSG=$1
@@ -764,33 +766,35 @@ if [[ $sourced == "0" ]]; then
         fi
     fi
 
-    if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
-        if [[ "$UPGRADE" == "1" ]]; then
-            ASKEDTOUPGRADE=1
-            CURRENTHASH=$(git rev-parse HEAD)
+    if [[ -d ".git" ]]; then
+	    if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
+		if [[ "$UPGRADE" == "1" ]]; then
+		    ASKEDTOUPGRADE=1
+		    CURRENTHASH=$(git rev-parse HEAD)
 
-            REMOTEURL=$(git config --get remote.origin.url)
-            REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
+		    REMOTEURL=$(git config --get remote.origin.url)
+		    REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
 
-            if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
-                debug_code "Software seems up-to-date ($CURRENTHASH)"
-            else
-                eval `resize`
-                if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-                    git pull
-                    bash ./evaluate-run --dont_load_modules --no_upgrade $@
-                    exit
-                else
-                    eval `resize`
-                    if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-                        echo "Asking again next time"
-                    else
-                        echo "OK, not asking again"
-                        touch .dont_ask_upgrade
-                    fi
-                fi
-            fi
-        fi
+		    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
+			debug_code "Software seems up-to-date ($CURRENTHASH)"
+		    else
+			eval `resize`
+			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+			    git pull
+			    bash ./evaluate-run --dont_load_modules --no_upgrade $@
+			    exit
+			else
+			    eval `resize`
+			    if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+				echo "Asking again next time"
+			    else
+				echo "OK, not asking again"
+				touch .dont_ask_upgrade
+			    fi
+			fi
+		    fi
+		fi
+	    fi
     fi
 
     modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4)

@@ -1,7 +1,14 @@
 #!/bin/bash
 
+ORIGINAL_PWD=$(pwd)
+
 set -e
 set -o pipefail
+
+function mycd () {
+	echo "cd $1"
+	cd $1
+}
 
 function calltracer () {
         echo 'Last file/last line:'
@@ -217,26 +224,28 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
-if command -v whiptail 2>/dev/null >/dev/null; then
-	if [[ ! -e .dont_ask_upgrade_main ]]; then
-		CURRENTHASH=$(git rev-parse HEAD)
+if [[ -d ".git" ]]; then
+	if command -v whiptail 2>/dev/null >/dev/null; then
+		if [[ ! -e .dont_ask_upgrade_main ]]; then
+			CURRENTHASH=$(git rev-parse HEAD)
 
-		REMOTEURL=$(git config --get remote.origin.url)
-		REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
+			REMOTEURL=$(git config --get remote.origin.url)
+			REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
 
-		if [ ! "$CURRENTHASH" = "$REMOTEHASH" ]; then
-			eval `resize`
-			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-				git pull
-				eval "./main $args_string"
-				exit
-			else
+			if [ ! "$CURRENTHASH" = "$REMOTEHASH" ]; then
 				eval `resize`
-				if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-					echo "Asking again next time if you want to upgrade"
+				if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+					git pull
+					eval "./$SCRIPT_DIR/main $args_string"
+					exit
 				else
-					green_text "OK, not asking again"
-					touch .dont_ask_upgrade_main
+					eval `resize`
+					if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+						echo "Asking again next time if you want to upgrade"
+					else
+						green_text "OK, not asking again"
+						touch .dont_ask_upgrade_main
+					fi
 				fi
 			fi
 		fi
@@ -294,21 +303,20 @@ run_before_end () {
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
-	if [[ -z $DEBUG_SLURM ]]; then
-		SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-		SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
+	SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
+	SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
 
-		if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
-			SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
-		else
-			echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
-		fi
+	if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
+		SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
+	else
+		echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
 	fi
 fi
 
-cd $SCRIPT_DIR
+echo "source $SCRIPT_DIR/.shellscript_functions"
+source $SCRIPT_DIR/.shellscript_functions
 
-source .shellscript_functions
+mycd "$ORIGINAL_PWD"
 
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the main job, unset all SLURM variables
@@ -321,8 +329,9 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	fi
 
 	IFS=$' '
-	echo "python3 .main.py $args_string"
-	python3 .main.py $args_string &
+	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
+	echo "python3 $SCRIPT_DIR/.main.py $args_string"
+	python3 $SCRIPT_DIR/.main.py $args_string &
 	python_pid=$!
 
 	run_before_end &

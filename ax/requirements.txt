@@ -1,0 +1,9 @@
+Rich
+scikit-learn
+submitit
+ax
+ax-platform
+matplotlib
+Pyarrow
+textual
+tqdm

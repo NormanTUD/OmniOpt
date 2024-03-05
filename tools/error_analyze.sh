@@ -319,15 +319,18 @@ fi
 
 if [[ "$quota_tests" -eq "1" ]]; then
     if pwd | grep "/home/"; then
-        QUOTA_DATA=$(quota -u $USER | grep -A1 hrsk_userhome | tail -n1)
-        BLOCKS=$(echo $QUOTA_DATA | awk '{print $1}' | sed -e 's/\*//')
-        MAX_BLOCKS=$(echo $QUOTA_DATA | awk '{print $2}')
-        MAX_USAGE_RATE=0.9
-        MAX_SPACE_BEFORE_WARNING=$(echo "scale=1; $MAX_USAGE_RATE*$MAX_BLOCKS" | bc | sed -e 's/\..*//')
+        QUOTA_DATA=$(quota -u $USER | grep -A1 hrsk_userhome | tail -n1 2>/dev/null)
+	exit_code=$?
+	if [[ "$exit_code" -eq "0" ]]; then
+		BLOCKS=$(echo $QUOTA_DATA | awk '{print $1}' | sed -e 's/\*//')
+		MAX_BLOCKS=$(echo $QUOTA_DATA | awk '{print $2}')
+		MAX_USAGE_RATE=0.9
+		MAX_SPACE_BEFORE_WARNING=$(echo "scale=1; $MAX_USAGE_RATE*$MAX_BLOCKS" | bc | sed -e 's/\..*//')
 
-        if [[ "$MAX_SPACE_BEFORE_WARNING" -lt "$BLOCKS" ]]; then
-            ERRORS+=("$(pwd) lies in /home and you are near your quota-limits (Used $BLOCKS of $MAX_BLOCKS (warning at $MAX_SPACE_BEFORE_WARNING)). You might just not have enough space to run OmniOpt in your home with this quota. Delete some old files in your home.")
-        fi
+		if [[ "$MAX_SPACE_BEFORE_WARNING" -lt "$BLOCKS" ]]; then
+		    ERRORS+=("$(pwd) lies in /home and you are near your quota-limits (Used $BLOCKS of $MAX_BLOCKS (warning at $MAX_SPACE_BEFORE_WARNING)). You might just not have enough space to run OmniOpt in your home with this quota. Delete some old files in your home.")
+		fi
+	fi
     fi
 fi
 

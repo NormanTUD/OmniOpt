@@ -326,6 +326,12 @@
 									<th colspan="2">Installer options</th>
 								</tr>
 								<tr>
+									<td>Write <tt>.out</tt>-file to <tt>projects/$PROJECTNAME/slurmlogs</tt></td>
+									<td>
+										<input type="checkbox" value="1" id="enable_slurmlog_out" />
+									</td>
+								</tr>
+								<tr>
 									<td>Enable Installer-Debug-Mode</td>
 									<td>
 										<input type="checkbox" value="1" id="enable_curl_debug" />

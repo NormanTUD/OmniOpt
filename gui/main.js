@@ -742,7 +742,12 @@ function update_config () {
 							var debug_sbatch_srun = $("#debug_sbatch_srun").is(":checked") ? 1 : 0;
 							var trace_omniopt = $("#trace_omniopt").is(":checked") ? 1 : 0;
 							var sbatch_or_srun = $("#sbatch_or_srun").val();
-							var sbatch_string = sbatch_or_srun + (debug_sbatch_srun ? ' -vvvvvvvvvvv ' : '') + " -J "  + projectname + " \\\n";
+							var output_path_var = "";
+
+							if($("#enable_slurmlog_out").is(":checked")) {
+								output_path_var = ` -o projects/${projectname}/slurmlogs/%a.out`;
+							}
+							var sbatch_string = sbatch_or_srun + output_path_var + (debug_sbatch_srun ? ' -vvvvvvvvvvv ' : '') + " -J "  + projectname + " \\\n";
 							var enable_gpus = $("#enable_gpus").is(":checked") ? 1 : 0;
 
 							var number_of_gpus = $("#number_of_gpus").val();
@@ -1261,7 +1266,7 @@ function parse_from_config_ini () {
 
 function fill_test_data() {
 	var num_params = $("#number_of_parameters").val();
-	var example_program = "perl -e 'use bignum; print qq#RESULT: #.(";
+	var example_program = "perl -e 'print qq#RESULT: #.(";
 	var x = Array();
 	for (var i = 0; i < num_params; i++) {
 		x.push("($x_" + i + ")");
@@ -1273,7 +1278,7 @@ function fill_test_data() {
 
 	$("#projectname").val("test_project");
 
-	$('#partition').val("haswell64");
+	$('#partition').val("alpha");
 
 	disable_gpu_when_none_available();
 	show_warning_if_available();

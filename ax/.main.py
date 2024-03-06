@@ -1155,13 +1155,14 @@ def main ():
                             save_checkpoint()
                             save_pd_csv()
                         except submitit.core.utils.UncompletedJobError as error:
-                                print_color("red", str(error))
+                            print_color("red", str(error))
+                            jobs.remove((job, trial_index))
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                             else:
                                 print_color("red", f"\n:warning: {error}")
-                                sys.exit(25)
+                            jobs.remove((job, trial_index))
 
                 # Sleep for a bit before checking the jobs again to avoid overloading the cluster.
                 # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.

@@ -399,8 +399,12 @@ def execute_bash_code(code):
         if result.returncode != 0:
             print(f"Exit-Code: {result.returncode}")
 
-        real_exit_code = result.returncode >> 8
-        signal_code = result.returncode & 0xFF
+        real_exit_code = result.returncode
+        signal_code = None
+        if real_exit_code < 0:
+            signal_code = abs(result.returncode)
+            real_exit_code = 1
+
 
         return [result.stdout, result.stderr, real_exit_code, signal_code]
 
@@ -408,8 +412,11 @@ def execute_bash_code(code):
         print(f"Fehler beim Ausführen des Bash-Codes. Exit-Code: {e.returncode}")
         print(f"stdout: {e.stdout}")
         print(f"stderr: {e.stderr}")
-        real_exit_code = e.returncode >> 8
-        signal_code = e.returncode & 0xFF
+        real_exit_code = e.returncode
+        signal_code = None
+        if real_exit_code < 0:
+            signal_code = abs(e.returncode)
+            real_exit_code = 1
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 

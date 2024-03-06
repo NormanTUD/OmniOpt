@@ -409,14 +409,22 @@ def execute_bash_code(code):
         return [result.stdout, result.stderr, real_exit_code, signal_code]
 
     except subprocess.CalledProcessError as e:
-        print(f"Fehler beim Ausführen des Programmes: {code}. Exit-Code: {e.returncode}")
-        print(f"stdout: {e.stdout}")
-        print(f"stderr: {e.stderr}")
         real_exit_code = e.returncode
         signal_code = None
         if real_exit_code < 0:
             signal_code = abs(e.returncode)
             real_exit_code = 1
+
+        print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
+        if len(e.stdout):
+            print(f"stdout: {e.stdout}")
+        else
+            print("No stdout")
+
+        if len(e.stderr):
+            print(f"stderr: {e.stderr}")
+        else:
+            print("No stderr")
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 

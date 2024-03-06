@@ -402,7 +402,7 @@ def execute_bash_code(code):
         real_exit_code = result.returncode >> 8
         signal_code = result.returncode & 0xFF
 
-        return [result.stdout, result.stderr, signal_code]
+        return [result.stdout, result.stderr, real_exit_code, signal_code]
 
     except subprocess.CalledProcessError as e:
         print(f"Fehler beim Ausführen des Bash-Codes. Exit-Code: {e.returncode}")

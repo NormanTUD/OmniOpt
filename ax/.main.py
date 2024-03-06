@@ -1177,8 +1177,6 @@ def main ():
                         save_checkpoint()
                         save_pd_csv()
 
-                # Sleep for a bit before checking the jobs again to avoid overloading the cluster.
-                # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.
                 time.sleep(0.1)
         end_program()
     except KeyboardInterrupt:

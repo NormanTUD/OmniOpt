@@ -98,8 +98,8 @@ cd ..
 	--partition=$PARTITION \
 	--experiment_name=go_haywire \
 	--mem_gb=1 \
-	--time=30 \
-	--worker_timeout=2 \
+	--time=20 \
+	--worker_timeout=1 \
 	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=50 \
 	--gpus=$GPUS \

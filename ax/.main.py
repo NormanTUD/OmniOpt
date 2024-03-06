@@ -564,10 +564,6 @@ def evaluate(parameters):
 
         string = find_file_paths_and_print_infos(program_string_with_params)
 
-        #import base64
-        #base64_debugging_string = base64.b64decode(program_string_with_params)
-        #print(f"Base64 debugging string: {base64_debugging_string}")
-
         print("Debug-Infos:", string)
 
         print_color("green", program_string_with_params)

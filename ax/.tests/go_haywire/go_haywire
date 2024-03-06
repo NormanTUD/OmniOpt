@@ -77,6 +77,10 @@ if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1
 fi
 
+NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
+
+echo "Number of evals: $NUMBER_OF_EVALS"
+
 cd ..
 cd ..
 # run_program = ./.tests/go_haywire/bin/%(program)
@@ -86,7 +90,7 @@ cd ..
 	--mem_gb=1 \
 	--time=30 \
 	--worker_timeout=2 \
-	--max_eval=50 \
+	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=50 \
 	--gpus=$GPUS \
 	--follow \

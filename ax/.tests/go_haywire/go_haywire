@@ -1,0 +1,76 @@
+#!/bin/bash
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+set -e
+set -o pipefail
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+        echo "  --use-ram-tests"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+export useramtests=0
+
+for i in $@; do
+        case $i in
+                --use-ram-tests)
+                        useramtests=1
+                        shift
+                        ;;
+                -h|--help)
+                        help 0
+                        ;;
+                --debug)
+                        set -x
+                        ;;
+                *)
+                        red_text "Unknown parameter $i" >&2
+                        help 1
+                        ;;
+        esac
+done
+
+which_programs=(
+	"divide_by_0"
+	"exit_code_no_output"
+	"exit_code_stdout"
+	"exit_code_stdout_stderr"
+	"module_not_found"
+	"result_but_exit_code_stdout_stderr"
+	"signal"
+	"simple_ok"
+	"takes_forever"
+)
+
+if [[ "$useramtests" -eq "1" ]]; then
+	which_programs+=("allocate_ram_forever")
+fi
+
+which_programs_string=$(join_by , "${which_programs[@]}")
+
+cd ..
+cd ..
+pwd
+./main --partition=alpha --experiment_name=go_haywire --mem_gb=1 --time=30 --worker_timeout=2 --max_eval=50 --num_parallel_jobs=50 --gpus=1 --follow --run_program=Li8udGVzdHMvZ29faGF5d2lyZS9iaW4vJyUocHJvZ3JhbSkn --parameter program choice $which_programs_string

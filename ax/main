@@ -338,7 +338,11 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	wait "$python_pid"
 
+	EXIT_CODE=$?
+
 	tput bel
+
+	exit $EXIT_CODE
 else
 	IFS=$' '
 

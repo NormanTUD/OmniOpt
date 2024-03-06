@@ -1162,21 +1162,20 @@ def main ():
                             result = job.result()
                             print_debug("Got job result")
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                            jobs.remove((job, trial_index))
-
-                            progress_bar.update(1)
-
-                            save_checkpoint()
-                            save_pd_csv()
                         except submitit.core.utils.UncompletedJobError as error:
                             print_color("red", str(error))
-                            jobs.remove((job, trial_index))
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                             else:
                                 print_color("red", f"\n:warning: {error}")
-                            jobs.remove((job, trial_index))
+
+                        jobs.remove((job, trial_index))
+
+                        progress_bar.update(1)
+
+                        save_checkpoint()
+                        save_pd_csv()
 
                 # Sleep for a bit before checking the jobs again to avoid overloading the cluster.
                 # If you have a large number of jobs, consider adding a sleep statement in the job polling loop aswell.

@@ -70,6 +70,7 @@ which_programs=(
 	"takes_forever"
 	"takes_forever_but_has_result"
 	"file_does_not_exist"
+	"no_chmod_x"
 )
 
 #if [[ "$forkbomb" -eq "1" ]]; then

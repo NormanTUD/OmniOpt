@@ -1161,8 +1161,6 @@ def main ():
 
                             job.cancel()
 
-                        help(job)
-                        sys.exit(1)
                         jobs.remove((job, trial_index))
 
                         progress_bar.update(1)

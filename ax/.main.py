@@ -251,7 +251,7 @@ def parse_experiment_parameters(args):
         while j < len(this_args):
             name = this_args[j]
 
-            invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code"]
+            invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
 
             if name in invalid_names:
                 print_color("red", f"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
@@ -399,13 +399,19 @@ def execute_bash_code(code):
         if result.returncode != 0:
             print(f"Exit-Code: {result.returncode}")
 
-        return [result.stdout, result.stderr, result.returncode]
+        real_exit_code = result.returncode >> 8
+        signal_code = result.returncode & 0xFF
+
+        return [result.stdout, result.stderr, signal_code]
 
     except subprocess.CalledProcessError as e:
         print(f"Fehler beim Ausführen des Bash-Codes. Exit-Code: {e.returncode}")
         print(f"stdout: {e.stdout}")
         print(f"stderr: {e.stderr}")
-        return [e.stdout, e.stderr, e.returncode]
+        real_exit_code = e.returncode >> 8
+        signal_code = e.returncode & 0xFF
+
+        return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 def get_result (input_string):
     if input_string is None:
@@ -553,13 +559,14 @@ def evaluate(parameters):
 
         start_time = int(time.time())
 
-        stdout_stderr_exit_code = execute_bash_code(program_string_with_params)
+        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
         end_time = int(time.time())
 
         stdout = stdout_stderr_exit_code[0]
         stderr = stdout_stderr_exit_code[1]
         exit_code = stdout_stderr_exit_code[2]
+        _signal = stdout_stderr_exit_code[3]
 
         run_time = end_time - start_time
 
@@ -570,8 +577,8 @@ def evaluate(parameters):
 
         print(f"Result: {result}")
 
-        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "hostname"];
-        values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, socket.gethostname()];
+        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"];
+        values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, _signal, socket.gethostname()];
 
         headline = ['None' if element is None else element for element in headline]
         values = ['None' if element is None else element for element in values]

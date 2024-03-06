@@ -130,6 +130,9 @@ function inputbox {
 }
 
 function print_wallclock_time {
+	PROJECT=$1
+	NUMBER=$2
+
 	file_path="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
 
 	awk -F',' '{print $1,$2}' "$file_path" | sed '1d' > temp_file

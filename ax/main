@@ -6,7 +6,7 @@ set -e
 set -o pipefail
 
 function mycd () {
-	echo "cd $1"
+	#echo "cd $1"
 	cd $1
 }
 
@@ -313,7 +313,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	fi
 fi
 
-echo "source $SCRIPT_DIR/.shellscript_functions"
+#echo "source $SCRIPT_DIR/.shellscript_functions"
 source $SCRIPT_DIR/.shellscript_functions
 
 mycd "$ORIGINAL_PWD"

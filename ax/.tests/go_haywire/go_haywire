@@ -79,7 +79,6 @@ fi
 
 cd ..
 cd ..
-pwd
 # run_program = ./.tests/go_haywire/bin/%(program)
 ./main \
 	--partition=$PARTITION \

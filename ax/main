@@ -336,6 +336,8 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	run_before_end &
 
+	tput bel
+
 	wait "$python_pid"
 else
 	IFS=$' '

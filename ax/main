@@ -358,13 +358,13 @@ else
 			started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
 			if command -v sbatch 2>/dev/null >/dev/null; then
 				LOG_PATH=$(slurmlogpath $started_job_nr)
-
+	
 				spin[0]="-"
 				spin[1]="\\"
 				spin[2]="|"
 				spin[3]="/"
 
-				echo "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed. CTRL-c does NOT cancel the optimization, only the tail..."
+				echo -n "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed. CTRL-c does NOT cancel the optimization, only the tail...  "
 
 				while ! [[ -e $LOG_PATH ]]; do
 					for i in "${spin[@]}"; do

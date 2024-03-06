@@ -665,7 +665,7 @@ function chose_project_number {
 	else 
 		OLD_IFS=$IFS
 		unset IFS
-		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e "use Time::Piece; while (<>) { chomp; \$date = localtime((stat qq#$PROJECTDIR/$PROJECT/\$_#)[9])->datetime; \$date =~ s#T#_#; print qq#\$_ '\$date'\n#; }" | sort -nr)
+		available_numbers=$(ls $PROJECTDIR/$PROJECT | sort -nr)
 
 		eval `resize`
 

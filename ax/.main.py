@@ -418,7 +418,7 @@ def execute_bash_code(code):
         print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
         if len(e.stdout):
             print(f"stdout: {e.stdout}")
-        else
+        else:
             print("No stdout")
 
         if len(e.stderr):

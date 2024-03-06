@@ -1123,6 +1123,7 @@ def main ():
                     print_debug(f"Got {len(trial_index_to_param.items())} new items.")
 
                     for trial_index, parameters in trial_index_to_param.items():
+                        new_job = None
                         try:
                             print_debug(f"Trying to start new job.")
                             new_job = executor.submit(evaluate, parameters)
@@ -1134,8 +1135,20 @@ def main ():
                                 print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
                             else:
                                 print_color("red", f"\n:warning: FAILED: {error}")
+                            
+                            try:
+                                new_job.cancel()
 
-                            sys.exit(2)
+                                jobs.remove((new_job, trial_index))
+
+                                progress_bar.update(1)
+
+                                save_checkpoint()
+                                save_pd_csv()
+                            except Exception as e:
+                                print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+
+
                 except botorch.exceptions.errors.InputDataError as e:
                     print_color("red", f"Error: {e}")
                 except ax.exceptions.core.DataRequiredError:

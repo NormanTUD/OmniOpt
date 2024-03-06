@@ -18,7 +18,8 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
-        echo "  --use-ram-tests"
+        echo "  --use-ram-tests                                    Run test that allocates more and more memory"
+        echo "  --forkbomb                                         Run forkbomb test"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -32,9 +33,14 @@ function join_by {
 }
 
 export useramtests=0
+export forkbomb=0
 
 for i in $@; do
         case $i in
+                --forkbomb)
+                        forkbomb=1
+                        shift
+                        ;;
                 --use-ram-tests)
                         useramtests=1
                         shift
@@ -63,6 +69,10 @@ which_programs=(
 	"simple_ok"
 	"takes_forever"
 )
+
+if [[ "$forkbomb" -eq "1" ]]; then
+	which_programs+=("forkbomb")
+fi
 
 if [[ "$useramtests" -eq "1" ]]; then
 	which_programs+=("allocate_ram_forever")

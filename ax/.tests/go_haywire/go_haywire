@@ -70,7 +70,25 @@ fi
 
 which_programs_string=$(join_by , "${which_programs[@]}")
 
+PARTITION="alpha"
+GPUS=0
+
+if [[ "$PARTITION" == "alpha" ]]; then
+	GPUS=1
+fi
+
 cd ..
 cd ..
 pwd
-./main --partition=alpha --experiment_name=go_haywire --mem_gb=1 --time=30 --worker_timeout=2 --max_eval=50 --num_parallel_jobs=50 --gpus=1 --follow --run_program=Li8udGVzdHMvZ29faGF5d2lyZS9iaW4vJyUocHJvZ3JhbSkn --parameter program choice $which_programs_string
+./main \
+	--partition=$PARTITION \
+	--experiment_name=go_haywire \
+	--mem_gb=1 \
+	--time=30 \
+	--worker_timeout=2 \
+	--max_eval=50 \
+	--num_parallel_jobs=50 \
+	--gpus=$GPUS \
+	--follow \
+	--run_program=Li8udGVzdHMvZ29faGF5d2lyZS9iaW4vJyUocHJvZ3JhbSkn \	# ./.tests/go_haywire/bin/%(program)
+	--parameter program choice $which_programs_string

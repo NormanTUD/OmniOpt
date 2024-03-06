@@ -373,7 +373,7 @@ else
 					done
 				done
 
-				echo ""
+				printf "\r"
 
 				tail -n1000000 -f $LOG_PATH
 			fi

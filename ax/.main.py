@@ -563,10 +563,10 @@ def evaluate(parameters):
 
         end_time = int(time.time())
 
-        stdout = stdout_stderr_exit_code[0]
-        stderr = stdout_stderr_exit_code[1]
-        exit_code = stdout_stderr_exit_code[2]
-        _signal = stdout_stderr_exit_code[3]
+        stdout = stdout_stderr_exit_code_signal[0]
+        stderr = stdout_stderr_exit_code_signal[1]
+        exit_code = stdout_stderr_exit_code_signal[2]
+        _signal = stdout_stderr_exit_code_signal[3]
 
         run_time = end_time - start_time
 

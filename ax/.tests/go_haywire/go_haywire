@@ -90,8 +90,6 @@ fi
 
 NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
 
-echo "Number of evals: $NUMBER_OF_EVALS"
-
 cd ..
 cd ..
 # run_program = ./.tests/go_haywire/bin/%(program)

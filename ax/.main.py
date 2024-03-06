@@ -81,7 +81,7 @@ def decode_if_base64(input_str):
 joined_run_program = " ".join(args.run_program[0])
 joined_run_program = decode_if_base64(joined_run_program)
 
-print("Program to evaluated: ", joined_run_program)
+print("Program to be evaluated: ", joined_run_program)
 
 if args.parameter is None and args.load_checkpoint is None:
     print("Either --parameter or --load_checkpoint is required. Both were not found.")
@@ -1151,13 +1151,17 @@ def main ():
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                         except submitit.core.utils.UncompletedJobError as error:
                             print_color("red", str(error))
+
                             job.cancel()
+                            job.state = "CANCELLED"
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                             else:
                                 print_color("red", f"\n:warning: {error}")
+
                             job.cancel()
+                            job.state = "CANCELLED"
 
                         jobs.remove((job, trial_index))
 

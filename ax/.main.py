@@ -804,28 +804,7 @@ def end_program ():
     pd_csv = f'{current_run_folder}/pd.csv'
     print_debug(f"[end_program] Trying to save file to {pd_csv}")
 
-    try:
-        logger = logging.getLogger()
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service.utils")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service.utils.report_utils")
-        logger.setLevel(logging.ERROR)
-
-        pd_frame = ax_client.get_trials_data_frame()
-        pd_frame.to_csv(pd_csv, index=False)
-        print_debug(f"[end_program] Saved file to {pd_csv}")
-    except Exception as e:
-        print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
-        sys.exit(17)
+    save_pd_csv()
 
     for job, trial_index in jobs[:]:
         job.cancel()
@@ -1164,11 +1143,13 @@ def main ():
                             ax_client.complete_trial(trial_index=trial_index, raw_data=result)
                         except submitit.core.utils.UncompletedJobError as error:
                             print_color("red", str(error))
+                            job.cancel()
                         except ax.exceptions.core.UserInputError as error:
                             if "None for metric" in str(error):
                                 print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                             else:
                                 print_color("red", f"\n:warning: {error}")
+                            job.cancel()
 
                         jobs.remove((job, trial_index))
 

@@ -68,6 +68,7 @@ which_programs=(
 	"signal"
 	"simple_ok"
 	"takes_forever"
+	"takes_forever_but_has_result"
 )
 
 #if [[ "$forkbomb" -eq "1" ]]; then

@@ -59,7 +59,9 @@ cd ..
 
 # ./.tests/optimization_example --int_param=%(int_param) --float_param=%(float_param) --choice_param=%(choice_param)  --int_param_two=%(int_param_two)
 
-rm -rf runs/$TESTNAME
+if [[ -d "runs/$TESTNAME" ]]; then
+	rm -rf runs/$TESTNAME
+fi
 
 
 ./main \

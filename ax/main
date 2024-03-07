@@ -322,9 +322,14 @@ mycd "$ORIGINAL_PWD"
 
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the main job, unset all SLURM variables
+	set +x
 	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 		unset $i
 	done
+
+	if [[ "$debug" -eq "1" ]]; then
+		set -x
+	fi
 
 	if [[ ! -z $SLURM_JOB_ID ]]; then
 		echo -e "To cancel, use '\e[31mscancel $SLURM_JOB_ID\e[0m'"

@@ -424,7 +424,11 @@ else
 
 				tput el
 
-				tail -n1000000 -f $LOG_PATH
+				if [[ -e "$LOG_PATH" ]]; then
+					tail -n1000000 -f $LOG_PATH
+				else
+					red_text "$LOG_PATH could not be found"
+				fi
 			fi
 		fi
 	else
@@ -457,7 +461,11 @@ else
 			yellow_text "Done waiting for job to be ended"
 
 			LOG_PATH=$(slurmlogpath $started_job_nr)
-			cat $LOG_PATH
+			if [[ -e "$LOG_PATH" ]]; then
+				cat $LOG_PATH
+			else
+				red_text "$LOG_PATH could not be found"
+			fi
 		else
 			red_text "squeue not found. Cannot wait for job to end."
 		fi

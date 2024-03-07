@@ -67,6 +67,7 @@ bash.add_argument('--reservation', help='Reservation', default="", type=str)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+debug.add_argument('--wait_until_ended', help='Wait until the program has ended', action='store_true', default=False)
 
 args = parser.parse_args()
 

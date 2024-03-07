@@ -1119,8 +1119,8 @@ def main ():
 
                     try:
                         if done_jobs > 10:
-                            warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
-                            warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.best_point")
+                            disable_logging()
+
                             best_parameters, (means, covariances) = ax_client.get_best_parameters()
                             best_result = means["result"]
 

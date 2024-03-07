@@ -65,7 +65,7 @@ cd ..
 	 --gpus=$GPUS \
 	 --follow \
 	 --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn \
-	 --parameter int_param range -100 100 int \
-	 --parameter float_param range -100 100 float \
+	 --parameter int_param range -5 5 int \
+	 --parameter float_param range -5 5 float \
 	 --parameter choice_param choice 1,2,4,8,16,hallo \
-	 --parameter int_param_two range -1000 1000 int
+	 --parameter int_param_two range -6 6 int

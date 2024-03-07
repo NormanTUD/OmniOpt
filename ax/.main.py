@@ -81,8 +81,6 @@ def decode_if_base64(input_str):
 joined_run_program = " ".join(args.run_program[0])
 joined_run_program = decode_if_base64(joined_run_program)
 
-print("Program to be evaluated: ", joined_run_program)
-
 if args.parameter is None and args.load_checkpoint is None:
     print("Either --parameter or --load_checkpoint is required. Both were not found.")
     sys.exit(19)

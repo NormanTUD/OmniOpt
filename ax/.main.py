@@ -1112,8 +1112,6 @@ def main ():
 
                 progress_string = start_str
 
-                progress_string = progress_string
-
                 while submitted_jobs < args.max_eval or jobs:
                     # Schedule new jobs if there is availablity
                     try:

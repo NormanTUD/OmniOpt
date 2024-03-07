@@ -455,6 +455,9 @@ else
 			fi
 
 			yellow_text "Done waiting for job to be ended"
+
+			LOG_PATH=$(slurmlogpath $started_job_nr)
+			cat $LOG_PATH
 		else
 			red_text "squeue not found. Cannot wait for job to end."
 		fi

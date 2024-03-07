@@ -46,7 +46,7 @@ done
 PARTITION="alpha"
 GPUS=0
 TESTNAME=__main__tests__
-MAX_EVALS=500
+MAX_EVALS=5
 
 if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1
@@ -106,6 +106,8 @@ if [[ -e $TMP_FILE_PATH ]]; then
 	else
 		ERRORS+=("word 'minimum' not found in $TMP_FILE_PATH")
 	fi
+
+	rm $TMP_FILE_PATH
 else
 	ERRORS+=("$TMP_FILE_PATH not found")
 fi

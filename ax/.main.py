@@ -1119,7 +1119,7 @@ def main ():
                     desc = desc + f", {args.max_eval} in total)"
 
                     try:
-                        if done_jobs > 1:
+                        if done_jobs > 10:
                             best_parameters, (means, covariances) = ax_client.get_best_parameters()
                             best_result = means["result"]
 

@@ -12,6 +12,10 @@ function red_text {
         echoerr -e "\e[31m$1\e[0m"
 }
 
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
 set -e
 set -o pipefail
 
@@ -113,10 +117,10 @@ else
 fi
 
 if [ ${#errors[@]} -eq 0 ]; then
-	echo "No errors"
+	green_text "No errors"
 	exit 0
 else
-	echo "${ERRORS[*]}"
+	red_text "${ERRORS[*]}"
 
 	exit ${#errors[@]}
 fi

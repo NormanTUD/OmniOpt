@@ -1104,16 +1104,31 @@ def main ():
             searching_for = "maximum"
 
 
-        base_desc = f"Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
+        done_jobs = 0
+        failed_jobs = 0
+        _k = 0
 
+        
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            with tqdm(total=args.max_eval, disable=False, desc=base_desc) as progress_bar:
-                start_str = f"[cyan]{base_desc}"
-
-                progress_string = start_str
-
+            with tqdm(total=args.max_eval, disable=False) as progress_bar:
                 while submitted_jobs < args.max_eval or jobs:
+                    desc = f"Searching {searching_for} (done: {done_jobs}, failed: {failed_jobs}, {args.max_eval} in total)"
+
+                    try:
+                        if done_jobs > 1:
+                            best_parameters, (means, covariances) = ax_client.get_best_parameters()
+                            best_result = means["result"]
+
+                            if str(best_result) != '1e+59':
+                                desc += ", best loss: " + str(best_result)
+                    except Exception as e:
+                        pass
+
+                    desc = desc + "..."
+
+                    progress_bar.set_description(desc)
+
                     # Schedule new jobs if there is availablity
                     try:
                         calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
@@ -1170,10 +1185,13 @@ def main ():
                                 result = job.result()
                                 print_debug("Got job result")
                                 ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                                done_jobs += 1
                             except submitit.core.utils.UncompletedJobError as error:
                                 print_color("red", str(error))
 
                                 job.cancel()
+                                
+                                failed_jobs += 1
                             except ax.exceptions.core.UserInputError as error:
                                 if "None for metric" in str(error):
                                     print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
@@ -1181,6 +1199,8 @@ def main ():
                                     print_color("red", f"\n:warning: {error}")
 
                                 job.cancel()
+
+                                failed_jobs += 1
 
                             jobs.remove((job, trial_index))
 

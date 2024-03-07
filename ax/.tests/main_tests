@@ -78,10 +78,13 @@ TMP_FILE_PATH="._test_run.svg"
 
 if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
 	if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
+		rm $TMP_FILE_PATH
 		exit 0
 	else
+		rm $TMP_FILE_PATH
 		exit 1
 	fi
 else
+	rm $TMP_FILE_PATH
 	exit 2
 fi

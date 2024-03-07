@@ -68,6 +68,7 @@ bash.add_argument('--reservation', help='Reservation', default="", type=str)
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
 debug.add_argument('--wait_until_ended', help='Wait until the program has ended', action='store_true', default=False)
+debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -1133,7 +1134,8 @@ def main ():
                                     new_job = executor.submit(evaluate, parameters)
                                     submitted_jobs += 1
                                     jobs.append((new_job, trial_index))
-                                    time.sleep(1)
+                                    if not args.no_sleep:
+                                        time.sleep(1)
                                 except submitit.core.utils.FailedJobError as error:
                                     if "QOSMinGRES" in str(error) and args.gpus == 0:
                                         print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1187,7 +1189,8 @@ def main ():
                             save_checkpoint()
                             save_pd_csv()
 
-                    time.sleep(0.1)
+                    if not args.no_sleep:
+                        time.sleep(0.1)
             end_program()
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")

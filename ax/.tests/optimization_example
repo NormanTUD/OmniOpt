@@ -140,4 +140,4 @@ sub shekel {
 
 
 print qq#RESULT: #.shekel(@ARGV).qq#\n#;
-' $int_param $choice_param $float_param $int_param_two
+' -- $int_param $choice_param $float_param $int_param_two

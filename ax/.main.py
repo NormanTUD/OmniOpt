@@ -70,6 +70,10 @@ debug.add_argument('--debug', help='Enable debugging', action='store_true', defa
 
 args = parser.parse_args()
 
+if args.max_eval <= 0:
+    print("--max_eval must be larger than 0")
+    sys.exit(39)
+
 def decode_if_base64(input_str):
     try:
         decoded_bytes = base64.b64decode(input_str)

@@ -50,7 +50,7 @@ done
 PARTITION="alpha"
 GPUS=0
 TESTNAME=__main__tests__
-MAX_EVALS=50
+MAX_EVALS=0
 
 if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1

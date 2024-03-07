@@ -46,10 +46,14 @@ done
 PARTITION="alpha"
 GPUS=0
 TESTNAME=__main__tests__
+MAX_EVALS=500
 
 if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1
 fi
+
+
+ERRORS=()
 
 cd ..
 
@@ -57,35 +61,49 @@ cd ..
 
 rm -rf runs/$TESTNAME
 
+
 ./main \
 	--partition=$PARTITION \
 	--experiment_name=$TESTNAME \
 	--mem_gb=1 \
 	--time=30 \
 	--worker_timeout=1 \
-	--max_eval=500 \
-	--num_parallel_jobs=500 \
+	--max_eval=$MAX_EVALS \
+	--num_parallel_jobs=$MAX_EVALS \
 	--gpus=$GPUS \
 	--follow \
 	--run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn \
 	--parameter int_param range -5 5 int \
 	--parameter float_param range -5 5 float \
 	--parameter choice_param choice 1,2,4,8,16,hallo \
-	--parameter int_param_two range -6 6 int
+	--parameter int_param_two range -6 6 int || ERRORS+=("main script failed.")
 
 TMP_FILE_PATH="._test_run.svg"
 
 ./plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
 
+
 if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
 	if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
-		rm $TMP_FILE_PATH
-		exit 0
+		number_of_evals_run=$(cat $TMP_FILE_PATH | grep "Number of evaluations shown"  | sed -e 's#\s*-->##' | sed -e 's#.*\s##' | sed -e 's#\s##g')
+		if [[ "$number_of_evals_run" -eq "$MAX_EVALS" ]]; then
+			echo "Minimum, float_param found, also number_of_evals_run matches MAX_EVALS"
+		else
+			ERRORS+=("number_of_evals_run ($number_of_evals_run) does not match wanted max_evals ($MAX_EVALS)")
+		fi
 	else
-		rm $TMP_FILE_PATH
-		exit 1
+		ERRORS+=("word 'float_param' not found in $TMP_FILE_PATH")
 	fi
 else
-	rm $TMP_FILE_PATH
-	exit 2
+	ERRORS+=("word 'minimum' not found in $TMP_FILE_PATH")
 fi
+
+if [ ${#errors[@]} -eq 0 ]; then
+	echo "No errors"
+	exit 0
+else
+	echo "${ERRORS[*]}"
+
+	exit ${#errors[@]}
+fi
+

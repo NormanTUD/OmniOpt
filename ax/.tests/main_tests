@@ -18,33 +18,13 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
-        echo "  --use-ram-tests                                    Run test that allocates more and more memory"
-	echo "  --forkbomb                                         Run forkbomb test (disabled)"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }
 
-function join_by {
-	local d=${1-} f=${2-}
-	if shift 2; then
-		printf %s "$f" "${@/#/$d}"
-	fi
-}
-
-export useramtests=0
-export forkbomb=0
-
 for i in $@; do
         case $i in
-                --forkbomb)
-                        forkbomb=1
-                        shift
-                        ;;
-                --use-ram-tests)
-                        useramtests=1
-                        shift
-                        ;;
                 -h|--help)
                         help 0
                         ;;
@@ -66,16 +46,21 @@ if [[ "$PARTITION" == "alpha" ]]; then
 fi
 
 cd ..
-# run_program = ./.tests/go_haywire/bin/%(program)
-./main \
-	--partition=$PARTITION \
-	--experiment_name=go_haywire \
-	--mem_gb=1 \
-	--time=20 \
-	--worker_timeout=1 \
-	--max_eval=$NUMBER_OF_EVALS \
-	--num_parallel_jobs=50 \
-	--gpus=$GPUS \
-	--follow \
-	--run_program=Li8udGVzdHMvZ29faGF5d2lyZS9iaW4vJyUocHJvZ3JhbSkn \
-	--parameter program choice $which_programs_string
+
+# ./.tests/optimization_example --int_param=%(int_param) --float_param=%(float_param) --choice_param=%(choice_param)  --int_param_two=%(int_param_two)
+
+ ./main \
+	 --partition=$PARTITION \
+	 --experiment_name=main_tests \
+	 --mem_gb=1 \
+	 --time=30 \
+	 --worker_timeout=1 \
+	 --max_eval=500 \
+	 --num_parallel_jobs=500 \
+	 --gpus=$GPUS \
+	 --follow \
+	 --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn \
+	 --parameter int_param range -100 100 int \
+	 --parameter float_param range -100 100 float \
+	 --parameter choice_param choice 1,2,4,8,16,hallo \
+	 --parameter int_param_two range -1000 1000 int

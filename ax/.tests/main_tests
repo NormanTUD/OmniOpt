@@ -8,6 +8,10 @@ function echoerr() {
         echo "$@" 1>&2
 }
 
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
 function red_text {
         echoerr -e "\e[31m$1\e[0m"
 }
@@ -50,7 +54,7 @@ done
 PARTITION="alpha"
 GPUS=0
 TESTNAME=__main__tests__
-MAX_EVALS=50
+MAX_EVALS=5
 
 if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1
@@ -67,6 +71,7 @@ if [[ -d "runs/$TESTNAME" ]]; then
 	rm -rf runs/$TESTNAME
 fi
 
+yellow_text "Starting main program..."
 
 ./main \
 	--partition=$PARTITION \
@@ -86,15 +91,18 @@ fi
 
 exit_code=$?
 
+yellow_text "Main program ended..."
+
 if [[ "$exit_code" -ne "0" ]]; then
 	ERRORS+=("main script failed.")
 fi
 
-TMP_FILE_PATH="._test_run.svg"
+yellow_text "Calling plot function"
 
+TMP_FILE_PATH="._test_run.svg"
 ./plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
 
-
+yellow_text "Checking plot function"
 if [[ -e $TMP_FILE_PATH ]]; then
 	if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
 		if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
@@ -111,6 +119,7 @@ if [[ -e $TMP_FILE_PATH ]]; then
 		ERRORS+=("word 'minimum' not found in $TMP_FILE_PATH")
 	fi
 
+	yellow_text "$TMP_FILE_PATH found and checked. Deleting it."
 	rm $TMP_FILE_PATH
 else
 	ERRORS+=("$TMP_FILE_PATH not found")

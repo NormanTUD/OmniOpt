@@ -79,10 +79,20 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 		*)
+			red_text "Unknown parameter $i"
+			exit 2
 			;;
 	esac
 	k=$((k+1))
 done
+
+set -x
+if [[ "$max_eval" -lt "1" ]]; then
+	red_text "Max_eval must be 1 or more, is $max_eval"
+	exit 1
+fi
+
+exit
 
 if [[ "$debug" -eq "1" ]]; then
 	set -x

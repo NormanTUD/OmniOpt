@@ -88,10 +88,10 @@ NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
 
 cd ..
 cd ..
-# run_program = ./.tests/go_haywire/bin/%(program)
+# run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
 ./main \
 	--partition=$PARTITION \
-	--experiment_name=go_haywire \
+	--experiment_name=test_wronggoing_stuff \
 	--mem_gb=1 \
 	--time=20 \
 	--worker_timeout=1 \

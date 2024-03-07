@@ -71,10 +71,6 @@ debug.add_argument('--wait_until_ended', help='Wait until the program has ended'
 
 args = parser.parse_args()
 
-if args.max_eval <= 0:
-    print("--max_eval must be larger than 0")
-    sys.exit(39)
-
 def decode_if_base64(input_str):
     try:
         decoded_bytes = base64.b64decode(input_str)
@@ -182,6 +178,10 @@ except signalINT:
 
 def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
+
+if args.max_eval <= 0:
+    print_color("red", "--max_eval must be larger than 0")
+    sys.exit(39)
 
 def is_executable_in_path(executable_name):
     for path in os.environ.get('PATH', '').split(':'):

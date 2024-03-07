@@ -726,7 +726,7 @@ def show_end_table_and_save_end_files ():
             print_color("red", table_str)
         else:
             print_debug("[show_end_table_and_save_end_files] Creating table")
-            table = Table(show_header=True, header_style="bold", title="Best parameters:")
+            table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
             for key in best_parameters.keys():
                 table.add_column(key)

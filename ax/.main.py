@@ -1196,5 +1196,4 @@ def main ():
         print("\n:warning: end_program ran.")
 
 if __name__ == "__main__":
-    with warnings.catch_warnings(action="ignore"):
-        main()
+    main()

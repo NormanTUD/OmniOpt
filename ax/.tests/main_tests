@@ -37,6 +37,7 @@ function help () {
         exit $1
 }
 
+debug=0
 max_eval=20
 
 args=("$@")

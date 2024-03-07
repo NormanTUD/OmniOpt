@@ -430,6 +430,38 @@ else
 					red_text "$LOG_PATH could not be found"
 				fi
 			fi
+		elif [[ "$wait_until_ended" -eq "1" ]]; then
+			if command -v squeue 2>/dev/null >/dev/null; then
+				WAIT_NUM_SECONDS=10
+				yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
+
+				set +x
+
+				seconds_count=0
+
+				echo ""
+
+				while [[ "$(squeue --me | grep $started_job_nr | wc -l)" -ne "0" ]]; do
+					sleep $WAIT_NUM_SECONDS
+				done
+
+				echo ""
+
+				if [[ "$debug" -eq 1 ]]; then
+					set -x
+				fi
+
+				yellow_text "Done waiting for job to be ended"
+
+				LOG_PATH=$(slurmlogpath $started_job_nr)
+				if [[ -e "$LOG_PATH" ]]; then
+					cat $LOG_PATH
+				else
+					red_text "$LOG_PATH could not be found"
+				fi
+			else
+				red_text "squeue not found. Cannot wait for job to end."
+			fi
 		fi
 	else
 		red_text "Failed to start sbatch job. Exit-Code: $exit_code"
@@ -437,37 +469,4 @@ else
 		exit $exit_code
 	fi
 
-	if [[ "$wait_until_ended" -eq "1" ]]; then
-		if command -v squeue 2>/dev/null >/dev/null; then
-			WAIT_NUM_SECONDS=10
-			yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
-
-			set +x
-
-			seconds_count=0
-
-			echo ""
-
-			while [[ "$(squeue --me | grep $started_job_nr | wc -l)" -ne "0" ]]; do
-				sleep $WAIT_NUM_SECONDS
-			done
-
-			echo ""
-
-			if [[ "$debug" -eq 1 ]]; then
-				set -x
-			fi
-
-			yellow_text "Done waiting for job to be ended"
-
-			LOG_PATH=$(slurmlogpath $started_job_nr)
-			if [[ -e "$LOG_PATH" ]]; then
-				cat $LOG_PATH
-			else
-				red_text "$LOG_PATH could not be found"
-			fi
-		else
-			red_text "squeue not found. Cannot wait for job to end."
-		fi
-	fi
 fi

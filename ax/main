@@ -28,15 +28,15 @@ function echoerr() {
 }
 
 function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
+	echoerr -e "\e\033[0;33m$1\e[0m"
 }
 
 function green_text {
-        echoerr -e "\033[0;32m$1\e[0m"
+	echoerr -e "\033[0;32m$1\e[0m"
 }
 
 function red_text {
-        echoerr -e "\e[31m$1\e[0m"
+	echoerr -e "\e[31m$1\e[0m"
 }
 
 minutes_to_hh_mm_ss() {
@@ -79,158 +79,158 @@ k=0
 while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
-        case $i in
-                --mem_gb=*)
-                        old_mem_gb=$mem_gb
-                        mem_gb="${i#*=}"
-                        if ! [[ $mem_gb =~ $int_re ]] ; then
-                                red_text "error: --mem_gb not a INT: $i" >&2
-                                exit 100
-                        fi
+	case $i in
+		--mem_gb=*)
+			old_mem_gb=$mem_gb
+			mem_gb="${i#*=}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
 
-                        if [[ ! -z $old_mem_gb ]]; then
-                                red_text "--mem_gb was specified more than once. Using the last one."
+			if [[ ! -z $old_mem_gb ]]; then
+				red_text "--mem_gb was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --mem_gb=$mem_gb "
 
-                        ;;
-                --mem_gb)
-                        old_mem_gb=$mem_gb
+			;;
+		--mem_gb)
+			old_mem_gb=$mem_gb
 
-                        shift
+			shift
 			k=$((k+1))
 
-                        mem_gb="${args[k]}"
-                        if ! [[ $mem_gb =~ $int_re ]] ; then
-                                red_text "error: --mem_gb not a INT: $i" >&2
-                                exit 100
-                        fi
+			mem_gb="${args[k]}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
 
-                        if [[ ! -z $old_mem_gb ]]; then
-                                red_text "--mem_gb was specified more than once. Using the last one."
+			if [[ ! -z $old_mem_gb ]]; then
+				red_text "--mem_gb was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --mem_gb=$mem_gb "
 
-                        ;;
+			;;
 
-                --gpus=*)
-                        old_gpus=$gpus
-                        gpus="${i#*=}"
-                        if ! [[ $gpus =~ $int_re ]] ; then
-                                red_text "error: --gpus not a INT: $i" >&2
-                                exit 100
-                        fi
+		--gpus=*)
+			old_gpus=$gpus
+			gpus="${i#*=}"
+			if ! [[ $gpus =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
 
-                        if [[ ! -z $old_gpus ]]; then
-                                red_text "--gpus was specified more than once. Using the last one."
+			if [[ ! -z $old_gpus ]]; then
+				red_text "--gpus was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --gpus=$gpus "
 
-                        ;;
-                --gpus)
-                        old_gpus=$gpus
+			;;
+		--gpus)
+			old_gpus=$gpus
 
-                        shift
+			shift
 
 			k=$((k+1))
-                        gpus="${args[k]}"
-                        if ! [[ $gpus =~ $int_re ]] ; then
-                                red_text "error: --gpus not a INT: $i" >&2
-                                exit 100
-                        fi
+			gpus="${args[k]}"
+			if ! [[ $gpus =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
 
-                        if [[ ! -z $old_gpus ]]; then
-                                red_text "--gpus was specified more than once. Using the last one."
+			if [[ ! -z $old_gpus ]]; then
+				red_text "--gpus was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --gpus=$gpus "
 
-                        ;;
+			;;
 
 		--experiment_name=*)
-                        old_experiment_name=$experiment_name
-                        experiment_name="${i#*=}"
+			old_experiment_name=$experiment_name
+			experiment_name="${i#*=}"
 
-                        if [[ ! -z $old_experiment_name ]]; then
-                                red_text "--experiment_name was specified more than once. Using the last one."
+			if [[ ! -z $old_experiment_name ]]; then
+				red_text "--experiment_name was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--experiment_name=[0-9a-zA-Z_]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --experiment_name=$experiment_name "
 
-                        ;;
-                --experiment_name)
-                        old_experiment_name=$experiment_name
+			;;
+		--experiment_name)
+			old_experiment_name=$experiment_name
 
-                        shift
+			shift
 
 			k=$((k+1))
-                        experiment_name="${args[k]}"
+			experiment_name="${args[k]}"
 
-                        if [[ ! -z $old_experiment_name ]]; then
-                                red_text "--experiment_name was specified more than once. Using the last one."
+			if [[ ! -z $old_experiment_name ]]; then
+				red_text "--experiment_name was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--experiment_name=[0-9a-zA-Z_]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --experiment_name=$experiment_name "
 
-                        ;;
+			;;
 
 		--time=*)
-                        old_time=$time
-                        time="${i#*=}"
+			old_time=$time
+			time="${i#*=}"
 
-                        if [[ ! -z $old_time ]]; then
-                                red_text "--time was specified more than once. Using the last one."
+			if [[ ! -z $old_time ]]; then
+				red_text "--time was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--time=[0-9a-zA-Z_]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --time=$time "
 
-                        ;;
-                --time)
-                        old_time=$time
+			;;
+		--time)
+			old_time=$time
 
-                        shift
+			shift
 
 			k=$((k+1))
-                        time="${args[k]}"
+			time="${args[k]}"
 
-                        if [[ ! -z $old_time ]]; then
-                                red_text "--time was specified more than once. Using the last one."
+			if [[ ! -z $old_time ]]; then
+				red_text "--time was specified more than once. Using the last one."
 				args_string=$(echo "$args_string" | sed -e 's#\s*--time=[0-9a-zA-Z_]*\s\s*# #')
-                        fi
+			fi
 
 			args_string+=" --time=$time "
 
-                        ;;
+			;;
 
 		--follow)
 			follow=1
-                        ;;
-                --wait_until_ended)
+			;;
+		--wait_until_ended)
 			wait_until_ended=1
 			args_string+=" --wait_until_ended "
-                        ;;
-                --help*)
+			;;
+		--help*)
 			help=1
 			args_string+=" --help "
-                        ;;
-                --debug)
+			;;
+		--debug)
 			debug=1
-                        ;;
+			;;
 
 		*)
 			args_string+=" $i "
 			;;
-        esac
+	esac
 	k=$((k+1))
 done
 

@@ -219,7 +219,11 @@ while [ $k -lt ${#args[@]} ]; do
 			wait_until_ended=1
 			args_string+=" --wait_until_ended "
 			;;
-		--help*)
+		-h)
+			help=1
+			args_string+=" --help "
+			;;
+		--help)
 			help=1
 			args_string+=" --help "
 			;;

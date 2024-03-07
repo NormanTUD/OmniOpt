@@ -714,7 +714,8 @@ def show_end_table_and_save_end_files ():
 
     print_debug("[show_end_table_and_save_end_files] Getting best params")
 
-    with warnings.catch_warnings(action="ignore"):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         try:
             best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
@@ -1102,7 +1103,8 @@ def main ():
 
         base_desc = f"Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
 
-        with warnings.catch_warnings(action="ignore"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             with tqdm(total=args.max_eval, disable=False, desc=base_desc) as progress_bar:
                 start_str = f"[cyan]{base_desc}"
 
@@ -1196,4 +1198,6 @@ def main ():
         print("\n:warning: end_program ran.")
 
 if __name__ == "__main__":
-    main()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        main()

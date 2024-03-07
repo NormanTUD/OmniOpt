@@ -1098,87 +1098,88 @@ def main ():
 
         base_desc = f"Evaluating hyperparameter constellations, searching {searching_for} ({args.max_eval} in total)..."
 
-        with tqdm(total=args.max_eval, disable=False, desc=base_desc) as progress_bar:
-            start_str = f"[cyan]{base_desc}"
+        with warnings.catch_warnings(action="ignore"):
+            with tqdm(total=args.max_eval, disable=False, desc=base_desc) as progress_bar:
+                start_str = f"[cyan]{base_desc}"
 
-            progress_string = start_str
+                progress_string = start_str
 
-            progress_string = progress_string
+                progress_string = progress_string
 
-            while submitted_jobs < args.max_eval or jobs:
-                # Schedule new jobs if there is availablity
-                try:
-                    calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+                while submitted_jobs < args.max_eval or jobs:
+                    # Schedule new jobs if there is availablity
+                    try:
+                        calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
 
-                    print_debug(f"Trying to get the next {calculated_max_trials} trials.")
+                        print_debug(f"Trying to get the next {calculated_max_trials} trials.")
 
-                    trial_index_to_param, _ = ax_client.get_next_trials(
-                        max_trials=calculated_max_trials
-                    )
+                        trial_index_to_param, _ = ax_client.get_next_trials(
+                            max_trials=calculated_max_trials
+                        )
 
-                    print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+                        print_debug(f"Got {len(trial_index_to_param.items())} new items.")
 
-                    for trial_index, parameters in trial_index_to_param.items():
-                        new_job = None
-                        try:
-                            print_debug(f"Trying to start new job.")
-                            new_job = executor.submit(evaluate, parameters)
-                            submitted_jobs += 1
-                            jobs.append((new_job, trial_index))
-                            time.sleep(1)
-                        except submitit.core.utils.FailedJobError as error:
-                            if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                            else:
-                                print_color("red", f"\n:warning: FAILED: {error}")
-                            
+                        for trial_index, parameters in trial_index_to_param.items():
+                            new_job = None
                             try:
-                                new_job.cancel()
+                                print_debug(f"Trying to start new job.")
+                                new_job = executor.submit(evaluate, parameters)
+                                submitted_jobs += 1
+                                jobs.append((new_job, trial_index))
+                                time.sleep(1)
+                            except submitit.core.utils.FailedJobError as error:
+                                if "QOSMinGRES" in str(error) and args.gpus == 0:
+                                    print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                                else:
+                                    print_color("red", f"\n:warning: FAILED: {error}")
+                                
+                                try:
+                                    new_job.cancel()
 
-                                jobs.remove((new_job, trial_index))
+                                    jobs.remove((new_job, trial_index))
 
-                                progress_bar.update(1)
+                                    progress_bar.update(1)
 
-                                save_checkpoint()
-                                save_pd_csv()
-                            except Exception as e:
-                                print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+                                    save_checkpoint()
+                                    save_pd_csv()
+                                except Exception as e:
+                                    print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
 
 
-                except botorch.exceptions.errors.InputDataError as e:
-                    print_color("red", f"Error: {e}")
-                except ax.exceptions.core.DataRequiredError:
-                    print_color("red", f"Error: {e}")
+                    except botorch.exceptions.errors.InputDataError as e:
+                        print_color("red", f"Error: {e}")
+                    except ax.exceptions.core.DataRequiredError:
+                        print_color("red", f"Error: {e}")
 
-                for job, trial_index in jobs[:]:
-                    # Poll if any jobs completed
-                    # Local and debug jobs don't run until .result() is called.
-                    if job.done() or type(job) in [LocalJob, DebugJob]:
-                        try:
-                            result = job.result()
-                            print_debug("Got job result")
-                            ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                        except submitit.core.utils.UncompletedJobError as error:
-                            print_color("red", str(error))
+                    for job, trial_index in jobs[:]:
+                        # Poll if any jobs completed
+                        # Local and debug jobs don't run until .result() is called.
+                        if job.done() or type(job) in [LocalJob, DebugJob]:
+                            try:
+                                result = job.result()
+                                print_debug("Got job result")
+                                ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                            except submitit.core.utils.UncompletedJobError as error:
+                                print_color("red", str(error))
 
-                            job.cancel()
-                        except ax.exceptions.core.UserInputError as error:
-                            if "None for metric" in str(error):
-                                print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
-                            else:
-                                print_color("red", f"\n:warning: {error}")
+                                job.cancel()
+                            except ax.exceptions.core.UserInputError as error:
+                                if "None for metric" in str(error):
+                                    print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                                else:
+                                    print_color("red", f"\n:warning: {error}")
 
-                            job.cancel()
+                                job.cancel()
 
-                        jobs.remove((job, trial_index))
+                            jobs.remove((job, trial_index))
 
-                        progress_bar.update(1)
+                            progress_bar.update(1)
 
-                        save_checkpoint()
-                        save_pd_csv()
+                            save_checkpoint()
+                            save_pd_csv()
 
-                time.sleep(0.1)
-        end_program()
+                    time.sleep(0.1)
+            end_program()
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
     except signalUSR:

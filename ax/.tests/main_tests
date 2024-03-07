@@ -1,0 +1,81 @@
+#!/bin/bash
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+set -e
+set -o pipefail
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+        echo "  --use-ram-tests                                    Run test that allocates more and more memory"
+	echo "  --forkbomb                                         Run forkbomb test (disabled)"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+export useramtests=0
+export forkbomb=0
+
+for i in $@; do
+        case $i in
+                --forkbomb)
+                        forkbomb=1
+                        shift
+                        ;;
+                --use-ram-tests)
+                        useramtests=1
+                        shift
+                        ;;
+                -h|--help)
+                        help 0
+                        ;;
+                --debug)
+                        set -x
+                        ;;
+                *)
+                        red_text "Unknown parameter $i" >&2
+                        help 1
+                        ;;
+        esac
+done
+
+PARTITION="alpha"
+GPUS=0
+
+if [[ "$PARTITION" == "alpha" ]]; then
+	GPUS=1
+fi
+
+cd ..
+# run_program = ./.tests/go_haywire/bin/%(program)
+./main \
+	--partition=$PARTITION \
+	--experiment_name=go_haywire \
+	--mem_gb=1 \
+	--time=20 \
+	--worker_timeout=1 \
+	--max_eval=$NUMBER_OF_EVALS \
+	--num_parallel_jobs=50 \
+	--gpus=$GPUS \
+	--follow \
+	--run_program=Li8udGVzdHMvZ29faGF5d2lyZS9iaW4vJyUocHJvZ3JhbSkn \
+	--parameter program choice $which_programs_string

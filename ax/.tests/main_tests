@@ -32,7 +32,7 @@ trap 'calltracer' ERR
 function help () {
         echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
-	echo "  --no_sleep                                         Disables sleeping after job creation"
+	echo "  --no_sleep                                         Disables sleeping after job creation (not recommended on HPC)"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1

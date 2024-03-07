@@ -1,9 +1,0 @@
-#!/bin/bash
-
-echo "Starting forkbomb in 10 seconds. Press ctrl-c to save your system!"
-
-sleep 10
-
-bomb() { 
- bomb | bomb &
-}; bomb

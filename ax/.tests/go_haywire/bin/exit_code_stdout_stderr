@@ -1,5 +1,0 @@
-#!/bin/bash
-
-echo "This has stdout"
-echo "This has stderr" >&2
-exit 5

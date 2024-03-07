@@ -1,9 +1,0 @@
-#!/bin/bash
-
-echo "RESULT: $RANDOM"
-
-while true; do
-	sleep 1000;
-done
-
-echo "This should never happen..."

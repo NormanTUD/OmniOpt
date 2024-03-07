@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "This has stdout"
-exit 5

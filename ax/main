@@ -332,6 +332,11 @@ source $SCRIPT_DIR/.shellscript_functions
 
 mycd "$ORIGINAL_PWD"
 
+if [[ "$help" -eq "1" ]]; then
+	python3 $SCRIPT_DIR/.main.py --help
+	exit 0
+fi
+
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the main job, unset all SLURM variables
 	set +x

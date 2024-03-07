@@ -45,6 +45,7 @@ done
 
 PARTITION="alpha"
 GPUS=0
+TESTNAME=__main__tests__
 
 if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1
@@ -54,11 +55,11 @@ cd ..
 
 # ./.tests/optimization_example --int_param=%(int_param) --float_param=%(float_param) --choice_param=%(choice_param)  --int_param_two=%(int_param_two)
 
-rm -rf runs/main_tests
+rm -rf runs/$TESTNAME
 
 ./main \
 	--partition=$PARTITION \
-	--experiment_name=main_tests \
+	--experiment_name=$TESTNAME \
 	--mem_gb=1 \
 	--time=30 \
 	--worker_timeout=1 \
@@ -74,7 +75,7 @@ rm -rf runs/main_tests
 
 TMP_FILE_PATH="._test_run.svg"
 
-./plot --run_dir runs/main_tests/0 --save_to_file $TMP_FILE_PATH
+./plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
 
 if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
 	if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then

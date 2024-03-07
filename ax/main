@@ -10,10 +10,6 @@ function mycd () {
 	cd $1
 }
 
-remove_previous_line() {
-	tput el
-}
-
 function calltracer () {
         echo 'Last file/last line:'
         caller
@@ -435,10 +431,12 @@ else
 
 			seconds_count=0
 
+			echo ""
+
 			while [[ "$(squeue --me | grep $started_job_nr | wc -l)" -ne "0" ]]; do
 				for ((i=1; i<=10; i++)); do
-					remove_previous_line
 					echo -n "Waiting for job $started_job_nr to end... (Elapsed time: $i seconds)    "
+					tput el
 
 					sleep 1
 				done

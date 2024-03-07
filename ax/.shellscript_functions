@@ -11,7 +11,8 @@ Green='\033[0;32m'
 Color_Off='\033[0m'
 Red='\033[0;31m'
 
-VENV_DIR=$HOME/.omniax_$(uname -m)
+VENV_DIR_NAME=.omniax_$(uname -m)
+VENV_DIR=$HOME/$VENV_DIR_NAME
 
 function red {
 	echo -e "${Red}$1${Color_Off}"
@@ -54,33 +55,35 @@ if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
 	fi
 fi
 
-if [[ ! -d "$VENV_DIR" ]]; then
-	green "Environment $VENV_DIR was not found. Creating it..."
-	python3 -mvenv $VENV_DIR/ || {
-		red "Failed to create Virtual Environment in $VENV_DIR"
-		exit 1
-	}
+if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
+	if [[ ! -d "$VENV_DIR" ]]; then
+		green "Environment $VENV_DIR was not found. Creating it..."
+		python3 -mvenv $VENV_DIR/ || {
+			red "Failed to create Virtual Environment in $VENV_DIR"
+			exit 1
+		}
 
-	green "Virtual Environment $VENV_DIR created. Activating it..."
+		green "Virtual Environment $VENV_DIR created. Activating it..."
 
-	source $VENV_DIR/bin/activate || {
-		red "Failed to activate $VENV_DIR"
-		exit 2
-	}
+		source $VENV_DIR/bin/activate || {
+			red "Failed to activate $VENV_DIR"
+			exit 2
+		}
 
-	green "Virtual Environment activated. Now installing software. This may take some time."
+		green "Virtual Environment activated. Now installing software. This may take some time."
 
-	pip install --upgrade pip
+		pip install --upgrade pip
 
-	ppip Rich
-	ppip scikit-learn
-	ppip submitit
-	ppip ax
-	ppip ax-platform
-	ppip matplotlib
-	ppip Pyarrow
-	ppip textual
-	ppip tqdm
+		ppip Rich
+		ppip scikit-learn
+		ppip submitit
+		ppip ax
+		ppip ax-platform
+		ppip matplotlib
+		ppip Pyarrow
+		ppip textual
+		ppip tqdm
+	fi
+
+	source $VENV_DIR/bin/activate
 fi
-
-source $VENV_DIR/bin/activate

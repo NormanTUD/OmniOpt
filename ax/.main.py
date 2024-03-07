@@ -715,49 +715,51 @@ def show_end_table_and_save_end_files ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
 
     print_debug("[show_end_table_and_save_end_files] Getting best params")
-    try:
-        best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
-        print_debug("[show_end_table_and_save_end_files] Got best params")
-        best_result = means["result"]
+    with warnings.catch_warnings(action="ignore"):
+        try:
+            best_parameters, (means, covariances) = ax_client.get_best_parameters()
 
-        if str(best_result) == '1e+59':
-            table_str = "Best result could not be determined"
-            print_color("red", table_str)
-        else:
-            print_debug("[show_end_table_and_save_end_files] Creating table")
-            table = Table(show_header=True, header_style="bold", title="Best parameter:")
+            print_debug("[show_end_table_and_save_end_files] Got best params")
+            best_result = means["result"]
 
-            for key in best_parameters.keys():
-                table.add_column(key)
+            if str(best_result) == '1e+59':
+                table_str = "Best result could not be determined"
+                print_color("red", table_str)
+            else:
+                print_debug("[show_end_table_and_save_end_files] Creating table")
+                table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
-            print_debug("[show_end_table_and_save_end_files] Add last column to table")
-            table.add_column("result (inexact)")
+                for key in best_parameters.keys():
+                    table.add_column(key)
 
-            print_debug("[show_end_table_and_save_end_files] Defining rows")
-            row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
-            row = [*row_without_result, str(best_result)]
+                print_debug("[show_end_table_and_save_end_files] Add last column to table")
+                table.add_column("result (inexact)")
 
-            print_debug("[show_end_table_and_save_end_files] Adding rows to table")
-            table.add_row(*row)
+                print_debug("[show_end_table_and_save_end_files] Defining rows")
+                row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
+                row = [*row_without_result, str(best_result)]
 
-            print_debug("[show_end_table_and_save_end_files] Printing table")
-            console.print(table)
+                print_debug("[show_end_table_and_save_end_files] Adding rows to table")
+                table.add_row(*row)
 
-            print_debug("[show_end_table_and_save_end_files] Capturing table")
-
-            with console.capture() as capture:
+                print_debug("[show_end_table_and_save_end_files] Printing table")
                 console.print(table)
-            table_str = capture.get()
 
-        print_debug("[show_end_table_and_save_end_files] Printing captured table to file")
-        with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
-            text_file.write(table_str)
+                print_debug("[show_end_table_and_save_end_files] Capturing table")
 
-        print_debug("[show_end_table_and_save_end_files] Setting shown_end_table = true")
-        shown_end_table = True
-    except Exception as e:
-        print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
+                with console.capture() as capture:
+                    console.print(table)
+                table_str = capture.get()
+
+            print_debug("[show_end_table_and_save_end_files] Printing captured table to file")
+            with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
+                text_file.write(table_str)
+
+            print_debug("[show_end_table_and_save_end_files] Setting shown_end_table = true")
+            shown_end_table = True
+        except Exception as e:
+            print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
 
 def end_program ():
     print_debug("[end_program] end_program started")

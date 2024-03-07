@@ -54,10 +54,6 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 100
 			fi
 
-			if [[ ! -z $old_max_eval ]]; then
-				red_text "--max_eval was specified more than once. Using the last one."
-			fi
-
 			;;
 		--max_eval)
 			old_max_eval=$max_eval

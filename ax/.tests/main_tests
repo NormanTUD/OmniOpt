@@ -83,19 +83,23 @@ TMP_FILE_PATH="._test_run.svg"
 ./plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
 
 
-if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
-	if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
-		number_of_evals_run=$(cat $TMP_FILE_PATH | grep "Number of evaluations shown"  | sed -e 's#\s*-->##' | sed -e 's#.*\s##' | sed -e 's#\s##g')
-		if [[ "$number_of_evals_run" -eq "$MAX_EVALS" ]]; then
-			echo "Minimum, float_param found, also number_of_evals_run matches MAX_EVALS"
+if [[ -e $TMP_FILE_PATH ]]; then
+	if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
+		if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
+			number_of_evals_run=$(cat $TMP_FILE_PATH | grep "Number of evaluations shown"  | sed -e 's#\s*-->##' | sed -e 's#.*\s##' | sed -e 's#\s##g')
+			if [[ "$number_of_evals_run" -eq "$MAX_EVALS" ]]; then
+				echo "Minimum, float_param found, also number_of_evals_run matches MAX_EVALS"
+			else
+				ERRORS+=("number_of_evals_run ($number_of_evals_run) does not match wanted max_evals ($MAX_EVALS)")
+			fi
 		else
-			ERRORS+=("number_of_evals_run ($number_of_evals_run) does not match wanted max_evals ($MAX_EVALS)")
+			ERRORS+=("word 'float_param' not found in $TMP_FILE_PATH")
 		fi
 	else
-		ERRORS+=("word 'float_param' not found in $TMP_FILE_PATH")
+		ERRORS+=("word 'minimum' not found in $TMP_FILE_PATH")
 	fi
 else
-	ERRORS+=("word 'minimum' not found in $TMP_FILE_PATH")
+	ERRORS+=("$TMP_FILE_PATH not found")
 fi
 
 if [ ${#errors[@]} -eq 0 ]; then
@@ -106,4 +110,3 @@ else
 
 	exit ${#errors[@]}
 fi
-

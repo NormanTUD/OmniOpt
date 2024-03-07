@@ -95,6 +95,8 @@ if [[ "$choice_param" == "hallo" ]]; then
 	choice_param=10
 fi
 
+# https://www.sfu.ca/~ssurjano/shekel.html
+
 perl -e 'use strict;
 use warnings;
 use autodie;

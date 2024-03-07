@@ -1119,37 +1119,40 @@ def main ():
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials.")
 
-                        trial_index_to_param, _ = ax_client.get_next_trials(
-                            max_trials=calculated_max_trials
-                        )
+                        try:
+                            trial_index_to_param, _ = ax_client.get_next_trials(
+                                max_trials=calculated_max_trials
+                            )
 
-                        print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+                            print_debug(f"Got {len(trial_index_to_param.items())} new items.")
 
-                        for trial_index, parameters in trial_index_to_param.items():
-                            new_job = None
-                            try:
-                                print_debug(f"Trying to start new job.")
-                                new_job = executor.submit(evaluate, parameters)
-                                submitted_jobs += 1
-                                jobs.append((new_job, trial_index))
-                                time.sleep(1)
-                            except submitit.core.utils.FailedJobError as error:
-                                if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                    print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                                else:
-                                    print_color("red", f"\n:warning: FAILED: {error}")
-                                
+                            for trial_index, parameters in trial_index_to_param.items():
+                                new_job = None
                                 try:
-                                    new_job.cancel()
+                                    print_debug(f"Trying to start new job.")
+                                    new_job = executor.submit(evaluate, parameters)
+                                    submitted_jobs += 1
+                                    jobs.append((new_job, trial_index))
+                                    time.sleep(1)
+                                except submitit.core.utils.FailedJobError as error:
+                                    if "QOSMinGRES" in str(error) and args.gpus == 0:
+                                        print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                                    else:
+                                        print_color("red", f"\n:warning: FAILED: {error}")
+                                    
+                                    try:
+                                        new_job.cancel()
 
-                                    jobs.remove((new_job, trial_index))
+                                        jobs.remove((new_job, trial_index))
 
-                                    progress_bar.update(1)
+                                        progress_bar.update(1)
 
-                                    save_checkpoint()
-                                    save_pd_csv()
-                                except Exception as e:
-                                    print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+                                        save_checkpoint()
+                                        save_pd_csv()
+                                    except Exception as e:
+                                        print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+                        except RuntimeError as e:
+                            print_color("red", "\n:warning: " + str(e))
 
 
                     except botorch.exceptions.errors.InputDataError as e:

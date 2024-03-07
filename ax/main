@@ -331,10 +331,13 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	fi
 fi
 
-#echo "source $SCRIPT_DIR/.shellscript_functions"
+set +x
 source $SCRIPT_DIR/.shellscript_functions
 
 mycd "$ORIGINAL_PWD"
+if [[ "$debug" -eq "1" ]]; then
+	set -x
+fi
 
 if [[ "$help" -eq "1" ]]; then
 	python3 $SCRIPT_DIR/.main.py --help

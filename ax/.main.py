@@ -1115,8 +1115,8 @@ def main ():
                 while submitted_jobs < args.max_eval or jobs:
                     desc = f"Searching {searching_for} (done: {done_jobs}"
                     if failed_jobs:
-                        desc = desc + ", failed: {failed_jobs}"
-                    desc = desc + ", {args.max_eval} in total)"
+                        desc = desc + f", failed: {failed_jobs}"
+                    desc = desc + f", {args.max_eval} in total)"
 
                     try:
                         if done_jobs > 1:

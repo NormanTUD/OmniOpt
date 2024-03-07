@@ -106,7 +106,7 @@ sub shekel {
         die qq#not enough args, need 4# if(@args < 4);
 
         for (my $k = 0; $k < scalar(@args); $k++) {
-                if ($args[$k] !~ /^\d+(?:\.\d+)?$/) {
+                if ($args[$k] !~ /^[-+]?\d+(?:\.\d+)?$/) {
                         die qq#Invalid parameter $k: $args[$k] is not a number#;
                 }
         }

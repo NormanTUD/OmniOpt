@@ -471,7 +471,7 @@
 							var minValue = parseFloat($(this).find(".minValue").val());
 							var maxValue = parseFloat($(this).find(".maxValue").val());
 
-							var numberType = $($(".numberTypeSelect")[i]).val();
+							var numberType = $($(".parameterRow")[i]).find(".numberTypeSelect").val();
 
 							if (minValue === maxValue) {
 								warn_msg.push("Warning: The minimum and maximum values for parameter " + parameterName + " are equal.");

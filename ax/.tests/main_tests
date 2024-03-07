@@ -31,6 +31,7 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
+	echo "  --max_evals=(INT)                                  Number of max evals for this test"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1

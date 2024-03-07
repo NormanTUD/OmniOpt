@@ -225,7 +225,6 @@ while [ $k -lt ${#args[@]} ]; do
                         ;;
                 --debug)
 			debug=1
-                        set -x
                         ;;
 
 		*)
@@ -234,6 +233,10 @@ while [ $k -lt ${#args[@]} ]; do
         esac
 	k=$((k+1))
 done
+
+if [[ "$debug" -eq "1" ]]; then
+	set -x
+fi
 
 if [[ -d ".git" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then

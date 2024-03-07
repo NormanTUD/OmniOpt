@@ -54,18 +54,34 @@ cd ..
 
 # ./.tests/optimization_example --int_param=%(int_param) --float_param=%(float_param) --choice_param=%(choice_param)  --int_param_two=%(int_param_two)
 
- ./main \
-	 --partition=$PARTITION \
-	 --experiment_name=main_tests \
-	 --mem_gb=1 \
-	 --time=30 \
-	 --worker_timeout=1 \
-	 --max_eval=500 \
-	 --num_parallel_jobs=500 \
-	 --gpus=$GPUS \
-	 --follow \
-	 --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn \
-	 --parameter int_param range -5 5 int \
-	 --parameter float_param range -5 5 float \
-	 --parameter choice_param choice 1,2,4,8,16,hallo \
-	 --parameter int_param_two range -6 6 int
+rm -rf runs/main_tests
+
+./main \
+	--partition=$PARTITION \
+	--experiment_name=main_tests \
+	--mem_gb=1 \
+	--time=30 \
+	--worker_timeout=1 \
+	--max_eval=500 \
+	--num_parallel_jobs=500 \
+	--gpus=$GPUS \
+	--follow \
+	--run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn \
+	--parameter int_param range -5 5 int \
+	--parameter float_param range -5 5 float \
+	--parameter choice_param choice 1,2,4,8,16,hallo \
+	--parameter int_param_two range -6 6 int
+
+TMP_FILE_PATH="._test_run.svg"
+
+./plot --run_dir runs/main_tests/0 --save_to_file $TMP_FILE_PATH
+
+if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
+	if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
+		exit 0
+	else
+		exit 1
+	fi
+else
+	exit 2
+fi

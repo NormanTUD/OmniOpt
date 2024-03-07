@@ -10,12 +10,6 @@ function mycd () {
 	cd $1
 }
 
-function calltracer () {
-        echo 'Last file/last line:'
-        caller
-}
-
-trap 'calltracer' ERR
 
 slurmlogpath () {
 	if command -v scontrol 2>/dev/null >/dev/null; then
@@ -38,6 +32,15 @@ function green_text {
 function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
+
+function calltracer () {
+	yellow_text "Git status hash:"
+	git rev-parse HEAD
+        red_text 'Error occured in file/line:'
+        caller
+}
+
+trap 'calltracer' ERR
 
 minutes_to_hh_mm_ss() {
 	var=$1

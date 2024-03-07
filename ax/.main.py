@@ -1113,7 +1113,10 @@ def main ():
             warnings.simplefilter("ignore")
             with tqdm(total=args.max_eval, disable=False) as progress_bar:
                 while submitted_jobs < args.max_eval or jobs:
-                    desc = f"Searching {searching_for} (done: {done_jobs}, failed: {failed_jobs}, {args.max_eval} in total)"
+                    desc = f"Searching {searching_for} (done: {done_jobs}"
+                    if failed_jobs:
+                        desc = desc + ", failed: {failed_jobs}"
+                    desc = desc + ", {args.max_eval} in total)"
 
                     try:
                         if done_jobs > 1:

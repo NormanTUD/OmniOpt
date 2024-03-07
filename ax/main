@@ -415,9 +415,15 @@ else
 		if command -v squeue 2>/dev/null >/dev/null; then
 			yellow_text "Waiting for job $started_job_nr to end... (Checking every 10 seconds)"
 
+			set +x
+
 			while [[ "$(squeue --me | grep $started_job_nr | wc -l)" -ne "0" ]]; do
 				sleep 10
 			done
+
+			if [[ "$debug" -eq 1 ]]; then
+				set -x
+			fi
 
 			yellow_text "Done waiting for job to be ended"
 		else

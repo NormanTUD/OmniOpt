@@ -34,7 +34,7 @@ def dier (msg):
 parser = argparse.ArgumentParser(
     prog=program_name,
     description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
-    epilog="Example:\n\n./main --num_parallel_jobs=5 --gpus=1 --max_eval=1 --parameter x range -10 10 float --parameter y range -10 10 int --run_program='bash test.sh $x $y' --maximize --worker_timeout=10"
+    epilog="Example:\n\n./main --partition=alpha --experiment_name=asd --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter asdasd range 0 10 float"
 )
 
 required = parser.add_argument_group('Required arguments', "These options have to be set")

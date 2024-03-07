@@ -667,6 +667,7 @@ def disable_logging ():
     logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.cross_validation").setLevel(logging.ERROR)
 
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
     warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")

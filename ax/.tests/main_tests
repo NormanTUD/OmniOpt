@@ -86,7 +86,6 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
-set -x
 if [[ "$max_eval" -lt "1" ]]; then
 	red_text "Max_eval must be 1 or more, is $max_eval"
 	exit 1

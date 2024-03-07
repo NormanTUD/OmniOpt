@@ -78,7 +78,13 @@ fi
 	--parameter int_param range -5 5 int \
 	--parameter float_param range -5 5 float \
 	--parameter choice_param choice 1,2,4,8,16,hallo \
-	--parameter int_param_two range -6 6 int || ERRORS+=("main script failed.")
+	--parameter int_param_two range -6 6 int
+
+exit_code=$?
+
+if [[ "$exit_code" -ne "0" ]]; then
+	ERRORS+=("main script failed.")
+fi
 
 TMP_FILE_PATH="._test_run.svg"
 

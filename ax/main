@@ -435,7 +435,8 @@ else
 
 	if [[ "$wait_until_ended" -eq "1" ]]; then
 		if command -v squeue 2>/dev/null >/dev/null; then
-			yellow_text "Waiting for job $started_job_nr to end... (Checking every 10 seconds)"
+			WAIT_NUM_SECONDS=10
+			yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
 
 			set +x
 
@@ -444,7 +445,7 @@ else
 			echo ""
 
 			while [[ "$(squeue --me | grep $started_job_nr | wc -l)" -ne "0" ]]; do
-				sleep 10
+				sleep $WAIT_NUM_SECONDS
 			done
 
 			echo ""

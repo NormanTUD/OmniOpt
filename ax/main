@@ -330,7 +330,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	IFS=$' '
 	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
-	echo "python3 $SCRIPT_DIR/.main.py $args_string"
+	#echo "python3 $SCRIPT_DIR/.main.py $args_string"
 	python3 $SCRIPT_DIR/.main.py $args_string &
 	python_pid=$!
 

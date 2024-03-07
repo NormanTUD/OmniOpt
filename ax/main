@@ -435,7 +435,7 @@ else
 
 			while [[ "$(squeue --me | grep $started_job_nr | wc -l)" -ne "0" ]]; do
 				for ((i=1; i<=10; i++)); do
-					echo -n "Waiting for job $started_job_nr to end... (Elapsed time: $i seconds)    "
+					echo -n "\bWaiting for job $started_job_nr to end... (Elapsed time: $i seconds)"
 					tput el
 
 					sleep 1

@@ -65,6 +65,7 @@ export time=
 export experiment_name=
 export help=0
 export follow=0
+export debug=0
 
 args_string=""
 
@@ -214,6 +215,7 @@ while [ $k -lt ${#args[@]} ]; do
 			args_string+=" --help "
                         ;;
                 --debug)
+			debug=1
                         set -x
                         ;;
 
@@ -370,6 +372,8 @@ else
 				spin[2]="|"
 				spin[3]="/"
 
+				set +x
+
 				echo -n "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed. CTRL-c does NOT cancel the optimization, only the tail...  "
 
 				while ! [[ -e $LOG_PATH ]]; do
@@ -378,6 +382,10 @@ else
 						sleep 0.1
 					done
 				done
+
+				if [[ "$debug" -eq 1 ]]; then
+					set -x
+				fi
 
 				printf "\r"
 

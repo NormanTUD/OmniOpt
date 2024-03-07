@@ -242,6 +242,7 @@ if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
 
+set +x
 if [[ -d ".git" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then
 		if [[ ! -e .dont_ask_upgrade_main ]]; then
@@ -268,6 +269,10 @@ if [[ -d ".git" ]]; then
 			fi
 		fi
 	fi
+fi
+
+if [[ "$debug" -eq "1" ]]; then
+	set -x
 fi
 
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')

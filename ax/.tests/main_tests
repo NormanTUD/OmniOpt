@@ -87,7 +87,8 @@ yellow_text "Starting main program..."
 	--parameter int_param range -5 5 int \
 	--parameter float_param range -5 5 float \
 	--parameter choice_param choice 1,2,4,8,16,hallo \
-	--parameter int_param_two range -6 6 int
+	--parameter int_param_two range -6 6 int \
+	--debug
 
 exit_code=$?
 

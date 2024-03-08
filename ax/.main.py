@@ -73,10 +73,6 @@ debug.add_argument('--tests', help='Run simple internal tests', action='store_tr
 
 args = parser.parse_args()
 
-if args.tests:
-    nr_errors = 0
-    sys.exit(nr_errors)
-
 def decode_if_base64(input_str):
     try:
         decoded_bytes = base64.b64decode(input_str)
@@ -1235,5 +1231,9 @@ def main ():
 
 if __name__ == "__main__":
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        main()
+        if args.tests:
+            nr_errors = 0
+            sys.exit(nr_errors)
+        else:
+            warnings.simplefilter("ignore")
+            main()

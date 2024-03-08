@@ -405,6 +405,7 @@ def execute_bash_code(code):
             print(f"Exit-Code: {result.returncode}")
 
         real_exit_code = result.returncode
+
         signal_code = None
         if real_exit_code < 0:
             signal_code = abs(result.returncode)
@@ -415,6 +416,13 @@ def execute_bash_code(code):
 
     except subprocess.CalledProcessError as e:
         real_exit_code = e.returncode
+
+        if "signal" in code:
+            print("code: " + code)
+            print(e.__str__())
+            print("X:", str(e))
+            print("returncode: " + str(real_exit_code))
+
         signal_code = None
         if real_exit_code < 0:
             signal_code = abs(e.returncode)
@@ -616,38 +624,39 @@ def evaluate(parameters):
         return return_in_case_of_error
 
 try:
-    with console.status("[bold green]Importing ax...") as status:
-        try:
-            import ax
-            from ax.service.ax_client import AxClient, ObjectiveProperties
-            import ax.exceptions.core
-            from ax.modelbridge.dispatch_utils import choose_generation_strategy
-            from ax.storage.json_store.save import save_experiment
-            from ax.service.utils.report_utils import exp_to_df
-        except ModuleNotFoundError as e:
-            print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(33)
-        except KeyboardInterrupt:
-            print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-            sys.exit(34)
+    if not args.tests:
+        with console.status("[bold green]Importing ax...") as status:
+            try:
+                import ax
+                from ax.service.ax_client import AxClient, ObjectiveProperties
+                import ax.exceptions.core
+                from ax.modelbridge.dispatch_utils import choose_generation_strategy
+                from ax.storage.json_store.save import save_experiment
+                from ax.service.utils.report_utils import exp_to_df
+            except ModuleNotFoundError as e:
+                print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+                sys.exit(33)
+            except KeyboardInterrupt:
+                print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+                sys.exit(34)
 
-    with console.status("[bold green]Importing botorch...") as status:
-        try:
-            import botorch
-        except ModuleNotFoundError as e:
-            print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(35)
-        except KeyboardInterrupt:
-            print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-            sys.exit(36)
+        with console.status("[bold green]Importing botorch...") as status:
+            try:
+                import botorch
+            except ModuleNotFoundError as e:
+                print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+                sys.exit(35)
+            except KeyboardInterrupt:
+                print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+                sys.exit(36)
 
-    with console.status("[bold green]Importing submitit...") as status:
-        try:
-            import submitit
-            from submitit import AutoExecutor, LocalJob, DebugJob
-        except:
-            print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
-            sys.exit(7)
+        with console.status("[bold green]Importing submitit...") as status:
+            try:
+                import submitit
+                from submitit import AutoExecutor, LocalJob, DebugJob
+            except:
+                print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
+                sys.exit(7)
 except KeyboardInterrupt:
     sys.exit(0)
 except signalUSR:

@@ -764,6 +764,8 @@ def show_end_table_and_save_end_files ():
         except Exception as e:
             print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
 
+    sys.exit(exit)
+
 def end_program ():
     print_debug("[end_program] end_program started")
     global end_program_ran
@@ -797,24 +799,14 @@ def end_program ():
         print_debug("[end_program] Calling show_end_table_and_save_end_files")
         exit = show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called")
-    except KeyboardInterrupt:
-        print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+    except (signalUSR, signalINT, KeyboardInterrupt) as e:
+        print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
         exit = show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
-    except signalUSR:
-        print("\n:warning: USR1-Signal was sent. Ending program will still run.")
-        print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalUSR)")
-        exit = show_end_table_and_save_end_files()
-        print_debug("[end_program] show_end_table_and_save_end_files called (in signalUSR)")
-    except signalINT:
-        print("\n:warning: INT-Signal was sent. Ending program will still run.")
-        print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalINT)")
-        exit = show_end_table_and_save_end_files()
-        print_debug("[end_program] show_end_table_and_save_end_files called (in signalINT)")
 
     pd_csv = f'{current_run_folder}/pd.csv'
     print_debug(f"[end_program] Trying to save file to {pd_csv}")

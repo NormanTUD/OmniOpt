@@ -172,14 +172,8 @@ try:
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(20)
-except KeyboardInterrupt:
-    print("\n:warning: You pressed CTRL+C. Program execution halted.")
-    sys.exit(0)
-except signalUSR:
-    print("\n:warning: USR1-Signal was sent. Cancelling loading modules.")
-    sys.exit(0)
-except signalINT:
-    print("\n:warning: INT signal was sent. Cancelling loading modules.")
+except (signalUSR, signalINT, KeyboardInterrupt) as e:
+    print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
     sys.exit(0)
 
 def print_color (color, text):

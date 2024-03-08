@@ -231,7 +231,6 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
-import re
 
 def looks_like_int(x):
     if isinstance(x, int):
@@ -1244,10 +1243,11 @@ def _unidiff_output(expected, actual):
 
     return ''.join(diff)
 
-def print_diff (i, o):
+def print_diff (o, i):
     print("Should be:", i)
     print("Is:", o)
-    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
+    if type(i) == str or type(o) == str:
+        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
 def is_equal (n, i, o):
     r = _is_equal(n, i, o)
@@ -1308,8 +1308,37 @@ def _is_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
+def get_shebang (path):
+    sb = None
+    with open(path) as f:
+        first_line = f.readline()
+        
+        if first_line.startswith("#!"):
+            sb = first_line.replace("#!", "").strip()
+
+            sb = re.sub(
+                r".*/",
+                "",
+                sb
+            )
+
+    return sb
+
 def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors = 0
+
+    program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{program_name}"
+
+    if not os.path.exists(program_path):
+        print_color("red", f"Program path {program_path} not found!")
+        sys.exit(99)
+
+    #program = "bash"
+    #shebang = get_shebang(program_path)
+    #if(shebang):
+    #    program = shebang
+    #program_path_with_program = f"{program} {program_path}"
+    program_path_with_program = f"{program_path}"
 
     program_string_with_params = replace_parameters_in_string(
         {
@@ -1318,10 +1347,10 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
             "c": 3,
             "def": 45
         },
-        f"bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} %a %(b) $c $(def)"
+        f"bash {program_path_with_program} %a %(b) $c $(def)"
     )
 
-    is_equal(f"replace_parameters_in_string {program_name}", program_string_with_params, f"bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} 1 2 3 45")
+    is_equal(f"replace_parameters_in_string {program_name}", program_string_with_params, f"bash {program_path_with_program} 1 2 3 45")
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
@@ -1329,8 +1358,6 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     stderr = stdout_stderr_exit_code_signal[1]
     exit_code = stdout_stderr_exit_code_signal[2]
     signal = stdout_stderr_exit_code_signal[3]
-
-    #['RESULT: 31040\n', 'hallo\n', 0, None]
 
     res = get_result(stdout)
 

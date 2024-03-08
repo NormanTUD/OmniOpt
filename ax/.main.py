@@ -1270,7 +1270,7 @@ def run_tests ():
             "b": 2,
             "c": 3
             "def": 4
-        }
+        },
         "xyz %a %(b) $c $(def)"
     )
 

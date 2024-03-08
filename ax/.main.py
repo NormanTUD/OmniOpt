@@ -1399,9 +1399,9 @@ def run_tests ():
     nr_errors += complex_tests("exit_code_stdout", "STDERR\n", 5, None, False)
     nr_errors += complex_tests("no_chmod_x", "", 0, None)
     nr_errors += complex_tests("signal", "Killed\n", 137, None, True)
+    nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr\n", 5, None, True)
 
     """
-        exit_code_stdout_stderr
         module_not_found
     """
 

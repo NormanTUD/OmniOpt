@@ -10,6 +10,8 @@ result_csv_file = None
 shown_end_table = False
 
 try:
+    from os import listdir
+    from os.path import isfile, join
     import socket
     import os
     import stat
@@ -1382,6 +1384,37 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
 
     return nr_errors
 
+def get_files_in_dir (mypath):
+    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+    return [mypath + "/" + s for s in onlyfiles]
+
+def test_find_paths ():
+    nr_errors = 0
+
+    files = [
+        "main",
+        ".main.py",
+        "plot",
+        ".plot.py",
+        "/etc/passwd",
+        "I/DO/NOT/EXIST",
+        "I DO ALSO NOT EXIST",
+        "NEITHER DO I!",
+        *get_files_in_dir("./.tests/test_wronggoing_stuff.bin/bin/")
+    ]
+
+    text = " -- && !!  ".join(files)
+
+    string = find_file_paths_and_print_infos(text)
+
+    for i in files:
+        if not i in string:
+            if os.path.exists(i):
+                print("Missing {i} in find_file_paths string!")
+                nr_errors += 1
+
+    return nr_errors
 
 def run_tests ():
     nr_errors = 0
@@ -1404,6 +1437,11 @@ def run_tests ():
     """
         module_not_found
     """
+
+    find_path_res = test_find_paths()
+    if find_path_res:
+        is_equal("test_find_paths failed", true, false)
+        nr_errors += find_path_res
 
     sys.exit(nr_errors)
 

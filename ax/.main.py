@@ -1246,8 +1246,8 @@ def _unidiff_output(expected, actual):
 def print_diff (o, i):
     print("Should be:", i)
     print("Is:", o)
-    if type(i) == str or type(o) == str:
-        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
+    #if type(i) == str or type(o) == str:
+    #    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
 def is_equal (n, i, o):
     r = _is_equal(n, i, o)

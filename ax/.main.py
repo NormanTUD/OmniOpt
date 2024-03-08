@@ -1235,6 +1235,14 @@ def is_not_equal (name, input, output):
         if input == output:
             print_color("red", f"Failed test: {name}")
             return 1
+    elif type(input) == bool:
+        if input == output:
+            print_color("red", f"Failed test: {name}")
+            return 1
+    elif output is None or input is None:
+        if input == output:
+            print_color("red", f"Failed test: {name}")
+            return 1
     else:
         print_color("red", f"Unknown data type for test {name}")
         sys.exit(100)
@@ -1247,6 +1255,14 @@ def is_equal (name, input, output):
         print_color("red", f"Failed test: {name}")
         return 1
     elif type(input) == str or type(input) == int or type(input) == float:
+        if input != output:
+            print_color("red", f"Failed test: {name}")
+            return 1
+    elif type(input) == bool:
+        if input != output:
+            print_color("red", f"Failed test: {name}")
+            return 1
+    elif output is None or input is None:
         if input != output:
             print_color("red", f"Failed test: {name}")
             return 1
@@ -1278,15 +1294,21 @@ def run_tests ():
 
     #print(find_file_paths_and_print_infos(program_string_with_params))
 
-    bash_output = execute_bash_code(program_string_with_params)
+    stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
-    dier(bash_output)
+    stdout = stdout_stderr_exit_code_signal[0]
+    stderr = stdout_stderr_exit_code_signal[1]
+    exit_code = stdout_stderr_exit_code_signal[2]
+    signal = stdout_stderr_exit_code_signal[3]
 
-    """
-        program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
-        string = find_file_paths_and_print_infos(program_string_with_params)
-        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
-    """
+    #['RESULT: 31040\n', 'hallo\n', 0, None]
+
+    res = get_result(stdout)
+
+    nr_errors += is_equal("simple_ok res type is nr", True, type(res) == int or type(res) == float)
+    nr_errors += is_equal("simple_ok stderr", stderr, "hallo\n")
+    nr_errors += is_equal("simple_ok exit-code ", exit_code, 0)
+    nr_errors += is_equal("simple_ok signal", signal, None)
 
     sys.exit(nr_errors)
 

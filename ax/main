@@ -358,7 +358,7 @@ if [[ "$help" -eq "1" ]]; then
 fi
 
 if [[ "$tests" -eq "1" ]]; then
-	python3 $SCRIPT_DIR/.main.py --tests
+	python3 $SCRIPT_DIR/.main.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
 	exit 0
 fi
 

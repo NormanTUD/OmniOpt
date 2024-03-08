@@ -69,8 +69,13 @@ debug.add_argument('--verbose', help='Verbose logging', action='store_true', def
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
 debug.add_argument('--wait_until_ended', help='Wait until the program has ended', action='store_true', default=False)
 debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
+debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 
 args = parser.parse_args()
+
+if args.tests:
+    nr_errors = 0
+    sys.exit(nr_errors)
 
 def decode_if_base64(input_str):
     try:

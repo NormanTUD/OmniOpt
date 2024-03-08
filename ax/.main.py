@@ -1244,8 +1244,15 @@ def _unidiff_output(expected, actual):
     return ''.join(diff)
 
 def print_diff (o, i):
-    print("Should be:", i)
-    print("Is:", o)
+    if type(i) == str:
+        print("Should be:", i.strip())
+    else:
+        print("Should be:", i)
+
+    if type(o) == str:
+        print("Is:", o.strip())
+    else:
+        print("Is:", o)
     #if type(i) == str or type(o) == str:
     #    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
@@ -1382,7 +1389,7 @@ def run_tests ():
     nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
     #nr_errors += complex_tests("divide_by_0", "Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n", 255, None, True)
     nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr\n", 5, None)
-    nr_errors += complex_tests("signal_but_has_output", "stderr\n", 5, None)
+    nr_errors += complex_tests("signal_but_has_output", "Killed\n", 5, None)
 
     sys.exit(nr_errors)
 

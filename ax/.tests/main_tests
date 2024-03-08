@@ -20,7 +20,6 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
-set -e
 set -o pipefail
 
 function calltracer () {
@@ -107,14 +106,14 @@ if [[ "$PARTITION" == "alpha" ]]; then
 fi
 
 
-ERRORS=()
+errors=()
 
 cd ..
 
 ./main --tests
 exit_code=$?
 if [[ "$exit_code" -ne "0" ]]; then
-	ERRORS+=("Simple tests failed")
+	errors+=("Simple tests failed")
 fi
 
 # ./.tests/optimization_example --int_param=%(int_param) --float_param=%(float_param) --choice_param=%(choice_param)  --int_param_two=%(int_param_two)
@@ -166,7 +165,7 @@ exit_code=$?
 yellow_text "Main program ended..."
 
 if [[ "$exit_code" -ne "0" ]]; then
-	ERRORS+=("main script failed.")
+	errors+=("main script failed.")
 fi
 
 yellow_text "Calling plot function for runs/$TESTNAME/0"
@@ -182,26 +181,39 @@ if [[ -e $TMP_FILE_PATH ]]; then
 			if [[ "$number_of_evals_run" -eq "$max_eval" ]]; then
 				green_text "Minimum, float_param found, also number_of_evals_run matches max_eval"
 			else
-				ERRORS+=("number_of_evals_run ($number_of_evals_run) does not match wanted max_eval ($max_eval)")
+				errors+=("number_of_evals_run ($number_of_evals_run) does not match wanted max_eval ($max_eval)")
 			fi
 		else
-			ERRORS+=("word 'float_param' not found in $TMP_FILE_PATH")
+			errors+=("word 'float_param' not found in $TMP_FILE_PATH")
 		fi
 	else
-		ERRORS+=("word 'minimum' not found in $TMP_FILE_PATH")
+		errors+=("word 'minimum' not found in $TMP_FILE_PATH")
 	fi
 
 	yellow_text "$TMP_FILE_PATH found and checked. Deleting it."
 	rm $TMP_FILE_PATH
 else
-	ERRORS+=("$TMP_FILE_PATH not found")
+	errors+=("$TMP_FILE_PATH not found")
+fi
+
+yellow "Deleting runs/test_wronggoing_stuff/..."
+rm -rf runs/test_wronggoing_stuff/
+
+yellow_text "Test stuff that goes wrong..."
+
+.tests/test_wronggoing_stuff
+
+exit_code=$?
+if [[ "$exit_code" -ne "0" ]]; then
+	errors+=("test_wronggoing_stuff failed")
 fi
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
 	exit 0
 else
-	red_text "${ERRORS[*]}"
+	red_text "${errors[*]}"
 
 	exit ${#errors[@]}
 fi
+

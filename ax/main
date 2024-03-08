@@ -464,7 +464,7 @@ else
 					set -x
 				fi
 
-				yellow_text "Done waiting for job to be ended"
+				yellow_text "Done waiting for job to end"
 
 				LOG_PATH=$(slurmlogpath $started_job_nr)
 				if [[ -e "$LOG_PATH" ]]; then

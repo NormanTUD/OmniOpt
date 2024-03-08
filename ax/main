@@ -74,6 +74,7 @@ export help=0
 export follow=0
 export debug=0
 export wait_until_ended=0
+export tests=0
 
 args_string=""
 
@@ -215,6 +216,10 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 
+		--tests)
+			tests=1
+			;;
+
 		--follow)
 			follow=1
 			;;
@@ -349,6 +354,11 @@ fi
 
 if [[ "$help" -eq "1" ]]; then
 	python3 $SCRIPT_DIR/.main.py --help
+	exit 0
+fi
+
+if [[ "$tests" -eq "1" ]]; then
+	python3 $SCRIPT_DIR/.main.py --tests
 	exit 0
 fi
 

@@ -111,6 +111,12 @@ ERRORS=()
 
 cd ..
 
+./main --tests
+exit_code=$?
+if [[ "$exit_code" -ne "0" ]]; then
+	ERRORS+=("Simple tests failed")
+fi
+
 # ./.tests/optimization_example --int_param=%(int_param) --float_param=%(float_param) --choice_param=%(choice_param)  --int_param_two=%(int_param_two)
 
 if [[ -d "runs/$TESTNAME" ]]; then

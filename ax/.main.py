@@ -84,16 +84,17 @@ def decode_if_base64(input_str):
 joined_run_program = " ".join(args.run_program[0])
 joined_run_program = decode_if_base64(joined_run_program)
 
-if args.parameter is None and args.load_checkpoint is None:
-    print("Either --parameter or --load_checkpoint is required. Both were not found.")
-    sys.exit(19)
-elif args.parameter is not None and args.load_checkpoint is not None:
-    print("You cannot use --parameter and --load_checkpoint. You have to decide for one.");
-    sys.exit(20)
-elif args.load_checkpoint:
-    if not os.path.exists(args.load_checkpoint):
-        print("red", f"{args.load_checkpoint} could not be found!")
-        sys.exit(21)
+if not args.tests:
+    if args.parameter is None and args.load_checkpoint is None:
+        print("Either --parameter or --load_checkpoint is required. Both were not found.")
+        sys.exit(19)
+    elif args.parameter is not None and args.load_checkpoint is not None:
+        print("You cannot use --parameter and --load_checkpoint. You have to decide for one.");
+        sys.exit(20)
+    elif args.load_checkpoint:
+        if not os.path.exists(args.load_checkpoint):
+            print("red", f"{args.load_checkpoint} could not be found!")
+            sys.exit(21)
 
 def print_debug (msg):
     if args.debug:

@@ -1259,9 +1259,28 @@ def is_equal (name, input, output):
 
 def run_tests ():
     nr_errors = 0
+
     nr_errors += is_not_equal("nr equal string", 1, "1")
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
+
+    program_string_with_params = replace_parameters_in_string(
+        {
+            "a": 1,
+            "b": 2,
+            "c": 3
+            "def": 4
+        }
+        "xyz %a %(b) $c $(def)"
+    )
+
+    print(program_string_with_params)
+
+    """
+        program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)
+        string = find_file_paths_and_print_infos(program_string_with_params)
+        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
+    """
 
     sys.exit(nr_errors)
 

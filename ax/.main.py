@@ -422,6 +422,7 @@ def execute_bash_code(code):
             print(e.__str__())
             print("X:", str(e))
             print("returncode: " + str(real_exit_code))
+            pprint(e)
 
         signal_code = None
         if real_exit_code < 0:

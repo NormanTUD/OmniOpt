@@ -1268,13 +1268,13 @@ def run_tests ():
         {
             "a": 1,
             "b": 2,
-            "c": 3
-            "def": 4
+            "c": 3,
+            "def": 45
         },
         "xyz %a %(b) $c $(def)"
     )
 
-    print(program_string_with_params)
+    is_equal("replace_parameters_in_string", program_string_with_params, "xyz 1 2 3 45")
 
     """
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)

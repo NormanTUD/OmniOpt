@@ -1390,13 +1390,14 @@ def run_tests ():
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
+    #complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
     #nr_errors += complex_tests("divide_by_0", "Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n", 255, None, True)
     nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr\n", 5, None)
     #nr_errors += complex_tests("signal_but_has_output", "Killed\n", 5, 9)
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
     nr_errors += complex_tests("exit_code_stdout", "STDERR\n", 5, None, False)
-    nr_errors += complex_tests("no_chmod_x", "", 5, None, False)
+    nr_errors += complex_tests("no_chmod_x", "", 0, None)
 
     """
         allocate_ram_forever

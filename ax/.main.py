@@ -1230,7 +1230,36 @@ def main ():
         end_program()
         print("\n:warning: end_program ran.")
 
-def is_not_equal (name, input, output):
+def _unidiff_output(expected, actual):
+    """
+    Helper function. Returns a string containing the unified diff of two multiline strings.
+    """
+
+    import difflib
+    expected=expected.splitlines(1)
+    actual=actual.splitlines(1)
+
+    diff=difflib.unified_diff(expected, actual)
+
+    return ''.join(diff)
+
+def is_equal (n, i, o):
+    r = _is_equal(n, i, o)
+
+    if r:
+        print_diff(i, o)
+
+    return r
+
+def is_not_equal (n, i, o):
+    r = _is_not_equal(n, i, o)
+
+    if r:
+        print_diff(i, o)
+
+    return r
+
+def _is_not_equal (name, input, output):
     if type(input) == str or type(input) == int or type(input) == float:
         if input == output:
             print_color("red", f"Failed test: {name}")
@@ -1250,7 +1279,7 @@ def is_not_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
-def is_equal (name, input, output):
+def _is_equal (name, input, output):
     if type(input) != type(output):
         print_color("red", f"Failed test: {name}")
         return 1

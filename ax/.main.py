@@ -421,16 +421,17 @@ def execute_bash_code(code):
             signal_code = abs(e.returncode)
             real_exit_code = 1
 
-        print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
-        if len(e.stdout):
-            print(f"stdout: {e.stdout}")
-        else:
-            print("No stdout")
+        if not args.tests:
+            print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
+            if len(e.stdout):
+                print(f"stdout: {e.stdout}")
+            else:
+                print("No stdout")
 
-        if len(e.stderr):
-            print(f"stderr: {e.stderr}")
-        else:
-            print("No stderr")
+            if len(e.stderr):
+                print(f"stderr: {e.stderr}")
+            else:
+                print("No stderr")
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
@@ -1236,12 +1237,17 @@ def _unidiff_output(expected, actual):
     """
 
     import difflib
-    expected=expected.splitlines(1)
-    actual=actual.splitlines(1)
+    expected = expected.splitlines(1)
+    actual = actual.splitlines(1)
 
     diff=difflib.unified_diff(expected, actual)
 
     return ''.join(diff)
+
+def print_diff (i, o):
+    print("Should be:", i)
+    print("Is:", o)
+    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
 def is_equal (n, i, o):
     r = _is_equal(n, i, o)
@@ -1302,7 +1308,7 @@ def _is_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
-def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal=None):
+def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors = 0
 
     program_string_with_params = replace_parameters_in_string(
@@ -1328,7 +1334,10 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal=
 
     res = get_result(stdout)
 
-    nr_errors += is_equal(f"{program_name} res type is nr", True, type(res) == int or type(res) == float)
+    if res_is_none:
+        nr_errors += is_equal(f"{program_name} res is None", None, res)
+    else:
+        nr_errors += is_equal(f"{program_name} res type is nr", True, type(res) == int or type(res) == float)
     nr_errors += is_equal(f"{program_name} stderr", stderr, wanted_stderr)
     nr_errors += is_equal(f"{program_name} exit-code ", exit_code, wanted_exit_code)
     nr_errors += is_equal(f"{program_name} signal", signal, wanted_signal)
@@ -1344,6 +1353,7 @@ def run_tests ():
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
     nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
+    nr_errors += complex_tests("divide_by_0", "Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n", 255, None, True)
 
     sys.exit(nr_errors)
 

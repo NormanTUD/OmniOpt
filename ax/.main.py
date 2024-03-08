@@ -654,13 +654,8 @@ try:
             except:
                 print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
                 sys.exit(7)
-except KeyboardInterrupt:
-    sys.exit(0)
-except signalUSR:
-    print("\n:warning: USR1-Signal was sent. Cancelling loading ax.")
-    sys.exit(0)
-except signalINT:
-    print("\n:warning: INT signal was sent. Cancelling loading ax.")
+except (signalUSR, signalINT, KeyboardInterrupt) as e:
+    print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
     sys.exit(0)
 
 def disable_logging ():

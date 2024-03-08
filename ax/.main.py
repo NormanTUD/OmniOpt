@@ -1286,7 +1286,7 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal=
         f"bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} %a %(b) $c $(def)"
     )
 
-    is_equal("replace_parameters_in_string", program_string_with_params, "bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} 1 2 3 45")
+    is_equal(f"replace_parameters_in_string {program_name}", program_string_with_params, f"bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} 1 2 3 45")
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 

@@ -1230,11 +1230,45 @@ def main ():
         end_program()
         print("\n:warning: end_program ran.")
 
+def is_not_equal (name, input, output):
+    if type(input) == str or type(input) == int or type(input) == float:
+        if input == output:
+            print_color("red", f"Failed test: {name}")
+            return 1
+    else:
+        print_color("red", f"Unknown data type for test {name}")
+        sys.exit(100)
+    
+    print_color("green", f"Test OK: {name}")
+    return 0
+
+def is_equal (name, input, output):
+    if type(input) != type(output):
+        print_color("red", f"Failed test: {name}")
+        return 1
+    elif type(input) == str or type(input) == int or type(input) == float:
+        if input != output:
+            print_color("red", f"Failed test: {name}")
+            return 1
+    else:
+        print_color("red", f"Unknown data type for test {name}")
+        sys.exit(100)
+    
+    print_color("green", f"Test OK: {name}")
+    return 0
+
+def run_tests ():
+    nr_errors = 0
+    nr_errors += is_not_equal("nr equal string", 1, "1")
+    nr_errors += is_equal("nr equal nr", 1, 1)
+    nr_errors += is_not_equal("unequal strings", "hallo", "welt")
+
+    sys.exit(nr_errors)
+
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            nr_errors = 0
-            sys.exit(nr_errors)
+            run_tests()
         else:
             warnings.simplefilter("ignore")
             main()

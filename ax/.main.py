@@ -1395,6 +1395,19 @@ def run_tests ():
     nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr\n", 5, None)
     #nr_errors += complex_tests("signal_but_has_output", "Killed\n", 5, 9)
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
+    nr_errors += complex_tests("exit_code_stdout", "STDERR\n", 5, None, False)
+
+    """
+        allocate_ram_forever
+        takes_forever
+        takes_forever_but_has_result
+
+        exit_code_stdout
+        exit_code_stdout_stderr
+        module_not_found
+        no_chmod_x
+        signal
+    """
 
     sys.exit(nr_errors)
 

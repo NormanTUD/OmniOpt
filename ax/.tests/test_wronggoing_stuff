@@ -103,5 +103,5 @@ cd ..
 	--num_parallel_jobs=50 \
 	--gpus=$GPUS \
 	--follow \
-	--run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmL2Jpbi8lKHByb2dyYW0p \
+	--run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== \
 	--parameter program choice $which_programs_string

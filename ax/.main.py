@@ -1271,10 +1271,16 @@ def run_tests ():
             "c": 3,
             "def": 45
         },
-        "xyz %a %(b) $c $(def)"
+        "bash ./.tests/test_wronggoing_stuff.bin/bin/simple_ok %a %(b) $c $(def)"
     )
 
-    is_equal("replace_parameters_in_string", program_string_with_params, "xyz 1 2 3 45")
+    is_equal("replace_parameters_in_string", program_string_with_params, "bash ./.tests/test_wronggoing_stuff.bin/bin/simple_ok 1 2 3 45")
+
+    #print(find_file_paths_and_print_infos(program_string_with_params))
+
+    bash_output = execute_bash_code(program_string_with_params)
+
+    dier(bash_output)
 
     """
         program_string_with_params = replace_parameters_in_string(parameters, joined_run_program)

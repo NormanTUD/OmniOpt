@@ -147,15 +147,7 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
-def find_helpers_path():
-    python_path = os.getenv("PYTHONPATH", "").split(":")
-    for path in python_path:
-        helpers_path = os.path.join(path, ".helpers.py")
-        if os.path.exists(helpers_path):
-            return helpers_path
-    return None
-
-helpers_file = find_helpers_path()
+helpers_file = ".helpers.py"
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",

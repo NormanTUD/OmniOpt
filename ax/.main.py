@@ -1273,12 +1273,8 @@ def is_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
-def run_tests ():
+def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal=None):
     nr_errors = 0
-
-    nr_errors += is_not_equal("nr equal string", 1, "1")
-    nr_errors += is_equal("nr equal nr", 1, 1)
-    nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
     program_string_with_params = replace_parameters_in_string(
         {
@@ -1287,12 +1283,10 @@ def run_tests ():
             "c": 3,
             "def": 45
         },
-        "bash ./.tests/test_wronggoing_stuff.bin/bin/simple_ok %a %(b) $c $(def)"
+        f"bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} %a %(b) $c $(def)"
     )
 
-    is_equal("replace_parameters_in_string", program_string_with_params, "bash ./.tests/test_wronggoing_stuff.bin/bin/simple_ok 1 2 3 45")
-
-    #print(find_file_paths_and_print_infos(program_string_with_params))
+    is_equal("replace_parameters_in_string", program_string_with_params, "bash ./.tests/test_wronggoing_stuff.bin/bin/{program_name} 1 2 3 45")
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
@@ -1305,10 +1299,22 @@ def run_tests ():
 
     res = get_result(stdout)
 
-    nr_errors += is_equal("simple_ok res type is nr", True, type(res) == int or type(res) == float)
-    nr_errors += is_equal("simple_ok stderr", stderr, "hallo\n")
-    nr_errors += is_equal("simple_ok exit-code ", exit_code, 0)
-    nr_errors += is_equal("simple_ok signal", signal, None)
+    nr_errors += is_equal(f"{program_name} res type is nr", True, type(res) == int or type(res) == float)
+    nr_errors += is_equal(f"{program_name} stderr", stderr, wanted_stderr)
+    nr_errors += is_equal(f"{program_name} exit-code ", exit_code, wanted_exit_code)
+    nr_errors += is_equal(f"{program_name} signal", signal, wanted_signal)
+
+    return nr_errors
+
+
+def run_tests ():
+    nr_errors = 0
+
+    nr_errors += is_not_equal("nr equal string", 1, "1")
+    nr_errors += is_equal("nr equal nr", 1, 1)
+    nr_errors += is_not_equal("unequal strings", "hallo", "welt")
+
+    nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
 
     sys.exit(nr_errors)
 

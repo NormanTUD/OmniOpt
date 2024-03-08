@@ -392,7 +392,7 @@
 							errors.push("Value for '" + item.label + "' must be smaller than" + item.max + ".");
 						} else {
 							value = numValue.toString();
-							if (item.type == "number") {
+							if (item.type == "number" || value.matches(/^[a-zA-Z0-9=_]+$/)) {
 								command += " --" + item.id + "=" + value;
 							} else {
 								command += " --" + item.id + "='" + value + "'";
@@ -400,7 +400,7 @@
 						}
 					} else if (item.id == "run_program") {
 						var variables_in_run_program = get_var_names_from_run_program(value);
-						value = quote_variables(value);
+						//value = quote_variables(value);
 
 						var existing_parameter_names = $(".parameterName").map(function() {
 							const val = $(this).val();
@@ -438,6 +438,7 @@
 						}
 
 						value = btoa(value)
+
 						command += " --" + item.id + "=" + value;
 						$("#" + item.id).css("background-color", "");
 					} else {
@@ -579,6 +580,7 @@
 					base_url = base_url.replace(/^https:\//, "https://")
 					base_url = base_url.replace(/^file:\//, "file://")
 
+					log(command);
 					var base_64_string = btoa(command);
 
 					var curl_or_cat = "curl";

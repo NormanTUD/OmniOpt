@@ -1382,6 +1382,7 @@ def run_tests ():
     nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
     #nr_errors += complex_tests("divide_by_0", "Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n", 255, None, True)
     nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr\n", 5, None)
+    nr_errors += complex_tests("signal_but_has_output", "stderr\n", 5, None)
 
     sys.exit(nr_errors)
 

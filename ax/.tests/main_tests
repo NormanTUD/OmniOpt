@@ -196,7 +196,7 @@ else
 	errors+=("$TMP_FILE_PATH not found")
 fi
 
-yellow "Deleting runs/test_wronggoing_stuff/..."
+yellow_text "Deleting runs/test_wronggoing_stuff/..."
 rm -rf runs/test_wronggoing_stuff/
 
 yellow_text "Test stuff that goes wrong..."

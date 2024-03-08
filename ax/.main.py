@@ -726,6 +726,8 @@ def show_end_table_and_save_end_files ():
 
     print_debug("[show_end_table_and_save_end_files] Getting best params")
 
+    exit = 0
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
@@ -737,6 +739,7 @@ def show_end_table_and_save_end_files ():
             if str(best_result) == '1e+59':
                 table_str = "Best result could not be determined"
                 print_color("red", table_str)
+                exit = 1
             else:
                 print_debug("[show_end_table_and_save_end_files] Creating table")
                 table = Table(show_header=True, header_style="bold", title="Best parameter:")
@@ -787,6 +790,8 @@ def end_program ():
     global console
     global current_run_folder
 
+    exit = 0
+
     try:
         if current_run_folder is None:
             print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
@@ -801,25 +806,25 @@ def end_program ():
             return
 
         print_debug("[end_program] Calling show_end_table_and_save_end_files")
-        show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called")
     except KeyboardInterrupt:
         print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
-        show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
     except signalUSR:
         print("\n:warning: USR1-Signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalUSR)")
-        show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in signalUSR)")
     except signalINT:
         print("\n:warning: INT-Signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in signalINT)")
-        show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files()
         print_debug("[end_program] show_end_table_and_save_end_files called (in signalINT)")
 
     pd_csv = f'{current_run_folder}/pd.csv'
@@ -830,7 +835,7 @@ def end_program ():
     for job, trial_index in jobs[:]:
         job.cancel()
 
-    sys.exit(0)
+    sys.exit(exit)
 
 def save_checkpoint ():
     global current_run_folder

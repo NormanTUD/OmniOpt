@@ -89,6 +89,9 @@ debug.add_argument('--tests', help='Run simple internal tests', action='store_tr
 
 args = parser.parse_args()
 
+if args.follow and args.wait_until_ended:
+    print("--follow and --wait_until_ended at the same time. May not be what you want.")
+
 def decode_if_base64(input_str):
     try:
         decoded_bytes = base64.b64decode(input_str)

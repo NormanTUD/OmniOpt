@@ -10,8 +10,10 @@ result_csv_file = None
 shown_end_table = False
 
 try:
+    import glob
     from os import listdir
     from os.path import isfile, join
+    import re
     import socket
     import os
     import stat
@@ -29,6 +31,17 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     print("You cancelled loading the basic modules")
     sys.exit(32)
+
+class REMatcher(object):
+    def __init__(self, matchstring):
+        self.matchstring = matchstring
+
+    def match(self,regexp):
+        self.rematch = re.match(regexp, self.matchstring)
+        return bool(self.rematch)
+
+    def group(self,i):
+        return self.rematch.group(i)
 
 def dier (msg):
     pprint(msg)
@@ -767,6 +780,9 @@ def show_end_table_and_save_end_files ():
     sys.exit(exit)
 
 def end_program ():
+    global current_run_folder
+    analyze_out_files(current_run_folder)
+
     print_debug("[end_program] end_program started")
     global end_program_ran
 
@@ -779,7 +795,6 @@ def end_program ():
 
     global ax_client
     global console
-    global current_run_folder
 
     exit = 0
 
@@ -1211,16 +1226,9 @@ def main ():
                     if not args.no_sleep:
                         time.sleep(0.1)
             end_program()
-    except KeyboardInterrupt:
-        print_color("red", "\n:warning: You pressed CTRL+C. Optimization stopped.")
-    except signalUSR:
-        print("\n:warning: USR1-Signal was sent. Cancelling optimization. Running end_program.")
+    except (signalUSR, signalINT, KeyboardInterrupt) as e:
+        print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
         end_program()
-        print("\n:warning: end_program ran.")
-    except signalINT:
-        print("\n:warning: INT-Signal was sent. Cancelling optimization Running end_program.")
-        end_program()
-        print("\n:warning: end_program ran.")
 
 def _unidiff_output(expected, actual):
     """
@@ -1430,6 +1438,58 @@ def run_tests ():
         nr_errors += find_path_res
 
     sys.exit(nr_errors)
+
+def get_file_as_string (f):
+    datafile = ""
+    if not os.path.exists(f):
+        print_color("red", f"{f} not found!")
+    else:
+        with open(f) as f:
+            datafile = f.readlines()
+
+    return "\n".join(datafile)
+
+def file_contains_text(f, t):
+    datafile = get_file_as_string(f)
+
+    found = False
+    for line in datafile:
+        if t in line:
+            return True
+    return False
+
+def analyze_out_files (rootdir):
+    outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
+
+    for i in outfiles:
+        file_as_string = get_file_as_string(i)
+        m = REMatcher(file_as_string)
+
+        errors = []
+        if "Result: None" in file_as_string:
+            errors.append("Got no result.")
+        if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
+            errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")
+        for r in range(1, 255):
+            search_for_exit_code = "Exit-Code: " + str(r) + ","
+            if search_for_exit_code in file_as_string:
+                errors.append("Non-zero exit-code detected: " + str(r))
+        if "Killed" in file_as_string:
+            errors.append("Detected kill, maybe OOM or Signal?")
+
+        if "Illegal division by zero" in file_as_string:
+            errors.append("Illegal division by zero detected.")
+        if "OOM" in file_as_string:
+            errors.append("OOM detected.")
+        if "/bin/sh" in file_as_string and "not found" in file_as_string:
+            errors.append("Wrong path, file not found")
+
+        if len(errors):
+            print_color("yellow", f"Out file {i} contains potential errors:")
+            for e in errors:
+                print_color("red", e)
+
+            print("")
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

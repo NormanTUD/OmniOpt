@@ -120,7 +120,9 @@ fi
 
 if [[ -d "runs/$TESTNAME" ]]; then
 	yellow_text "Deleting old runs/$TESTNAME..."
-	rm -rf runs/$TESTNAME
+	if [[ -d runs/$TESTNAME ]]; then
+		rm -rf runs/$TESTNAME
+	fi
 fi
 
 yellow_text "Starting main program..."
@@ -197,7 +199,9 @@ else
 fi
 
 yellow_text "Deleting runs/test_wronggoing_stuff/..."
-rm -rf runs/test_wronggoing_stuff/
+if [[ -d runs/test_wronggoing_stuff/ ]]; then
+	rm -rf runs/test_wronggoing_stuff/
+fi
 
 yellow_text "Test stuff that goes wrong..."
 

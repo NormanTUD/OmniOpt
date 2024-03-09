@@ -392,7 +392,7 @@ def get_main_start_worker_command(data, project, enable_strace=0, enable_python_
     start_worker_command = python3path + python_trace + ' ' + mypath.mainpath + \
         "/hyperopt-mongo-worker --reserve-timeout=3600 --max-consecutive-failures=10000 --mongo=" +  data['mongodbmachine'] + \
         ':' + str(data['mongodbport']) + '/' + data['mongodbdbname'] + " --poll-interval=" + str(data['worker_poll_interval']) + \
-        " --last-job-timeout=" + str(data['worker_last_job_timeout']) + " --workdir=" + omnioptstuff.get_project_folder(data['mongodbdbname']) + \
+        " --workdir=" + omnioptstuff.get_project_folder(data['mongodbdbname']) + \
         " --max-jobs=" + str(data['max_evals'])
 
     tmp_basefolder = omnioptstuff.get_project_folder(data['mongodbdbname']) 

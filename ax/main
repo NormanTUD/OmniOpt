@@ -94,7 +94,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue_previous_job "
+			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
 
@@ -112,7 +112,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue_previous_job "
+			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
 
@@ -127,7 +127,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue_previous_job "
+			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
 
@@ -146,7 +146,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string=$(echo "$args_string" | sed -e 's#\s*--continue.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue_previous_job "
+			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
 
@@ -352,6 +352,7 @@ if [[ "$debug" -eq "1" ]]; then
 fi
 
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
+echo "args_string: $args_string"
 
 if [[ -z $gpus ]]; then
 	gpus=0

@@ -152,6 +152,10 @@ if not args.tests:
                 print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
                 sys.exit(46)
 
+    if not args.mem_gb:
+        print(f"--mem_gb needs to be set")
+        sys.exit(48)
+
 def print_debug (msg):
     if args.debug:
         print(msg)

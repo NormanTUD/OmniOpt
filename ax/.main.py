@@ -1502,6 +1502,9 @@ def analyze_out_files (rootdir):
             else:
                 errors.append("Module not found")
 
+        if "Can't locate" in file_as_string and "@INC" in file_as_string:
+            errors.append("Perl module not found")
+
         if "/bin/sh" in file_as_string and "not found" in file_as_string:
             errors.append("Wrong path, file not found")
 

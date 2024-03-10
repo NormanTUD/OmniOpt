@@ -1,0 +1,5 @@
+#!/bin/env perl
+
+use INeverExisted;
+
+print "RESULT: " . rand() . "\n";

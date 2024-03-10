@@ -1508,7 +1508,7 @@ def analyze_out_files (rootdir):
                 errors.append("First line does not seem to be a shebang line: " + first_line)
 
             if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
-                errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")
+                errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
             if "Segmentation fault" in file_as_string:
                 errors.append("Segmentation fault detected")
             for r in range(1, 255):

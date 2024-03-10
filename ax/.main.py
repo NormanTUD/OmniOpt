@@ -1526,21 +1526,20 @@ def analyze_out_files (rootdir):
 
                 errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
 
-            if "Segmentation fault" in file_as_string:
-                errors.append("Segmentation fault detected")
+            base_errors = [
+                "Segmentation fault",
+                "Illegal division by zero",
+            ]
 
-            for r in range(1, 255):
-                search_for_exit_code = "Exit-Code: " + str(r) + ","
-                if search_for_exit_code in file_as_string:
-                    errors.append("Non-zero exit-code detected: " + str(r))
-            if "Killed" in file_as_string:
-                errors.append("Detected kill, maybe OOM or Signal?")
-
-            if "Illegal division by zero" in file_as_string:
-                errors.append("Illegal division by zero detected.")
+            for err in base_errors:
+                if err in file_as_string:
+                    errors.append(f"{err} detected")
 
             if "OOM" in file_as_string:
                 errors.append("OOM detected.")
+
+            if "Killed" in file_as_string:
+                errors.append("Detected kill, maybe OOM or Signal?")
 
             if "Can't locate" in file_as_string and "@INC" in file_as_string:
                 errors.append("Perl module not found")
@@ -1554,6 +1553,10 @@ def analyze_out_files (rootdir):
             if len(file_paths) == 0:
                 errors.append(f"No files could be found in your program string: {program_code}")
 
+            for r in range(1, 255):
+                search_for_exit_code = "Exit-Code: " + str(r) + ","
+                if search_for_exit_code in file_as_string:
+                    errors.append("Non-zero exit-code detected: " + str(r))
 
             synerr = "Python syntax error detected. Check log file."
 

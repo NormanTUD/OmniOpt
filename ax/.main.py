@@ -101,13 +101,23 @@ def decode_if_base64(input_str):
     except Exception as e:
         return input_str
 
+def get_file_as_string (f):
+    datafile = ""
+    if not os.path.exists(f):
+        print_color("red", f"{f} not found!")
+    else:
+        with open(f) as f:
+            datafile = f.readlines()
+
+    return "\n".join(datafile)
+
 joined_run_program = ""
 if not args.continue_previous_job:
     joined_run_program = " ".join(args.run_program[0])
     joined_run_program = decode_if_base64(joined_run_program)
 else:
     prev_job_folder = args.continue_previous_job
-    prev_job_file = prev_job_folder + "/run_program_string"
+    prev_job_file = prev_job_folder + "/joined_run_program"
     if os.path.exists(prev_job_file):
         joined_run_program = get_file_as_string(prev_job_file)
     else:
@@ -1070,9 +1080,9 @@ def main ():
 
         if args.continue_previous_job:
             print_debug(f"Load from checkpoint: {args.continue_previous_job}")
-            ax_client = (AxClient.load_from_json_file(args.continue_previous_job))
+            ax_client = (AxClient.load_from_json_file(args.continue_previous_job + "/checkpoint.json"))
 
-            checkpoint_params_file = args.continue_previous_job + "/.parameters.json"
+            checkpoint_params_file = args.continue_previous_job + "/checkpoint.json.parameters.json"
 
             if not os.path.exists(checkpoint_params_file):
                 print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
@@ -1462,16 +1472,6 @@ def run_tests ():
         nr_errors += find_path_res
 
     sys.exit(nr_errors)
-
-def get_file_as_string (f):
-    datafile = ""
-    if not os.path.exists(f):
-        print_color("red", f"{f} not found!")
-    else:
-        with open(f) as f:
-            datafile = f.readlines()
-
-    return "\n".join(datafile)
 
 def file_contains_text(f, t):
     datafile = get_file_as_string(f)

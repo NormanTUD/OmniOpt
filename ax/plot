@@ -58,4 +58,4 @@ source .shellscript_functions
 
 python3 .plot.py $*
 
-echo -ne "\033]30;$(basename pwd) - $SHELL\007"
+echo -ne "\033]30;$(basename $(pwd)) - $SHELL\007"

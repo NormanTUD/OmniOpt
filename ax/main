@@ -613,4 +613,4 @@ else
 
 fi
 
-echo -ne "\033]30;$(basename pwd) - $SHELL\007"
+echo -ne "\033]30;$(basename $(pwd)) - $SHELL\007"

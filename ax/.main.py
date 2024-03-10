@@ -1481,9 +1481,21 @@ def analyze_out_files (rootdir):
         file_as_string = get_file_as_string(i)
         m = REMatcher(file_as_string)
 
+        program_code = get_program_code_from_out_file(i)
+        file_paths = find_file_paths(program_code)
+
+        first_line = ""
+
+        if len(file_paths):
+            first_line = get_file_as_string(file_paths[0]).split('\n')[0]
+
         errors = []
         if "Result: None" in file_as_string:
             errors.append("Got no result.")
+
+            if not "!#" in first_line:
+                errors.append("First line does not seem to be a shebang line")
+
         if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
             errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")
         for r in range(1, 255):

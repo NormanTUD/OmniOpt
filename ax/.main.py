@@ -1529,14 +1529,12 @@ def analyze_out_files (rootdir):
             base_errors = [
                 "Segmentation fault",
                 "Illegal division by zero",
+                "OOM"
             ]
 
             for err in base_errors:
                 if err in file_as_string:
                     errors.append(f"{err} detected")
-
-            if "OOM" in file_as_string:
-                errors.append("OOM detected.")
 
             if "Killed" in file_as_string:
                 errors.append("Detected kill, maybe OOM or Signal?")

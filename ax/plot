@@ -57,3 +57,5 @@ cd $SCRIPT_DIR
 source .shellscript_functions
 
 python3 .plot.py $*
+
+echo -ne "\033]30;$(pwd) - $SHELL\007"

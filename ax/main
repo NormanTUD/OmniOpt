@@ -612,3 +612,5 @@ else
 	fi
 
 fi
+
+echo -ne "\033]30;$(pwd) - $SHELL\007"

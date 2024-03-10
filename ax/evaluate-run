@@ -837,3 +837,5 @@ if [[ $sourced == "0" ]]; then
 
 	main
 fi
+
+echo -ne "\033]30;$(pwd) - $SHELL\007"

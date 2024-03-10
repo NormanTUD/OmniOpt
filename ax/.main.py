@@ -378,6 +378,8 @@ def parse_experiment_parameters(args):
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
+                values[:] = [x for x in values if x != ""]
+
                 values = sort_numerically_or_alphabetically(values)
 
                 param = {

@@ -193,7 +193,7 @@ if not args.tests:
                 print(f"neither --mem_gb nor file {mem_gb_file} found")
                 sys.exit(1)
     else:
-        mem_gb = args.mem_gb
+        mem_gb = int(args.mem_gb)
 
     if args.continue_previous_job and not args.gpus:
         gpus_file = args.continue_previous_job + "/gpus"

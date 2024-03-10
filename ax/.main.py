@@ -247,6 +247,15 @@ def looks_like_int(x):
     else:
         return False
 
+def get_program_code_from_out_file (f):
+    if not os.path.exists(f):
+        print(f"{f} not found")
+    else:
+        fs = get_file_as_string(f)
+
+        for line in fs.split("\n"):
+            if "Program-Code:" in item:
+                return item
 
 def parse_experiment_parameters(args):
     params = []
@@ -531,17 +540,18 @@ def check_file_info(file_path):
 
     return string
 
-def find_file_paths_and_print_infos (_text):
+def find_file_paths_and_print_infos (_text, program_code):
     file_paths = find_file_paths(_text)
 
     string = "";
 
+    string += "\n========\nDEBUG INFOS START:\n"
+    print("Program-Code: " + program_code)
     if file_paths:
-        string += "\n========\nDEBUG INFOS START:\n"
         for file_path in file_paths:
             string += "\n"
             string += check_file_info(file_path)
-        string += "\n========\nDEBUG INFOS END\n"
+    string += "\n========\nDEBUG INFOS END\n"
 
     return string
 
@@ -571,7 +581,7 @@ def evaluate(parameters):
 
         program_string_with_params = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
-        string = find_file_paths_and_print_infos(program_string_with_params)
+        string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
         print("Debug-Infos:", string)
 
@@ -1374,7 +1384,7 @@ def get_files_in_dir (mypath):
 
     return [mypath + "/" + s for s in onlyfiles]
 
-def test_find_paths ():
+def test_find_paths (program_code):
     nr_errors = 0
 
     files = [
@@ -1391,7 +1401,7 @@ def test_find_paths ():
 
     text = " -- && !!  ".join(files)
 
-    string = find_file_paths_and_print_infos(text)
+    string = find_file_paths_and_print_infos(text, program_code)
 
     for i in files:
         if not i in string:
@@ -1423,7 +1433,7 @@ def run_tests ():
         module_not_found
     """
 
-    find_path_res = test_find_paths()
+    find_path_res = test_find_paths("ls")
     if find_path_res:
         is_equal("test_find_paths failed", true, false)
         nr_errors += find_path_res
@@ -1477,6 +1487,8 @@ def analyze_out_files (rootdir):
 
         if len(errors):
             print_color("yellow", f"Out file {i} contains potential errors:")
+            program_code = get_program_code_from_out_file(i)
+            print("Code: " + program_code)
             for e in errors:
                 print_color("red", e)
 

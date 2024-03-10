@@ -10,6 +10,7 @@ result_csv_file = None
 shown_end_table = False
 max_eval = None
 _time = None
+mem_gb = None
 
 try:
     import glob
@@ -191,19 +192,21 @@ if not args.tests:
             else:
                 print(f"neither --mem_gb nor file {mem_gb_file} found")
                 sys.exit(1)
+    else:
+        mem_gb = args.mem_gb
 
-        if args.continue_previous_job and not args.gpus:
-            gpus_file = args.continue_previous_job + "/gpus"
-            if os.path.exists(gpus_file):
-                gpus_file_contents = get_file_as_string(gpus_file).strip()
-                if gpus_file_contents.isdigit():
-                    gpus = int(gpus_file_contents)
-                    print(f"Using old run's --gpus: {gpus}")
-                else:
-                    print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
+    if args.continue_previous_job and not args.gpus:
+        gpus_file = args.continue_previous_job + "/gpus"
+        if os.path.exists(gpus_file):
+            gpus_file_contents = get_file_as_string(gpus_file).strip()
+            if gpus_file_contents.isdigit():
+                gpus = int(gpus_file_contents)
+                print(f"Using old run's --gpus: {gpus}")
             else:
-                print(f"neither --gpus nor file {gpus_file} found")
-                sys.exit(1)
+                print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
+        else:
+            print(f"neither --gpus nor file {gpus_file} found")
+            sys.exit(1)
     else:
         max_eval = args.max_eval
 

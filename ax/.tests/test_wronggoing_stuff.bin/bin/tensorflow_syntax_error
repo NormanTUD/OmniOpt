@@ -1,0 +1,25 @@
+#!/bin/env python
+
+import tensorflow as tf
+import keras
+from keras import layers
+
+model = tf.keras.Sequential()
+model.add(layers.Conv2D(
+        4,
+        (3,3),
+        trainable=True,
+        use_bias=True,
+        activation="relu",
+        padding="valid",
+        strides=(1, 1),
+        dilation_rate=(1,1),
+        kernel="glorot_uniform",
+        bias_initializer="variance_scaling",
+        dtype="float32",
+    input_shape=[32, 32, 3]
+))
+
+model.build()
+
+model.summary()

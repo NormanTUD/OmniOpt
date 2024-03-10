@@ -1477,12 +1477,6 @@ def get_first_line_of_file_that_contains_string (i, s):
 def get_module_that_was_not_found (i):
     return get_first_line_of_file_that_contains_string(i, "ModuleNotFoundError")
 
-def get_syntax_error_line(i):
-    return get_first_line_of_file_that_contains_string(i, "SyntaxError")
-
-def get_name_error_line(i):
-    return get_first_line_of_file_that_contains_string(i, "NameError")
-
 def analyze_out_files (rootdir):
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
@@ -1548,32 +1542,29 @@ def analyze_out_files (rootdir):
             if "OOM" in file_as_string:
                 errors.append("OOM detected.")
 
-            if "NameError" in file_as_string:
-                error_line = get_name_error_line(i)
-                if error_line:
-                    errors.append(error_line)
-                else:
-                    errors.append("Python Syntax error detected")
-
-            if "SyntaxError" in file_as_string:
-                error_line = get_syntax_error_line(i)
-                if error_line:
-                    errors.append(error_line)
-                else:
-                    errors.append("Python Syntax error detected")
-
-            if "No module named" in file_as_string:
-                not_found_module = get_module_that_was_not_found(i)
-                if not_found_module:
-                    errors.append(not_found_module)
-                else:
-                    errors.append("Module not found")
-
             if "Can't locate" in file_as_string and "@INC" in file_as_string:
                 errors.append("Perl module not found")
 
             if "/bin/sh" in file_as_string and "not found" in file_as_string:
                 errors.append("Wrong path, file not found")
+
+
+            search_for = [
+                ["SyntaxError", "Python syntax error detected"],
+                ["ModuleNotFoundError", "Module not found"],
+                ["NameError", "Python syntax error detected"]
+            ]
+
+            for search_array in search_for:
+                search_for_string = search_array[0]
+                search_for_error = search_array[1]
+
+                if search_for_string in file_as_string:
+                    error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
+                    if error_line:
+                        errors.append(error_line)
+                    else:
+                        errors.append(search_for_error)
 
         if len(errors):
             if j == 0:

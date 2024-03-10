@@ -1509,8 +1509,12 @@ def analyze_out_files (rootdir):
 
             if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
                 errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
+
+            if "Exec format error" in file_as_string:
+
             if "Segmentation fault" in file_as_string:
                 errors.append("Segmentation fault detected")
+
             for r in range(1, 255):
                 search_for_exit_code = "Exit-Code: " + str(r) + ","
                 if search_for_exit_code in file_as_string:
@@ -1520,8 +1524,10 @@ def analyze_out_files (rootdir):
 
             if "Illegal division by zero" in file_as_string:
                 errors.append("Illegal division by zero detected.")
+
             if "OOM" in file_as_string:
                 errors.append("OOM detected.")
+
             if "No module named" in file_as_string:
                 not_found_module = get_module_that_was_not_found(i)
                 if not_found_module:

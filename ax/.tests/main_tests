@@ -44,6 +44,12 @@ function help () {
         exit $1
 }
 
+NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
+
+if [[ "$NUM_GPUS" -ne "0" ]]; then
+	NUM_GPUS=1
+fi
+
 debug=0
 max_eval=20
 no_sleep=0
@@ -179,7 +185,7 @@ fi
 
 yellow_text "Trying to continue previous job"
 
-./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --wait_until_ended
+./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --wait_until_ended --gpus=$NUM_GPUS
 
 exit_code=$?
 
@@ -196,7 +202,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./main --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --wait_until_ended || true
+./main --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --wait_until_ended --gpus=$NUM_GPUS || true
 PE=$PIPEERROR
 
 exit_code=$?

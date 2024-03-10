@@ -11,6 +11,7 @@ shown_end_table = False
 
 try:
     import glob
+    import platform
     from os import listdir
     from os.path import isfile, join
     import re

@@ -1477,7 +1477,7 @@ def get_first_line_of_file_that_contains_string (i, s):
 def get_module_that_was_not_found (i):
     return get_first_line_of_file_that_contains_string(i, "ModuleNotFoundError")
 
-def get_name_error_line(i):
+def get_syntax_error_line(i):
     return get_first_line_of_file_that_contains_string(i, "SyntaxError")
 
 def get_name_error_line(i):
@@ -1556,7 +1556,7 @@ def analyze_out_files (rootdir):
                     errors.append("Python Syntax error detected")
 
             if "SyntaxError" in file_as_string:
-                error_line = get_name_syntax_error(i)
+                error_line = get_syntax_error_line(i)
                 if error_line:
                     errors.append(error_line)
                 else:

@@ -1563,7 +1563,7 @@ def analyze_out_files (rootdir):
 
             synerr = "Python syntax error detected. Check log file."
 
-            search_for = [
+            search_for_python_errors = [
                 ["ModuleNotFoundError", "Module not found"],
                 ["ImportError", "Module not found"],
                 ["SyntaxError", synerr],
@@ -1590,11 +1590,7 @@ def analyze_out_files (rootdir):
                 ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
             ]
 
-            for search_array in search_for:
-                if len(search_array) != 2:
-                    print_color("red", f"Wrong number of arguments in search_array. Must be 2, is {len(search_array)}")
-                    sys.exit(40)
-
+            for search_array in search_for_python_errors:
                 search_for_string = search_array[0]
                 search_for_error = search_array[1]
 

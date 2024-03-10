@@ -81,6 +81,7 @@ which_programs=(
 	"python_name_error"
 	"syntax_error"
 	"tensorflow_syntax_error"
+	"force_keyboard_interrupt"
 )
 
 if [[ "$useramtests" -eq "1" ]]; then

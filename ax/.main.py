@@ -1489,7 +1489,15 @@ def analyze_out_files (rootdir):
         first_line = ""
 
         if len(file_paths):
-            first_line = get_file_as_string(file_paths[0]).split('\n')[0]
+            try:
+                first_file_as_string = get_file_as_string(file_paths[0])
+                if type(first_file_as_string) == str and first_file_as_string.isprintable():
+                    first_line = first_file_as_string.split('\n')[0]
+            except UnicodeDecodeError as e:
+                pass
+
+            if first_file_as_string == "":
+                first_line = "#!/bin/bash"
 
         errors = []
 

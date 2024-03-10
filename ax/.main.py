@@ -1478,6 +1478,9 @@ def get_module_that_was_not_found (i):
     return get_first_line_of_file_that_contains_string(i, "ModuleNotFoundError")
 
 def get_name_error_line(i):
+    return get_first_line_of_file_that_contains_string(i, "SyntaxError")
+
+def get_name_error_line(i):
     return get_first_line_of_file_that_contains_string(i, "NameError")
 
 def analyze_out_files (rootdir):
@@ -1525,7 +1528,7 @@ def analyze_out_files (rootdir):
                 if len(file_paths):
                     file_result = execute_bash_code("file " + file_paths[0])
                     if len(file_result) and type(file_result[0]) == str:
-                        file_output = ", " + file_result[0]
+                        file_output = ", " + file_result[0].strip()
 
                 errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
 
@@ -1546,12 +1549,18 @@ def analyze_out_files (rootdir):
                 errors.append("OOM detected.")
 
             if "NameError" in file_as_string:
-                name_error_line = get_name_error_line(i)
-                if name_error_line:
-                    errors.append(name_error_line)
+                error_line = get_name_error_line(i)
+                if error_line:
+                    errors.append(error_line)
                 else:
                     errors.append("Python Syntax error detected")
 
+            if "SyntaxError" in file_as_string:
+                error_line = get_name_syntax_error(i)
+                if error_line:
+                    errors.append(error_line)
+                else:
+                    errors.append("Python Syntax error detected")
 
             if "No module named" in file_as_string:
                 not_found_module = get_module_that_was_not_found(i)

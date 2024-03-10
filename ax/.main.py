@@ -1549,10 +1549,13 @@ def analyze_out_files (rootdir):
                 errors.append("Wrong path, file not found")
 
 
+            synerr = "Python syntax error detected. Check log file."
+
             search_for = [
-                ["SyntaxError", "Python syntax error detected"],
                 ["ModuleNotFoundError", "Module not found"],
-                ["NameError", "Python syntax error detected"]
+                ["SyntaxError", synerr],
+                ["NameError", synerr],
+                ["ValueError", synerr]
             ]
 
             for search_array in search_for:

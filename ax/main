@@ -359,17 +359,17 @@ fi
 
 if [[ $tests -eq 0 ]]; then
 	if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
-		if [[ -z "$mem_gb" ]]; then
-			red_text "Parameter --mem_gb is missing or empty";
-			exit 101
-		fi
-
-		if [[ -z "$time" ]]; then
-			red_text "Parameter --time is missing or empty";
-			exit 102
-		fi
-
 		if [[ "$continue_previous_job" == "" ]]; then
+			if [[ -z "$mem_gb" ]]; then
+				red_text "Parameter --mem_gb is missing or empty";
+				exit 101
+			fi
+
+			if [[ -z "$time" ]]; then
+				red_text "Parameter --time is missing or empty";
+				exit 102
+			fi
+
 			if [[ -z $experiment_name ]]; then
 				red_text "Parameter --experiment_name is missing or empty"
 				exit 104

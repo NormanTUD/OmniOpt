@@ -66,15 +66,16 @@ minutes_to_hh_mm_ss() {
 
 int_re='^[+-]?[0-9]+$'
 
-export mem_gb=
-export gpus=
-export time=
-export experiment_name=
-export help=0
-export follow=0
-export debug=0
-export wait_until_ended=0
-export tests=0
+continue_previous_job=
+mem_gb=
+gpus=
+time=
+experiment_name=
+help=0
+follow=0
+debug=0
+wait_until_ended=0
+tests=0
 
 args_string=""
 
@@ -84,6 +85,75 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--continue=*)
+			old_continue=$continue
+			continue="${i#*=}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--continue was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+			fi
+
+			args_string+=" --continue=$continue "
+
+			continue_previous_job=$continue
+
+			;;
+		--continue)
+			old_continue=$continue
+
+			shift
+			k=$((k+1))
+
+			continue="${args[k]}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--continue was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+			fi
+
+			args_string+=" --continue=$continue "
+
+			continue_previous_job=$continue
+
+			;;
+
+
+
+		--continue_previous_job=*)
+			old_continue=$continue
+			continue="${i#*=}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--continue was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+			fi
+
+			args_string+=" --continue=$continue "
+
+			continue_previous_job=$continue
+
+			;;
+
+		--continue_previous_job)
+			old_continue=$continue
+
+			shift
+			k=$((k+1))
+
+			continue="${args[k]}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--continue was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+			fi
+
+			args_string+=" --continue=$continue "
+
+			continue_previous_job=$continue
+
+			;;
+
 		--mem_gb=*)
 			old_mem_gb=$mem_gb
 			mem_gb="${i#*=}"
@@ -301,9 +371,11 @@ if [[ $tests -eq 0 ]]; then
 			exit 102
 		fi
 
-		if [[ -z $experiment_name ]]; then
-			red_text "Parameter --experiment_name is missing or empty"
-			exit 104
+		if [[ -z $continue_previous_job ]]; then
+			if [[ -z $experiment_name ]]; then
+				red_text "Parameter --experiment_name is missing or empty"
+				exit 104
+			fi
 		fi
 	fi
 fi

@@ -73,8 +73,8 @@ which_programs=(
 	"file_does_not_exist"
 	"no_chmod_x"
 	"no_shebang"
-	"perl",
-	"perl_module_fail",
+	"perl"
+	"perl_module_fail"
 	"signal_but_has_output"
 )
 

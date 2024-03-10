@@ -1553,6 +1553,7 @@ def analyze_out_files (rootdir):
 
             search_for = [
                 ["ModuleNotFoundError", "Module not found"],
+                ["ImportError", "Module not found"],
                 ["SyntaxError", synerr],
                 ["NameError", synerr],
                 ["ValueError", synerr],

@@ -1548,6 +1548,12 @@ def analyze_out_files (rootdir):
             if "/bin/sh" in file_as_string and "not found" in file_as_string:
                 errors.append("Wrong path, file not found")
 
+            if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
+                errors.append(f"File in {program_code} is empty")
+
+            if len(file_paths) == 0:
+                errors.append(f"No files could be found in your program string: {program_code}")
+
 
             synerr = "Python syntax error detected. Check log file."
 

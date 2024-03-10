@@ -1557,10 +1557,32 @@ def analyze_out_files (rootdir):
                 ["SyntaxError", synerr],
                 ["NameError", synerr],
                 ["ValueError", synerr],
-                ["TypeError", synerr]
+                ["TypeError", synerr],
+                ["AssertionError", "Assertion failed"],
+                ["AttributeError", "Attribute Error"],
+                ["EOFError", "End of file Error"],
+                ["IndexError", "Wrong index for array. Check logs"],
+                ["KeyError", "Wrong key for dict"],
+                ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
+                ["MemoryError", "Python memory error detected"],
+                ["NotImplementedError", "Something was not implemented"],
+                ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
+                ["OverflowError", "There was an error with float overflow"],
+                ["RecursionError", "Your program had a recursion error"],
+                ["ReferenceError", "There was an error with a weak reference"],
+                ["RuntimeError", "Something went wrong with your program. Try checking the log."],
+                ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
+                ["TabError", "You used tab instead of spaces in your code"],
+                ["SystemError", "Some error SystemError was found. Check the log."],
+                ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
+                ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
             ]
 
             for search_array in search_for:
+                if len(search_array) != 2:
+                    print_color("red", f"Wrong number of arguments in search_array. Must be 2, is {len(search_array)}")
+                    sys.exit(40)
+
                 search_for_string = search_array[0]
                 search_for_error = search_array[1]
 

@@ -838,4 +838,4 @@ if [[ $sourced == "0" ]]; then
 	main
 fi
 
-echo -ne "\033]30;$(basename $(pwd)) - $(basename $SHELL)\007"
+echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

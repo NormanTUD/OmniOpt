@@ -1074,6 +1074,8 @@ def main ():
     with open(f"{current_run_folder}/run.sh", 'w') as f:
         print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
 
+    if args.continue_previous_job:
+        print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
     print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
     print_color("green", program_name)
 

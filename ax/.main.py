@@ -1475,6 +1475,8 @@ def get_module_that_was_not_found (i):
 def analyze_out_files (rootdir):
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
+    j = 0
+
     for i in outfiles:
         file_as_string = get_file_as_string(i)
         m = REMatcher(file_as_string)
@@ -1509,6 +1511,8 @@ def analyze_out_files (rootdir):
             errors.append("Wrong path, file not found")
 
         if len(errors):
+            if j == 0:
+                print("")
             print_color("yellow", f"Out file {i} contains potential errors:")
             program_code = get_program_code_from_out_file(i)
             print(program_code)
@@ -1516,6 +1520,8 @@ def analyze_out_files (rootdir):
                 print_color("red", e)
 
             print("")
+
+            j = j + 1
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

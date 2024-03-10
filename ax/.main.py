@@ -1514,7 +1514,7 @@ def analyze_out_files (rootdir):
                 errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
 
             if "Exec format error" in file_as_string:
-                current_platform = platform.architecture()
+                current_platform = platform.machine()
                 errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}")
 
             if "Segmentation fault" in file_as_string:

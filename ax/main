@@ -468,7 +468,7 @@ kill_tail_when_squeue_job_empty () {
 
 	sleep 10
 
-	while sq | grep "$JOB_ID" 2>/dev/null >/dev/null; do
+	while squeue -u $USER | grep "$JOB_ID" 2>/dev/null >/dev/null; do
 		echo "Sleeping to wait for sq to be empty"
 		sleep 5
 	done

@@ -1500,7 +1500,7 @@ def analyze_out_files (rootdir):
         if "No module named" in file_as_string:
             not_found_module = get_module_that_was_not_found(i)
             if not_found_module:
-                errors.append("Module not found: " + not_found_module)
+                errors.append(not_found_module)
             else:
                 errors.append("Module not found")
 

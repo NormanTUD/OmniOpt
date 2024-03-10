@@ -1486,6 +1486,7 @@ def run_tests ():
     nr_errors += complex_tests("no_chmod_x", "Permission denied", 126, None, True)
     nr_errors += complex_tests("signal", "Killed", 137, None, True)
     nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr", 5, None, True)
+    nr_errors += complex_tests("module_not_found", "ModuleNotFoundError", 1, None, True)
 
     """
         module_not_found

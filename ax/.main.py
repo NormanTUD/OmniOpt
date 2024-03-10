@@ -1488,7 +1488,7 @@ def analyze_out_files (rootdir):
         if len(errors):
             print_color("yellow", f"Out file {i} contains potential errors:")
             program_code = get_program_code_from_out_file(i)
-            print("Code: " + program_code)
+            print(program_code)
             for e in errors:
                 print_color("red", e)
 

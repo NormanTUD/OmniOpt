@@ -86,71 +86,69 @@ while [ $k -lt ${#args[@]} ]; do
 
 	case $i in
 		--continue=*)
-			old_continue=$continue
-			continue="${i#*=}"
+			old_continue=$continue_previous_job
+			continue_previous_job="${i#*=}"
 
 			if [[ ! -z $old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue "
+			args_string+=" --continue=$continue_previous_job "
 
-			continue_previous_job=$continue
+			continue_previous_job=$continue_previous_job
 
 			;;
 		--continue)
-			old_continue=$continue
+			old_continue=$continue_previous_job
 
 			shift
 			k=$((k+1))
 
-			continue="${args[k]}"
+			continue_previous_job="${args[k]}"
 
 			if [[ ! -z $old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue "
+			args_string+=" --continue=$continue_previous_job "
 
-			continue_previous_job=$continue
+			continue_previous_job=$continue_previous_job
 
 			;;
 
-
-
 		--continue_previous_job=*)
-			old_continue=$continue
-			continue="${i#*=}"
+			old_continue=$continue_previous_job
+			continue_previous_job="${i#*=}"
 
 			if [[ ! -z $old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue "
+			args_string+=" --continue=$continue_previous_job "
 
-			continue_previous_job=$continue
+			continue_previous_job=$continue_previous_job
 
 			;;
 
 		--continue_previous_job)
-			old_continue=$continue
+			old_continue=$continue_previous_job
 
 			shift
 			k=$((k+1))
 
-			continue="${args[k]}"
+			continue_previous_job="${args[k]}"
 
 			if [[ ! -z $old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=[0-9]*\s\s*# #')
+				args_string=$(echo "$args_string" | sed -e 's#\s*--continue.*\s\s*# #')
 			fi
 
-			args_string+=" --continue=$continue "
+			args_string+=" --continue=$continue_previous_job "
 
-			continue_previous_job=$continue
+			continue_previous_job=$continue_previous_job
 
 			;;
 

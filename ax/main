@@ -555,9 +555,8 @@ else
 
 				tput el
 
-				kill_tail_when_squeue_job_empty $started_job_nr &
-
 				if [[ -e "$LOG_PATH" ]]; then
+					kill_tail_when_squeue_job_empty $started_job_nr &
 					tail -n1000000 -f $LOG_PATH
 				else
 					red_text "$LOG_PATH could not be found"

@@ -1510,7 +1510,7 @@ def analyze_out_files (rootdir):
             if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
                 errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")
             if "Segmentation fault" in file_as_string:
-                errors.append("Segmentation faul detected")
+                errors.append("Segmentation fault detected")
             for r in range(1, 255):
                 search_for_exit_code = "Exit-Code: " + str(r) + ","
                 if search_for_exit_code in file_as_string:

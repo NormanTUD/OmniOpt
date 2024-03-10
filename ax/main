@@ -468,12 +468,15 @@ kill_tail_when_squeue_job_empty () {
 
 	sleep 10
 
-	while sq | grep "$JOB_ID"; do
+	while sq | grep "$JOB_ID" 2>/dev/null >/dev/null; do
+		echo "Sleeping to wait for sq to be empty"
 		sleep 5
 	done
 
 	for child in $(pgrep -P $$); do
+		echo "Children: $child"
 		for tail_process in $(ps auxf | grep $child | grep tail); do
+			echo "Killing tail $tail_process"
 			kill -9 $tail_process
 		done
 	done

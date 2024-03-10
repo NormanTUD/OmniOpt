@@ -225,6 +225,9 @@ if not args.tests:
     else:
         max_eval = args.max_eval
 
+    if max_eval <= 0:
+        print_color("red", "--max_eval must be larger than 0")
+        sys.exit(39)
 
 def print_debug (msg):
     if args.debug:
@@ -297,10 +300,6 @@ except (signalUSR, signalINT, KeyboardInterrupt) as e:
 
 def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
-
-if max_eval <= 0:
-    print_color("red", "--max_eval must be larger than 0")
-    sys.exit(39)
 
 def is_executable_in_path(executable_name):
     for path in os.environ.get('PATH', '').split(':'):

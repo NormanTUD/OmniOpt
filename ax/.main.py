@@ -1488,6 +1488,8 @@ def analyze_out_files (rootdir):
 
         first_line = ""
 
+        first_file_as_string = ""
+
         if len(file_paths):
             try:
                 first_file_as_string = get_file_as_string(file_paths[0])

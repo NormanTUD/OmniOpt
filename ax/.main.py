@@ -1462,7 +1462,7 @@ def file_contains_text(f, t):
             return True
     return False
 
-def get_module_that_was_not_found (i):
+def get_first_line_of_file_that_contains_string (i, s):
     if not os.path.exists(i):
         print(f"File {i} not found")
         return
@@ -1470,10 +1470,15 @@ def get_module_that_was_not_found (i):
     f = get_file_as_string(i)
 
     for line in f.split("\n"):
-        if "ModuleNotFoundError" in line:
+        if s in line:
             return line
-
     return None
+
+def get_module_that_was_not_found (i):
+    return get_first_line_of_file_that_contains_string(i, "ModuleNotFoundError")
+
+def get_name_error_line(i):
+    return get_first_line_of_file_that_contains_string(i, "NameError")
 
 def analyze_out_files (rootdir):
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
@@ -1539,6 +1544,14 @@ def analyze_out_files (rootdir):
 
             if "OOM" in file_as_string:
                 errors.append("OOM detected.")
+
+            if "NameError" in file_as_string:
+                name_error_line = get_name_error_line(i)
+                if name_error_line:
+                    errors.append(name_error_line)
+                else:
+                    errors.append("Python Syntax error detected")
+
 
             if "No module named" in file_as_string:
                 not_found_module = get_module_that_was_not_found(i)

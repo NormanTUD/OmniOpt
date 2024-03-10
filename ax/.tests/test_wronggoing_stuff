@@ -78,6 +78,7 @@ which_programs=(
 	"signal_but_has_output"
 	"segfault"
 	"wrong_arch"
+	"python_name_error"
 )
 
 if [[ "$useramtests" -eq "1" ]]; then

@@ -463,6 +463,23 @@ if [[ "$tests" -eq "1" ]]; then
 	exit $?
 fi
 
+kill_tail_when_squeue_job_empty () {
+	JOB_ID=$1
+
+	sleep 10
+
+	while sq | grep "$JOB_ID"; do
+		sleep 5
+	done
+
+	for child in $(pgrep -P $$); do
+		for tail_process in $(ps auxf | grep $child | grep tail); do
+			kill -9 $tail_process
+		done
+	done
+
+}
+
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the main job, unset all SLURM variables
 	set +x
@@ -515,7 +532,7 @@ else
 				LOG_PATH=$(slurmlogpath $started_job_nr)
 	
 				spin[0]="-"
-				spin[1]="\\"
+				spin[1]="\\" # "
 				spin[2]="|"
 				spin[3]="/"
 
@@ -537,6 +554,8 @@ else
 				printf "\r"
 
 				tput el
+
+				kill_tail_when_squeue_job_empty $started_job_nr &
 
 				if [[ -e "$LOG_PATH" ]]; then
 					tail -n1000000 -f $LOG_PATH

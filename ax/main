@@ -66,7 +66,7 @@ minutes_to_hh_mm_ss() {
 
 int_re='^[+-]?[0-9]+$'
 
-continue_previous_job=
+continue_previous_job=""
 mem_gb=
 gpus=
 time=
@@ -371,7 +371,7 @@ if [[ $tests -eq 0 ]]; then
 			exit 102
 		fi
 
-		if [[ -z $continue_previous_job ]]; then
+		if [[ "$continue_previous_job" == "" ]]; then
 			if [[ -z $experiment_name ]]; then
 				red_text "Parameter --experiment_name is missing or empty"
 				exit 104

@@ -1135,6 +1135,9 @@ def main ():
     with open(f'{current_run_folder}/experiment_name', 'w') as f:
         print(experiment_name, file=f)
 
+    with open(f'{current_run_folder}/mem_gb', 'w') as f:
+        print(mem_gb, file=f)
+
     with open(f'{current_run_folder}/time', 'w') as f:
         print(time, file=f)
 

@@ -1515,7 +1515,14 @@ def analyze_out_files (rootdir):
 
             if "Exec format error" in file_as_string:
                 current_platform = platform.machine()
-                errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}")
+                file_output = ""
+
+                if len(file_paths):
+                    file_result = execute_bash_code("file " + file_paths[0])
+                    if len(file_result) and type(file_result[0]) == str:
+                        file_output = ", " + file_result[0]
+
+                errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
 
             if "Segmentation fault" in file_as_string:
                 errors.append("Segmentation fault detected")
@@ -1565,4 +1572,5 @@ if __name__ == "__main__":
             run_tests()
         else:
             warnings.simplefilter("ignore")
+
             main()

@@ -63,12 +63,12 @@ debug = parser.add_argument_group('Debug', "These options are mainly useful for 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
-required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str, required=True)
-required.add_argument('--experiment_name', help='Name of the experiment.', type=str, required=True)
+required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
+required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
-required_but_choice.add_argument('--load_checkpoint', help="Path of a checkpoint to be loaded", type=str, default=None)
+required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint", type=str, default=None)
 
 optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
@@ -101,19 +101,35 @@ def decode_if_base64(input_str):
     except Exception as e:
         return input_str
 
-joined_run_program = " ".join(args.run_program[0])
-joined_run_program = decode_if_base64(joined_run_program)
+joined_run_program = ""
+if not args.continue_previous_job:
+    joined_run_program = " ".join(args.run_program[0])
+    joined_run_program = decode_if_base64(joined_run_program)
+else:
+    prev_job_folder = args.continue_previous_job
+    prev_job_file = prev_job_folder + "/run_program_string"
+    if os.path.exists(prev_job_file):
+        joined_run_program = get_file_as_string(prev_job_file)
+    else:
+        print(f"{prev_job_file} could not be found")
+        sys.exit(44)
 
 if not args.tests:
-    if args.parameter is None and args.load_checkpoint is None:
-        print("Either --parameter or --load_checkpoint is required. Both were not found.")
+    if args.parameter is None and args.continue_previous_job is None:
+        print("Either --parameter or --continue_previous_job is required. Both were not found.")
         sys.exit(19)
-    elif args.parameter is not None and args.load_checkpoint is not None:
-        print("You cannot use --parameter and --load_checkpoint. You have to decide for one.");
+    elif args.parameter is not None and args.continue_previous_job is not None:
+        print("You cannot use --parameter and --continue_previous_job. You have to decide for one.");
         sys.exit(20)
-    elif args.load_checkpoint:
-        if not os.path.exists(args.load_checkpoint):
-            print("red", f"{args.load_checkpoint} could not be found!")
+    elif not args.run_program and not args.continue_previous_job:
+        print("--run_program needs to be defined when --continue_previous_job is not set")
+        sys.exit(42)
+    elif not args.experiment_name and not args.continue_previous_job:
+        print("--experiment_name needs to be defined when --continue_previous_job is not set")
+        sys.exit(43)
+    elif args.continue_previous_job:
+        if not os.path.exists(args.continue_previous_job):
+            print("red", f"{args.continue_previous_job} could not be found!")
             sys.exit(21)
 
 def print_debug (msg):
@@ -1016,6 +1032,9 @@ def main ():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
+    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
+        print(joined_run_program, file=f)
+
     with open(f"{current_run_folder}/env", 'a') as f:
         env = dict(os.environ)
         for key in env:
@@ -1049,13 +1068,14 @@ def main ():
 
         experiment = None
 
-        if args.load_checkpoint:
-            ax_client = (AxClient.load_from_json_file(args.load_checkpoint))
+        if args.continue_previous_job:
+            print_debug(f"Load from checkpoint: {args.continue_previous_job}")
+            ax_client = (AxClient.load_from_json_file(args.continue_previous_job))
 
-            checkpoint_params_file = args.load_checkpoint + ".parameters.json"
+            checkpoint_params_file = args.continue_previous_job + "/.parameters.json"
 
             if not os.path.exists(checkpoint_params_file):
-                print_color("red", f"{checkpoint_params_file} not found. Cannot continue without.")
+                print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
                 sys.exit(22)
 
             f = open(checkpoint_params_file)
@@ -1063,7 +1083,7 @@ def main ():
             f.close()
 
             with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
-                print(f"Continuation from checkpoint {args.load_checkpoint}", file=f)
+                print(f"Continuation from checkpoint {args.continue_previous_job}", file=f)
         else:
             experiment_args = {
                 "name": args.experiment_name,

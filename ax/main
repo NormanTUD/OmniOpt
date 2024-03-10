@@ -469,18 +469,16 @@ kill_tail_when_squeue_job_empty () {
 	sleep 10
 
 	while squeue -u $USER | grep "$JOB_ID" 2>/dev/null >/dev/null; do
-		echo "Sleeping to wait for sq to be empty"
 		sleep 5
 	done
 
 	for child in $(pgrep -P $$); do
-		echo "Children: $child"
 		for tail_process in $(ps auxf | grep $child | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
-			echo "Killing tail $tail_process"
 			kill -9 $tail_process
 		done
 	done
 
+	return 0
 }
 
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
@@ -560,7 +558,7 @@ else
 
 				if [[ -e "$LOG_PATH" ]]; then
 					kill_tail_when_squeue_job_empty $started_job_nr &
-					tail -n1000000 -f $LOG_PATH
+					tail -n1000000 -f $LOG_PATH || true
 				else
 					red_text "$LOG_PATH could not be found"
 				fi

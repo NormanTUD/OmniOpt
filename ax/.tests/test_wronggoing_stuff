@@ -77,6 +77,7 @@ which_programs=(
 	"perl_module_fail"
 	"signal_but_has_output"
 	"segfault"
+	"wrong_arch"
 )
 
 if [[ "$useramtests" -eq "1" ]]; then

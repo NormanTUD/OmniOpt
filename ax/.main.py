@@ -1488,10 +1488,6 @@ def run_tests ():
     nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr", 5, None, True)
     nr_errors += complex_tests("module_not_found", "ModuleNotFoundError", 1, None, True)
 
-    """
-        module_not_found
-    """
-
     find_path_res = test_find_paths("ls")
     if find_path_res:
         is_equal("test_find_paths failed", true, false)

@@ -352,7 +352,6 @@ if [[ "$debug" -eq "1" ]]; then
 fi
 
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
-echo "args_string: $args_string"
 
 if [[ -z $gpus ]]; then
 	gpus=0
@@ -472,10 +471,10 @@ else
 	exit_code=""
 
 	if [[ $gpus -ne 0 ]]; then
-		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/main $* | tee /dev/stderr)
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/main $args_string | tee /dev/stderr)
 		exit_code=$?
 	else
-		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $* | tee /dev/stderr)
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $args_string | tee /dev/stderr)
 		exit_code=$?
 	fi
 

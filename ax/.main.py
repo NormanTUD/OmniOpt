@@ -1493,8 +1493,8 @@ def analyze_out_files (rootdir):
         if "Result: None" in file_as_string:
             errors.append("Got no result.")
 
-            if not "!#" in first_line:
-                errors.append("First line does not seem to be a shebang line")
+            if first_line and type(first_line) == str and first_line.isprintable() and not first_line.startswith("#!"):
+                errors.append("First line does not seem to be a shebang line: " + first_line)
 
         if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
             errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")

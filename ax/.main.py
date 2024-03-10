@@ -8,6 +8,7 @@ folder_number = 0
 args = None
 result_csv_file = None
 shown_end_table = False
+max_eval = None
 
 try:
     import glob
@@ -61,7 +62,7 @@ bash = parser.add_argument_group('Bash', "These options are for the main worker 
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
-required.add_argument('--max_eval', help='Maximum number of evaluations', type=int, required=True)
+required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
@@ -156,6 +157,25 @@ if not args.tests:
         print(f"--mem_gb needs to be set")
         sys.exit(48)
 
+    if not max_eval:
+        if not args.continue_previous_job:
+            print(f"--max_eval needs to be set")
+        else:
+            max_eval_file = args.continue_previous_job + "/max_eval"
+            if os.path.exists(max_eval_file):
+                max_eval_file_contents = get_file_as_string(max_eval_file).strip()
+                if max_eval_file_contents.isdigit():
+                    max_eval = int(max_eval_file_contents)
+                    print(f"Using old run's --max_eval: {max_eval}")
+                else:
+                    print(f"The contents of {max_eval_file} do not contain a single number")
+            else:
+                print(f"neither --max_eval nor file {max_eval_file} found")
+                sys.exit(1)
+    else:
+        max_eval = args.max_eval
+
+
 def print_debug (msg):
     if args.debug:
         print(msg)
@@ -228,7 +248,7 @@ except (signalUSR, signalINT, KeyboardInterrupt) as e:
 def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
 
-if args.max_eval <= 0:
+if max_eval <= 0:
     print_color("red", "--max_eval must be larger than 0")
     sys.exit(39)
 
@@ -1066,6 +1086,9 @@ def main ():
     with open(f'{current_run_folder}/experiment_name', 'w') as f:
         print(experiment_name, file=f)
 
+    with open(f'{current_run_folder}/max_eval', 'w') as f:
+        print(max_eval, file=f)
+
     with open(f"{current_run_folder}/env", 'a') as f:
         env = dict(os.environ)
         for key in env:
@@ -1127,7 +1150,7 @@ def main ():
                 "parameters": experiment_parameters,
                 "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 "choose_generation_strategy_kwargs": {
-                    "num_trials": args.max_eval
+                    "num_trials": max_eval
                 },
             }
 
@@ -1185,8 +1208,8 @@ def main ():
         
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            with tqdm(total=args.max_eval, disable=False) as progress_bar:
-                while submitted_jobs < args.max_eval or jobs:
+            with tqdm(total=max_eval, disable=False) as progress_bar:
+                while submitted_jobs < max_eval or jobs:
                     desc = f"Searching {searching_for}"
                     if failed_jobs:
                         desc = desc + f" (failed: {failed_jobs})"
@@ -1209,7 +1232,7 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        calculated_max_trials = min(args.num_parallel_jobs - len(jobs), args.max_eval - submitted_jobs)
+                        calculated_max_trials = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials.")
 

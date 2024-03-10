@@ -1492,37 +1492,38 @@ def analyze_out_files (rootdir):
             first_line = get_file_as_string(file_paths[0]).split('\n')[0]
 
         errors = []
+
         if "Result: None" in file_as_string:
             errors.append("Got no result.")
 
             if first_line and type(first_line) == str and first_line.isprintable() and not first_line.startswith("#!"):
                 errors.append("First line does not seem to be a shebang line: " + first_line)
 
-        if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
-            errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")
-        for r in range(1, 255):
-            search_for_exit_code = "Exit-Code: " + str(r) + ","
-            if search_for_exit_code in file_as_string:
-                errors.append("Non-zero exit-code detected: " + str(r))
-        if "Killed" in file_as_string:
-            errors.append("Detected kill, maybe OOM or Signal?")
+            if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
+                errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x or a shebang line?")
+            for r in range(1, 255):
+                search_for_exit_code = "Exit-Code: " + str(r) + ","
+                if search_for_exit_code in file_as_string:
+                    errors.append("Non-zero exit-code detected: " + str(r))
+            if "Killed" in file_as_string:
+                errors.append("Detected kill, maybe OOM or Signal?")
 
-        if "Illegal division by zero" in file_as_string:
-            errors.append("Illegal division by zero detected.")
-        if "OOM" in file_as_string:
-            errors.append("OOM detected.")
-        if "No module named" in file_as_string:
-            not_found_module = get_module_that_was_not_found(i)
-            if not_found_module:
-                errors.append(not_found_module)
-            else:
-                errors.append("Module not found")
+            if "Illegal division by zero" in file_as_string:
+                errors.append("Illegal division by zero detected.")
+            if "OOM" in file_as_string:
+                errors.append("OOM detected.")
+            if "No module named" in file_as_string:
+                not_found_module = get_module_that_was_not_found(i)
+                if not_found_module:
+                    errors.append(not_found_module)
+                else:
+                    errors.append("Module not found")
 
-        if "Can't locate" in file_as_string and "@INC" in file_as_string:
-            errors.append("Perl module not found")
+            if "Can't locate" in file_as_string and "@INC" in file_as_string:
+                errors.append("Perl module not found")
 
-        if "/bin/sh" in file_as_string and "not found" in file_as_string:
-            errors.append("Wrong path, file not found")
+            if "/bin/sh" in file_as_string and "not found" in file_as_string:
+                errors.append("Wrong path, file not found")
 
         if len(errors):
             if j == 0:

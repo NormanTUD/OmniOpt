@@ -499,12 +499,11 @@ def find_file_paths(_text):
 
 def check_file_info(file_path):
     if not os.path.exists(file_path):
-        print(f"Die Datei {file_path} existiert nicht.")
+        print(f"The file {file_path} does not exist.")
         return
 
     if not os.access(file_path, os.R_OK):
-        print(f"Die Datei {file_path} ist nicht lesbar.")
-        return
+        print(f"The file {file_path} is not readable.")
 
     file_stat = os.stat(file_path)
 

@@ -254,8 +254,8 @@ def get_program_code_from_out_file (f):
         fs = get_file_as_string(f)
 
         for line in fs.split("\n"):
-            if "Program-Code:" in item:
-                return item
+            if "Program-Code:" in line:
+                return line
 
 def parse_experiment_parameters(args):
     params = []

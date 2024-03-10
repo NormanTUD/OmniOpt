@@ -1142,7 +1142,7 @@ def main ():
         print(max_eval, file=f)
 
     with open(f'{current_run_folder}/gpus', 'w') as f:
-        print(arsg.gpus, file=f)
+        print(args.gpus, file=f)
 
     with open(f'{current_run_folder}/time', 'w') as f:
         print(_time, file=f)

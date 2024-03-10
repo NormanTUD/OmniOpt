@@ -519,17 +519,14 @@ def check_file_info(file_path):
     access_time = file_stat.st_atime
     modification_time = file_stat.st_mtime
     status_change_time = file_stat.st_ctime
-
-    # Gruppennamen für die Benutzergruppen abrufen
-    string = ""
-
-    string += f"Datei: {file_path}\n"
-    string += f"Größe: {size} Bytes\n"
-    string += f"Berechtigungen: {permissions}\n"
-    string += f"Besitzer: {username}\n"
-    string += f"Letzter Zugriff: {access_time}\n"
-    string += f"Letzte Änderung: {modification_time}\n"
-    string += f"Letzter Statuswechsel: {status_change_time}\n"
+    
+    string = f"pwd: {os.getcwd()}\n"
+    string += f"File: {file_path}\n"
+    string += f"Size: {size} Bytes\n"
+    string += f"Permissions: {permissions}\n"
+    string += f"Owner: {username}\n"
+    string += f"Last access: {access_time}\n"
+    string += f"Last modification: {modification_time}\n"
 
     string += f"Hostname: {socket.gethostname()}"
 

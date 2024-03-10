@@ -1385,6 +1385,8 @@ def get_shebang (path):
     return sb
 
 def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
+    print_color("yellow", f"Test suite: {program_name}")
+
     nr_errors = 0
 
     program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{program_name}"

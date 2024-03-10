@@ -1459,12 +1459,18 @@ def file_contains_text(f, t):
             return True
     return False
 
-def get_module_that_was_not_found (f):
+def get_module_that_was_not_found (i):
+    if not os.path.exists(i):
+        print(f"File {i} not found")
+        return
+
+    f = get_file_as_string(i)
+
     for line in f.split("\n"):
-        if "ModuleNotFoundError: No module named" in line:
+        if "ModuleNotFoundError" in line:
             return line
-        else:
-            return None
+
+    return None
 
 def analyze_out_files (rootdir):
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
@@ -1490,7 +1496,7 @@ def analyze_out_files (rootdir):
         if "OOM" in file_as_string:
             errors.append("OOM detected.")
         if "No module named" in file_as_string:
-            not_found_module = get_module_that_was_not_found(file_as_string)
+            not_found_module = get_module_that_was_not_found(i)
             if not_found_module:
                 errors.append("Module not found: " + not_found_module)
             else:

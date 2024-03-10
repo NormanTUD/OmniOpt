@@ -592,7 +592,9 @@ def find_file_paths_and_print_infos (_text, program_code):
     string = "";
 
     string += "\n========\nDEBUG INFOS START:\n"
-    print("Program-Code: " + program_code)
+
+    if not args.tests:
+        print("Program-Code: " + program_code)
     if file_paths:
         for file_path in file_paths:
             string += "\n"

@@ -188,7 +188,7 @@ fi
 
 yellow_text "Trying to continue previous job"
 
-./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --wait_until_ended --gpus=$NUM_GPUS
+./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --wait_until_ended --gpus=$NUM_GPUS
 
 exit_code=$?
 

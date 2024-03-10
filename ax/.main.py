@@ -1535,7 +1535,7 @@ def analyze_out_files (rootdir):
 
             for err in base_errors:
                 if type(err) == list:
-                    if err in file_as_string:
+                    if err[0] in file_as_string:
                         errors.append(f"{err[0]} {err[1]}")
                 elif type(err) == str:
                     if err in file_as_string:
@@ -1543,9 +1543,6 @@ def analyze_out_files (rootdir):
                 else:
                     print_color(f"Wrong type, should be list or string, is {type(err)}")
                     sys.exit(41)
-
-            if "Killed" in file_as_string:
-                errors.append("Detected kill, maybe OOM or Signal?")
 
             if "Can't locate" in file_as_string and "@INC" in file_as_string:
                 errors.append("Perl module not found")

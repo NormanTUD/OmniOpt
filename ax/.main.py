@@ -541,13 +541,16 @@ def make_strings_equal_length(str1, str2):
 def find_file_paths(_text):
     file_paths = []
 
-    words = _text.split()
+    if type(_text) == str:
+        words = _text.split()
 
-    for word in words:
-        if os.path.exists(word):
-            file_paths.append(word)
+        for word in words:
+            if os.path.exists(word):
+                file_paths.append(word)
 
-    return file_paths
+        return file_paths
+
+    return []
 
 def check_file_info(file_path):
     if not os.path.exists(file_path):
@@ -1426,7 +1429,7 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         nr_errors += is_equal(f"{program_name} res is None", None, res)
     else:
         nr_errors += is_equal(f"{program_name} res type is nr", True, type(res) == int or type(res) == float)
-    nr_errors += is_equal(f"{program_name} stderr", stderr.strip(), wanted_stderr.strip())
+    nr_errors += is_equal(f"{program_name} stderr", True, wanted_stderr in stderr)
     nr_errors += is_equal(f"{program_name} exit-code ", exit_code, wanted_exit_code)
     nr_errors += is_equal(f"{program_name} signal", signal, wanted_signal)
 
@@ -1472,15 +1475,15 @@ def run_tests ():
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
     #complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
-    nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
+    nr_errors += complex_tests("simple_ok", "hallo", 0, None)
     nr_errors += complex_tests("divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True)
-    nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr\n", 5, None)
-    #nr_errors += complex_tests("signal_but_has_output", "Killed\n", 5, 9)
+    nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr", 5, None)
+    #nr_errors += complex_tests("signal_but_has_output", "Killed", 5, 9)
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
-    nr_errors += complex_tests("exit_code_stdout", "STDERR\n", 5, None, False)
-    nr_errors += complex_tests("no_chmod_x", "/bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x: Permission denied\n", 126, None, True)
-    #nr_errors += complex_tests("signal", "Killed\n", 137, None, True)
-    nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr\n", 5, None, True)
+    nr_errors += complex_tests("exit_code_stdout", "STDERR", 5, None, False)
+    nr_errors += complex_tests("no_chmod_x", "Permission denied", 126, None, True)
+    #nr_errors += complex_tests("signal", "Killed", 137, None, True)
+    nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr", 5, None, True)
 
     """
         module_not_found

@@ -124,6 +124,8 @@ else:
         print(f"{prev_job_file} could not be found")
         sys.exit(44)
 
+experiment_name = args.experiment_name
+
 if not args.tests:
     if args.parameter is None and args.continue_previous_job is None:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
@@ -134,13 +136,21 @@ if not args.tests:
     elif not args.run_program and not args.continue_previous_job:
         print("--run_program needs to be defined when --continue_previous_job is not set")
         sys.exit(42)
-    elif not args.experiment_name and not args.continue_previous_job:
+    elif not experiment_name and not args.continue_previous_job:
         print("--experiment_name needs to be defined when --continue_previous_job is not set")
         sys.exit(43)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
             print("red", f"{args.continue_previous_job} could not be found!")
             sys.exit(21)
+
+        if not experiment_name:
+            exp_name_file = f"{args.continue_previous_job}/experiment_name"
+            if os.path.exists(exp_name_file):
+                experiment_name = get_file_as_string(exp_name_file).strip()
+            else:
+                print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
+                sys.exit(46)
 
 def print_debug (msg):
     if args.debug:
@@ -1035,14 +1045,17 @@ def main ():
 
     check_slurm_job_id()
 
-    current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
+    current_run_folder = f"{args.run_dir}/{experiment_name}/{folder_number}"
     while os.path.exists(f"{current_run_folder}"):
-        current_run_folder = f"{args.run_dir}/{args.experiment_name}/{folder_number}"
+        current_run_folder = f"{args.run_dir}/{experiment_name}/{folder_number}"
         folder_number = folder_number + 1
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
     with open(f'{current_run_folder}/joined_run_program', 'w') as f:
+        print(joined_run_program, file=f)
+
+    with open(f'{current_run_folder}/experiment_name', 'w') as f:
         print(joined_run_program, file=f)
 
     with open(f"{current_run_folder}/env", 'a') as f:
@@ -1096,7 +1109,7 @@ def main ():
                 print(f"Continuation from checkpoint {args.continue_previous_job}", file=f)
         else:
             experiment_args = {
-                "name": args.experiment_name,
+                "name": experiment_name,
                 "parameters": experiment_parameters,
                 "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 "choose_generation_strategy_kwargs": {
@@ -1130,7 +1143,7 @@ def main ():
         # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
         executor.update_parameters(
-            name=args.experiment_name,
+            name=experiment_name,
             timeout_min=args.worker_timeout,
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,

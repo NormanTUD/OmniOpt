@@ -1517,7 +1517,7 @@ def analyze_out_files (rootdir):
             program_code = get_program_code_from_out_file(i)
             print(program_code)
             for e in errors:
-                print_color("red", e)
+                print_color("red", f"- {e}")
 
             print("")
 

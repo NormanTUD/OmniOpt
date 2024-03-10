@@ -1399,11 +1399,6 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         print_color("red", f"Program path {program_path} not found!")
         sys.exit(99)
 
-    #program = "bash"
-    #shebang = get_shebang(program_path)
-    #if(shebang):
-    #    program = shebang
-    #program_path_with_program = f"{program} {program_path}"
     program_path_with_program = f"{program_path}"
 
     program_string_with_params = replace_parameters_in_string(
@@ -1413,10 +1408,10 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
             "c": 3,
             "def": 45
         },
-        f"bash {program_path_with_program} %a %(b) $c $(def)"
+        f"{program_path_with_program} %a %(b) $c $(def)"
     )
 
-    is_equal(f"replace_parameters_in_string {program_name}", program_string_with_params, f"bash {program_path_with_program} 1 2 3 45")
+    nr_errors += is_equal(f"replace_parameters_in_string {program_name}", program_string_with_params, f"{program_path_with_program} 1 2 3 45")
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
@@ -1431,7 +1426,7 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         nr_errors += is_equal(f"{program_name} res is None", None, res)
     else:
         nr_errors += is_equal(f"{program_name} res type is nr", True, type(res) == int or type(res) == float)
-    nr_errors += is_equal(f"{program_name} stderr", stderr, wanted_stderr)
+    nr_errors += is_equal(f"{program_name} stderr", stderr.strip(), wanted_stderr.strip())
     nr_errors += is_equal(f"{program_name} exit-code ", exit_code, wanted_exit_code)
     nr_errors += is_equal(f"{program_name} signal", signal, wanted_signal)
 
@@ -1446,16 +1441,16 @@ def test_find_paths (program_code):
     nr_errors = 0
 
     files = [
-        "main",
-        ".main.py",
-        "plot",
-        ".plot.py",
-        "/etc/passwd",
-        "I/DO/NOT/EXIST",
-        "I DO ALSO NOT EXIST",
-        "NEITHER DO I!",
-        *get_files_in_dir("./.tests/test_wronggoing_stuff.bin/bin/")
-    ]
+            "main",
+            ".main.py",
+            "plot",
+            ".plot.py",
+            "/etc/passwd",
+            "I/DO/NOT/EXIST",
+            "I DO ALSO NOT EXIST",
+            "NEITHER DO I!",
+            *get_files_in_dir("./.tests/test_wronggoing_stuff.bin/bin/")
+            ]
 
     text = " -- && !!  ".join(files)
 
@@ -1478,12 +1473,12 @@ def run_tests ():
 
     #complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo\n", 0, None)
-    nr_errors += complex_tests("divide_by_0", "Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n", 127, None, True)
+    nr_errors += complex_tests("divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True)
     nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr\n", 5, None)
     #nr_errors += complex_tests("signal_but_has_output", "Killed\n", 5, 9)
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
     nr_errors += complex_tests("exit_code_stdout", "STDERR\n", 5, None, False)
-    nr_errors += complex_tests("no_chmod_x", "", 0, None)
+    nr_errors += complex_tests("no_chmod_x", "/bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x: Permission denied\n", 126, None, True)
     #nr_errors += complex_tests("signal", "Killed\n", 137, None, True)
     nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr\n", 5, None, True)
 

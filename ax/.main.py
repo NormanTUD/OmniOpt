@@ -298,7 +298,7 @@ except (signalUSR, signalINT, KeyboardInterrupt) as e:
 def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
 
-if max_eval <= 0:
+if args.max_eval <= 0:
     print_color("red", "--max_eval must be larger than 0")
     sys.exit(39)
 

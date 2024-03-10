@@ -158,7 +158,7 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--parameter float_param range -5 5 float \
 		--parameter choice_param choice 1,2,4,8,16,hallo \
 		--parameter int_param_two range -6 6 int \
-		--wait_until_ended \
+		--follow \
 		--no_sleep
 else
 	./main \
@@ -175,7 +175,7 @@ else
 		--parameter float_param range -5 5 float \
 		--parameter choice_param choice 1,2,4,8,16,hallo \
 		--parameter int_param_two range -6 6 int \
-		--wait_until_ended
+		--follow
 fi
 
 exit_code=$?
@@ -188,7 +188,7 @@ fi
 
 yellow_text "Trying to continue previous job"
 
-./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --wait_until_ended --gpus=$NUM_GPUS
+./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
 
 exit_code=$?
 
@@ -205,7 +205,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./main --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --wait_until_ended --gpus=$NUM_GPUS || true
+./main --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS || true
 PE=$PIPEERROR
 
 exit_code=$?

@@ -4,6 +4,13 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
 
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
 function echoerr() {
         echo "$@" 1>&2
 }
@@ -228,7 +235,9 @@ if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
 	exit 0
 else
-	red_text "${errors[*]}"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
 
 	exit ${#errors[@]}
 fi

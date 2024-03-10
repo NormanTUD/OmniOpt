@@ -1055,7 +1055,7 @@ def main ():
         print(joined_run_program, file=f)
 
     with open(f'{current_run_folder}/experiment_name', 'w') as f:
-        print(joined_run_program, file=f)
+        print(experiment_name, file=f)
 
     with open(f"{current_run_folder}/env", 'a') as f:
         env = dict(os.environ)
@@ -1087,11 +1087,16 @@ def main ():
         minimize_or_maximize = not args.maximize
 
         experiment = None
-        experiment_parameters = None
 
         if args.continue_previous_job:
             print_debug(f"Load from checkpoint: {args.continue_previous_job}")
-            ax_client = (AxClient.load_from_json_file(args.continue_previous_job + "/checkpoint.json"))
+
+            checkpoint_file = args.continue_previous_job + "/checkpoint.json"
+            if not os.path.exists(checkpoint_file):
+                print_color("red", f"{checkpoint_file} not found")
+                sys.exit(47)
+
+            ax_client = (AxClient.load_from_json_file(checkpoint_file))
 
             checkpoint_params_file = args.continue_previous_job + "/checkpoint.json.parameters.json"
 
@@ -1125,6 +1130,7 @@ def main ():
 
                 if equation:
                     experiment_args["parameter_constraints"] = [constraints_string]
+                    print_color("yellow", "--parameter_constraints is experimental!")
                 else:
                     print_color("red", "Experiment constraints are invalid.")
                     sys.exit(28)

@@ -506,7 +506,9 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	run_before_end &
 
+	set +e
 	python3 $SCRIPT_DIR/.main.py $args_string
+	set -e
 
 	EXIT_CODE=$?
 

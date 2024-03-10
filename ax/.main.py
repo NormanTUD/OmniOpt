@@ -1529,12 +1529,20 @@ def analyze_out_files (rootdir):
             base_errors = [
                 "Segmentation fault",
                 "Illegal division by zero",
-                "OOM"
+                "OOM",
+                ["Killed", "Detected kill, maybe OOM or Signal?"]
             ]
 
             for err in base_errors:
-                if err in file_as_string:
-                    errors.append(f"{err} detected")
+                if type(err) == list:
+                    if err in file_as_string:
+                        errors.append(f"{err[0]} {err[1]}")
+                elif type(err) == str:
+                    if err in file_as_string:
+                        errors.append(f"{err} detected")
+                else:
+                    print_color(f"Wrong type, should be list or string, is {type(err)}")
+                    sys.exit(41)
 
             if "Killed" in file_as_string:
                 errors.append("Detected kill, maybe OOM or Signal?")

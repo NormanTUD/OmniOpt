@@ -1484,7 +1484,7 @@ def run_tests ():
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
     nr_errors += complex_tests("exit_code_stdout", "STDERR", 5, None, False)
     nr_errors += complex_tests("no_chmod_x", "Permission denied", 126, None, True)
-    #nr_errors += complex_tests("signal", "Killed", 137, None, True)
+    nr_errors += complex_tests("signal", "Killed", 137, None, True)
     nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr", 5, None, True)
 
     """

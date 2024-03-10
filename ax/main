@@ -473,7 +473,7 @@ kill_tail_when_squeue_job_empty () {
 	done
 
 	for child in $(pgrep -P $$); do
-		for tail_process in $(ps auxf | grep $child | grep tail); do
+		for tail_process in $(ps auxf | grep $child | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
 			kill -9 $tail_process
 		done
 	done

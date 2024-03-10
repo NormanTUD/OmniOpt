@@ -1459,6 +1459,13 @@ def file_contains_text(f, t):
             return True
     return False
 
+def get_module_that_was_not_found (f):
+    for line in f.split("\n"):
+        if "ModuleNotFoundError: No module named" in line:
+            return line
+        else:
+            return None
+
 def analyze_out_files (rootdir):
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
@@ -1482,6 +1489,13 @@ def analyze_out_files (rootdir):
             errors.append("Illegal division by zero detected.")
         if "OOM" in file_as_string:
             errors.append("OOM detected.")
+        if "No module named" in file_as_string:
+            not_found_module = get_module_that_was_not_found(file_as_string)
+            if not_found_module:
+                errors.append("Module not found: " + not_found_module)
+            else:
+                errors.append("Module not found")
+
         if "/bin/sh" in file_as_string and "not found" in file_as_string:
             errors.append("Wrong path, file not found")
 

@@ -72,6 +72,7 @@ which_programs=(
 	#"takes_forever_but_has_result"
 	"file_does_not_exist"
 	"no_chmod_x"
+	"no_shebang"
 	"signal_but_has_output"
 )
 

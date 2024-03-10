@@ -378,6 +378,35 @@ if [[ $tests -eq 0 ]]; then
 	fi
 fi
 
+if [[ "$continue_previous_job" != "" ]]; then
+	if [[ -z "$mem_gb" ]]; then
+		if [[ -e "$continue_previous_job/mem_gb" ]]; then
+			mem_gb=$(cat "$continue_previous_job/mem_gb")
+		else
+			echo "mem_gb could not be determined from previous run or --mem_gb"
+			exit 105
+		fi
+	fi
+
+	if [[ -z "$gpus" ]]; then
+		if [[ -e "$continue_previous_job/gpus" ]]; then
+			gpus=$(cat "$continue_previous_job/gpus")
+		else
+			echo "gpus could not be determined from previous run or --gpus"
+			exit 105
+		fi
+	fi
+
+	if [[ -z "$time" ]]; then
+		if [[ -e "$continue_previous_job/time" ]]; then
+			time=$(cat "$continue_previous_job/time")
+		else
+			echo "Time could not be determined from previous run or --time"
+			exit 105
+		fi
+	fi
+fi
+
 sent_usr_signal_to_script=0
 python_pid=
 

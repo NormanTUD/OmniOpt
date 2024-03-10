@@ -9,6 +9,7 @@ args = None
 result_csv_file = None
 shown_end_table = False
 max_eval = None
+_time = None
 
 try:
     import glob
@@ -157,7 +158,56 @@ if not args.tests:
         print(f"--mem_gb needs to be set")
         sys.exit(48)
 
-    if not max_eval:
+    if not args.time:
+        if not args.continue_previous_job:
+            print(f"--time needs to be set")
+        else:
+            time_file = args.continue_previous_job + "/time"
+            if os.path.exists(time_file):
+                time_file_contents = get_file_as_string(time_file).strip()
+                if time_file_contents.isdigit():
+                    _time = int(time_file_contents)
+                    print(f"Using old run's --time: {_time}")
+                else:
+                    print(f"Time-setting: The contents of {time_file} do not contain a single number")
+            else:
+                print(f"neither --time nor file {time_file} found")
+                sys.exit(1)
+    else:
+        _time = args.time
+
+    if not args.mem_gb:
+        if not args.continue_previous_job:
+            print(f"--mem_gb needs to be set")
+        else:
+            mem_gb_file = args.continue_previous_job + "/mem_gb"
+            if os.path.exists(mem_gb_file):
+                mem_gb_file_contents = get_file_as_string(mem_gb_file).strip()
+                if mem_gb_file_contents.isdigit():
+                    mem_gb = int(mem_gb_file_contents)
+                    print(f"Using old run's --mem_gb: {mem_gb}")
+                else:
+                    print(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
+            else:
+                print(f"neither --mem_gb nor file {mem_gb_file} found")
+                sys.exit(1)
+
+        if args.continue_previous_job and not args.gpus:
+            gpus_file = args.continue_previous_job + "/gpus"
+            if os.path.exists(gpus_file):
+                gpus_file_contents = get_file_as_string(gpus_file).strip()
+                if gpus_file_contents.isdigit():
+                    gpus = int(gpus_file_contents)
+                    print(f"Using old run's --gpus: {gpus}")
+                else:
+                    print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
+            else:
+                print(f"neither --gpus nor file {gpus_file} found")
+                sys.exit(1)
+    else:
+        max_eval = args.max_eval
+
+    if not args.max_eval:
         if not args.continue_previous_job:
             print(f"--max_eval needs to be set")
         else:
@@ -168,7 +218,7 @@ if not args.tests:
                     max_eval = int(max_eval_file_contents)
                     print(f"Using old run's --max_eval: {max_eval}")
                 else:
-                    print(f"The contents of {max_eval_file} do not contain a single number")
+                    print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
             else:
                 print(f"neither --max_eval nor file {max_eval_file} found")
                 sys.exit(1)
@@ -1086,8 +1136,17 @@ def main ():
     with open(f'{current_run_folder}/experiment_name', 'w') as f:
         print(experiment_name, file=f)
 
+    with open(f'{current_run_folder}/time', 'w') as f:
+        print(time, file=f)
+
     with open(f'{current_run_folder}/max_eval', 'w') as f:
         print(max_eval, file=f)
+
+    with open(f'{current_run_folder}/gpus', 'w') as f:
+        print(arsg.gpus, file=f)
+
+    with open(f'{current_run_folder}/time', 'w') as f:
+        print(_time, file=f)
 
     with open(f"{current_run_folder}/env", 'a') as f:
         env = dict(os.environ)

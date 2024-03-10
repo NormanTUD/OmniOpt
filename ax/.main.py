@@ -913,6 +913,9 @@ def print_overview_table (experiment_parameters):
     global args
     global current_run_folder
 
+    if not experiment_parameters:
+        print_color("red", "Experiment parameters could not be determined for display")
+
     min_or_max = "minimize"
     if args.maximize:
         min_or_max = "maximize"
@@ -920,41 +923,37 @@ def print_overview_table (experiment_parameters):
     with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
-    if args.parameter:
-        rows = []
+    rows = []
 
-        for param in experiment_parameters:
-            _type = str(param["type"])
-            if _type == "range":
-                rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
-            elif _type == "fixed":
-                rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
-            elif _type == "choice":
-                values = param["values"]
-                values = [str(item) for item in values]
+    for param in experiment_parameters:
+        _type = str(param["type"])
+        if _type == "range":
+            rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
+        elif _type == "fixed":
+            rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
+        elif _type == "choice":
+            values = param["values"]
+            values = [str(item) for item in values]
 
-                rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
-            else:
-                print_color("red", f"Type {_type} is not yet implemented in the overview table.");
-                sys.exit(15)
+            rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
+        else:
+            print_color("red", f"Type {_type} is not yet implemented in the overview table.");
+            sys.exit(15)
 
-        table = Table(header_style="bold", title="Experiment parameters:")
-        columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
-        for column in columns:
-            table.add_column(column)
-        for row in rows:
-            table.add_row(*row, style='bright_green')
+    table = Table(header_style="bold", title="Experiment parameters:")
+    columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
+    for column in columns:
+        table.add_column(column)
+    for row in rows:
+        table.add_row(*row, style='bright_green')
+    console.print(table)
+
+    with console.capture() as capture:
         console.print(table)
+    table_str = capture.get()
 
-        with console.capture() as capture:
-            console.print(table)
-        table_str = capture.get()
-
-        with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
-            text_file.write(table_str)
-    else:
-        print_color("red", f"No parameters defined")
-        sys.exit(26)
+    with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
+        text_file.write(table_str)
 
 def check_equation (variables, equation):
     if not (">=" in equation or "<=" in equation):
@@ -1079,8 +1078,6 @@ def main ():
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
-        print_overview_table(experiment_parameters)
-
     if not args.verbose:
         disable_logging()
 
@@ -1090,6 +1087,7 @@ def main ():
         minimize_or_maximize = not args.maximize
 
         experiment = None
+        experiment_parameters = None
 
         if args.continue_previous_job:
             print_debug(f"Load from checkpoint: {args.continue_previous_job}")
@@ -1136,6 +1134,8 @@ def main ():
             except ValueError as error:
                 print_color("red", f"An error has occured: {error}")
                 sys.exit(29)
+
+        print_overview_table(experiment_parameters)
 
         log_folder = f"{current_run_folder}/%j"
         executor = submitit.AutoExecutor(folder=log_folder)

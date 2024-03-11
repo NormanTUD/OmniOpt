@@ -1622,7 +1622,7 @@ def get_errors_from_outfile (i):
     if len(file_paths):
         try:
             first_file_as_string = get_file_as_string(file_paths[0])
-            if type(first_file_as_string) == str and first_file_as_string.isprintable():
+            if type(first_file_as_string) == str and first_file_as_string.strip().isprintable():
                 first_line = first_file_as_string.split('\n')[0]
         except UnicodeDecodeError as e:
             pass

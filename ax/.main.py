@@ -13,6 +13,7 @@ _time = None
 mem_gb = None
 
 try:
+    from pathlib import Path
     import glob
     import platform
     from os import listdir
@@ -35,6 +36,24 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     print("You cancelled loading the basic modules")
     sys.exit(32)
+
+try:
+    Path(".logs").mkdir(parents=True, exist_ok=True)
+except:
+    print("Could not create .logs")
+
+log_i = 0
+logfile = f'.logs/{log_i}'
+while os.path.exists(logfile):
+    log_i = log_i + 1
+    logfile = f'.logs/{log_i}'
+
+def _debug (msg):
+    try:
+        with open(logfile, 'a') as f:
+            print(msg, file=f)
+    except:
+        print("Error trying to write log file")
 
 class REMatcher(object):
     def __init__(self, matchstring):
@@ -235,6 +254,8 @@ if not args.tests:
 def print_debug (msg):
     if args.debug:
         print(msg)
+
+    _debug(msg)
 
 try:
     import os
@@ -1303,6 +1324,7 @@ def main ():
                         print_debug(f"Trying to get the next {calculated_max_trials} trials.")
 
                         try:
+                            print_debug("Trying to get trial_index_to_param")
                             trial_index_to_param, _ = ax_client.get_next_trials(
                                 max_trials=calculated_max_trials
                             )
@@ -1318,6 +1340,7 @@ def main ():
                                     jobs.append((new_job, trial_index))
                                     if not args.no_sleep:
                                         time.sleep(1)
+                                    print_debug("Got new job and started it")
                                 except submitit.core.utils.FailedJobError as error:
                                     if "QOSMinGRES" in str(error) and args.gpus == 0:
                                         print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1325,9 +1348,12 @@ def main ():
                                         print_color("red", f"\n:warning: FAILED: {error}")
                                     
                                     try:
+                                        print_debug("Trying to cancel job that failed")
                                         new_job.cancel()
+                                        print_debug("Cancelled failed job")
 
                                         jobs.remove((new_job, trial_index))
+                                        print_debug("Removed failed job")
 
                                         progress_bar.update(1)
 

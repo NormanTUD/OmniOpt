@@ -1608,129 +1608,134 @@ def get_first_line_of_file_that_contains_string (i, s):
 def get_module_that_was_not_found (i):
     return get_first_line_of_file_that_contains_string(i, "ModuleNotFoundError")
 
+def get_errors_from_outfile (i):
+    file_as_string = get_file_as_string(i)
+    m = REMatcher(file_as_string)
+
+    program_code = get_program_code_from_out_file(i)
+    file_paths = find_file_paths(program_code)
+
+    first_line = ""
+
+    first_file_as_string = ""
+
+    if len(file_paths):
+        try:
+            first_file_as_string = get_file_as_string(file_paths[0])
+            if type(first_file_as_string) == str and first_file_as_string.isprintable():
+                first_line = first_file_as_string.split('\n')[0]
+        except UnicodeDecodeError as e:
+            pass
+
+        if first_file_as_string == "":
+            first_line = "#!/bin/bash"
+
+    errors = []
+
+    if "Result: None" in file_as_string:
+        errors.append("Got no result.")
+
+        if first_line and type(first_line) == str and first_line.isprintable() and not first_line.startswith("#!"):
+            errors.append("First line does not seem to be a shebang line: " + first_line)
+
+        if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
+            errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
+
+        if "Exec format error" in file_as_string:
+            current_platform = platform.machine()
+            file_output = ""
+
+            if len(file_paths):
+                file_result = execute_bash_code("file " + file_paths[0])
+                if len(file_result) and type(file_result[0]) == str:
+                    file_output = ", " + file_result[0].strip()
+
+            errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
+
+        base_errors = [
+            "Segmentation fault",
+            "Illegal division by zero",
+            "OOM",
+            ["Killed", "Detected kill, maybe OOM or Signal?"]
+        ]
+
+        for err in base_errors:
+            if type(err) == list:
+                if err[0] in file_as_string:
+                    errors.append(f"{err[0]} {err[1]}")
+            elif type(err) == str:
+                if err in file_as_string:
+                    errors.append(f"{err} detected")
+            else:
+                print_color(f"Wrong type, should be list or string, is {type(err)}")
+                sys.exit(41)
+
+        if "Can't locate" in file_as_string and "@INC" in file_as_string:
+            errors.append("Perl module not found")
+
+        if "/bin/sh" in file_as_string and "not found" in file_as_string:
+            errors.append("Wrong path, file not found")
+
+        if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
+            errors.append(f"File in {program_code} is empty")
+
+        if len(file_paths) == 0:
+            errors.append(f"No files could be found in your program string: {program_code}")
+
+        for r in range(1, 255):
+            search_for_exit_code = "Exit-Code: " + str(r) + ","
+            if search_for_exit_code in file_as_string:
+                errors.append("Non-zero exit-code detected: " + str(r))
+
+        synerr = "Python syntax error detected. Check log file."
+
+        search_for_python_errors = [
+            ["ModuleNotFoundError", "Module not found"],
+            ["ImportError", "Module not found"],
+            ["SyntaxError", synerr],
+            ["NameError", synerr],
+            ["ValueError", synerr],
+            ["TypeError", synerr],
+            ["AssertionError", "Assertion failed"],
+            ["AttributeError", "Attribute Error"],
+            ["EOFError", "End of file Error"],
+            ["IndexError", "Wrong index for array. Check logs"],
+            ["KeyError", "Wrong key for dict"],
+            ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
+            ["MemoryError", "Python memory error detected"],
+            ["NotImplementedError", "Something was not implemented"],
+            ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
+            ["OverflowError", "There was an error with float overflow"],
+            ["RecursionError", "Your program had a recursion error"],
+            ["ReferenceError", "There was an error with a weak reference"],
+            ["RuntimeError", "Something went wrong with your program. Try checking the log."],
+            ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
+            ["TabError", "You used tab instead of spaces in your code"],
+            ["SystemError", "Some error SystemError was found. Check the log."],
+            ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
+            ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
+        ]
+
+        for search_array in search_for_python_errors:
+            search_for_string = search_array[0]
+            search_for_error = search_array[1]
+
+            if search_for_string in file_as_string:
+                error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
+                if error_line:
+                    errors.append(error_line)
+                else:
+                    errors.append(search_for_error)
+
+    return errors
+
 def analyze_out_files (rootdir):
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
     j = 0
 
     for i in outfiles:
-        file_as_string = get_file_as_string(i)
-        m = REMatcher(file_as_string)
-
-        program_code = get_program_code_from_out_file(i)
-        file_paths = find_file_paths(program_code)
-
-        first_line = ""
-
-        first_file_as_string = ""
-
-        if len(file_paths):
-            try:
-                first_file_as_string = get_file_as_string(file_paths[0])
-                if type(first_file_as_string) == str and first_file_as_string.isprintable():
-                    first_line = first_file_as_string.split('\n')[0]
-            except UnicodeDecodeError as e:
-                pass
-
-            if first_file_as_string == "":
-                first_line = "#!/bin/bash"
-
-        errors = []
-
-        if "Result: None" in file_as_string:
-            errors.append("Got no result.")
-
-            if first_line and type(first_line) == str and first_line.isprintable() and not first_line.startswith("#!"):
-                errors.append("First line does not seem to be a shebang line: " + first_line)
-
-            if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
-                errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
-
-            if "Exec format error" in file_as_string:
-                current_platform = platform.machine()
-                file_output = ""
-
-                if len(file_paths):
-                    file_result = execute_bash_code("file " + file_paths[0])
-                    if len(file_result) and type(file_result[0]) == str:
-                        file_output = ", " + file_result[0].strip()
-
-                errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
-
-            base_errors = [
-                "Segmentation fault",
-                "Illegal division by zero",
-                "OOM",
-                ["Killed", "Detected kill, maybe OOM or Signal?"]
-            ]
-
-            for err in base_errors:
-                if type(err) == list:
-                    if err[0] in file_as_string:
-                        errors.append(f"{err[0]} {err[1]}")
-                elif type(err) == str:
-                    if err in file_as_string:
-                        errors.append(f"{err} detected")
-                else:
-                    print_color(f"Wrong type, should be list or string, is {type(err)}")
-                    sys.exit(41)
-
-            if "Can't locate" in file_as_string and "@INC" in file_as_string:
-                errors.append("Perl module not found")
-
-            if "/bin/sh" in file_as_string and "not found" in file_as_string:
-                errors.append("Wrong path, file not found")
-
-            if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
-                errors.append(f"File in {program_code} is empty")
-
-            if len(file_paths) == 0:
-                errors.append(f"No files could be found in your program string: {program_code}")
-
-            for r in range(1, 255):
-                search_for_exit_code = "Exit-Code: " + str(r) + ","
-                if search_for_exit_code in file_as_string:
-                    errors.append("Non-zero exit-code detected: " + str(r))
-
-            synerr = "Python syntax error detected. Check log file."
-
-            search_for_python_errors = [
-                ["ModuleNotFoundError", "Module not found"],
-                ["ImportError", "Module not found"],
-                ["SyntaxError", synerr],
-                ["NameError", synerr],
-                ["ValueError", synerr],
-                ["TypeError", synerr],
-                ["AssertionError", "Assertion failed"],
-                ["AttributeError", "Attribute Error"],
-                ["EOFError", "End of file Error"],
-                ["IndexError", "Wrong index for array. Check logs"],
-                ["KeyError", "Wrong key for dict"],
-                ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
-                ["MemoryError", "Python memory error detected"],
-                ["NotImplementedError", "Something was not implemented"],
-                ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
-                ["OverflowError", "There was an error with float overflow"],
-                ["RecursionError", "Your program had a recursion error"],
-                ["ReferenceError", "There was an error with a weak reference"],
-                ["RuntimeError", "Something went wrong with your program. Try checking the log."],
-                ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
-                ["TabError", "You used tab instead of spaces in your code"],
-                ["SystemError", "Some error SystemError was found. Check the log."],
-                ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
-                ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
-            ]
-
-            for search_array in search_for_python_errors:
-                search_for_string = search_array[0]
-                search_for_error = search_array[1]
-
-                if search_for_string in file_as_string:
-                    error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
-                    if error_line:
-                        errors.append(error_line)
-                    else:
-                        errors.append(search_for_error)
+        errors = get_errors_from_outfile(i)
 
         if len(errors):
             if j == 0:
@@ -1748,6 +1753,7 @@ def analyze_out_files (rootdir):
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
+            #dier(get_errors_from_outfile("runs/test_wronggoing_stuff/1/2440613/2440613_0_log.out"))
             run_tests()
         else:
             warnings.simplefilter("ignore")

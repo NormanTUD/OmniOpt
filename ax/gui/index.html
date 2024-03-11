@@ -400,6 +400,7 @@
 						}
 					} else if (item.id == "run_program") {
 						var variables_in_run_program = get_var_names_from_run_program(value);
+						log(value)
 						//value = quote_variables(value);
 
 						var existing_parameter_names = $(".parameterName").map(function() {

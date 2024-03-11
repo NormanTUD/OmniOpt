@@ -129,7 +129,7 @@ errors=()
 
 cd ..
 
-./main --tests --mem_gb 1 --time 1 --experiment_name test_name
+./main --tests --mem_gb 1 --time 1 --experiment_name test_name --debug
 exit_code=$?
 if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Simple tests failed")
@@ -148,6 +148,7 @@ yellow_text "Starting main program..."
 
 if [[ "$no_sleep" -eq 1 ]]; then
 	./main \
+		--debug \
 		--partition=$PARTITION \
 		--experiment_name=$TESTNAME \
 		--mem_gb=1 \
@@ -165,6 +166,7 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--no_sleep
 else
 	./main \
+		--debug \
 		--partition=$PARTITION \
 		--experiment_name=$TESTNAME \
 		--mem_gb=1 \
@@ -191,7 +193,7 @@ fi
 
 yellow_text "Trying to continue previous job"
 
-./main --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
+./main --debug --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
 
 exit_code=$?
 
@@ -208,7 +210,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./main --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS || true
+./main --debug --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS || true
 PE=$PIPEERROR
 
 exit_code=$?

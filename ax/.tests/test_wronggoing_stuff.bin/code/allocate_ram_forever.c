@@ -17,7 +17,7 @@ int main() {
 
     int allocated_memory = 0;
 
-    int allocate_per_step = 10 * 1048576; // 1 MB = 1048576 Bytes
+    unsigned int allocate_per_step = 10 * 1048576; // 1 MB = 1048576 Bytes
 
     while (1) {
 	    malloc(allocate_per_step);

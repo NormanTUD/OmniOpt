@@ -1340,7 +1340,7 @@ def main ():
                                     jobs.append((new_job, trial_index))
                                     if not args.no_sleep:
                                         time.sleep(1)
-                                    print_debug("Got new job and started it")
+                                    print_debug(f"Got new job and started it. Parameters: {parameters}")
                                 except submitit.core.utils.FailedJobError as error:
                                     if "QOSMinGRES" in str(error) and args.gpus == 0:
                                         print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")

@@ -1337,8 +1337,6 @@ def main ():
                                         print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
                         except RuntimeError as e:
                             print_color("red", "\n:warning: " + str(e))
-
-
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:

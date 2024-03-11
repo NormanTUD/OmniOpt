@@ -92,7 +92,7 @@ fi
 	 --num_parallel_jobs=5 \
 	 --gpus=$GPUS \
 	 --follow \
-	 --run_program=LnRlc3RzL2V4YW1wbGVfbmV0d29yay9ydW4uc2ggLS1lcG9jaHM9JyUoZXBvY2hzKScgLS1sZWFybmluZ19yYXRlPSclKGxlYXJuaW5nX3JhdGUpJyAtLXZhbGlkYXRpb25fc3BsaXQ9JyUodmFsaWRhdGlvbl9zcGxpdCknIC0td2lkdGg9JyUod2lkdGgpJyAtLWhlaWdodD0nJShoZWlnaHQpJw== \
+	 --run_program=LnRlc3RzL2V4YW1wbGVfbmV0d29yay9ydW4uc2ggLS1lcG9jaHM9JShlcG9jaHMpIC0tbGVhcm5pbmdfcmF0ZT0lKGxlYXJuaW5nX3JhdGUpIC0tdmFsaWRhdGlvbl9zcGxpdD0lKHZhbGlkYXRpb25fc3BsaXQpIC0td2lkdGg9JSh3aWR0aCkgLS1oZWlnaHQ9JShoZWlnaHQp \
 	 --parameter width range 20 100 int \
 	 --parameter height range 20 100 int \
 	 --parameter validation_split range 0 0.5 float \

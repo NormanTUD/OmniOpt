@@ -89,7 +89,7 @@ fi
 	 --time=60 \
 	 --worker_timeout=60 \
 	 --max_eval=100 \
-	 --num_parallel_jobs=500 \
+	 --num_parallel_jobs=5 \
 	 --gpus=$GPUS \
 	 --follow \
 	 --run_program=LnRlc3RzL2V4YW1wbGVfbmV0d29yay9ydW4uc2ggLS1lcG9jaHM9JyUoZXBvY2hzKScgLS1sZWFybmluZ19yYXRlPSclKGxlYXJuaW5nX3JhdGUpJyAtLXZhbGlkYXRpb25fc3BsaXQ9JyUodmFsaWRhdGlvbl9zcGxpdCknIC0td2lkdGg9JyUod2lkdGgpJyAtLWhlaWdodD0nJShoZWlnaHQpJw== \

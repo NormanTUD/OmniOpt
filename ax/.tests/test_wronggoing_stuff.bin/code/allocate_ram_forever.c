@@ -3,26 +3,26 @@
 #include <unistd.h>
 #include <signal.h>
 
-// Funktion zum Behandeln des SIGINT-Signals (Ctrl+C)
 void sigint_handler(int sig) {
-    printf("\nCtrl+C gedrückt. Beende das Programm.\n");
+    printf("\nCtrl+C pressed. Exiting.\n");
     exit(0);
 }
 
 int main() {
-    // Registrieren des Signalhandlers für SIGINT (Ctrl+C)
     signal(SIGINT, sigint_handler);
 
-    // Warnung anzeigen
-    printf("WARNUNG: Dieses Programm wird kontinuierlich Speicher allozieren. Drücken Sie Ctrl+C innerhalb von 10 Sekunden, um es zu stoppen.\n");
+    printf("WARNING: This program allocates memory for ever. It may freeze your computer. Press CTRL+C in the next 10 seconds to cancel it.\n");
 
-    // Warten für 10 Sekunden
     sleep(10);
 
-    // Kontinuierlich Speicher allozieren
+    int allocated_memory = 0;
+
+    int allocate_per_step = 1048576; // 1 MB = 1048576 Bytes
+
     while (1) {
-        // Speicher dynamisch allozieren, ohne auf NULL zu prüfen
-        malloc(1024); // Allocate 1024 bytes
+	    malloc(allocate_per_step);
+	    allocated_memory += allocate_per_step;
+	    printf("Allocated %d MB (step %d)", allocated_memory / 1048576, allocated_memory / allocate_per_step);
     }
 
     return 0;

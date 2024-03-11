@@ -76,6 +76,11 @@ fi
 
 cd ..
 cd ..
+
+if [[ -d runs/example_network/ ]]; then
+	rm -rf runs/example_network/
+fi
+
 # run_program = .tests/example_network/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --validation_split=%(validation_split) --width=%(width) --height=%(height)
  ./main \
 	 --partition=$PARTITION \

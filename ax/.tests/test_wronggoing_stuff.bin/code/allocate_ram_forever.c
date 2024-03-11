@@ -22,7 +22,7 @@ int main() {
     while (1) {
 	    malloc(allocate_per_step);
 	    allocated_memory += allocate_per_step;
-	    printf("Allocated %d MB (step %d)", allocated_memory / 1048576, allocated_memory / allocate_per_step);
+	    printf("Allocated %d MB (step %d)\n", allocated_memory / 1048576, allocated_memory / allocate_per_step);
     }
 
     return 0;

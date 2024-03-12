@@ -1159,6 +1159,43 @@ def check_equation (variables, equation):
 
     return equation
 
+def finish_previous_jobs (progress_bar, jobs, done_jobs, failed_jobs):
+    global ax_client
+
+    for job, trial_index in jobs[:]:
+        # Poll if any jobs completed
+        # Local and debug jobs don't run until .result() is called.
+        if job.done() or type(job) in [LocalJob, DebugJob]:
+            try:
+                result = job.result()
+                print_debug("Got job result")
+                ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                done_jobs += 1
+            except submitit.core.utils.UncompletedJobError as error:
+                print_color("red", str(error))
+
+                job.cancel()
+                
+                failed_jobs += 1
+            except ax.exceptions.core.UserInputError as error:
+                if "None for metric" in str(error):
+                    print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                else:
+                    print_color("red", f"\n:warning: {error}")
+
+                job.cancel()
+
+                failed_jobs += 1
+
+            jobs.remove((job, trial_index))
+
+            progress_bar.update(1)
+
+            save_checkpoint()
+            save_pd_csv()
+
+    return [done_jobs, failed_jobs]
+
 def main ():
     print_debug("main")
     global args
@@ -1346,89 +1383,68 @@ def main ():
                     try:
                         calculated_max_trials = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
 
-                        print_debug(f"Trying to get the next {calculated_max_trials} trials.")
+                        print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
-                        try:
-                            print_debug("Trying to get trial_index_to_param")
-                            trial_index_to_param, _ = ax_client.get_next_trials(
-                                max_trials=calculated_max_trials
-                            )
+                        for m in range(0, calculated_max_trials):
+                            done_and_failed_jobs = finish_previous_jobs(progress_bar, jobs, done_jobs, failed_jobs)
 
-                            print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+                            done_jobs = done_and_failed_jobs[0]
+                            failed_jobs = done_and_failed_jobs[1]
 
-                            for trial_index, parameters in trial_index_to_param.items():
-                                new_job = None
-                                try:
-                                    print_debug(f"Trying to start new job.")
-                                    new_job = executor.submit(evaluate, parameters)
-                                    print_debug(f"Increasing submitted_jobs by 1.")
-                                    submitted_jobs += 1
-                                    print_debug(f"Appending started job to jobs array")
-                                    jobs.append((new_job, trial_index))
-                                    if not args.no_sleep:
-                                        print_debug(f"Sleeping one second before continuation")
-                                        time.sleep(1)
-                                    print_debug(f"Got new job and started it. Parameters: {parameters}")
-                                except submitit.core.utils.FailedJobError as error:
-                                    if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                        print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                                    else:
-                                        print_color("red", f"\n:warning: FAILED: {error}")
-                                    
+                            try:
+                                print_debug("Trying to get trial_index_to_param")
+                                trial_index_to_param, _ = ax_client.get_next_trials(
+                                    max_trials=1
+                                )
+
+                                print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+
+                                for trial_index, parameters in trial_index_to_param.items():
+                                    new_job = None
                                     try:
-                                        print_debug("Trying to cancel job that failed")
-                                        new_job.cancel()
-                                        print_debug("Cancelled failed job")
+                                        print_debug(f"Trying to start new job.")
+                                        new_job = executor.submit(evaluate, parameters)
+                                        print_debug(f"Increasing submitted_jobs by 1.")
+                                        submitted_jobs += 1
+                                        print_debug(f"Appending started job to jobs array")
+                                        jobs.append((new_job, trial_index))
+                                        if not args.no_sleep:
+                                            print_debug(f"Sleeping one second before continuation")
+                                            time.sleep(1)
+                                        print_debug(f"Got new job and started it. Parameters: {parameters}")
+                                    except submitit.core.utils.FailedJobError as error:
+                                        if "QOSMinGRES" in str(error) and args.gpus == 0:
+                                            print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                                        else:
+                                            print_color("red", f"\n:warning: FAILED: {error}")
+                                        
+                                        try:
+                                            print_debug("Trying to cancel job that failed")
+                                            new_job.cancel()
+                                            print_debug("Cancelled failed job")
 
-                                        jobs.remove((new_job, trial_index))
-                                        print_debug("Removed failed job")
+                                            jobs.remove((new_job, trial_index))
+                                            print_debug("Removed failed job")
 
-                                        progress_bar.update(1)
+                                            progress_bar.update(1)
 
-                                        save_checkpoint()
-                                        save_pd_csv()
+                                            save_checkpoint()
+                                            save_pd_csv()
+                                        except Exception as e:
+                                            print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+                                    except (signalUSR, signalINT) as e:
+                                        print_color("red", f"\n:warning: Detected signal. Will exit.")
+                                        end_program()
                                     except Exception as e:
-                                        print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
-                                except Exception as e:
-                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
-                        except RuntimeError as e:
-                            print_color("red", "\n:warning: " + str(e))
+                                        print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                                    except Exception as e:
+                                        print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                            except RuntimeError as e:
+                                print_color("red", "\n:warning: " + str(e))
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:
                         print_color("red", f"Error: {e}")
-
-                    for job, trial_index in jobs[:]:
-                        # Poll if any jobs completed
-                        # Local and debug jobs don't run until .result() is called.
-                        if job.done() or type(job) in [LocalJob, DebugJob]:
-                            try:
-                                result = job.result()
-                                print_debug("Got job result")
-                                ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                                done_jobs += 1
-                            except submitit.core.utils.UncompletedJobError as error:
-                                print_color("red", str(error))
-
-                                job.cancel()
-                                
-                                failed_jobs += 1
-                            except ax.exceptions.core.UserInputError as error:
-                                if "None for metric" in str(error):
-                                    print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
-                                else:
-                                    print_color("red", f"\n:warning: {error}")
-
-                                job.cancel()
-
-                                failed_jobs += 1
-
-                            jobs.remove((job, trial_index))
-
-                            progress_bar.update(1)
-
-                            save_checkpoint()
-                            save_pd_csv()
 
                     if not args.no_sleep:
                         time.sleep(0.1)

@@ -171,3 +171,4 @@ log
 .nfs*
 ._test_run.svg
 .logs
+logs

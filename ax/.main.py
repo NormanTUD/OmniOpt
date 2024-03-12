@@ -326,6 +326,7 @@ def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
 
 def is_executable_in_path(executable_name):
+    print_debug("is_executable_in_path")
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
         if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
@@ -333,6 +334,7 @@ def is_executable_in_path(executable_name):
     return False
 
 def check_slurm_job_id():
+    print_debug("check_slurm_job_id")
     if is_executable_in_path('sbatch'):
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
@@ -343,6 +345,7 @@ def check_slurm_job_id():
             )
 
 def create_folder_and_file (folder, extension):
+    print_debug("create_folder_and_file")
     global file_number
 
     if not os.path.exists(folder):
@@ -359,6 +362,7 @@ def create_folder_and_file (folder, extension):
         file_number += 1
 
 def sort_numerically_or_alphabetically(arr):
+    print_debug("sort_numerically_or_alphabetically")
     try:
         # Check if all elements can be converted to numbers
         numbers = [float(item) for item in arr]
@@ -372,6 +376,7 @@ def sort_numerically_or_alphabetically(arr):
 
 
 def looks_like_int(x):
+    print_debug("looks_like_int")
     if isinstance(x, int):
         return True
     elif isinstance(x, float):
@@ -382,6 +387,7 @@ def looks_like_int(x):
         return False
 
 def get_program_code_from_out_file (f):
+    print_debug("get_program_code_from_out_file")
     if not os.path.exists(f):
         print(f"{f} not found")
     else:
@@ -392,6 +398,7 @@ def get_program_code_from_out_file (f):
                 return line
 
 def parse_experiment_parameters(args):
+    print_debug("parse_experiment_parameters")
     params = []
 
     param_names = []
@@ -534,6 +541,7 @@ def parse_experiment_parameters(args):
     return params
 
 def replace_parameters_in_string(parameters, input_string):
+    print_debug("replace_parameters_in_string")
     try:
         for param_item in parameters:
             input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
@@ -548,6 +556,7 @@ def replace_parameters_in_string(parameters, input_string):
         return None
 
 def execute_bash_code(code):
+    print_debug("execute_bash_code")
     try:
         result = subprocess.run(code, shell=True, check=True, text=True, capture_output=True)
 
@@ -587,6 +596,7 @@ def execute_bash_code(code):
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 def get_result (input_string):
+    print_debug("get_result")
     if input_string is None:
         print("Input-String is None")
         return None
@@ -611,6 +621,7 @@ def get_result (input_string):
         return None
 
 def add_to_csv(file_path, heading, data_line):
+    print_debug("add_to_csv")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
     with open(file_path, 'a', newline='') as file:
@@ -622,6 +633,7 @@ def add_to_csv(file_path, heading, data_line):
         csv_writer.writerow(data_line)
 
 def make_strings_equal_length(str1, str2):
+    print_debug("make_strings_equal_length")
     length_difference = len(str1) - len(str2)
 
     if length_difference > 0:
@@ -632,6 +644,7 @@ def make_strings_equal_length(str1, str2):
     return str1, str2
 
 def find_file_paths(_text):
+    print_debug("find_file_paths")
     file_paths = []
 
     if type(_text) == str:
@@ -646,6 +659,7 @@ def find_file_paths(_text):
     return []
 
 def check_file_info(file_path):
+    print_debug("check_file_info")
     if not os.path.exists(file_path):
         print(f"The file {file_path} does not exist.")
         return
@@ -680,6 +694,7 @@ def check_file_info(file_path):
     return string
 
 def find_file_paths_and_print_infos (_text, program_code):
+    print_debug("find_file_paths_and_print_infos")
     file_paths = find_file_paths(_text)
 
     string = "";
@@ -697,6 +712,7 @@ def find_file_paths_and_print_infos (_text, program_code):
     return string
 
 def evaluate(parameters):
+    print_debug(f"evaluate with parameters {parameters}")
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -808,6 +824,7 @@ except (signalUSR, signalINT, KeyboardInterrupt) as e:
     sys.exit(0)
 
 def disable_logging ():
+    print_debug("disable_logging")
     logging.basicConfig(level=logging.ERROR)
 
     logging.getLogger("ax").setLevel(logging.ERROR)
@@ -848,6 +865,8 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
 
 def show_end_table_and_save_end_files ():
+    print_debug("show_end_table_and_save_end_files")
+
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -922,10 +941,11 @@ def show_end_table_and_save_end_files ():
     sys.exit(exit)
 
 def end_program ():
+    print_debug("[end_program] end_program started")
+
     global current_run_folder
     analyze_out_files(current_run_folder)
 
-    print_debug("[end_program] end_program started")
     global end_program_ran
 
     if end_program_ran:
@@ -976,6 +996,7 @@ def end_program ():
     sys.exit(exit)
 
 def save_checkpoint ():
+    print_debug("save_checkpoint")
     global current_run_folder
     global ax_client
 
@@ -985,6 +1006,7 @@ def save_checkpoint ():
     print_debug("Checkpoint saved")
 
 def save_pd_csv ():
+    print_debug("save_pd_csv")
     global current_run_folder
     global ax_client
 
@@ -1012,6 +1034,7 @@ def save_pd_csv ():
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
 def print_overview_table (experiment_parameters):
+    print_debug("print_overview_table")
     global args
     global current_run_folder
 
@@ -1058,6 +1081,7 @@ def print_overview_table (experiment_parameters):
         text_file.write(table_str)
 
 def check_equation (variables, equation):
+    print_debug("check_equation")
     if not (">=" in equation or "<=" in equation):
         return False
 
@@ -1136,6 +1160,7 @@ def check_equation (variables, equation):
     return equation
 
 def main ():
+    print_debug("main")
     global args
     global file_number
     global folder_number
@@ -1336,9 +1361,12 @@ def main ():
                                 try:
                                     print_debug(f"Trying to start new job.")
                                     new_job = executor.submit(evaluate, parameters)
+                                    print_debug(f"Increasing submitted_jobs by 1.")
                                     submitted_jobs += 1
+                                    print_debug(f"Appending started job to jobs array")
                                     jobs.append((new_job, trial_index))
                                     if not args.no_sleep:
+                                        print_debug(f"Sleeping one second before continuation")
                                         time.sleep(1)
                                     print_debug(f"Got new job and started it. Parameters: {parameters}")
                                 except submitit.core.utils.FailedJobError as error:
@@ -1555,6 +1583,7 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     return nr_errors
 
 def get_files_in_dir (mypath):
+    print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
@@ -1613,6 +1642,7 @@ def run_tests ():
     sys.exit(nr_errors)
 
 def file_contains_text(f, t):
+    print_debug("file_contains_text")
     datafile = get_file_as_string(f)
 
     found = False
@@ -1622,6 +1652,7 @@ def file_contains_text(f, t):
     return False
 
 def get_first_line_of_file_that_contains_string (i, s):
+    print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
         print(f"File {i} not found")
         return
@@ -1633,10 +1664,8 @@ def get_first_line_of_file_that_contains_string (i, s):
             return line
     return None
 
-def get_module_that_was_not_found (i):
-    return get_first_line_of_file_that_contains_string(i, "ModuleNotFoundError")
-
 def get_errors_from_outfile (i):
+    print_debug("get_errors_from_outfile")
     file_as_string = get_file_as_string(i)
     m = REMatcher(file_as_string)
 
@@ -1762,6 +1791,7 @@ def get_errors_from_outfile (i):
     return errors
 
 def analyze_out_files (rootdir):
+    print_debug("analyze_out_files")
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
     j = 0

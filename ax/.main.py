@@ -1160,6 +1160,8 @@ def check_equation (variables, equation):
     return equation
 
 def finish_previous_jobs (progress_bar, jobs, done_jobs, failed_jobs):
+    print_debug("finish_previous_jobs")
+
     global ax_client
 
     for job, trial_index in jobs[:]:

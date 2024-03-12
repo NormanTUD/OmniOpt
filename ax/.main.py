@@ -1403,7 +1403,7 @@ def main ():
                                     max_trials=1
                                 )
 
-                                print_debug(f"Got {len(trial_index_to_param.items())} new items.")
+                                print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():
                                     new_job = None

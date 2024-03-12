@@ -63,7 +63,7 @@ for i in $@; do
         esac
 done
 
-ENV_DIR=$HOME/.asanaienv
+ENV_DIR=$HOME/.test_env
 if [[ ! -d "$ENV_DIR" ]]; then
         green_text "$ENV_DIR not found. Creating virtual environment."
         python3 -m venv $ENV_DIR

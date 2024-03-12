@@ -1387,7 +1387,7 @@ def main ():
                     # Schedule new jobs if there is availablity
                     try:
                         new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
-                        if new_jobs_needed == 0:
+                        if done_jobs == max_eval:
                             raise trainingDone("Training done")
 
                         calculated_max_trials = max(1, new_jobs_needed)
@@ -1458,7 +1458,7 @@ def main ():
                     if not args.no_sleep:
                         time.sleep(0.1)
             end_program()
-    except (trainingDone) as e:
+    except trainingDone as e:
         end_program()
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")

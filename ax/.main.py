@@ -1383,7 +1383,7 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        calculated_max_trials = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
+                        calculated_max_trials = max(1, min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs))
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 

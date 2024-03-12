@@ -104,7 +104,7 @@ fi
 	 --time=120 \
 	 --worker_timeout=10 \
 	 --max_eval=200 \
-	 --num_parallel_jobs=5 \
+	 --num_parallel_jobs=20 \
 	 --gpus=$NUM_GPUS \
 	 --follow \
 	 --run_program=LnRlc3RzL2V4YW1wbGVfbmV0d29yay9ydW4uc2ggLS1lcG9jaHM9JShlcG9jaHMpIC0tbGVhcm5pbmdfcmF0ZT0lKGxlYXJuaW5nX3JhdGUpIC0tdmFsaWRhdGlvbl9zcGxpdD0lKHZhbGlkYXRpb25fc3BsaXQpIC0td2lkdGg9JSh3aWR0aCkgLS1oZWlnaHQ9JShoZWlnaHQp \

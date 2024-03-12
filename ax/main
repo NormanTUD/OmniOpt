@@ -563,6 +563,7 @@ else
 				tput el
 
 				if [[ -e "$LOG_PATH" ]]; then
+					set +x
 					kill_tail_when_squeue_job_empty $started_job_nr &
 					# weird exec stuff for disabling the "Terminated" message coming from kill
 					exec 3>&2          # 3 is now a copy of 2
@@ -570,6 +571,9 @@ else
 					tail -n1000000 -f $LOG_PATH || true
 					exec 2>&3          # restore stderr to saved
 					exec 3>&-          # close saved version
+					if [[ "$debug" -eq "1" ]]; then
+						set -x
+					fi
 				else
 					red_text "$LOG_PATH could not be found"
 				fi

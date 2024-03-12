@@ -1,4 +1,6 @@
 ax_client = None
+done_jobs = 0
+failed_jobs = 0
 jobs = []
 end_program_ran = False
 program_name = "OmniOpt"
@@ -1162,10 +1164,12 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress_bar, jobs, done_jobs, failed_jobs):
+def finish_previous_jobs (progress_bar, jobs):
     print_debug("finish_previous_jobs")
 
     global ax_client
+    global done_jobs
+    global failed_jobs
 
     for job, trial_index in jobs[:]:
         # Poll if any jobs completed
@@ -1198,8 +1202,6 @@ def finish_previous_jobs (progress_bar, jobs, done_jobs, failed_jobs):
 
             save_checkpoint()
             save_pd_csv()
-
-    return [done_jobs, failed_jobs]
 
 def main ():
     print_debug("main")
@@ -1354,9 +1356,6 @@ def main ():
         if args.maximize:
             searching_for = "maximum"
 
-
-        done_jobs = 0
-        failed_jobs = 0
         _k = 0
 
         
@@ -1395,10 +1394,7 @@ def main ():
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
                         for m in range(0, calculated_max_trials):
-                            done_and_failed_jobs = finish_previous_jobs(progress_bar, jobs, done_jobs, failed_jobs)
-
-                            done_jobs = done_and_failed_jobs[0]
-                            failed_jobs = done_and_failed_jobs[1]
+                            finish_previous_jobs(progress_bar, jobs)
 
                             try:
                                 print_debug("Trying to get trial_index_to_param")

@@ -38,15 +38,15 @@ except KeyboardInterrupt:
     sys.exit(32)
 
 try:
-    Path(".logs").mkdir(parents=True, exist_ok=True)
+    Path("logs").mkdir(parents=True, exist_ok=True)
 except:
-    print("Could not create .logs")
+    print("Could not create logs")
 
 log_i = 0
-logfile = f'.logs/{log_i}'
+logfile = f'logs/{log_i}'
 while os.path.exists(logfile):
     log_i = log_i + 1
-    logfile = f'.logs/{log_i}'
+    logfile = f'logs/{log_i}'
 
 def _debug (msg):
     try:

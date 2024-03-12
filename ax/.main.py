@@ -1387,7 +1387,7 @@ def main ():
                     try:
                         new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
                         print_debug(f"done_jobs: {done_jobs}, failed_jobs: {failed_jobs}")
-                        if done_jobs == max_eval:
+                        if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
                         calculated_max_trials = max(1, new_jobs_needed)

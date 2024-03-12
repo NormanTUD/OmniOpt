@@ -79,9 +79,8 @@ for i in $@; do
 done
 
 PARTITION="alpha"
-GPUS=0
-
 NUM_GPUS=0
+
 if command -v nvidia-smi 2>/dev/null >/dev/null; then
 	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
 fi
@@ -106,7 +105,7 @@ fi
 	 --worker_timeout=60 \
 	 --max_eval=100 \
 	 --num_parallel_jobs=5 \
-	 --gpus=$GPUS \
+	 --gpus=$NUM_GPUS \
 	 --follow \
 	 --run_program=LnRlc3RzL2V4YW1wbGVfbmV0d29yay9ydW4uc2ggLS1lcG9jaHM9JShlcG9jaHMpIC0tbGVhcm5pbmdfcmF0ZT0lKGxlYXJuaW5nX3JhdGUpIC0tdmFsaWRhdGlvbl9zcGxpdD0lKHZhbGlkYXRpb25fc3BsaXQpIC0td2lkdGg9JSh3aWR0aCkgLS1oZWlnaHQ9JShoZWlnaHQp \
 	 --parameter width range 20 100 int \

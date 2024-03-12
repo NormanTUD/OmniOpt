@@ -1700,7 +1700,10 @@ def get_errors_from_outfile (i):
             errors.append("Perl module not found")
 
         if "/bin/sh" in file_as_string and "not found" in file_as_string:
-            errors.append("Wrong path, file not found")
+            errors.append("Wrong path? File not found")
+
+        if "Datei oder Verzeichnis nicht gefunden" in file_as_string:
+            errors.append("Wrong path? File not found")
 
         if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
             errors.append(f"File in {program_code} is empty")

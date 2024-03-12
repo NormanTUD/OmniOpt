@@ -12,6 +12,9 @@ max_eval = None
 _time = None
 mem_gb = None
 
+class trainingDone (Exception):
+    pass
+
 try:
     from pathlib import Path
     import glob
@@ -1383,7 +1386,11 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        calculated_max_trials = max(1, min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs))
+                        new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
+                        if new_jobs_needed == 0:
+                            raise trainingDone("Training done")
+
+                        calculated_max_trials = max(1, new_jobs_needed)
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
@@ -1451,6 +1458,8 @@ def main ():
                     if not args.no_sleep:
                         time.sleep(0.1)
             end_program()
+    except (trainingDone) as e:
+        end_program()
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
         end_program()

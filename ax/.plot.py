@@ -282,10 +282,10 @@ def main():
     title += f"\nNumber of evaluations shown: {num_entries}"
 
     if args.min is not None:
-        title += f", minimum value: {args.min}"
+        title += f", show min = {args.min}"
 
     if args.max is not None:
-        title += f", maximum value: {args.max}"
+        title += f", show min = {args.max}"
 
     # Set the title for the figure
     fig.suptitle(title)

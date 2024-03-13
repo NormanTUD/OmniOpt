@@ -173,6 +173,28 @@ def get_data (args, csv_file_path, result_column):
 
     return df
 
+def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs):
+    ax = axs  # Use the single axis
+    _range = range(len(df_filtered))
+    _data = df_filtered
+
+    _data = _data[:].values
+
+    _x = []
+    _y = []
+
+    for l in _data:
+        _x.append(l[0])
+        _y.append(l[1])
+
+    scatter = ax.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+    ax.set_xlabel(non_empty_graphs[0][0])
+    ax.set_ylabel(result_column)
+
+    # Farbgebung und Legende für das einzelne Scatterplot
+    cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
+    cbar.set_label(result_column, rotation=270, labelpad=15)
+
 def main():
     print("DONELOADING")
     # Parse command line arguments
@@ -283,26 +305,7 @@ def main():
     # Loop über non-empty combinations und Erstellung von 2D-Plots
     if num_subplots == 1:
         if len(non_empty_graphs[0]) == 1:
-            ax = axs  # Use the single axis
-            _range = range(len(df_filtered))
-            _data = df_filtered
-
-            _data = _data[:].values
-
-            _x = []
-            _y = []
-
-            for l in _data:
-                _x.append(l[0])
-                _y.append(l[1])
-
-            scatter = ax.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-            ax.set_xlabel(non_empty_graphs[0][0])
-            ax.set_ylabel(result_column)
-
-            # Farbgebung und Legende für das einzelne Scatterplot
-            cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
-            cbar.set_label(result_column, rotation=270, labelpad=15)
+            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs)
         else:
             scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             axs.set_xlabel(non_empty_graphs[0][0])

@@ -1294,6 +1294,10 @@ def main ():
 
             checkpoint_params_file = args.continue_previous_job + "/checkpoint.json.parameters.json"
 
+            if not os.path.exists(checkpoint_params_file):
+                print_color(f"Cannot find {checkpoint_params_file}")
+                sys.exit(49)
+
             f = open(checkpoint_params_file)
             experiment_parameters = json.load(f)
             f.close()

@@ -1046,6 +1046,10 @@ def save_pd_csv ():
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
 def print_overview_table (experiment_parameters):
+    if not experiment_parameters:
+        print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")
+        return
+
     print_debug("print_overview_table")
     global args
     global current_run_folder

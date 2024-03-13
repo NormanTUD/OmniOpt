@@ -438,8 +438,10 @@ run_before_end () {
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
+	set +e
 	SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
 	SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
+	set -e
 
 	if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
 		SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"

@@ -57,7 +57,7 @@ def to_int_when_possible (val):
         return val
     return '{:f}'.format(val)
 
-def set_title(args, df_filtered, result_column_values, num_entries):
+def set_title(fig, args, df_filtered, result_column_values, num_entries):
     #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_index = result_column_values.idxmin()
     if os.path.exists(args.run_dir + "/maximize"):

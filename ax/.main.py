@@ -1294,16 +1294,16 @@ def main ():
 
             checkpoint_params_file = args.continue_previous_job + "/checkpoint.json.parameters.json"
 
+            f = open(checkpoint_params_file)
+            experiment_parameters = json.load(f)
+            f.close()
+
             with open(checkpoint_filepath, "w") as outfile:
                 json.dump(experiment_parameters, outfile)
 
             if not os.path.exists(checkpoint_params_file):
                 print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
                 sys.exit(22)
-
-            f = open(checkpoint_params_file)
-            experiment_parameters = json.load(f)
-            f.close()
 
             with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
                 print(f"Continuation from checkpoint {args.continue_previous_job}", file=f)

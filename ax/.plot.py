@@ -260,10 +260,22 @@ def main():
     title = "Minimum"
     if args.run_dir + "/maximize" in os.listdir(args.run_dir):
         title = "Maximum"
+    
+    extreme_values_items = extreme_values.items()
+
+    filtered_extreme_values_items = {}
+
+    title_values = []
+
+    for l in extreme_values_items:
+        if not args.result_column in l:
+            title_values.append(f"{l[0]} = {l[1]}")
+
+    #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
 
     title += " of f("
-    title += ', '.join([f"{key} = {value}" for key, value in extreme_values.items()])
-    title += f") at {result_column_values[extreme_index]}"
+    title += ', '.join(title_values)
+    title += f") = {result_column_values[extreme_index]}"
 
     title += f"\nNumber of evaluations shown: {num_entries}"
 

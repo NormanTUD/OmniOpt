@@ -342,6 +342,8 @@ def main():
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=wspace)
 
+    fig.canvas.manager.set_window_title(args.run_dir)
+
     # Show the plot or save it to a file based on the command line argument
     if args.save_to_file:
         plt.savefig(args.save_to_file)

@@ -235,7 +235,6 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX
     ax.set_xlabel(non_empty_graphs[0][0])
     ax.set_ylabel(result_column)
 
-    # Farbgebung und Legende für das einzelne Scatterplot
     cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
     cbar.set_label(result_column, rotation=270, labelpad=15)
 
@@ -337,6 +336,14 @@ def get_non_empty_graphs(parameter_combinations, df_filtered):
 
     return non_empty_graphs
 
+def get_r (df_filtered):
+    r = 2
+
+    if len(list(df_filtered.columns)) == 1:
+        r = 1
+
+    return r
+
 def main():
     print("DONELOADING")
 
@@ -357,10 +364,7 @@ def main():
 
     check_min_and_max(args, num_entries, nr_of_items_before_filtering)
 
-    r = 2
-
-    if len(list(df_filtered.columns)) == 1:
-        r = 1
+    r = get_r(df_filtered)
 
     parameter_combinations = list(combinations(df_filtered.columns, r))
 
@@ -386,7 +390,6 @@ def main():
 
     fig.canvas.manager.set_window_title(args.run_dir)
 
-    # Show the plot or save it to a file based on the command line argument
     if args.save_to_file:
         plt.savefig(args.save_to_file)
     else:

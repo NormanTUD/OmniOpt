@@ -53,6 +53,15 @@ def main():
 
     args = parser.parse_args()
 
+    if args.min and args.max:
+        if args.min > args.max:
+            print("Max was higher than min. Switching values.")
+            tmp = args.max
+            args.max = args.min
+            args.min = tmp
+        elif args.min == args.max:
+            print("Max and min value are the same. May result in empty data")
+
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
     if not args.save_to_file:
@@ -122,7 +131,7 @@ def main():
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:
-        base_str = "No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed). "
+        base_str = f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed). "
         if args.min and not args.max:
             print(f"{base_str}Maybe using --min filtered out all results")
         elif not args.min and args.max:

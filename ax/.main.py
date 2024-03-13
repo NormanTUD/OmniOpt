@@ -1911,10 +1911,11 @@ def log_nr_of_workers ():
     last_line = ""
     nr_of_workers = get_number_of_current_workers()
 
-    with open(logfile_nr_workers) as f:
-        for line in f:
-            pass
-        last_line = line.strip()
+    if os.path.exists(logfile_nr_workers):
+        with open(logfile_nr_workers, 'r') as f:
+            for line in f:
+                pass
+            last_line = line.strip()
 
     if (last_line.isnumeric() or last_line == "") and str(last_line) != str(nr_of_workers):
         with open(logfile_nr_workers, 'a+') as f:

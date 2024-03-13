@@ -125,7 +125,7 @@ def check_dir_and_csv (args, csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(10)
 
-def check_min_and_max(args, num_entries, nr_of_items_before_filtering, nr_of_items_before_removing_NO_RESULT):
+def check_min_and_max(args, num_entries, nr_of_items_before_filtering):
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if args.min and not args.max:
@@ -137,11 +137,31 @@ def check_min_and_max(args, num_entries, nr_of_items_before_filtering, nr_of_ite
             else:
                 print(f"For some reason, there were values in the beginning but not after filtering")
         else:
-            if nr_of_items_before_removing_NO_RESULT:
-                print(f"All result entries are {NO_RESULT} (the value meaning execution failed).")
-            else:
-                print(f"No applicable values could be found in {csv_file_path}.")
+            print(f"No applicable values could be found in {csv_file_path}.")
         sys.exit(4)
+
+def get_data (args, csv_file_path, result_column):
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+
+        if args.min is not None:
+            f = df[result_column] >= args.min
+            df.where(f, inplace=True)
+        if args.max is not None:
+            f = df[result_column] <= args.max
+            df.where(f, inplace=True)
+        df.dropna(subset=[result_column], inplace=True)
+    except pd.errors.EmptyDataError:
+        print(f"{csv_file_path} has no lines to parse.")
+        sys.exit(5)
+    except pd.errors.ParserError as e:
+        print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
+        sys.exit(12)
+    except UnicodeDecodeError:
+        print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
+        sys.exit(7)
+
+    return df
 
 def main():
     print("DONELOADING")
@@ -171,7 +191,6 @@ def main():
 
     pd_csv = "pd.csv"
 
-    # Check if the specified CSV file exists
     csv_file_path = os.path.join(args.run_dir, pd_csv)
 
     check_dir_and_csv(args, csv_file_path)
@@ -179,29 +198,9 @@ def main():
     # Load the DataFrame from the CSV file
     df = None
     nr_of_items_before_filtering = 0
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0)
 
-        nr_of_items_before_filtering = len(df)
-
-        if args.min is not None:
-            f = df[result_column] >= args.min
-            df.where(f, inplace=True)
-        if args.max is not None:
-            f = df[result_column] <= args.max
-            df.where(f, inplace=True)
-        df.dropna(subset=[result_column], inplace=True)
-    except pd.errors.EmptyDataError:
-        print(f"{csv_file_path} has no lines to parse.")
-        sys.exit(5)
-    except pd.errors.ParserError as e:
-        print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
-        sys.exit(12)
-    except UnicodeDecodeError:
-        print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
-        sys.exit(7)
-
-    nr_of_items_before_removing_NO_RESULT = len(df)
+    df = get_data(args, csv_file_path, result_column)
+    nr_of_items_before_filtering = len(df)
 
     try:
         negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
@@ -226,7 +225,7 @@ def main():
     df_filtered = df.drop(columns=columns_to_remove)
     num_entries = len(df_filtered)
 
-    check_min_and_max(args, num_entries, nr_of_items_before_filtering, nr_of_items_before_removing_NO_RESULT)
+    check_min_and_max(args, num_entries, nr_of_items_before_filtering)
 
     # Create combinations of parameters
     r = 2

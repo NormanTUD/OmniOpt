@@ -18,7 +18,7 @@ def dier(msg):
     pprint(msg)
     sys.exit(9)
 
-import importlib.util 
+import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=".helpers.py",
@@ -214,8 +214,8 @@ def main():
     cmap = plt.cm.viridis
 
     # Loop über non-empty combinations und Erstellung von 2D-Plots
-    if num_subplots == 1: 
-        if len(non_empty_graphs[0]) == 1:        
+    if num_subplots == 1:
+        if len(non_empty_graphs[0]) == 1:
             ax = axs  # Use the single axis
             _range = range(len(df_filtered))
             _data = df_filtered
@@ -236,32 +236,32 @@ def main():
             # Farbgebung und Legende für das einzelne Scatterplot
             cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
             cbar.set_label(result_column, rotation=270, labelpad=15)
-        else:                     
+        else:
             scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
             axs.set_xlabel(non_empty_graphs[0][0])
             axs.set_ylabel(non_empty_graphs[0][1])
             # Farbgebung und Legende für das einzelne Scatterplot
             cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
             cbar.set_label(result_column, rotation=270, labelpad=15)
-    else:                                                         
+    else:
         for i, (param1, param2) in enumerate(non_empty_graphs):
-            row = i // num_cols   
+            row = i // num_cols
             col = i % num_cols
             try:
                 scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-                axs[row, col].set_xlabel(param1)                                                                         
+                axs[row, col].set_xlabel(param1)
                 axs[row, col].set_ylabel(param2)
             except Exception as e:
                 print(str(e))
                 sys.exit(17)
-                               
+
         for i in range(len(parameter_combinations), num_rows*num_cols):
-            row = i // num_cols                      
-            col = i % num_cols        
-            axs[row, col].set_visible(False)   
+            row = i // num_cols
+            col = i % num_cols
+            axs[row, col].set_visible(False)
 
         # Color bar addition für mehrere Subplots
-        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1) 
+        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
@@ -288,7 +288,7 @@ def main():
     title = "Minimum"
     if args.run_dir + "/maximize" in os.listdir(args.run_dir):
         title = "Maximum"
-    
+
     extreme_values_items = extreme_values.items()
 
     filtered_extreme_values_items = {}
@@ -317,6 +317,15 @@ def main():
 
     # Set the title for the figure
     fig.suptitle(title)
+
+    left  = 0.125
+    right = 0.9
+    bottom = 0.12
+    top = 0.9
+    wspace = 0.2
+    hspace = 0.3
+
+    fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=wspace)
 
     # Show the plot or save it to a file based on the command line argument
     if args.save_to_file:

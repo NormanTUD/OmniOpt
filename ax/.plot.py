@@ -93,6 +93,11 @@ def main():
 
     # Check if the specified CSV file exists
     csv_file_path = os.path.join(args.run_dir, pd_csv)
+    if not os.path.isdir(args.run_dir):
+        print(f"The path {args.run_dir} does not point to a folder. Must be a folder.")
+        sys.exit(11)
+
+
     if not os.path.exists(csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(10)

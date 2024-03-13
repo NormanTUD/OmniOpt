@@ -60,7 +60,6 @@ def main():
 
     if args.min and args.max:
         if args.min > args.max:
-            print("Max was higher than min. Switching values.")
             tmp = args.max
             args.max = args.min
             args.min = tmp

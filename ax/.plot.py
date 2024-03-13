@@ -290,7 +290,7 @@ def main():
         title += f", show min = {to_int_when_possible(args.min)}"
 
     if args.max is not None:
-        title += f", show min = {to_int_when_possible(args.max)}"
+        title += f", show max = {to_int_when_possible(args.max)}"
 
     # Set the title for the figure
     fig.suptitle(title)

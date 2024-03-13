@@ -173,6 +173,27 @@ def get_data (args, csv_file_path, result_column):
 
     return df
 
+def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows):
+    for i, (param1, param2) in enumerate(non_empty_graphs):
+        row = i // num_cols
+        col = i % num_cols
+        try:
+            scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+            axs[row, col].set_xlabel(param1)
+            axs[row, col].set_ylabel(param2)
+        except Exception as e:
+            print(str(e))
+            sys.exit(17)
+
+    for i in range(len(parameter_combinations), num_rows*num_cols):
+        row = i // num_cols
+        col = i % num_cols
+        axs[row, col].set_visible(False)
+
+    # Color bar addition für mehrere Subplots
+    cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
+    cbar.set_label(result_column, rotation=270, labelpad=15)
+
 def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column):
     scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
@@ -317,25 +338,7 @@ def main():
         else:
             plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column)
     else:
-        for i, (param1, param2) in enumerate(non_empty_graphs):
-            row = i // num_cols
-            col = i % num_cols
-            try:
-                scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-                axs[row, col].set_xlabel(param1)
-                axs[row, col].set_ylabel(param2)
-            except Exception as e:
-                print(str(e))
-                sys.exit(17)
-
-        for i in range(len(parameter_combinations), num_rows*num_cols):
-            row = i // num_cols
-            col = i % num_cols
-            axs[row, col].set_visible(False)
-
-        # Color bar addition für mehrere Subplots
-        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-        cbar.set_label(result_column, rotation=270, labelpad=15)
+        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
         row = i // num_cols

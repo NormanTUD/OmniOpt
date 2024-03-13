@@ -230,6 +230,29 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX
     cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
     cbar.set_label(result_column, rotation=270, labelpad=15)
 
+def plot_graphs(args, colors, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+    if os.path.exists(args.run_dir + "/maximize"):
+        colors = -colors  # Negate colors for maximum result
+
+    norm = None
+    try:
+        norm = plt.Normalize(colors.min(), colors.max())
+    except:
+        print(f"Wrong values in {csv_file_path}")
+        sys.exit(16)
+
+    cmap = plt.cm.viridis
+
+    if num_subplots == 1:
+        if len(non_empty_graphs[0]) == 1:
+            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs)
+        else:
+            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column)
+    else:
+        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows)
+
+    hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+
 def main():
     print("DONELOADING")
     # Parse command line arguments
@@ -324,29 +347,7 @@ def main():
             print(f"Key-Error: {e}")
             sys.exit(8)
 
-
-    if args.run_dir + "/maximize" in os.listdir(args.run_dir):
-        colors = -colors  # Negate colors for maximum result
-
-    norm = None
-    try:
-        norm = plt.Normalize(colors.min(), colors.max())
-    except:
-        print(f"Wrong values in {csv_file_path}")
-        sys.exit(16)
-
-    cmap = plt.cm.viridis
-
-    # Loop über non-empty combinations und Erstellung von 2D-Plots
-    if num_subplots == 1:
-        if len(non_empty_graphs[0]) == 1:
-            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs)
-        else:
-            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column)
-    else:
-        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows)
-
-    hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+    plot_graphs(args, colors, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
     # Add title with parameters and result
     result_column_values = df[result_column]

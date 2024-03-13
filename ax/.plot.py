@@ -1,3 +1,6 @@
+val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT = "{:.0e}".format(val_if_nothing_found)
+
 import sys
 import os
 import argparse
@@ -80,7 +83,6 @@ def main():
             f = df[result_column] <= args.max
             df.where(f, inplace=True)
         df.dropna(subset=[result_column], inplace=True)
-
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)
@@ -92,8 +94,8 @@ def main():
         sys.exit(7)
 
     try:
-        negative_rows_to_remove = df[df[result_column].astype(str) == '-1e+59'].index
-        positive_rows_to_remove = df[df[result_column].astype(str) == '1e+59'].index
+        negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
+        positive_rows_to_remove = df[df[result_column].astype(str) == NO_RESULT].index
 
         # Entferne die Zeilen mit den spezifischen Werten
         df.drop(negative_rows_to_remove, inplace=True)
@@ -119,7 +121,7 @@ def main():
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:
-        print(f"No entries in {csv_file_path}, or all result entries are 1e+59 (the value meaning execution failed)")
+        print(f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed)")
         sys.exit(4)
 
     # Create combinations of parameters

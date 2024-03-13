@@ -173,6 +173,12 @@ def get_data (args, csv_file_path, result_column):
 
     return df
 
+def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
+    for i in range(len(parameter_combinations), num_rows*num_cols):
+        row = i // num_cols
+        col = i % num_cols
+        axs[row, col].set_visible(False)
+
 def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows):
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
@@ -340,10 +346,7 @@ def main():
     else:
         plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows)
 
-    for i in range(len(parameter_combinations), num_rows*num_cols):
-        row = i // num_cols
-        col = i % num_cols
-        axs[row, col].set_visible(False)
+    hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
     # Add title with parameters and result
     result_column_values = df[result_column]

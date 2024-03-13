@@ -46,8 +46,6 @@ except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(0)
 
-print("DONELOADING")
-
 # Get shell variables or use default values
 BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 10))
 SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))
@@ -60,6 +58,7 @@ def to_int_when_possible (val):
     return '{:f}'.format(val)
 
 def main():
+    print("DONELOADING")
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.', prog="plot")
 

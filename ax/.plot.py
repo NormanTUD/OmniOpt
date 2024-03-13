@@ -349,6 +349,8 @@ def get_parameter_combinations (df_filtered):
 
     parameter_combinations = list(combinations(df_filtered.columns, r))
 
+    return parameter_combinations
+
 def main():
     print("DONELOADING")
 

@@ -86,8 +86,11 @@ def main():
 
     # Load the DataFrame from the CSV file
     df = None
+    nr_of_items_before_filtering = 0
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
+
+        nr_of_items_before_filtering = len(df)
 
         if args.min is not None:
             f = df[result_column] >= args.min
@@ -135,15 +138,17 @@ def main():
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:
-        base_str = f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed). "
-        if args.min and not args.max:
-            print(f"{base_str}Maybe using --min filtered out all results")
-        elif not args.min and args.max:
-            print(f"{base_str}Maybe using --max filtered out all results")
-        elif args.min and args.max:
-            print(f"{base_str}Maybe using --min and --max filtered out all results")
+        if nr_of_items_before_filtering:
+            if args.min and not args.max:
+                print(f"Using --min filtered out all results")
+            elif not args.min and args.max:
+                print(f"Using --max filtered out all results")
+            elif args.min and args.max:
+                print(f"Using --min and --max filtered out all results")
+            else:
+                print(f"For some reason, there were values in the beginning but not after filtering")
         else:
-            print(f"{base_str}")
+            print(f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed).")
         sys.exit(4)
 
     # Create combinations of parameters

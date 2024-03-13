@@ -161,6 +161,16 @@ def get_data (args, csv_file_path, result_column):
         print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
         sys.exit(7)
 
+    try:
+        negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
+        positive_rows_to_remove = df[df[result_column].astype(str) == NO_RESULT].index
+
+        df.drop(negative_rows_to_remove, inplace=True)
+        df.drop(positive_rows_to_remove, inplace=True)
+    except KeyError:
+        print(f"column named `{result_column}` could not be found in {csv_file_path}.")
+        sys.exit(6)
+
     return df
 
 def main():
@@ -202,16 +212,6 @@ def main():
     df = get_data(args, csv_file_path, result_column)
     nr_of_items_before_filtering = len(df)
 
-    try:
-        negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
-        positive_rows_to_remove = df[df[result_column].astype(str) == NO_RESULT].index
-
-        df.drop(negative_rows_to_remove, inplace=True)
-        df.drop(positive_rows_to_remove, inplace=True)
-    except KeyError:
-        print(f"column named `{result_column}` could not be found in {csv_file_path}.")
-        sys.exit(6)
-
     # Remove specified columns
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
@@ -220,7 +220,6 @@ def main():
     for col in existing_columns:
         if col in all_columns_to_remove:
             columns_to_remove.append(col)
-
 
     df_filtered = df.drop(columns=columns_to_remove)
     num_entries = len(df_filtered)

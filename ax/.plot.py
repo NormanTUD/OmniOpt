@@ -298,6 +298,20 @@ def get_df_filtered(df):
 
     return df_filtered
 
+def get_colors(df, result_column):
+    colors = None
+    try:
+        colors = df[result_column]
+    except KeyError as e:
+        if str(e) == "'" + result_column + "'":
+            print(f"Could not find any results in {csv_file_path}")
+            sys.exit(3)
+        else:
+            print(f"Key-Error: {e}")
+            sys.exit(8)
+
+    return colors
+
 def main():
     print("DONELOADING")
 
@@ -354,15 +368,7 @@ def main():
     # Matplotlib figure creation with adjusted subplot layout
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    try:
-        colors = df[result_column]
-    except KeyError as e:
-        if str(e) == "'" + result_column + "'":
-            print(f"Could not find any results in {csv_file_path}")
-            sys.exit(3)
-        else:
-            print(f"Key-Error: {e}")
-            sys.exit(8)
+    colors = get_colors(df, result_column)
 
     plot_graphs(args, colors, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 

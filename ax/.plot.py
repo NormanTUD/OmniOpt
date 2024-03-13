@@ -40,6 +40,11 @@ except ModuleNotFoundError as e:
 BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 10))
 SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))
 
+def to_int_when_possible (val):
+    if val.is_integer():
+        return int(val)
+    return val
+
 def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
@@ -270,22 +275,22 @@ def main():
     for l in extreme_values_items:
         if not args.result_column in l:
             key = l[0]
-            value = l[1]
+            value = to_int_when_possible(l[1])
             title_values.append(f"{key} = {value}")
 
     #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
 
     title += " of f("
     title += ', '.join(title_values)
-    title += f") = {result_column_values[extreme_index]}"
+    title += f") = {to_int_when_possible(result_column_values[extreme_index])}"
 
     title += f"\nNumber of evaluations shown: {num_entries}"
 
     if args.min is not None:
-        title += f", show min = {args.min}"
+        title += f", show min = {to_int_when_possible(args.min)}"
 
     if args.max is not None:
-        title += f", show min = {args.max}"
+        title += f", show min = {to_int_when_possible(args.max)}"
 
     # Set the title for the figure
     fig.suptitle(title)

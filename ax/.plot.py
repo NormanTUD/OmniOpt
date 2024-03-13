@@ -278,6 +278,8 @@ def get_args ():
 
     check_args(args)
 
+    check_path(args)
+
     return args
 
 def get_csv_file_path(args):
@@ -314,6 +316,23 @@ def get_colors(df, result_column):
 
     return colors
 
+def check_path(args):
+    if not os.path.exists(args.run_dir):
+        print(f'The folder {args.run_dir} does not exist.')
+        sys.exit(1)
+
+def get_non_empty_graphs(parameter_combinations, df_filtered):
+    non_empty_graphs = []
+
+    if len(parameter_combinations) == 1:
+        param = parameter_combinations[0][0]
+        if df_filtered[param].notna().any():
+            non_empty_graphs = [(param,)]
+    else:
+        non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
+
+    return non_empty_graphs
+
 def main():
     print("DONELOADING")
 
@@ -323,11 +342,6 @@ def main():
 
     if not args.save_to_file:
         matplotlib.use('TkAgg')
-
-    # Check if the specified directory exists
-    if not os.path.exists(args.run_dir):
-        print(f'The folder {args.run_dir} does not exist.')
-        sys.exit(1)
 
     csv_file_path = get_csv_file_path(args)
 
@@ -339,7 +353,6 @@ def main():
 
     check_min_and_max(args, num_entries, nr_of_items_before_filtering)
 
-    # Create combinations of parameters
     r = 2
 
     if len(list(df_filtered.columns)) == 1:
@@ -347,14 +360,7 @@ def main():
 
     parameter_combinations = list(combinations(df_filtered.columns, r))
 
-    if len(parameter_combinations) == 1:
-        param = parameter_combinations[0][0]
-        if df_filtered[param].notna().any():
-            non_empty_graphs = [(param,)]
-        else:
-            non_empty_graphs = []
-    else:
-        non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
+    non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
 
 
     if not non_empty_graphs:
@@ -363,16 +369,13 @@ def main():
 
     num_subplots = len(non_empty_graphs)
 
-    # Calculate optimal number of rows and columns for subplot layout
     num_cols = math.ceil(math.sqrt(num_subplots))
     num_rows = math.ceil(num_subplots / num_cols)
 
-    # Matplotlib figure creation with adjusted subplot layout
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
     plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
-    # Add title with parameters and result
     result_column_values = df[result_column]
 
     check_if_results_are_empty(result_column_values)

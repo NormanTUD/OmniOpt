@@ -1191,7 +1191,7 @@ def finish_previous_jobs (progress_bar, jobs):
                 print_color("red", str(error))
 
                 job.cancel()
- 
+
                 failed_jobs += 1
             except ax.exceptions.core.UserInputError as error:
                 if "None for metric" in str(error):
@@ -1383,7 +1383,7 @@ def main ():
                             best_result = means["result"]
 
                             if str(best_result) != NO_RESULT:
-                                desc += ", best loss: " + str(best_result)
+                                desc += ", best loss: " + '{:f}'.format(best_result)
                     except Exception as e:
                         pass
 

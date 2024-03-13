@@ -64,7 +64,6 @@ set -e
 
 if [[ "$exit_code" -ne "0" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then
-		eval `resize`
 		error_message "$OUTPUT"
 	else
 		echo -- "$OUTPUT"

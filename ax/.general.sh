@@ -27,7 +27,7 @@ function echo_green {
 }
 
 function error_message {
-    eval `resize`
+	eval `resize`
 	MSG=$1
 	echo_red "$MSG"
 	export NEWT_COLORS='

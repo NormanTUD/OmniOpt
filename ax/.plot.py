@@ -9,8 +9,12 @@ import math
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+console = None
+
 try:
     from rich.pretty import pprint
+    from rich.console import Console
+    console = Console(force_terminal=True, force_interactive=True)
 except ModuleNotFoundError:
     from pprint import pprint
 
@@ -27,7 +31,8 @@ my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
 try:
-    import re
+    with console.status("[bold green]Importing re") as status:
+        import re
     import pandas as pd
 
     import matplotlib

@@ -693,7 +693,7 @@ def check_file_info(file_path):
     access_time = file_stat.st_atime
     modification_time = file_stat.st_mtime
     status_change_time = file_stat.st_ctime
-    
+
     string = f"pwd: {os.getcwd()}\n"
     string += f"File: {file_path}\n"
     string += f"Size: {size} Bytes\n"
@@ -1192,7 +1192,7 @@ def finish_previous_jobs (progress_bar, jobs):
                 print_color("red", str(error))
 
                 job.cancel()
-                
+ 
                 failed_jobs += 1
             except ax.exceptions.core.UserInputError as error:
                 if "None for metric" in str(error):
@@ -1366,7 +1366,7 @@ def main ():
 
         _k = 0
 
-        
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with tqdm(total=max_eval, disable=False) as progress_bar:
@@ -1432,7 +1432,7 @@ def main ():
                                             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
                                         else:
                                             print_color("red", f"\n:warning: FAILED: {error}")
-                                        
+
                                         try:
                                             print_debug("Trying to cancel job that failed")
                                             new_job.cancel()
@@ -1531,7 +1531,7 @@ def _is_not_equal (name, input, output):
     else:
         print_color("red", f"Unknown data type for test {name}")
         sys.exit(100)
-    
+
     print_color("green", f"Test OK: {name}")
     return 0
 
@@ -1554,7 +1554,7 @@ def _is_equal (name, input, output):
     else:
         print_color("red", f"Unknown data type for test {name}")
         sys.exit(100)
-    
+
     print_color("green", f"Test OK: {name}")
     return 0
 
@@ -1562,7 +1562,7 @@ def get_shebang (path):
     sb = None
     with open(path) as f:
         first_line = f.readline()
-        
+
         if first_line.startswith("#!"):
             sb = first_line.replace("#!", "").strip()
 

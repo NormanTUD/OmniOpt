@@ -1,3 +1,6 @@
+val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT = "{:.0e}".format(val_if_nothing_found)
+
 ax_client = None
 done_jobs = 0
 failed_jobs = 0
@@ -18,6 +21,7 @@ class trainingDone (Exception):
     pass
 
 try:
+    import random
     from pathlib import Path
     import glob
     import platform
@@ -114,6 +118,7 @@ debug.add_argument('--debug', help='Enable debugging', action='store_true', defa
 debug.add_argument('--wait_until_ended', help='Wait until the program has ended', action='store_true', default=False)
 debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
+debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -717,6 +722,11 @@ def find_file_paths_and_print_infos (_text, program_code):
     return string
 
 def evaluate(parameters):
+    if args.evaluate_to_random_value:
+        rand_res = random.uniform(0, 1)
+        return_in_case_of_error = {"result": float(rand_res)}
+        return 
+
     print_debug(f"evaluate with parameters {parameters}")
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -724,14 +734,10 @@ def evaluate(parameters):
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
-    max_val = 99999999999999999999999999999999999999999999999999999999999
-
-    return_in_case_of_error = None
+    return_in_case_of_error = {"result": val_if_nothing_found}
 
     if args.maximize:
-        return_in_case_of_error = {"result": -max_val}
-    else:
-        return_in_case_of_error = {"result": max_val}
+        return_in_case_of_error = {"result": -val_if_nothing_found}
 
     try:
         print("parameters:", parameters)
@@ -904,7 +910,7 @@ def show_end_table_and_save_end_files ():
             print_debug("[show_end_table_and_save_end_files] Got best params")
             best_result = means["result"]
 
-            if str(best_result) == '1e+59':
+            if str(best_result) == NO_RESULT:
                 table_str = "Best result could not be determined"
                 print_color("red", table_str)
                 exit = 1
@@ -1374,7 +1380,7 @@ def main ():
                             best_parameters, (means, covariances) = ax_client.get_best_parameters()
                             best_result = means["result"]
 
-                            if str(best_result) != '1e+59':
+                            if str(best_result) != NO_RESULT:
                                 desc += ", best loss: " + str(best_result)
                     except Exception as e:
                         pass

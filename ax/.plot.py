@@ -375,7 +375,6 @@ def main():
 
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
 
-
     num_subplots = len(non_empty_graphs)
 
     num_cols = math.ceil(math.sqrt(num_subplots))

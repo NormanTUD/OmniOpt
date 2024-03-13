@@ -134,6 +134,6 @@ try:
 
     loss_obj = history.history["loss"]
     last_loss = loss_obj[len(loss_obj) - 1]
-    print(f"RESULT: {last_loss}")
+    print(f"RESULT: {'{:f}'.format(last_loss)}")
 except (KeyboardInterrupt) as e:
     pass

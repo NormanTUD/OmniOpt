@@ -351,6 +351,10 @@ def get_parameter_combinations (df_filtered):
 
     return parameter_combinations
 
+def use_matplotlib(args):
+    if not args.save_to_file:
+        matplotlib.use('TkAgg')
+
 def main():
     print("DONELOADING")
 
@@ -358,8 +362,7 @@ def main():
 
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
-    if not args.save_to_file:
-        matplotlib.use('TkAgg')
+    use_matplotlib(args)
 
     csv_file_path = get_csv_file_path(args)
 

@@ -47,7 +47,7 @@ def to_int_when_possible (val):
 
 def main():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.')
+    parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.', prog="plot")
 
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)

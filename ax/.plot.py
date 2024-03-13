@@ -352,6 +352,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        #with plt.style.context('dark_background'):
+        with plt.style.context('ggplot'):
+            main()
     except KeyboardInterrupt as e:
         sys.exit(0)

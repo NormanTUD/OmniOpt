@@ -724,8 +724,7 @@ def find_file_paths_and_print_infos (_text, program_code):
 def evaluate(parameters):
     if args.evaluate_to_random_value:
         rand_res = random.uniform(0, 1)
-        return_in_case_of_error = {"result": float(rand_res)}
-        return 
+        return {"result": float(rand_res)}
 
     print_debug(f"evaluate with parameters {parameters}")
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)

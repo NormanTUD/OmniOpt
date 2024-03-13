@@ -46,6 +46,8 @@ except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(0)
 
+print("DONELOADING")
+
 # Get shell variables or use default values
 BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 10))
 SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))

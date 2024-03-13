@@ -33,7 +33,6 @@ try:
     import stat
     import pwd
     import base64
-    import re
     import sys
     import argparse
     import time

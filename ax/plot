@@ -58,6 +58,7 @@ exit_code=$?
 set -e
 
 if [[ "$exit_code" -ne "0" ]]; then
+	OUTPUT=$(echo "$OUTPUT" | sed -z 's#.*DONELOADING##')
 	if command -v whiptail 2>/dev/null >/dev/null; then
 		error_message "$OUTPUT"
 	else

@@ -111,7 +111,7 @@ source .general.sh
 function info_message_large {
 	MSG=$1
 	eval `resize`
-	echo_green "$MSG"
+	#echo_green "$MSG"
 	whiptail --title "Info Message" --msgbox "$MSG" $LINES $COLUMNS
 }
 

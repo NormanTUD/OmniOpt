@@ -27,6 +27,7 @@ my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
 try:
+    import re
     import pandas as pd
 
     import matplotlib
@@ -43,7 +44,9 @@ SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))
 def to_int_when_possible (val):
     if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
         return int(val)
-    return val
+    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)$', val) is None:
+        return val
+    return '{:f}'.format(val)
 
 def main():
     # Parse command line arguments

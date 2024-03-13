@@ -344,6 +344,11 @@ def get_r (df_filtered):
 
     return r
 
+def get_parameter_combinations (df_filtered):
+    r = get_r(df_filtered)
+
+    parameter_combinations = list(combinations(df_filtered.columns, r))
+
 def main():
     print("DONELOADING")
 
@@ -364,9 +369,7 @@ def main():
 
     check_min_and_max(args, num_entries, nr_of_items_before_filtering)
 
-    r = get_r(df_filtered)
-
-    parameter_combinations = list(combinations(df_filtered.columns, r))
+    parameter_combinations = get_parameter_combinations(df_filtered)
 
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
 

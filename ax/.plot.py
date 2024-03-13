@@ -253,9 +253,7 @@ def plot_graphs(args, colors, fig, axs, df_filtered, BUBBLESIZEINPX, result_colu
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
-def main():
-    print("DONELOADING")
-    # Parse command line arguments
+def get_args ():
     parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
 
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
@@ -266,6 +264,14 @@ def main():
     parser.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
 
     args = parser.parse_args()
+
+    return args
+
+def main():
+    print("DONELOADING")
+    # Parse command line arguments
+
+    args = get_args()
 
     check_args(args)
 

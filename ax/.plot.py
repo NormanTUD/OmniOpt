@@ -72,6 +72,15 @@ def main():
     df = None
     try:
         df = pd.read_csv(csv_file_path)
+
+        if args.min is not None:
+            f = df[result_column] >= args.min
+            df.where(f, inplace=True)
+        if args.max is not None:
+            f = df[result_column] <= args.max
+            df.where(f, inplace=True)
+        df.dropna(subset=[result_column], inplace=True)
+
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)
@@ -133,11 +142,6 @@ def main():
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
         sys.exit(2)
-
-    if args.min is not None:
-        df[result_column] = df[result_column].clip(lower=args.min)
-    if args.max is not None:
-        df[result_column] = df[result_column].clip(upper=args.max)
 
     num_subplots = len(non_empty_graphs)
 

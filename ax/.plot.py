@@ -173,6 +173,14 @@ def get_data (args, csv_file_path, result_column):
 
     return df
 
+def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column):
+    scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+    axs.set_xlabel(non_empty_graphs[0][0])
+    axs.set_ylabel(non_empty_graphs[0][1])
+    # Farbgebung und Legende für das einzelne Scatterplot
+    cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
+    cbar.set_label(result_column, rotation=270, labelpad=15)
+
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs):
     ax = axs  # Use the single axis
     _range = range(len(df_filtered))
@@ -307,12 +315,7 @@ def main():
         if len(non_empty_graphs[0]) == 1:
             plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs)
         else:
-            scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-            axs.set_xlabel(non_empty_graphs[0][0])
-            axs.set_ylabel(non_empty_graphs[0][1])
-            # Farbgebung und Legende für das einzelne Scatterplot
-            cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-            cbar.set_label(result_column, rotation=270, labelpad=15)
+            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column)
     else:
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols

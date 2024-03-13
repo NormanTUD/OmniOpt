@@ -200,7 +200,14 @@ def main():
 
     if args.run_dir + "/maximize" in os.listdir(args.run_dir):
         colors = -colors  # Negate colors for maximum result
-    norm = plt.Normalize(colors.min(), colors.max())
+
+    norm = None
+    try:
+        norm = plt.Normalize(colors.min(), colors.max())
+    except:
+        print(f"Wrong values in {csv_file_path}")
+        sys.exit(16)
+
     cmap = plt.cm.viridis
 
     # Loop über non-empty combinations und Erstellung von 2D-Plots
@@ -237,9 +244,13 @@ def main():
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols   
             col = i % num_cols
-            scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-            axs[row, col].set_xlabel(param1)                                                                         
-            axs[row, col].set_ylabel(param2)
+            try:
+                scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                axs[row, col].set_xlabel(param1)                                                                         
+                axs[row, col].set_ylabel(param2)
+            except Exception as e:
+                print(str(e))
+                sys.exit(17)
                                
         for i in range(len(parameter_combinations), num_rows*num_cols):
             row = i // num_cols                      

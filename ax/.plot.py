@@ -239,7 +239,9 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX
     cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
     cbar.set_label(result_column, rotation=270, labelpad=15)
 
-def plot_graphs(args, colors, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+def plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+    colors = get_colors(df, result_column)
+
     if os.path.exists(args.run_dir + "/maximize"):
         colors = -colors  # Negate colors for maximum result
 
@@ -368,9 +370,7 @@ def main():
     # Matplotlib figure creation with adjusted subplot layout
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    colors = get_colors(df, result_column)
-
-    plot_graphs(args, colors, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
+    plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
     # Add title with parameters and result
     result_column_values = df[result_column]

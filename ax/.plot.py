@@ -57,7 +57,7 @@ def to_int_when_possible (val):
         return val
     return '{:f}'.format(val)
 
-def get_title(args, df_filtered, result_column_values, num_entries):
+def set_title(args, df_filtered, result_column_values, num_entries):
     #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_index = result_column_values.idxmin()
     if os.path.exists(args.run_dir + "/maximize"):
@@ -95,7 +95,7 @@ def get_title(args, df_filtered, result_column_values, num_entries):
     if args.max is not None:
         title += f", show max = {to_int_when_possible(args.max)}"
 
-    return title
+    fig.suptitle(title)
 
 
 def main():
@@ -334,12 +334,7 @@ def main():
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-
-
-    title = get_title(args, df_filtered, result_column_values, num_entries)
-
-    # Set the title for the figure
-    fig.suptitle(title)
+    set_title(fig, args, df_filtered, result_column_values, num_entries)
 
     left  = 0.125
     right = 0.9

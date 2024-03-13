@@ -196,10 +196,6 @@ def main():
 
 
     df_filtered = df.drop(columns=columns_to_remove)
-
-    #if result_column in df_filtered.columns:
-    #    df_filtered = df_filtered.drop(columns=result_column)
-
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:

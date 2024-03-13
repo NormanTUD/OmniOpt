@@ -331,6 +331,10 @@ def get_non_empty_graphs(parameter_combinations, df_filtered):
     else:
         non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
 
+    if not non_empty_graphs:
+        print('No non-empty graphs to display.')
+        sys.exit(2)
+
     return non_empty_graphs
 
 def main():
@@ -362,10 +366,6 @@ def main():
 
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
 
-
-    if not non_empty_graphs:
-        print('No non-empty graphs to display.')
-        sys.exit(2)
 
     num_subplots = len(non_empty_graphs)
 

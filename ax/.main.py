@@ -1911,6 +1911,9 @@ def log_nr_of_workers ():
     last_line = ""
     nr_of_workers = get_number_of_current_workers()
 
+    if not nr_of_workers:
+        return
+
     if os.path.exists(logfile_nr_workers):
         with open(logfile_nr_workers, 'r') as f:
             for line in f:

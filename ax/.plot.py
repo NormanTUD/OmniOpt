@@ -57,6 +57,16 @@ def to_int_when_possible (val):
         return val
     return '{:f}'.format(val)
 
+def set_margins (fig):
+    left  = 0.125
+    right = 0.9
+    bottom = 0.12
+    top = 0.9
+    wspace = 0.2
+    hspace = 0.3
+
+    fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=wspace)
+
 def set_title(fig, args, df_filtered, result_column_values, num_entries):
     #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_index = result_column_values.idxmin()
@@ -339,14 +349,7 @@ def main():
 
     set_title(fig, args, df_filtered, result_column_values, num_entries)
 
-    left  = 0.125
-    right = 0.9
-    bottom = 0.12
-    top = 0.9
-    wspace = 0.2
-    hspace = 0.3
-
-    fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=wspace)
+    set_margins(fig)
 
     fig.canvas.manager.set_window_title(args.run_dir)
 

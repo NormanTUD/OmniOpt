@@ -9,7 +9,7 @@ def check_environment_variable(variable_name):
         return False
 
 if not check_environment_variable("RUN_VIA_RUNSH"):
-    print("Must be run via run.sh, cannot be run as standalone.")
+    print("Must be run via the bash script, cannot be run as standalone.")
 
     sys.exit(16)
 

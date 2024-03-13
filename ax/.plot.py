@@ -216,7 +216,11 @@ def main():
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-    extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
+    #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
+    extreme_index = result_column_values.idxmin()
+    if os.path.exists(args.run_dir + "/maximize"):
+        extreme_index = result_column_values.idxmax()
+
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 
     title = "Minimum"

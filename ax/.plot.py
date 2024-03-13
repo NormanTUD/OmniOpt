@@ -67,6 +67,15 @@ def set_margins (fig):
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=wspace)
 
+def check_if_results_are_empty(result_column_values):
+    filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
+
+    number_of_non_nan_results = len(filtered_data)
+
+    if number_of_non_nan_results == 0:
+        print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
+        sys.exit(11)
+
 def set_title(fig, args, df_filtered, result_column_values, num_entries):
     #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_index = result_column_values.idxmin()
@@ -291,7 +300,6 @@ def get_df_filtered(df):
 
 def main():
     print("DONELOADING")
-    # Parse command line arguments
 
     args = get_args()
 
@@ -360,12 +368,8 @@ def main():
 
     # Add title with parameters and result
     result_column_values = df[result_column]
-    filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
-    number_of_non_nan_results = len(filtered_data)
 
-    if number_of_non_nan_results == 0:
-        print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
-        sys.exit(11)
+    check_if_results_are_empty(result_column_values)
 
     set_title(fig, args, df_filtered, result_column_values, num_entries)
 

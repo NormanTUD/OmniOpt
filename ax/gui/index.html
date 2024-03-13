@@ -298,15 +298,19 @@
 			function set_min_max () {
 				document.querySelectorAll('input').forEach(input => {
 					if (input.hasAttribute('min') || input.hasAttribute('max')) {
-						var min = input.hasAttribute('min') ? parseFloat(input.getAttribute('min')) : null;
-						var max = input.hasAttribute('max') ? parseFloat(input.getAttribute('max')) : null;
+						var _min = input.hasAttribute('min') ? parseFloat(input.getAttribute('min')) : null;
+						var _max = input.hasAttribute('max') ? parseFloat(input.getAttribute('max')) : null;
 
 						let value = parseFloat(input.value);
 
-						if (min !== null && (isNaN(value) || value < min)) {
-							input.value = min;
-						} else if (max !== null && value > max) {
-							input.value = max;
+						let red = "rgb(229, 115, 115)";
+
+						if (_min !== null && (isNaN(value) || value < _min)) {
+							$(input).css("background-color", red)
+						} else if (_max !== null && value > _max) {
+							$(input).css("background-color", red)
+						} else {
+							$(input).css("background-color", "rgb(255, 255, 255)")
 						}
 					}
 				});

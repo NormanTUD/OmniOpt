@@ -41,7 +41,7 @@ BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 10))
 SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))
 
 def to_int_when_possible (val):
-    if val.is_integer():
+    if type(val) == int or val.is_integer():
         return int(val)
     return val
 

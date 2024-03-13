@@ -97,11 +97,19 @@ def set_title(fig, args, df_filtered, result_column_values, num_entries):
 
     fig.suptitle(title)
 
+def check_args (args):
+    if args.min and args.max:
+        if args.min > args.max:
+            tmp = args.max
+            args.max = args.min
+            args.min = tmp
+        elif args.min == args.max:
+            print("Max and min value are the same. May result in empty data")
 
 def main():
     print("DONELOADING")
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Path to CSV file that should be plotted.', prog="plot")
+    parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
 
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
@@ -112,13 +120,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.min and args.max:
-        if args.min > args.max:
-            tmp = args.max
-            args.max = args.min
-            args.min = tmp
-        elif args.min == args.max:
-            print("Max and min value are the same. May result in empty data")
+    check_args(args)
 
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 

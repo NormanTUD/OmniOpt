@@ -301,7 +301,7 @@ def main():
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 
     title = "Minimum"
-    if args.run_dir + "/maximize" in os.listdir(args.run_dir):
+    if os.path.exists(args.run_dir + "/maximize"):
         title = "Maximum"
 
     extreme_values_items = extreme_values.items()

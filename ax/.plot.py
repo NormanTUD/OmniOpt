@@ -109,6 +109,8 @@ def main():
         print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
         sys.exit(7)
 
+    nr_of_items_before_removing_NO_RESULT = len(df)
+
     try:
         negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
         positive_rows_to_remove = df[df[result_column].astype(str) == NO_RESULT].index
@@ -148,7 +150,10 @@ def main():
             else:
                 print(f"For some reason, there were values in the beginning but not after filtering")
         else:
-            print(f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed).")
+            if nr_of_items_before_removing_NO_RESULT:
+                print(f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed).")
+            else:
+                print(f"No applicable values could be found in {csv_file_path}.")
         sys.exit(4)
 
     # Create combinations of parameters

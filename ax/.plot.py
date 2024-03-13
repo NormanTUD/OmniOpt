@@ -269,7 +269,9 @@ def main():
 
     for l in extreme_values_items:
         if not args.result_column in l:
-            title_values.append(f"{l[0]} = {l[1]}")
+            key = l[0]
+            value = l[1]
+            title_values.append(f"{key} = {value}")
 
     #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
 

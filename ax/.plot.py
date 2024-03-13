@@ -57,6 +57,47 @@ def to_int_when_possible (val):
         return val
     return '{:f}'.format(val)
 
+def get_title(args, df_filtered, result_column_values, num_entries):
+    #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
+    extreme_index = result_column_values.idxmin()
+    if os.path.exists(args.run_dir + "/maximize"):
+        extreme_index = result_column_values.idxmax()
+
+    extreme_values = df_filtered.loc[extreme_index].to_dict()
+
+    title = "Minimum"
+    if os.path.exists(args.run_dir + "/maximize"):
+        title = "Maximum"
+
+    extreme_values_items = extreme_values.items()
+
+    filtered_extreme_values_items = {}
+
+    title_values = []
+
+    for l in extreme_values_items:
+        if not args.result_column in l:
+            key = l[0]
+            value = to_int_when_possible(l[1])
+            title_values.append(f"{key} = {value}")
+
+    #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
+
+    title += " of f("
+    title += ', '.join(title_values)
+    title += f") = {to_int_when_possible(result_column_values[extreme_index])}"
+
+    title += f"\nNumber of evaluations shown: {num_entries}"
+
+    if args.min is not None:
+        title += f", show min = {to_int_when_possible(args.min)}"
+
+    if args.max is not None:
+        title += f", show max = {to_int_when_possible(args.max)}"
+
+    return title
+
+
 def main():
     print("DONELOADING")
     # Parse command line arguments
@@ -293,42 +334,9 @@ def main():
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-    #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
-    extreme_index = result_column_values.idxmin()
-    if os.path.exists(args.run_dir + "/maximize"):
-        extreme_index = result_column_values.idxmax()
 
-    extreme_values = df_filtered.loc[extreme_index].to_dict()
 
-    title = "Minimum"
-    if os.path.exists(args.run_dir + "/maximize"):
-        title = "Maximum"
-
-    extreme_values_items = extreme_values.items()
-
-    filtered_extreme_values_items = {}
-
-    title_values = []
-
-    for l in extreme_values_items:
-        if not args.result_column in l:
-            key = l[0]
-            value = to_int_when_possible(l[1])
-            title_values.append(f"{key} = {value}")
-
-    #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
-
-    title += " of f("
-    title += ', '.join(title_values)
-    title += f") = {to_int_when_possible(result_column_values[extreme_index])}"
-
-    title += f"\nNumber of evaluations shown: {num_entries}"
-
-    if args.min is not None:
-        title += f", show min = {to_int_when_possible(args.min)}"
-
-    if args.max is not None:
-        title += f", show max = {to_int_when_possible(args.max)}"
+    title = get_title(args, df_filtered, result_column_values, num_entries)
 
     # Set the title for the figure
     fig.suptitle(title)

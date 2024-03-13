@@ -115,6 +115,24 @@ def check_dir_and_csv (args, csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(10)
 
+def check_min_and_max(args, num_entries, nr_of_items_before_filtering, nr_of_items_before_removing_NO_RESULT):
+    if num_entries is None or num_entries == 0:
+        if nr_of_items_before_filtering:
+            if args.min and not args.max:
+                print(f"Using --min filtered out all results")
+            elif not args.min and args.max:
+                print(f"Using --max filtered out all results")
+            elif args.min and args.max:
+                print(f"Using --min and --max filtered out all results")
+            else:
+                print(f"For some reason, there were values in the beginning but not after filtering")
+        else:
+            if nr_of_items_before_removing_NO_RESULT:
+                print(f"All result entries are {NO_RESULT} (the value meaning execution failed).")
+            else:
+                print(f"No applicable values could be found in {csv_file_path}.")
+        sys.exit(4)
+
 def main():
     print("DONELOADING")
     # Parse command line arguments
@@ -198,22 +216,7 @@ def main():
     df_filtered = df.drop(columns=columns_to_remove)
     num_entries = len(df_filtered)
 
-    if num_entries is None or num_entries == 0:
-        if nr_of_items_before_filtering:
-            if args.min and not args.max:
-                print(f"Using --min filtered out all results")
-            elif not args.min and args.max:
-                print(f"Using --max filtered out all results")
-            elif args.min and args.max:
-                print(f"Using --min and --max filtered out all results")
-            else:
-                print(f"For some reason, there were values in the beginning but not after filtering")
-        else:
-            if nr_of_items_before_removing_NO_RESULT:
-                print(f"All result entries are {NO_RESULT} (the value meaning execution failed).")
-            else:
-                print(f"No applicable values could be found in {csv_file_path}.")
-        sys.exit(4)
+    check_min_and_max(args, num_entries, nr_of_items_before_filtering, nr_of_items_before_removing_NO_RESULT)
 
     # Create combinations of parameters
     r = 2

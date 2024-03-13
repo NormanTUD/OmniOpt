@@ -1264,11 +1264,10 @@ def main ():
     print_color("green", program_name)
 
     experiment_parameters = None
+    checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
 
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args.parameter)
-
-        checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
 
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
@@ -1294,6 +1293,9 @@ def main ():
             ax_client = (AxClient.load_from_json_file(checkpoint_file))
 
             checkpoint_params_file = args.continue_previous_job + "/checkpoint.json.parameters.json"
+
+            with open(checkpoint_filepath, "w") as outfile:
+                json.dump(experiment_parameters, outfile)
 
             if not os.path.exists(checkpoint_params_file):
                 print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")

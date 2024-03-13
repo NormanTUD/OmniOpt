@@ -106,6 +106,15 @@ def check_args (args):
         elif args.min == args.max:
             print("Max and min value are the same. May result in empty data")
 
+def check_dir_and_csv (args, csv_file_path):
+    if not os.path.isdir(args.run_dir):
+        print(f"The path {args.run_dir} does not point to a folder. Must be a folder.")
+        sys.exit(11)
+
+    if not os.path.exists(csv_file_path):
+        print(f'The file {csv_file_path} does not exist.')
+        sys.exit(10)
+
 def main():
     print("DONELOADING")
     # Parse command line arguments
@@ -136,14 +145,8 @@ def main():
 
     # Check if the specified CSV file exists
     csv_file_path = os.path.join(args.run_dir, pd_csv)
-    if not os.path.isdir(args.run_dir):
-        print(f"The path {args.run_dir} does not point to a folder. Must be a folder.")
-        sys.exit(11)
 
-
-    if not os.path.exists(csv_file_path):
-        print(f'The file {csv_file_path} does not exist.')
-        sys.exit(10)
+    check_dir_and_csv(args, csv_file_path)
 
     # Load the DataFrame from the CSV file
     df = None
@@ -176,7 +179,6 @@ def main():
         negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
         positive_rows_to_remove = df[df[result_column].astype(str) == NO_RESULT].index
 
-        # Entferne die Zeilen mit den spezifischen Werten
         df.drop(negative_rows_to_remove, inplace=True)
         df.drop(positive_rows_to_remove, inplace=True)
     except KeyError:

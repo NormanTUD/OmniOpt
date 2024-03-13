@@ -265,15 +265,22 @@ def get_args ():
 
     args = parser.parse_args()
 
+    check_args(args)
+
     return args
+
+def get_csv_file_path(args):
+    pd_csv = "pd.csv"
+    csv_file_path = os.path.join(args.run_dir, pd_csv)
+    check_dir_and_csv(args, csv_file_path)
+
+    return csv_file_path
 
 def main():
     print("DONELOADING")
     # Parse command line arguments
 
     args = get_args()
-
-    check_args(args)
 
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
@@ -285,11 +292,7 @@ def main():
         print(f'The folder {args.run_dir} does not exist.')
         sys.exit(1)
 
-    pd_csv = "pd.csv"
-
-    csv_file_path = os.path.join(args.run_dir, pd_csv)
-
-    check_dir_and_csv(args, csv_file_path)
+    csv_file_path = get_csv_file_path(args)
 
     # Load the DataFrame from the CSV file
     df = None

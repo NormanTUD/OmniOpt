@@ -122,7 +122,15 @@ def main():
     num_entries = len(df_filtered)
 
     if num_entries is None or num_entries == 0:
-        print(f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed)")
+        base_str = "No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed). "
+        if args.min and not args.max:
+            print(f"{base_str}Maybe using --min filtered out all results")
+        elif not args.min and args.max:
+            print(f"{base_str}Maybe using --max filtered out all results")
+        elif args.min and args.max:
+            print(f"{base_str}Maybe using --min and --max filtered out all results")
+        else:
+            print(f"{base_str}")
         sys.exit(4)
 
     # Create combinations of parameters

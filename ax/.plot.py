@@ -276,6 +276,19 @@ def get_csv_file_path(args):
 
     return csv_file_path
 
+def get_df_filtered(df):
+    all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    columns_to_remove = []
+    existing_columns = df.columns.values.tolist()
+
+    for col in existing_columns:
+        if col in all_columns_to_remove:
+            columns_to_remove.append(col)
+
+    df_filtered = df.drop(columns=columns_to_remove)
+
+    return df_filtered
+
 def main():
     print("DONELOADING")
     # Parse command line arguments
@@ -294,23 +307,10 @@ def main():
 
     csv_file_path = get_csv_file_path(args)
 
-    # Load the DataFrame from the CSV file
-    df = None
-    nr_of_items_before_filtering = 0
-
     df = get_data(args, csv_file_path, result_column)
     nr_of_items_before_filtering = len(df)
 
-    # Remove specified columns
-    all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
-    columns_to_remove = []
-    existing_columns = df.columns.values.tolist()
-
-    for col in existing_columns:
-        if col in all_columns_to_remove:
-            columns_to_remove.append(col)
-
-    df_filtered = df.drop(columns=columns_to_remove)
+    df_filtered = get_df_filtered(df)
     num_entries = len(df_filtered)
 
     check_min_and_max(args, num_entries, nr_of_items_before_filtering)

@@ -151,7 +151,7 @@ def main():
                 print(f"For some reason, there were values in the beginning but not after filtering")
         else:
             if nr_of_items_before_removing_NO_RESULT:
-                print(f"No entries in {csv_file_path}, or all result entries are {NO_RESULT} (the value meaning execution failed).")
+                print(f"All result entries are {NO_RESULT} (the value meaning execution failed).")
             else:
                 print(f"No applicable values could be found in {csv_file_path}.")
         sys.exit(4)

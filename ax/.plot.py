@@ -33,11 +33,15 @@ spec.loader.exec_module(my_module)
 try:
     with console.status("[bold green]Importing re") as status:
         import re
-    import pandas as pd
+    with console.status("[bold green]Importing pandas") as status:
+        import pandas as pd
 
-    import matplotlib
-    import matplotlib.pyplot as plt
-    from itertools import combinations
+    with console.status("[bold green]Importing matplotlib") as status:
+        import matplotlib
+        import matplotlib.pyplot as plt
+
+    with console.status("[bold green]Importing combinations from itertools") as status:
+        from itertools import combinations
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(0)

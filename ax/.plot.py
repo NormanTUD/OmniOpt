@@ -243,9 +243,9 @@ def plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, 
         print(f"Wrong values in {csv_file_path}")
         sys.exit(16)
 
-    c = ["darkred","red","lightcoral","white", "palegreen","green","darkgreen"]
+    c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]
     c = c[::-1]
-    v = [0,.15,.4,.5,0.6,.9,1.]
+    v = [0, 0.3, 0.5, 0.7, 0.9, 1]
     l = list(zip(v,c))
     cmap = LinearSegmentedColormap.from_list('rg',l, N=256)
 

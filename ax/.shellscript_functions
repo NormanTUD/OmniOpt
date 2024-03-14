@@ -57,6 +57,21 @@ fi
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 	if [[ ! -d "$VENV_DIR" ]]; then
+		if ! command -v gcc >/dev/null 2>/dev/null; then
+			red "GCC not found. Try installing with, for example, with 'sudo apt-get install gcc' (depending on your distro)"
+			exit 3
+		fi
+
+		if ! command -v resize >/dev/null 2>/dev/null; then
+			red "resize not found. Try installing with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
+			exit 4
+		fi
+
+		if ! python3 -c 'from distutils.sysconfig import get_makefile_filename as m; from os.path import isfile; import sys ; sys.exit(not isfile(m()))' >/dev/null 2>/dev/null; then
+			red "python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)"
+			exit 5
+		fi
+
 		green "Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
 			red "Failed to create Virtual Environment in $VENV_DIR"
@@ -71,6 +86,8 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		}
 
 		green "Virtual Environment activated. Now installing software. This may take some time."
+
+
 
 		pip install --upgrade pip
 

@@ -1819,7 +1819,8 @@ def get_errors_from_outfile (i):
             ["SystemError", "Some error SystemError was found. Check the log."],
             ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
             ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
-            ["error: argument", "Wrong argparse argument"]
+            ["error: argument", "Wrong argparse argument"],
+            ["error: unrecognized arguments", "Wrong argparse argument"]
         ]
 
         for search_array in search_for_python_errors:

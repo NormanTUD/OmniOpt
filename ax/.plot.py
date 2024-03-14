@@ -40,7 +40,6 @@ except ModuleNotFoundError as e:
 
 # Get shell variables or use default values
 BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 15))
-SCIENTIFICNOTATION = int(os.environ.get('SCIENTIFICNOTATION', 2))
 
 def to_int_when_possible (val):
     if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):

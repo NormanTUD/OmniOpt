@@ -355,6 +355,13 @@ def use_matplotlib(args):
     if not args.save_to_file:
         matplotlib.use('TkAgg')
 
+def get_result_column_values(df, result_column):
+    result_column_values = df[result_column]
+
+    check_if_results_are_empty(result_column_values)
+
+    return result_column_values
+
 def main():
     print("DONELOADING")
 
@@ -387,9 +394,7 @@ def main():
 
     plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
-    result_column_values = df[result_column]
-
-    check_if_results_are_empty(result_column_values)
+    result_column_values = get_result_column_values(df, result_column)
 
     set_title(fig, args, df_filtered, result_column_values, num_entries)
 

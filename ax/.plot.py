@@ -377,9 +377,8 @@ def main():
     nr_of_items_before_filtering = len(df)
 
     df_filtered = get_df_filtered(df)
-    num_entries = len(df_filtered)
 
-    check_min_and_max(args, num_entries, nr_of_items_before_filtering)
+    check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering)
 
     parameter_combinations = get_parameter_combinations(df_filtered)
 
@@ -396,7 +395,7 @@ def main():
 
     result_column_values = get_result_column_values(df, result_column)
 
-    set_title(fig, args, df_filtered, result_column_values, num_entries)
+    set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
 
     set_margins(fig)
 

@@ -1393,7 +1393,7 @@ def main ():
                             best_result = means["result"]
 
                             if str(best_result) != NO_RESULT:
-                                desc += ", best loss: " + '{:f}'.format(best_result)
+                                desc += " (best loss: " + '{:f}'.format(best_result) + ")"
                     except Exception as e:
                         pass
 

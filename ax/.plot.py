@@ -386,7 +386,7 @@ def main(args):
 
     set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
 
-    set_margins(fig)
+    #set_margins(fig)
 
     fig.canvas.manager.set_window_title(args.run_dir)
 

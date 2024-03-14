@@ -356,7 +356,6 @@ def get_result_column_values(df, result_column):
     return result_column_values
 
 def main(args):
-
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
     use_matplotlib(args)

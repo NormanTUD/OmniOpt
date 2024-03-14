@@ -643,7 +643,7 @@ def add_to_csv(file_path, heading, data_line):
             csv_writer.writerow(heading)
 
         # desc += " (best loss: " + '{:f}'.format(best_result) + ")"
-        data_line = ["{:.20f}".format(x) for x in data_line]
+        data_line = ["{:.20f}".format(x) if type(x) == int or type(x) == float else x for x in data_line]
         csv_writer.writerow(data_line)
 
 def make_strings_equal_length(str1, str2):
@@ -1983,7 +1983,7 @@ if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
             #dier(get_best_params("runs/example_network/0/0.csv", "result"))
-            #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001]))
+            #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
 
             run_tests()
         else:

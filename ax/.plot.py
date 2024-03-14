@@ -337,10 +337,14 @@ def get_r (df_filtered):
 
     return r
 
-def get_parameter_combinations (df_filtered):
+def get_parameter_combinations (df_filtered, result_column):
     r = get_r(df_filtered)
 
-    parameter_combinations = list(combinations(df_filtered.columns, r))
+    df_filtered_cols = df_filtered.columns.tolist()
+
+    del df_filtered_cols[df_filtered_cols.index(result_column)]
+
+    parameter_combinations = list(combinations(df_filtered_cols, r))
 
     return parameter_combinations
 
@@ -369,7 +373,7 @@ def main(args):
 
     check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path)
 
-    parameter_combinations = get_parameter_combinations(df_filtered)
+    parameter_combinations = get_parameter_combinations(df_filtered, result_column)
 
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
 

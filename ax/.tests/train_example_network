@@ -108,10 +108,10 @@ fi
 	 --gpus=$NUM_GPUS \
 	 --follow \
 	 --run_program=LnRlc3RzL2V4YW1wbGVfbmV0d29yay9ydW4uc2ggLS1lcG9jaHM9JShlcG9jaHMpIC0tbGVhcm5pbmdfcmF0ZT0lKGxlYXJuaW5nX3JhdGUpIC0tdmFsaWRhdGlvbl9zcGxpdD0lKHZhbGlkYXRpb25fc3BsaXQpIC0td2lkdGg9JSh3aWR0aCkgLS1oZWlnaHQ9JShoZWlnaHQp \
-	 --parameter width range 20 100 int \
-	 --parameter height range 20 100 int \
+	 --parameter width range 20 80 int \
+	 --parameter height range 20 80 int \
 	 --parameter validation_split range 0 0.4 float \
-	 --parameter learning_rate range 0.00001 0.1 float \
+	 --parameter learning_rate range 0.00001 0.2 float \
 	 --parameter epochs range 1 100 int \
 	 --debug
 

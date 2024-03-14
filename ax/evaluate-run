@@ -227,9 +227,9 @@ function list_option_for_job {
 				echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
 				list_projects
 			elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
-				CHOSEN=$(ls $PROJECTDIR/$PROJECT | head -n1)
-
-				list_option_for_job "$WHATTODO" $CHOSEN
+				list_projects
+			else
+				chose_project_number "$PROJECT"
 			fi
 		elif [[ "$WHATTODO" =~ "q)" ]]; then
 			exit

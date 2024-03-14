@@ -264,6 +264,7 @@ def get_args ():
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
     parser.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+    parser.add_argument('--dark_theme', help='Enable darktheme', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -354,8 +355,7 @@ def get_result_column_values(df, result_column):
 
     return result_column_values
 
-def main():
-    args = get_args()
+def main(args):
 
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
@@ -398,8 +398,14 @@ def main():
 
 if __name__ == "__main__":
     try:
-        #with plt.style.context('dark_background'):
-        with plt.style.context('ggplot'):
-            main()
+        args = get_args()
+
+        theme = "ggplot"
+
+        if args.dark_theme:
+            theme = "dark_background"
+
+        with plt.style.context(theme):
+            main(args)
     except KeyboardInterrupt as e:
         sys.exit(0)

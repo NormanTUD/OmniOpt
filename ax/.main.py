@@ -1934,10 +1934,53 @@ def log_nr_of_workers ():
         with open(logfile_nr_workers, 'a+') as f:
             f.write(str(nr_of_workers) + "\n")
 
+def get_best_params(csv_file_path, result_column):
+    import pandas as pd
+    if not os.path.exists(csv_file_path):
+        return None
+
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+        df.dropna(subset=[result_column], inplace=True)
+    except pd.errors.EmptyDataError:
+        print(f"{csv_file_path} has no lines to parse.")
+        sys.exit(5)
+    except pd.errors.ParserError as e:
+        print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
+        sys.exit(12)
+    except UnicodeDecodeError:
+        print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
+        sys.exit(7)
+
+    cols = df.columns.tolist()
+    nparray = df.to_numpy()
+
+    best_line = None
+
+    result_idx = cols.index(result_column)
+
+    best_result = val_if_nothing_found
+    if args.maximize:
+        best_result = -val_if_nothing_found
+
+    for i in range(0, len(nparray)):
+        this_line = nparray[i]
+        this_line_result = this_line[result_idx]
+
+        if args.maximize and (type(this_line_result) == float or type(this_line_result) == int) and this_line_result >= best_result:
+            best_line = this_line
+        elif not args.maximize and (type(this_line_result) == float or type(this_line_result) == int) and this_line_result <= best_result:
+            best_line = this_line
+
+    dier(best_line)
+        
+
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            #dier(get_errors_from_outfile("runs/test_wronggoing_stuff/1/2440613/2440613_0_log.out"))
+            #dier(get_best_params("runs/example_network/0/0.csv", "result"))
             run_tests()
         else:
             warnings.simplefilter("ignore")

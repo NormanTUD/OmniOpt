@@ -1963,26 +1963,46 @@ def get_best_params(csv_file_path, result_column):
 
     result_idx = cols.index(result_column)
 
-    best_result = val_if_nothing_found
-    if args.maximize:
-        best_result = -val_if_nothing_found
+    best_result = None
 
     for i in range(0, len(nparray)):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
-        if args.maximize and (type(this_line_result) == float or type(this_line_result) == int) and this_line_result >= best_result:
-            best_line = this_line
-        elif not args.maximize and (type(this_line_result) == float or type(this_line_result) == int) and this_line_result <= best_result:
-            best_line = this_line
+        if type(this_line_result) in [float, int]:
+            if best_result is None:
+                best_line = this_line
+                best_result = this_line_result               
+            elif args.maximize and this_line_result >= best_result:
+                best_line = this_line
+                best_result = this_line_result
+            elif not args.maximize and this_line_result <= best_result:
+                best_line = this_line
+                best_result = this_line_result
 
-    dier(best_line)
-        
+    results = {
+        result_column: None,
+        "parameters": {}
+    }
+
+    if best_line is None:
+        print_debug("Could not determine best result")
+        return results
+
+    for i in range(0, len(cols)):
+        col = cols[i]
+        if col not in ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"]:
+            if col == result_column:
+                results[result_column] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+            else:
+                results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+
+    return results
 
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            #dier(get_best_params("runs/example_network/0/0.csv", "result"))
+            #dier(get_best_params("x.csv", "result"))
             #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
 
             run_tests()

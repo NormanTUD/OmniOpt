@@ -126,7 +126,7 @@ def check_dir_and_csv (args, csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(10)
 
-def check_min_and_max(args, num_entries, nr_of_items_before_filtering):
+def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_path):
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if args.min and not args.max:
@@ -367,7 +367,7 @@ def main(args):
 
     df_filtered = get_df_filtered(df)
 
-    check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering)
+    check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path)
 
     parameter_combinations = get_parameter_combinations(df_filtered)
 

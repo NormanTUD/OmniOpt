@@ -218,6 +218,7 @@ function list_option_for_job {
 	)
 
 	exitstatus=$?
+
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$WHATTODO" =~ "b)" ]]; then
 			num_of_subfolder_numbers=$(ls $PROJECTDIR/$PROJECT | wc -l)

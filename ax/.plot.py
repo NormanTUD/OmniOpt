@@ -9,12 +9,8 @@ import math
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-console = None
-
 try:
     from rich.pretty import pprint
-    from rich.console import Console
-    console = Console(force_terminal=True, force_interactive=True)
 except ModuleNotFoundError:
     from pprint import pprint
 
@@ -31,17 +27,13 @@ my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
 try:
-    with console.status("[bold green]Importing re") as status:
-        import re
-    with console.status("[bold green]Importing pandas") as status:
-        import pandas as pd
+    import re
+    import pandas as pd
 
-    with console.status("[bold green]Importing matplotlib") as status:
-        import matplotlib
-        import matplotlib.pyplot as plt
+    import matplotlib
+    import matplotlib.pyplot as plt
 
-    with console.status("[bold green]Importing combinations from itertools") as status:
-        from itertools import combinations
+    from itertools import combinations
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(0)

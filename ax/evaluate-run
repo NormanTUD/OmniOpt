@@ -207,12 +207,29 @@ function list_option_for_job {
 		CONTINUED_FROM="$(cat $THISPROJECTDIR/$NUMBER/checkpoint_load_source)"
 	fi
 
-	WHATTODO=$(whiptail --title "Available options for >${PROJECT}< (run number $NUMBER)" --menu "Chose what to do with >$PROJECT<. $CONTINUED_FROM" $LINES $COLUMNS $(( $LINES - 8 )) "${args[@]}" "b)" "back" "q)" "quit" 3>&1 1>&2 2>&3)
+	WHATTODO=$(whiptail \
+		--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+		--menu \
+		"Chose what to do with >$PROJECT<. $CONTINUED_FROM" \
+		$LINES $COLUMNS $(( $LINES - 8 )) \
+		"${args[@]}" \
+		"b)" "back" \
+		"q)" "quit" 3>&1 1>&2 2>&3
+	)
 
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$WHATTODO" =~ "b)" ]]; then
-			chose_project_number $PROJECT
+			num_of_subfolder_numbers=$(ls $PROJECTDIR/$PROJECT | wc -l)
+
+			if [[ $num_of_subfolder_numbers -eq 0 ]]; then
+				echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
+				list_projects
+			elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
+				CHOSEN=$(ls $PROJECTDIR/$PROJECT | head -n1)
+
+				list_option_for_job "$WHATTODO" $CHOSEN
+			fi
 		elif [[ "$WHATTODO" =~ "q)" ]]; then
 			exit
 		elif [[ "$WHATTODO" =~ "d)" ]]; then

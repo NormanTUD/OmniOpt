@@ -1192,9 +1192,15 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
-                print_debug("Got job result")
-                ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                done_jobs += 1
+                print_debug(f"Got job result: {result}")
+                if result != val_if_nothing_found:
+                    ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+
+                    done_jobs += 1
+                else:
+                    job.cancel()
+
+                    failed_jobs += 1
             except submitit.core.utils.UncompletedJobError as error:
                 print_color("red", str(error))
 
@@ -1225,8 +1231,11 @@ def get_desc_progress_bar(result_csv_file, searching_for):
     global failed_jobs
 
     desc = f"Searching {searching_for}"
+    
+    in_brackets = []
+
     if failed_jobs:
-        desc = desc + f" (failed: {failed_jobs})"
+        in_brackets.append(f"failed: {failed_jobs}")
 
     best_params = None
 
@@ -1235,7 +1244,10 @@ def get_desc_progress_bar(result_csv_file, searching_for):
         best_result = best_params["result"]
 
         if str(best_result) != NO_RESULT and best_result is not None:
-            desc += ' (best result: {:f})'.format(float(best_result))
+            in_brackets.append('best result: {:f}'.format(float(best_result)))
+
+    if len(in_brackets):
+        desc += f" ({', '.join(in_brackets)})"
 
     return desc
 
@@ -1997,7 +2009,7 @@ def get_best_params(csv_file_path, result_column):
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            #dier(get_best_params("x.csv", "result"))
+            #dier(get_best_params("runs/test_wronggoing_stuff/4/0.csv", "result"))
             #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
 
             run_tests()

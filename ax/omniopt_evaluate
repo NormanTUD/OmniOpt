@@ -271,7 +271,7 @@ function list_option_for_job {
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				set +e
-				OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
+				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
@@ -293,7 +293,7 @@ function list_option_for_job {
 				done
 
 				set +e
-				OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
+				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
@@ -348,14 +348,14 @@ function list_option_for_job {
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -364,14 +364,14 @@ function list_option_for_job {
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -430,14 +430,14 @@ function list_option_for_job {
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -446,14 +446,14 @@ function list_option_for_job {
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi

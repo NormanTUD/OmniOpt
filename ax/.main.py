@@ -880,7 +880,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
 
-def show_end_table_and_save_end_files ():
+def show_end_table_and_save_end_files (csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")
 
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
@@ -910,12 +910,14 @@ def show_end_table_and_save_end_files ():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            best_parameters, (means, covariances) = ax_client.get_best_parameters() # TODO get_best_params nutzen
+            #best_parameters, (means, covariances) = ax_client.get_best_parameters() # TODO get_best_params nutzen
+
+            best_params = get_best_params(csv_file_path, result_column)
 
             print_debug("[show_end_table_and_save_end_files] Got best params")
-            best_result = means["result"]
+            best_result = best_params["result"]
 
-            if str(best_result) == NO_RESULT:
+            if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
                 table_str = "Best result could not be determined"
                 print_color("red", table_str)
                 exit = 1
@@ -923,14 +925,14 @@ def show_end_table_and_save_end_files ():
                 print_debug("[show_end_table_and_save_end_files] Creating table")
                 table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
-                for key in best_parameters.keys():
+                for key in best_params["parameters"].keys():
                     table.add_column(key)
 
                 print_debug("[show_end_table_and_save_end_files] Add last column to table")
-                table.add_column("result (inexact)")
+                table.add_column("result")
 
                 print_debug("[show_end_table_and_save_end_files] Defining rows")
-                row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
+                row_without_result = [str(best_params["parameters"][key]) for key in best_params["parameters"].keys()];
                 row = [*row_without_result, str(best_result)]
 
                 print_debug("[show_end_table_and_save_end_files] Adding rows to table")
@@ -956,7 +958,7 @@ def show_end_table_and_save_end_files ():
 
     sys.exit(exit)
 
-def end_program ():
+def end_program (csv_file_path, result_column="result"):
     print_debug("[end_program] end_program started")
 
     global current_run_folder
@@ -990,13 +992,13 @@ def end_program ():
             return
 
         print_debug("[end_program] Calling show_end_table_and_save_end_files")
-        exit = show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called")
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
-        exit = show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
@@ -1474,7 +1476,7 @@ def main ():
                                             print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
                                     except (signalUSR, signalINT) as e:
                                         print_color("red", f"\n:warning: Detected signal. Will exit.")
-                                        end_program()
+                                        end_program(result_csv_file)
                                     except Exception as e:
                                         print_color("red", f"\n:warning: Starting job failed with error: {e}")
                                     except Exception as e:
@@ -1483,7 +1485,7 @@ def main ():
                                 print_color("red", "\n:warning: " + str(e))
                             except botorch.exceptions.errors.ModelFittingError as e:
                                 print_color("red", "\n:warning: " + str(e))
-                                end_program()
+                                end_program(result_csv_file)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:
@@ -1491,12 +1493,12 @@ def main ():
 
                     if not args.no_sleep:
                         time.sleep(0.1)
-            end_program()
+        end_program(result_csv_file)
     except trainingDone as e:
-        end_program()
+        end_program(result_csv_file)
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
-        end_program()
+        end_program(result_csv_file)
 
 def _unidiff_output(expected, actual):
     """

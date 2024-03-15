@@ -263,6 +263,15 @@ if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("test_wronggoing_stuff failed")
 fi
 
+yellow_text "Test stuff that goes wrong (totally without successful runs)..."
+
+.tests/test_wronggoing_stuff
+
+exit_code=$?
+if [[ "$exit_code" -ne "0" ]]; then
+	errors+=("test_wronggoing_stuff (without successes) failed")
+fi
+
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
 	exit 0

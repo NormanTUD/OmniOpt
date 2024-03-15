@@ -29,6 +29,7 @@ trap 'calltracer' ERR
 function help () {
         echo "Possible options:"
         echo "  --use-ram-tests                                    Run test that allocates more and more memory"
+        echo "  --nosuccess                                        Don't run successful tests"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -42,9 +43,14 @@ function join_by {
 }
 
 export useramtests=0
+export nosuccess=0
 
 for i in $@; do
         case $i in
+                --nosuccess)
+                        nosuccess=1
+                        shift
+                        ;;
                 --use-ram-tests)
                         useramtests=1
                         shift
@@ -65,21 +71,16 @@ done
 which_programs=(
 	"divide_by_0"
 	"exit_code_no_output"
-	"exit_code_stdout"
 	"exit_code_stdout_stderr"
 	"module_not_found"
-	"result_but_exit_code_stdout_stderr"
 	"signal"
-	"simple_ok"
 	"empty"
 	#"takes_forever"
 	#"takes_forever_but_has_result"
 	"file_does_not_exist"
 	"no_chmod_x"
 	"no_shebang"
-	"perl"
 	"perl_module_fail"
-	"signal_but_has_output"
 	"segfault"
 	"wrong_arch"
 	"python_name_error"
@@ -87,6 +88,14 @@ which_programs=(
 	"tensorflow_syntax_error"
 	"force_keyboard_interrupt"
 )
+
+if [[ "$nosuccess" -eq "0" ]]; then
+	which_programs+=("simple_ok")
+	which_programs+=("perl")
+	which_programs+=("result_but_exit_code_stdout_stderr")
+	which_programs+=("exit_code_stdout")
+	which_programs+=("signal_but_has_output")
+fi
 
 if [[ "$useramtests" -eq "1" ]]; then
 	which_programs+=("allocate_ram_forever")

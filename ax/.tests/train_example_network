@@ -97,7 +97,7 @@ if [[ -d runs/example_network/ ]]; then
 fi
 
 # run_program = .tests/example_network/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --validation_split=%(validation_split) --width=%(width) --height=%(height)
- ./main \
+ ./omniopt \
 	 --partition=$PARTITION \
 	 --experiment_name=example_network \
 	 --mem_gb=5 \
@@ -115,4 +115,4 @@ fi
 	 --parameter epochs range 1 100 int \
 	 --debug
 
- exit $?
+exit $?

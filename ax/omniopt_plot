@@ -55,7 +55,7 @@ source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
 
 set +e
-OUTPUT=$(python3 $SCRIPT_DIR/.plot.py $*)
+OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot.py $*)
 exit_code=$?
 set -e
 

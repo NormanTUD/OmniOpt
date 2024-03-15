@@ -51,7 +51,7 @@ setup(name='omniopt',
     data_files=[('bin', [
         "evaluate-run", 
         ".helpers.py", 
-        "main", 
+        "omniopt", 
         ".main.py", 
         "plot", 
         ".plot.py", 

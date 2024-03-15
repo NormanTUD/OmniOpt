@@ -115,7 +115,7 @@ NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
 cd ..
 cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
-./main \
+./omniopt \
 	--debug \
 	--partition=$PARTITION \
 	--experiment_name=test_wronggoing_stuff \

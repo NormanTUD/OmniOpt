@@ -129,7 +129,7 @@ errors=()
 
 cd ..
 
-./main --tests --mem_gb 1 --time 1 --experiment_name test_name --debug
+./omniopt --tests --mem_gb 1 --time 1 --experiment_name test_name --debug
 exit_code=$?
 if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Simple tests failed")
@@ -147,7 +147,7 @@ fi
 yellow_text "Starting main program..."
 
 if [[ "$no_sleep" -eq 1 ]]; then
-	./main \
+	./omniopt \
 		--debug \
 		--partition=$PARTITION \
 		--experiment_name=$TESTNAME \
@@ -165,7 +165,7 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--follow \
 		--no_sleep
 else
-	./main \
+	./omniopt \
 		--debug \
 		--partition=$PARTITION \
 		--experiment_name=$TESTNAME \
@@ -188,12 +188,12 @@ exit_code=$?
 yellow_text "Main program ended..."
 
 if [[ "$exit_code" -ne "0" ]]; then
-	errors+=("main script failed.")
+	errors+=("omniopt script failed.")
 fi
 
 yellow_text "Trying to continue previous job"
 
-./main --debug --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
+./omniopt --debug --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
 
 exit_code=$?
 
@@ -210,7 +210,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./main --debug --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS || true
+./omniopt --debug --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS || true
 PE=$PIPEERROR
 
 exit_code=$?
@@ -224,7 +224,7 @@ fi
 yellow_text "Calling plot function for runs/$TESTNAME/0"
 
 TMP_FILE_PATH="._test_run.svg"
-./plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
+./omniopt_plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
 
 yellow_text "Checking plot function"
 if [[ -e $TMP_FILE_PATH ]]; then

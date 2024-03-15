@@ -125,6 +125,6 @@ cd ..
 	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=50 \
 	--gpus=$GPUS \
-	--run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== \
+	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \
 	--follow

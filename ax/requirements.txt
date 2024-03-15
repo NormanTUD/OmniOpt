@@ -1,3 +1,4 @@
+setuptools>=61
 Rich
 scikit-learn
 submitit

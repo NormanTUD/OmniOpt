@@ -910,7 +910,7 @@ def show_end_table_and_save_end_files ():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            best_parameters, (means, covariances) = ax_client.get_best_parameters()
+            best_parameters, (means, covariances) = ax_client.get_best_parameters() # TODO get_best_params nutzen
 
             print_debug("[show_end_table_and_save_end_files] Got best params")
             best_result = means["result"]

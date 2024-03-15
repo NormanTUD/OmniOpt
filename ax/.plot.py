@@ -41,6 +41,10 @@ except ModuleNotFoundError as e:
 
 # Get shell variables or use default values
 BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 15))
+ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
+
+if ORIGINAL_PWD:
+    os.chdir(ORIGINAL_PWD)
 
 def to_int_when_possible (val):
     if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
@@ -116,6 +120,8 @@ def check_args (args):
             args.min = tmp
         elif args.min == args.max:
             print("Max and min value are the same. May result in empty data")
+
+    check_path(args)
 
 def check_dir_and_csv (args, csv_file_path):
     if not os.path.isdir(args.run_dir):
@@ -273,8 +279,6 @@ def get_args ():
     args = parser.parse_args()
 
     check_args(args)
-
-    check_path(args)
 
     return args
 

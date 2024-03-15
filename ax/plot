@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export ORIGINAL_PWD=$(pwd)
+
 echo -ne "\033]30;OmniOpt: plot\007"
 
 function echoerr() {
@@ -47,13 +49,13 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	fi
 fi
 
-cd $SCRIPT_DIR
+cd $ORIGINAL_PWD
 
-source .shellscript_functions
-source .general.sh
+source $SCRIPT_DIR/.shellscript_functions
+source $SCRIPT_DIR/.general.sh
 
 set +e
-OUTPUT=$(python3 .plot.py $*)
+OUTPUT=$(python3 $SCRIPT_DIR/.plot.py $*)
 exit_code=$?
 set -e
 

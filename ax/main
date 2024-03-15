@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ORIGINAL_PWD=$(pwd)
+export ORIGINAL_PWD=$(pwd)
 
 echo -ne "\033]30;OmniOpt\007"
 

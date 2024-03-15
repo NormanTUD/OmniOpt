@@ -21,6 +21,8 @@ class trainingDone (Exception):
     pass
 
 try:
+    import warnings
+    import pandas as pd
     import random
     from pathlib import Path
     import glob
@@ -1177,7 +1179,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress_bar, jobs):
+def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1215,6 +1217,27 @@ def finish_previous_jobs (progress_bar, jobs):
 
             save_checkpoint()
             save_pd_csv()
+
+    progress_bar.set_description(get_desc_progress_bar(result_csv_file, searching_for))
+
+def get_desc_progress_bar(result_csv_file, searching_for):
+    global done_jobs
+    global failed_jobs
+
+    desc = f"Searching {searching_for}"
+    if failed_jobs:
+        desc = desc + f" (failed: {failed_jobs})"
+
+    best_params = None
+
+    if done_jobs:
+        best_params = get_best_params(result_csv_file, "result")
+        best_result = best_params["result"]
+
+        if str(best_result) != NO_RESULT and best_result is not None:
+            desc += ' (best result: {:f})'.format(float(best_result))
+
+    return desc
 
 def main ():
     print_debug("main")
@@ -1383,30 +1406,10 @@ def main ():
             with tqdm(total=max_eval, disable=False) as progress_bar:
                 while submitted_jobs < max_eval or jobs:
                     log_nr_of_workers()
-                    desc = f"Searching {searching_for}"
-                    if failed_jobs:
-                        desc = desc + f" (failed: {failed_jobs})"
-
-                    try:
-                        if done_jobs > 10:
-                            disable_logging()
-
-                            best_parameters, (means, covariances) = ax_client.get_best_parameters()
-                            best_result = means["result"]
-
-                            if str(best_result) != NO_RESULT:
-                                desc += " (best loss: " + '{:f}'.format(best_result) + ")"
-                    except Exception as e:
-                        pass
-
-                    desc = desc + "..."
-
-                    progress_bar.set_description(desc)
 
                     # Schedule new jobs if there is availablity
                     try:
                         new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
-                        print_debug(f"done_jobs: {done_jobs}, failed_jobs: {failed_jobs}")
                         if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
@@ -1415,7 +1418,7 @@ def main ():
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
                         for m in range(0, calculated_max_trials):
-                            finish_previous_jobs(progress_bar, jobs)
+                            finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
 
                             try:
                                 print_debug("Trying to get trial_index_to_param")
@@ -1937,24 +1940,21 @@ def log_nr_of_workers ():
             f.write(str(nr_of_workers) + "\n")
 
 def get_best_params(csv_file_path, result_column):
-    import pandas as pd
+    results = {
+        result_column: None,
+        "parameters": {}
+    }
+
     if not os.path.exists(csv_file_path):
-        return None
+        return results
 
     df = None
 
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
         df.dropna(subset=[result_column], inplace=True)
-    except pd.errors.EmptyDataError:
-        print(f"{csv_file_path} has no lines to parse.")
-        sys.exit(5)
-    except pd.errors.ParserError as e:
-        print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
-        sys.exit(12)
-    except UnicodeDecodeError:
-        print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
-        sys.exit(7)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError):
+        return results
 
     cols = df.columns.tolist()
     nparray = df.to_numpy()
@@ -1979,11 +1979,6 @@ def get_best_params(csv_file_path, result_column):
             elif not args.maximize and this_line_result <= best_result:
                 best_line = this_line
                 best_result = this_line_result
-
-    results = {
-        result_column: None,
-        "parameters": {}
-    }
 
     if best_line is None:
         print_debug("Could not determine best result")

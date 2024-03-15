@@ -300,7 +300,8 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
-helpers_file = ".helpers.py"
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",

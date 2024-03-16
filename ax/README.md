@@ -28,3 +28,7 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 ```command
 ./tests/main_tests
 ```
+
+# Install from repo
+
+`pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2`

@@ -494,6 +494,18 @@
 								is_ok = false;
 							}
 
+							if (numberType == "int") {
+								var parsed_int_max = parseInt(maxValue);
+								if (parsed_int_max != maxValue) {
+									warn_msg.push("maxValue is not an integer");
+								}
+
+								var parsed_int_min = parseInt(minValue);
+								if (parsed_int_min != minValue) {
+									warn_msg.push("minValue is not an integer");
+								}
+							}
+
 							if(is_ok) {
 								_value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
 							}

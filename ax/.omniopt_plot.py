@@ -46,12 +46,19 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def to_int_when_possible (val):
+def to_int_when_possible(val):
     if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
         return int(val)
-    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)$', val) is None:
+    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
         return val
-    return '{:f}'.format(val)
+
+    try:
+        val = float(val)
+
+        return '{:.{}f}'.format(val, len(str(val).split('.')[1])).rstrip('0').rstrip('.')
+    except:
+        return val
+
 
 def set_margins (fig):
     left  = 0.125

@@ -55,7 +55,7 @@ def to_int_when_possible (val):
 
 def set_margins (fig):
     left  = 0.125
-    right = 0.9
+    right = 0.85
     bottom = 0.12
     top = 0.9
     wspace = 0.2

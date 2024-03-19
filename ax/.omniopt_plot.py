@@ -59,9 +59,9 @@ def set_margins (fig):
     bottom = 0.12
     top = 0.9
     wspace = 0.2
-    hspace = 0.3
+    hspace = 0.6
 
-    fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=wspace)
+    fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
 def check_if_results_are_empty(result_column_values):
     filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
@@ -398,7 +398,7 @@ def main(args):
 
     set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
 
-    #set_margins(fig)
+    set_margins(fig)
 
     fig.canvas.manager.set_window_title(args.run_dir)
 

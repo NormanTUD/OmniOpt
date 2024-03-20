@@ -533,6 +533,12 @@
 							}
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();
+
+							fixedValue = fixedValue.replace(/,*$/g, "");
+							fixedValue = fixedValue.replace(/,+/g, ",");
+
+							log("fixedValue after replacing:", fixedValue)
+
 							_value = `${parameterName} fixed ${fixedValue}`;
 
 							if(fixedValue === undefined) {

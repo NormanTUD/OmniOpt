@@ -437,6 +437,7 @@
 
 						if(new_errors.length) {
 							$("#run_program_error").html(string_or_array_to_list(new_errors)).show();
+							errors.push(...new_errors);
 						} else {
 							$("#run_program_error").html("").hide();
 						}

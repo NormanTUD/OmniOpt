@@ -237,56 +237,60 @@
 
 				partitionSelect.on("change", function() {
 					var partition = $(this).val();
-					var partitionInfo = partition_data[partition];
+					if(Object.keys(partition_data).includes(partition)) {
+						var partitionInfo = partition_data[partition];
 
-					if (partitionInfo) {
-						$("#mem_gb").attr("max", Math.floor(partitionInfo.max_mem_per_core / 1000)).each(function() {
-							if ($(this).val() > $(this).attr("max")) {
-								$(this).val($(this).attr("max"));
-							}
-						});
+						if (partitionInfo) {
+							$("#mem_gb").attr("max", Math.floor(partitionInfo.max_mem_per_core / 1000)).each(function() {
+								if ($(this).val() > $(this).attr("max")) {
+									$(this).val($(this).attr("max"));
+								}
+							});
 
-						$("#time").attr("max", partitionInfo.computation_time).each(function() {
-							if ($(this).val() > $(this).attr("max")) {
-								$(this).val($(this).attr("max"));
-							}
-						});
+							$("#time").attr("max", partitionInfo.computation_time).each(function() {
+								if ($(this).val() > $(this).attr("max")) {
+									$(this).val($(this).attr("max"));
+								}
+							});
 
-						$("#worker_timeout").attr("max", partitionInfo.computation_time).each(function() {
-							if ($(this).val() > $(this).attr("max")) {
-								$(this).val($(this).attr("max"));
-							}
-						});
+							$("#worker_timeout").attr("max", partitionInfo.computation_time).each(function() {
+								if ($(this).val() > $(this).attr("max")) {
+									$(this).val($(this).attr("max"));
+								}
+							});
 
-						$("#max_eval").attr("min", 1).each(function() {
-							if ($(this).val() < $(this).attr("min")) {
-								$(this).val($(this).attr("min"));
-							}
-						});
+							$("#max_eval").attr("min", 1).each(function() {
+								if ($(this).val() < $(this).attr("min")) {
+									$(this).val($(this).attr("min"));
+								}
+							});
 
-						$("#num_parallel_jobs").attr("min", 1).each(function() {
-							if ($(this).val() < $(this).attr("min")) {
-								$(this).val($(this).attr("min"));
-							}
-						});
+							$("#num_parallel_jobs").attr("min", 1).each(function() {
+								if ($(this).val() < $(this).attr("min")) {
+									$(this).val($(this).attr("min"));
+								}
+							});
 
-						$("#num_parallel_jobs").attr("max", partitionInfo.number_of_workers).each(function() {
-							if ($(this).val() > $(this).attr("max")) {
-								$(this).val($(this).attr("max"));
-							}
-						});
+							$("#num_parallel_jobs").attr("max", partitionInfo.number_of_workers).each(function() {
+								if ($(this).val() > $(this).attr("max")) {
+									$(this).val($(this).attr("max"));
+								}
+							});
 
-						$("#gpus").attr("max", partitionInfo.max_number_of_gpus).each(function() {
-							if ($(this).val() > $(this).attr("max")) {
-								$(this).val($(this).attr("max"));
-							}
-						});
+							$("#gpus").attr("max", partitionInfo.max_number_of_gpus).each(function() {
+								if ($(this).val() > $(this).attr("max")) {
+									$(this).val($(this).attr("max"));
+								}
+							});
 
-						$("#gpus").attr("min", partitionInfo.min_number_of_gpus).each(function() {
-							if ($(this).val() < $(this).attr("min")) {
-								$(this).val($(this).attr("min"));
-							}
-						});
+							$("#gpus").attr("min", partitionInfo.min_number_of_gpus).each(function() {
+								if ($(this).val() < $(this).attr("min")) {
+									$(this).val($(this).attr("min"));
+								}
+							});
+						}
+					} else {
+						console.error(`Cannot find ${partition} in partition_data.`)
 					}
 
 					update_url();

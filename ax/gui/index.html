@@ -537,7 +537,7 @@
 							fixedValue = fixedValue.replace(/,*$/g, "");
 							fixedValue = fixedValue.replace(/,+/g, ",");
 
-							log("fixedValue after replacing:", fixedValue)
+							fixedValue = Array.from(new Set(fixedValue.split(','))).join(',');
 
 							_value = `${parameterName} fixed ${fixedValue}`;
 

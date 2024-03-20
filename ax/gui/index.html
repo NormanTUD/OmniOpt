@@ -288,6 +288,8 @@
 									$(this).val($(this).attr("min"));
 								}
 							});
+						} else {
+							console.error(`No partition info`)
 						}
 					} else {
 						console.error(`Cannot find ${partition} in partition_data.`)
@@ -310,11 +312,22 @@
 						let red = "rgb(229, 115, 115)";
 
 						if (_min !== null && (isNaN(value) || value < _min)) {
-							$(input).css("background-color", red)
+							//$(input).css("background-color", red)
+							if(isNaN(value)) {
+								$(input).parent().find("[id$='_error']").html("Value is empty");
+							}
+
+							if(value < _min) {
+								$(input).parent().find("[id$='_error']").html(`Value is smaller than the minimal value ${_min}`);
+							}
 						} else if (_max !== null && value > _max) {
-							$(input).css("background-color", red)
+							//$(input).css("background-color", red)
+
+							$(input).parent().find("[id$='_error']").html(`Value is larger than the maximal value ${_max}`);
 						} else {
-							$(input).css("background-color", "rgb(255, 255, 255)")
+							//$(input).css("background-color", "rgb(255, 255, 255)")
+
+							$(input).parent().find("[id$='_error']").html("");
 						}
 					}
 				});

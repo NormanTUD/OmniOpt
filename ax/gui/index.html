@@ -541,6 +541,10 @@
 								warn_msg.push("Value is missing.");
 
 								$($(".parameterRow")[i]).css("background-color", "orange")
+							} else if(!fixedValue.match(/^[a-zA-Z0-9,_]+$/)) {
+								warn_msg.push("Invalid values. Must match Regex /[a-zA-Z0-9,_]/.");
+
+								$($(".parameterRow")[i]).css("background-color", "orange")
 							}
 						}
 

@@ -538,12 +538,15 @@
 						} else if (option === "fixed") {
 							var fixedValue = $(this).find(".fixedValue").val();
 
-							fixedValue = fixedValue.replace(/,*$/g, "");
-							fixedValue = fixedValue.replace(/,+/g, ",");
+							if(typeof(fixedValue) == "string") {
+								fixedValue = fixedValue.replace(/,*$/g, "");
+								fixedValue = fixedValue.replace(/,+/g, ",");
 
-							fixedValue = Array.from(new Set(fixedValue.split(','))).join(',');
+								fixedValue = Array.from(new Set(fixedValue.split(','))).join(',');
 
-							_value = `${parameterName} fixed ${fixedValue}`;
+								_value = `${parameterName} fixed ${fixedValue}`;
+							}
+
 
 							if(fixedValue === undefined) {
 								warn_msg.push("Value is missing.");

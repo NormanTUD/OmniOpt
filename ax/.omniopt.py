@@ -1255,6 +1255,11 @@ def get_desc_progress_bar(result_csv_file, searching_for):
 
     return desc
 
+def _sleep (args, t):
+    if not args.no_sleep:
+        print_debug(f"Sleeping {t} second(s) before continuation")
+        time.sleep(t)
+
 def main ():
     print_debug("main")
     global args
@@ -1452,9 +1457,7 @@ def main ():
                                         submitted_jobs += 1
                                         print_debug(f"Appending started job to jobs array")
                                         jobs.append((new_job, trial_index))
-                                        if not args.no_sleep:
-                                            print_debug(f"Sleeping one second before continuation")
-                                            time.sleep(1)
+                                        _sleep(args, 1)
                                         print_debug(f"Got new job and started it. Parameters: {parameters}")
                                     except submitit.core.utils.FailedJobError as error:
                                         if "QOSMinGRES" in str(error) and args.gpus == 0:
@@ -1493,8 +1496,7 @@ def main ():
                     except ax.exceptions.core.DataRequiredError:
                         print_color("red", f"Error: {e}")
 
-                    if not args.no_sleep:
-                        time.sleep(0.1)
+                    _sleep(args, 0.1)
         end_program(result_csv_file)
     except trainingDone as e:
         end_program(result_csv_file)

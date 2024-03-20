@@ -6,6 +6,13 @@
 		<link href="prism.css" rel="stylesheet" />
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<style>
+			#loader {
+				display: grid;
+				justify-content: center; /* Horizontal zentriert */
+				align-items: center; /* Vertikal zentriert */
+				height: 100%;
+			}
+
 			.no_linebreak {
 				line-break: auto;
 			}
@@ -841,6 +848,9 @@
 				tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td><td colspan='2'></td></tr>");
 
 				highlight_all_bash();
+
+				$("#site").show();
+				$("#loader").remove();
 			}
 
 			function update_url() {
@@ -1036,50 +1046,57 @@
 		</script>
 	</head>
 	<body>
-		<h2>OmniOpt</h2>
-		<table>
-			<tr>
-				<td class='half_width_td'>
-					<table id="config_table" border="1">
-						<thead>
-							<tr>
-								<th>Option</th>
-								<th colspan="2">Value</th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
-				</td>
-				<td class='half_width_td'>
-					<div id="commands">
-						<h2>Install and run</h2>
+		<div id="loader">
+			<img src="loading.gif" />
+			<br>
+			<h2>Loading...</h2>
+		</div>
+		<div id="site" style="display: none">
+			<h2>OmniOpt</h2>
+			<table>
+				<tr>
+					<td class='half_width_td'>
+						<table id="config_table" border="1">
+							<thead>
+								<tr>
+									<th>Option</th>
+									<th colspan="2">Value</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</td>
+					<td class='half_width_td'>
+						<div id="commands">
+							<h2>Install and run</h2>
 
-						<p class="no_linebreak">Run this to install OmniOpt and run this command. First time installation may take up to 30 minutes.</p>
+							<p class="no_linebreak">Run this to install OmniOpt and run this command. First time installation may take up to 30 minutes.</p>
 
-						<div class="dark_code_bg">
-							<code id="curl_command_highlighted"></code>
-							<code style="display: none" id="curl_command"></code>
+							<div class="dark_code_bg">
+								<code id="curl_command_highlighted"></code>
+								<code style="display: none" id="curl_command"></code>
+							</div>
+							<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
+							<div id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
+
+							<br>
+							<br>
+
+							<h2>Run</h2>
+
+							<p class="no_linebreak">Run this when you already have OmniOpt installed.</p>
+
+							<div class="dark_code_bg">
+								<code id="command_element_highlighted"></code>
+								<code style="display: none" id="command_element"></code>
+							</div>
+							<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
+							<div id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
 						</div>
-						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
-						<div id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
-
-						<br>
-						<br>
-
-						<h2>Run</h2>
-
-						<p class="no_linebreak">Run this when you already have OmniOpt installed.</p>
-
-						<div class="dark_code_bg">
-							<code id="command_element_highlighted"></code>
-							<code style="display: none" id="command_element"></code>
-						</div>
-						<div id="copytoclipboard"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
-						<div id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
-					</div>
-					<div id="warnings" style="display: none"></div>
-				</td>
-			</tr>
-		</table>
+						<div id="warnings" style="display: none"></div>
+					</td>
+				</tr>
+			</table>
+		</div>
 	</body>
 </html>

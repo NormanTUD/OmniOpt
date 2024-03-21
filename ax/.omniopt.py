@@ -57,12 +57,21 @@ except:
 
 log_i = 0
 logfile = f'logs/{log_i}'
+logfile_linewise = f'logs/{log_i}_linewise'
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
 while os.path.exists(logfile):
     log_i = log_i + 1
     logfile = f'logs/{log_i}'
 
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
+logfile_linewise = f'logs/{log_i}_linewise'
+
+def _debug_linewise (msg):
+    try:
+        with open(logfile_linewise, 'a') as f:
+            print(msg, file=f)
+    except:
+        print("Error trying to write log file")
 
 def _debug (msg):
     try:
@@ -276,6 +285,15 @@ def print_debug (msg):
         print(msg)
 
     _debug(msg)
+
+
+def print_debug_linewise (msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
+    if args.debug:
+        print(msg)
+
+    _debug_linewise(msg)
 
 try:
     import os
@@ -1451,19 +1469,26 @@ def main ():
             warnings.simplefilter("ignore")
             with tqdm(total=max_eval, disable=False) as progress_bar:
                 while submitted_jobs < max_eval or jobs:
+                    print_debug_linewise("==============================================================")
+                    print_debug_linewise(f"while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
+
                     log_nr_of_workers()
 
                     # Schedule new jobs if there is availablity
                     try:
                         new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
+                        print_debug_linewise(f"new_jobs_needed ({new_jobs_needed}) = min(args.num_parallel_jobs ({args.num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
+
                         if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
                         calculated_max_trials = max(1, new_jobs_needed)
+                        print_debug_linewise(f"calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
                         for m in range(0, calculated_max_trials):
+                            print_debug_linewise(f"for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
                             finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
 
                             try:
@@ -1475,6 +1500,7 @@ def main ():
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():
+                                    print_debug_linewise(f"for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
                                     new_job = None
                                     try:
                                         print_debug(f"Trying to start new job.")

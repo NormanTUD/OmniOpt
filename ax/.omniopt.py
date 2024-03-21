@@ -1265,6 +1265,8 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
     progress_bar.set_description(get_desc_progress_bar(result_csv_file, searching_for))
 
+    return jobs
+
 def get_desc_progress_bar(result_csv_file, searching_for):
     global done_jobs
     global failed_jobs
@@ -1489,7 +1491,7 @@ def main ():
 
                         for m in range(0, calculated_max_trials):
                             print_debug_linewise(f"                            for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
-                            finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
+                            jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
 
                             try:
                                 print_debug("Trying to get trial_index_to_param")

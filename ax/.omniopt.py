@@ -20,7 +20,10 @@ mem_gb = None
 class trainingDone (Exception):
     pass
 
+import sys
+
 try:
+    import datetime
     from shutil import which
     import warnings
     import pandas as pd
@@ -36,7 +39,6 @@ try:
     import stat
     import pwd
     import base64
-    import sys
     import argparse
     import time
     from pprint import pformat
@@ -267,6 +269,8 @@ if not args.tests:
         sys.exit(39)
 
 def print_debug (msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
     if args.debug:
         print(msg)
 

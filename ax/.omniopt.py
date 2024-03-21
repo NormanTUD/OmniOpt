@@ -938,7 +938,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
                 table.add_column("result")
 
                 print_debug("[show_end_table_and_save_end_files] Defining rows")
-                row_without_result = [str(best_params["parameters"][key]) for key in best_params["parameters"].keys()];
+                row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()];
                 row = [*row_without_result, str(best_result)]
 
                 print_debug("[show_end_table_and_save_end_files] Adding rows to table")
@@ -1029,6 +1029,19 @@ def save_checkpoint ():
 
     print_debug("Checkpoint saved")
 
+def to_int_when_possible(val):
+    if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
+        return int(val)
+    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
+        return val
+
+    try:
+        val = float(val)
+
+        return '{:.{}f}'.format(val, len(str(val).split('.')[1])).rstrip('0').rstrip('.')
+    except:
+        return val
+
 def save_pd_csv ():
     print_debug("save_pd_csv")
     global current_run_folder
@@ -1081,12 +1094,12 @@ def print_overview_table (experiment_parameters):
     for param in experiment_parameters:
         _type = str(param["type"])
         if _type == "range":
-            rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
+            rows.append([str(param["name"]), _type, str(to_int_when_possible(param["bounds"][0])), str(to_int_when_possible(param["bounds"][1])), "", str(param["value_type"])])
         elif _type == "fixed":
-            rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
+            rows.append([str(param["name"]), _type, "", "", str(to_int_when_possible(param["value"])), ""])
         elif _type == "choice":
             values = param["values"]
-            values = [str(item) for item in values]
+            values = [str(to_int_when_possible(item)) for item in values]
 
             rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
         else:
@@ -1252,7 +1265,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
         best_result = best_params["result"]
 
         if str(best_result) != NO_RESULT and best_result is not None:
-            in_brackets.append('best result: {:f}'.format(float(best_result)))
+            in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"

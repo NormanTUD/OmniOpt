@@ -114,6 +114,7 @@ optional.add_argument('--maximize', help='Maximize instead of minimize (which is
 optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+optional.add_argument('--seed', help='Seed for random number generator (not yet used)', type=int)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -814,7 +815,6 @@ try:
                 import ax
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
-                from ax.modelbridge.dispatch_utils import choose_generation_strategy
                 from ax.storage.json_store.save import save_experiment
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
@@ -1388,10 +1388,17 @@ def main ():
                 "choose_generation_strategy_kwargs": {
                     "num_trials": max_eval,
                     "num_initialization_trials": args.num_parallel_jobs,
-                    "max_parallelism_override": args.num_parallel_jobs
+                    "max_parallelism_override": args.num_parallel_jobs#,
+                    #"min_trials_observed": 1
                 }
             }
 
+            #if args.seed:
+            #experiment_args["choose_generation_strategy_kwargs"]["model_kwargs"] = {}
+            #experiment_args["choose_generation_strategy_kwargs"]["model_kwargs"]["seed"] = args.seed
+            #experiment_args["choose_generation_strategy_kwargs"]["model_gen_kwargs"] = {}
+
+            #dier(experiment_args)
 
             if args.experiment_constraints:
                 constraints_string = " ".join(args.experiment_constraints[0])
@@ -1412,6 +1419,9 @@ def main ():
             except ValueError as error:
                 print_color("red", f"An error has occured: {error}")
                 sys.exit(29)
+            except TypeError as error:
+                print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
+                sys.exit(50)
 
         print_overview_table(experiment_parameters)
 

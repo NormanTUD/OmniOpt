@@ -378,6 +378,9 @@ def get_parameter_combinations (df_filtered, result_column):
 
     parameter_combinations = list(combinations(df_filtered_cols, r))
 
+    if len(parameter_combinations) == 0:
+        parameter_combinations = [*df_filtered_cols]
+
     return parameter_combinations
 
 def use_matplotlib(args):

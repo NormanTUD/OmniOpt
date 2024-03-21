@@ -114,7 +114,7 @@ optional.add_argument('--maximize', help='Maximize instead of minimize (which is
 optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
-optional.add_argument('--seed', help='Seed for random number generator (not yet used)', type=int)
+optional.add_argument('--seed', help='Seed for random number generator', type=int)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1388,15 +1388,12 @@ def main ():
                 "choose_generation_strategy_kwargs": {
                     "num_trials": max_eval,
                     "num_initialization_trials": args.num_parallel_jobs,
-                    "max_parallelism_override": args.num_parallel_jobs#,
-                    #"min_trials_observed": 1
-                }
+                    "max_parallelism_override": args.num_parallel_jobs
+                },
             }
 
-            #if args.seed:
-            #experiment_args["choose_generation_strategy_kwargs"]["model_kwargs"] = {}
-            #experiment_args["choose_generation_strategy_kwargs"]["model_kwargs"]["seed"] = args.seed
-            #experiment_args["choose_generation_strategy_kwargs"]["model_gen_kwargs"] = {}
+            if args.seed:
+                experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = args.seed
 
             #dier(experiment_args)
 

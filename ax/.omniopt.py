@@ -1259,6 +1259,40 @@ def get_desc_progress_bar(result_csv_file, searching_for):
 
     return desc
 
+def _sleep (args, t):
+    if not args.no_sleep:
+        print_debug(f"Sleeping {t} second(s) before continuation")
+        time.sleep(t)
+
+def save_state_files (current_run_folder, joined_run_program, experiment_name, mem_gb, max_eval, args, _time):
+    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
+        print(joined_run_program, file=f)
+
+    with open(f'{current_run_folder}/experiment_name', 'w') as f:
+        print(experiment_name, file=f)
+
+    with open(f'{current_run_folder}/mem_gb', 'w') as f:
+        print(mem_gb, file=f)
+
+    with open(f'{current_run_folder}/max_eval', 'w') as f:
+        print(max_eval, file=f)
+
+    with open(f'{current_run_folder}/gpus', 'w') as f:
+        print(args.gpus, file=f)
+
+    with open(f'{current_run_folder}/time', 'w') as f:
+        print(_time, file=f)
+
+    with open(f"{current_run_folder}/env", 'a') as f:
+        env = dict(os.environ)
+        for key in env:
+            print(str(key) + " = " + str(env[key]), file=f)
+
+    with open(f"{current_run_folder}/run.sh", 'w') as f:
+        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
+
+
+
 def main ():
     print_debug("main")
     global args
@@ -1278,34 +1312,7 @@ def main ():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
-    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
-        print(joined_run_program, file=f)
-
-    with open(f'{current_run_folder}/experiment_name', 'w') as f:
-        print(experiment_name, file=f)
-
-    with open(f'{current_run_folder}/mem_gb', 'w') as f:
-        print(mem_gb, file=f)
-
-    with open(f'{current_run_folder}/time', 'w') as f:
-        print(time, file=f)
-
-    with open(f'{current_run_folder}/max_eval', 'w') as f:
-        print(max_eval, file=f)
-
-    with open(f'{current_run_folder}/gpus', 'w') as f:
-        print(args.gpus, file=f)
-
-    with open(f'{current_run_folder}/time', 'w') as f:
-        print(_time, file=f)
-
-    with open(f"{current_run_folder}/env", 'a') as f:
-        env = dict(os.environ)
-        for key in env:
-            print(str(key) + " = " + str(env[key]), file=f)
-
-    with open(f"{current_run_folder}/run.sh", 'w') as f:
-        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
+    save_state_files(current_run_folder, joined_run_program, experiment_name, mem_gb, max_eval, args, _time)
 
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
@@ -1456,9 +1463,7 @@ def main ():
                                         submitted_jobs += 1
                                         print_debug(f"Appending started job to jobs array")
                                         jobs.append((new_job, trial_index))
-                                        if not args.no_sleep:
-                                            print_debug(f"Sleeping one second before continuation")
-                                            time.sleep(1)
+                                        _sleep(args, 1)
                                         print_debug(f"Got new job and started it. Parameters: {parameters}")
                                     except submitit.core.utils.FailedJobError as error:
                                         if "QOSMinGRES" in str(error) and args.gpus == 0:
@@ -1497,8 +1502,7 @@ def main ():
                     except ax.exceptions.core.DataRequiredError:
                         print_color("red", f"Error: {e}")
 
-                    if not args.no_sleep:
-                        time.sleep(0.1)
+                    _sleep(args, 0.1)
         end_program(result_csv_file)
     except trainingDone as e:
         end_program(result_csv_file)

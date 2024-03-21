@@ -298,7 +298,7 @@ def get_args ():
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
     parser.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
-    parser.add_argument('--dark_theme', help='Enable darktheme', action='store_true', default=False)
+    parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -437,7 +437,7 @@ if __name__ == "__main__":
 
         theme = "ggplot"
 
-        if args.dark_theme:
+        if args.darkmode:
             theme = "dark_background"
 
         with plt.style.context(theme):

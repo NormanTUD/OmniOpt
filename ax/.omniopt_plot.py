@@ -426,8 +426,6 @@ def main(args):
 
     fig.canvas.manager.set_window_title(args.run_dir)
 
-    axs.ticklabel_format(style='plain')
-
     if args.save_to_file:
         plt.savefig(args.save_to_file)
     else:

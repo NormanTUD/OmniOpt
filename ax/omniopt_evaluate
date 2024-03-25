@@ -207,12 +207,30 @@ function list_option_for_job {
 		CONTINUED_FROM="$(cat $THISPROJECTDIR/$NUMBER/checkpoint_load_source)"
 	fi
 
-	WHATTODO=$(whiptail --title "Available options for >${PROJECT}< (run number $NUMBER)" --menu "Chose what to do with >$PROJECT<. $CONTINUED_FROM" $LINES $COLUMNS $(( $LINES - 8 )) "${args[@]}" "b)" "back" "q)" "quit" 3>&1 1>&2 2>&3)
+	WHATTODO=$(whiptail \
+		--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+		--menu \
+		"Chose what to do with >$PROJECT<. $CONTINUED_FROM" \
+		$LINES $COLUMNS $(( $LINES - 8 )) \
+		"${args[@]}" \
+		"b)" "back" \
+		"q)" "quit" 3>&1 1>&2 2>&3
+	)
 
 	exitstatus=$?
+
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$WHATTODO" =~ "b)" ]]; then
-			chose_project_number $PROJECT
+			num_of_subfolder_numbers=$(ls $PROJECTDIR/$PROJECT | wc -l)
+
+			if [[ $num_of_subfolder_numbers -eq 0 ]]; then
+				echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
+				list_projects
+			elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
+				list_projects
+			else
+				chose_project_number "$PROJECT"
+			fi
 		elif [[ "$WHATTODO" =~ "q)" ]]; then
 			exit
 		elif [[ "$WHATTODO" =~ "d)" ]]; then
@@ -253,7 +271,7 @@ function list_option_for_job {
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				set +e
-				OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
+				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
@@ -275,7 +293,7 @@ function list_option_for_job {
 				done
 
 				set +e
-				OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
+				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
@@ -330,14 +348,14 @@ function list_option_for_job {
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -346,14 +364,14 @@ function list_option_for_job {
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
+						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -412,14 +430,14 @@ function list_option_for_job {
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -428,14 +446,14 @@ function list_option_for_job {
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						OUTPUT=$(./plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH)
+						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH)
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -710,7 +728,18 @@ function list_projects {
 
 	unset IFS
 
-	WHATTODO=$(whiptail --title "Available projects under ${PROJECTDIR}" --menu "Chose any of the available projects or options:" $LINES $COLUMNS $(( $LINES - 8 )) $AVAILABLE_PROJECTS "S)" "Start http-server here" "c)" "Change the project dir" "v)" "Show/Change Variables" "q)" "quit" 3>&1 1>&2 2>&3)
+	WHATTODO=$(whiptail \
+		--title "Available projects under ${PROJECTDIR}" \
+		--menu "Chose any of the available projects or options:" \
+		$LINES \
+		$COLUMNS \
+		$(( $LINES - 8 )) \
+		$AVAILABLE_PROJECTS \
+		"S)" "Start http-server here" \
+		"c)" "Change the project dir" \
+		"v)" "Show/Change Variables" \
+		"q)" "quit" 3>&1 1>&2 2>&3
+	)
 
 	IFS=$OLD_IFS
 

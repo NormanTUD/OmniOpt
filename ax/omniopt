@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ORIGINAL_PWD=$(pwd)
+export ORIGINAL_PWD=$(pwd)
 
 echo -ne "\033]30;OmniOpt\007"
 
@@ -324,7 +324,7 @@ fi
 set +x
 if [[ -d ".git" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then
-		if [[ ! -e .dont_ask_upgrade_main ]]; then
+		if [[ ! -e .dont_ask_upgrade_omniopt ]]; then
 			CURRENTHASH=$(git rev-parse HEAD)
 
 			REMOTEURL=$(git config --get remote.origin.url)
@@ -334,7 +334,7 @@ if [[ -d ".git" ]]; then
 				eval `resize`
 				if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 					git pull
-					eval "./$SCRIPT_DIR/main $args_string"
+					eval "./$SCRIPT_DIR/omniopt $args_string"
 					exit
 				else
 					eval `resize`
@@ -342,7 +342,7 @@ if [[ -d ".git" ]]; then
 						echo "Asking again next time if you want to upgrade"
 					else
 						green_text "OK, not asking again"
-						touch .dont_ask_upgrade_main
+						touch .dont_ask_upgrade_omniopt
 					fi
 				fi
 			fi
@@ -459,12 +459,12 @@ if [[ "$debug" -eq "1" ]]; then
 fi
 
 if [[ "$help" -eq "1" ]]; then
-	python3 $SCRIPT_DIR/.main.py --help
+	python3 $SCRIPT_DIR/.omniopt.py --help
 	exit 0
 fi
 
 if [[ "$tests" -eq "1" ]]; then
-	python3 $SCRIPT_DIR/.main.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+	python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
 	exit $?
 fi
 
@@ -489,7 +489,7 @@ kill_tail_when_squeue_job_empty () {
 }
 
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
-	# To start all subjobs indenpedently from the main job, unset all SLURM variables
+	# To start all subjobs indenpedently from the omniopt job, unset all SLURM variables
 	set +x
 	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 		unset $i
@@ -505,12 +505,12 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	IFS=$' '
 	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
-	#echo "python3 $SCRIPT_DIR/.main.py $args_string"
+	#echo "python3 $SCRIPT_DIR/.omniopt.py $args_string"
 
 	run_before_end &
 
 	set +e
-	python3 $SCRIPT_DIR/.main.py $args_string
+	python3 $SCRIPT_DIR/.omniopt.py $args_string
 	set -e
 
 	EXIT_CODE=$?
@@ -527,10 +527,10 @@ else
 	exit_code=""
 
 	if [[ $gpus -ne 0 ]]; then
-		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/main $args_string | tee /dev/stderr)
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 		exit_code=$?
 	else
-		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/main $args_string | tee /dev/stderr)
+		sbatch_result=$(sbatch --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 		exit_code=$?
 	fi
 

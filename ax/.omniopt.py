@@ -20,7 +20,13 @@ mem_gb = None
 class trainingDone (Exception):
     pass
 
+import sys
+
 try:
+    import datetime
+    from shutil import which
+    import warnings
+    import pandas as pd
     import random
     from pathlib import Path
     import glob
@@ -33,7 +39,6 @@ try:
     import stat
     import pwd
     import base64
-    import sys
     import argparse
     import time
     from pprint import pformat
@@ -52,12 +57,21 @@ except:
 
 log_i = 0
 logfile = f'logs/{log_i}'
+logfile_linewise = f'logs/{log_i}_linewise'
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
 while os.path.exists(logfile):
     log_i = log_i + 1
     logfile = f'logs/{log_i}'
 
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
+logfile_linewise = f'logs/{log_i}_linewise'
+
+def _debug_linewise (msg):
+    try:
+        with open(logfile_linewise, 'a') as f:
+            print(msg, file=f)
+    except:
+        print("Error trying to write log file")
 
 def _debug (msg):
     try:
@@ -109,6 +123,7 @@ optional.add_argument('--maximize', help='Maximize instead of minimize (which is
 optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+optional.add_argument('--seed', help='Seed for random number generator', type=int)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -264,10 +279,21 @@ if not args.tests:
         sys.exit(39)
 
 def print_debug (msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
     if args.debug:
         print(msg)
 
     _debug(msg)
+
+
+def print_debug_linewise (msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
+    if args.debug:
+        print(msg)
+
+    _debug_linewise(msg)
 
 try:
     import os
@@ -297,7 +323,8 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGQUIT, receive_usr_signal_int)
 
-helpers_file = ".helpers.py"
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
@@ -642,6 +669,8 @@ def add_to_csv(file_path, heading, data_line):
         if is_empty:
             csv_writer.writerow(heading)
 
+        # desc += " (best loss: " + '{:f}'.format(best_result) + ")"
+        data_line = ["{:.20f}".format(x) if type(x) == int or type(x) == float else x for x in data_line]
         csv_writer.writerow(data_line)
 
 def make_strings_equal_length(str1, str2):
@@ -804,7 +833,6 @@ try:
                 import ax
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
-                from ax.modelbridge.dispatch_utils import choose_generation_strategy
                 from ax.storage.json_store.save import save_experiment
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
@@ -876,7 +904,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
 
-def show_end_table_and_save_end_files ():
+def show_end_table_and_save_end_files (csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")
 
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
@@ -906,12 +934,14 @@ def show_end_table_and_save_end_files ():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            best_parameters, (means, covariances) = ax_client.get_best_parameters()
+            #best_parameters, (means, covariances) = ax_client.get_best_parameters() # TODO get_best_params nutzen
+
+            best_params = get_best_params(csv_file_path, result_column)
 
             print_debug("[show_end_table_and_save_end_files] Got best params")
-            best_result = means["result"]
+            best_result = best_params["result"]
 
-            if str(best_result) == NO_RESULT:
+            if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
                 table_str = "Best result could not be determined"
                 print_color("red", table_str)
                 exit = 1
@@ -919,14 +949,14 @@ def show_end_table_and_save_end_files ():
                 print_debug("[show_end_table_and_save_end_files] Creating table")
                 table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
-                for key in best_parameters.keys():
+                for key in best_params["parameters"].keys():
                     table.add_column(key)
 
                 print_debug("[show_end_table_and_save_end_files] Add last column to table")
-                table.add_column("result (inexact)")
+                table.add_column("result")
 
                 print_debug("[show_end_table_and_save_end_files] Defining rows")
-                row_without_result = [str(best_parameters[key]) for key in best_parameters.keys()];
+                row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()];
                 row = [*row_without_result, str(best_result)]
 
                 print_debug("[show_end_table_and_save_end_files] Adding rows to table")
@@ -952,7 +982,7 @@ def show_end_table_and_save_end_files ():
 
     sys.exit(exit)
 
-def end_program ():
+def end_program (csv_file_path, result_column="result"):
     print_debug("[end_program] end_program started")
 
     global current_run_folder
@@ -986,13 +1016,13 @@ def end_program ():
             return
 
         print_debug("[end_program] Calling show_end_table_and_save_end_files")
-        exit = show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called")
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
-        exit = show_end_table_and_save_end_files()
+        exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
@@ -1016,6 +1046,19 @@ def save_checkpoint ():
     ax_client.save_to_json_file(filepath=checkpoint_filepath)
 
     print_debug("Checkpoint saved")
+
+def to_int_when_possible(val):
+    if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
+        return int(val)
+    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
+        return val
+
+    try:
+        val = float(val)
+
+        return '{:.{}f}'.format(val, len(str(val).split('.')[1])).rstrip('0').rstrip('.')
+    except:
+        return val
 
 def save_pd_csv ():
     print_debug("save_pd_csv")
@@ -1069,12 +1112,12 @@ def print_overview_table (experiment_parameters):
     for param in experiment_parameters:
         _type = str(param["type"])
         if _type == "range":
-            rows.append([str(param["name"]), _type, str(param["bounds"][0]), str(param["bounds"][1]), "", str(param["value_type"])])
+            rows.append([str(param["name"]), _type, str(to_int_when_possible(param["bounds"][0])), str(to_int_when_possible(param["bounds"][1])), "", str(param["value_type"])])
         elif _type == "fixed":
-            rows.append([str(param["name"]), _type, "", "", str(param["value"]), ""])
+            rows.append([str(param["name"]), _type, "", "", str(to_int_when_possible(param["value"])), ""])
         elif _type == "choice":
             values = param["values"]
-            values = [str(item) for item in values]
+            values = [str(to_int_when_possible(item)) for item in values]
 
             rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
         else:
@@ -1175,7 +1218,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress_bar, jobs):
+def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1188,9 +1231,15 @@ def finish_previous_jobs (progress_bar, jobs):
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
-                print_debug("Got job result")
-                ax_client.complete_trial(trial_index=trial_index, raw_data=result)
-                done_jobs += 1
+                print_debug(f"Got job result: {result}")
+                if result != val_if_nothing_found:
+                    ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+
+                    done_jobs += 1
+                else:
+                    job.cancel()
+
+                    failed_jobs += 1
             except submitit.core.utils.UncompletedJobError as error:
                 print_color("red", str(error))
 
@@ -1214,6 +1263,69 @@ def finish_previous_jobs (progress_bar, jobs):
             save_checkpoint()
             save_pd_csv()
 
+    progress_bar.set_description(get_desc_progress_bar(result_csv_file, searching_for))
+
+    return jobs
+
+def get_desc_progress_bar(result_csv_file, searching_for):
+    global done_jobs
+    global failed_jobs
+
+    desc = f"Searching {searching_for}"
+    
+    in_brackets = []
+
+    if failed_jobs:
+        in_brackets.append(f"failed: {failed_jobs}")
+
+    best_params = None
+
+    if done_jobs:
+        best_params = get_best_params(result_csv_file, "result")
+        best_result = best_params["result"]
+
+        if str(best_result) != NO_RESULT and best_result is not None:
+            in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
+
+    if len(in_brackets):
+        desc += f" ({', '.join(in_brackets)})"
+
+    return desc
+
+def _sleep (args, t):
+    if not args.no_sleep:
+        print_debug(f"Sleeping {t} second(s) before continuation")
+        time.sleep(t)
+
+def save_state_files (current_run_folder, joined_run_program, experiment_name, mem_gb, max_eval, args, _time):
+    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
+        print(joined_run_program, file=f)
+
+    with open(f'{current_run_folder}/experiment_name', 'w') as f:
+        print(experiment_name, file=f)
+
+    with open(f'{current_run_folder}/mem_gb', 'w') as f:
+        print(mem_gb, file=f)
+
+    with open(f'{current_run_folder}/max_eval', 'w') as f:
+        print(max_eval, file=f)
+
+    with open(f'{current_run_folder}/gpus', 'w') as f:
+        print(args.gpus, file=f)
+
+    with open(f'{current_run_folder}/time', 'w') as f:
+        print(_time, file=f)
+
+    with open(f"{current_run_folder}/env", 'a') as f:
+        env = dict(os.environ)
+        for key in env:
+            print(str(key) + " = " + str(env[key]), file=f)
+
+    with open(f"{current_run_folder}/run.sh", 'w') as f:
+        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
+
+
+
 def main ():
     print_debug("main")
     global args
@@ -1233,34 +1345,7 @@ def main ():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
-    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
-        print(joined_run_program, file=f)
-
-    with open(f'{current_run_folder}/experiment_name', 'w') as f:
-        print(experiment_name, file=f)
-
-    with open(f'{current_run_folder}/mem_gb', 'w') as f:
-        print(mem_gb, file=f)
-
-    with open(f'{current_run_folder}/time', 'w') as f:
-        print(time, file=f)
-
-    with open(f'{current_run_folder}/max_eval', 'w') as f:
-        print(max_eval, file=f)
-
-    with open(f'{current_run_folder}/gpus', 'w') as f:
-        print(args.gpus, file=f)
-
-    with open(f'{current_run_folder}/time', 'w') as f:
-        print(_time, file=f)
-
-    with open(f"{current_run_folder}/env", 'a') as f:
-        env = dict(os.environ)
-        for key in env:
-            print(str(key) + " = " + str(env[key]), file=f)
-
-    with open(f"{current_run_folder}/run.sh", 'w') as f:
-        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
+    save_state_files(current_run_folder, joined_run_program, experiment_name, mem_gb, max_eval, args, _time)
 
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
@@ -1324,9 +1409,13 @@ def main ():
                     "num_trials": max_eval,
                     "num_initialization_trials": args.num_parallel_jobs,
                     "max_parallelism_override": args.num_parallel_jobs
-                }
+                },
             }
 
+            if args.seed:
+                experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = args.seed
+
+            #dier(experiment_args)
 
             if args.experiment_constraints:
                 constraints_string = " ".join(args.experiment_constraints[0])
@@ -1347,6 +1436,9 @@ def main ():
             except ValueError as error:
                 print_color("red", f"An error has occured: {error}")
                 sys.exit(29)
+            except TypeError as error:
+                print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
+                sys.exit(50)
 
         print_overview_table(experiment_parameters)
 
@@ -1375,45 +1467,31 @@ def main ():
 
         _k = 0
 
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with tqdm(total=max_eval, disable=False) as progress_bar:
                 while submitted_jobs < max_eval or jobs:
+                    print_debug_linewise("==============================================================")
+                    print_debug_linewise(f"                    while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
+
                     log_nr_of_workers()
-                    desc = f"Searching {searching_for}"
-                    if failed_jobs:
-                        desc = desc + f" (failed: {failed_jobs})"
-
-                    try:
-                        if done_jobs > 10:
-                            disable_logging()
-
-                            best_parameters, (means, covariances) = ax_client.get_best_parameters()
-                            best_result = means["result"]
-
-                            if str(best_result) != NO_RESULT:
-                                desc += ", best loss: " + '{:f}'.format(best_result)
-                    except Exception as e:
-                        pass
-
-                    desc = desc + "..."
-
-                    progress_bar.set_description(desc)
 
                     # Schedule new jobs if there is availablity
                     try:
                         new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
-                        print_debug(f"done_jobs: {done_jobs}, failed_jobs: {failed_jobs}")
+                        print_debug_linewise(f"                        new_jobs_needed ({new_jobs_needed}) = min(args.num_parallel_jobs ({args.num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
+
                         if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
                         calculated_max_trials = max(1, new_jobs_needed)
+                        print_debug_linewise(f"                        calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
                         for m in range(0, calculated_max_trials):
-                            finish_previous_jobs(progress_bar, jobs)
+                            print_debug_linewise(f"                            for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
+                            jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
 
                             try:
                                 print_debug("Trying to get trial_index_to_param")
@@ -1424,6 +1502,7 @@ def main ():
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():
+                                    print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
                                     new_job = None
                                     try:
                                         print_debug(f"Trying to start new job.")
@@ -1432,9 +1511,7 @@ def main ():
                                         submitted_jobs += 1
                                         print_debug(f"Appending started job to jobs array")
                                         jobs.append((new_job, trial_index))
-                                        if not args.no_sleep:
-                                            print_debug(f"Sleeping one second before continuation")
-                                            time.sleep(1)
+                                        _sleep(args, 1)
                                         print_debug(f"Got new job and started it. Parameters: {parameters}")
                                     except submitit.core.utils.FailedJobError as error:
                                         if "QOSMinGRES" in str(error) and args.gpus == 0:
@@ -1458,7 +1535,7 @@ def main ():
                                             print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
                                     except (signalUSR, signalINT) as e:
                                         print_color("red", f"\n:warning: Detected signal. Will exit.")
-                                        end_program()
+                                        end_program(result_csv_file)
                                     except Exception as e:
                                         print_color("red", f"\n:warning: Starting job failed with error: {e}")
                                     except Exception as e:
@@ -1467,20 +1544,19 @@ def main ():
                                 print_color("red", "\n:warning: " + str(e))
                             except botorch.exceptions.errors.ModelFittingError as e:
                                 print_color("red", "\n:warning: " + str(e))
-                                end_program()
+                                end_program(result_csv_file)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:
                         print_color("red", f"Error: {e}")
 
-                    if not args.no_sleep:
-                        time.sleep(0.1)
-            end_program()
+                    _sleep(args, 0.1)
+        end_program(result_csv_file)
     except trainingDone as e:
-        end_program()
+        end_program(result_csv_file)
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
-        end_program()
+        end_program(result_csv_file)
 
 def _unidiff_output(expected, actual):
     """
@@ -1819,7 +1895,8 @@ def get_errors_from_outfile (i):
             ["SystemError", "Some error SystemError was found. Check the log."],
             ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
             ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
-            ["error: argument", "Wrong argparse argument"]
+            ["error: argument", "Wrong argparse argument"],
+            ["error: unrecognized arguments", "Wrong argparse argument"]
         ]
 
         for search_array in search_for_python_errors:
@@ -1859,9 +1936,6 @@ def analyze_out_files (rootdir):
 
 def is_tool(name):
     """Check whether `name` is on PATH and marked as executable."""
-
-    # from whichcraft import which
-    from shutil import which
 
     return which(name) is not None
 
@@ -1933,10 +2007,67 @@ def log_nr_of_workers ():
         with open(logfile_nr_workers, 'a+') as f:
             f.write(str(nr_of_workers) + "\n")
 
+def get_best_params(csv_file_path, result_column):
+    results = {
+        result_column: None,
+        "parameters": {}
+    }
+
+    if not os.path.exists(csv_file_path):
+        return results
+
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+        df.dropna(subset=[result_column], inplace=True)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError):
+        return results
+
+    cols = df.columns.tolist()
+    nparray = df.to_numpy()
+
+    best_line = None
+
+    result_idx = cols.index(result_column)
+
+    best_result = None
+
+    for i in range(0, len(nparray)):
+        this_line = nparray[i]
+        this_line_result = this_line[result_idx]
+
+        if type(this_line_result) in [float, int]:
+            if best_result is None:
+                best_line = this_line
+                best_result = this_line_result               
+            elif args.maximize and this_line_result >= best_result:
+                best_line = this_line
+                best_result = this_line_result
+            elif not args.maximize and this_line_result <= best_result:
+                best_line = this_line
+                best_result = this_line_result
+
+    if best_line is None:
+        print_debug("Could not determine best result")
+        return results
+
+    for i in range(0, len(cols)):
+        col = cols[i]
+        if col not in ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"]:
+            if col == result_column:
+                results[result_column] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+            else:
+                results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+
+    return results
+
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            #dier(get_errors_from_outfile("runs/test_wronggoing_stuff/1/2440613/2440613_0_log.out"))
+            #dier(get_best_params("runs/test_wronggoing_stuff/4/0.csv", "result"))
+            #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
+
             run_tests()
         else:
             warnings.simplefilter("ignore")

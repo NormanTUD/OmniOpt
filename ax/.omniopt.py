@@ -1542,7 +1542,7 @@ def main ():
                                         print_color("red", f"\n:warning: Starting job failed with error: {e}")
                             except RuntimeError as e:
                                 print_color("red", "\n:warning: " + str(e))
-                            except botorch.exceptions.errors.ModelFittingError as e:
+                            except (botorch.exceptions.errors.ModelFittingError, ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.core.DataRequiredError, botorch.exceptions.errors.InputDataError) as e:
                                 print_color("red", "\n:warning: " + str(e))
                                 end_program(result_csv_file)
                     except botorch.exceptions.errors.InputDataError as e:

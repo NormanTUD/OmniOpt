@@ -1408,6 +1408,7 @@ def main ():
                 "choose_generation_strategy_kwargs": {
                     "num_trials": max_eval,
                     "num_initialization_trials": args.num_parallel_jobs,
+                    "use_batch_trials": True,
                     "max_parallelism_override": args.num_parallel_jobs
                 },
             }

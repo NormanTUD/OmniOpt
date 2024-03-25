@@ -1365,7 +1365,7 @@ def main ():
         disable_logging()
 
     try:
-        ax_client = AxClient(verbose_logging=args.verbose)
+        ax_client = AxClient(verbose_logging=args.verbose, enforce_sequential_optimization=False)
 
         minimize_or_maximize = not args.maximize
 

@@ -1406,6 +1406,7 @@ def main ():
                 "parameters": experiment_parameters,
                 "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 "choose_generation_strategy_kwargs": {
+                    "enforce_sequential_optimization": False,
                     "num_trials": max_eval,
                     "num_initialization_trials": args.num_parallel_jobs,
                     "use_batch_trials": True,

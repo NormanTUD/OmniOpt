@@ -1,3 +1,25 @@
+#!/bin/env python3
+
+"""
+TODO: 
+
+    Problem: the amount of workers that start decrease over time.
+
+    - Trying to split the single "get_next_trials" into several get_next_trials calls
+    - Each one of them having max_eval=1, but doing it in a loop
+
+    Problem: sometimes get_next_trials is empty, and no job can get started.
+
+    Trying to define enforce_sequential_optimization to true and false. Both had no effect.
+
+    Trying to set the generation strategy manual, first args.num_parallel_jobs jobs randomly 
+    with SOBOL, then the rest with BOTORCH_MODULAR. but no effect.
+
+    Trying to force with max_parallelism_override, but had no effect.
+
+    
+"""
+
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 

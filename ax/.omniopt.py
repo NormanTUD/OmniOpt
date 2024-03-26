@@ -17,7 +17,9 @@ TODO:
 
     Trying to force with max_parallelism_override, but had no effect.
 
-    
+    Trying to set num_initialization_trials to initialize with more trials, but had no effect.
+
+    use_batch_trials used, but had no effect
 """
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999

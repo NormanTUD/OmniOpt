@@ -17,6 +17,11 @@ max_eval = None
 _time = None
 mem_gb = None
 
+def mylog (msg):
+    return
+    with open('/home/h8/s3811141/omniax_internal.log', "a") as lf:
+        print(msg, file=lf)
+
 class trainingDone (Exception):
     pass
 
@@ -833,6 +838,8 @@ try:
                 import ax
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
+                from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
+                from ax.modelbridge.registry import ModelRegistryBase, Models
                 from ax.storage.json_store.save import save_experiment
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
@@ -1365,7 +1372,31 @@ def main ():
         disable_logging()
 
     try:
-        ax_client = AxClient(verbose_logging=args.verbose, enforce_sequential_optimization=False)
+        gs = GenerationStrategy(
+            steps=[
+                # 1. Initialization step (does not require pre-existing data and is well-suited for
+                # initial sampling of the search space)
+                GenerationStep(
+                    model=Models.SOBOL,
+                    num_trials=args.num_parallel_jobs,  # How many trials should be produced from this generation step
+                    min_trials_observed=args.num_parallel_jobs,  # How many trials need to be completed to move to next model
+                    max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step
+                    model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
+                    model_gen_kwargs={},  # Any kwargs you want passed to `modelbridge.gen`
+                ),
+                # 2. Bayesian optimization step (requires data obtained from previous phase and learns
+                # from all data available at the time of each new candidate generation call)
+                GenerationStep(
+                    model=Models.BOTORCH_MODULAR,
+                    num_trials=-1,  # No limitation on how many trials should be produced from this step
+                    max_parallelism=args.num_parallel_jobs,  # Parallelism limit for this step, often lower than for Sobol
+                    # More on parallelism vs. required samples in BayesOpt:
+                    # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+                ),
+            ]
+        )
+
+        ax_client = AxClient(verbose_logging=args.verbose, enforce_sequential_optimization=True, generation_strategy=gs)
 
         minimize_or_maximize = not args.maximize
 
@@ -1406,10 +1437,9 @@ def main ():
                 "parameters": experiment_parameters,
                 "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
                 "choose_generation_strategy_kwargs": {
-                    "enforce_sequential_optimization": False,
-                    "num_trials": max_eval,
-                    "num_initialization_trials": args.num_parallel_jobs,
-                    "use_batch_trials": True,
+                    #"num_trials": max_eval,
+                    #"num_initialization_trials": args.num_parallel_jobs,
+                    #"use_batch_trials": True,
                     "max_parallelism_override": args.num_parallel_jobs
                 },
             }
@@ -1474,6 +1504,7 @@ def main ():
             with tqdm(total=max_eval, disable=False) as progress_bar:
                 while submitted_jobs < max_eval or jobs:
                     print_debug_linewise("==============================================================")
+                    mylog("NEW ENTRY ==============================================================")
                     print_debug_linewise(f"                    while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
 
                     log_nr_of_workers()

@@ -12,8 +12,9 @@ TODO:
 
     Trying to define enforce_sequential_optimization to true and false. Both had no effect.
 
-    Trying to set the generation strategy manual, first args.num_parallel_jobs jobs randomly 
-    with SOBOL, then the rest with BOTORCH_MODULAR. but no effect.
+    Trying to set the generation strategy manual (search "gs = "), first args.num_parallel_jobs jobs randomly 
+    with SOBOL, then the rest with BOTORCH_MODULAR. but no effect. Also trying to set min_trials_observed
+    for both types, but to no effect
 
     Trying to force with max_parallelism_override, but had no effect.
 

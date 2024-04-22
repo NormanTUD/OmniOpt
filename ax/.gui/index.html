@@ -161,6 +161,38 @@
 				});
 			}
 
+			function check_timeouts () {
+				var global_time = parseInt($("#time").val());
+				var worker_timeout = parseInt($("#worker_timeout").val());
+
+				var time_errors = [];
+				var worker_timeout_errors = [];
+
+				if (!global_time) {
+					time_errors.push("Invalid time");
+				}
+
+				if(!worker_timeout) {
+					worker_timeout_errors.push("Invalid time");
+				}
+
+				if(worker_timeout > global_time) {
+					worker_timeout_errors.push("Worker timeout is larger than global time");
+				}
+
+				if(time_errors.length) {
+					$("#time_error").html(string_or_array_to_list(time_errors)).show();
+				} else {
+					$("#time_error").hide();
+				}
+
+				if(worker_timeout_errors.length) {
+					$("#worker_timeout_error").html(string_or_array_to_list(worker_timeout_errors)).show();
+				} else {
+					$("#worker_timeout_error").hide();
+				}
+			}
+
 			var initialized = false;
 			var shown_operation_insecure_without_server = false;
 
@@ -172,8 +204,8 @@
 				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true, 'regex': '^[a-zA-Z0-9_]+$'},
 				{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$" },
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1, max: 1000 },
-				{ label: "Timeout for the main program (minutes)", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1 },
-				{ label: "Timeout for a single worker (minutes)", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)", min: 1 },
+				{ label: "Timeout for the main program (minutes)", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program (minutes)", min: 1, onchange: check_timeouts },
+				{ label: "Timeout for a single worker (minutes)", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker (minutes)", min: 1, onchange: check_timeouts  },
 				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000 },
 				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 500, placeholder: "Maximum number of parallel evaluations", 'min': 1, 'max': 100000000 },
 				{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10 },
@@ -805,6 +837,10 @@
 								.text(option.text));
 						});
 						valueCell.append(select);
+
+						if (Object.keys(item).includes("onchange")) {
+							$(select).change(item.onchange);
+						}
 					} else if (item.type === "textarea") {
 						var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 						$(input).css({"width": "95%", "height": "95%"});
@@ -820,6 +856,10 @@
 						});
 
 						valueCell.append(input);
+
+						if (Object.keys(item).includes("onchange")) {
+							$(input).change(item.onchange);
+						}
 					} else {
 						var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 
@@ -834,6 +874,10 @@
 						});
 
 						valueCell.append(input);
+
+						if (Object.keys(item).includes("onchange")) {
+							$(input).change(item.onchange);
+						}
 					}
 
 					if (item.id !== "partition") {

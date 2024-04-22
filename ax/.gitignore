@@ -172,3 +172,4 @@ log
 ._test_run.svg
 .logs
 logs
+.omniopt.dist/

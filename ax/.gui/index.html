@@ -430,7 +430,7 @@
 							errors.push(...new_errors);
 						} else {
 							$("#time_error").html("").hide();
-							command += " --" + item.id + "='" + value + "'";
+							command += " --" + item.id + "=" + value;
 						}
 					} else if (item.id == "worker_timeout") {
 						var worker_timeout_larger_than_global_timeout = parseInt($("#worker_timeout").val()) > parseInt($("#time").val());
@@ -454,7 +454,7 @@
 							errors.push(...new_errors);
 						} else {
 							$("#worker_timeout_error").html("").hide();
-							command += " --" + item.id + "='" + value + "'";
+							command += " --" + item.id + "=" + value;
 						}
 					} else if (item.type === "number") {
 						var numValue = parseFloat(value);

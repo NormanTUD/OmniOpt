@@ -425,7 +425,12 @@ run_before_end () {
 
 			if [[ $sent_usr_signal_to_script -eq 0 ]]; then
 				sent_usr_signal_to_script=1
-				kill -USR1 "$python_pid"
+				re='^[0-9]+$'
+				if ! [[ $python_pid =~ $re ]] ; then
+					echo "run_before_end error: Python-PID '$python_pid' is not a number"
+				else
+					kill -USR1 "$python_pid"
+				fi
 			else
 				echo "Already sent user signal to python PID $python_pid. Not doing that again."
 			fi

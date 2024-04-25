@@ -120,15 +120,15 @@ def _debug_linewise (msg):
     try:
         with open(logfile_linewise, 'a') as f:
             print(msg, file=f)
-    except:
-        print("_debug_linewise: Error trying to write log file")
+    except Exception as e:
+        print("_debug_linewise: Error trying to write log file: " + str(e))
 
 def _debug (msg):
     try:
         with open(logfile, 'a') as f:
             print(msg, file=f)
-    except:
-        print("_debug: Error trying to write log file")
+    except Exception as e:
+        print("_debug: Error trying to write log file: " + str(e))
 
 class REMatcher(object):
     def __init__(self, matchstring):

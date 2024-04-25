@@ -788,7 +788,7 @@ def find_file_paths_and_print_infos (_text, program_code):
     print_debug("find_file_paths_and_print_infos")
     file_paths = find_file_paths(_text)
 
-    if len(file_path) == 0:
+    if len(file_paths) == 0:
         return ""
 
     string = "\n========\nDEBUG INFOS START:\n"

@@ -102,8 +102,8 @@ except KeyboardInterrupt:
 
 try:
     Path("logs").mkdir(parents=True, exist_ok=True)
-except:
-    print("Could not create logs")
+except Exception as e:
+    print("Could not create logs: " + str(e))
 
 log_i = 0
 logfile = f'logs/{log_i}'

@@ -695,7 +695,7 @@ def get_result (input_string):
         return None
 
     try:
-        pattern = r'RESULT:\s*(-?\d+(?:\.\d+)?)'
+        pattern = r'^\s*RESULT:\s*(-?\d+(?:\.\d+)?)'
 
         match = re.search(pattern, input_string)
 
@@ -788,9 +788,10 @@ def find_file_paths_and_print_infos (_text, program_code):
     print_debug("find_file_paths_and_print_infos")
     file_paths = find_file_paths(_text)
 
-    string = "";
+    if len(file_path) == 0:
+        return ""
 
-    string += "\n========\nDEBUG INFOS START:\n"
+    string = "\n========\nDEBUG INFOS START:\n"
 
     if not args.tests:
         print("Program-Code: " + program_code)

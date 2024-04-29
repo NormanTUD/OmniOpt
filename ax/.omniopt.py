@@ -1435,6 +1435,7 @@ def main ():
                     max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step
                     model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
                     model_gen_kwargs={},  # Any kwargs you want passed to `modelbridge.gen`
+                    enforce_num_arms=False
                 ),
                 # 2. Bayesian optimization step (requires data obtained from previous phase and learns
                 # from all data available at the time of each new candidate generation call)
@@ -1442,6 +1443,7 @@ def main ():
                     model=Models.BOTORCH_MODULAR,
                     num_trials=-1,  # No limitation on how many trials should be produced from this step
                     max_parallelism=None,  # Parallelism limit for this step, often lower than for Sobol
+                    enforce_num_arms=False
                     # More on parallelism vs. required samples in BayesOpt:
                     # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
                 ),

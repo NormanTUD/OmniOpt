@@ -1442,7 +1442,11 @@ def main ():
             ]
         )
 
-        ax_client = AxClient(verbose_logging=args.verbose, enforce_sequential_optimization=True, generation_strategy=gs)
+        ax_client = AxClient(
+            verbose_logging=args.verbose,
+            enforce_sequential_optimization=True,
+            generation_strategy=gs
+        )
 
         minimize_or_maximize = not args.maximize
 

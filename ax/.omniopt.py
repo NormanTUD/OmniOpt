@@ -73,6 +73,7 @@ class trainingDone (Exception):
 import sys
 
 try:
+    from unittest.mock import patch
     import datetime
     from shutil import which
     import warnings
@@ -878,10 +879,14 @@ def evaluate(parameters):
         print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
         return return_in_case_of_error
 
+def patched_generator_run_limit(*args, **kwargs):
+    return 1
+
 try:
     if not args.tests:
         with console.status("[bold green]Importing ax...") as status:
             try:
+                import ax.modelbridge.generation_node
                 import ax
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
@@ -1580,9 +1585,13 @@ def main ():
 
                             try:
                                 print_debug("Trying to get trial_index_to_param")
-                                trial_index_to_param, _ = ax_client.get_next_trials(
-                                    max_trials=1
-                                )
+
+                                trial_index_to_param = None
+
+                                with patch('ax.modelbridge.generation_node.GenerationNode.generator_run_limit', new=patched_generator_run_limit):
+                                    trial_index_to_param, _ = ax_client.get_next_trials(
+                                        max_trials=1
+                                    )
 
                                 if len(trial_index_to_param.items()) == 0:
                                     print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")

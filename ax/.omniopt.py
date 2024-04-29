@@ -882,6 +882,8 @@ def evaluate(parameters):
 def patched_generator_run_limit(*args, **kwargs):
     return 1
 
+def patched_current_generator_run_limit(*args, **kwargs):
+    return 1, False
 try:
     if not args.tests:
         with console.status("[bold green]Importing ax...") as status:
@@ -1590,10 +1592,17 @@ def main ():
 
                                 trial_index_to_param = None
 
-                                with patch('ax.modelbridge.generation_node.GenerationNode.generator_run_limit', new=patched_generator_run_limit):
-                                    trial_index_to_param, _ = ax_client.get_next_trials(
-                                        max_trials=1
-                                    )
+                                with patch(
+                                        'ax.modelbridge.generation_node.GenerationNode.generator_run_limit',
+                                        new=patched_generator_run_limit
+                                ):
+                                    with patch(
+                                        'ax.modelbridge.generation_strategy.GenerationStrategy.current_generator_run_limit', 
+                                        new=patched_current_generator_run_limit
+                                    ):
+                                        trial_index_to_param, _ = ax_client.get_next_trials(
+                                            max_trials=1
+                                        )
 
                                 if len(trial_index_to_param.items()) == 0:
                                     print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")

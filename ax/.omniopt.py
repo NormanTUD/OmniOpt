@@ -1431,7 +1431,7 @@ def main ():
                 GenerationStep(
                     model=Models.SOBOL,
                     num_trials=args.num_parallel_jobs,  # How many trials should be produced from this generation step
-                    min_trials_observed=args.num_parallel_jobs,  # How many trials need to be completed to move to next model
+                    min_trials_observed=1,  # How many trials need to be completed to move to next model
                     max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step
                     model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
                     model_gen_kwargs={'enforce_num_arms': False},  # Any kwargs you want passed to `modelbridge.gen`

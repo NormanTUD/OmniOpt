@@ -174,6 +174,7 @@ optional.add_argument('--experiment_constraints', action="append", nargs="+", he
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
+optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: true)', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1444,7 +1445,7 @@ def main ():
 
         ax_client = AxClient(
             verbose_logging=args.verbose,
-            enforce_sequential_optimization=True,
+            enforce_sequential_optimization=args.enforce_sequential_optimization,
             generation_strategy=gs
         )
 
@@ -1489,8 +1490,9 @@ def main ():
                 "choose_generation_strategy_kwargs": {
                     "num_trials": max_eval,
                     "num_initialization_trials": args.num_parallel_jobs,
+                    "max_parallelism_cap": args.num_parallel_jobs,
                     #"use_batch_trials": True,
-                    "max_parallelism_override": args.num_parallel_jobs
+                    "max_parallelism_override": -1 
                 },
             }
 

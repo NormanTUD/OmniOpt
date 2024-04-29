@@ -1436,7 +1436,7 @@ def main ():
                 GenerationStep(
                     model=Models.BOTORCH_MODULAR,
                     num_trials=-1,  # No limitation on how many trials should be produced from this step
-                    max_parallelism=args.num_parallel_jobs,  # Parallelism limit for this step, often lower than for Sobol
+                    max_parallelism=None,  # Parallelism limit for this step, often lower than for Sobol
                     # More on parallelism vs. required samples in BayesOpt:
                     # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
                 ),

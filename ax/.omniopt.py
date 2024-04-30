@@ -982,6 +982,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     global console
     global current_run_folder
     global shown_end_table
+    global args
+    global worker_percentage_usage
 
     if shown_end_table:
         print("End table already shown, not doing it again")
@@ -1043,6 +1045,32 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         except Exception as e:
             print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
 
+    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage):
+        """
+            "nr_current_workers": nr_current_workers,
+            "max_nr_jobs": max_nr_jobs,
+            "percentage": percentage,
+            "time": datetime.datetime.now().strftime("date:%Y-%m-%d_%H:%M:%S")
+        """
+        table = Table(header_style="bold", title="Worker usage over time:")
+        columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
+        for column in columns:
+            table.add_column(column)
+        for row in worker_percentage_usage:
+            table.add_row(row["time"], row["nr_current_workers"], row["max_nr_jobs"], row["percentage"], style='bright_green')
+        console.print(table)
+
+        with console.capture() as capture:
+            console.print(table)
+        table_str = capture.get()
+
+        print(table_str)
+    else:
+        if not args.show_worker_percentage_table_at_end:
+            print("--show_worker_percentage_table_at_end not defined")
+        if not len(worker_percentage_usage):
+            print("worker_percentage_usage is empty")
+
     sys.exit(exit)
 
 def end_program (csv_file_path, result_column="result"):
@@ -1062,7 +1090,6 @@ def end_program (csv_file_path, result_column="result"):
 
     global ax_client
     global console
-    global worker_percentage_usage
 
     exit = 0
 
@@ -1099,24 +1126,6 @@ def end_program (csv_file_path, result_column="result"):
     for job, trial_index in jobs[:]:
         job.cancel()
 
-    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage):
-        """
-            "nr_current_workers": nr_current_workers,
-            "max_nr_jobs": max_nr_jobs,
-            "percentage": percentage,
-            "time": datetime.datetime.now().strftime("date:%Y-%m-%d_%H:%M:%S")
-        """
-        table = Table(header_style="bold", title="Worker usage over time:")
-        columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
-        for column in columns:
-            table.add_column(column)
-        for row in worker_percentage_usage:
-            table.add_row(row["time"], row["nr_current_workers"], row["max_nr_jobs"], row["percentage"], style='bright_green')
-        console.print(table)
-
-        with console.capture() as capture:
-            console.print(table)
-        table_str = capture.get()
 
     sys.exit(exit)
 

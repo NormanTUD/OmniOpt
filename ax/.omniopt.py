@@ -1084,6 +1084,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.title("Worker Usage Percentage Over Time")
 
             plotext.show()
+
+            plotext.clp()
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
@@ -1110,6 +1112,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.title("Best Result Over Time")
 
             plotext.show()
+
+            plotext.clp()
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 

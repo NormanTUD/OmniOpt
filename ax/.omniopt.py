@@ -1349,7 +1349,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
 
         nr_current_workers = get_number_of_current_workers()
-        if len(jobs):
+        if len(nr_current_workers):
             in_brackets.append(f"currently running jobs: {nr_current_workers} ({round(nr_current_workers/args.num_parallel_jobs*100)}% of max {args.num_parallel_jobs})")
 
     if len(in_brackets):

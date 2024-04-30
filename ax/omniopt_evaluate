@@ -144,6 +144,8 @@ function print_wallclock_time {
 
 	rm temp_file
 
+	max_time=$(echo $max_time | sed -e 's#\..*##')
+	min_time=$(echo $min_time | sed -e 's#\..*##')
 	absolute_runtime=$((max_time - min_time))
 
 	days=$((absolute_runtime / 86400))

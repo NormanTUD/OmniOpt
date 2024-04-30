@@ -818,8 +818,7 @@ def find_file_paths_and_print_infos (_text, program_code):
 
     string = "\n========\nDEBUG INFOS START:\n"
 
-    if not args.tests:
-        print("Program-Code: " + program_code)
+    string += "Program-Code: " + program_code
     if file_paths:
         for file_path in file_paths:
             string += "\n"
@@ -1145,7 +1144,8 @@ def end_program (csv_file_path, result_column="result"):
     global current_run_folder
     out_files_string = analyze_out_files(current_run_folder)
 
-    # TODO print out_files_string to current run folder
+    print(out_files_string)
+
     try:
         with open(f"{current_run_folder}/errors.log", "w") as error_file:
             error_file.write(out_files_string)
@@ -2160,27 +2160,25 @@ def analyze_out_files (rootdir, print_to_stdout=True):
     for i in outfiles:
         errors = get_errors_from_outfile(i)
 
-        _str = []
+        _strs = []
 
         if len(errors):
             if j == 0:
-                _str.append("")
-            _str.append(f"Out file {i} contains potential errors:\n")
+                _strs.append("")
+            _strs.append(f"Out file {i} contains potential errors:\n")
             program_code = get_program_code_from_out_file(i)
             print(program_code)
             for e in errors:
-                _str.append(f"- {e}\n")
+                _strs.append(f"- {e}\n")
 
-            _str.append("\n")
+            _strs.append("\n")
 
             j = j + 1
 
+    if print_to_stdout:
+        print_color("red", "\n".join("\n"))
 
-        if print_to_stdout:
-            print_color("red", _str.join("\n"))
-        return _str.join("")
-
-    
+    return "\n".join(_strs)
 
 def is_tool(name):
     """Check whether `name` is on PATH and marked as executable."""

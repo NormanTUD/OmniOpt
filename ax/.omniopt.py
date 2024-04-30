@@ -49,6 +49,7 @@ NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 ax_client = None
 done_jobs = 0
 failed_jobs = 0
+worker_percentage_usage = []
 jobs = []
 end_program_ran = False
 program_name = "OmniOpt"
@@ -188,6 +189,7 @@ debug.add_argument('--wait_until_ended', help='Wait until the program has ended'
 debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
+debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -1060,6 +1062,7 @@ def end_program (csv_file_path, result_column="result"):
 
     global ax_client
     global console
+    global worker_percentage_usage
 
     exit = 0
 
@@ -1095,6 +1098,25 @@ def end_program (csv_file_path, result_column="result"):
 
     for job, trial_index in jobs[:]:
         job.cancel()
+
+    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage):
+        """
+            "nr_current_workers": nr_current_workers,
+            "max_nr_jobs": max_nr_jobs,
+            "percentage": percentage,
+            "time": datetime.datetime.now().strftime("date:%Y-%m-%d_%H:%M:%S")
+        """
+        table = Table(header_style="bold", title="Worker usage over time:")
+        columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
+        for column in columns:
+            table.add_column(column)
+        for row in worker_percentage_usage:
+            table.add_row(row["time"], row["nr_current_workers"], row["max_nr_jobs"], row["percentage"], style='bright_green')
+        console.print(table)
+
+        with console.capture() as capture:
+            console.print(table)
+        table_str = capture.get()
 
     sys.exit(exit)
 
@@ -1331,6 +1353,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 def get_desc_progress_bar(result_csv_file, searching_for):
     global done_jobs
     global failed_jobs
+    global worker_percentage_usage
 
     desc = f"Searching {searching_for}"
     
@@ -1349,8 +1372,18 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
 
         nr_current_workers = get_number_of_current_workers()
-        if len(nr_current_workers):
-            in_brackets.append(f"currently running workers: {nr_current_workers} ({round(nr_current_workers/args.num_parallel_jobs*100)}% of max {args.num_parallel_jobs})")
+        max_nr_jobs = args.num_parallel_jobs
+        percentage = round((nr_current_workers/max_nr_jobs)*100)
+
+        if nr_current_workers:
+            in_brackets.append(f"currently running workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
+
+        worker_percentage_usage.append({
+            "nr_current_workers": nr_current_workers,
+            "max_nr_jobs": max_nr_jobs,
+            "percentage": percentage,
+            "time": datetime.datetime.now().strftime("date:%Y-%m-%d_%H:%M:%S")
+        })
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"

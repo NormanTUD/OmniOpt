@@ -1383,12 +1383,15 @@ def get_desc_progress_bar(result_csv_file, searching_for):
         if nr_current_workers:
             in_brackets.append(f"currently running workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
 
-        worker_percentage_usage.append({
+        this_values = {
             "nr_current_workers": nr_current_workers,
             "max_nr_jobs": max_nr_jobs,
             "percentage": percentage,
             "time": datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-        })
+        }
+
+        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
+            worker_percentage_usage.append(this_values)
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"

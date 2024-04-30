@@ -1085,7 +1085,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.show()
 
-            plotext.clp()
+            plotext.clf()
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
@@ -1101,19 +1101,23 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             import plotext
 
             best_results_over_time = [float(entry["best_result"]) for entry in progress_plot]
+
+            min_val = min(best_results_over_time)
+            max_val = max(best_results_over_time)
+
             best_results_over_time = (lambda br: [(x - min(br)) / (max(br) - min(br)) * 100 if max(br) != min(br) else 100.0 for x in br])(best_results_over_time)
             times = [datetime_to_plotext_format(entry["time"]) for entry in progress_plot]
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, best_results_over_time, label="Best result over time", marker="dot")
+            plotext.plot(times, best_results_over_time, label=f"Best result over time (100% = {max_val}, 0% = {min_val})", marker="dot")
             plotext.xlabel("Time")
             plotext.ylabel("Best result")
             plotext.title("Best Result Over Time")
 
             plotext.show()
 
-            plotext.clp()
+            plotext.clf()
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 

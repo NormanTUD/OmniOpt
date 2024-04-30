@@ -1089,7 +1089,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, percentages, label="Worker Usage Percentage", marker="dot")
+            plotext.plot(times, percentages, label="Worker Usage Percentage", marker="fhd")
             plotext.xlabel("Time")
             plotext.ylabel("Percentage")
             plotext.title("Worker Usage Percentage Over Time")
@@ -1116,7 +1116,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, best_results_over_time, label=f"Best result over time (100% = {max_val}, 0% = {min_val})", marker="dot")
+            plotext.plot(times, best_results_over_time, label=f"Best result over time (100% = {max_val}, 0% = {min_val})", marker="fhd")
             plotext.xlabel("Time")
             plotext.ylabel("Best result")
             plotext.title("Best Result Over Time")

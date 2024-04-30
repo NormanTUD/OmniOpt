@@ -2160,25 +2160,25 @@ def analyze_out_files (rootdir, print_to_stdout=True):
     for i in outfiles:
         errors = get_errors_from_outfile(i)
 
-        _str = ""
+        _str = []
 
         if len(errors):
             if j == 0:
-                _str += ""
-            _str += f"Out file {i} contains potential errors:"
+                _str.append("")
+            _str.append(f"Out file {i} contains potential errors:\n")
             program_code = get_program_code_from_out_file(i)
             print(program_code)
             for e in errors:
-                _str += f"- {e}"
+                _str.append(f"- {e}\n")
 
-            _str += ""
+            _str.append("\n")
 
             j = j + 1
 
 
         if print_to_stdout:
-            print_color("red", _str)
-        return str
+            print_color("red", _str.join("\n"))
+        return _str.join("")
 
     
 

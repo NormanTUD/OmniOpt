@@ -1348,6 +1348,9 @@ def get_desc_progress_bar(result_csv_file, searching_for):
         if str(best_result) != NO_RESULT and best_result is not None:
             in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
 
+        if len(jobs):
+            in_brackets.append(f"currently running jobs: {len(jobs)}")
+
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"
 
@@ -1433,7 +1436,7 @@ def main ():
                 GenerationStep(
                     model=Models.SOBOL,
                     num_trials=args.num_parallel_jobs,  # How many trials should be produced from this generation step
-                    min_trials_observed=1,  # How many trials need to be completed to move to next model
+                    #min_trials_observed=1,  # How many trials need to be completed to move to next model
                     max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step
                     model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
                     model_gen_kwargs={'enforce_num_arms': False},  # Any kwargs you want passed to `modelbridge.gen`
@@ -1443,7 +1446,7 @@ def main ():
                 GenerationStep(
                     model=Models.BOTORCH_MODULAR,
                     num_trials=-1,  # No limitation on how many trials should be produced from this step
-                    min_trials_observed=1,  # How many trials need to be completed to move to next model
+                    #min_trials_observed=1,  # How many trials need to be completed to move to next model
                     max_parallelism=None,  # Parallelism limit for this step, often lower than for Sobol
                     model_gen_kwargs={'enforce_num_arms': False},  # Any kwargs you want passed to `modelbridge.gen`
                     # More on parallelism vs. required samples in BayesOpt:
@@ -1592,17 +1595,13 @@ def main ():
 
                                 trial_index_to_param = None
 
-                                with patch(
-                                        'ax.modelbridge.generation_node.GenerationNode.generator_run_limit',
-                                        new=patched_generator_run_limit
-                                ):
-                                    with patch(
-                                        'ax.modelbridge.generation_strategy.GenerationStrategy.current_generator_run_limit', 
-                                        new=patched_current_generator_run_limit
-                                    ):
-                                        trial_index_to_param, _ = ax_client.get_next_trials(
-                                            max_trials=1
-                                        )
+                                #with patch(
+                                #        'ax.modelbridge.generation_node.GenerationNode.generator_run_limit',
+                                #        new=patched_generator_run_limit
+                                #):
+                                trial_index_to_param, _ = ax_client.get_next_trials(
+                                    max_trials=1
+                                )
 
                                 if len(trial_index_to_param.items()) == 0:
                                     print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")

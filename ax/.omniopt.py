@@ -50,6 +50,7 @@ already_shown_worker_usage_over_time = False
 ax_client = None
 done_jobs = 0
 failed_jobs = 0
+progress_plot = []
 worker_percentage_usage = []
 jobs = []
 end_program_ran = False
@@ -199,6 +200,7 @@ debug.add_argument('--tests', help='Run simple internal tests', action='store_tr
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_plot_at_end', help='Show a plot of percentage of max worker over time', action='store_true', default=False)
+debug.add_argument('--show_progress_plot', help='Show a plot of progress over time', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -994,6 +996,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     global args
     global worker_percentage_usage
     global already_shown_worker_usage_over_time
+    global progress_plot
 
     if shown_end_table:
         print("End table already shown, not doing it again")
@@ -1079,6 +1082,32 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.xlabel("Time Index")
             plotext.ylabel("Percentage")
             plotext.title("Worker Usage Percentage Over Time")
+
+            plotext.show()
+
+        except ModuleNotFoundError:
+            print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
+
+    if args.show_progress_plot and len(progress_plot):
+        """
+            this_progress_values = {
+                "best_result": str(best_result_int_if_possible)
+                "time": this_time
+            }
+        """
+
+        try:
+            import plotext
+
+            percentages = [entry["best_result"] for entry in progress_plot]
+            times = [datetime_to_plotext_format(entry["time"]) for entry in progress_plot]
+
+            plotext.date_form("d/m/Y H:M:S")
+
+            plotext.plot(times, percentages, label="Best result over time", marker="dot")
+            plotext.xlabel("Time Index")
+            plotext.ylabel("Best result")
+            plotext.title("Best Result Over Time")
 
             plotext.show()
 
@@ -1378,6 +1407,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
     global done_jobs
     global failed_jobs
     global worker_percentage_usage
+    global progress_plot
 
     desc = f"Searching {searching_for}"
     
@@ -1391,13 +1421,16 @@ def get_desc_progress_bar(result_csv_file, searching_for):
     if done_jobs:
         best_params = get_best_params(result_csv_file, "result")
         best_result = best_params["result"]
+        best_result_int_if_possible = to_int_when_possible(float(best_result))
 
         if str(best_result) != NO_RESULT and best_result is not None:
-            in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
+            in_brackets.append(f"best result: {best_result_int_if_possible}")
 
         nr_current_workers = get_number_of_current_workers()
         max_nr_jobs = args.num_parallel_jobs
         percentage = round((nr_current_workers/max_nr_jobs)*100)
+
+        this_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         if nr_current_workers:
             in_brackets.append(f"currently running workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
@@ -1406,11 +1439,19 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             "nr_current_workers": nr_current_workers,
             "max_nr_jobs": max_nr_jobs,
             "percentage": percentage,
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "time": this_time
         }
 
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             worker_percentage_usage.append(this_values)
+
+        this_progress_values = {
+            "best_result": str(best_result_int_if_possible)
+            "time": this_time
+        }
+
+        if len(progress_plot) == 0 or progress_plot[len(progress_plot) - 1] != this_progress_values:
+            progress_plot.append(this_progress_values)
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"

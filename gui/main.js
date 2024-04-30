@@ -417,7 +417,7 @@ function update_config () {
 				var this_max = parseInt($("#choiceint_" + i + "_max").val());
 				var this_step = parseInt($("#choiceint_" + i + "_step").val());
 
-				if(this_min > this_max) {
+				if(parseInt(this_min) > parseInt(this_max)) {
 					var tmp = this_min;
 					this_min = this_max;
 					this_max = tmp;
@@ -444,7 +444,7 @@ function update_config () {
 				var this_min = parseFloat($("#choiceint_" + i + "_min").val());
 				var this_max = parseFloat($("#choiceint_" + i + "_max").val());
 
-				if(this_min > this_max) {
+				if(parseInt(this_min) > parseInt(this_max)) {
 					var tmp = this_min;
 					this_min = this_max;
 					this_max = tmp;
@@ -484,7 +484,7 @@ function update_config () {
 				var this_max = $("#max_" + i).val();
 				var this_q = $("#q_" + i).val() ;
 
-				if(this_min > this_max) {
+				if(parseInt(this_min) > parseInt(this_max)) {
 					var tmp = this_min;
 					this_min = this_max;
 					this_max = tmp;
@@ -511,7 +511,7 @@ function update_config () {
 				var this_min = $("#min_" + i).val();
 				var this_max = $("#max_" + i).val();
 
-				if(this_min > this_max) {
+				if(parseInt(this_min) > parseInt(this_max)) {
 					var tmp = this_min;
 					this_min = this_max;
 					this_max = tmp;
@@ -548,7 +548,7 @@ function update_config () {
 				var this_max = $("#max_" + i).val();
 				var this_q = $("#q_" + i).val();
 
-				if(this_min > this_max) {
+				if(parseInt(this_min) > parseInt(this_max)) {
 					var tmp = this_min;
 					this_min = this_max;
 					this_max = tmp;
@@ -798,7 +798,7 @@ function update_config () {
 							var fmin_partition = partition;
 
 							if(enable_gpus == 1 && number_of_gpus >= 2) {
-								fmin_partition = "haswell";
+								fmin_partition = "alpha";
 							}
 
 							sbatch_string += " --ntasks=" + number_of_workers + " \\\n";
@@ -942,8 +942,13 @@ function update_config () {
 }
 
 function change_parameter_and_url(i, t) {
-	update_url_param("param_" + i + "_type", t.value);
-	change_parameter_settings(i);
+	if(typeof(t) == "string") {
+		update_url_param("param_" + i + "_type", t);
+		change_parameter_settings(i);
+	} else {
+		update_url_param("param_" + i + "_type", t.value);
+		change_parameter_settings(i);
+	}
 }
 
 function get_select_type (i) {
@@ -1068,15 +1073,8 @@ function change_number_of_parameters() {
 				$("#parameters").html($("#parameters").html() + get_parameter_config(i));
 			}
 		} else if(number_of_parameters - new_number_of_parameters != 0) {
-			var r = confirm("This will delete the last " + (number_of_parameters - new_number_of_parameters) + " parameter(s) and all entered data for that parameter! Are you sure about this?");
-			if (r == true) {
-				for (var i = number_of_parameters; i >= new_number_of_parameters; i--) {
-					$("#parameter_" + i).remove();
-				}
-			} else {
-				$("#number_of_parameters").blur();
-				$("#number_of_parameters").val(number_of_parameters);
-				new_number_of_parameters = number_of_parameters;
+			for (var i = number_of_parameters; i >= new_number_of_parameters; i--) {
+				$("#parameter_" + i).remove();
 			}
 		}
 
@@ -1183,29 +1181,49 @@ function show_multigpu () {
 function parse_from_config_ini () {
 	var data = parseINIString($("#configini").val());
 	
-	set_if_exists(data, "DATA", "projectname", "projectname");
-	set_if_exists(data, "DATA", "partition", "partition");
-	set_if_exists(data, "DATA", "account", "account");
-	set_if_exists(data, "DATA", "reservation", "reservation");
-	set_if_exists(data, "DATA", "precision", "precision");
-	set_if_exists(data, "DATA", "max_evals", "max_evals");
-	set_if_exists(data, "DATA", "algo_name", "algo_name");
-	set_if_exists(data, "DATA", "objective_program", "objective_program");
-	set_if_exists(data, "DATA", "enable_gpus", "enable_gpus");
-	set_if_exists(data, "DATA", "mem_per_cpu", "mem_per_cpu");
-	set_if_exists(data, "DATA", "computing_time", "computing_time");
+
+	var structure = {
+		"DATA": [
+			"projectname",
+			"partition",
+			"account",
+			"reservation",
+			"precision",
+			"max_evals",
+			"algo_name",
+			"objective_program",
+			"enable_gpus",
+			"mem_per_cpu",
+			"computing_time",
+		],
+		"DEBUG": [
+			"show_live_output",
+			"sbatch_or_srun",
+			"debug_sbatch_srun",
+			"trace_omniopt",
+		],
+		"MONGODB": [
+			"worker_last_job_timeout",
+			"poll_interval",
+			"kill_after_n_no_results"
+		]
+	};
+
+	var structure_keys = Object.keys(structure);
+
+	for (var i = 0; i < structure_keys.length; i++) {
+		var key = structure_keys[i];
+
+		for (var j = 0; j < structure[key].length; j++) {
+			var value = structure[key][j];
+			set_if_exists(data, key, value, value);
+		}
+	}
+
 	set_if_exists(data, "DATA", "num_gpus_per_worker", "number_of_gpus");
 
-	set_if_exists(data, "DEBUG", "show_live_output", "show_live_output");
-	set_if_exists(data, "DEBUG", "sbatch_or_srun", "sbatch_or_srun");
-	set_if_exists(data, "DEBUG", "debug_sbatch_srun", "debug_sbatch_srun");
-	set_if_exists(data, "DEBUG", "trace_omniopt", "trace_omniopt");
 	set_if_exists(data, "DEBUG", "debug_xtreme", "enable_curl_debug");
 	set_if_exists(data, "DEBUG", "debug", "enable_debug");
-
-	set_if_exists(data, "MONGODB", "worker_last_job_timeout", "worker_last_job_timeout");
-	set_if_exists(data, "MONGODB", "poll_interval", "poll_interval");
-	set_if_exists(data, "MONGODB", "kill_after_n_no_results", "kill_after_n_no_results");
 
 	set_if_exists(data, "DIMENSIONS", "dimensions", "number_of_parameters");
 	change_number_of_parameters();
@@ -1216,7 +1234,9 @@ function parse_from_config_ini () {
 			for (var i = 0; i < number_of_parameters; i++) {
 				set_if_exists(data, "DIMENSIONS", "dim_" + i + "_name", "parameter_" + i + "_name");
 				set_if_exists(data, "DIMENSIONS", "range_generator_" + i, "type_" + i);
-				change_parameter_and_url(i, $("#" + data["DIMENSIONS"]["range_generator_" + i]));
+
+				change_parameter_and_url(i, $("#parameter_" + i + "_name").val());
+				change_parameter_and_url(i, $("#type_" + i).val());
 
 				if("DIMENSIONS" in data) {
 					var this_range_generator = "range_generator_" + i;
@@ -1262,6 +1282,8 @@ function parse_from_config_ini () {
 	}
 
 	update_config();
+
+	$("input").trigger("keyup")
 }
 
 function fill_test_data() {

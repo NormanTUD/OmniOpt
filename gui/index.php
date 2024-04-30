@@ -427,7 +427,7 @@
 								<tr>
 									<td>Overlap srun?</td>
 									<td>
-										<input type="checkbox" value="1" id="overlap" checked />
+										<input type="checkbox" value="1" id="overlap" />
 									</td>
 								</tr>
 								<tr>

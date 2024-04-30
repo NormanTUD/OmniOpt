@@ -1065,11 +1065,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         table_str = capture.get()
 
         print(table_str)
-    else:
-        if not args.show_worker_percentage_table_at_end:
-            print("--show_worker_percentage_table_at_end not defined")
-        if not len(worker_percentage_usage):
-            print("worker_percentage_usage is empty")
 
     sys.exit(exit)
 

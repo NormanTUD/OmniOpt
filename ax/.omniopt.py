@@ -1050,14 +1050,14 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             "nr_current_workers": nr_current_workers,
             "max_nr_jobs": max_nr_jobs,
             "percentage": percentage,
-            "time": datetime.datetime.now().strftime("date:%Y-%m-%d_%H:%M:%S")
+            "time": datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         """
         table = Table(header_style="bold", title="Worker usage over time:")
         columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
         for column in columns:
             table.add_column(column)
         for row in worker_percentage_usage:
-            table.add_row(row["time"], row["nr_current_workers"], row["max_nr_jobs"], row["percentage"], style='bright_green')
+            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["max_nr_jobs"]), f'{row["percentage"]}%', style='bright_green')
         console.print(table)
 
         with console.capture() as capture:

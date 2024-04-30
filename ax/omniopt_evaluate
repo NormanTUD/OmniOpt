@@ -245,15 +245,33 @@ close $fh;
 
 	FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
 
-	WHATTODO=$(whiptail \
-		--title "Available options for >${PROJECT}< (run number $NUMBER)" \
-		--menu \
-		"Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
-		$LINES $COLUMNS $(( $LINES - 8 )) \
-		"${args[@]}" \
-		"b)" "back" \
-		"q)" "quit" 3>&1 1>&2 2>&3
-	)
+	error_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+	if [[ -e "$error_file" ]]; then
+		FAILED_JOBS_STRING="$FAILED_JOBS_STRING. See the menu point >detected errors< for details."
+
+		WHATTODO=$(whiptail \
+			--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+			--menu \
+			"Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
+			$LINES $COLUMNS $(( $LINES - 8 )) \
+			"${args[@]}" \
+			"e)" "detected errors" \
+			"b)" "back" \
+			"q)" "quit" 3>&1 1>&2 2>&3
+		)
+	else
+		WHATTODO=$(whiptail \
+			--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+			--menu \
+			"Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
+			$LINES $COLUMNS $(( $LINES - 8 )) \
+			"${args[@]}" \
+			"b)" "back" \
+			"q)" "quit" 3>&1 1>&2 2>&3
+		)
+	fi
+
+
 
 	exitstatus=$?
 
@@ -557,6 +575,13 @@ close $fh;
 			info_message_large "$GENERAL_INFO"
 
 			list_option_for_job $PROJECT $NUMBER
+		elif [[ "$WHATTODO" =~ "e)" ]]; then
+			input_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
+			if [[ -e "$input_file" ]]; then
+				error_message "$(cat $input_file | tr -d '\r')"
+			else
+				error_message "$input_file could not be found."
+			fi
 		else
 			echo_red "Unknown option: $WHATTODO (Line $LINENO)"
 		fi

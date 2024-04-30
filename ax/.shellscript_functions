@@ -1,6 +1,20 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
+function error_message {
+	eval `resize`
+	MSG=$1
+	echo_red "$MSG"
+	export NEWT_COLORS='
+window=,red
+border=white,red
+textbox=white,red
+button=black,white
+'
+    whiptail --title "Error Message" --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
+	export NEWT_COLORS=""
+}
+
 export RUN_VIA_RUNSH=1
 
 export PYTHONDONTWRITEBYTECODE=1

@@ -1091,7 +1091,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     if args.show_progress_plot and len(progress_plot):
         """
             this_progress_values = {
-                "best_result": str(best_result_int_if_possible)
+                "best_result": str(best_result_int_if_possible),
                 "time": this_time
             }
         """
@@ -1446,7 +1446,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             worker_percentage_usage.append(this_values)
 
         this_progress_values = {
-            "best_result": str(best_result_int_if_possible)
+            "best_result": str(best_result_int_if_possible),
             "time": this_time
         }
 

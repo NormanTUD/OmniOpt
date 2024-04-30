@@ -1067,8 +1067,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             console.print(table)
         table_str = capture.get()
 
-        print(table_str)
-
     sys.exit(exit)
 
 def end_program (csv_file_path, result_column="result"):

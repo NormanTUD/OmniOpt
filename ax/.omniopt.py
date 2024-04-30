@@ -1143,7 +1143,15 @@ def end_program (csv_file_path, result_column="result"):
     print_debug("[end_program] end_program started")
 
     global current_run_folder
-    analyze_out_files(current_run_folder)
+    out_files_string = analyze_out_files(current_run_folder)
+
+    # TODO print out_files_string to current run folder
+    try:
+        with open(f"{current_run_folder}/errors.log", "w") as error_file:
+            error_file.write(out_files_string)
+    except Exception as e:
+        print(f"Error occurred while writing to errors.log: {e}")
+
 
     global end_program_ran
 
@@ -2143,7 +2151,7 @@ def get_errors_from_outfile (i):
 
     return errors
 
-def analyze_out_files (rootdir):
+def analyze_out_files (rootdir, print_to_stdout=True):
     print_debug("analyze_out_files")
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
@@ -2152,18 +2160,27 @@ def analyze_out_files (rootdir):
     for i in outfiles:
         errors = get_errors_from_outfile(i)
 
+        _str = ""
+
         if len(errors):
             if j == 0:
-                print("")
-            print_color("yellow", f"Out file {i} contains potential errors:")
+                _str += ""
+            _str += f"Out file {i} contains potential errors:"
             program_code = get_program_code_from_out_file(i)
             print(program_code)
             for e in errors:
-                print_color("red", f"- {e}")
+                _str += f"- {e}"
 
-            print("")
+            _str += ""
 
             j = j + 1
+
+
+        if print_to_stdout:
+            print_color("red", _str)
+        return str
+
+    
 
 def is_tool(name):
     """Check whether `name` is on PATH and marked as executable."""

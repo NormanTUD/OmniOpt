@@ -1086,10 +1086,12 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             percentages = [entry["percentage"] for entry in worker_percentage_usage]
             times = [datetime_to_plotext_format(entry["time"]) for entry in worker_percentage_usage]
+            num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
 
             plotext.date_form("d/m/Y H:M:S")
 
             plotext.plot(times, percentages, label="Worker Usage Percentage", marker="hd")
+            plotext.plot(times, num_workers, label="Num workers (total)", marker="hd")
             plotext.xlabel("Time")
             plotext.ylabel("Percentage")
             plotext.title("Worker Usage Percentage Over Time")

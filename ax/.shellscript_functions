@@ -100,6 +100,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		ppip Pyarrow
 		ppip textual
 		ppip tqdm
+		ppip plotext
 	fi
 
 	source $VENV_DIR/bin/activate

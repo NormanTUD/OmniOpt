@@ -103,6 +103,9 @@ except KeyboardInterrupt:
     print("You cancelled loading the basic modules")
     sys.exit(32)
 
+def datetime_to_plotext_format(dt):
+    return dt.strftime("%d/%m/%Y %H:%M:%S")
+
 try:
     Path("logs").mkdir(parents=True, exist_ok=True)
 except Exception as e:
@@ -191,6 +194,7 @@ debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
+debug.add_argument('--show_worker_percentage_plot_at_end', help='Show a plot of percentage of max worker over time', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -1063,10 +1067,26 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["max_nr_jobs"]), f'{row["percentage"]}%', style='bright_green')
         console.print(table)
 
-        with console.capture() as capture:
-            console.print(table)
-        table_str = capture.get()
+    if args.show_worker_percentage_plot_at_end and len(worker_percentage_usage):
+        try:
+            import plotext
 
+            percentages = [entry["percentage"] for entry in worker_percentage_usage]
+            times = [datetime_to_plotext_format(entry["time"]) for entry in worker_percentage_usage]
+
+            plotext.date_form("d/m/Y H:M:S")
+
+            plotext.plot(times, percentages, label="Worker Usage Percentage", marker="dot")
+            plotext.xlabel("Time Index")
+            plotext.ylabel("Percentage")
+            plotext.title("Worker Usage Percentage Over Time")
+
+            plotext.show()
+
+        except ModuleNotFoundError:
+            print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
+
+        
     sys.exit(exit)
 
 def end_program (csv_file_path, result_column="result"):

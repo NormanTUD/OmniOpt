@@ -1386,7 +1386,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             "nr_current_workers": nr_current_workers,
             "max_nr_jobs": max_nr_jobs,
             "percentage": percentage,
-            "time": datetime.datetime.now().strftime("date:%Y-%m-%d_%H:%M:%S")
+            "time": datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         })
 
     if len(in_brackets):

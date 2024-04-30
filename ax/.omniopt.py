@@ -1084,6 +1084,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         try:
             import plotext
 
+            plotext.theme('pro')
+
             percentages = [entry["percentage"] for entry in worker_percentage_usage]
             times = [datetime_to_plotext_format(entry["time"]) for entry in worker_percentage_usage]
             num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
@@ -1107,6 +1109,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     if args.show_progress_plot and len(progress_plot):
         try:
             import plotext
+
+            plotext.theme('pro')
 
             best_results_over_time = [float(entry["best_result"]) for entry in progress_plot]
 

@@ -103,7 +103,11 @@ except KeyboardInterrupt:
     print("You cancelled loading the basic modules")
     sys.exit(32)
 
+def datetime_from_string(input_string, input_format):
+    return datetime.datetime.strptime(input_string, input_format)
+
 def datetime_to_plotext_format(dt):
+    dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")
     return dt.strftime("%d/%m/%Y %H:%M:%S")
 
 try:
@@ -1053,12 +1057,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
     if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
         already_shown_worker_usage_over_time = True
-        """
-            "nr_current_workers": nr_current_workers,
-            "max_nr_jobs": max_nr_jobs,
-            "percentage": percentage,
-            "time": datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-        """
+
         table = Table(header_style="bold", title="Worker usage over time:")
         columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
         for column in columns:
@@ -1407,7 +1406,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             "nr_current_workers": nr_current_workers,
             "max_nr_jobs": max_nr_jobs,
             "percentage": percentage,
-            "time": datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:

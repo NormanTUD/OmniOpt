@@ -1079,12 +1079,11 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.date_form("d/m/Y H:M:S")
 
             plotext.plot(times, percentages, label="Worker Usage Percentage", marker="dot")
-            plotext.xlabel("Time Index")
+            plotext.xlabel("Time")
             plotext.ylabel("Percentage")
             plotext.title("Worker Usage Percentage Over Time")
 
             plotext.show()
-
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
@@ -1099,18 +1098,18 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         try:
             import plotext
 
-            percentages = [entry["best_result"] for entry in progress_plot]
+            best_results_over_time = [float(entry["best_result"]) for entry in progress_plot]
+            best_results_over_time = (lambda br: [(x - min(br)) / (max(br) - min(br)) * 100 if max(br) != min(br) else 100.0 for x in br])(best_results_over_time)
             times = [datetime_to_plotext_format(entry["time"]) for entry in progress_plot]
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, percentages, label="Best result over time", marker="dot")
-            plotext.xlabel("Time Index")
+            plotext.plot(times, best_results_over_time, label="Best result over time", marker="dot")
+            plotext.xlabel("Time")
             plotext.ylabel("Best result")
             plotext.title("Best Result Over Time")
 
             plotext.show()
-
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 

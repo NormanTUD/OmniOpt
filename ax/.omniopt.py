@@ -478,6 +478,16 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
+def looks_like_float(x):
+    if isinstance(x, (int, float)):
+        return True  # int and float types are directly considered as floats
+    elif isinstance(x, str):
+        try:
+            float(x)  # Try converting string to float
+            return True
+        except ValueError:
+            return False  # If conversion fails, it's not a float-like string
+    return False  # If x is neither str, int, nor float, it's not float-like
 
 def looks_like_int(x):
     print_debug("looks_like_int")
@@ -1093,13 +1103,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
     if args.show_progress_plot and len(progress_plot):
-        """
-            this_progress_values = {
-                "best_result": str(best_result_int_if_possible),
-                "time": this_time
-            }
-        """
-
         try:
             import plotext
 
@@ -1431,19 +1434,28 @@ def get_desc_progress_bar(result_csv_file, searching_for):
 
     best_params = None
 
+    this_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     if done_jobs:
         best_params = get_best_params(result_csv_file, "result")
         best_result = best_params["result"]
-        best_result_int_if_possible = to_int_when_possible(float(best_result))
+        if type(best_result) == float or type(best_result) == int or looks_like_float(best_result):
+            best_result_int_if_possible = to_int_when_possible(float(best_result))
 
-        if str(best_result) != NO_RESULT and best_result is not None:
-            in_brackets.append(f"best result: {best_result_int_if_possible}")
+            if str(best_result) != NO_RESULT and best_result is not None:
+                in_brackets.append(f"best result: {best_result_int_if_possible}")
+
+            this_progress_values = {
+                "best_result": str(best_result_int_if_possible),
+                "time": this_time
+            }
+
+            if len(progress_plot) == 0 or progress_plot[len(progress_plot) - 1] != this_progress_values:
+                progress_plot.append(this_progress_values)
 
         nr_current_workers = get_number_of_current_workers()
         max_nr_jobs = args.num_parallel_jobs
         percentage = round((nr_current_workers/max_nr_jobs)*100)
-
-        this_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         if nr_current_workers:
             in_brackets.append(f"currently running workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
@@ -1457,14 +1469,6 @@ def get_desc_progress_bar(result_csv_file, searching_for):
 
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             worker_percentage_usage.append(this_values)
-
-        this_progress_values = {
-            "best_result": str(best_result_int_if_possible),
-            "time": this_time
-        }
-
-        if len(progress_plot) == 0 or progress_plot[len(progress_plot) - 1] != this_progress_values:
-            progress_plot.append(this_progress_values)
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"

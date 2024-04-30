@@ -49,6 +49,7 @@ NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 ax_client = None
 done_jobs = 0
 failed_jobs = 0
+started_jobs = 0
 jobs = []
 end_program_ran = False
 program_name = "OmniOpt"
@@ -1285,6 +1286,9 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
     global ax_client
     global done_jobs
     global failed_jobs
+    global started_jobs
+    
+    started_jobs = 0
 
     for job, trial_index in jobs[:]:
         # Poll if any jobs completed
@@ -1323,6 +1327,8 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
             save_checkpoint()
             save_pd_csv()
+        else:
+            started_jobs = started_jobs + 1
 
     progress_bar.set_description(get_desc_progress_bar(result_csv_file, searching_for))
 
@@ -1349,7 +1355,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
             in_brackets.append(f"best result: {(to_int_when_possible(float(best_result)))}")
 
         if len(jobs):
-            in_brackets.append(f"currently running jobs: {len(jobs)} ({round(len(jobs)/args.num_parallel_jobs*100)})}% of max ({args.num_parallel_jobs})")
+            in_brackets.append(f"currently running jobs: {started_jobs} ({round(started_jobs/args.num_parallel_jobs*100)}% of max {args.num_parallel_jobs})")
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"

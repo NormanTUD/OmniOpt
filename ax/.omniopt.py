@@ -46,6 +46,7 @@ TODO:
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
+already_shown_worker_usage_over_time = False
 ax_client = None
 done_jobs = 0
 failed_jobs = 0
@@ -984,6 +985,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     global shown_end_table
     global args
     global worker_percentage_usage
+    global already_shown_worker_usage_over_time
 
     if shown_end_table:
         print("End table already shown, not doing it again")
@@ -1045,7 +1047,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         except Exception as e:
             print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
 
-    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage):
+    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
+        already_shown_worker_usage_over_time = True
         """
             "nr_current_workers": nr_current_workers,
             "max_nr_jobs": max_nr_jobs,

@@ -1572,7 +1572,7 @@ def main ():
                     model=Models.BOTORCH_MODULAR,
                     num_trials=args.max_eval,  # No limitation on how many trials should be produced from this step
                     #min_trials_observed=1,  # How many trials need to be completed to move to next model
-                    max_parallelism=None,  # Parallelism limit for this step, often lower than for Sobol
+                    max_parallelism=args.max_eval,  # Parallelism limit for this step, often lower than for Sobol
                     model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
                     # More on parallelism vs. required samples in BayesOpt:
                     # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials

@@ -144,6 +144,8 @@ function print_wallclock_time {
 
 	rm temp_file
 
+	max_time=$(echo $max_time | sed -e 's#\..*##')
+	min_time=$(echo $min_time | sed -e 's#\..*##')
 	absolute_runtime=$((max_time - min_time))
 
 	days=$((absolute_runtime / 86400))
@@ -207,15 +209,69 @@ function list_option_for_job {
 		CONTINUED_FROM="$(cat $THISPROJECTDIR/$NUMBER/checkpoint_load_source)"
 	fi
 
-	WHATTODO=$(whiptail \
-		--title "Available options for >${PROJECT}< (run number $NUMBER)" \
-		--menu \
-		"Chose what to do with >$PROJECT<. $CONTINUED_FROM" \
-		$LINES $COLUMNS $(( $LINES - 8 )) \
-		"${args[@]}" \
-		"b)" "back" \
-		"q)" "quit" 3>&1 1>&2 2>&3
-	)
+	ERRORCOUNTER=""
+
+	input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+
+	FAILED_JOBS=$(perl -e '
+open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
+
+# Read header line
+my $header = <$fh>;
+chomp $header;
+my @headers = split(",", $header);
+
+# Find the index of the "exit_code" column
+my $exit_code_index = -1;
+for my $i (0..$#headers) {
+    if ($headers[$i] eq "exit_code") {
+        $exit_code_index = $i;
+        last;
+    }
+}
+
+# Check if "exit_code" column exists in the CSV file
+die "Error: exit_code column not found in the CSV file.\n" if $exit_code_index == -1;
+
+# Print "exit_code" values
+while (my $line = <$fh>) {
+    chomp $line;
+    my @values = split(",", $line);
+    print "$values[$exit_code_index]\n";
+}
+
+close $fh;
+' "$input_file" | egrep -v '^\s*0\s*$' | wc -l)
+
+	FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
+
+	error_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+	if [[ -e "$error_file" ]]; then
+		FAILED_JOBS_STRING="$FAILED_JOBS_STRING. See the menu point >detected errors< for details."
+
+		WHATTODO=$(whiptail \
+			--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+			--menu \
+			"Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
+			$LINES $COLUMNS $(( $LINES - 8 )) \
+			"${args[@]}" \
+			"e)" "detected errors" \
+			"b)" "back" \
+			"q)" "quit" 3>&1 1>&2 2>&3
+		)
+	else
+		WHATTODO=$(whiptail \
+			--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+			--menu \
+			"Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
+			$LINES $COLUMNS $(( $LINES - 8 )) \
+			"${args[@]}" \
+			"b)" "back" \
+			"q)" "quit" 3>&1 1>&2 2>&3
+		)
+	fi
+
+
 
 	exitstatus=$?
 
@@ -519,6 +575,13 @@ close $fh;
 			info_message_large "$GENERAL_INFO"
 
 			list_option_for_job $PROJECT $NUMBER
+		elif [[ "$WHATTODO" =~ "e)" ]]; then
+			input_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
+			if [[ -e "$input_file" ]]; then
+				error_message "$(cat $input_file | tr -d '\r')"
+			else
+				error_message "$input_file could not be found."
+			fi
 		else
 			echo_red "Unknown option: $WHATTODO (Line $LINENO)"
 		fi

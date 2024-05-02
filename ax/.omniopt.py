@@ -1423,6 +1423,7 @@ def finish_previous_jobs (progress, main_task, jobs, result_csv_file, searching_
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
+                result = result["result"]
                 print_debug(f"Got job result: {result}")
                 if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=result)

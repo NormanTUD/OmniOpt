@@ -1495,7 +1495,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
     return desc
 
 def is_slurm_job():
-    if environ.get('SLURM_JOB_ID') is not None:
+    if os.environ.get('SLURM_JOB_ID') is not None:
         return True
     return False
 

@@ -162,7 +162,9 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--parameter choice_param choice 1,2,4,8,16,hallo \
 		--parameter int_param_two range -6 6 int \
 		--follow \
-		--no_sleep
+		--no_sleep \
+		--show_worker_percentage_table_at_end \
+		--show_worker_percentage_plot_at_end
 else
 	./omniopt \
 		--partition=$PARTITION \
@@ -178,7 +180,9 @@ else
 		--parameter float_param range -5 5 float \
 		--parameter choice_param choice 1,2,4,8,16,hallo \
 		--parameter int_param_two range -6 6 int \
-		--follow
+		--follow \
+		--show_worker_percentage_table_at_end \
+		--show_worker_percentage_plot_at_end
 fi
 
 exit_code=$?
@@ -191,7 +195,7 @@ fi
 
 yellow_text "Trying to continue previous job"
 
-./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
+./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS --show_worker_percentage_table_at_end --show_worker_percentage_plot_at_end
 
 exit_code=$?
 
@@ -208,7 +212,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS || true
+./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 10 --follow --gpus=$NUM_GPUS  --show_worker_percentage_table_at_end --show_worker_percentage_plot_at_end || true
 PE=$PIPEERROR
 
 exit_code=$?

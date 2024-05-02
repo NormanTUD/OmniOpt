@@ -1104,6 +1104,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.clf()
 
 
+            plotext.theme('pro')
 
             plotext.date_form("d/m/Y H:M:S")
 

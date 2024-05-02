@@ -2185,10 +2185,10 @@ def analyze_out_files (rootdir, print_to_stdout=True):
 
     j = 0
 
+    _strs = []
+
     for i in outfiles:
         errors = get_errors_from_outfile(i)
-
-        _strs = []
 
         if len(errors):
             if j == 0:

@@ -170,7 +170,7 @@ optional = parser.add_argument_group('Optional', "These options are optional")
 bash = parser.add_argument_group('Bash', "These options are for the main worker bash script, not the python script itself")
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
-required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
 required.add_argument('--num_random_steps', help='Number of random steps to start with, gets set to max(num_random_steps, num_parallel_jobs)', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)

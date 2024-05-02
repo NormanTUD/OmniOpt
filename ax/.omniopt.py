@@ -1088,7 +1088,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         console.print(table)
 
     if len(worker_percentage_usage):
-        csv_filename = "{current_run_folder}/worker_usage.csv"
+        csv_filename = f"{current_run_folder}/worker_usage.csv"
 
         csv_columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
 

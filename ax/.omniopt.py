@@ -368,6 +368,7 @@ try:
     import socket
     import json
     import signal
+    from tqdm import tqdm
 except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
     sys.exit(24)
@@ -1410,7 +1411,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress, main_task, jobs, result_csv_file, searching_for):
+def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1454,13 +1455,14 @@ def finish_previous_jobs (progress, main_task, jobs, result_csv_file, searching_
 
             jobs.remove((job, trial_index))
 
-            progress.update(main_task, advance=1)
+            progress_bar.update(1)
 
             save_checkpoint()
             save_pd_csv()
 
-    text_column = get_desc_progress_text(result_csv_file, searching_for)
-    progress.update(main_task, description=text_column)
+    desc = get_desc_progress_text(result_csv_file, searching_for)
+
+    progress_bar.set_description(desc)
 
     return jobs
 
@@ -1738,14 +1740,8 @@ def main ():
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            with Progress(  
-                    TextColumn("[progress.description]{task.description}"),
-                    BarColumn(),
-                    TaskProgressColumn(),
-                    TimeRemainingColumn()
-            ) as progress:
+            with tqdm(total=max_eval, disable=False) as progress_bar:
                 initial_text = get_desc_progress_text(result_csv_file, searching_for)
-                main_task = progress.add_task(description=f"{initial_text}...", total=max_eval)
                 while submitted_jobs < max_eval or jobs:
                     print_debug_linewise("==============================================================")
                     mylog("NEW ENTRY ==============================================================")
@@ -1768,7 +1764,7 @@ def main ():
 
                         for m in range(0, calculated_max_trials):
                             print_debug_linewise(f"                            for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
-                            jobs = finish_previous_jobs(progress, main_task, jobs, result_csv_file, searching_for)
+                            jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
 
                             try:
                                 print_debug("Trying to get trial_index_to_param")
@@ -1814,7 +1810,7 @@ def main ():
                                             jobs.remove((new_job, trial_index))
                                             print_debug("Removed failed job")
 
-                                            progress.update(main_task, advance=1)
+                                            progress_bar.update(1)
 
                                             save_checkpoint()
                                             save_pd_csv()

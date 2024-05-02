@@ -1696,9 +1696,9 @@ def main ():
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
 
-        searching_for = "minimum"
+        searching_for = "min."
         if args.maximize:
-            searching_for = "maximum"
+            searching_for = "max."
 
         _k = 0
 

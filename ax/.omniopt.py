@@ -1218,7 +1218,8 @@ def end_program (csv_file_path, result_column="result"):
     save_pd_csv()
 
     for job, trial_index in jobs[:]:
-        job.cancel()
+        if job:
+            job.cancel()
 
 
     sys.exit(exit)

@@ -1090,7 +1090,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     if len(worker_percentage_usage):
         csv_filename = f"{current_run_folder}/worker_usage.csv"
 
-        csv_columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
+        csv_columns = ['time', 'max_nr_jobs', 'nr_current_workers', 'percentage']
 
         with open(csv_filename, 'w', newline='') as csvfile:
             # Erstelle den CSV-Writer

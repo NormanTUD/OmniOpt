@@ -916,7 +916,7 @@ def patched_current_generator_run_limit(*args, **kwargs):
     return 1, False
 try:
     if not args.tests:
-        with local_console.status("[bold green]Importing ax...") as status:
+        with console.status("[bold green]Importing ax...") as status:
             try:
                 import ax.modelbridge.generation_node
                 import ax
@@ -933,7 +933,7 @@ try:
                 print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
                 sys.exit(34)
 
-        with local_console.status("[bold green]Importing botorch...") as status:
+        with console.status("[bold green]Importing botorch...") as status:
             try:
                 import botorch
             except ModuleNotFoundError as e:
@@ -943,7 +943,7 @@ try:
                 print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
                 sys.exit(36)
 
-        with local_console.status("[bold green]Importing submitit...") as status:
+        with console.status("[bold green]Importing submitit...") as status:
             try:
                 import submitit
                 from submitit import AutoExecutor, LocalJob, DebugJob

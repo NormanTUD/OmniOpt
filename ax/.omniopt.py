@@ -202,7 +202,6 @@ debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
-debug.add_argument('--show_worker_percentage_plot_at_end', help='Show a plot of percentage of max worker over time', action='store_true', default=False)
 debug.add_argument('--show_progress_plot', help='Show a plot of progress over time', action='store_true', default=False)
 
 args = parser.parse_args()
@@ -1088,7 +1087,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         console.print(table)
 
     shown_first_plot = False
-    if args.show_worker_percentage_plot_at_end and len(worker_percentage_usage):
+    if len(worker_percentage_usage):
         try:
             import plotext
 

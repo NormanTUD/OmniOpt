@@ -1101,7 +1101,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             
             # Schreibe die Datenzeilen
             for row in worker_percentage_usage:
-                csv_writer.writerow(row)
+                csv_writer.writerow(str(row["time"]), str(row["nr_current_workers"]), str(row["max_nr_jobs"]), f'{row["percentage"]}%', style='bright_green')
 
     shown_first_plot = False
     if len(worker_percentage_usage):

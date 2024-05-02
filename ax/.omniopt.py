@@ -1630,6 +1630,9 @@ The random is one sobol. sobol_steps is defined by
     max(--num-random-step ({args.num_random_steps}), --num_parallel_jobs ({6}))
 
 This means, you probably only get random values, instead of a well-searched search space.
+
+You can change this by increasing the number of workers (--num_parallel_jobs), or decrease the
+number of random steps (--args.num_random_steps). Setting it lower is not recommended, though.
 """)
 
         gs = GenerationStrategy(

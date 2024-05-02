@@ -1739,6 +1739,9 @@ def main ():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with tqdm(total=max_eval, disable=False) as progress_bar:
+                if is_executable_in_path('sbatch'):
+                    if get_number_of_current_workers() > args.num_parallel_jobs:
+                        time.sleep(10)
                 initial_text = get_desc_progress_text(result_csv_file, searching_for)
                 while submitted_jobs < max_eval or jobs:
                     print_debug_linewise("==============================================================")

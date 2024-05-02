@@ -160,7 +160,7 @@ def dier (msg):
 
 parser = argparse.ArgumentParser(
     prog="main",
-    description='A hyperparameter optimizer for the HPC-system of the TU Dresden',
+    description='A hyperparameter optimizer for slurmbased HPC-systems',
     epilog="Example:\n\n./main --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int"
 )
 

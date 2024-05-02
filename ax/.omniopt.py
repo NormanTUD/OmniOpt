@@ -1476,7 +1476,7 @@ def get_desc_progress_bar(result_csv_file, searching_for):
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
         if nr_current_workers:
-            in_brackets.append(f"currently running workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
+            in_brackets.append(f"workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
 
         this_values = {
             "nr_current_workers": nr_current_workers,
@@ -1696,9 +1696,9 @@ def main ():
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
 
-        searching_for = "minimum"
+        searching_for = "min."
         if args.maximize:
-            searching_for = "maximum"
+            searching_for = "max."
 
         _k = 0
 

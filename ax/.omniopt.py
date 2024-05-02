@@ -1617,13 +1617,28 @@ def main ():
         disable_logging()
 
     try:
+        sobol_steps = max(args.num_random_steps, args.num_parallel_jobs)
+
+        if args.max_eval <= sobol_steps:
+            print_color("orange", f"""
+You have less --max_eval steps than you have sobol steps. OmniOpt works in 2 Steps. 
+
+First, there are some random values executed at first to figure out the search space basics.
+Then, a more precise model takes over. 
+
+The random is one sobol. sobol_steps is defined by
+    max(--num-random-step ({args.num_random_steps}), --num_parallel_jobs ({6}))
+
+This means, you probably only get random values, instead of a well-searched search space.
+""")
+
         gs = GenerationStrategy(
             steps=[
                 # 1. Initialization step (does not require pre-existing data and is well-suited for
                 # initial sampling of the search space)
                 GenerationStep(
                     model=Models.SOBOL,
-                    num_trials=max(args.num_random_steps, args.num_parallel_jobs),
+                    num_trials=sobol_steps,
                     #num_trials=args.num_parallel_jobs,  # How many trials should be produced from this generation step
                     #min_trials_observed=args.num_parallel_jobs,  # How many trials need to be completed to move to next model
                     max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step

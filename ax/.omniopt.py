@@ -516,14 +516,19 @@ def get_program_code_from_out_file (f):
 
 def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")
+
+    if args.continue_previous_job and len(args.parameter):
+        print_color("red", "Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
+        sys.exit(53)
+
     params = []
 
     param_names = []
 
     i = 0
 
-    while i < len(args):
-        this_args = args[i]
+    while i < len(args.parameter):
+        this_args = args.parameter[i]
         j = 0
         while j < len(this_args):
             name = this_args[j]
@@ -1583,7 +1588,7 @@ def main ():
     checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
 
     if args.parameter:
-        experiment_parameters = parse_experiment_parameters(args.parameter)
+        experiment_parameters = parse_experiment_parameters(args)
 
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)

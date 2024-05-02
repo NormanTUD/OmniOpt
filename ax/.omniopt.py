@@ -2200,7 +2200,7 @@ def analyze_out_files (rootdir, print_to_stdout=True):
                 _strs.append("")
             _strs.append(f"Out file {i} contains potential errors:\n")
             program_code = get_program_code_from_out_file(i)
-            print(program_code)
+            _strs.append(program_code)
             for e in errors:
                 _strs.append(f"- {e}\n")
 

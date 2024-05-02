@@ -189,6 +189,7 @@ optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for 
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
 optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
+optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as many workers as it can. Default is to wait until older workers died.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1739,7 +1740,7 @@ def main ():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with tqdm(total=max_eval, disable=False) as progress_bar:
-                if is_executable_in_path('sbatch'):
+                if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                     while get_number_of_current_workers() > args.num_parallel_jobs:
                         time.sleep(10)
                 initial_text = get_desc_progress_text(result_csv_file, searching_for)

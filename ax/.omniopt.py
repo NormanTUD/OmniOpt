@@ -1125,8 +1125,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.clf()
 
-
-
             shown_first_plot = True
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")

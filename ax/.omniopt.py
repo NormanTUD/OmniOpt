@@ -169,6 +169,7 @@ bash = parser.add_argument_group('Bash', "These options are for the main worker 
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs', type=int, required=True)
+required.add_argument('--num_random_steps', help='Number of random steps to start with, gets set to max(num_random_steps, num_parallel_jobs)', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
@@ -1569,7 +1570,7 @@ def main ():
                 # initial sampling of the search space)
                 GenerationStep(
                     model=Models.SOBOL,
-                    num_trials=args.num_parallel_jobs,
+                    num_trials=max(args.num_random_steps, args.num_parallel_jobs),
                     #num_trials=args.num_parallel_jobs,  # How many trials should be produced from this generation step
                     #min_trials_observed=args.num_parallel_jobs,  # How many trials need to be completed to move to next model
                     max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step

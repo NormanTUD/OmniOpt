@@ -1423,13 +1423,15 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
                     done_jobs += 1
                 else:
-                    job.cancel()
+                    if job:
+                        job.cancel()
 
                     failed_jobs += 1
             except submitit.core.utils.UncompletedJobError as error:
                 print_color("red", str(error))
 
-                job.cancel()
+                if job:
+                    job.cancel()
 
                 failed_jobs += 1
             except ax.exceptions.core.UserInputError as error:
@@ -1438,7 +1440,8 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
                 else:
                     print_color("red", f"\n:warning: {error}")
 
-                job.cancel()
+                if job:
+                    job.cancel()
 
                 failed_jobs += 1
 
@@ -1788,7 +1791,8 @@ def main ():
 
                                         try:
                                             print_debug("Trying to cancel job that failed")
-                                            new_job.cancel()
+                                            if new_job:
+                                                new_job.cancel()
                                             print_debug("Cancelled failed job")
 
                                             jobs.remove((new_job, trial_index))

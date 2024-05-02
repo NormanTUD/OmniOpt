@@ -1486,12 +1486,18 @@ def get_desc_progress_bar(result_csv_file, searching_for):
         }
 
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
-            worker_percentage_usage.append(this_values)
+            if is_slurm_job():
+                worker_percentage_usage.append(this_values)
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"
 
     return desc
+
+def is_slurm_job():
+    if environ.get('SLURM_JOB_ID') is not None:
+        return True
+    return False
 
 def _sleep (args, t):
     if not args.no_sleep:

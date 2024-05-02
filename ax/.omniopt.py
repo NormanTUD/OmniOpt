@@ -1473,6 +1473,7 @@ def get_desc_progress_text (result_csv_file, searching_for):
     
     in_brackets = []
 
+    print(f"failed jobs: {failed_jobs}")
     if failed_jobs:
         in_brackets.append(f"failed: {failed_jobs}")
 

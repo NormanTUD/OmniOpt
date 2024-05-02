@@ -41,6 +41,8 @@ TODO:
     [(12, 12), (-1, 3)]
 
     The output of this function is a list of tuples of form (number of trials, max parallelism), so the example above means "the max parallelism is 12 for the first 12 trials and 3 for all subsequent trials." This is because the first 12 trials are produced quasi-randomly and can all be evaluated at once, and subsequent trials are produced via Bayesian optimization, which converges on optimal point in fewer trials when parallelism is limited. MaxParallelismReachedException indicates that the parallelism limit has been reached –– refer to the 'Service API Exceptions Meaning and Handling' section at the end of the tutorial for handling.
+
+https://github.com/facebook/Ax/issues/2301
 """
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999

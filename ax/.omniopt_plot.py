@@ -203,7 +203,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows):
+def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows):
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
@@ -227,7 +227,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
     cbar.formatter.set_scientific(False)
     cbar.formatter.set_useMathText(False)
 
-def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column):
+def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
     scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
@@ -238,7 +238,7 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBB
     cbar.formatter.set_scientific(False)
     cbar.formatter.set_useMathText(False)
 
-def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs):
+def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs):
     ax = axs  # Use the single axis
     _range = range(len(df_filtered))
     _data = df_filtered
@@ -262,7 +262,7 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX
     cbar.formatter.set_scientific(False)
     cbar.formatter.set_useMathText(False)
 
-def plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+def plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     colors = get_colors(df, result_column)
 
     if os.path.exists(args.run_dir + "/maximize"):
@@ -283,11 +283,11 @@ def plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, 
 
     if num_subplots == 1:
         if len(non_empty_graphs[0]) == 1:
-            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs)
+            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs)
         else:
-            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column)
+            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column)
     else:
-        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows)
+        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows)
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
@@ -303,8 +303,13 @@ def get_args ():
     parser.add_argument('--delete_temp', help='Delete temp files', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
     parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
+    parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
 
     args = parser.parse_args()
+
+    if args.bubblesize:
+        global BUBBLESIZEINPX
+        BUBBLESIZEINPX = args.bubblesize
 
     check_args(args)
 
@@ -437,7 +442,7 @@ def main(args):
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
+    plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
     result_column_values = get_result_column_values(df, result_column)
 

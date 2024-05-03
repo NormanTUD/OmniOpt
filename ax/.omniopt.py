@@ -1597,6 +1597,7 @@ def main ():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
+    print("joined_run_program:" + str(joined_run_program))
     save_state_files(current_run_folder, joined_run_program, experiment_name, mem_gb, max_eval, args, _time)
 
     if args.continue_previous_job:

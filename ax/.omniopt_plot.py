@@ -1,6 +1,8 @@
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
+# idee: single plots zeichnen und mit plotext anzeigen, so dass man einen überblick kriegt
+
 import sys
 import os
 import argparse

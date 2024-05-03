@@ -203,7 +203,6 @@ debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
-debug.add_argument('--show_progress_plot', help='Show a plot of progress over time', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -1145,7 +1144,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
-    if args.show_progress_plot and len(progress_plot):
+    if len(progress_plot):
         try:
             import plotext
 

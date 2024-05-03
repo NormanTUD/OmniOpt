@@ -238,7 +238,7 @@ else:
     if os.path.exists(prev_job_file):
         joined_run_program = get_file_as_string(prev_job_file)
     else:
-        print(f"{prev_job_file} could not be found")
+        print(f"The previous job file {prev_job_file} could not be found")
         sys.exit(44)
 
 experiment_name = args.experiment_name
@@ -258,7 +258,7 @@ if not args.tests:
         sys.exit(43)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
-            print("red", f"{args.continue_previous_job} could not be found!")
+            print("red", f"The previous job folder {args.continue_previous_job} could not be found!")
             sys.exit(21)
 
         if not experiment_name:
@@ -1597,7 +1597,6 @@ def main ():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
-    print("joined_run_program:" + str(joined_run_program))
     save_state_files(current_run_folder, joined_run_program, experiment_name, mem_gb, max_eval, args, _time)
 
     if args.continue_previous_job:

@@ -1160,10 +1160,10 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.scatter(times, best_results_over_time, label=f"Best result over time (100% = {max_val}, 0% = {min_val})", marker="hd")
+            plotext.scatter(times, best_results_over_time, label=f"Best results over time (100% = {max_val}, 0% = {min_val})", marker="hd")
             plotext.xlabel("Time")
             plotext.ylabel("Best result")
-            plotext.title("Best Result Over Time")
+            plotext.title("Best Results Over Time")
 
             if shown_first_plot:
                 print("")

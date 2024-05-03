@@ -1818,8 +1818,10 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                     max_trials=1
                                 )
 
-                                #if len(trial_index_to_param.items()) == 0:
-                                #    print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+                                if len(trial_index_to_param.items()) == 0:
+                                    print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+                                    if m > 1:
+                                        print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():

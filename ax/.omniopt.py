@@ -238,7 +238,7 @@ else:
     if os.path.exists(prev_job_file):
         joined_run_program = get_file_as_string(prev_job_file)
     else:
-        print(f"The previous job file {prev_job_file} could not be found")
+        print(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         sys.exit(44)
 
 experiment_name = args.experiment_name

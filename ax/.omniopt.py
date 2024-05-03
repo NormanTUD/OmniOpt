@@ -1160,7 +1160,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, best_results_over_time, label=f"Best result over time (100% = {max_val}, 0% = {min_val})", marker="hd")
+            plotext.scatter(times, best_results_over_time, label=f"Best result over time (100% = {max_val}, 0% = {min_val})", marker="hd")
             plotext.xlabel("Time")
             plotext.ylabel("Best result")
             plotext.title("Best Result Over Time")
@@ -1512,7 +1512,7 @@ def get_desc_progress_text (result_csv_file, searching_for):
                 "time": this_time
             }
 
-            if len(progress_plot) == 0 or progress_plot[len(progress_plot) - 1] != this_progress_values:
+            if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1] == progress_plot:
                 progress_plot.append(this_progress_values)
 
         nr_current_workers = get_number_of_current_workers()

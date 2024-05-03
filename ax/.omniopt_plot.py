@@ -40,7 +40,7 @@ try:
     from itertools import combinations
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
-    sys.exit(0)
+    sys.exit(244)
 
 # Get shell variables or use default values
 BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 15))
@@ -306,6 +306,7 @@ def get_args ():
     parser.add_argument('--delete_temp', help='Delete temp files', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
     parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
+    parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
 
     args = parser.parse_args()

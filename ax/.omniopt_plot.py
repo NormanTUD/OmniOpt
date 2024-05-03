@@ -294,6 +294,7 @@ def get_args ():
 
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+    parser.add_argument('--save_single_plots', help='save single plots instead of all at once', action="store_true", default=False)
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
@@ -394,6 +395,24 @@ def get_result_column_values(df, result_column):
 
     return result_column_values
 
+def plot_and_save_individual_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+    result_column_values = get_result_column_values(df, result_column)
+
+    for i in range(num_subplots):
+        x_dimension_id = args.save_to_file + "_x" + str(i)
+        y_dimension_id = args.save_to_file + "_y" + str(i)
+
+        set_margins(fig)
+
+        fig.canvas.manager.set_window_title(args.run_dir)
+
+        if args.save_to_file:
+            subplot_path = f"single_plot_{x_dimension_id}_{y_dimension_id}_{args.save_to_file}"
+            plt.savefig(subplot_path)
+            print(f"subplot-path: {subplot_path}")
+            plt.clf()  # Clear current figure to prepare for the next subplot
+
+
 def main(args):
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
@@ -420,6 +439,9 @@ def main(args):
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
     plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
+
+    if args.save_single_plots:
+        plot_and_save_individual_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
     result_column_values = get_result_column_values(df, result_column)
 

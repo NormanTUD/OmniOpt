@@ -2007,12 +2007,12 @@ def get_shebang (path):
 
     return sb
 
-def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
-    print_color("yellow", f"Test suite: {program_name}")
+def complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
+    print_color("yellow", f"Test suite: {_program_name}")
 
     nr_errors = 0
 
-    program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{program_name}"
+    program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
 
     if not os.path.exists(program_path):
         print_color("red", f"Program path {program_path} not found!")
@@ -2030,7 +2030,7 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         f"{program_path_with_program} %a %(b) $c $(def)"
     )
 
-    nr_errors += is_equal(f"replace_parameters_in_string {program_name}", program_string_with_params, f"{program_path_with_program} 1 2 3 45")
+    nr_errors += is_equal(f"replace_parameters_in_string {_program_name}", program_string_with_params, f"{program_path_with_program} 1 2 3 45")
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
@@ -2042,12 +2042,12 @@ def complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     res = get_result(stdout)
 
     if res_is_none:
-        nr_errors += is_equal(f"{program_name} res is None", None, res)
+        nr_errors += is_equal(f"{_program_name} res is None", None, res)
     else:
-        nr_errors += is_equal(f"{program_name} res type is nr", True, type(res) == int or type(res) == float)
-    nr_errors += is_equal(f"{program_name} stderr", True, wanted_stderr in stderr)
-    nr_errors += is_equal(f"{program_name} exit-code ", exit_code, wanted_exit_code)
-    nr_errors += is_equal(f"{program_name} signal", signal, wanted_signal)
+        nr_errors += is_equal(f"{_program_name} res type is nr", True, type(res) == int or type(res) == float)
+    nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
+    nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
+    nr_errors += is_equal(f"{_program_name} signal", signal, wanted_signal)
 
     return nr_errors
 
@@ -2091,7 +2091,7 @@ def run_tests ():
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
-    #complex_tests (program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
+    #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo", 0, None)
     nr_errors += complex_tests("divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True)
     #nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr", 5, None)

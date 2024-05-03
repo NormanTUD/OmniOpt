@@ -456,10 +456,10 @@ def main(args):
         plt.savefig(args.save_to_file)
 
         if args.print_to_command_line:
-            if ".jpg" in args.save_to_file:
+            if ".jpg" in args.save_to_file or ".png" in args.save_to_file:
                 plot_image_to_command_line("Plot", args.save_to_file)
             else:
-                print("Only jpgs currently supported")
+                print("Only jpg and png are currently supported")
     else:
         plt.show()
 

@@ -2060,16 +2060,16 @@ def test_find_paths (program_code):
     nr_errors = 0
 
     files = [
-            "main",
-            ".main.py",
-            "plot",
-            ".plot.py",
-            "/etc/passwd",
-            "I/DO/NOT/EXIST",
-            "I DO ALSO NOT EXIST",
-            "NEITHER DO I!",
-            *get_files_in_dir("./.tests/test_wronggoing_stuff.bin/bin/")
-            ]
+        "main",
+        ".main.py",
+        "plot",
+        ".plot.py",
+        "/etc/passwd",
+        "I/DO/NOT/EXIST",
+        "I DO ALSO NOT EXIST",
+        "NEITHER DO I!",
+        *get_files_in_dir("./.tests/test_wronggoing_stuff.bin/bin/")
+    ]
 
     text = " -- && !!  ".join(files)
 

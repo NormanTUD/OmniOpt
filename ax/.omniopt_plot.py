@@ -201,7 +201,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def plot_multiple_graphs(args, fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows):
+def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows):
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
@@ -218,16 +218,6 @@ def plot_multiple_graphs(args, fig, non_empty_graphs, num_cols, axs, df_filtered
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-        if args.save_single_plots and args.save_to_file:
-            old_axs = axs[row][col]
-            axs = axs[row][col]
-
-            if os.path.exists(args.save_to_file):
-                print(f"File {args.save_to_file} already exists. It will be overwritten.")
-            fig.savefig(f"single_plot_{row}_{col}_args.save_to_file")
-
-            axs = old_axs
-
     # Color bar addition für mehrere Subplots
     cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
     cbar.set_label(result_column, rotation=270, labelpad=15)
@@ -235,7 +225,7 @@ def plot_multiple_graphs(args, fig, non_empty_graphs, num_cols, axs, df_filtered
     cbar.formatter.set_scientific(False)
     cbar.formatter.set_useMathText(False)
 
-def plot_two_graphs(args, axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
+def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column):
     scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
@@ -246,12 +236,7 @@ def plot_two_graphs(args, axs, df_filtered, non_empty_graphs, colors, cmap, norm
     cbar.formatter.set_scientific(False)
     cbar.formatter.set_useMathText(False)
 
-    if args.save_single_plots and args.save_to_file:
-        if os.path.exists(args.save_to_file):
-            print(f"File {args.save_to_file} already exists. It will be overwritten.")
-        fig.savefig(f"single_plot_{0}_{1}_args.save_to_file")
-
-def plot_single_graph (args, fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs):
+def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs):
     ax = axs  # Use the single axis
     _range = range(len(df_filtered))
     _data = df_filtered
@@ -275,12 +260,7 @@ def plot_single_graph (args, fig, axs, df_filtered, colors, cmap, norm, result_c
     cbar.formatter.set_scientific(False)
     cbar.formatter.set_useMathText(False)
 
-    if args.save_single_plots and args.save_to_file:
-        if os.path.exists(args.save_to_file):
-            print(f"File {args.save_to_file} already exists. It will be overwritten.")
-        fig.savefig(f"single_plot_{0}_args.save_to_file")
-
-def plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+def plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     colors = get_colors(df, result_column)
 
     if os.path.exists(args.run_dir + "/maximize"):
@@ -301,11 +281,11 @@ def plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs
 
     if num_subplots == 1:
         if len(non_empty_graphs[0]) == 1:
-            plot_single_graph(args, fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs)
+            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, non_empty_graphs)
         else:
-            plot_two_graphs(args, axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column)
+            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, BUBBLESIZEINPX, result_column)
     else:
-        plot_multiple_graphs(args, fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows)
+        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, BUBBLESIZEINPX, result_column, parameter_combinations, num_rows)
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
@@ -314,8 +294,6 @@ def get_args ():
 
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-    parser.add_argument('--bubblesize', type=str, help='Size of the bubbles', default=None)
-    parser.add_argument('--save_single_plots', help='save single plots instead of all at once', action="store_true", default=False)
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
@@ -325,9 +303,6 @@ def get_args ():
     args = parser.parse_args()
 
     check_args(args)
-
-    if args.bubblesize:
-        BUBBLESIZEINPX = args.bubblesize;
 
     return args
 
@@ -444,7 +419,7 @@ def main(args):
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
+    plot_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEINPX, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
     result_column_values = get_result_column_values(df, result_column)
 

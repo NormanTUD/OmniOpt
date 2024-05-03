@@ -1857,7 +1857,7 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                             print_debug("Trying to cancel job that failed")
                                             if new_job:
                                                 new_job.cancel()
-                                            print_debug("Cancelled failed job")
+                                                print_debug("Cancelled failed job")
 
                                             jobs.remove((new_job, trial_index))
                                             print_debug("Removed failed job")

@@ -302,6 +302,7 @@ def get_args ():
     parser.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
     parser.add_argument('--delete_temp', help='Delete temp files', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
+    parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -397,7 +398,8 @@ def get_result_column_values(df, result_column):
 
     return result_column_values
 
-def plot_to_command_line (title, path):
+def plot_image_to_command_line(title, path):
+    path = os.path.abspath(path)
     if not os.path.exists(path):
         dier(f"Cannot continue: {path} does not exist")
     try:
@@ -406,14 +408,11 @@ def plot_to_command_line (title, path):
         plt.image_plot(path)
         plt.title(title)
         plt.show()
-
-        if args.delete_temp:
-            plt.delete_file(path)
     except ModuleNotFoundError:
         dier("Cannot plot without plotext being installed")
 
 def main(args):
-    #plot_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
+    #plot_image_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
     use_matplotlib(args)
@@ -450,6 +449,12 @@ def main(args):
 
     if args.save_to_file:
         plt.savefig(args.save_to_file)
+
+        if args.print_to_command_line:
+            if ".jpg" in args.save_to_file:
+                plot_image_to_command_line("Plot", args.save_to_file)
+            else:
+                print("Only jpgs currently supported")
     else:
         plt.show()
 

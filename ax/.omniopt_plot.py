@@ -300,6 +300,7 @@ def get_args ():
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
     parser.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+    parser.add_argument('--delete_temp', help='Delete temp files', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
 
     args = parser.parse_args()
@@ -396,7 +397,23 @@ def get_result_column_values(df, result_column):
 
     return result_column_values
 
+def plot_to_command_line (title, path):
+    if not os.path.exists(path):
+        dier(f"Cannot continue: {path} does not exist")
+    try:
+        import plotext as plt
+
+        plt.image_plot(path)
+        plt.title(title)
+        plt.show()
+
+        if args.delete_temp:
+            plt.delete_file(path)
+    except ModuleNotFoundError:
+        dier("Cannot plot without plotext being installed")
+
 def main(args):
+    #plot_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
     result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
 
     use_matplotlib(args)

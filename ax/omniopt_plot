@@ -66,9 +66,7 @@ if [[ "$exit_code" -ne "0" ]]; then
 		echo -- "$OUTPUT"
 	fi
 else
-	if [[ "$help" -eq "1" ]]; then
-		echo "$OUTPUT"
-	fi
+	echo "$OUTPUT"
 fi
 
 echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

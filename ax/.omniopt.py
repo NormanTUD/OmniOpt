@@ -1699,13 +1699,16 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
             f.close()
 
             if args.parameter:
-                print("Override params:")
                 for _item in cli_params_experiment_parameters:
                     _replaced = False
                     for _item_id_to_overwrite in range(0, len(experiment_parameters)):
                         if _item["name"] == experiment_parameters[_item_id_to_overwrite]["name"]:
+                            old_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
                             experiment_parameters[_item_id_to_overwrite] = _item;
+                            new_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
                             _replaced = True
+
+                            print_color("orange", f"Replaced this parameter:\n{old_param_json}\nwith new parameter:\n{new_param_json}")
 
                     if not _replaced:
                         print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
@@ -1815,9 +1818,6 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
-                        nr_ax_client_zero_in_a_row = 0
-                        nr_ax_client_not_zero = 0
-
                         for m in range(0, calculated_max_trials):
                             print_debug_linewise(f"                            for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
                             jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
@@ -1837,16 +1837,8 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
 
                                 if len(trial_index_to_param.items()) == 0:
                                     print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-                                    if m > 10:
-                                        print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-                                        nr_ax_client_zero_in_a_row += 1
-
-                                        if not nr_ax_client_not_zero and nr_ax_client_zero_in_a_row > 20:
-                                            print_color("red", "It seems like your search space is exhausted")
-                                            sys.exit(52)
-                                else:
-                                    nr_ax_client_zero_in_a_row = 0
-                                    nr_ax_client_not_zero += 1
+                                    if _k == 0:
+                                        print_color("orange", "It seems like your search space is exhausted. You may never get results.")
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():
@@ -1899,6 +1891,7 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                             ) as e:
                                 print_color("red", "\n:warning: " + str(e))
                                 end_program(result_csv_file)
+                            _k += 1
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:

@@ -221,22 +221,24 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         axs[row, col].set_visible(False)
 
     # Color bar addition für mehrere Subplots
-    cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-    cbar.set_label(result_column, rotation=270, labelpad=15)
+    if not args.print_to_command_line:
+        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
+        cbar.set_label(result_column, rotation=270, labelpad=15)
 
-    cbar.formatter.set_scientific(False)
-    cbar.formatter.set_useMathText(False)
+        cbar.formatter.set_scientific(False)
+        cbar.formatter.set_useMathText(False)
 
 def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
     scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
     # Farbgebung und Legende für das einzelne Scatterplot
-    cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-    cbar.set_label(result_column, rotation=270, labelpad=15)
+    if not args.print_to_command_line:
+        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
+        cbar.set_label(result_column, rotation=270, labelpad=15)
 
-    cbar.formatter.set_scientific(False)
-    cbar.formatter.set_useMathText(False)
+        cbar.formatter.set_scientific(False)
+        cbar.formatter.set_useMathText(False)
 
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs):
     ax = axs  # Use the single axis
@@ -256,11 +258,12 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
     ax.set_xlabel(non_empty_graphs[0][0])
     ax.set_ylabel(result_column)
 
-    cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
-    cbar.set_label(result_column, rotation=270, labelpad=15)
+    if not args.print_to_command_line:
+        cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
+        cbar.set_label(result_column, rotation=270, labelpad=15)
 
-    cbar.formatter.set_scientific(False)
-    cbar.formatter.set_useMathText(False)
+        cbar.formatter.set_scientific(False)
+        cbar.formatter.set_useMathText(False)
 
 def plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     colors = get_colors(df, result_column)

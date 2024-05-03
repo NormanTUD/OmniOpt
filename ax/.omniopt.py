@@ -1801,6 +1801,9 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
+                        nr_ax_client_zero_in_a_row = 0
+                        nr_ax_client_not_zero = 0
+
                         for m in range(0, calculated_max_trials):
                             print_debug_linewise(f"                            for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
                             jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
@@ -1820,8 +1823,16 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
 
                                 if len(trial_index_to_param.items()) == 0:
                                     print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-                                    if m > 1:
+                                    if m > 10:
                                         print_color("red", f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+                                        nr_ax_client_zero_in_a_row += 1
+
+                                        if not nr_ax_client_not_zero and nr_ax_client_zero_in_a_row > 20:
+                                            print_color("red", "It seems like your search space is exhausted")
+                                            sys.exit(52)
+                                else:
+                                    nr_ax_client_zero_in_a_row = 0
+                                    nr_ax_client_not_zero += 1
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():

@@ -1116,8 +1116,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, [100 for i in percentages], label="Desired", marker="hd")
-            plotext.plot(times, percentages, label="Worker Usage Percentage", marker="hd")
+            plotext.scatter(times, [100 for i in percentages], label="Desired", marker="hd")
+            plotext.scatter(times, percentages, label="Worker Usage Percentage", marker="hd")
             plotext.xlabel("Time")
             plotext.ylabel("Percentage")
             plotext.title("Worker Usage Over Time")
@@ -1132,7 +1132,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, num_workers, label="Num workers (total)", marker="hd")
+            plotext.scatter(times, num_workers, label="Num workers (total)", marker="hd")
             plotext.xlabel("Time")
             plotext.ylabel("Percentage of max workers")
             plotext.title("Worker Usage Percentage Over Time")

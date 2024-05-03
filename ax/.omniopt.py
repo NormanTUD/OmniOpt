@@ -1877,7 +1877,12 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                         print_color("red", f"\n:warning: Starting job failed with error: {e}")
                             except RuntimeError as e:
                                 print_color("red", "\n:warning: " + str(e))
-                            except (botorch.exceptions.errors.ModelFittingError, ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.core.DataRequiredError, botorch.exceptions.errors.InputDataError) as e:
+                            except (
+                                botorch.exceptions.errors.ModelFittingError,
+                                ax.exceptions.core.SearchSpaceExhausted, 
+                                ax.exceptions.core.DataRequiredError,
+                                botorch.exceptions.errors.InputDataError
+                            ) as e:
                                 print_color("red", "\n:warning: " + str(e))
                                 end_program(result_csv_file)
                     except botorch.exceptions.errors.InputDataError as e:

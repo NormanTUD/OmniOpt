@@ -1619,11 +1619,11 @@ def main ():
     try:
         sobol_steps = max(args.num_random_steps, args.num_parallel_jobs)
 
-        if args.max_eval <= sobol_steps:
+        if args.max_eval and sobol_steps and args.max_eval <= sobol_steps:
             print_color("orange", f"""
 You have less --max_eval steps than you have sobol steps. OmniOpt works in 2 Steps. 
 
-First, there are some random values executed at first to figure out the search space basics.
+First, there are sobol_step many random values executed at first to figure out the search space basics.
 Then, a more precise model takes over. 
 
 The random is one sobol. sobol_steps is defined by

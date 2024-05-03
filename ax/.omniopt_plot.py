@@ -446,20 +446,21 @@ def main(args):
 
     result_column_values = get_result_column_values(df, result_column)
 
-    set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
+    if not args.print_to_command_line:
+        set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
 
-    set_margins(fig)
+        set_margins(fig)
 
-    fig.canvas.manager.set_window_title(args.run_dir)
+        fig.canvas.manager.set_window_title(args.run_dir)
 
     if args.save_to_file:
         plt.savefig(args.save_to_file)
 
         if args.print_to_command_line:
             if ".jpg" in args.save_to_file or ".png" in args.save_to_file:
-                plot_image_to_command_line("Plot", args.save_to_file)
+                plot_image_to_command_line("plot", args.save_to_file)
             else:
-                print("Only jpg and png are currently supported")
+                print("only jpg and png are currently supported")
     else:
         plt.show()
 

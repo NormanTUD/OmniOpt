@@ -402,10 +402,6 @@ def plot_and_save_individual_graphs(df, args, fig, axs, df_filtered, BUBBLESIZEI
         x_dimension_id = args.save_to_file + "_x" + str(i)
         y_dimension_id = args.save_to_file + "_y" + str(i)
 
-        set_margins(fig)
-
-        fig.canvas.manager.set_window_title(args.run_dir)
-
         if args.save_to_file:
             subplot_path = f"single_plot_{x_dimension_id}_{y_dimension_id}_{args.save_to_file}"
             plt.savefig(subplot_path)

@@ -1627,12 +1627,15 @@ First, there are some random values executed at first to figure out the search s
 Then, a more precise model takes over. 
 
 The random is one sobol. sobol_steps is defined by
-    max(--num-random-step ({args.num_random_steps}), --num_parallel_jobs ({6}))
+    sobol_steps = max(--num-random-step ({args.num_random_steps}), --num_parallel_jobs ({args.num_parallel_jobs})) = {sobol_steps}
 
 This means, you probably only get random values, instead of a well-searched search space.
 
 You can change this by increasing the number of workers (--num_parallel_jobs), or decrease the
 number of random steps (--args.num_random_steps). Setting it lower is not recommended, though.
+
+Your best option would be to set the --max_eval option higher than it currently is. I recommend
+at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}).
 """)
 
         gs = GenerationStrategy(

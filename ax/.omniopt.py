@@ -247,9 +247,9 @@ if not args.tests:
     if args.parameter is None and args.continue_previous_job is None:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
         sys.exit(19)
-    elif args.parameter is not None and args.continue_previous_job is not None:
-        print("You cannot use --parameter and --continue_previous_job. You have to decide for one.");
-        sys.exit(20)
+    #elif args.parameter is not None and args.continue_previous_job is not None:
+    #    print("You cannot use --parameter and --continue_previous_job. You have to decide for one.");
+    #    sys.exit(20)
     elif not args.run_program and not args.continue_previous_job:
         print("--run_program needs to be defined when --continue_previous_job is not set")
         sys.exit(42)
@@ -518,9 +518,9 @@ def get_program_code_from_out_file (f):
 def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")
 
-    if args.continue_previous_job and len(args.parameter):
-        print_color("red", "Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
-        sys.exit(53)
+    #if args.continue_previous_job and len(args.parameter):
+    #    print_color("red", "Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
+    #    sys.exit(53)
 
     params = []
 
@@ -1605,10 +1605,12 @@ def main ():
     print_color("green", program_name)
 
     experiment_parameters = None
+    cli_params_experiment_parameters = None
     checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
 
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args)
+        cli_params_experiment_parameters = experiment_parameters
 
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
@@ -1695,6 +1697,18 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
             f = open(checkpoint_params_file)
             experiment_parameters = json.load(f)
             f.close()
+
+            if args.parameter:
+                print("Override params:")
+                for _item in cli_params_experiment_parameters:
+                    _replaced = False
+                    for _item_id_to_overwrite in range(0, len(experiment_parameters)):
+                        if _item["name"] == experiment_parameters[_item_id_to_overwrite]["name"]:
+                            experiment_parameters[_item_id_to_overwrite] = _item;
+                            _replaced = True
+
+                    if not _replaced:
+                        print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
 
             with open(checkpoint_filepath, "w") as outfile:
                 json.dump(experiment_parameters, outfile)

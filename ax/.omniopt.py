@@ -78,6 +78,7 @@ class trainingDone (Exception):
 import sys
 
 try:
+    import platform
     from unittest.mock import patch
     import datetime
     from shutil import which
@@ -86,7 +87,6 @@ try:
     import random
     from pathlib import Path
     import glob
-    import platform
     from os import listdir
     from os.path import isfile, join
     import re
@@ -1576,7 +1576,11 @@ def save_state_files (current_run_folder, joined_run_program, experiment_name, m
     with open(f"{current_run_folder}/run.sh", 'w') as f:
         print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
 
-
+def check_python_version ():
+    python_version = platform.python_version()
+    supported_versions = ["3.11.2", "3.10.4"]
+    if not python_version in supported_versions:
+        print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def main ():
     print_debug("main")
@@ -1603,6 +1607,8 @@ def main ():
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
     print(f"[yellow]CSV-File[/yellow]: [underline]{result_csv_file}[/underline]")
     print_color("green", program_name)
+
+    check_python_version()
 
     experiment_parameters = None
     cli_params_experiment_parameters = None

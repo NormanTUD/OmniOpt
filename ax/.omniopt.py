@@ -195,6 +195,7 @@ optional.add_argument('--run_dir', help='Directory, in which runs should be save
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
 optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
 optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as many workers as it can. Default is to wait until older workers died.', action='store_true', default=False)
+optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1180,7 +1181,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
     #print("Printing stats")
-    os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
+    if args.experimental:
+        os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
     #print("Done printing stats")
         
     sys.exit(exit)
@@ -1655,27 +1657,9 @@ def main ():
         disable_logging()
 
     try:
-        sobol_steps = max(args.num_random_steps, args.num_parallel_jobs)
+        sobol_steps = args.num_random_steps
 
-        if args.max_eval and sobol_steps and args.max_eval <= sobol_steps:
-            print_color("orange", f"""
-You have less --max_eval steps than you have sobol steps. OmniOpt works in 2 Steps. 
-
-First, there are sobol_step many random values executed at first to figure out the search space basics.
-Then, a more precise model takes over. 
-
-The random is one sobol. sobol_steps is defined by
-    sobol_steps = max(--num-random-step ({args.num_random_steps}), --num_parallel_jobs ({args.num_parallel_jobs})) = {sobol_steps}
-
-This means, you probably only get random values, instead of a well-searched search space.
-
-You can change this by increasing the number of workers (--num_parallel_jobs), or decrease the
-number of random steps (--args.num_random_steps). Setting it lower is not recommended, though.
-
-Your best option would be to set the --max_eval option higher than it currently is. I recommend
-at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}).
-""")
-
+        print(f"Random evaluations before the search begins: {sobol_steps}")
         gs = GenerationStrategy(
             steps=[
                 # 1. Initialization step (does not require pre-existing data and is well-suited for
@@ -1854,94 +1838,91 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
-                        for m in range(0, calculated_max_trials):
-                            print_debug_linewise(f"                            for m ({m}) in range(0, calculated_max_trials ({calculated_max_trials})):")
-                            jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
+                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
 
-                            try:
-                                print_debug("Trying to get trial_index_to_param")
+                        try:
+                            print_debug("Trying to get trial_index_to_param")
 
-                                trial_index_to_param = None
+                            trial_index_to_param = None
 
-                                trial_index_to_param, _ = ax_client.get_next_trials(
-                                    max_trials=calculated_max_trials
-                                )
+                            trial_index_to_param, _ = ax_client.get_next_trials(
+                                max_trials=calculated_max_trials
+                            )
 
-                                if len(trial_index_to_param.items()) == 0:
-                                    print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-                                    if _k == 0:
-                                        print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
-                                        sys.exit(130)
-                                print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
+                            if len(trial_index_to_param.items()) == 0:
+                                print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+                                if _k == 0:
+                                    print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
+                                    sys.exit(130)
 
-                                for trial_index, parameters in trial_index_to_param.items():
-                                    _trial = ax_client.get_trial(trial_index)
+                            for trial_index, parameters in trial_index_to_param.items():
+                                _trial = ax_client.get_trial(trial_index)
+                                """
+                                try:
+                                    _trial.mark_staged()
+                                except:
+                                    pass
+                                """
+                                print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
+                                new_job = None
+                                try:
+                                    print_debug(f"Trying to start new job.")
+                                    new_job = executor.submit(evaluate, parameters)
+                                    print_debug(f"Increasing submitted_jobs by 1.")
+                                    submitted_jobs += 1
+                                    print_debug(f"Appending started job to jobs array")
+                                    jobs.append((new_job, trial_index))
+                                    _sleep(args, 1)
+                                    print_debug(f"Got new job and started it. Parameters: {parameters}")
                                     """
                                     try:
-                                        _trial.mark_staged()
-                                    except:
-                                        pass
+                                        _trial.mark_running(no_runner_required=True)
+                                    except Exception as e:
+                                        print(f"ERROR in line {getLineInfo()}: {e}")
                                     """
-                                    print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
-                                    new_job = None
+                                except submitit.core.utils.FailedJobError as error:
+                                    if "QOSMinGRES" in str(error) and args.gpus == 0:
+                                        print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                                    else:
+                                        print_color("red", f"\n:warning: FAILED: {error}")
+
                                     try:
-                                        print_debug(f"Trying to start new job.")
-                                        new_job = executor.submit(evaluate, parameters)
-                                        print_debug(f"Increasing submitted_jobs by 1.")
-                                        submitted_jobs += 1
-                                        print_debug(f"Appending started job to jobs array")
-                                        jobs.append((new_job, trial_index))
-                                        _sleep(args, 1)
-                                        print_debug(f"Got new job and started it. Parameters: {parameters}")
-                                        """
-                                        try:
-                                            _trial.mark_running(no_runner_required=True)
-                                        except Exception as e:
-                                            print(f"ERROR in line {getLineInfo()}: {e}")
-                                        """
-                                    except submitit.core.utils.FailedJobError as error:
-                                        if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                            print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                                        else:
-                                            print_color("red", f"\n:warning: FAILED: {error}")
+                                        print_debug("Trying to cancel job that failed")
+                                        if new_job:
+                                            try:
+                                                ax_client.log_trial_failure(trial_index=trial_index)
+                                            except Exception as e:
+                                                print(f"ERROR in line {getLineInfo()}: {e}")
+                                            new_job.cancel()
+                                            print_debug("Cancelled failed job")
 
-                                        try:
-                                            print_debug("Trying to cancel job that failed")
-                                            if new_job:
-                                                try:
-                                                    ax_client.log_trial_failure(trial_index=trial_index)
-                                                except Exception as e:
-                                                    print(f"ERROR in line {getLineInfo()}: {e}")
-                                                new_job.cancel()
-                                                print_debug("Cancelled failed job")
+                                        jobs.remove((new_job, trial_index))
+                                        print_debug("Removed failed job")
 
-                                            jobs.remove((new_job, trial_index))
-                                            print_debug("Removed failed job")
+                                        progress_bar.update(1)
 
-                                            progress_bar.update(1)
-
-                                            save_checkpoint()
-                                            save_pd_csv()
-                                        except Exception as e:
-                                            print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
-                                    except (signalUSR, signalINT) as e:
-                                        print_color("red", f"\n:warning: Detected signal. Will exit.")
-                                        end_program(result_csv_file)
+                                        save_checkpoint()
+                                        save_pd_csv()
                                     except Exception as e:
-                                        print_color("red", f"\n:warning: Starting job failed with error: {e}")
-                                    except Exception as e:
-                                        print_color("red", f"\n:warning: Starting job failed with error: {e}")
-                            except RuntimeError as e:
-                                print_color("red", "\n:warning: " + str(e))
-                            except (
-                                botorch.exceptions.errors.ModelFittingError,
-                                ax.exceptions.core.SearchSpaceExhausted, 
-                                ax.exceptions.core.DataRequiredError,
-                                botorch.exceptions.errors.InputDataError
-                            ) as e:
-                                print_color("red", "\n:warning: " + str(e))
-                                end_program(result_csv_file)
-                            _k += 1
+                                        print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+                                except (signalUSR, signalINT) as e:
+                                    print_color("red", f"\n:warning: Detected signal. Will exit.")
+                                    end_program(result_csv_file)
+                                except Exception as e:
+                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                                except Exception as e:
+                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                        except RuntimeError as e:
+                            print_color("red", "\n:warning: " + str(e))
+                        except (
+                            botorch.exceptions.errors.ModelFittingError,
+                            ax.exceptions.core.SearchSpaceExhausted, 
+                            ax.exceptions.core.DataRequiredError,
+                            botorch.exceptions.errors.InputDataError
+                        ) as e:
+                            print_color("red", "\n:warning: " + str(e))
+                            end_program(result_csv_file)
+                        _k += 1
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:

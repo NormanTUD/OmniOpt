@@ -1180,7 +1180,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
     #print("Printing stats")
-    os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000')
+    os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
     #print("Done printing stats")
         
     sys.exit(exit)

@@ -1242,6 +1242,10 @@ def end_program (csv_file_path, result_column="result"):
 
     for job, trial_index in jobs[:]:
         if job:
+            try:
+                job.mark_failed()
+            except Exception:
+                pass
             job.cancel()
 
     sys.exit(exit)
@@ -1446,8 +1450,17 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
                     ax_client.complete_trial(trial_index=trial_index, raw_data=result)
 
                     done_jobs += 1
+
+                    try:
+                        job.mark_completed()
+                    except Exception:
+                        pass
                 else:
                     if job:
+                        try:
+                            job.mark_failed()
+                        except Exception:
+                            pass
                         job.cancel()
 
                     failed_jobs += 1
@@ -1455,6 +1468,10 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
                 print_color("red", str(error))
 
                 if job:
+                    try:
+                        job.mark_failed()
+                    except Exception:
+                        pass
                     job.cancel()
 
                 failed_jobs += 1
@@ -1465,6 +1482,10 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
                     print_color("red", f"\n:warning: {error}")
 
                 if job:
+                    try:
+                        job.mark_failed()
+                    except Exception:
+                        pass
                     job.cancel()
 
                 failed_jobs += 1
@@ -1861,6 +1882,11 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                         jobs.append((new_job, trial_index))
                                         _sleep(args, 1)
                                         print_debug(f"Got new job and started it. Parameters: {parameters}")
+
+                                        try:
+                                            new_job.mark_running()
+                                        except Exception:
+                                            pass
                                     except submitit.core.utils.FailedJobError as error:
                                         if "QOSMinGRES" in str(error) and args.gpus == 0:
                                             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1870,6 +1896,10 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                         try:
                                             print_debug("Trying to cancel job that failed")
                                             if new_job:
+                                                try:
+                                                    new_job.mark_failed()
+                                                except Exception:
+                                                    pass
                                                 new_job.cancel()
                                                 print_debug("Cancelled failed job")
 

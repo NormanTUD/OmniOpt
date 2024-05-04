@@ -1667,10 +1667,44 @@ def main ():
         if sobol_steps < args.num_parallel_jobs:
             print("It may be that you, during the initialization phase, have idling workers.")
 
+        """ 
+
+        Valid models?
+
+        "Sobol"
+        "GPEI"
+        "GPKG"
+        "GPMES"
+        "Factorial"
+        "SAASBO"
+        "FullyBayesian"
+        "FullyBayesianMOO"
+        "SAAS_MTGP"
+        "FullyBayesian_MTGP"
+        "FullyBayesianMOO_MTGP"
+        "Thompson"
+        "GPEI"
+        "BoTorch"
+        "EB"
+        "Uniform"
+        "MOO"
+        "ST_MTGP_LEGACY"
+        "ST_MTGP"
+        "ALEBO"
+        "BO_MIXED"
+        "ST_MTGP_NEHVI"
+        "ALEBO_Initializer"
+        "Contextual_SACBO"
+
+        """
+
+
+
         gs = GenerationStrategy(
             steps=[
                 # 1. Initialization step (does not require pre-existing data and is well-suited for
                 # initial sampling of the search space)
+
                 GenerationStep(
                     model=Models.SOBOL,
                     num_trials=sobol_steps,

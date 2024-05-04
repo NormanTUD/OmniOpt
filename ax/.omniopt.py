@@ -1657,15 +1657,15 @@ def main ():
         disable_logging()
 
     try:
-        sobol_steps = args.num_random_steps
+        random_steps = args.num_random_steps
 
-        print(f"Random evaluations before the search begins: {sobol_steps}")
+        print(f"Random evaluations before the search begins: {random_steps}")
 
-        if sobol_steps > args.max_eval:
+        if random_steps > args.max_eval:
             print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
-        if sobol_steps < args.num_parallel_jobs:
-            print("sobol_steps <- num_parallel_jobs. That means: during the initialization phase, you will have less workers than you entered.")
+        if random_steps < args.num_parallel_jobs:
+            print("random_steps {sobol} <- num_parallel_jobs {num_parallel_jobs}. That means: during the initialization phase, you will have less workers than you entered.")
 
         """ 
 
@@ -1707,7 +1707,7 @@ def main ():
 
                 GenerationStep(
                     model=Models.SOBOL,
-                    num_trials=sobol_steps,
+                    num_trials=random_steps,
                     max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step
                     model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
                     model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`

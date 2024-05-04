@@ -1874,7 +1874,7 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                 if len(trial_index_to_param.items()) == 0:
                                     print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
                                     if _k == 0:
-                                        print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results.")
+                                        print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
                                         sys.exit(130)
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 

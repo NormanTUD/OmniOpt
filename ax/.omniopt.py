@@ -1661,8 +1661,8 @@ def main ():
 
         print(f"Random evaluations before the search begins: {sobol_steps}")
 
-        if sobol_steps < args.max_eval:
-            print(f"You have more --max_eval than sobol_steps. This basically means this will be a random search")
+        if sobol_steps > args.max_eval:
+            print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
         if sobol_steps < args.num_parallel_jobs:
             print("It may be that you, during the initialization phase, have idling workers.")

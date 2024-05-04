@@ -1665,7 +1665,7 @@ def main ():
             print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
         if sobol_steps < args.num_parallel_jobs:
-            print("sobol_steps <- num_parallel_jobs. That means: during the initialization phase, you will have less jobs than expected.")
+            print("sobol_steps <- num_parallel_jobs. That means: during the initialization phase, you will have less workers than you entered.")
 
         """ 
 

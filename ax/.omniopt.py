@@ -67,6 +67,11 @@ max_eval = None
 _time = None
 mem_gb = None
 
+import inspect
+def getLineInfo():
+    return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
+          inspect.stack()[1][3])
+
 def mylog (msg):
     return
     with open('/home/h8/s3811141/omniax_internal.log', "a") as lf:
@@ -1243,10 +1248,10 @@ def end_program (csv_file_path, result_column="result"):
     for job, trial_index in jobs[:]:
         if job:
             try:
-                _trial = ax_client(get_trial(trial_index))
+                _trial = ax_client.get_trial(trial_index)
                 _trial.mark_failed()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()
 
     sys.exit(exit)
@@ -1452,17 +1457,17 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
                     done_jobs += 1
 
+                    _trial = ax_client.get_trial(trial_index)
                     try:
-                        _trial = ax_client(get_trial(trial_index))
-                        _trial.mark_completed()
-                    except Exception:
-                        pass
+                        _trial.mark_completed(unsafe=True)
+                    except Exception as e:
+                        print(f"ERROR in line {getLineInfo()}: {e}")
                 else:
                     if job:
                         try:
                             ax_client.log_trial_failure(trial_index=trial_index)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            print(f"ERROR in line {getLineInfo()}: {e}")
                         job.cancel()
 
                     failed_jobs += 1
@@ -1471,10 +1476,10 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
                 if job:
                     try:
-                        _trial = ax_client(get_trial(trial_index))
+                        _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
 
                 failed_jobs += 1
@@ -1487,8 +1492,8 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
                 if job:
                     try:
                         ax_client.log_trial_failure(trial_index=trial_index)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
 
                 failed_jobs += 1
@@ -1874,6 +1879,13 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                 print_debug(f"Got {len(trial_index_to_param.items())} new items (m = {m}, in range(0, {calculated_max_trials})).")
 
                                 for trial_index, parameters in trial_index_to_param.items():
+                                    _trial = ax_client.get_trial(trial_index)
+                                    """
+                                    try:
+                                        _trial.mark_staged()
+                                    except:
+                                        pass
+                                    """
                                     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
                                     new_job = None
                                     try:
@@ -1885,12 +1897,12 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                         jobs.append((new_job, trial_index))
                                         _sleep(args, 1)
                                         print_debug(f"Got new job and started it. Parameters: {parameters}")
-
+                                        """
                                         try:
-                                            _trial = ax_client(get_trial(trial_index))
-                                            _trial.mark_running()
-                                        except Exception:
-                                            pass
+                                            _trial.mark_running(no_runner_required=True)
+                                        except Exception as e:
+                                            print(f"ERROR in line {getLineInfo()}: {e}")
+                                        """
                                     except submitit.core.utils.FailedJobError as error:
                                         if "QOSMinGRES" in str(error) and args.gpus == 0:
                                             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1902,8 +1914,8 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                             if new_job:
                                                 try:
                                                     ax_client.log_trial_failure(trial_index=trial_index)
-                                                except Exception:
-                                                    pass
+                                                except Exception as e:
+                                                    print(f"ERROR in line {getLineInfo()}: {e}")
                                                 new_job.cancel()
                                                 print_debug("Cancelled failed job")
 

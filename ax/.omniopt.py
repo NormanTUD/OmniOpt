@@ -1834,7 +1834,7 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs)
+                        new_jobs_needed = max(args.num_parallel_jobs, min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs))
                         print_debug_linewise(f"                        new_jobs_needed ({new_jobs_needed}) = min(args.num_parallel_jobs ({args.num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
 
                         if done_jobs >= max_eval:

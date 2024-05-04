@@ -1243,7 +1243,7 @@ def end_program (csv_file_path, result_column="result"):
     for job, trial_index in jobs[:]:
         if job:
             try:
-                job.mark_failed()
+                ax_client.log_trial_failure(trial_index=trial_index)
             except Exception:
                 pass
             job.cancel()
@@ -1458,7 +1458,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
                 else:
                     if job:
                         try:
-                            job.mark_failed()
+                            ax_client.log_trial_failure(trial_index=trial_index)
                         except Exception:
                             pass
                         job.cancel()
@@ -1469,7 +1469,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
                 if job:
                     try:
-                        job.mark_failed()
+                        ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception:
                         pass
                     job.cancel()
@@ -1483,7 +1483,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
 
                 if job:
                     try:
-                        job.mark_failed()
+                        ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception:
                         pass
                     job.cancel()
@@ -1897,7 +1897,7 @@ at least 3 times the size of workers (--max_eval >= {args.num_parallel_jobs * 3}
                                             print_debug("Trying to cancel job that failed")
                                             if new_job:
                                                 try:
-                                                    new_job.mark_failed()
+                                                    ax_client.log_trial_failure(trial_index=trial_index)
                                                 except Exception:
                                                     pass
                                                 new_job.cancel()

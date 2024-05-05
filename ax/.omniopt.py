@@ -1964,110 +1964,106 @@ def main ():
                         print_debug_progressbar(desc)
                         progress_bar.set_description(desc)
 
-                        for _single_job in range(0, calculated_max_trials):
-                            try:
-                                this_max_trials = 1
-                                if is_in_sobol_phase:
-                                    this_max_trials = random_steps
-                                print_debug("Trying to get trial_index_to_param")
+                        try:
+                            print_debug("Trying to get trial_index_to_param")
 
-                                trial_index_to_param = None
+                            trial_index_to_param = None
 
-                                get_next_trials_time_start = time.time()
-                                trial_index_to_param, _ = ax_client.get_next_trials(
-                                    max_trials=this_max_trials
-                                )
-                                get_next_trials_time_end = time.time()
+                            get_next_trials_time_start = time.time()
+                            trial_index_to_param, _ = ax_client.get_next_trials(
+                                max_trials=this_max_trials
+                            )
+                            get_next_trials_time_end = time.time()
 
-                                _ax_took = get_next_trials_time_end - get_next_trials_time_start
+                            _ax_took = get_next_trials_time_end - get_next_trials_time_start
 
-                                time_get_next_trials_took.append(_ax_took)
+                            time_get_next_trials_took.append(_ax_took)
 
-                                if len(trial_index_to_param.items()) == 0:
-                                    print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-                                    if _k == 0:
-                                        print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
-                                        sys.exit(130)
+                            if len(trial_index_to_param.items()) == 0:
+                                print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+                                if _k == 0:
+                                    print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
+                                    sys.exit(130)
 
-                                trial_counter = 0
-                                for trial_index, parameters in trial_index_to_param.items():
-                                    _trial = ax_client.get_trial(trial_index)
+                            trial_counter = 0
+                            for trial_index, parameters in trial_index_to_param.items():
+                                _trial = ax_client.get_trial(trial_index)
 
+                                try:
+                                    _trial.mark_staged()
+                                except Exception as e:
+                                    #print(e)
+                                    pass
+                                print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
+                                new_job = None
+                                try:
+                                    print_debug(f"Trying to start new job.")
+                                    new_job = executor.submit(evaluate, parameters)
+                                    print_debug(f"Increasing submitted_jobs by 1.")
+                                    submitted_jobs += 1
+                                    print_debug(f"Appending started job to jobs array: {new_job}")
+
+                                    jobs.append((new_job, trial_index))
+                                    _sleep(args, 1)
+                                    print_debug(f"Got new job and started it. Parameters: {parameters}")
                                     try:
-                                        _trial.mark_staged()
+                                        _trial.mark_running(no_runner_required=True)
                                     except Exception as e:
-                                        #print(e)
+                                        #print(f"ERROR in line {getLineInfo()}: {e}")
                                         pass
-                                    print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
-                                    new_job = None
+                                    trial_counter += 1
+
+                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+                                    print_debug_progressbar(desc)
+                                    progress_bar.set_description(desc)
+                                except submitit.core.utils.FailedJobError as error:
+                                    if "QOSMinGRES" in str(error) and args.gpus == 0:
+                                        print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+                                    else:
+                                        print_color("red", f"\n:warning: FAILED: {error}")
+
                                     try:
-                                        print_debug(f"Trying to start new job.")
-                                        new_job = executor.submit(evaluate, parameters)
-                                        print_debug(f"Increasing submitted_jobs by 1.")
-                                        submitted_jobs += 1
-                                        print_debug(f"Appending started job to jobs array: {new_job}")
+                                        print_debug("Trying to cancel job that failed")
+                                        if new_job:
+                                            try:
+                                                ax_client.log_trial_failure(trial_index=trial_index)
+                                            except Exception as e:
+                                                print(f"ERROR in line {getLineInfo()}: {e}")
+                                            new_job.cancel()
+                                            print_debug("Cancelled failed job")
 
-                                        jobs.append((new_job, trial_index))
-                                        _sleep(args, 1)
-                                        print_debug(f"Got new job and started it. Parameters: {parameters}")
-                                        try:
-                                            _trial.mark_running(no_runner_required=True)
-                                        except Exception as e:
-                                            #print(f"ERROR in line {getLineInfo()}: {e}")
-                                            pass
+                                        jobs.remove((new_job, trial_index))
+                                        print_debug("Removed failed job")
+
+                                        progress_bar.update(1)
+
+                                        save_checkpoint()
+                                        save_pd_csv()
                                         trial_counter += 1
-
-                                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
-                                        print_debug_progressbar(desc)
-                                        progress_bar.set_description(desc)
-                                    except submitit.core.utils.FailedJobError as error:
-                                        if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                            print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                                        else:
-                                            print_color("red", f"\n:warning: FAILED: {error}")
-
-                                        try:
-                                            print_debug("Trying to cancel job that failed")
-                                            if new_job:
-                                                try:
-                                                    ax_client.log_trial_failure(trial_index=trial_index)
-                                                except Exception as e:
-                                                    print(f"ERROR in line {getLineInfo()}: {e}")
-                                                new_job.cancel()
-                                                print_debug("Cancelled failed job")
-
-                                            jobs.remove((new_job, trial_index))
-                                            print_debug("Removed failed job")
-
-                                            progress_bar.update(1)
-
-                                            save_checkpoint()
-                                            save_pd_csv()
-                                            trial_counter += 1
-                                        except Exception as e:
-                                            print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
-                                    except (signalUSR, signalINT) as e:
-                                        print_color("red", f"\n:warning: Detected signal. Will exit.")
-                                        end_program(result_csv_file)
                                     except Exception as e:
-                                        print_color("red", f"\n:warning: Starting job failed with error: {e}")
-                                    except Exception as e:
-                                        print_color("red", f"\n:warning: Starting job failed with error: {e}")
-                            except RuntimeError as e:
-                                print_color("red", "\n:warning: " + str(e))
-                            except (
-                                botorch.exceptions.errors.ModelFittingError,
-                                ax.exceptions.core.SearchSpaceExhausted, 
-                                ax.exceptions.core.DataRequiredError,
-                                botorch.exceptions.errors.InputDataError
-                            ) as e:
-                                print_color("red", "\n:warning: " + str(e))
-                                end_program(result_csv_file)
-                            _k += 1
+                                        print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+                                except (signalUSR, signalINT) as e:
+                                    print_color("red", f"\n:warning: Detected signal. Will exit.")
+                                    end_program(result_csv_file)
+                                except Exception as e:
+                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                                except Exception as e:
+                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                        except RuntimeError as e:
+                            print_color("red", "\n:warning: " + str(e))
+                        except (
+                            botorch.exceptions.errors.ModelFittingError,
+                            ax.exceptions.core.SearchSpaceExhausted, 
+                            ax.exceptions.core.DataRequiredError,
+                            botorch.exceptions.errors.InputDataError
+                        ) as e:
+                            print_color("red", "\n:warning: " + str(e))
+                            end_program(result_csv_file)
+                        _k += 1
 
-                            desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {len(trial_index_to_param.items())}"])
-                            print_debug_progressbar(desc)
-                            progress_bar.set_description(desc)
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {len(trial_index_to_param.items())}"])
+                        print_debug_progressbar(desc)
+                        progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:

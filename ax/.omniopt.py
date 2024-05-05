@@ -1924,10 +1924,10 @@ def main ():
                             if last_ax_client_time:
                                 new_msgs.append(f"Trying to get {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
                             else:
-                                new_msgs.append(f"Trying to get {calculated_max_trials}, get_next_trials running.")
+                                new_msgs.append(f"Trying to get {calculated_max_trials}, get_next_trials running")
                         else:
                             calculated_max_trials = 1
-                            new_msgs.append(f"Trying to get {calculated_max_trials} (no sbatch), get_next_trials running.")
+                            new_msgs.append(f"Trying to get {calculated_max_trials} (no sbatch), get_next_trials running")
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
                         progress_bar.set_description(desc)

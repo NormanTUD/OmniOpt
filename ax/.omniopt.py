@@ -1439,7 +1439,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, random_steps):
+def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1507,13 +1507,13 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, ra
             save_checkpoint()
             save_pd_csv()
 
-    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps)
+    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
 
     progress_bar.set_description(desc)
 
     return jobs
 
-def get_desc_progress_text (result_csv_file, searching_for, random_steps):
+def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_msgs):
     global done_jobs
     global failed_jobs
     global worker_percentage_usage
@@ -1568,6 +1568,10 @@ def get_desc_progress_text (result_csv_file, searching_for, random_steps):
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             if is_slurm_job():
                 worker_percentage_usage.append(this_values)
+
+    if len(new_msgs):
+        for new_msg in new_msgs:
+            in_brackets.append(new_msg)
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"
@@ -1852,12 +1856,14 @@ def main ():
 
         _k = 0
 
+        time_get_next_trials_took = []
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                 while get_number_of_current_workers() > args.num_parallel_jobs:
                     time.sleep(10)
-            initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps)
+            initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
             with tqdm(total=max_eval, disable=False) as progress_bar:
                 while submitted_jobs < max_eval or jobs:
                     print_debug_linewise("==============================================================")
@@ -1879,16 +1885,41 @@ def main ():
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
-                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps)
+                        new_msgs = [f"Trying to get {calculated_max_trials} new jobs"]
+
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+                        progress_bar.set_description(desc)
+
+                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs)
+
+                        new_msgs.append("finished previous jobs")
+
+                        last_ax_client_time = None
+                        ax_client_time_avg = None
+                        if len(time_get_next_trials_took):
+                            last_ax_client_time = time_get_next_trials_took[len(last_ax_client_time) - 1]
+                            ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
+
+                        if last_ax_client_time:
+                            new_msgs.append(f"get_next_trials running (last {last_ax_client_time}s, avg: {ax_client_time_avg}s)")
+                        else:
+                            new_msgs.append(f"get_next_trials running.")
+
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+                        progress_bar.set_description(desc)
 
                         try:
                             print_debug("Trying to get trial_index_to_param")
 
                             trial_index_to_param = None
 
+                            get_next_trials_time_start = time.time()
                             trial_index_to_param, _ = ax_client.get_next_trials(
                                 max_trials=calculated_max_trials
                             )
+                            get_next_trials_time_end = time.time()
+
+                            time_get_next_trials_took.append(get_next_trials_time_end - get_next_trials_time_start)
 
                             if len(trial_index_to_param.items()) == 0:
                                 print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
@@ -1964,6 +1995,9 @@ def main ():
                             print_color("red", "\n:warning: " + str(e))
                             end_program(result_csv_file)
                         _k += 1
+
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
+                        progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError:

@@ -136,6 +136,14 @@ while os.path.exists(logfile):
 
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
 logfile_linewise = f'logs/{log_i}_linewise'
+logfile_progressbar = f'logs/{log_i}_progressbar'
+
+def _debug_progressbar (msg):
+    try:
+        with open(logfile_progressbar, 'a') as f:
+            print(msg, file=f)
+    except Exception as e:
+        print("_debug_progressbar: Error trying to write log file: " + str(e))
 
 def _debug_linewise (msg):
     try:
@@ -370,6 +378,12 @@ def print_debug_linewise (msg):
         print(msg)
 
     _debug_linewise(msg)
+
+def print_debug_progressbar (msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
+
+    _debug_progressbar(msg)
 
 try:
     import os
@@ -1460,14 +1474,18 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"new result: {result}"], True))
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"new result: {result}"], True)
+                        print_debug_progressbar(desc)
+                        progress_bar.set_description(desc)
                         _trial.mark_completed(unsafe=True)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                 else:
                     if job:
                         try:
-                            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True))
+                            desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True)
+                            print_debug_progressbar(desc)
+                            progress_bar.set_description(desc)
                             ax_client.log_trial_failure(trial_index=trial_index)
                         except Exception as e:
                             print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1479,7 +1497,9 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                 if job:
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True))
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True)
+                        print_debug_progressbar(desc)
+                        progress_bar.set_description(desc)
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                     except Exception as e:
@@ -1495,7 +1515,9 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                 if job:
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True))
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True)
+                        print_debug_progressbar(desc)
+                        progress_bar.set_description(desc)
                         ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1508,11 +1530,15 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
             progress_bar.update(1)
 
             if args.verbose:
-                progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"]))
+                desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"])
+                print_debug_progressbar(desc)
+                progress_bar.set_description(desc)
             save_checkpoint()
             save_pd_csv()
 
-    progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs))
+    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+    print_debug_progressbar(desc)
+    progress_bar.set_description(desc)
 
     return jobs
 
@@ -1909,6 +1935,7 @@ def main ():
                             calculated_max_trials = args.num_parallel_jobs - get_number_of_current_workers(True)
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
+                        print_debug_progressbar(desc)
                         progress_bar.set_description(desc)
 
                         jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, [])
@@ -1934,6 +1961,7 @@ def main ():
                                 new_msgs.append(f"try: get_next_trials {calculated_max_trials} (no sbatch)")
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+                        print_debug_progressbar(desc)
                         progress_bar.set_description(desc)
 
                         try:
@@ -1986,6 +2014,7 @@ def main ():
                                     trial_counter += 1
 
                                     desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+                                    print_debug_progressbar(desc)
                                     progress_bar.set_description(desc)
                                 except submitit.core.utils.FailedJobError as error:
                                     if "QOSMinGRES" in str(error) and args.gpus == 0:
@@ -2033,6 +2062,7 @@ def main ():
                         _k += 1
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {len(trial_index_to_param.items())}"])
+                        print_debug_progressbar(desc)
                         progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")

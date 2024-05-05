@@ -1706,6 +1706,7 @@ def main ():
         """
 
         second_step_steps = args.max_eval - random_steps
+        print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
 
         gs = GenerationStrategy(
             steps=[
@@ -1880,7 +1881,8 @@ def main ():
                         if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
-                        calculated_max_trials = max(1, new_jobs_needed)
+                        calculated_max_trials = min(max(1, args.num_parallel_jobs), max(1, new_jobs_needed))
+                        print_debug_linewise(f"calculated_max_trials {calculated_max_trials} = min(max(1, args.num_parallel_jobs {args.num_parallel_jobs}), max(1 new_jobs_needed {new_jobs_needed})")
                         print_debug_linewise(f"                        calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
@@ -1892,13 +1894,14 @@ def main ():
 
                         jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs)
 
-                        new_msgs.append("finished previous jobs")
-
                         last_ax_client_time = None
                         ax_client_time_avg = None
-                        if len(time_get_next_trials_took):
-                            last_ax_client_time = time_get_next_trials_took[len(last_ax_client_time) - 1]
-                            ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
+                        try:
+                            if len(time_get_next_trials_took):
+                                last_ax_client_time = time_get_next_trials_took[len(last_ax_client_time) - 1]
+                                ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
+                        except:
+                            pass
 
                         if last_ax_client_time:
                             new_msgs.append(f"get_next_trials running (last {last_ax_client_time}s, avg: {ax_client_time_avg}s)")
@@ -1943,6 +1946,10 @@ def main ():
                                     print_debug(f"Increasing submitted_jobs by 1.")
                                     submitted_jobs += 1
                                     print_debug(f"Appending started job to jobs array")
+
+                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["started new job"])
+                                    progress_bar.set_description(desc)
+
                                     jobs.append((new_job, trial_index))
                                     _sleep(args, 1)
                                     print_debug(f"Got new job and started it. Parameters: {parameters}")
@@ -1996,7 +2003,7 @@ def main ():
                             end_program(result_csv_file)
                         _k += 1
 
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Done ax_client"])
                         progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")

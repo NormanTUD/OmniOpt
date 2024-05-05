@@ -2460,6 +2460,9 @@ cached_current_workers = None
 cached_current_workers_time = None
 
 def get_number_of_current_workers ():
+    global cached_current_workers
+    global cached_current_workers_time
+
     if cached_current_workers is None or abs(cached_current_workers_time - time.time()) > 10:
         cached_current_workers = get_current_workers()
         cached_current_workers_time = time.time()

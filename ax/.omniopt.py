@@ -1896,12 +1896,9 @@ def main ():
 
                         last_ax_client_time = None
                         ax_client_time_avg = None
-                        try:
-                            if len(time_get_next_trials_took):
-                                last_ax_client_time = time_get_next_trials_took[len(last_ax_client_time) - 1]
-                                ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
-                        except:
-                            pass
+                        if len(time_get_next_trials_took):
+                            last_ax_client_time = time_get_next_trials_took[len(last_ax_client_time) - 1]
+                            ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
 
                         if last_ax_client_time:
                             new_msgs.append(f"get_next_trials running (last {last_ax_client_time}s, avg: {ax_client_time_avg}s)")
@@ -1922,7 +1919,9 @@ def main ():
                             )
                             get_next_trials_time_end = time.time()
 
-                            time_get_next_trials_took.append(get_next_trials_time_end - get_next_trials_time_start)
+                            _ax_took = get_next_trials_time_end - get_next_trials_time_start
+
+                            time_get_next_trials_took.append(_ax_took)
 
                             if len(trial_index_to_param.items()) == 0:
                                 print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")

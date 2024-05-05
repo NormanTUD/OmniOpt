@@ -1709,7 +1709,7 @@ def main ():
 
         """
 
-        second_step_steps = args.max_eval - random_steps
+        second_step_steps = max_eval - random_steps
         print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
 
         gs = GenerationStrategy(

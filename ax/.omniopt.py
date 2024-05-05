@@ -2005,7 +2005,7 @@ def main ():
                             end_program(result_csv_file)
                         _k += 1
 
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Done ax_client"])
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["len(get_next_trials) = {len(trial_index_to_param.items())}"])
                         progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")

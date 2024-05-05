@@ -1245,16 +1245,16 @@ def end_program (csv_file_path, result_column="result"):
     pd_csv = f'{current_run_folder}/pd.csv'
     print_debug(f"[end_program] Trying to save file to {pd_csv}")
 
-    save_pd_csv()
-
     for job, trial_index in jobs[:]:
         if job:
             try:
                 _trial = ax_client.get_trial(trial_index)
-                _trial.mark_failed()
+                _trial.mark_abandoned()
             except Exception as e:
                 print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()
+
+    save_pd_csv()
 
     sys.exit(exit)
 

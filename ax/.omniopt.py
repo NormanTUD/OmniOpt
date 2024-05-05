@@ -1900,7 +1900,7 @@ def main ():
 
                         if is_in_sobol_phase and calculated_max_trials > args.num_parallel_jobs:
                             calculated_max_trials = min(args.num_parallel_jobs, (random_steps - len(jobs)) % args.num_parallel_jobs)
-                        else if not is_in_sobol_phase:
+                        elif not is_in_sobol_phase:
                             calculated_max_trials = args.num_parallel_jobs - get_number_of_current_workers()
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])

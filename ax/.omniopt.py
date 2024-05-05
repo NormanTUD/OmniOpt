@@ -2366,7 +2366,7 @@ def is_tool(name):
 
 def get_number_of_current_workers ():
     if is_tool("squeue"):
-        return len(workers.keys())
+        return len(jobs)
     return None
 
 def log_nr_of_workers ():

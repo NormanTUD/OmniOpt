@@ -104,6 +104,7 @@ try:
     import time
     from pprint import pformat
     from pprint import pprint
+    import plotext
 except ModuleNotFoundError as e:
     print(f"Base modules could not be loaded: {e}")
     sys.exit(31)
@@ -1111,8 +1112,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     shown_first_plot = False
     if len(worker_percentage_usage):
         try:
-            import plotext
-
             plotext.theme('pro')
 
             percentages = [entry["percentage"] for entry in worker_percentage_usage]
@@ -1152,8 +1151,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
     if len(progress_plot):
         try:
-            import plotext
-
             plotext.theme('pro')
 
             best_results_over_time = [float(entry["best_result"]) for entry in progress_plot]
@@ -1710,8 +1707,11 @@ def main ():
 
         """
 
-        second_step_steps = max(0, max_eval - random_steps)
+        original_second_steps = max_eval - random_steps
+        second_step_steps = max(0, original_second_steps)
         print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
+        if second_step_steps != original_second_steps:
+            print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
 
         gs = GenerationStrategy(
             steps=[
@@ -2569,21 +2569,21 @@ def warn_versions ():
     supported_ax_versions = ["0.3.7", "0.3.8.dev133"]
     supported_plotext_versions = ["5.2.8"]
     supported_submitit_versions = ["1.5.1"]
-    supported_botorch_versions = ["0.10.1.dev46+g7a844b9e"]
+    supported_botorch_versions = ["0.10.0", "0.10.1.dev46+g7a844b9e"]
 
     # Todo generalisieren und try catch
 
     if ax.__version__ not in supported_ax_versions:
-        wrns.append("Possibly unsupported ax-version: {ax.__version__} not in supported {', '.join(supported_ax_versions)}")
+        wrns.append(f"Possibly unsupported ax-version: {ax.__version__} not in supported {', '.join(supported_ax_versions)}")
 
     if plotext.version not in supported_plotext_versions:
-        wrns.append("Possibly unsupported plotext-version: {plotext.version} not in supported {', '.join(supported_plotext_versions)}")
+        wrns.append(f"Possibly unsupported plotext-version: {plotext.version} not in supported {', '.join(supported_plotext_versions)}")
 
-    if submitit.version not in supported_submitit_versions:
-        wrns.append("Possibly unsupported submitit-version: {submitit.version} not in supported {', '.join(supported_submitit_versions)}")
+    if submitit.__version__ not in supported_submitit_versions:
+        wrns.append(f"Possibly unsupported submitit-version: {submitit.__version__} not in supported {', '.join(supported_submitit_versions)}")
 
     if botorch.__version__ not in supported_botorch_versions:
-        wrns.append("Possibly unsupported botorch-version: {botorch.__version__} not in supported {', '.join(supported_botorch_versions)}")
+        wrns.append(f"Possibly unsupported botorch-version: {botorch.__version__} not in supported {', '.join(supported_botorch_versions)}")
 
     if len(wrns):
         print("- " + ("\n- ".join(wrns)))

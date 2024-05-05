@@ -84,6 +84,7 @@ import sys
 
 try:
     import platform
+    from importlib.metadata import version
     from unittest.mock import patch
     import datetime
     from shutil import which
@@ -2566,24 +2567,18 @@ def get_best_params(csv_file_path, result_column):
 def warn_versions ():
     wrns = []
 
-    supported_ax_versions = ["0.3.7", "0.3.8.dev133"]
-    supported_plotext_versions = ["5.2.8"]
-    supported_submitit_versions = ["1.5.1"]
-    supported_botorch_versions = ["0.10.0", "0.10.1.dev46+g7a844b9e"]
+    supported_versions = {
+        "ax": ["0.3.7", "0.3.8.dev133", "0.52.0"],
+        "plotext": ["5.2.8"],
+        "submitit": ["1.5.1"],
+        "botorch": ["0.10.0", "0.10.1.dev46+g7a844b9e"]
+    }
 
-    # Todo generalisieren und try catch
-
-    if ax.__version__ not in supported_ax_versions:
-        wrns.append(f"Possibly unsupported ax-version: {ax.__version__} not in supported {', '.join(supported_ax_versions)}")
-
-    if plotext.version not in supported_plotext_versions:
-        wrns.append(f"Possibly unsupported plotext-version: {plotext.version} not in supported {', '.join(supported_plotext_versions)}")
-
-    if submitit.__version__ not in supported_submitit_versions:
-        wrns.append(f"Possibly unsupported submitit-version: {submitit.__version__} not in supported {', '.join(supported_submitit_versions)}")
-
-    if botorch.__version__ not in supported_botorch_versions:
-        wrns.append(f"Possibly unsupported botorch-version: {botorch.__version__} not in supported {', '.join(supported_botorch_versions)}")
+    for key in supported_versions.keys():
+        _supported_versions = supported_versions[key]
+        _real_version = version(key)
+        if _real_version not in _supported_versions:
+            wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported {', '.join(_supported_versions)}")
 
     if len(wrns):
         print("- " + ("\n- ".join(wrns)))

@@ -1901,6 +1901,7 @@ def main ():
 
                         if is_in_sobol_phase and calculated_max_trials > args.num_parallel_jobs:
                             calculated_max_trials = min(args.num_parallel_jobs, (random_steps - len(jobs)) % args.num_parallel_jobs)
+                            print(f"Setting calculated_max_trials to {calculated_max_trials} because it is sobol and min({args.num_parallel_jobs}, ({random_steps} - {len(jobs)}) % {args.num_parallel_jobs})")
                         elif not is_in_sobol_phase:
                             calculated_max_trials = args.num_parallel_jobs - get_number_of_current_workers(True)
 

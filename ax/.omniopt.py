@@ -1439,7 +1439,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs):
+def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1508,7 +1508,8 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, ra
 
             progress_bar.update(1)
 
-            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"]))
+            if args.verbose:
+                progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"]))
             save_checkpoint()
             save_pd_csv()
 
@@ -1906,7 +1907,7 @@ def main ():
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
                         progress_bar.set_description(desc)
 
-                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps, [])
+                        jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, [])
 
                         last_ax_client_time = None
                         ax_client_time_avg = None

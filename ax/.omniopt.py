@@ -1953,12 +1953,12 @@ def main ():
                             trial_counter = 0
                             for trial_index, parameters in trial_index_to_param.items():
                                 _trial = ax_client.get_trial(trial_index)
-                                """
+
                                 try:
                                     _trial.mark_staged()
-                                except:
+                                except Exception as e:
+                                    #print(e)
                                     pass
-                                """
                                 print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
                                 new_job = None
                                 try:
@@ -1968,19 +1968,18 @@ def main ():
                                     submitted_jobs += 1
                                     print_debug(f"Appending started job to jobs array")
 
-                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter + 1}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
-                                    progress_bar.set_description(desc)
-
                                     jobs.append((new_job, trial_index))
                                     _sleep(args, 1)
                                     print_debug(f"Got new job and started it. Parameters: {parameters}")
-                                    """
                                     try:
                                         _trial.mark_running(no_runner_required=True)
                                     except Exception as e:
-                                        print(f"ERROR in line {getLineInfo()}: {e}")
-                                    """
+                                        #print(f"ERROR in line {getLineInfo()}: {e}")
+                                        pass
                                     trial_counter += 1
+
+                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+                                    progress_bar.set_description(desc)
                                 except submitit.core.utils.FailedJobError as error:
                                     if "QOSMinGRES" in str(error) and args.gpus == 0:
                                         print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")

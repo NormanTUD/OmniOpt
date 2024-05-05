@@ -1966,7 +1966,7 @@ def main ():
                                     new_job = executor.submit(evaluate, parameters)
                                     print_debug(f"Increasing submitted_jobs by 1.")
                                     submitted_jobs += 1
-                                    print_debug(f"Appending started job to jobs array")
+                                    print_debug(f"Appending started job to jobs array: {new_job}")
 
                                     jobs.append((new_job, trial_index))
                                     _sleep(args, 1)

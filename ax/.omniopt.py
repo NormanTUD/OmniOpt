@@ -1702,7 +1702,7 @@ def main ():
             print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
         if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
-            print(f"random_steps {sobol} <- num_parallel_jobs {num_parallel_jobs}. That means: during the initialization phase, you will have less workers than you entered.")
+            print(f"random_steps {random_steps} <- num_parallel_jobs {num_parallel_jobs}. That means: during the initialization phase, you will have less workers than you entered.")
 
         """ 
 

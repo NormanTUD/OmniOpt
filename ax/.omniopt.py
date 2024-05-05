@@ -1971,7 +1971,7 @@ def main ():
 
                             get_next_trials_time_start = time.time()
                             trial_index_to_param, _ = ax_client.get_next_trials(
-                                max_trials=this_max_trials
+                                max_trials=calculated_max_trials
                             )
                             get_next_trials_time_end = time.time()
 

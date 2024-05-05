@@ -1480,7 +1480,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, ra
 
                 if job:
                     try:
-                            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
+                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                     except Exception as e:
@@ -1496,7 +1496,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, ra
 
                 if job:
                     try:
-                            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
+                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
                         ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1508,7 +1508,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, ra
 
             progress_bar.update(1)
 
-            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv]))
+            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"]))
             save_checkpoint()
             save_pd_csv()
 

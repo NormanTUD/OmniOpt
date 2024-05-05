@@ -1897,7 +1897,7 @@ def main ():
                         last_ax_client_time = None
                         ax_client_time_avg = None
                         if len(time_get_next_trials_took):
-                            last_ax_client_time = time_get_next_trials_took[len(last_ax_client_time) - 1]
+                            last_ax_client_time = time_get_next_trials_took[len(time_get_next_trials_took) - 1]
                             ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
 
                         if last_ax_client_time:

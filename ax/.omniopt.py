@@ -2567,9 +2567,19 @@ def warn_versions ():
     wrns = []
 
     supported_ax_versions = ["0.3.7", "0.3.8.dev133"]
+    supported_plotext_versions = ["5.2.8"]
+    supported_submitit_versions = ["1.5.1"]
+
+    # Todo generalisieren und try catch
 
     if ax.__version__ not in supported_ax_versions:
         wrns.append("Possibly unsupported ax-version: {ax.__version__} not in supported {', '.join(supported_ax_versions)}")
+
+    if plotext.version not in supported_plotext_versions:
+        wrns.append("Possibly unsupported plotext-version: {plotext.version} not in supported {', '.join(supported_plotext_versions)}")
+
+    if submitit.version not in supported_plotext_versions:
+        wrns.append("Possibly unsupported submitit-version: {submitit.version} not in supported {', '.join(supported_submitit_versions)}")
 
     if len(wrns):
         print("- " + ("\n- ".join(wrns)))

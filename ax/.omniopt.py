@@ -1878,13 +1878,14 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        new_jobs_needed = max(args.num_parallel_jobs, min(args.num_parallel_jobs - len(jobs), max_eval - submitted_jobs))
+                        new_jobs_needed = min(args.num_parallel_jobs - len(jobs), max_eval - len(jobs))
                         print_debug_linewise(f"                        new_jobs_needed ({new_jobs_needed}) = min(args.num_parallel_jobs ({args.num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
 
                         if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
                         calculated_max_trials = min(max(1, args.num_parallel_jobs), max(1, new_jobs_needed))
+
                         print_debug_linewise(f"calculated_max_trials {calculated_max_trials} = min(max(1, args.num_parallel_jobs {args.num_parallel_jobs}), max(1 new_jobs_needed {new_jobs_needed})")
                         print_debug_linewise(f"                        calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
 

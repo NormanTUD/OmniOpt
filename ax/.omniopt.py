@@ -176,7 +176,7 @@ bash = parser.add_argument_group('Bash', "These options are for the main worker 
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-required.add_argument('--num_random_steps', help='Number of random steps to start with, gets set to max(num_random_steps, num_parallel_jobs)', type=int, default=20)
+required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
@@ -1672,7 +1672,7 @@ def main ():
 
         print(f"Random evaluations before the search begins: {random_steps}")
 
-        if random_steps > args.max_eval:
+        if random_steps > max_eval:
             print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
         if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):

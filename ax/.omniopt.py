@@ -1966,13 +1966,16 @@ def main ():
 
                         for _single_job in range(0, calculated_max_trials):
                             try:
+                                this_max_trials = 1
+                                if is_in_sobol_phase:
+                                    this_max_trials = random_steps
                                 print_debug("Trying to get trial_index_to_param")
 
                                 trial_index_to_param = None
 
                                 get_next_trials_time_start = time.time()
                                 trial_index_to_param, _ = ax_client.get_next_trials(
-                                    max_trials=1
+                                    max_trials=this_max_trials
                                 )
                                 get_next_trials_time_end = time.time()
 

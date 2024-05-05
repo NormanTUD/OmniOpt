@@ -1716,7 +1716,7 @@ def main ():
                 # from all data available at the time of each new candidate generation call)
                 GenerationStep(
                     model=Models.BOTORCH_MODULAR,
-                    num_trials=args.max_eval,  # No limitation on how many trials should be produced from this step
+                    num_trials=-1,  # No limitation on how many trials should be produced from this step
                     max_parallelism=args.num_parallel_jobs,  # Parallelism limit for this step, often lower than for Sobol
                     #model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
                     model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`

@@ -1937,6 +1937,7 @@ def main ():
                                     print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
                                     sys.exit(130)
 
+                            trial_counter = 0
                             for trial_index, parameters in trial_index_to_param.items():
                                 _trial = ax_client.get_trial(trial_index)
                                 """
@@ -1954,7 +1955,7 @@ def main ():
                                     submitted_jobs += 1
                                     print_debug(f"Appending started job to jobs array")
 
-                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["started new job"])
+                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter + 1}/{len(trial_index_to_param.items())})"])
                                     progress_bar.set_description(desc)
 
                                     jobs.append((new_job, trial_index))
@@ -1966,6 +1967,7 @@ def main ():
                                     except Exception as e:
                                         print(f"ERROR in line {getLineInfo()}: {e}")
                                     """
+                                    trial_counter += 1
                                 except submitit.core.utils.FailedJobError as error:
                                     if "QOSMinGRES" in str(error) and args.gpus == 0:
                                         print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1989,6 +1991,7 @@ def main ():
 
                                         save_checkpoint()
                                         save_pd_csv()
+                                        trial_counter += 1
                                     except Exception as e:
                                         print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
                                 except (signalUSR, signalINT) as e:

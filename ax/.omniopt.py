@@ -1439,7 +1439,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
+def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, random_steps):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1507,13 +1507,13 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for):
             save_checkpoint()
             save_pd_csv()
 
-    desc = get_desc_progress_text(result_csv_file, searching_for)
+    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps)
 
     progress_bar.set_description(desc)
 
     return jobs
 
-def get_desc_progress_text (result_csv_file, searching_for):
+def get_desc_progress_text (result_csv_file, searching_for, random_steps):
     global done_jobs
     global failed_jobs
     global worker_percentage_usage
@@ -1526,6 +1526,9 @@ def get_desc_progress_text (result_csv_file, searching_for):
     #print(f"failed jobs: {failed_jobs}")
     if failed_jobs:
         in_brackets.append(f"failed: {failed_jobs}")
+
+    if random_steps > done_jobs:
+        in_brackets.append(f"random phase ({abs(done_jobs - random_steps)} left)")
 
     best_params = None
 
@@ -1851,11 +1854,11 @@ def main ():
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
+            if args.allow_slurm_overload and is_executable_in_path('sbatch'):
+                while get_number_of_current_workers() > args.num_parallel_jobs:
+                    time.sleep(10)
+            initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps)
             with tqdm(total=max_eval, disable=False) as progress_bar:
-                if args.allow_slurm_overload and is_executable_in_path('sbatch'):
-                    while get_number_of_current_workers() > args.num_parallel_jobs:
-                        time.sleep(10)
-                initial_text = get_desc_progress_text(result_csv_file, searching_for)
                 while submitted_jobs < max_eval or jobs:
                     print_debug_linewise("==============================================================")
                     mylog("NEW ENTRY ==============================================================")
@@ -1876,7 +1879,7 @@ def main ():
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
-                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for)
+                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps)
 
                         try:
                             print_debug("Trying to get trial_index_to_param")

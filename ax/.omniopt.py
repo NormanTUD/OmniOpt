@@ -1461,7 +1461,7 @@ def finish_previous_jobs (progress_bar, jobs, result_csv_file, searching_for, ra
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"Finished trial with result {result}"]))
+                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"new result: {result}"]))
                         _trial.mark_completed(unsafe=True)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1890,7 +1890,6 @@ def main ():
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
-                        new_msgs = [f"Trying to get {calculated_max_trials} new jobs"]
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
                         progress_bar.set_description(desc)
@@ -1904,9 +1903,10 @@ def main ():
                             ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
 
                         if last_ax_client_time:
-                            new_msgs.append(f"get_next_trials running (last {last_ax_client_time}s, avg: {ax_client_time_avg}s)")
+                            new_msgs.append(f"Trying to get {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
                         else:
-                            new_msgs.append(f"get_next_trials running.")
+
+                            new_msgs.append(f"Trying to get {calculated_max_trials} new jobs", f"get_next_trials running.")
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
                         progress_bar.set_description(desc)

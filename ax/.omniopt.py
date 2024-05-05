@@ -1461,14 +1461,14 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"new result: {result}"]))
+                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"new result: {result}"], True))
                         _trial.mark_completed(unsafe=True)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                 else:
                     if job:
                         try:
-                            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
+                            progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True))
                             ax_client.log_trial_failure(trial_index=trial_index)
                         except Exception as e:
                             print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1480,7 +1480,7 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                 if job:
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
+                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True))
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                     except Exception as e:
@@ -1496,7 +1496,7 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                 if job:
                     try:
-                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"]))
+                        progress_bar.set_description(get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True))
                         ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1517,7 +1517,7 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
     return jobs
 
-def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_msgs):
+def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_msgs, force_new_sq=False):
     global done_jobs
     global failed_jobs
     global worker_percentage_usage
@@ -1555,7 +1555,7 @@ def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_ms
             if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1] == progress_plot:
                 progress_plot.append(this_progress_values)
 
-        nr_current_workers = get_number_of_current_workers()
+        nr_current_workers = get_number_of_current_workers(force_new_sq)
         max_nr_jobs = args.num_parallel_jobs
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
@@ -1866,7 +1866,7 @@ def main ():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             if args.allow_slurm_overload and is_executable_in_path('sbatch'):
-                while get_number_of_current_workers() > args.num_parallel_jobs:
+                while get_number_of_current_workers(True) > args.num_parallel_jobs:
                     time.sleep(10)
             initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
             with tqdm(total=max_eval, disable=False) as progress_bar:
@@ -1875,7 +1875,7 @@ def main ():
                     mylog("NEW ENTRY ==============================================================")
                     print_debug_linewise(f"                    while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
 
-                    log_nr_of_workers()
+                    log_nr_of_workers(True)
 
                     # Schedule new jobs if there is availablity
                     try:
@@ -1902,7 +1902,7 @@ def main ():
                         if is_in_sobol_phase and calculated_max_trials > args.num_parallel_jobs:
                             calculated_max_trials = min(args.num_parallel_jobs, (random_steps - len(jobs)) % args.num_parallel_jobs)
                         elif not is_in_sobol_phase:
-                            calculated_max_trials = args.num_parallel_jobs - get_number_of_current_workers()
+                            calculated_max_trials = args.num_parallel_jobs - get_number_of_current_workers(True)
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
                         progress_bar.set_description(desc)
@@ -2479,19 +2479,19 @@ def get_current_workers ():
 cached_current_workers = None
 cached_current_workers_time = None
 
-def get_number_of_current_workers ():
+def get_number_of_current_workers (force_new=False):
     global cached_current_workers
     global cached_current_workers_time
 
-    if cached_current_workers is None or abs(cached_current_workers_time - time.time()) > 10:
+    if force_new or cached_current_workers is None or abs(cached_current_workers_time - time.time()) > 10:
         cached_current_workers = get_current_workers()
         cached_current_workers_time = time.time()
 
     return len(cached_current_workers)
 
-def log_nr_of_workers ():
+def log_nr_of_workers (force_new=False):
     last_line = ""
-    nr_of_workers = get_number_of_current_workers()
+    nr_of_workers = get_number_of_current_workers(force_new)
 
     if not nr_of_workers:
         return

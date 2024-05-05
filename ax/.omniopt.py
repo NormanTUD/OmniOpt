@@ -1652,6 +1652,7 @@ def main ():
     print_color("green", program_name)
 
     check_python_version()
+    warn_versions()
 
     experiment_parameters = None
     cli_params_experiment_parameters = None
@@ -2561,6 +2562,17 @@ def get_best_params(csv_file_path, result_column):
                 results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
 
     return results
+
+def warn_versions ():
+    wrns = []
+
+    supported_ax_versions = ["0.3.7", "0.3.8.dev133"]
+
+    if ax.__version__ not in supported_ax_versions:
+        wrns.append("Possibly unsupported ax-version: {ax.__version__} not in supported {', '.join(supported_ax_versions)}")
+
+    if len(wrns):
+        print("- " + ("\n- ".join(wrns)))
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

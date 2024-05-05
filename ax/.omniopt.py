@@ -1923,15 +1923,15 @@ def main ():
 
                         if is_executable_in_path("sbatch"):
                             if last_ax_client_time:
-                                new_msgs.append(f"Trying to get {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+                                new_msgs.append(f"try: get_next_trials {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
                             else:
-                                new_msgs.append(f"Trying to get {calculated_max_trials}, get_next_trials running")
+                                new_msgs.append(f"try: get_next_trials {calculated_max_trials}")
                         else:
                             calculated_max_trials = 1
                             if last_ax_client_time:
-                                new_msgs.append(f"Trying to get {calculated_max_trials} (no sbatch), get_next_trials running (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+                                new_msgs.append(f"try: get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
                             else:
-                                new_msgs.append(f"Trying to get {calculated_max_trials} (no sbatch), get_next_trials running")
+                                new_msgs.append(f"try: get_next_trials {calculated_max_trials} (no sbatch)")
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
                         progress_bar.set_description(desc)

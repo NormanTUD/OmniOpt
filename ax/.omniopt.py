@@ -50,6 +50,7 @@ NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
 already_shown_worker_usage_over_time = False
 ax_client = None
+time_get_next_trials_took = []
 done_jobs = 0
 failed_jobs = 0
 progress_plot = []
@@ -1863,7 +1864,7 @@ def main ():
 
         _k = 0
 
-        time_get_next_trials_took = []
+        global time_get_next_trials_took
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

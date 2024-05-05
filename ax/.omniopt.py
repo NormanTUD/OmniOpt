@@ -2569,6 +2569,7 @@ def warn_versions ():
     supported_ax_versions = ["0.3.7", "0.3.8.dev133"]
     supported_plotext_versions = ["5.2.8"]
     supported_submitit_versions = ["1.5.1"]
+    supported_botorch_versions = ["0.10.1.dev46+g7a844b9e"]
 
     # Todo generalisieren und try catch
 
@@ -2578,8 +2579,11 @@ def warn_versions ():
     if plotext.version not in supported_plotext_versions:
         wrns.append("Possibly unsupported plotext-version: {plotext.version} not in supported {', '.join(supported_plotext_versions)}")
 
-    if submitit.version not in supported_plotext_versions:
+    if submitit.version not in supported_submitit_versions:
         wrns.append("Possibly unsupported submitit-version: {submitit.version} not in supported {', '.join(supported_submitit_versions)}")
+
+    if botorch.__version__ not in supported_botorch_versions:
+        wrns.append("Possibly unsupported botorch-version: {botorch.__version__} not in supported {', '.join(supported_botorch_versions)}")
 
     if len(wrns):
         print("- " + ("\n- ".join(wrns)))

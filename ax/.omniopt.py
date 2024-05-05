@@ -1962,7 +1962,7 @@ def main ():
                                     submitted_jobs += 1
                                     print_debug(f"Appending started job to jobs array")
 
-                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter + 1}/{len(trial_index_to_param.items())})"])
+                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter + 1}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
                                     progress_bar.set_description(desc)
 
                                     jobs.append((new_job, trial_index))

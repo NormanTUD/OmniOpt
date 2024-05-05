@@ -321,6 +321,8 @@ if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
 
+echo "Current git-hash: $(git rev-parse HEAD)"
+
 set +x
 if [[ -d ".git" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then

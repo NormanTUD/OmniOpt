@@ -1893,6 +1893,13 @@ def main ():
 
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
+                        is_in_sobol_phase = False
+
+                        if submitted_jobs < random_steps:
+                            is_in_sobol_phase = True
+
+                        if is_in_sobol_phase and calculated_max_trials > args.num_parallel_jobs:
+                            calculated_max_trials = min(args.num_parallel_jobs, (random_steps - len(jobs)) % args.num_parallel_jobs)
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
                         progress_bar.set_description(desc)

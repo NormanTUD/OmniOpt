@@ -1891,10 +1891,10 @@ def main ():
                         print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
 
 
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
                         progress_bar.set_description(desc)
 
-                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs)
+                        jobs = finish_previous_jobs(progress_bar, jobs, result_csv_file, searching_for, random_steps, [])
 
                         last_ax_client_time = None
                         ax_client_time_avg = None
@@ -1902,11 +1902,13 @@ def main ():
                             last_ax_client_time = time_get_next_trials_took[len(time_get_next_trials_took) - 1]
                             ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
 
+                        new_msgs = []
+
                         if last_ax_client_time:
                             new_msgs.append(f"Trying to get {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
                         else:
 
-                            new_msgs.append(f"Trying to get {calculated_max_trials} new jobs", f"get_next_trials running.")
+                            new_msgs.append(f"Trying to get {calculated_max_trials}, get_next_trials running.")
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
                         progress_bar.set_description(desc)

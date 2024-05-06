@@ -66,6 +66,7 @@ result_csv_file = None
 shown_end_table = False
 max_eval = None
 _time = None
+submitted_jobs = 0
 mem_gb = None
 
 import inspect
@@ -1650,6 +1651,73 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
+def start_and_end_evaluation (trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials):
+    global submitted_jobs
+    _trial = ax_client.get_trial(trial_index)
+
+    try:
+        _trial.mark_staged()
+    except Exception as e:
+        #print(e)
+        pass
+    print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
+    new_job = None
+    try:
+        print_debug(f"Trying to start new job.")
+        new_job = executor.submit(evaluate, parameters)
+        print_debug(f"Increasing submitted_jobs by 1.")
+        submitted_jobs += 1
+        print_debug(f"Appending started job to jobs array: {new_job}")
+
+        jobs.append((new_job, trial_index))
+        _sleep(args, 1)
+        print_debug(f"Got new job and started it. Parameters: {parameters}")
+        try:
+            _trial.mark_running(no_runner_required=True)
+        except Exception as e:
+            #print(f"ERROR in line {getLineInfo()}: {e}")
+            pass
+        trial_counter += 1
+
+        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+        print_debug_progressbar(desc)
+        progress_bar.set_description(desc)
+    except submitit.core.utils.FailedJobError as error:
+        if "QOSMinGRES" in str(error) and args.gpus == 0:
+            print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+        else:
+            print_color("red", f"\n:warning: FAILED: {error}")
+
+        try:
+            print_debug("Trying to cancel job that failed")
+            if new_job:
+                try:
+                    ax_client.log_trial_failure(trial_index=trial_index)
+                except Exception as e:
+                    print(f"ERROR in line {getLineInfo()}: {e}")
+                new_job.cancel()
+                print_debug("Cancelled failed job")
+
+            jobs.remove((new_job, trial_index))
+            print_debug("Removed failed job")
+
+            progress_bar.update(1)
+
+            save_checkpoint()
+            save_pd_csv()
+            trial_counter += 1
+        except Exception as e:
+            print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+    except (signalUSR, signalINT) as e:
+        print_color("red", f"\n:warning: Detected signal. Will exit.")
+        end_program(result_csv_file)
+    except Exception as e:
+        print_color("red", f"\n:warning: Starting job failed with error: {e}")
+    except Exception as e:
+        print_color("red", f"\n:warning: Starting job failed with error: {e}")
+
+    return trial_counter
+
 def main ():
     print_debug("main")
     global args
@@ -1987,68 +2055,7 @@ def main ():
 
                             trial_counter = 0
                             for trial_index, parameters in trial_index_to_param.items():
-                                _trial = ax_client.get_trial(trial_index)
-
-                                try:
-                                    _trial.mark_staged()
-                                except Exception as e:
-                                    #print(e)
-                                    pass
-                                print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
-                                new_job = None
-                                try:
-                                    print_debug(f"Trying to start new job.")
-                                    new_job = executor.submit(evaluate, parameters)
-                                    print_debug(f"Increasing submitted_jobs by 1.")
-                                    submitted_jobs += 1
-                                    print_debug(f"Appending started job to jobs array: {new_job}")
-
-                                    jobs.append((new_job, trial_index))
-                                    _sleep(args, 1)
-                                    print_debug(f"Got new job and started it. Parameters: {parameters}")
-                                    try:
-                                        _trial.mark_running(no_runner_required=True)
-                                    except Exception as e:
-                                        #print(f"ERROR in line {getLineInfo()}: {e}")
-                                        pass
-                                    trial_counter += 1
-
-                                    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
-                                    print_debug_progressbar(desc)
-                                    progress_bar.set_description(desc)
-                                except submitit.core.utils.FailedJobError as error:
-                                    if "QOSMinGRES" in str(error) and args.gpus == 0:
-                                        print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-                                    else:
-                                        print_color("red", f"\n:warning: FAILED: {error}")
-
-                                    try:
-                                        print_debug("Trying to cancel job that failed")
-                                        if new_job:
-                                            try:
-                                                ax_client.log_trial_failure(trial_index=trial_index)
-                                            except Exception as e:
-                                                print(f"ERROR in line {getLineInfo()}: {e}")
-                                            new_job.cancel()
-                                            print_debug("Cancelled failed job")
-
-                                        jobs.remove((new_job, trial_index))
-                                        print_debug("Removed failed job")
-
-                                        progress_bar.update(1)
-
-                                        save_checkpoint()
-                                        save_pd_csv()
-                                        trial_counter += 1
-                                    except Exception as e:
-                                        print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
-                                except (signalUSR, signalINT) as e:
-                                    print_color("red", f"\n:warning: Detected signal. Will exit.")
-                                    end_program(result_csv_file)
-                                except Exception as e:
-                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
-                                except Exception as e:
-                                    print_color("red", f"\n:warning: Starting job failed with error: {e}")
+                                start_and_end_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
                         except RuntimeError as e:
                             print_color("red", "\n:warning: " + str(e))
                         except (

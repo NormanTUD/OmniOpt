@@ -88,6 +88,7 @@ try:
     import platform
     from importlib.metadata import version
     from unittest.mock import patch
+    import difflib
     import datetime
     from shutil import which
     import warnings
@@ -2105,7 +2106,6 @@ def _unidiff_output(expected, actual):
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
 
-    import difflib
     expected = expected.splitlines(1)
     actual = actual.splitlines(1)
 

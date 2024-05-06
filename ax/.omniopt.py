@@ -79,7 +79,7 @@ def mylog (msg):
     with open('/home/h8/s3811141/omniax_internal.log', "a") as lf:
         print(msg, file=lf)
 
-class trainingDone (Exception):
+class searchDone (Exception):
     pass
 
 import sys
@@ -2041,7 +2041,7 @@ def main ():
             with tqdm(total=max_eval, disable=False) as progress_bar:
                 while submitted_jobs < max_eval or jobs:
                     if done_jobs >= max_eval:
-                        raise trainingDone("Training done")
+                        raise searchDone("Search done")
 
                     print_debug_linewise("==============================================================")
                     mylog("NEW ENTRY ==============================================================")
@@ -2089,7 +2089,7 @@ def main ():
 
                     _sleep(args, 0.1)
         end_program(result_csv_file)
-    except trainingDone as e:
+    except searchDone as e:
         end_program(result_csv_file)
     except (signalUSR, signalINT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")

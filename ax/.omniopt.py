@@ -1870,6 +1870,39 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     return calculated_max_trials
 
 def get_generation_strategy (random_steps, num_parallel_jobs, seed):
+        """ 
+
+        Valid models?
+
+        "Sobol"
+        "GPEI"
+        "GPKG"
+        "GPMES"
+        "Factorial"
+        "SAASBO"
+        "FullyBayesian"
+        "FullyBayesianMOO"
+        "SAAS_MTGP"
+        "FullyBayesian_MTGP"
+        "FullyBayesianMOO_MTGP"
+        "Thompson"
+        "GPEI"
+        "BoTorch"
+        "EB"
+        "Uniform"
+        "MOO"
+        "ST_MTGP_LEGACY"
+        "ST_MTGP"
+        "ALEBO"
+        "BO_MIXED"
+        "ST_MTGP_NEHVI"
+        "ALEBO_Initializer"
+        "Contextual_SACBO"
+
+        """
+
+
+
     gs = GenerationStrategy(
         steps=[
             # 1. Initialization step (does not require pre-existing data and is well-suited for
@@ -1924,6 +1957,27 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, progress_bar
 
     return _k, trial_index_to_param
 
+def get_random_steps(args, max_eval):
+    random_steps = args.num_random_steps
+
+    print(f"Random evaluations before the search begins: {random_steps}")
+
+    if random_steps > max_eval:
+        print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
+
+    if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
+        print(f"random_steps {random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. That means: during the initialization phase, you will have less workers than you entered.")
+
+    original_second_steps = max_eval - random_steps
+    second_step_steps = max(0, original_second_steps)
+    print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
+    if second_step_steps != original_second_steps:
+        print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
+    if second_step_steps == 0:
+        print("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+
+    return random_steps, second_step_steps
+
 def main ():
     print_debug("main")
     global args
@@ -1968,54 +2022,7 @@ def main ():
         disable_logging()
 
     try:
-        random_steps = args.num_random_steps
-
-        print(f"Random evaluations before the search begins: {random_steps}")
-
-        if random_steps > max_eval:
-            print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
-
-        if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
-            print(f"random_steps {random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. That means: during the initialization phase, you will have less workers than you entered.")
-
-        """ 
-
-        Valid models?
-
-        "Sobol"
-        "GPEI"
-        "GPKG"
-        "GPMES"
-        "Factorial"
-        "SAASBO"
-        "FullyBayesian"
-        "FullyBayesianMOO"
-        "SAAS_MTGP"
-        "FullyBayesian_MTGP"
-        "FullyBayesianMOO_MTGP"
-        "Thompson"
-        "GPEI"
-        "BoTorch"
-        "EB"
-        "Uniform"
-        "MOO"
-        "ST_MTGP_LEGACY"
-        "ST_MTGP"
-        "ALEBO"
-        "BO_MIXED"
-        "ST_MTGP_NEHVI"
-        "ALEBO_Initializer"
-        "Contextual_SACBO"
-
-        """
-
-        original_second_steps = max_eval - random_steps
-        second_step_steps = max(0, original_second_steps)
-        print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
-        if second_step_steps != original_second_steps:
-            print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
-        if second_step_steps == 0:
-            print("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        random_steps, second_step_steps = get_random_steps(args, max_eval)
 
         gs = get_generation_strategy(random_steps, args.num_parallel_jobs, args.seed)
 

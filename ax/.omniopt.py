@@ -1886,16 +1886,16 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     if is_executable_in_path("sbatch"):
         if last_ax_client_time:
-            new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"try: _get_next_trials {calculated_max_trials}")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials}")
     else:
         calculated_max_trials = 1
 
         if last_ax_client_time:
-            new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch)")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials} (no sbatch)")
 
     progressbar_description(new_msgs, True)
 
@@ -2205,13 +2205,13 @@ def main ():
                         progressbar_description([], True)
 
                         finish_previous_jobs(args, ["finishing previous jobs"])
+
                         if done_jobs <= random_steps:
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, min(0, min(args.num_parallel_jobs, args.num_parallel_jobs - len(jobs), random_steps)), _k, executor)
                         else:
                             calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                             _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
-                        finish_previous_jobs(args, ["finishing previous jobs"])
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")

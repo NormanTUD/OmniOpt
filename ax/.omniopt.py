@@ -1898,6 +1898,32 @@ def get_generation_strategy (random_steps, num_parallel_jobs, seed):
 
     return gs
 
+def create_and_execute_next_runs (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor):
+    trial_index_to_param = None
+    try:
+        print_debug("Trying to get trial_index_to_param")
+
+        trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k)
+
+        trial_counter = 0
+        for trial_index, parameters in trial_index_to_param.items():
+            new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
+            if new_trial_counter:
+                trial_counter += new_trial_counter
+    except RuntimeError as e:
+        print_color("red", "\n:warning: " + str(e))
+    except (
+        botorch.exceptions.errors.ModelFittingError,
+        ax.exceptions.core.SearchSpaceExhausted, 
+        ax.exceptions.core.DataRequiredError,
+        botorch.exceptions.errors.InputDataError
+    ) as e:
+        print_color("red", "\n:warning: " + str(e))
+        end_program(result_csv_file)
+    _k += 1
+
+    return _k, trial_index_to_param
+
 def main ():
     print_debug("main")
     global args
@@ -2034,12 +2060,14 @@ def main ():
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            if args.allow_slurm_overload and is_executable_in_path('sbatch'):
-                while get_number_of_current_workers(True) > args.num_parallel_jobs:
-                    time.sleep(10)
+
             initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
             with tqdm(total=max_eval, disable=False) as progress_bar:
+
                 while submitted_jobs < max_eval or jobs:
+                    if args.allow_slurm_overload and is_executable_in_path('sbatch'):
+                        while get_number_of_current_workers(True) > args.num_parallel_jobs:
+                            time.sleep(10)
                     if done_jobs >= max_eval:
                         raise searchDone("Search done")
 
@@ -2059,25 +2087,7 @@ def main ():
 
                         jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, [])
 
-                        try:
-                            print_debug("Trying to get trial_index_to_param")
-
-                            trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k)
-
-                            trial_counter = 0
-                            for trial_index, parameters in trial_index_to_param.items():
-                                execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
-                        except RuntimeError as e:
-                            print_color("red", "\n:warning: " + str(e))
-                        except (
-                            botorch.exceptions.errors.ModelFittingError,
-                            ax.exceptions.core.SearchSpaceExhausted, 
-                            ax.exceptions.core.DataRequiredError,
-                            botorch.exceptions.errors.InputDataError
-                        ) as e:
-                            print_color("red", "\n:warning: " + str(e))
-                            end_program(result_csv_file)
-                        _k += 1
+                        _k, trial_index_to_param = create_and_execute_next_runs(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor)
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {len(trial_index_to_param.items())}"])
                         print_debug_progressbar(desc)

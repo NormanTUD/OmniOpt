@@ -1624,11 +1624,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
             save_pd_csv()
 
     progressbar_description(new_msgs, force_new_sq)
-
-
     log_nr_of_workers(True)
-
-    return jobs
 
 def get_desc_progress_text (new_msgs=[], force_new_sq=False):
     global result_csv_file
@@ -1807,7 +1803,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     except Exception as e:
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
 
-    jobs = finish_previous_jobs(args, ["finishing previous jobs"], True)
+    finish_previous_jobs(args, ["finishing previous jobs"], True)
 
     return trial_counter
 
@@ -2139,7 +2135,7 @@ def main ():
 
                         progressbar_description([], True)
 
-                        jobs = finish_previous_jobs(args, ["finishing previous jobs"])
+                        finish_previous_jobs(args, ["finishing previous jobs"])
                         if done_jobs > random_steps:
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
                             progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
@@ -2147,7 +2143,7 @@ def main ():
                             calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                             _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
-                        jobs = finish_previous_jobs(args, ["finishing previous jobs"])
+                        finish_previous_jobs(args, ["finishing previous jobs"])
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")

@@ -1853,15 +1853,11 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     return trial_index_to_param
 
-def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
+def get_calculated_max_trials(num_parallel_jobs, max_eval):
     global submitted_jobs
 
     if not is_executable_in_path("sbatch"):
         return 1
-
-    is_in_sobol_phase = False
-    if submitted_jobs <= random_steps:
-        is_in_sobol_phase = True
 
     total_number_of_jobs_left = max_eval - submitted_jobs
 
@@ -1869,16 +1865,9 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
 
     current_number_of_workers = get_number_of_current_workers(True)
 
-    if is_in_sobol_phase:
-        random_steps_left = done_jobs - random_steps
-        random_workers = random_steps_left - current_number_of_workers
-        possible_random_workers = random_workers % num_parallel_jobs
-
-        needed_number_of_trials = min(num_parallel_jobs, possible_random_workers)
-    elif not is_in_sobol_phase:
-        if total_number_of_jobs_left > num_parallel_jobs:
-            total_number_of_jobs_left = num_parallel_jobs
-        needed_number_of_trials = num_parallel_jobs - current_number_of_workers
+    if total_number_of_jobs_left > num_parallel_jobs:
+        total_number_of_jobs_left = num_parallel_jobs
+    needed_number_of_trials = num_parallel_jobs - current_number_of_workers
 
     return max(1, needed_number_of_trials)
 
@@ -2108,23 +2097,46 @@ def main ():
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
-                while submitted_jobs < max_eval or jobs:
+                while done_jobs < random_steps or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs >= max_eval or submitted_jobs >= max_eval:
                         raise searchDone("Search done")
 
-                    print_debug_linewise("==============================================================")
-                    mylog("NEW ENTRY ==============================================================")
-                    print_debug_linewise(f"                    while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
-
-                    # Schedule new jobs if there is availablity
                     try:
-                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval, random_steps)
 
                         progressbar_description([], True)
 
+                        _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
+                        progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+
+                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
+                        _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
+
+                        progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
+                    except botorch.exceptions.errors.InputDataError as e:
+                        print_color("red", f"Error 1: {e}")
+                    except ax.exceptions.core.DataRequiredError as e:
+                        print_color("red", f"Error 2: {e}")
+
+                    _sleep(args, 0.1)
+
+                while done_jobs < (max_eval - random_steps) or jobs:
+                    if args.allow_slurm_overload and is_executable_in_path('sbatch'):
+                        while get_number_of_current_workers(True) > args.num_parallel_jobs:
+                            time.sleep(10)
+                    if done_jobs >= max_eval or submitted_jobs >= max_eval:
+                        raise searchDone("Search done")
+
+                    try:
+
+                        progressbar_description([], True)
+
+                        _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
+                        progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+
+                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                         _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)

@@ -1941,7 +1941,7 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, progress_bar
         for trial_index, parameters in trial_index_to_param.items():
             new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
             if new_trial_counter:
-                trial_counter += new_trial_counter
+                trial_counter = new_trial_counter
     except RuntimeError as e:
         print_color("red", "\n:warning: " + str(e))
     except (

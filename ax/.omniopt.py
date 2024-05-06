@@ -1740,15 +1740,15 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
-        print_debug(f"Trying to start new job.")
+        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"starting new job ({trial_counter + 1}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+        print_debug_progressbar(desc)
+        progress_bar.set_description(desc)
+
         new_job = executor.submit(evaluate, parameters)
-        print_debug(f"Increasing submitted_jobs by 1.")
         submitted_jobs += 1
-        print_debug(f"Appending started job to jobs array: {new_job}")
 
         jobs.append((new_job, trial_index))
         _sleep(args, 1)
-        print_debug(f"Got new job and started it. Parameters: {parameters}")
         try:
             _trial.mark_running(no_runner_required=True)
         except Exception as e:
@@ -1756,7 +1756,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
             pass
         trial_counter += 1
 
-        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"], True)
         print_debug_progressbar(desc)
         progress_bar.set_description(desc)
     except submitit.core.utils.FailedJobError as error:

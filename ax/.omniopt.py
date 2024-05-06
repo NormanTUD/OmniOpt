@@ -1554,6 +1554,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
     global ax_client
     global done_jobs
     global failed_jobs
+    global progress_bar
     
     for job, trial_index in jobs[:]:
         # Poll if any jobs completed

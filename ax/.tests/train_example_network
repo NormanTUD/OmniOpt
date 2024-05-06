@@ -44,7 +44,13 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
-        echo "  --use-ram-tests                                    Run test that allocates more and more memory"
+        echo "  --train"
+        echo "  --predict"
+        echo "  --learning_rate=FLOAT"
+        echo "  --epochs=INT"
+        echo "  --validation_split=FLOAT"
+        echo "  --width=(INT)=INT"
+        echo "  --height=(INT)=INT"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1

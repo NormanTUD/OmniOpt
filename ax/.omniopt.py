@@ -1847,11 +1847,13 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     time_get_next_trials_took.append(_ax_took)
 
+    """
     if len(trial_index_to_param.items()) == 0:
         print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
         if _k == 0:
             print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
             sys.exit(130)
+    """
 
     return trial_index_to_param
 

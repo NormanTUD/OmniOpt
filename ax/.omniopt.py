@@ -1143,7 +1143,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
             plotext.xlabel("Time")
             plotext.ylabel("Percentage of max workers")
-            plotext.title("Worker Usage Percentage Over Time")
+            plotext.title("Worker Usage Over Time")
 
             plotext.show()
 

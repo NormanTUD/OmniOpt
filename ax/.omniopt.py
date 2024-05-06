@@ -1547,7 +1547,7 @@ def progressbar_description (new_msgs=[], force_new_sq=False):
 def clean_completed_jobs ():
     global jobs
     for job, trial_index in jobs[:]:
-        if state_from_job(job) == "completed":
+        if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             jobs.remove((job, trial_index))
 
 def finish_previous_jobs (args, new_msgs, force_new_sq=False):
@@ -1982,8 +1982,8 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=random_steps + 1,
-                min_trials_observed=(random_steps - 1),
+                num_trials=random_steps,
+                min_trials_observed=random_steps,
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
                 model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`

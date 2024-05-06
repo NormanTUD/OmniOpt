@@ -1851,6 +1851,8 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
         yield trial_index_to_param
 
+    return None
+
 def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     global submitted_jobs
 
@@ -1947,11 +1949,9 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, random_steps
     try:
         print_debug("Trying to get trial_index_to_param")
 
-        trial_index_to_params = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
-
         trial_counter = 0
 
-        for trial_index_to_param in trial_index_to_params:
+        for trial_index_to_param in _get_next_trials(ax_client, calculated_max_trials, random_steps, _k):
             for trial_index, parameters in trial_index_to_param.items():
                 new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
                 if new_trial_counter:

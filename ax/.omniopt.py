@@ -1310,6 +1310,95 @@ def save_pd_csv ():
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
+def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+    if continue_previous_job:
+        print_debug(f"Load from checkpoint: {continue_previous_job}")
+
+        checkpoint_file = continue_previous_job + "/checkpoint.json"
+        if not os.path.exists(checkpoint_file):
+            print_color("red", f"{checkpoint_file} not found")
+            sys.exit(47)
+
+        ax_client = (AxClient.load_from_json_file(checkpoint_file))
+
+        checkpoint_params_file = continue_previous_job + "/checkpoint.json.parameters.json"
+
+        if not os.path.exists(checkpoint_params_file):
+            print_color(f"Cannot find {checkpoint_params_file}")
+            sys.exit(49)
+
+        f = open(checkpoint_params_file)
+        experiment_parameters = json.load(f)
+        f.close()
+
+        if parameter:
+            for _item in cli_params_experiment_parameters:
+                _replaced = False
+                for _item_id_to_overwrite in range(0, len(experiment_parameters)):
+                    if _item["name"] == experiment_parameters[_item_id_to_overwrite]["name"]:
+                        old_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
+                        experiment_parameters[_item_id_to_overwrite] = _item;
+                        new_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
+                        _replaced = True
+
+                        print_color("orange", f"Replaced this parameter:\n{old_param_json}\nwith new parameter:\n{new_param_json}")
+
+                if not _replaced:
+                    print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
+
+        with open(checkpoint_filepath, "w") as outfile:
+            json.dump(experiment_parameters, outfile)
+
+        if not os.path.exists(checkpoint_params_file):
+            print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
+            sys.exit(22)
+
+        with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
+            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+    else:
+        experiment_args = {
+            "name": experiment_name,
+            "parameters": experiment_parameters,
+            "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+            "choose_generation_strategy_kwargs": {
+                "num_trials": max_eval,
+                "num_initialization_trials": args.num_parallel_jobs,
+                "max_parallelism_cap": args.num_parallel_jobs,
+                #"use_batch_trials": True,
+                "max_parallelism_override": -1 
+            },
+        }
+
+        if seed:
+            experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
+
+        #dier(experiment_args)
+
+        if experiment_constraints:
+            constraints_string = " ".join(experiment_constraints[0])
+
+            variables = [item['name'] for item in experiment_parameters]
+
+            equation = check_equation(variables, constraints_string)
+
+            if equation:
+                experiment_args["parameter_constraints"] = [constraints_string]
+                print_color("yellow", "--parameter_constraints is experimental!")
+            else:
+                print_color("red", "Experiment constraints are invalid.")
+                sys.exit(28)
+
+        try:
+            experiment = ax_client.create_experiment(**experiment_args)
+        except ValueError as error:
+            print_color("red", f"An error has occured: {error}")
+            sys.exit(29)
+        except TypeError as error:
+            print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
+            sys.exit(50)
+
+    return experiment_parameters
+
 def print_overview_table (experiment_parameters):
     if not experiment_parameters:
         print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -1911,91 +2000,7 @@ def main ():
 
         experiment = None
 
-        if args.continue_previous_job:
-            print_debug(f"Load from checkpoint: {args.continue_previous_job}")
-
-            checkpoint_file = args.continue_previous_job + "/checkpoint.json"
-            if not os.path.exists(checkpoint_file):
-                print_color("red", f"{checkpoint_file} not found")
-                sys.exit(47)
-
-            ax_client = (AxClient.load_from_json_file(checkpoint_file))
-
-            checkpoint_params_file = args.continue_previous_job + "/checkpoint.json.parameters.json"
-
-            if not os.path.exists(checkpoint_params_file):
-                print_color(f"Cannot find {checkpoint_params_file}")
-                sys.exit(49)
-
-            f = open(checkpoint_params_file)
-            experiment_parameters = json.load(f)
-            f.close()
-
-            if args.parameter:
-                for _item in cli_params_experiment_parameters:
-                    _replaced = False
-                    for _item_id_to_overwrite in range(0, len(experiment_parameters)):
-                        if _item["name"] == experiment_parameters[_item_id_to_overwrite]["name"]:
-                            old_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
-                            experiment_parameters[_item_id_to_overwrite] = _item;
-                            new_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
-                            _replaced = True
-
-                            print_color("orange", f"Replaced this parameter:\n{old_param_json}\nwith new parameter:\n{new_param_json}")
-
-                    if not _replaced:
-                        print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
-
-            with open(checkpoint_filepath, "w") as outfile:
-                json.dump(experiment_parameters, outfile)
-
-            if not os.path.exists(checkpoint_params_file):
-                print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
-                sys.exit(22)
-
-            with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
-                print(f"Continuation from checkpoint {args.continue_previous_job}", file=f)
-        else:
-            experiment_args = {
-                "name": experiment_name,
-                "parameters": experiment_parameters,
-                "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
-                "choose_generation_strategy_kwargs": {
-                    "num_trials": max_eval,
-                    "num_initialization_trials": args.num_parallel_jobs,
-                    "max_parallelism_cap": args.num_parallel_jobs,
-                    #"use_batch_trials": True,
-                    "max_parallelism_override": -1 
-                },
-            }
-
-            if args.seed:
-                experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = args.seed
-
-            #dier(experiment_args)
-
-            if args.experiment_constraints:
-                constraints_string = " ".join(args.experiment_constraints[0])
-
-                variables = [item['name'] for item in experiment_parameters]
-
-                equation = check_equation(variables, constraints_string)
-
-                if equation:
-                    experiment_args["parameter_constraints"] = [constraints_string]
-                    print_color("yellow", "--parameter_constraints is experimental!")
-                else:
-                    print_color("red", "Experiment constraints are invalid.")
-                    sys.exit(28)
-
-            try:
-                experiment = ax_client.create_experiment(**experiment_args)
-            except ValueError as error:
-                print_color("red", f"An error has occured: {error}")
-                sys.exit(29)
-            except TypeError as error:
-                print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
-                sys.exit(50)
+        experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
 
         print_overview_table(experiment_parameters)
 

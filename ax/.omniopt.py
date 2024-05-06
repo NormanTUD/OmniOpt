@@ -1718,7 +1718,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
 
     return trial_counter
 
-def get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps):
+def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps):
     global time_get_next_trials_took
 
     last_ax_client_time = None
@@ -1731,15 +1731,15 @@ def get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_f
 
     if is_executable_in_path("sbatch"):
         if last_ax_client_time:
-            new_msgs.append(f"try: get_next_trials {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"try: get_next_trials {calculated_max_trials}")
+            new_msgs.append(f"try: _get_next_trials {calculated_max_trials}")
     else:
         calculated_max_trials = 1
         if last_ax_client_time:
-            new_msgs.append(f"try: get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"try: get_next_trials {calculated_max_trials} (no sbatch)")
+            new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch)")
 
     desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
     print_debug_progressbar(desc)
@@ -1756,6 +1756,12 @@ def get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_f
     _ax_took = get_next_trials_time_end - get_next_trials_time_start
 
     time_get_next_trials_took.append(_ax_took)
+
+    if len(trial_index_to_param.items()) == 0:
+        print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+        if _k == 0:
+            print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
+            sys.exit(130)
 
     return trial_index_to_param
 
@@ -2050,13 +2056,7 @@ def main ():
                         try:
                             print_debug("Trying to get trial_index_to_param")
 
-                            trial_index_to_param = get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps)
-
-                            if len(trial_index_to_param.items()) == 0:
-                                print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-                                if _k == 0:
-                                    print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
-                                    sys.exit(130)
+                            trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps)
 
                             trial_counter = 0
                             for trial_index, parameters in trial_index_to_param.items():

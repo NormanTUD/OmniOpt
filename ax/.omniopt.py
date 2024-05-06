@@ -1957,7 +1957,7 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, progress_bar
 
     return _k, trial_index_to_param
 
-def get_random_steps(args, max_eval):
+def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps
 
     print(f"Random evaluations before the search begins: {random_steps}")
@@ -1977,6 +1977,27 @@ def get_random_steps(args, max_eval):
         print("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
     return random_steps, second_step_steps
+
+def get_executor(args):
+    global current_run_folder
+
+    log_folder = f"{current_run_folder}/%j"
+    executor = submitit.AutoExecutor(folder=log_folder)
+
+    # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
+
+    executor.update_parameters(
+        name=experiment_name,
+        timeout_min=args.worker_timeout,
+        slurm_gres=f"gpu:{args.gpus}",
+        cpus_per_task=args.cpus_per_task,
+        stderr_to_stdout=args.stderr_to_stdout,
+        mem_gb=args.mem_gb,
+        #slurm_signal_delay_s=30,
+        slurm_use_srun=False
+    )
+
+    return executor
 
 def main ():
     print_debug("main")
@@ -2022,7 +2043,7 @@ def main ():
         disable_logging()
 
     try:
-        random_steps, second_step_steps = get_random_steps(args, max_eval)
+        random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
         gs = get_generation_strategy(random_steps, args.num_parallel_jobs, args.seed)
 
@@ -2040,21 +2061,7 @@ def main ():
 
         print_overview_table(experiment_parameters)
 
-        log_folder = f"{current_run_folder}/%j"
-        executor = submitit.AutoExecutor(folder=log_folder)
-
-        # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
-
-        executor.update_parameters(
-            name=experiment_name,
-            timeout_min=args.worker_timeout,
-            slurm_gres=f"gpu:{args.gpus}",
-            cpus_per_task=args.cpus_per_task,
-            stderr_to_stdout=args.stderr_to_stdout,
-            mem_gb=args.mem_gb,
-            slurm_signal_delay_s=30,
-            slurm_use_srun=False
-        )
+        executor = get_executor(args)
 
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.

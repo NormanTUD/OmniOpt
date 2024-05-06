@@ -1625,7 +1625,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
             save_checkpoint()
             save_pd_csv()
         else:
-            print(f"Job still running {job.state}")
+            pass
 
     progressbar_description(new_msgs, force_new_sq)
     log_nr_of_workers(True)

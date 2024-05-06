@@ -1533,6 +1533,8 @@ def check_equation (variables, equation):
 def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs, force_new_sq):
     print_debug("finish_previous_jobs")
 
+    log_nr_of_workers(True)
+
     global ax_client
     global done_jobs
     global failed_jobs
@@ -1617,6 +1619,8 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
     desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs, force_new_sq)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
+
+    log_nr_of_workers(True)
 
     return jobs
 
@@ -2090,8 +2094,6 @@ def main ():
                     print_debug_linewise("==============================================================")
                     mylog("NEW ENTRY ==============================================================")
                     print_debug_linewise(f"                    while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
-
-                    log_nr_of_workers(True)
 
                     # Schedule new jobs if there is availablity
                     try:

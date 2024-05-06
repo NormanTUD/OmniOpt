@@ -1625,10 +1625,34 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
             save_checkpoint()
             save_pd_csv()
         else:
-            print(f"Job still running {job}")
+            print(f"Job still running {job.state}")
 
     progressbar_description(new_msgs, force_new_sq)
     log_nr_of_workers(True)
+
+def get_workers_string ():
+    global jobs
+
+    string = None
+
+    try:
+        strings = []
+
+        stats = {}
+
+        for job in jobs:
+            if not job.state in stat:
+                stat[job.state] = 0
+            stat[job.state] += 1
+
+        for key in stats.keys():
+            strings.append(f"key.lower = {stats[key]}")
+
+        string = ", ".join(strings)
+    except:
+        pass
+
+    return string
 
 def get_desc_progress_text (new_msgs=[], force_new_sq=False):
     global result_csv_file
@@ -1642,6 +1666,10 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
     desc = f"Searching {searching_for}"
     
     in_brackets = []
+
+    workers_strings = get_workers_string()
+    if workers_strings:
+        in_brackets.append(workers_strings)
 
     #print(f"failed jobs: {failed_jobs}")
     if failed_jobs:

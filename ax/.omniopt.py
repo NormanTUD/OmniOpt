@@ -1882,7 +1882,9 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
 
     return needed_number_of_trials
 
-def get_generation_strategy (random_steps, num_parallel_jobs, seed):
+def get_generation_strategy (num_parallel_jobs, seed):
+    global random_steps
+
     """ 
 
     Valid models?
@@ -1944,7 +1946,10 @@ def get_generation_strategy (random_steps, num_parallel_jobs, seed):
 
     return gs
 
-def create_and_execute_next_runs (ax_client, calculated_max_trials, random_steps, _k, executor):
+def create_and_execute_next_runs (ax_client, calculated_max_trials, _k, executor):
+    global random_steps
+    global done_jobs
+
     trial_index_to_param = None
     try:
         print_debug("Trying to get trial_index_to_param")
@@ -1954,6 +1959,11 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, random_steps
         for trial_index_to_param in _get_next_trials(ax_client, calculated_max_trials, random_steps, _k):
             for trial_index, parameters in trial_index_to_param.items():
                 trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
+
+            random_steps_left = done_jobs - random_steps
+
+            if random_steps_left <= 0 and done_jobs <= random_steps:
+                return _k, len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_color("red", "\n:warning: " + str(e))
     except (
@@ -2054,9 +2064,11 @@ def main ():
         disable_logging()
 
     try:
+        global random_steps
+        global second_step_steps
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
-        gs = get_generation_strategy(random_steps, args.num_parallel_jobs, args.seed)
+        gs = get_generation_strategy(args.num_parallel_jobs, args.seed)
 
         ax_client = AxClient(
             verbose_logging=args.verbose,
@@ -2108,7 +2120,7 @@ def main ():
 
                         jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
 
-                        _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, random_steps, _k, executor)
+                        _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, _k, executor)
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:

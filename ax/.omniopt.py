@@ -68,6 +68,9 @@ max_eval = None
 _time = None
 submitted_jobs = 0
 mem_gb = None
+random_steps = None
+progress_bar = None
+searching_for = None
 
 import inspect
 def getLineInfo():
@@ -1530,7 +1533,17 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs, force_new_sq):
+def progressbar_description (new_msgs, force_new_sq=False):
+    global result_csv_file
+    global random_steps
+    global searching_for
+    global progress_bar
+
+    desc = get_desc_progress_text(result_csv_file, new_msgs, force_new_sq)
+    print_debug_progressbar(desc)
+    progress_bar.set_description(desc)
+
+def finish_previous_jobs (args, jobs, result_csv_file, random_steps, new_msgs, force_new_sq):
     print_debug("finish_previous_jobs")
 
     log_nr_of_workers(True)
@@ -1554,18 +1567,15 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"new result: {result}"], True)
-                        print_debug_progressbar(desc)
-                        progress_bar.set_description(desc)
+                        progressbar_description([f"new result: {result}"], True)
                         _trial.mark_completed(unsafe=True)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                 else:
                     if job:
                         try:
-                            desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True)
-                            print_debug_progressbar(desc)
-                            progress_bar.set_description(desc)
+                            progressbar_description([f"job_failed"], True)
+
                             ax_client.log_trial_failure(trial_index=trial_index)
                         except Exception as e:
                             print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1577,9 +1587,7 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                 if job:
                     try:
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True)
-                        print_debug_progressbar(desc)
-                        progress_bar.set_description(desc)
+                        progressbar_description([f"job_failed"], True)
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                     except Exception as e:
@@ -1595,9 +1603,7 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
 
                 if job:
                     try:
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"job failed"], True)
-                        print_debug_progressbar(desc)
-                        progress_bar.set_description(desc)
+                        progressbar_description([f"job_failed"], True)
                         ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1610,25 +1616,24 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
             progress_bar.update(1)
 
             if args.verbose:
-                desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"], force_new_sq)
-                print_debug_progressbar(desc)
-                progress_bar.set_description(desc)
+                progressbar_description(["saving checkpoints and pd.csv"], force_new_sq)
             save_checkpoint()
             save_pd_csv()
 
-    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs, force_new_sq)
-    print_debug_progressbar(desc)
-    progress_bar.set_description(desc)
+    progressbar_description(new_msgs, force_new_sq)
+
 
     log_nr_of_workers(True)
 
     return jobs
 
-def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_msgs, force_new_sq=False):
+def get_desc_progress_text (result_csv_file, new_msgs, force_new_sq=False):
     global done_jobs
     global failed_jobs
     global worker_percentage_usage
     global progress_plot
+    global random_steps
+    global submitted_jobs
 
     desc = f"Searching {searching_for}"
     
@@ -1638,7 +1643,7 @@ def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_ms
     if failed_jobs:
         in_brackets.append(f"failed: {failed_jobs}")
 
-    if random_steps > submitted_jobs:
+    if random_steps and random_steps > submitted_jobs:
         in_brackets.append(f"random phase ({abs(done_jobs - random_steps)} left)")
 
     best_params = None
@@ -1734,9 +1739,10 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials):
+def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials):
     global submitted_jobs
     global jobs
+    global progress_bar
 
     _trial = ax_client.get_trial(trial_index)
 
@@ -1748,9 +1754,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
-        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"starting new job ({trial_counter + 1}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
-        print_debug_progressbar(desc)
-        progress_bar.set_description(desc)
+        progressbar_description([f"starting new job ({trial_counter + 1}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs += 1
@@ -1764,9 +1768,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
             pass
         trial_counter += 1
 
-        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"], True)
-        print_debug_progressbar(desc)
-        progress_bar.set_description(desc)
+        progressbar_description([f"started new job ({trial_counter}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"], True)
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1803,7 +1805,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
 
     return trial_counter
 
-def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k):
+def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
     global time_get_next_trials_took
 
     last_ax_client_time = None
@@ -1826,9 +1828,7 @@ def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_
         else:
             new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch)")
 
-    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs, True)
-    print_debug_progressbar(desc)
-    progress_bar.set_description(desc)
+    progressbar_description(new_msgs, True)
 
     trial_index_to_param = None
 
@@ -1941,16 +1941,16 @@ def get_generation_strategy (random_steps, num_parallel_jobs, seed):
 
     return gs
 
-def create_and_execute_next_runs (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor):
+def create_and_execute_next_runs (ax_client, calculated_max_trials, random_steps, _k, executor):
     trial_index_to_param = None
     try:
         print_debug("Trying to get trial_index_to_param")
 
-        trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k)
+        trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
 
         trial_counter = 0
         for trial_index, parameters in trial_index_to_param.items():
-            new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
+            new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
             if new_trial_counter:
                 trial_counter = new_trial_counter
     except RuntimeError as e:
@@ -2076,6 +2076,7 @@ def main ():
         submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
 
+        global searching_for
         searching_for = "min." if not args.maximize else "max."
 
         _k = 0
@@ -2083,9 +2084,10 @@ def main ():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
-            with tqdm(total=max_eval, disable=False) as progress_bar:
-
+            initial_text = get_desc_progress_text(result_csv_file, [])
+            with tqdm(total=max_eval, disable=False) as _progress_bar:
+                global progress_bar
+                progress_bar = _progress_bar
                 while submitted_jobs < max_eval or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:
@@ -2101,17 +2103,13 @@ def main ():
                     try:
                         calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval, random_steps)
 
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
-                        print_debug_progressbar(desc)
-                        progress_bar.set_description(desc)
+                        progressbar_description([], True)
 
-                        jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, ["finishing previous jobs"], True)
+                        jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
 
-                        _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor)
+                        _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, random_steps, _k, executor)
 
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {nr_of_items}"])
-                        print_debug_progressbar(desc)
-                        progress_bar.set_description(desc)
+                        progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
                     except ax.exceptions.core.DataRequiredError as e:

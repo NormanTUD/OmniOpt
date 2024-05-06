@@ -1963,7 +1963,7 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, progress_bar
         end_program(result_csv_file)
     _k += 1
 
-    return _k, trial_index_to_param
+    return _k, len(trial_index_to_param.keys())
 
 def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps
@@ -2105,9 +2105,9 @@ def main ():
 
                         jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, ["finishing previous jobs"], True)
 
-                        _k, trial_index_to_param = create_and_execute_next_runs(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor)
+                        _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor)
 
-                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {len(trial_index_to_param.items())}"])
+                        desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [f"len(get_next_trials) = {nr_of_items}"])
                         print_debug_progressbar(desc)
                         progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:

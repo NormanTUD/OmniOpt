@@ -1254,6 +1254,7 @@ def end_program (csv_file_path, result_column="result"):
             try:
                 _trial = ax_client.get_trial(trial_index)
                 _trial.mark_abandoned()
+                jobs.remove((new_job, trial_index))
             except Exception as e:
                 print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()
@@ -1587,6 +1588,8 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
                         job.cancel()
 
                     failed_jobs += 1
+
+                jobs.remove((job, trial_index))
             except submitit.core.utils.UncompletedJobError as error:
                 print_color("red", str(error))
 
@@ -2156,7 +2159,8 @@ def main ():
 
                         if done_jobs < random_steps:
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
-                            progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+                            if nr_of_items_random:
+                                progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
 
                         calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                         _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)

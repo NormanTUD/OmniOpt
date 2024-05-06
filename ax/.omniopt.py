@@ -1843,31 +1843,30 @@ def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_
     return trial_index_to_param
 
 def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
-    new_jobs_needed = max_eval - len(jobs)
-
-    if new_jobs_needed > num_parallel_jobs:
-        new_jobs_needed = num_parallel_jobs
-    print_debug_linewise(f"                        new_jobs_needed ({new_jobs_needed}) = min(num_parallel_jobs ({num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
-
-
-    calculated_max_trials = min(max(1, num_parallel_jobs), max(1, new_jobs_needed))
-
-    print_debug_linewise(f"calculated_max_trials {calculated_max_trials} = min(max(1, num_parallel_jobs {num_parallel_jobs}), max(1 new_jobs_needed {new_jobs_needed})")
-    print_debug_linewise(f"                        calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
-
-    print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
+    global submitted_jobs
 
     is_in_sobol_phase = False
     if submitted_jobs < random_steps:
         is_in_sobol_phase = True
 
-    if is_in_sobol_phase and calculated_max_trials > num_parallel_jobs:
-        calculated_max_trials = min(num_parallel_jobs, (random_steps - len(jobs)) % num_parallel_jobs)
-        print(f"Setting calculated_max_trials to {calculated_max_trials} because it is sobol and min({num_parallel_jobs}, ({random_steps} - {len(jobs)}) % {num_parallel_jobs})")
-    elif not is_in_sobol_phase:
-        calculated_max_trials = num_parallel_jobs - get_number_of_current_workers(True)
+    total_number_of_jobs_left = max_eval - submitted_jobs
 
-    return calculated_max_trials
+    needed_number_of_trials = max(0, min(num_parallel_jobs, total_number_of_jobs_left))
+
+    current_number_of_workers = get_number_of_current_workers(True)
+
+    if is_in_sobol_phase and needed_number_of_trials > num_parallel_jobs:
+        random_steps_left = done_jobs - random_steps
+        random_workers = random_steps_left - current_number_of_workers
+        possible_random_workers = random_workers % num_parallel_jobs
+
+        needed_number_of_trials = min(num_parallel_jobs, possible_random_workers)
+    elif not is_in_sobol_phase:
+        if total_number_of_jobs_left > num_parallel_jobs:
+            total_number_of_jobs_left = num_parallel_jobs
+        needed_number_of_trials = num_parallel_jobs - current_number_of_workers
+
+    return needed_number_of_trials
 
 def get_generation_strategy (random_steps, num_parallel_jobs, seed):
     """ 

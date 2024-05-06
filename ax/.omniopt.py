@@ -1988,6 +1988,8 @@ def main ():
         print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
         if second_step_steps != original_second_steps:
             print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
+        if second_step_steps == 0:
+            print("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
         gs = get_generation_strategy(random_steps, args.num_parallel_jobs, args.seed)
 

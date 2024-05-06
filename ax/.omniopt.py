@@ -1832,23 +1832,24 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     trial_index_to_param = None
 
-    get_next_trials_time_start = time.time()
-    trial_index_to_param, _ = ax_client.get_next_trials(
-        max_trials=calculated_max_trials
-    )
-    get_next_trials_time_end = time.time()
+    for i in range(0, calculated_max_trials):
+        get_next_trials_time_start = time.time()
+        trial_index_to_param, _ = ax_client.get_next_trials(
+            max_trials=calculated_max_trials
+        )
+        get_next_trials_time_end = time.time()
 
-    _ax_took = get_next_trials_time_end - get_next_trials_time_start
+        _ax_took = get_next_trials_time_end - get_next_trials_time_start
 
-    time_get_next_trials_took.append(_ax_took)
+        time_get_next_trials_took.append(_ax_took)
 
-    if len(trial_index_to_param.items()) == 0:
-        print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-        if _k == 0:
-            print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
-            sys.exit(130)
+        if len(trial_index_to_param.items()) == 0:
+            print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+            if _k == 0:
+                print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
+                sys.exit(130)
 
-    return trial_index_to_param
+        yield trial_index_to_param
 
 def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     global submitted_jobs
@@ -1946,13 +1947,15 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, random_steps
     try:
         print_debug("Trying to get trial_index_to_param")
 
-        trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
+        trial_index_to_params = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
 
         trial_counter = 0
-        for trial_index, parameters in trial_index_to_param.items():
-            new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
-            if new_trial_counter:
-                trial_counter = new_trial_counter
+
+        for trial_index_to_param in trial_index_to_params:
+            for trial_index, parameters in trial_index_to_param.items():
+                new_trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
+                if new_trial_counter:
+                    trial_counter = new_trial_counter
     except RuntimeError as e:
         print_color("red", "\n:warning: " + str(e))
     except (

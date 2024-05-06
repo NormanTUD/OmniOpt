@@ -2007,6 +2007,9 @@ def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, ex
     global random_steps
     global done_jobs
 
+    if calculated_max_trials == 0:
+        return _k, 0
+
     trial_index_to_param = None
     try:
         print_debug("Trying to get trial_index_to_param")
@@ -2178,7 +2181,9 @@ def main ():
 
                         progressbar_description([], True)
 
-                        _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
+                        steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
+
+                        _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, _k, executor)
                         if nr_of_items_random:
                             progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
 
@@ -2193,13 +2198,10 @@ def main ():
 
                     _sleep(args, 0.1)
 
-                l = 0
                 while len(jobs):
-                    if l == 0:
-                        progressbar_description([f"Waiting for jobs of the random phase to end."], True)
-                    _sleep(args, 1)
+                    progressbar_description([f"Waiting for jobs of the random phase to end."], True)
                     clean_completed_jobs()
-                    l += 1
+                    _sleep(args, 1)
 
                 print(f"Starting systematic search for {max_eval - random_steps} steps")
                 while done_jobs < (max_eval - random_steps) or jobs:
@@ -2225,7 +2227,9 @@ def main ():
                     except ax.exceptions.core.DataRequiredError as e:
                         print_color("red", f"Error 2: {e}")
 
-                    _sleep(args, 0.1)
+                    clean_completed_jobs()
+
+                    _sleep(args, 1)
         end_program(result_csv_file)
     except searchDone as e:
         end_program(result_csv_file)

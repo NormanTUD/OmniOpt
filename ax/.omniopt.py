@@ -1398,7 +1398,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
             sys.exit(50)
 
-    return experiment_parameters
+    return ax_client, experiment_parameters
 
 def print_overview_table (experiment_parameters):
     if not experiment_parameters:
@@ -2001,7 +2001,7 @@ def main ():
 
         experiment = None
 
-        experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+        ax_client, experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
 
         print_overview_table(experiment_parameters)
 

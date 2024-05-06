@@ -1823,6 +1823,7 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
             new_msgs.append(f"try: _get_next_trials {calculated_max_trials}")
     else:
         calculated_max_trials = 1
+
         if last_ax_client_time:
             new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:

@@ -2207,6 +2207,7 @@ def main ():
                         finish_previous_jobs(args, ["finishing previous jobs"])
 
                         if done_jobs <= random_steps:
+                            print(f"if done_jobs ({done_jobs}) <= random_steps ({random_steps}):")
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, min(0, min(args.num_parallel_jobs, args.num_parallel_jobs - len(jobs), random_steps)), _k, executor)
                         else:
                             calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)

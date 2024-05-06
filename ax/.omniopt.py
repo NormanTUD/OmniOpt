@@ -2112,7 +2112,7 @@ def main ():
 
                         progressbar_description([], True)
 
-                        if done_jobs < random_steps
+                        if done_jobs < random_steps:
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
                             progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
 

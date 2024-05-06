@@ -1544,6 +1544,12 @@ def progressbar_description (new_msgs=[], force_new_sq=False):
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
 
+def clean_completed_jobs ():
+    global jobs
+    for job, trial_index in jobs[:]:
+        if state_from_job(job) == "completed":
+            jobs.remove((job, trial_index))
+
 def finish_previous_jobs (args, new_msgs, force_new_sq):
     print_debug("finish_previous_jobs")
 
@@ -1635,6 +1641,21 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
     progressbar_description(new_msgs, force_new_sq)
     log_nr_of_workers(True)
 
+    clean_completed_jobs()
+
+def state_from_job (job):
+    job_string = f'{job}'
+    match = re.search(r'state="([^"]+)"', job_string)
+
+    state = None
+
+    if match:
+        state = match.group(1).lower()
+    else:
+        state = f"{state}"
+
+    return state
+
 def get_workers_string ():
     global jobs
 
@@ -1644,16 +1665,8 @@ def get_workers_string ():
 
     stats = {}
 
-    for job in jobs:
-        job_string = f'{job}'
-        match = re.search(r'state="([^"]+)"', job_string)
-
-        state = None
-
-        if match:
-            state = match.group(1).lower()
-        else:
-            state = f"unknown ({state})"
+    for job, trial_index in jobs[:]:
+        state = state_from_job(job)
 
         if not state in stats.keys():
             stats[state] = 0

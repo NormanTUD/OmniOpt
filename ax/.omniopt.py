@@ -1649,7 +1649,8 @@ def get_workers_string ():
             strings.append(f"key.lower = {stats[key]}")
 
         string = ", ".join(strings)
-    except:
+    except Exception as e:
+        print(e)
         pass
 
     return string

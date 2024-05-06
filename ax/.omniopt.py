@@ -1835,7 +1835,7 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     get_next_trials_time_start = time.time()
     trial_index_to_param, _ = ax_client.get_next_trials(
-        max_trials=1
+        max_trials=calculated_max_trials
     )
     get_next_trials_time_end = time.time()
 
@@ -1956,16 +1956,15 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, _k, executor
 
         trial_counter = 0
 
-        new_params = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
+        trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
 
-        for trial_index_to_param in new_params:
-            for trial_index, parameters in trial_index_to_param.items():
-                trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
+        for trial_index, parameters in trial_index_to_param.items():
+            trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
 
-            random_steps_left = done_jobs - random_steps
+        random_steps_left = done_jobs - random_steps
 
-            if random_steps_left <= 0 and done_jobs <= random_steps:
-                return _k, len(trial_index_to_param.keys())
+        if random_steps_left <= 0 and done_jobs <= random_steps:
+            return _k, len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_color("red", "\n:warning: " + str(e))
     except (

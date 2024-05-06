@@ -2123,11 +2123,11 @@ def main ():
 
                         progressbar_description([], True)
 
-                        jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
-
                         _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, _k, executor)
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
+
+                        jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")
                     except ax.exceptions.core.DataRequiredError as e:

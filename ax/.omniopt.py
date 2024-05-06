@@ -2195,8 +2195,12 @@ def main ():
 
                     _sleep(args, 0.1)
 
+                l = 0
                 while len(jobs):
+                    if l == 0:
+                        progressbar_description([f"Waiting for jobs of the random phase to end."], True)
                     _sleep(args, 1)
+                    l += 1
 
                 print(f"Starting systematic search for {max_eval - random_steps} steps")
                 while done_jobs < (max_eval - random_steps) or jobs:

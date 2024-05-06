@@ -1870,36 +1870,36 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     return calculated_max_trials
 
 def get_generation_strategy (random_steps, num_parallel_jobs, seed):
-        """ 
+    """ 
 
-        Valid models?
+    Valid models?
 
-        "Sobol"
-        "GPEI"
-        "GPKG"
-        "GPMES"
-        "Factorial"
-        "SAASBO"
-        "FullyBayesian"
-        "FullyBayesianMOO"
-        "SAAS_MTGP"
-        "FullyBayesian_MTGP"
-        "FullyBayesianMOO_MTGP"
-        "Thompson"
-        "GPEI"
-        "BoTorch"
-        "EB"
-        "Uniform"
-        "MOO"
-        "ST_MTGP_LEGACY"
-        "ST_MTGP"
-        "ALEBO"
-        "BO_MIXED"
-        "ST_MTGP_NEHVI"
-        "ALEBO_Initializer"
-        "Contextual_SACBO"
+    "Sobol"
+    "GPEI"
+    "GPKG"
+    "GPMES"
+    "Factorial"
+    "SAASBO"
+    "FullyBayesian"
+    "FullyBayesianMOO"
+    "SAAS_MTGP"
+    "FullyBayesian_MTGP"
+    "FullyBayesianMOO_MTGP"
+    "Thompson"
+    "GPEI"
+    "BoTorch"
+    "EB"
+    "Uniform"
+    "MOO"
+    "ST_MTGP_LEGACY"
+    "ST_MTGP"
+    "ALEBO"
+    "BO_MIXED"
+    "ST_MTGP_NEHVI"
+    "ALEBO_Initializer"
+    "Contextual_SACBO"
 
-        """
+    """
 
 
 

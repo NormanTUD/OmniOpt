@@ -1651,7 +1651,7 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def start_and_end_evaluation (trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials):
+def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials):
     global submitted_jobs
     _trial = ax_client.get_trial(trial_index)
 
@@ -2055,7 +2055,7 @@ def main ():
 
                             trial_counter = 0
                             for trial_index, parameters in trial_index_to_param.items():
-                                start_and_end_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
+                                execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials)
                         except RuntimeError as e:
                             print_color("red", "\n:warning: " + str(e))
                         except (

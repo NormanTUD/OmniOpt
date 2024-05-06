@@ -1736,6 +1736,8 @@ def check_python_version ():
 
 def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, progress_bar, executor, searching_for, random_steps, calculated_max_trials):
     global submitted_jobs
+    global jobs
+
     _trial = ax_client.get_trial(trial_index)
 
     try:

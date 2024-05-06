@@ -2084,7 +2084,7 @@ def main ():
                         progress_bar.set_description(desc)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error: {e}")
-                    except ax.exceptions.core.DataRequiredError:
+                    except ax.exceptions.core.DataRequiredError as e:
                         print_color("red", f"Error: {e}")
 
                     _sleep(args, 0.1)

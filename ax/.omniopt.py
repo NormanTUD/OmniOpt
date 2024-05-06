@@ -2180,7 +2180,7 @@ def main ():
                     if done_jobs >= max_eval or submitted_jobs >= max_eval:
                         raise searchDone("Search done")
 
-                    if submitted_jobs >= random_steps or len(jobs) = random_steps:
+                    if submitted_jobs >= random_steps or len(jobs) == random_steps:
                         break
 
                     try:

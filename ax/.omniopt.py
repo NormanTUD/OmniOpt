@@ -1845,6 +1845,9 @@ def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_
 def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     global submitted_jobs
 
+    if not is_executable_in_path("sbatch"):
+        return 1
+
     is_in_sobol_phase = False
     if submitted_jobs <= random_steps:
         is_in_sobol_phase = True

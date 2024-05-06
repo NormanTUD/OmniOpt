@@ -1562,6 +1562,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
+                print(f"result: {result}")
                 result = result["result"]
                 print_debug(f"Got job result: {result}")
                 if result != val_if_nothing_found:

@@ -1650,6 +1650,8 @@ def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_ms
             if str(best_result) != NO_RESULT and best_result is not None:
                 in_brackets.append(f"best result: {best_result_int_if_possible}")
 
+            in_brackets.append(f"done: {done_jobs}")
+
             this_progress_values = {
                 "best_result": str(best_result_int_if_possible),
                 "time": this_time

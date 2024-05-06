@@ -1726,7 +1726,7 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
             if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1] == progress_plot:
                 progress_plot.append(this_progress_values)
 
-        nr_current_workers = get_number_of_current_workers(force_new_sq)
+        nr_current_workers = len(jobs)
         max_nr_jobs = args.num_parallel_jobs
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
@@ -1924,6 +1924,7 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
 def get_calculated_max_trials(num_parallel_jobs, max_eval):
     global submitted_jobs
+    global jobs
 
     if not is_executable_in_path("sbatch"):
         return 1
@@ -1932,7 +1933,7 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval):
 
     needed_number_of_trials = max(1, min(num_parallel_jobs, total_number_of_jobs_left))
 
-    current_number_of_workers = get_number_of_current_workers(True)
+    current_number_of_workers = len(jobs)
 
     if total_number_of_jobs_left > num_parallel_jobs:
         total_number_of_jobs_left = num_parallel_jobs
@@ -2172,7 +2173,7 @@ def main ():
                 print(f"Starting random search for {random_steps} steps")
                 while done_jobs < random_steps or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
-                        while get_number_of_current_workers(True) > args.num_parallel_jobs:
+                        while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs >= max_eval or submitted_jobs >= max_eval:
                         raise searchDone("Search done")
@@ -2206,7 +2207,7 @@ def main ():
                 print(f"Starting systematic search for {max_eval - random_steps} steps")
                 while done_jobs < (max_eval - random_steps) or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
-                        while get_number_of_current_workers(True) > args.num_parallel_jobs:
+                        while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs >= max_eval or submitted_jobs >= max_eval:
                         raise searchDone("Search done")
@@ -2672,22 +2673,9 @@ def get_current_workers ():
 
     return current_jobs
 
-cached_current_workers = None
-cached_current_workers_time = None
-
-def get_number_of_current_workers (force_new=False):
-    global cached_current_workers
-    global cached_current_workers_time
-
-    if force_new or cached_current_workers is None or abs(cached_current_workers_time - time.time()) > 10:
-        cached_current_workers = get_current_workers()
-        cached_current_workers_time = time.time()
-
-    return len(cached_current_workers)
-
 def log_nr_of_workers (force_new=False):
     last_line = ""
-    nr_of_workers = get_number_of_current_workers(force_new)
+    nr_of_workers = len(jobs)
 
     if not nr_of_workers:
         return

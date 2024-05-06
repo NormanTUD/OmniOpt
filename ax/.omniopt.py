@@ -1739,7 +1739,7 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials):
+def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials):
     global submitted_jobs
     global jobs
     global progress_bar
@@ -1802,6 +1802,8 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
     except Exception as e:
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
+
+    jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
 
     return trial_counter
 
@@ -1944,7 +1946,7 @@ def get_generation_strategy (num_parallel_jobs, seed):
 
     return gs
 
-def create_and_execute_next_runs (ax_client, calculated_max_trials, _k, executor):
+def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, executor):
     global random_steps
     global done_jobs
 
@@ -1957,7 +1959,7 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, _k, executor
         trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
 
         for trial_index, parameters in trial_index_to_param.items():
-            trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
+            trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
 
         random_steps_left = done_jobs - random_steps
 
@@ -2123,11 +2125,9 @@ def main ():
 
                         progressbar_description([], True)
 
-                        _k, nr_of_items = create_and_execute_next_runs(ax_client, calculated_max_trials, _k, executor)
+                        _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
-
-                        jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")
                     except ax.exceptions.core.DataRequiredError as e:

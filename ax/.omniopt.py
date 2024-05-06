@@ -1346,6 +1346,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if not _replaced:
                     print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
 
+        checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
@@ -1794,7 +1795,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
 
     return trial_counter
 
-def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps):
+def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k):
     global time_get_next_trials_took
 
     last_ax_client_time = None
@@ -2059,7 +2060,7 @@ def main ():
                         try:
                             print_debug("Trying to get trial_index_to_param")
 
-                            trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps)
+                            trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k)
 
                             trial_counter = 0
                             for trial_index, parameters in trial_index_to_param.items():

@@ -1765,6 +1765,35 @@ def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_
 
     return trial_index_to_param
 
+def get_calculcated_max_trials(num_parallel_jobs, max_eval, random_steps):
+    new_jobs_needed = max_eval - len(jobs)
+
+    if new_jobs_needed > num_parallel_jobs:
+        new_jobs_needed = num_parallel_jobs
+    print_debug_linewise(f"                        new_jobs_needed ({new_jobs_needed}) = min(num_parallel_jobs ({num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
+
+
+    calculated_max_trials = min(max(1, num_parallel_jobs), max(1, new_jobs_needed))
+
+    print_debug_linewise(f"calculated_max_trials {calculated_max_trials} = min(max(1, num_parallel_jobs {num_parallel_jobs}), max(1 new_jobs_needed {new_jobs_needed})")
+    print_debug_linewise(f"                        calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
+
+    print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
+
+    is_in_sobol_phase = False
+    if submitted_jobs < random_steps:
+        is_in_sobol_phase = True
+
+    if is_in_sobol_phase and calculated_max_trials > num_parallel_jobs:
+        calculated_max_trials = min(num_parallel_jobs, (random_steps - len(jobs)) % num_parallel_jobs)
+        print(f"Setting calculated_max_trials to {calculated_max_trials} because it is sobol and min({num_parallel_jobs}, ({random_steps} - {len(jobs)}) % {num_parallel_jobs})")
+    elif not is_in_sobol_phase:
+        calculated_max_trials = num_parallel_jobs - get_number_of_current_workers(True)
+
+    return calculated_max_trials
+
+
+
 def main ():
     print_debug("main")
     global args
@@ -2021,31 +2050,10 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        new_jobs_needed = max_eval - len(jobs)
-                        if new_jobs_needed > args.num_parallel_jobs:
-                            new_jobs_needed = args.num_parallel_jobs
-                        print_debug_linewise(f"                        new_jobs_needed ({new_jobs_needed}) = min(args.num_parallel_jobs ({args.num_parallel_jobs}) - len(jobs) ({len(jobs)}), max_eval ({max_eval}) - submitted_jobs ({submitted_jobs}))")
-
                         if done_jobs >= max_eval:
                             raise trainingDone("Training done")
 
-                        calculated_max_trials = min(max(1, args.num_parallel_jobs), max(1, new_jobs_needed))
-
-                        print_debug_linewise(f"calculated_max_trials {calculated_max_trials} = min(max(1, args.num_parallel_jobs {args.num_parallel_jobs}), max(1 new_jobs_needed {new_jobs_needed})")
-                        print_debug_linewise(f"                        calculated_max_trials ({calculated_max_trials}) = max(1, new_jobs_needed ({new_jobs_needed}))")
-
-                        print_debug(f"Trying to get the next {calculated_max_trials} trials, one by one.")
-
-                        is_in_sobol_phase = False
-
-                        if submitted_jobs < random_steps:
-                            is_in_sobol_phase = True
-
-                        if is_in_sobol_phase and calculated_max_trials > args.num_parallel_jobs:
-                            calculated_max_trials = min(args.num_parallel_jobs, (random_steps - len(jobs)) % args.num_parallel_jobs)
-                            print(f"Setting calculated_max_trials to {calculated_max_trials} because it is sobol and min({args.num_parallel_jobs}, ({random_steps} - {len(jobs)}) % {args.num_parallel_jobs})")
-                        elif not is_in_sobol_phase:
-                            calculated_max_trials = args.num_parallel_jobs - get_number_of_current_workers(True)
+                        calculated_max_trials = get_calculcated_max_trials(args.num_parallel_jobs, max_eval, random_steps)
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
                         print_debug_progressbar(desc)

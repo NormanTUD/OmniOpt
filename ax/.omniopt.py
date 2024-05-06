@@ -2168,7 +2168,6 @@ def main ():
                 progress_bar = _progress_bar
                 print(f"Starting random search for {random_steps} steps")
                 while done_jobs < random_steps or jobs:
-                    print(f"done_jobs {done_jobs} < random_steps {random_steps}")
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:
                             time.sleep(10)
@@ -2179,7 +2178,6 @@ def main ():
 
                         progressbar_description([], True)
 
-                        print_debug(f"if done_jobs ({done_jobs}) <= random_steps ({random_steps}):")
                         _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
                         if nr_of_items_random:
                             progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
@@ -2200,6 +2198,7 @@ def main ():
                     if l == 0:
                         progressbar_description([f"Waiting for jobs of the random phase to end."], True)
                     _sleep(args, 1)
+                    clean_completed_jobs()
                     l += 1
 
                 print(f"Starting systematic search for {max_eval - random_steps} steps")

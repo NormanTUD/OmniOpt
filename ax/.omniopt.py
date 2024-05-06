@@ -1833,24 +1833,23 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     trial_index_to_param = None
 
-    for i in range(0, calculated_max_trials):
-        get_next_trials_time_start = time.time()
-        trial_index_to_param, _ = ax_client.get_next_trials(
-            max_trials=1
-        )
-        get_next_trials_time_end = time.time()
+    get_next_trials_time_start = time.time()
+    trial_index_to_param, _ = ax_client.get_next_trials(
+        max_trials=1
+    )
+    get_next_trials_time_end = time.time()
 
-        _ax_took = get_next_trials_time_end - get_next_trials_time_start
+    _ax_took = get_next_trials_time_end - get_next_trials_time_start
 
-        time_get_next_trials_took.append(_ax_took)
+    time_get_next_trials_took.append(_ax_took)
 
-        if len(trial_index_to_param.items()) == 0:
-            print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-            if _k == 0:
-                print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
-                sys.exit(130)
+    if len(trial_index_to_param.items()) == 0:
+        print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
+        if _k == 0:
+            print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
+            sys.exit(130)
 
-        yield trial_index_to_param
+    return trial_index_to_param
 
     return None
 
@@ -1957,7 +1956,9 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, _k, executor
 
         trial_counter = 0
 
-        for trial_index_to_param in _get_next_trials(ax_client, calculated_max_trials, random_steps, _k):
+        new_params = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
+
+        for trial_index_to_param in new_params:
             for trial_index, parameters in trial_index_to_param.items():
                 trial_counter = execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
 

@@ -2179,7 +2179,6 @@ def main ():
                         raise searchDone("Search done")
 
                     try:
-
                         progressbar_description([], True)
 
                         steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))

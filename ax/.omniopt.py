@@ -1659,6 +1659,8 @@ def get_workers_string ():
 
     string = ", ".join(strings)
 
+    string = "(jobs: ".string.")"
+
     return string
 
 def get_desc_progress_text (new_msgs=[], force_new_sq=False):

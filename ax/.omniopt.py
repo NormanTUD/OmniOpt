@@ -1550,7 +1550,7 @@ def clean_completed_jobs ():
         if state_from_job(job) == "completed":
             jobs.remove((job, trial_index))
 
-def finish_previous_jobs (args, new_msgs, force_new_sq):
+def finish_previous_jobs (args, new_msgs, force_new_sq=False):
     print_debug("finish_previous_jobs")
 
     log_nr_of_workers(True)
@@ -2168,6 +2168,7 @@ def main ():
                 progress_bar = _progress_bar
                 print(f"Starting random search for {random_steps} steps")
                 while done_jobs < random_steps or jobs:
+                    print(f"done_jobs {done_jobs} < random_steps {random_steps}")
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:
                             time.sleep(10)

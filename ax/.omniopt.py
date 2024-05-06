@@ -1865,7 +1865,7 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
 
     total_number_of_jobs_left = max_eval - submitted_jobs
 
-    needed_number_of_trials = max(0, min(num_parallel_jobs, total_number_of_jobs_left))
+    needed_number_of_trials = max(1, min(num_parallel_jobs, total_number_of_jobs_left))
 
     current_number_of_workers = get_number_of_current_workers(True)
 

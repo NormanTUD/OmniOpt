@@ -1659,7 +1659,8 @@ def get_workers_string ():
 
     string = ", ".join(strings)
 
-    string = "(jobs: ".string.")"
+    if string:
+        string = f"(jobs: {string})"
 
     return string
 
@@ -1675,10 +1676,6 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
     desc = f"Searching {searching_for}"
     
     in_brackets = []
-
-    workers_strings = get_workers_string()
-    if workers_strings:
-        in_brackets.append(workers_strings)
 
     #print(f"failed jobs: {failed_jobs}")
     if failed_jobs:
@@ -1727,6 +1724,11 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             if is_slurm_job():
                 worker_percentage_usage.append(this_values)
+
+
+    workers_strings = get_workers_string()
+    if workers_strings:
+        in_brackets.append(workers_strings)
 
     if len(new_msgs):
         for new_msg in new_msgs:

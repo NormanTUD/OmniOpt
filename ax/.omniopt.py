@@ -2172,11 +2172,16 @@ def main ():
                 progress_bar = _progress_bar
                 print(f"Starting random search for {random_steps} steps")
                 while done_jobs < random_steps or jobs:
+                    print(f"done_jobs: {done_jobs}")
+
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs >= max_eval or submitted_jobs >= max_eval:
                         raise searchDone("Search done")
+
+                    if submitted_jobs >= random_steps:
+                        break
 
                     try:
                         progressbar_description([], True)
@@ -2199,12 +2204,14 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    progressbar_description([f"Waiting for jobs of the random phase to end."], True)
+                    progressbar_description([f"Waiting for jobs of the random phase to end [{len(jobs)} left])."], True)
                     clean_completed_jobs()
                     _sleep(args, 1)
 
                 print(f"Starting systematic search for {max_eval - random_steps} steps")
                 while done_jobs < (max_eval - random_steps) or jobs:
+                    print(f"done_jobs: {done_jobs}")
+
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)

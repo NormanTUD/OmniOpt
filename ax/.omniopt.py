@@ -1132,29 +1132,15 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         try:
             plotext.theme('pro')
 
-            percentages = [entry["percentage"] for entry in worker_percentage_usage]
+            ideal_situation = [entry["max_nr_jobs"] for entry in worker_percentage_usage]
             times = [datetime_to_plotext_format(entry["time"]) for entry in worker_percentage_usage]
             num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
 
             plotext.date_form("d/m/Y H:M:S")
 
-            plotext.plot(times, [100 for i in percentages], label="Desired", marker="hd")
-            plotext.plot(times, percentages, label="Worker Usage Percentage", marker="hd")
-            plotext.xlabel("Time")
-            plotext.ylabel("Percentage")
-            plotext.title("Worker Usage Over Time")
-
-            plotext.show()
-
-            plotext.clf()
-
-            print("")
-
-            plotext.theme('pro')
-
-            plotext.date_form("d/m/Y H:M:S")
-
+            plotext.plot(times, ideal_situation, label="Desired", marker="hd")
             plotext.scatter(times, num_workers, label="Num workers (total)", marker="hd")
+
             plotext.xlabel("Time")
             plotext.ylabel("Percentage of max workers")
             plotext.title("Worker Usage Percentage Over Time")
@@ -1766,7 +1752,7 @@ def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_
 
     return trial_index_to_param
 
-def get_calculcated_max_trials(num_parallel_jobs, max_eval, random_steps):
+def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     new_jobs_needed = max_eval - len(jobs)
 
     if new_jobs_needed > num_parallel_jobs:
@@ -2045,7 +2031,10 @@ def main ():
                     time.sleep(10)
             initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
             with tqdm(total=max_eval, disable=False) as progress_bar:
-                while submitted_jobs < max_eval or jobs:
+                while done_jobs < max_eval or jobs:
+                    if done_jobs >= max_eval:
+                        raise trainingDone("Training done")
+
                     print_debug_linewise("==============================================================")
                     mylog("NEW ENTRY ==============================================================")
                     print_debug_linewise(f"                    while submitted_jobs ({submitted_jobs}) < max_eval ({max_eval}) or jobs ({jobs}):")
@@ -2054,10 +2043,7 @@ def main ():
 
                     # Schedule new jobs if there is availablity
                     try:
-                        if done_jobs >= max_eval:
-                            raise trainingDone("Training done")
-
-                        calculated_max_trials = get_calculcated_max_trials(args.num_parallel_jobs, max_eval, random_steps)
+                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval, random_steps)
 
                         desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
                         print_debug_progressbar(desc)

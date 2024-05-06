@@ -1881,7 +1881,7 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
             total_number_of_jobs_left = num_parallel_jobs
         needed_number_of_trials = num_parallel_jobs - current_number_of_workers
 
-    return needed_number_of_trials
+    return max(1, needed_number_of_trials)
 
 def get_generation_strategy (num_parallel_jobs, seed):
     global random_steps

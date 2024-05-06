@@ -1724,7 +1724,7 @@ def save_state_files (current_run_folder, joined_run_program, experiment_name, m
 
 def check_python_version ():
     python_version = platform.python_version()
-    supported_versions = ["3.11.2", "3.10.4"]
+    supported_versions = ["3.10.4", "3.11.2", "3.11.9"]
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 

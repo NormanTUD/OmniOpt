@@ -1754,7 +1754,7 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
-        progressbar_description([f"starting new job ({trial_counter + 1}/{len(trial_index_to_param.items())}, requested: {calculated_max_trials})"])
+        progressbar_description([f"starting new job ({trial_counter + 1}/{calculated_max_trials})"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs += 1

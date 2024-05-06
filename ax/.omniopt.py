@@ -1873,7 +1873,7 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval):
 
     return max(1, needed_number_of_trials)
 
-def get_generation_strategy (num_parallel_jobs, seed):
+def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     global random_steps
 
     """ 
@@ -1907,8 +1907,6 @@ def get_generation_strategy (num_parallel_jobs, seed):
 
     """
 
-
-
     gs = GenerationStrategy(
         steps=[
             # 1. Initialization step (does not require pre-existing data and is well-suited for
@@ -1916,7 +1914,8 @@ def get_generation_strategy (num_parallel_jobs, seed):
 
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=random_steps,
+                num_trials=max_eval,
+                min_trials_observed=random_steps,
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
                 model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
@@ -1925,7 +1924,7 @@ def get_generation_strategy (num_parallel_jobs, seed):
             # from all data available at the time of each new candidate generation call)
             GenerationStep(
                 model=Models.BOTORCH_MODULAR,
-                num_trials=-1,  # No limitation on how many trials should be produced from this step
+                num_trials=args.max_eval,  # No limitation on how many trials should be produced from this step
                 max_parallelism=num_parallel_jobs,  # Parallelism limit for this step, often lower than for Sobol
                 #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
                 model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
@@ -2066,7 +2065,7 @@ def main ():
         global second_step_steps
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
-        gs = get_generation_strategy(args.num_parallel_jobs, args.seed)
+        gs = get_generation_strategy(args.num_parallel_jobs, args.seed, args.max_eval)
 
         ax_client = AxClient(
             verbose_logging=args.verbose,

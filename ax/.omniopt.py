@@ -1851,8 +1851,6 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     return trial_index_to_param
 
-    return None
-
 def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     global submitted_jobs
 

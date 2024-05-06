@@ -2205,7 +2205,7 @@ def main ():
                         progressbar_description([], True)
 
                         finish_previous_jobs(args, ["finishing previous jobs"])
-                        if done_jobs > random_steps:
+                        if done_jobs <= random_steps:
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
                         else:
                             calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)

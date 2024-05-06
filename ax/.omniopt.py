@@ -2139,16 +2139,15 @@ def main ():
 
                         progressbar_description([], True)
 
+                        jobs = finish_previous_jobs(args, ["finishing previous jobs"], True)
                         if done_jobs > random_steps:
                             _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
                             progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+                        else:
+                            calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
+                            _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
                         jobs = finish_previous_jobs(args, ["finishing previous jobs"], True)
-
-                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
-                        _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
-                        jobs = finish_previous_jobs(args, ["finishing previous jobs"], True)
-
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")

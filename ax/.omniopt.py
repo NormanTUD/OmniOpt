@@ -1792,6 +1792,35 @@ def get_calculcated_max_trials(num_parallel_jobs, max_eval, random_steps):
 
     return calculated_max_trials
 
+def get_generation_strategy (random_steps, num_parallel_jobs, seed):
+    gs = GenerationStrategy(
+        steps=[
+            # 1. Initialization step (does not require pre-existing data and is well-suited for
+            # initial sampling of the search space)
+
+            GenerationStep(
+                model=Models.SOBOL,
+                num_trials=random_steps,
+                max_parallelism=num_parallel_jobs,  # Max parallelism for this step
+                model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
+                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+            ),
+            # 2. Bayesian optimization step (requires data obtained from previous phase and learns
+            # from all data available at the time of each new candidate generation call)
+            GenerationStep(
+                model=Models.BOTORCH_MODULAR,
+                num_trials=-1,  # No limitation on how many trials should be produced from this step
+                max_parallelism=num_parallel_jobs,  # Parallelism limit for this step, often lower than for Sobol
+                #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
+                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+                # More on parallelism vs. required samples in BayesOpt:
+                # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+            ),
+        ]
+    )
+
+    return gs
+
 def main ():
     print_debug("main")
     global args
@@ -1883,31 +1912,7 @@ def main ():
         if second_step_steps != original_second_steps:
             print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
 
-        gs = GenerationStrategy(
-            steps=[
-                # 1. Initialization step (does not require pre-existing data and is well-suited for
-                # initial sampling of the search space)
-
-                GenerationStep(
-                    model=Models.SOBOL,
-                    num_trials=random_steps,
-                    max_parallelism=args.num_parallel_jobs,  # Max parallelism for this step
-                    model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
-                    model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
-                ),
-                # 2. Bayesian optimization step (requires data obtained from previous phase and learns
-                # from all data available at the time of each new candidate generation call)
-                GenerationStep(
-                    model=Models.BOTORCH_MODULAR,
-                    num_trials=-1,  # No limitation on how many trials should be produced from this step
-                    max_parallelism=args.num_parallel_jobs,  # Parallelism limit for this step, often lower than for Sobol
-                    #model_kwargs={"seed": args.seed},  # Any kwargs you want passed into the model
-                    model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
-                    # More on parallelism vs. required samples in BayesOpt:
-                    # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
-                ),
-            ]
-        )
+        gs = get_generation_strategy(random_steps, args.num_parallel_jobs, args.seed)
 
         ax_client = AxClient(
             verbose_logging=args.verbose,

@@ -2039,7 +2039,7 @@ def main ():
                     time.sleep(10)
             initial_text = get_desc_progress_text(result_csv_file, searching_for, random_steps, [])
             with tqdm(total=max_eval, disable=False) as progress_bar:
-                while done_jobs < max_eval or jobs:
+                while submitted_jobs < max_eval or jobs:
                     if done_jobs >= max_eval:
                         raise trainingDone("Training done")
 

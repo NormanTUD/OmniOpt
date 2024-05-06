@@ -1530,7 +1530,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs):
+def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_for, random_steps, new_msgs, force_new_sq):
     print_debug("finish_previous_jobs")
 
     global ax_client
@@ -1608,13 +1608,13 @@ def finish_previous_jobs (args, progress_bar, jobs, result_csv_file, searching_f
             progress_bar.update(1)
 
             if args.verbose:
-                desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"])
+                desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, ["Saving checkpoints and pd.csv"], force_new_sq)
                 print_debug_progressbar(desc)
                 progress_bar.set_description(desc)
             save_checkpoint()
             save_pd_csv()
 
-    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs, force_new_sq)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
 
@@ -2101,7 +2101,7 @@ def main ():
                         print_debug_progressbar(desc)
                         progress_bar.set_description(desc)
 
-                        jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, [])
+                        jobs = finish_previous_jobs(args, progress_bar, jobs, result_csv_file, searching_for, random_steps, ["finishing previous jobs"], True)
 
                         _k, trial_index_to_param = create_and_execute_next_runs(ax_client, calculated_max_trials, progress_bar, searching_for, random_steps, _k, executor)
 

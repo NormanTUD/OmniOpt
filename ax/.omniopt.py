@@ -1818,7 +1818,7 @@ def _get_next_trials (ax_client, calculated_max_trials, progress_bar, searching_
         else:
             new_msgs.append(f"try: _get_next_trials {calculated_max_trials} (no sbatch)")
 
-    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs)
+    desc = get_desc_progress_text(result_csv_file, searching_for, random_steps, new_msgs, True)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
 

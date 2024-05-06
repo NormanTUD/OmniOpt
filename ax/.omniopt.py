@@ -1634,7 +1634,7 @@ def get_desc_progress_text (result_csv_file, searching_for, random_steps, new_ms
     if failed_jobs:
         in_brackets.append(f"failed: {failed_jobs}")
 
-    if random_steps > done_jobs:
+    if random_steps > submitted_jobs:
         in_brackets.append(f"random phase ({abs(done_jobs - random_steps)} left)")
 
     best_params = None
@@ -1855,7 +1855,7 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
 
     current_number_of_workers = get_number_of_current_workers(True)
 
-    if is_in_sobol_phase and needed_number_of_trials > num_parallel_jobs:
+    if is_in_sobol_phase:
         random_steps_left = done_jobs - random_steps
         random_workers = random_steps_left - current_number_of_workers
         possible_random_workers = random_workers % num_parallel_jobs

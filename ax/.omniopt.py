@@ -1680,7 +1680,7 @@ def get_workers_string ():
     string = ", ".join(strings)
 
     if string:
-        string = f"(jobs: {string})"
+        string = f"[jobs: {string}]"
 
     return string
 
@@ -1886,16 +1886,16 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     if is_executable_in_path("sbatch"):
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials} [last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
         else:
             new_msgs.append(f"_get_next_trials {calculated_max_trials}")
     else:
         calculated_max_trials = 1
 
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials} [no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
         else:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials} (no sbatch)")
+            new_msgs.append(f"_get_next_trials {calculated_max_trials} [no sbatch]")
 
     progressbar_description(new_msgs, True)
 

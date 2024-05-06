@@ -2166,6 +2166,7 @@ def main ():
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
+                print(f"Starting random search for {random_steps} steps")
                 while done_jobs < random_steps or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:
@@ -2193,6 +2194,7 @@ def main ():
 
                     _sleep(args, 0.1)
 
+                print(f"Starting systematic search for {max_eval - random_steps} steps")
                 while done_jobs < (max_eval - random_steps) or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:

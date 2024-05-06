@@ -2105,7 +2105,7 @@ def main ():
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while get_number_of_current_workers(True) > args.num_parallel_jobs:
                             time.sleep(10)
-                    if done_jobs >= max_eval:
+                    if done_jobs >= max_eval or submitted_jobs >= max_eval:
                         raise searchDone("Search done")
 
                     print_debug_linewise("==============================================================")

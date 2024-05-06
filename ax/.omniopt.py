@@ -2129,9 +2129,9 @@ def main ():
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:
-                        print_color("red", f"Error: {e}")
+                        print_color("red", f"Error 1: {e}")
                     except ax.exceptions.core.DataRequiredError as e:
-                        print_color("red", f"Error: {e}")
+                        print_color("red", f"Error 2: {e}")
 
                     _sleep(args, 0.1)
         end_program(result_csv_file)

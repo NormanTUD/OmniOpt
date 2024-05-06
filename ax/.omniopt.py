@@ -1603,6 +1603,8 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
                     job.cancel()
 
                 failed_jobs += 1
+
+                jobs.remove((job, trial_index))
             except ax.exceptions.core.UserInputError as error:
                 if "None for metric" in str(error):
                     print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
@@ -1619,7 +1621,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
 
                 failed_jobs += 1
 
-            jobs.remove((job, trial_index))
+                jobs.remove((job, trial_index))
 
             progress_bar.update(1)
 

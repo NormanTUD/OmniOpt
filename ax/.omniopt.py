@@ -1635,23 +1635,29 @@ def get_workers_string ():
 
     string = None
 
-    try:
-        strings = []
+    strings = []
 
-        stats = {}
+    stats = {}
 
-        for job in jobs:
-            if not job.state in stat:
-                stat[job.state] = 0
-            stat[job.state] += 1
+    for job in jobs:
+        job_string = f'{job}'
+        match = re.search(r'state="([^"]+)"', job_string)
 
-        for key in stats.keys():
-            strings.append(f"key.lower = {stats[key]}")
+        state = None
 
-        string = ", ".join(strings)
-    except Exception as e:
-        print(e)
-        pass
+        if match:
+            state = match.group(1).lower()
+        else:
+            state = f"unknown ({state})"
+
+        if not state in stats.keys():
+            stats[state] = 0
+        stats[state] += 1
+
+    for key in stats.keys():
+        strings.append(f"key.lower = {stats[key]}")
+
+    string = ", ".join(strings)
 
     return string
 
@@ -1832,8 +1838,9 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print_color("red", f"\n:warning: Detected signal. Will exit.")
         end_program(result_csv_file)
     except Exception as e:
-        print_color("red", f"\n:warning: Starting job failed with error: {e}")
-    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
 
     finish_previous_jobs(args, ["finishing last remaining jobs"], True)

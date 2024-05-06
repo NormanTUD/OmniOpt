@@ -1569,7 +1569,6 @@ def finish_previous_jobs (args, new_msgs, force_new_sq):
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
-                print(f"result: {result}")
                 result = result["result"]
                 print_debug(f"Got job result: {result}")
                 if result != val_if_nothing_found:
@@ -2178,10 +2177,10 @@ def main ():
 
                         progressbar_description([], True)
 
-                        if done_jobs < random_steps:
-                            _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
-                            if nr_of_items_random:
-                                progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+                        print_debug(f"if done_jobs ({done_jobs}) <= random_steps ({random_steps}):")
+                        _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
+                        if nr_of_items_random:
+                            progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
 
                         calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                         _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
@@ -2206,14 +2205,12 @@ def main ():
 
                         finish_previous_jobs(args, ["finishing previous jobs"])
 
-                        if done_jobs <= random_steps:
-                            print(f"if done_jobs ({done_jobs}) <= random_steps ({random_steps}):")
-                            _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, min(0, min(args.num_parallel_jobs, args.num_parallel_jobs - len(jobs), random_steps)), _k, executor)
-                        else:
-                            calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
-                            _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
+                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
+                        _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
+
+                        finish_previous_jobs(args, ["finishing previous jobs"])
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")
                     except ax.exceptions.core.DataRequiredError as e:

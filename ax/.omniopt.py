@@ -1533,21 +1533,22 @@ def check_equation (variables, equation):
 
     return equation
 
-def progressbar_description (new_msgs, force_new_sq=False):
+def progressbar_description (new_msgs=[], force_new_sq=False):
     global result_csv_file
     global random_steps
     global searching_for
     global progress_bar
 
-    desc = get_desc_progress_text(result_csv_file, new_msgs, force_new_sq)
+    desc = get_desc_progress_text(new_msgs, force_new_sq)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
 
-def finish_previous_jobs (args, jobs, result_csv_file, random_steps, new_msgs, force_new_sq):
+def finish_previous_jobs (args, result_csv_file, random_steps, new_msgs, force_new_sq):
     print_debug("finish_previous_jobs")
 
     log_nr_of_workers(True)
 
+    global jobs
     global ax_client
     global done_jobs
     global failed_jobs
@@ -1627,7 +1628,8 @@ def finish_previous_jobs (args, jobs, result_csv_file, random_steps, new_msgs, f
 
     return jobs
 
-def get_desc_progress_text (result_csv_file, new_msgs, force_new_sq=False):
+def get_desc_progress_text (new_msgs=[], force_new_sq=False):
+    global result_csv_file
     global done_jobs
     global failed_jobs
     global worker_percentage_usage
@@ -1803,7 +1805,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     except Exception as e:
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
 
-    jobs = finish_previous_jobs(args, jobs, result_csv_file, random_steps, ["finishing previous jobs"], True)
+    jobs = finish_previous_jobs(args, result_csv_file, random_steps, ["finishing previous jobs"], True)
 
     return trial_counter
 
@@ -2093,7 +2095,7 @@ def main ():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            initial_text = get_desc_progress_text(result_csv_file, [])
+            initial_text = get_desc_progress_text()
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
@@ -2135,9 +2137,11 @@ def main ():
 
                         _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, random_steps, _k, executor)
                         progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+                        jobs = finish_previous_jobs(args, result_csv_file, random_steps, ["finishing previous jobs"], True)
 
                         calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                         _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
+                        jobs = finish_previous_jobs(args, result_csv_file, random_steps, ["finishing previous jobs"], True)
 
                         progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
                     except botorch.exceptions.errors.InputDataError as e:

@@ -1976,7 +1976,13 @@ def create_and_execute_next_runs (ax_client, calculated_max_trials, _k, executor
         end_program(result_csv_file)
     _k += 1
 
-    return _k, len(trial_index_to_param.keys())
+    num_new_keys = 0
+    try:
+        num_new_keys = len(trial_index_to_param.keys())
+    except:
+        pass
+
+    return _k, num_new_keys
 
 def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps

@@ -2195,6 +2195,9 @@ def main ():
 
                     _sleep(args, 0.1)
 
+                while len(jobs):
+                    _sleep(args, 1)
+
                 print(f"Starting systematic search for {max_eval - random_steps} steps")
                 while done_jobs < (max_eval - random_steps) or jobs:
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):

@@ -1792,8 +1792,6 @@ def get_calculcated_max_trials(num_parallel_jobs, max_eval, random_steps):
 
     return calculated_max_trials
 
-
-
 def main ():
     print_debug("main")
     global args

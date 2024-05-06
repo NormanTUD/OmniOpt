@@ -1846,7 +1846,7 @@ def get_calculated_max_trials(num_parallel_jobs, max_eval, random_steps):
     global submitted_jobs
 
     is_in_sobol_phase = False
-    if submitted_jobs < random_steps:
+    if submitted_jobs < (random_steps + 1):
         is_in_sobol_phase = True
 
     total_number_of_jobs_left = max_eval - submitted_jobs

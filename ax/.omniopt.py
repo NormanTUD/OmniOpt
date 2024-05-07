@@ -2001,7 +2001,14 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
 
         trial_counter = 0
 
-        trial_index_to_param = _get_next_trials(ax_client, next_nr_steps, random_steps)
+        try:
+            trial_index_to_param = _get_next_trials(ax_client, next_nr_steps, random_steps)
+        except botorch.exceptions.errors.InputDataError as e:
+            print_color("red", f"Error 1: {e}")
+            return 0
+        except ax.exceptions.core.DataRequiredError as e:
+            print_color("red", f"Error 2: {e}")
+            return 0
 
         for trial_index, parameters in trial_index_to_param.items():
             trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, next_nr_steps)
@@ -2232,21 +2239,16 @@ def main ():
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
 
-                    try:
-                        progressbar_description([], True)
+                    progressbar_description([], True)
 
-                        finish_previous_jobs(args, ["finishing previous jobs"])
+                    finish_previous_jobs(args, ["finishing previous jobs"])
 
-                        next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
-                        nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
+                    next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
+                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
-                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"], True)
+                    progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"], True)
 
-                        finish_previous_jobs(args, ["finishing previous jobs"])
-                    except botorch.exceptions.errors.InputDataError as e:
-                        print_color("red", f"Error 1: {e}")
-                    except ax.exceptions.core.DataRequiredError as e:
-                        print_color("red", f"Error 2: {e}")
+                    finish_previous_jobs(args, ["finishing previous jobs"])
 
                     _sleep(args, 1)
 

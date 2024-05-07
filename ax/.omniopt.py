@@ -1565,10 +1565,11 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
+                raw_result = result
                 result = result["result"]
                 print_debug(f"Got job result: {result}")
                 if result != val_if_nothing_found:
-                    ax_client.complete_trial(trial_index=trial_index, raw_data=result)
+                    ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
                     done_jobs(1)
 

@@ -52,7 +52,6 @@ already_shown_worker_usage_over_time = False
 ax_client = None
 time_get_next_trials_took = []
 done_jobs = 0
-failed_jobs = 0
 progress_plot = []
 worker_percentage_usage = []
 jobs = []
@@ -66,7 +65,6 @@ result_csv_file = None
 shown_end_table = False
 max_eval = None
 _time = None
-submitted_jobs = 0
 mem_gb = None
 random_steps = None
 progress_bar = None
@@ -1559,8 +1557,6 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
     global random_steps
     global jobs
     global ax_client
-    global done_jobs
-    global failed_jobs
     global progress_bar
     
     for job, trial_index in jobs[:]:
@@ -1574,7 +1570,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
                 if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=result)
 
-                    done_jobs += 1
+                    done_jobs(1)
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
@@ -1592,7 +1588,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
                             print(f"ERROR in line {getLineInfo()}: {e}")
                         job.cancel()
 
-                    failed_jobs += 1
+                    failed_jobs(1)
 
                 jobs.remove((job, trial_index))
             except submitit.core.utils.UncompletedJobError as error:
@@ -1607,7 +1603,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
 
-                failed_jobs += 1
+                failed_jobs(1)
 
                 jobs.remove((job, trial_index))
             except ax.exceptions.core.UserInputError as error:
@@ -1624,7 +1620,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
 
-                failed_jobs += 1
+                failed_jobs(1)
 
                 jobs.remove((job, trial_index))
 
@@ -1685,29 +1681,26 @@ def get_workers_string ():
 
 def get_desc_progress_text (new_msgs=[], force_new_sq=False):
     global result_csv_file
-    global done_jobs
-    global failed_jobs
     global worker_percentage_usage
     global progress_plot
     global random_steps
-    global submitted_jobs
 
     desc = f"Searching {searching_for}"
     
     in_brackets = []
 
-    #print(f"failed jobs: {failed_jobs}")
-    if failed_jobs:
-        in_brackets.append(f"failed: {failed_jobs}")
+    #print(f"failed jobs: {failed_jobs()}")
+    if failed_jobs():
+        in_brackets.append(f"failed: {failed_jobs()}")
 
-    if random_steps and random_steps > submitted_jobs:
-        in_brackets.append(f"random phase ({abs(done_jobs - random_steps)} left)")
+    if random_steps and random_steps > submitted_jobs():
+        in_brackets.append(f"random phase ({abs(done_jobs() - random_steps)} left)")
 
     best_params = None
 
     this_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    if done_jobs:
+    if done_jobs():
         best_params = get_best_params(result_csv_file, "result")
         best_result = best_params["result"]
         if type(best_result) == float or type(best_result) == int or looks_like_float(best_result):
@@ -1716,7 +1709,7 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
             if str(best_result) != NO_RESULT and best_result is not None:
                 in_brackets.append(f"best result: {best_result_int_if_possible}")
 
-            in_brackets.append(f"done: {done_jobs}")
+            in_brackets.append(f"done: {done_jobs()}")
 
             this_progress_values = {
                 "best_result": str(best_result_int_if_possible),
@@ -1802,7 +1795,6 @@ def check_python_version ():
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials):
-    global submitted_jobs
     global jobs
     global progress_bar
 
@@ -1819,7 +1811,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         progressbar_description([f"starting new job ({trial_counter + 1}/{calculated_max_trials})"])
 
         new_job = executor.submit(evaluate, parameters)
-        submitted_jobs += 1
+        submitted_jobs(1)
 
         jobs.append((new_job, trial_index))
         _sleep(args, 1)
@@ -1923,13 +1915,12 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
     return trial_index_to_param
 
 def get_calculated_max_trials(num_parallel_jobs, max_eval):
-    global submitted_jobs
     global jobs
 
     if not is_executable_in_path("sbatch"):
         return 1
 
-    total_number_of_jobs_left = max_eval - submitted_jobs
+    total_number_of_jobs_left = max_eval - submitted_jobs()
 
     needed_number_of_trials = max(1, min(num_parallel_jobs, total_number_of_jobs_left))
 
@@ -2006,7 +1997,6 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
 def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, executor):
     global random_steps
-    global done_jobs
 
     if calculated_max_trials == 0:
         return _k, 0
@@ -2022,9 +2012,9 @@ def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, ex
         for trial_index, parameters in trial_index_to_param.items():
             trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
 
-        random_steps_left = done_jobs - random_steps
+        random_steps_left = done_jobs() - random_steps
 
-        if random_steps_left <= 0 and done_jobs <= random_steps:
+        if random_steps_left <= 0 and done_jobs() <= random_steps:
             return _k, len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_color("red", "\n:warning: " + str(e))
@@ -2088,6 +2078,34 @@ def get_executor(args):
 
     return executor
 
+def append_and_read (file, zahl=0):
+    try:
+        with open(file, 'a+') as f:
+            f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
+            anzahl_zeilen = len(f.readlines())
+
+            # Wenn zahl == 1, Zeile mit 1 hinzufügen
+            if zahl == 1:
+                f.write('1\n')
+
+        return anzahl_zeilen
+
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+    except Exception as e:
+        print(f"Error editing the file: {e}")
+
+    return 0
+
+def failed_jobs (nr=0):
+    return append_and_read(f"{current_run_folder}/failed_jobs", nr)
+
+def submitted_jobs (nr=0):
+    return append_and_read(f"{current_run_folder}/submitted_jobs", nr)
+
+def done_jobs (nr=0):
+    return append_and_read(f"{current_run_folder}/done_jobs", nr)
+
 def main ():
     print_debug("main")
     global args
@@ -2096,7 +2114,6 @@ def main ():
     global result_csv_file
     global current_run_folder
     global ax_client
-    global done_jobs
     global jobs
 
     check_slurm_job_id()
@@ -2155,7 +2172,6 @@ def main ():
 
         executor = get_executor(args)
 
-        submitted_jobs = 0
         # Run until all the jobs have finished and our budget is used up.
 
         global searching_for
@@ -2171,16 +2187,16 @@ def main ():
                 global progress_bar
                 progress_bar = _progress_bar
                 print(f"Starting random search for {random_steps} steps")
-                while done_jobs < random_steps or jobs:
-                    print(f"done_jobs: {done_jobs}")
+                while done_jobs() < random_steps or jobs:
+                    print(f"done_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
-                    if done_jobs >= max_eval or submitted_jobs >= max_eval:
+                    if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
 
-                    if submitted_jobs >= random_steps or len(jobs) == random_steps:
+                    if submitted_jobs() >= random_steps or len(jobs) == random_steps:
                         break
 
                     try:
@@ -2209,13 +2225,13 @@ def main ():
                     _sleep(args, 1)
 
                 print(f"Starting systematic search for {max_eval - random_steps} steps")
-                while done_jobs < (max_eval - random_steps) or jobs:
-                    print(f"done_jobs: {done_jobs}")
+                while done_jobs() < (max_eval - random_steps) or jobs:
+                    print(f"done_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
-                    if done_jobs >= max_eval or submitted_jobs >= max_eval:
+                    if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
 
                     try:

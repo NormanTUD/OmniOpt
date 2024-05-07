@@ -1983,7 +1983,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     # from all data available at the time of each new candidate generation call)
     _steps.append(GenerationStep(
         model=Models.BOTORCH_MODULAR,
-        num_trials=args.max_eval,  # No limitation on how many trials should be produced from this step
+        num_trials=max(max_eval, num_parallel_jobs - len(jobs)),  # No limitation on how many trials should be produced from this step
         max_parallelism=num_parallel_jobs,  # Max parallelism for this step
         #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
         model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`

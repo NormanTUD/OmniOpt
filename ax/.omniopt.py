@@ -2228,7 +2228,7 @@ def main ():
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < max_eval or jobs:
-                    print(f"done_jobs(): {done_jobs()}")
+                    print(f"\ndone_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:

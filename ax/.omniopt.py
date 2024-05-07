@@ -2226,7 +2226,7 @@ def main ():
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
-                while done_jobs() < (max_eval - random_steps) or jobs:
+                while done_jobs() < max_eval or jobs:
                     print(f"done_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
@@ -2253,6 +2253,11 @@ def main ():
 
                     clean_completed_jobs()
 
+                    _sleep(args, 1)
+
+                while len(jobs):
+                    progressbar_description([f"Waiting for jobs of the systematic phase to end [{len(jobs)} left])."], True)
+                    clean_completed_jobs()
                     _sleep(args, 1)
         end_program(result_csv_file)
     except searchDone as e:

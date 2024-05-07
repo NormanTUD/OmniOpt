@@ -2047,7 +2047,7 @@ def get_number_of_steps (args, max_eval):
         print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
     if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
-        old_random_step = random_steps
+        old_random_steps = random_steps
         random_steps = args.num_parallel_jobs
         print(f"random_steps {old_random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({args.num_parallel_jobs}) to not have idle workers..")
 

@@ -2176,10 +2176,11 @@ def main ():
             warnings.simplefilter("ignore")
 
             initial_text = get_desc_progress_text()
+            if random_steps:
+                print(f"\nStarting random search for {random_steps} steps")
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
-                print(f"\nStarting random search for {random_steps} steps")
                 while done_jobs() < random_steps or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
 

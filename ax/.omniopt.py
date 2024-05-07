@@ -1791,7 +1791,7 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials):
+def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, next_nr_steps):
     global jobs
     global progress_bar
 
@@ -1805,7 +1805,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
-        progressbar_description([f"starting new job [{trial_counter + 1}/{calculated_max_trials}]"])
+        progressbar_description([f"starting new job [{trial_counter + 1}/{next_nr_steps}]"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs(1)
@@ -1819,7 +1819,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             pass
         trial_counter += 1
 
-        progressbar_description([f"started new job ({trial_counter}/{calculated_max_trials})"], True)
+        progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"], True)
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1859,7 +1859,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
+def _get_next_trials (ax_client, next_nr_steps, random_steps):
     global time_get_next_trials_took
 
     last_ax_client_time = None
@@ -1872,16 +1872,16 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     if is_executable_in_path("sbatch"):
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials} [last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
+            new_msgs.append(f"_get_next_trials {next_nr_steps} [last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
         else:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials}")
+            new_msgs.append(f"_get_next_trials {next_nr_steps}")
     else:
-        calculated_max_trials = 1
+        next_nr_steps = 1
 
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials} [no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
+            new_msgs.append(f"_get_next_trials {next_nr_steps} [no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
         else:
-            new_msgs.append(f"_get_next_trials {calculated_max_trials} [no sbatch]")
+            new_msgs.append(f"_get_next_trials {next_nr_steps} [no sbatch]")
 
     progressbar_description(new_msgs, True)
 
@@ -1889,7 +1889,7 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     get_next_trials_time_start = time.time()
     trial_index_to_param, _ = ax_client.get_next_trials(
-        max_trials=calculated_max_trials
+        max_trials=next_nr_steps
     )
     get_next_trials_time_end = time.time()
 
@@ -1897,17 +1897,9 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
 
     time_get_next_trials_took.append(_ax_took)
 
-    """
-    if len(trial_index_to_param.items()) == 0:
-        print_debug(f"!!! Got 0 new items from ax_client.get_next_trials !!!")
-        if _k == 0:
-            print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
-            sys.exit(130)
-    """
-
     return trial_index_to_param
 
-def get_calculated_max_trials(num_parallel_jobs, max_eval):
+def get_next_nr_steps(num_parallel_jobs, max_eval):
     global jobs
 
     if not is_executable_in_path("sbatch"):
@@ -1997,11 +1989,11 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, executor):
+def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
     global random_steps
 
-    if calculated_max_trials == 0:
-        return _k, 0
+    if next_nr_steps == 0:
+        return 0
 
     trial_index_to_param = None
     try:
@@ -2009,15 +2001,15 @@ def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, ex
 
         trial_counter = 0
 
-        trial_index_to_param = _get_next_trials(ax_client, calculated_max_trials, random_steps, _k)
+        trial_index_to_param = _get_next_trials(ax_client, next_nr_steps, random_steps)
 
         for trial_index, parameters in trial_index_to_param.items():
-            trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, calculated_max_trials)
+            trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, next_nr_steps)
 
         random_steps_left = done_jobs() - random_steps
 
         if random_steps_left <= 0 and done_jobs() <= random_steps:
-            return _k, len(trial_index_to_param.keys())
+            return len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_color("red", "\n:warning: " + str(e))
     except (
@@ -2028,7 +2020,6 @@ def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, ex
     ) as e:
         print_color("red", "\n:warning: " + str(e))
         end_program(result_csv_file)
-    _k += 1
 
     num_new_keys = 0
     try:
@@ -2036,7 +2027,7 @@ def create_and_execute_next_runs (args, ax_client, calculated_max_trials, _k, ex
     except:
         pass
 
-    return _k, num_new_keys
+    return num_new_keys
 
 def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps
@@ -2185,8 +2176,6 @@ def main ():
         global searching_for
         searching_for = "min." if not args.maximize else "max."
 
-        _k = 0
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
@@ -2213,7 +2202,7 @@ def main ():
 
                         steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
 
-                        _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, _k, executor)
+                        nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
                         if nr_of_items_random:
                             progressbar_description([f"random phase: got {nr_of_items_random} random, requested {random_steps}"], True)
 
@@ -2248,10 +2237,10 @@ def main ():
 
                         finish_previous_jobs(args, ["finishing previous jobs"])
 
-                        calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
-                        _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
+                        next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
+                        nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
-                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {calculated_max_trials}"], True)
+                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"], True)
 
                         finish_previous_jobs(args, ["finishing previous jobs"])
                     except botorch.exceptions.errors.InputDataError as e:

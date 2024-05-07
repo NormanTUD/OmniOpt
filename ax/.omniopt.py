@@ -1659,8 +1659,6 @@ def state_from_job (job):
 def get_workers_string ():
     global jobs
 
-    clean_completed_jobs()
-
     string = None
 
     strings = []
@@ -1870,8 +1868,6 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
     global time_get_next_trials_took
 
-    clean_completed_jobs()
-
     last_ax_client_time = None
     ax_client_time_avg = None
     if len(time_get_next_trials_took):
@@ -1914,8 +1910,6 @@ def _get_next_trials (ax_client, calculated_max_trials, random_steps, _k):
             print_color("orange", "It seems like your search space is exhausted. You may never get results. Thus, the program will end now without results. This may happen to a continued run on a limited hyperparameter space.")
             sys.exit(130)
     """
-
-    clean_completed_jobs()
 
     return trial_index_to_param
 
@@ -2254,8 +2248,6 @@ def main ():
                         print_color("red", f"Error 1: {e}")
                     except ax.exceptions.core.DataRequiredError as e:
                         print_color("red", f"Error 2: {e}")
-
-                    clean_completed_jobs()
 
                     _sleep(args, 1)
 

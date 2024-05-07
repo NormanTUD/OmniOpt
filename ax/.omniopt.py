@@ -70,6 +70,10 @@ random_steps = None
 progress_bar = None
 searching_for = None
 
+import uuid
+
+run_uuid = uuid.uuid4()
+
 import inspect
 def getLineInfo():
     return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
@@ -2064,6 +2068,7 @@ def get_number_of_steps (args, max_eval):
 
 def get_executor(args):
     global current_run_folder
+    global run_uuid
 
     log_folder = f"{current_run_folder}/%j"
     executor = submitit.AutoExecutor(folder=log_folder)
@@ -2071,7 +2076,7 @@ def get_executor(args):
     # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
     executor.update_parameters(
-        name=experiment_name,
+        name=f"{experiment_name}_{run_uuid}",
         timeout_min=args.worker_timeout,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,

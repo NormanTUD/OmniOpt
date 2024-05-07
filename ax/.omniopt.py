@@ -751,7 +751,7 @@ def get_result (input_string):
         return None
 
     try:
-        pattern = r'^\s*RESULT:\s*(-?\d+(?:\.\d+)?)'
+        pattern = r'\s*RESULT:\s*(-?\d+(?:\.\d+)?)'
 
         match = re.search(pattern, input_string)
 

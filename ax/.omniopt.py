@@ -2252,7 +2252,7 @@ def main ():
                     _sleep(args, 1)
 
                 while len(jobs):
-                    finish_previous_jobs(args, ["Waiting for jobs of the systematic phase to end [{len(jobs)} left]"])
+                    finish_previous_jobs(args, [f"Waiting for jobs of the systematic phase to end [{len(jobs)} left]"])
                     _sleep(args, 1)
         end_program(result_csv_file)
     except searchDone as e:

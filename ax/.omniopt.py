@@ -1559,19 +1559,19 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
     global ax_client
     global progress_bar
 
-    print("jobs in finish_previous_jobs:")
-    print(jobs)
+    #print("jobs in finish_previous_jobs:")
+    #print(jobs)
     
     for job, trial_index in jobs[:]:
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
         if job.done() or type(job) in [LocalJob, DebugJob]:
-            print(job.result())
+            #print(job.result())
             try:
                 result = job.result()
                 raw_result = result
                 result = result["result"]
-                print_debug(f"Got job result: {result}")
+                #print_debug(f"Got job result: {result}")
                 if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 

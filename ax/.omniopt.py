@@ -2219,8 +2219,8 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    progressbar_description([f"Waiting for jobs of the random phase to end [{len(jobs)} left])."], True)
-                    clean_completed_jobs()
+                    progressbar_description([f")."], True)
+                    finish_previous_jobs(args, ["Waiting for jobs of the random phase to end [{len(jobs)} left]"])
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
@@ -2252,8 +2252,7 @@ def main ():
                     _sleep(args, 1)
 
                 while len(jobs):
-                    progressbar_description([f"Waiting for jobs of the systematic phase to end [{len(jobs)} left])."], True)
-                    clean_completed_jobs()
+                    finish_previous_jobs(args, ["Waiting for jobs of the systematic phase to end [{len(jobs)} left]"])
                     _sleep(args, 1)
         end_program(result_csv_file)
     except searchDone as e:

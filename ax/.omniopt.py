@@ -1563,6 +1563,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
         if job.done() or type(job) in [LocalJob, DebugJob]:
+            print(job.result())
             try:
                 result = job.result()
                 raw_result = result

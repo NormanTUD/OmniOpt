@@ -2151,6 +2151,7 @@ def main ():
     try:
         global random_steps
         global second_step_steps
+
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
         gs = get_generation_strategy(args.num_parallel_jobs, args.seed, args.max_eval)
@@ -2225,7 +2226,7 @@ def main ():
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
-                while done_jobs() < max_eval or jobs:
+                while done_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):

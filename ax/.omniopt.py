@@ -2042,6 +2042,9 @@ def get_number_of_steps (args, max_eval):
 
     if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
         print(f"random_steps {random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. That means: during the initialization phase, you will have less workers than you entered.")
+    
+    if random_steps > max_eval:
+        max_eval = random_steps
 
     original_second_steps = max_eval - random_steps
     second_step_steps = max(0, original_second_steps)

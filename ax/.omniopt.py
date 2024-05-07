@@ -1966,8 +1966,8 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=min(max_eval, random_steps),
-                min_trials_observed=random_steps,
+                num_trials=max(args.num_parallel_jobs, random_steps),
+                min_trials_observed=min(max_eval, random_steps),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
                 model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`

@@ -373,7 +373,6 @@ def print_debug (msg):
 
     _debug(msg)
 
-
 def print_debug_linewise (msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
@@ -631,7 +630,6 @@ def parse_experiment_parameters(args):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}")
                         sys.exit(38)
 
-
                 param = {
                     "name": name,
                     "type": param_type,
@@ -717,7 +715,6 @@ def execute_bash_code(code):
         if real_exit_code < 0:
             signal_code = abs(result.returncode)
             real_exit_code = 1
-
 
         return [result.stdout, result.stderr, real_exit_code, signal_code]
 
@@ -1204,7 +1201,6 @@ def end_program (csv_file_path, result_column="result"):
         except Exception as e:
             print(f"Error occurred while writing to errors.log: {e}")
 
-
     global end_program_ran
 
     if end_program_ran:
@@ -1513,7 +1509,6 @@ def check_equation (variables, equation):
             print_color("red", f"constraint error: Invalid item {item}")
             return False
 
-
     parsed_order_string = ";".join(parsed_order)
 
     number_or_variable = "(?:(?:number|variable);*)"
@@ -1739,7 +1734,6 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             if is_slurm_job():
                 worker_percentage_usage.append(this_values)
-
 
     workers_strings = get_workers_string()
     if workers_strings:
@@ -2187,7 +2181,7 @@ def main ():
                 progress_bar = _progress_bar
                 print(f"\nStarting random search for {random_steps} steps")
                 while done_jobs() < random_steps or jobs:
-                    print(f"\ndone_jobs(): {done_jobs()}")
+                    #print(f"\ndone_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:
@@ -2225,7 +2219,7 @@ def main ():
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < max_eval or jobs:
-                    print(f"\ndone_jobs(): {done_jobs()}")
+                    #print(f"\ndone_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:

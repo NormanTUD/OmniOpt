@@ -1722,7 +1722,7 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
         if nr_current_workers:
-            in_brackets.append(f"workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
+            in_brackets.append(f"workers: {nr_current_workers} [{percentage}% of max {max_nr_jobs}]")
 
         this_values = {
             "nr_current_workers": nr_current_workers,
@@ -1805,7 +1805,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
-        progressbar_description([f"starting new job ({trial_counter + 1}/{calculated_max_trials})"])
+        progressbar_description([f"starting new job [{trial_counter + 1}/{calculated_max_trials}]"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs(1)

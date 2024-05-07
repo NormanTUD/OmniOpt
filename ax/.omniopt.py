@@ -2213,7 +2213,10 @@ def main ():
 
                         _k, nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, _k, executor)
                         if nr_of_items_random:
-                            progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"], True)
+                            progressbar_description([f"random phase: got {nr_of_items_random} random, requested {random_steps}"], True)
+
+                        if nr_of_items == 0:
+                            break
 
                         calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                         _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
@@ -2249,7 +2252,7 @@ def main ():
                         calculated_max_trials = get_calculated_max_trials(args.num_parallel_jobs, max_eval)
                         _k, nr_of_items = create_and_execute_next_runs(args, ax_client, calculated_max_trials, _k, executor)
 
-                        progressbar_description([f"got {nr_of_items}, requested {calculated_max_trials}"], True)
+                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {calculated_max_trials}"], True)
 
                         finish_previous_jobs(args, ["finishing previous jobs"])
                     except botorch.exceptions.errors.InputDataError as e:

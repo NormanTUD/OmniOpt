@@ -1961,6 +1961,9 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     _steps = []
 
+    if random_steps is None:
+        random_steps = 0
+
     if random_steps:
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)

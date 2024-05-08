@@ -2030,6 +2030,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
                 progressbar_description([f"got parameter set [{i}/{next_nr_steps}]"])
 
                 for trial_index, parameters in trial_index_to_param.items():
+                    progressbar_description([f"starting parameter set [{i}/{next_nr_steps}]"])
                     execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")

@@ -1541,6 +1541,7 @@ def progressbar_description (new_msgs=[]):
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
+    progress_bar.refresh()
 
 def clean_completed_jobs ():
     global jobs

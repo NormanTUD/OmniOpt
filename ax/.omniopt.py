@@ -1551,7 +1551,7 @@ def clean_completed_jobs ():
 def finish_previous_jobs (args, new_msgs, force_new_sq=False):
     print_debug("finish_previous_jobs")
 
-    log_nr_of_workers(True)
+    log_nr_of_workers()
 
     global result_csv_file
     global random_steps
@@ -1639,7 +1639,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
             pass
 
     progressbar_description(new_msgs, force_new_sq)
-    log_nr_of_workers(True)
+    log_nr_of_workers()
 
     clean_completed_jobs()
 
@@ -1796,9 +1796,11 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, next_nr_steps):
+def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps):
     global jobs
     global progress_bar
+
+    log_nr_of_workers()
 
     _trial = ax_client.get_trial(trial_index)
 
@@ -2016,7 +2018,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             return 0
 
         for trial_index, parameters in trial_index_to_param.items():
-            trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, random_steps, next_nr_steps)
+            trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps)
 
         random_steps_left = done_jobs() - random_steps
 
@@ -2199,6 +2201,7 @@ def main ():
                 global progress_bar
                 progress_bar = _progress_bar
                 while done_jobs() < random_steps or jobs:
+                    log_nr_of_workers()
                     #print(f"\ndone_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
@@ -2238,6 +2241,7 @@ def main ():
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
+                    log_nr_of_workers()
 
                     if args.allow_slurm_overload and is_executable_in_path('sbatch'):
                         while len(jobs) > args.num_parallel_jobs:
@@ -2703,7 +2707,7 @@ def get_current_workers ():
 
     return current_jobs
 
-def log_nr_of_workers (force_new=False):
+def log_nr_of_workers ():
     last_line = ""
     nr_of_workers = len(jobs)
 

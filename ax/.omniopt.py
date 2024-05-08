@@ -1575,6 +1575,8 @@ def finish_previous_jobs (args, new_msgs):
     #print("jobs in finish_previous_jobs:")
     #print(jobs)
     
+    jobs_finished = 0
+
     for job, trial_index in jobs[:]:
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
@@ -1585,6 +1587,7 @@ def finish_previous_jobs (args, new_msgs):
                 raw_result = result
                 result = result["result"]
                 #print_debug(f"Got job result: {result}")
+                jobs_finished += 1
                 if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
@@ -1622,6 +1625,7 @@ def finish_previous_jobs (args, new_msgs):
                     job.cancel()
 
                 failed_jobs(1)
+                jobs_finished += 1
 
                 jobs.remove((job, trial_index))
             except ax.exceptions.core.UserInputError as error:
@@ -1639,6 +1643,7 @@ def finish_previous_jobs (args, new_msgs):
                     job.cancel()
 
                 failed_jobs(1)
+                jobs_finished += 1
 
                 jobs.remove((job, trial_index))
 
@@ -1651,7 +1656,7 @@ def finish_previous_jobs (args, new_msgs):
         else:
             pass
 
-    progressbar_description(new_msgs)
+    progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
     log_nr_of_workers()
 
     clean_completed_jobs()
@@ -1838,7 +1843,6 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     except Exception as e:
         #print(e)
         pass
-    print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
         progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
@@ -2284,7 +2288,7 @@ def main ():
                     finish_previous_jobs(args, [f"waiting for last jobs of the random phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
 
-                all_at_once = True
+                all_at_once = False
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
@@ -2310,7 +2314,7 @@ def main ():
 
                     _sleep(args, 1)
 
-                    #all_at_once = False
+                    all_at_once = False
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])

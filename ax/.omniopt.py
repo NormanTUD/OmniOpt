@@ -1532,13 +1532,13 @@ def check_equation (variables, equation):
 
     return equation
 
-def progressbar_description (new_msgs=[], force_new_sq=False):
+def progressbar_description (new_msgs=[]):
     global result_csv_file
     global random_steps
     global searching_for
     global progress_bar
 
-    desc = get_desc_progress_text(new_msgs, force_new_sq)
+    desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
 
@@ -1548,7 +1548,7 @@ def clean_completed_jobs ():
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             jobs.remove((job, trial_index))
 
-def finish_previous_jobs (args, new_msgs, force_new_sq=False):
+def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")
 
     log_nr_of_workers()
@@ -1579,14 +1579,14 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
-                        progressbar_description([f"new result: {result}"], True)
+                        progressbar_description([f"new result: {result}"])
                         _trial.mark_completed(unsafe=True)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                 else:
                     if job:
                         try:
-                            progressbar_description([f"job_failed"], True)
+                            progressbar_description([f"job_failed"])
 
                             ax_client.log_trial_failure(trial_index=trial_index)
                         except Exception as e:
@@ -1601,7 +1601,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
 
                 if job:
                     try:
-                        progressbar_description([f"job_failed"], True)
+                        progressbar_description([f"job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                     except Exception as e:
@@ -1619,7 +1619,7 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
 
                 if job:
                     try:
-                        progressbar_description([f"job_failed"], True)
+                        progressbar_description([f"job_failed"])
                         ax_client.log_trial_failure(trial_index=trial_index)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
@@ -1632,13 +1632,13 @@ def finish_previous_jobs (args, new_msgs, force_new_sq=False):
             progress_bar.update(1)
 
             if args.verbose:
-                progressbar_description(["saving checkpoints and pd.csv"], force_new_sq)
+                progressbar_description(["saving checkpoints and pd.csv"])
             save_checkpoint()
             save_pd_csv()
         else:
             pass
 
-    progressbar_description(new_msgs, force_new_sq)
+    progressbar_description(new_msgs)
     log_nr_of_workers()
 
     clean_completed_jobs()
@@ -1682,7 +1682,7 @@ def get_workers_string ():
 
     return string
 
-def get_desc_progress_text (new_msgs=[], force_new_sq=False):
+def get_desc_progress_text (new_msgs=[]):
     global result_csv_file
     global worker_percentage_usage
     global progress_plot
@@ -1746,7 +1746,8 @@ def get_desc_progress_text (new_msgs=[], force_new_sq=False):
 
     if len(new_msgs):
         for new_msg in new_msgs:
-            in_brackets.append(new_msg)
+            if(new_msg):
+                in_brackets.append(new_msg)
 
     if len(in_brackets):
         desc += f" ({', '.join(in_brackets)})"
@@ -1826,7 +1827,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             pass
         trial_counter += 1
 
-        progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"], True)
+        progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -1862,7 +1863,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print(tb)
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
 
-    finish_previous_jobs(args, ["finishing last remaining jobs"], True)
+    finish_previous_jobs(args, ["finishing last remaining jobs"])
 
     return trial_counter
 
@@ -1890,7 +1891,7 @@ def _get_next_trials (ax_client, next_nr_steps, random_steps):
         else:
             new_msgs.append(f"_get_next_trials {next_nr_steps} [no sbatch]")
 
-    progressbar_description(new_msgs, True)
+    progressbar_description(new_msgs)
 
     trial_index_to_param = None
 
@@ -2214,18 +2215,18 @@ def main ():
                         break
 
                     try:
-                        progressbar_description([], True)
+                        progressbar_description([])
 
                         steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
 
                         nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
                         if nr_of_items_random:
-                            progressbar_description([f"random phase: got {nr_of_items_random} random, requested {random_steps}"], True)
+                            progressbar_description([f"random phase: got {nr_of_items_random} random, requested {random_steps}"])
 
                         if nr_of_items_random == 0:
                             break
 
-                        progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"], True)
+                        progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
                     except botorch.exceptions.errors.InputDataError as e:
                         print_color("red", f"Error 1: {e}")
                     except ax.exceptions.core.DataRequiredError as e:
@@ -2234,7 +2235,7 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    progressbar_description([f")."], True)
+                    progressbar_description([f")."])
                     finish_previous_jobs(args, [f"Waiting for jobs of the random phase to end [{len(jobs)} left]"])
                     _sleep(args, 1)
 
@@ -2249,14 +2250,14 @@ def main ():
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
 
-                    progressbar_description([], True)
+                    progressbar_description([])
 
                     finish_previous_jobs(args, ["finishing previous jobs"])
 
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
                     nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
-                    progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"], True)
+                    progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
                     finish_previous_jobs(args, ["finishing previous jobs"])
 

@@ -213,6 +213,7 @@ optional.add_argument('--run_dir', help='Directory, in which runs should be save
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
 optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
 optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as many workers as it can. Default is to wait until older workers died.', action='store_true', default=False)
+optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
@@ -2082,7 +2083,7 @@ def get_executor(args):
         cpus_per_task=args.cpus_per_task,
         stderr_to_stdout=args.stderr_to_stdout,
         mem_gb=args.mem_gb,
-        #slurm_signal_delay_s=30,
+        slurm_signal_delay_s=args.slurm_signal_delay_s,
         slurm_use_srun=False
     )
 

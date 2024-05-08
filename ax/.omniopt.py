@@ -1685,8 +1685,8 @@ def get_workers_string ():
         if len(cleaned_strings):
             string = ", ".join(cleaned_strings)
 
-    if string:
-        string = f"[jobs: {string}]"
+        if string:
+            string = f"[jobs: {string}]"
 
     return string
 

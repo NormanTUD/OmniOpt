@@ -1849,7 +1849,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         pass
     new_job = None
     try:
-        progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
+        progressbar_description([f"starting new job ({trial_counter - 1}/{next_nr_steps})"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs(1)
@@ -1863,7 +1863,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             pass
         trial_counter += 1
 
-        progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])
+        progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
             print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")

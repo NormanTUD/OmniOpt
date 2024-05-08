@@ -2313,17 +2313,14 @@ def main ():
 
                     finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
 
-                    if submitted_jobs() >= (random_steps + max_eval):
-                        next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
+                    next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
-                        progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                        nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, args.all_at_once)
+                    progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
+                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, args.all_at_once)
 
-                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
+                    progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
-                        finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
-                    else:
-                        finish_previous_jobs(args, ["all jobs created, still waiting for them to finish"])
+                    finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 
                     _sleep(args, 1)
 

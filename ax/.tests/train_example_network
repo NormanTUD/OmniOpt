@@ -104,7 +104,7 @@ fi
 	 --time=120 \
 	 --worker_timeout=10 \
 	 --max_eval=100 \
-	 --num_parallel_jobs=25 \
+	 --num_parallel_jobs=20 \
 	 --gpus=$NUM_GPUS \
 	 --follow \
 	 --run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height)" | base64 -w 0)\

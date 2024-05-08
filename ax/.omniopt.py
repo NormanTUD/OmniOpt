@@ -2313,7 +2313,7 @@ def main ():
 
                     finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
 
-                    if submitted_jobs() >= (random_steps + args.num_parallel_jobs):
+                    if submitted_jobs() >= (random_steps + max_eval):
                         next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
                         progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])

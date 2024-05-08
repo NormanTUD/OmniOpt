@@ -45,6 +45,7 @@ TODO:
 https://github.com/facebook/Ax/issues/2301
 """
 
+is_in_evaluate = False
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
@@ -865,8 +866,11 @@ def find_file_paths_and_print_infos (_text, program_code):
     return string
 
 def evaluate(parameters):
+    global is_in_evaluate
+    is_in_evaluate = True
     if args.evaluate_to_random_value:
         rand_res = random.uniform(0, 1)
+        is_in_evaluate = False
         return {"result": float(rand_res)}
 
     print_debug(f"evaluate with parameters {parameters}")
@@ -926,17 +930,24 @@ def evaluate(parameters):
         add_to_csv(result_csv_file, headline, values)
 
         if type(result) == int:
+            is_in_evaluate = False
             return {"result": int(result)}
         elif type(result) == float:
+            is_in_evaluate = False
             return {"result": float(result)}
         else:
+            is_in_evaluate = False
             return return_in_case_of_error
     except signalUSR:
         print("\n:warning: USR1-Signal was sent. Cancelling evaluation.")
+        is_in_evaluate = False
         return return_in_case_of_error
     except signalINT:
         print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
+        is_in_evaluate = False
         return return_in_case_of_error
+
+    is_in_evaluate = False
 
 def patched_generator_run_limit(*args, **kwargs):
     return 1
@@ -1193,6 +1204,11 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     sys.exit(exit)
 
 def end_program (csv_file_path, result_column="result"):
+    global is_in_evaluate
+
+    if is_in_evaluate:
+        return
+
     print_debug("[end_program] end_program started")
 
     global current_run_folder

@@ -2265,7 +2265,7 @@ def main ():
                     finish_previous_jobs(args, [f"waiting for last jobs of the random phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
 
-                first_systematic_search = True
+                all_at_once = True
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
@@ -2283,7 +2283,7 @@ def main ():
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
                     progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, not first_systematic_search)
+                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, all_at_once)
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -2291,7 +2291,7 @@ def main ():
 
                     _sleep(args, 1)
 
-                    first_systematic_search = False
+                    all_at_once = False
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])

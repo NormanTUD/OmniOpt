@@ -2215,9 +2215,9 @@ def main ():
                         break
 
                     try:
-                        progressbar_description([])
-
                         steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
+
+                        progressbar_description([f"trying to get {steps_mind_worker} workers"])
 
                         nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
                         if nr_of_items_random:
@@ -2235,7 +2235,6 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    progressbar_description([f")."])
                     finish_previous_jobs(args, [f"Waiting for jobs of the random phase to end [{len(jobs)} left]"])
                     _sleep(args, 1)
 
@@ -2250,11 +2249,12 @@ def main ():
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
 
-                    progressbar_description([])
 
                     finish_previous_jobs(args, ["finishing previous jobs"])
 
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
+
+                    progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
                     nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])

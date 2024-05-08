@@ -1273,16 +1273,27 @@ def save_checkpoint ():
     print_debug("Checkpoint saved")
 
 def to_int_when_possible(val):
+    # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte
     if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
         return int(val)
+
+    # Überprüfung auf nicht-numerische Zeichenketten
     if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
         return val
 
     try:
+        # Versuche, den Wert als Float zu interpretieren
         val = float(val)
-
-        return '{:.{}f}'.format(val, len(str(val).split('.')[1])).rstrip('0').rstrip('.')
+        # Bestimmen der Anzahl der Dezimalstellen, um die Genauigkeit der Ausgabe zu steuern
+        if '.' in str(val):
+            decimal_places = len(str(val).split('.')[1])
+            # Formatieren des Floats mit der exakten Anzahl der Dezimalstellen, ohne wissenschaftliche Notation
+            formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
+            return formatted_value if formatted_value else '0'
+        else:
+            return str(int(val))
     except:
+        # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val
 
 def save_pd_csv ():

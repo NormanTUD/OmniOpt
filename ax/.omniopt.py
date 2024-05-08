@@ -214,6 +214,7 @@ optional.add_argument('--enforce_sequential_optimization', help='Enforce sequent
 optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as many workers as it can. Default is to wait until older workers died.', action='store_true', default=False)
 optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
+optional.add_argument('--all_at_once', help='In the 2nd phase, should all workers be generated at once? Or one after another? Default is one after another', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1553,7 +1554,6 @@ def progressbar_description (new_msgs=[]):
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
     progress_bar.refresh()
-    progress_bar.update()
 
 def clean_completed_jobs ():
     global jobs
@@ -2039,7 +2039,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, all_at_once=True):
+def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, _all_at_once=True):
     global random_steps
 
     if next_nr_steps == 0:
@@ -2050,7 +2050,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, all_
         print_debug("Trying to get trial_index_to_param")
 
         try:
-            if all_at_once:
+            if _all_at_once:
                 trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
 
                 i = 1
@@ -2292,7 +2292,6 @@ def main ():
                     finish_previous_jobs(args, [f"waiting for last jobs of the random phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
 
-                all_at_once = False
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
@@ -2310,15 +2309,13 @@ def main ():
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
                     progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, all_at_once)
+                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, args.all_at_once)
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
                     finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 
                     _sleep(args, 1)
-
-                    all_at_once = False
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])

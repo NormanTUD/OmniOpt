@@ -2277,7 +2277,7 @@ def main ():
                         raise searchDone("Search done")
 
 
-                    finish_previous_jobs(args, ["finishing previous jobs"])
+                    finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
 
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
@@ -2286,7 +2286,7 @@ def main ():
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
-                    finish_previous_jobs(args, ["finishing previous jobs"])
+                    finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 
                     _sleep(args, 1)
 

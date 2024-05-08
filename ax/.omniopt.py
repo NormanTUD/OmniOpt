@@ -1675,7 +1675,7 @@ def get_workers_string ():
         stats[state] += 1
 
     for key in stats.keys():
-        strings.append(f"{key.lower()} = {stats[key]}")
+        strings.append(f"{key.lower()}: {stats[key]}")
 
     if len(strings):
         cleaned_strings = []

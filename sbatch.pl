@@ -2233,6 +2233,8 @@ sub get_open_ports {
 }
 
 sub get_dmesg_general {
+	debug_sub("get_dmesg_general disabled because ssh took forever.");
+	return;
         my $type = shift // 'start';
         debug_sub "get_dmesg_general($type)";
         $indentation++;
@@ -2257,7 +2259,7 @@ sub get_dmesg_general {
                         my $log_file_name = "$server-$this_logfile.$type.log";
                         my $log_file_path = "$log_folder/$log_file_name";
 
-                        my $command = "scp -o LogLevel=ERROR $server:/$logfile $log_file_path";
+                        my $command = "scp -o ConnectTimeout=30 -o LogLevel=ERROR $server:/$logfile $log_file_path";
                         debug $command;
                         qx($command);
                 }

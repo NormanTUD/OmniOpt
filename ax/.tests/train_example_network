@@ -101,7 +101,7 @@ fi
 	 --partition=$PARTITION \
 	 --experiment_name=example_network \
 	 --mem_gb=5 \
-	 --time=120 \
+	 --time=300 \
 	 --worker_timeout=10 \
 	 --max_eval=500 \
 	 --num_parallel_jobs=20 \

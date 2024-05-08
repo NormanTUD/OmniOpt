@@ -1882,7 +1882,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-def _get_next_trials (ax_client, next_nr_steps, random_steps):
+def _get_next_trials (ax_client, next_nr_steps):
     global time_get_next_trials_took
 
     last_ax_client_time = None
@@ -2025,7 +2025,14 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
         trial_counter = 0
 
         try:
-            trial_index_to_param = _get_next_trials(ax_client, next_nr_steps, random_steps)
+            for i in range(1, next_nr_steps + 1):
+                progressbar_description([f"trying to get parameter set [{i}/{next_nr_steps}]"])
+                trial_index_to_param = _get_next_trials(ax_client, 1)
+
+                progressbar_description([f"got parameter set [{i}/{next_nr_steps}]"])
+
+                for trial_index, parameters in trial_index_to_param.items():
+                    trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps)
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")
             return 0
@@ -2033,8 +2040,6 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             print_color("red", f"Error 2: {e}")
             return 0
 
-        for trial_index, parameters in trial_index_to_param.items():
-            trial_counter = execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps)
 
         random_steps_left = done_jobs() - random_steps
 

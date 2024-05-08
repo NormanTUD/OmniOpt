@@ -1717,6 +1717,7 @@ def get_desc_progress_text (new_msgs=[]):
     global worker_percentage_usage
     global progress_plot
     global random_steps
+    global max_eval
 
     desc = f"Searching {searching_for}"
     
@@ -1769,6 +1770,12 @@ def get_desc_progress_text (new_msgs=[]):
         if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             if is_slurm_job():
                 worker_percentage_usage.append(this_values)
+
+    if submitted_jobs():
+        in_brackets.append(f"submitted (total): {submitted_jobs()}")
+
+    if max_eval:
+        in_brackets.append(f"max_eval: {max_eval}")
 
     workers_strings = get_workers_string()
     if workers_strings:
@@ -2293,7 +2300,7 @@ def main ():
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
-                while done_jobs() < (random_steps + second_step_steps) or jobs:
+                while submitted_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
                     log_nr_of_workers()
 
@@ -2306,14 +2313,17 @@ def main ():
 
                     finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
 
-                    next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
+                    if submitted_jobs() >= (random_steps + args.num_parallel_jobs):
+                        next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
-                    progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, args.all_at_once)
+                        progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
+                        nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, args.all_at_once)
 
-                    progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
+                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
-                    finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
+                        finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
+                    else:
+                        finish_previous_jobs(args, ["all jobs created, still waiting for them to finish"])
 
                     _sleep(args, 1)
 

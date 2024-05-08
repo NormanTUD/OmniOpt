@@ -1656,7 +1656,11 @@ def finish_previous_jobs (args, new_msgs):
         else:
             pass
 
-    progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
+    if jobs_finished == 1:
+        progressbar_description([*new_msgs, f"finished {jobs_finished} job"])
+    else:
+        progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
+
     log_nr_of_workers()
 
     clean_completed_jobs()

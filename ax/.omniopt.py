@@ -431,7 +431,7 @@ spec.loader.exec_module(my_module)
 
 try:
     from rich.console import Console
-    console = Console(force_terminal=True, force_interactive=True)
+    console = Console(force_terminal=True, force_interactive=True, soft_wrap=True)
     with console.status("[bold green]Importing rich, time, csv, re, argparse, subprocess and logging...") as status:
         #from rich.traceback import install
         #install(show_locals=True)

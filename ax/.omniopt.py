@@ -112,7 +112,6 @@ try:
     import argparse
     import time
     from pprint import pformat
-    from pprint import pprint
     import plotext
 except ModuleNotFoundError as e:
     print(f"Base modules could not be loaded: {e}")
@@ -272,7 +271,7 @@ if not args.tests:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
         sys.exit(19)
     #elif args.parameter is not None and args.continue_previous_job is not None:
-    #    print("You cannot use --parameter and --continue_previous_job. You have to decide for one.");
+    #    print("You cannot use --parameter and --continue_previous_job. You have to decide for one.")
     #    sys.exit(20)
     elif not args.run_program and not args.continue_previous_job:
         print("--run_program needs to be defined when --continue_previous_job is not set")
@@ -282,7 +281,7 @@ if not args.tests:
         sys.exit(43)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
-            print("red", f"The previous job folder {args.continue_previous_job} could not be found!")
+            print_color("red", f"The previous job folder {args.continue_previous_job} could not be found!")
             sys.exit(21)
 
         if not experiment_name:
@@ -445,6 +444,7 @@ try:
         import csv
         import argparse
         from rich.pretty import pprint
+        from pprint import pprint
         from rich.progress import BarColumn, Progress, TextColumn, TaskProgressColumn, TimeRemainingColumn, Column
         import subprocess
 
@@ -2054,7 +2054,7 @@ def get_number_of_steps (args, max_eval):
     if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps
         random_steps = args.num_parallel_jobs
-        print(f"random_steps {old_random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({args.num_parallel_jobs}) to not have idle workers..")
+        print(f"random_steps {old_random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({args.num_parallel_jobs}) to not have idle workers.")
 
     if random_steps > max_eval:
         max_eval = random_steps

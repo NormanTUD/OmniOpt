@@ -1659,7 +1659,7 @@ def state_from_job (job):
 def get_workers_string ():
     global jobs
 
-    string = None
+    string = ""
 
     strings = []
 
@@ -1675,7 +1675,8 @@ def get_workers_string ():
     for key in stats.keys():
         strings.append(f"{key.lower()} = {stats[key]}")
 
-    string = ", ".join(strings)
+    if len(strings):
+        string = ", ".join(strings)
 
     if string:
         string = f"[jobs: {string}]"

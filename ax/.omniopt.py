@@ -1951,7 +1951,13 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
         total_number_of_jobs_left = num_parallel_jobs
     needed_number_of_trials = num_parallel_jobs - current_number_of_workers
 
-    return max(1, needed_number_of_trials)
+    new_nr_jobs = max(1, needed_number_of_trials)
+
+    rest_jobs = max_eval - submitted_jobs()
+    if rest_jobs > 0 and rest_jobs < num_parallel_jobs:
+        new_nr_jobs = rest_jobs
+
+    return new_nr_jobs
 
 def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     global random_steps

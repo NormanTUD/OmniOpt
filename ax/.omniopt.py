@@ -1687,7 +1687,7 @@ def get_workers_string ():
             string = ", ".join(cleaned_strings)
 
         if string:
-            string = f"[jobs: {string}]"
+            string = f"(jobs: {string})"
 
     return string
 
@@ -1736,7 +1736,7 @@ def get_desc_progress_text (new_msgs=[]):
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
         if nr_current_workers:
-            in_brackets.append(f"workers: {nr_current_workers} [{percentage}% of max {max_nr_jobs}]")
+            in_brackets.append(f"workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
 
         this_values = {
             "nr_current_workers": nr_current_workers,
@@ -1829,7 +1829,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     print_debug_linewise(f"                                    for trial_index ({trial_index}), parameters ({parameters}) in trial_index_to_param.items():")
     new_job = None
     try:
-        progressbar_description([f"starting new job [{trial_counter}/{next_nr_steps}]"])
+        progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs(1)
@@ -1896,16 +1896,16 @@ def _get_next_trials (ax_client, next_nr_steps):
 
     if is_executable_in_path("sbatch"):
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {next_nr_steps} [last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
+            new_msgs.append(f"_get_next_trials {next_nr_steps} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
             new_msgs.append(f"_get_next_trials {next_nr_steps}")
     else:
         next_nr_steps = 1
 
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {next_nr_steps} [no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s]")
+            new_msgs.append(f"_get_next_trials {next_nr_steps} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"_get_next_trials {next_nr_steps} [no sbatch]")
+            new_msgs.append(f"_get_next_trials {next_nr_steps} (no sbatch)")
 
     progressbar_description(new_msgs)
 
@@ -2028,7 +2028,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
 
             i = 1
             for trial_index, parameters in trial_index_to_param.items():
-                progressbar_description([f"starting parameter set [{i}/{next_nr_steps}]"])
+                progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                 execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
                 i += 1
         except botorch.exceptions.errors.InputDataError as e:
@@ -2253,7 +2253,7 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    finish_previous_jobs(args, [f"waiting for last jobs of the random phase to end [{len(jobs)} left]"])
+                    finish_previous_jobs(args, [f"waiting for last jobs of the random phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
@@ -2282,7 +2282,7 @@ def main ():
                     _sleep(args, 1)
 
                 while len(jobs):
-                    finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end [{len(jobs)} left]"])
+                    finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
         end_program(result_csv_file)
     except searchDone as e:

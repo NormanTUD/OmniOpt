@@ -1676,7 +1676,14 @@ def get_workers_string ():
         strings.append(f"{key.lower()} = {stats[key]}")
 
     if len(strings):
-        string = ", ".join(strings)
+        cleaned_strings = []
+
+        for item in strings:
+            if item:
+                cleaned_strings.append(item)
+
+        if len(cleaned_strings):
+            string = ", ".join(cleaned_strings)
 
     if string:
         string = f"[jobs: {string}]"

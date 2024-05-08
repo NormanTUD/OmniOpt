@@ -2013,7 +2013,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
+def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, all_at_once=True):
     global random_steps
 
     if next_nr_steps == 0:
@@ -2024,13 +2024,21 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
         print_debug("Trying to get trial_index_to_param")
 
         try:
-            trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
+            if all_at_once:
+                trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
 
-            i = 1
-            for trial_index, parameters in trial_index_to_param.items():
-                progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
-                i += 1
+                i = 1
+                for trial_index, parameters in trial_index_to_param.items():
+                    progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                    execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
+                    i += 1
+            else:
+                for i in range(1, next_nr_steps + 1):
+                    trial_index_to_param = _get_next_trials(ax_client, 1)
+
+                    for trial_index, parameters in trial_index_to_param.items():
+                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                        execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")
             return 0
@@ -2256,6 +2264,7 @@ def main ():
                     finish_previous_jobs(args, [f"waiting for last jobs of the random phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
 
+                first_systematic_search = True
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
                 while done_jobs() < (random_steps + second_step_steps) or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
@@ -2273,13 +2282,15 @@ def main ():
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
                     progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
+                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, not first_systematic_search)
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
                     finish_previous_jobs(args, ["finishing previous jobs"])
 
                     _sleep(args, 1)
+
+                    first_systematic_search = False
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])

@@ -2304,7 +2304,7 @@ def main ():
 
                     _sleep(args, 1)
 
-                    all_at_once = False
+                    #all_at_once = False
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])

@@ -1758,7 +1758,14 @@ def get_desc_progress_text (new_msgs=[]):
                 in_brackets.append(new_msg)
 
     if len(in_brackets):
-        desc += f" ({', '.join(in_brackets)})"
+        in_brackets_clean = []
+
+        for item in in_brackets:
+            if item:
+                in_brackets_clean.append(item)
+
+        if in_brackets_clean:
+            desc += f" ({', '.join(in_brackets_clean)})"
 
     return desc
 

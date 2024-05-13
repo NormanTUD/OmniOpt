@@ -191,6 +191,55 @@ if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("omniopt script failed.")
 fi
 
+yellow_text "Starting main program with --all_at_once..."
+
+if [[ "$no_sleep" -eq 1 ]]; then
+	./omniopt \
+		--partition=$PARTITION \
+		--experiment_name=$TESTNAME \
+		--mem_gb=1 \
+		--time=30 \
+		--worker_timeout=1 \
+		--max_eval=$max_eval \
+		--num_parallel_jobs=$max_eval \
+		--gpus=$GPUS \
+		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+		--parameter int_param range -5 5 int \
+		--parameter float_param range -5 5 float \
+		--parameter choice_param choice 1,2,4,8,16,hallo \
+		--parameter int_param_two range -6 6 int \
+		--follow \
+		--no_sleep \
+		--show_worker_percentage_table_at_end \
+		--all_at_once
+else
+	./omniopt \
+		--partition=$PARTITION \
+		--experiment_name=$TESTNAME \
+		--mem_gb=1 \
+		--time=30 \
+		--worker_timeout=1 \
+		--max_eval=$max_eval \
+		--num_parallel_jobs=$max_eval \
+		--gpus=$GPUS \
+		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+		--parameter int_param range -5 5 int \
+		--parameter float_param range -5 5 float \
+		--parameter choice_param choice 1,2,4,8,16,hallo \
+		--parameter int_param_two range -6 6 int \
+		--follow \
+		--show_worker_percentage_table_at_end \
+		--all_at_once
+fi
+
+exit_code=$?
+
+yellow_text "Main program ended..."
+
+if [[ "$exit_code" -ne "0" ]]; then
+	errors+=("omniopt script failed.")
+fi
+
 yellow_text "Trying to continue previous job"
 
 ./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS --show_worker_percentage_table_at_end

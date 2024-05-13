@@ -65,11 +65,16 @@ export useramtests=0
 
 export max_eval=500
 export num_parallel_jobs=20
+export worker_timeout=20
 export runtime=300
 export all_at_once=0
 
 for i in $@; do
         case $i in
+		--worker_timeout=*)
+			worker_timeout="${i#*=}"
+			shift
+			;;
 		--num_parallel_jobs=*)
 			num_parallel_jobs="${i#*=}"
 			shift
@@ -129,7 +134,7 @@ if [[ "$all_at_once" -eq "1" ]]; then
 		 --experiment_name=example_network \
 		 --mem_gb=5 \
 		 --time=$runtime \
-		 --worker_timeout=10 \
+		 --worker_timeout=$worker_timeout \
 		 --max_eval=$max_eval \
 		 --num_parallel_jobs=$num_parallel_jobs \
 		 --gpus=$NUM_GPUS \
@@ -147,7 +152,7 @@ if [[ "$all_at_once" -eq "1" ]]; then
 		 --experiment_name=example_network \
 		 --mem_gb=5 \
 		 --time=$runtime \
-		 --worker_timeout=10 \
+		 --worker_timeout=$worker_timeout \
 		 --max_eval=$max_eval \
 		 --num_parallel_jobs=$num_parallel_jobs \
 		 --gpus=$NUM_GPUS \

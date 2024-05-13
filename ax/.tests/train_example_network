@@ -64,7 +64,7 @@ function join_by {
 
 export useramtests=0
 
-export max_eval=500
+export max_eval=200
 export num_parallel_jobs=20
 export worker_timeout=30
 export runtime=300

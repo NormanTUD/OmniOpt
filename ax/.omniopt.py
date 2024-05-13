@@ -1788,7 +1788,7 @@ def get_desc_progress_text (new_msgs=[]):
                 "time": this_time
             }
 
-            if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_plot["best_result"]:
+            if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_values["best_result"]:
                 progress_plot.append(this_progress_values)
 
         nr_current_workers = len(jobs)

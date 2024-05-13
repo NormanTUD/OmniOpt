@@ -83,7 +83,7 @@ for i in $@; do
 			shift
 			;;
                 --all_at_once)
-                        useramtests=1
+                        all_at_once=1
                         shift
                         ;;
                 --use-ram-tests)
@@ -122,6 +122,7 @@ cd ..
 #fi
 
 # run_program = .tests/example_network/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --validation_split=%(validation_split) --width=%(width) --height=%(height)
+
 if [[ "$all_at_once" -eq "1" ]]; then
 	 ./omniopt \
 		 --partition=$PARTITION \

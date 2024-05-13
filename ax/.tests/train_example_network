@@ -48,6 +48,7 @@ function help () {
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
 	echo "  --num_parallel_jobs=n                              Number of parallel jobs"
+	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout"
 	echo "  --time=n                                           Max runtime in minutes"
 	echo "  --max_eval=n                                       Max number of evals"
 	echo "  --all_at_once                                      Run all jobs at once in the scheduler instead of one-by-one"

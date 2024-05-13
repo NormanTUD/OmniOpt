@@ -215,6 +215,7 @@ optional.add_argument('--enforce_sequential_optimization', help='Enforce sequent
 optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as many workers as it can. Default is to wait until older workers died.', action='store_true', default=False)
 optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
+optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_true', default=True)
 optional.add_argument('--all_at_once', help='In the 2nd phase, should all workers be generated at once? Or one after another? Default is one after another', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
@@ -1787,14 +1788,14 @@ def get_desc_progress_text (new_msgs=[]):
                 "time": this_time
             }
 
-            if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1] == progress_plot:
+            if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_plot["best_result"]:
                 progress_plot.append(this_progress_values)
 
         nr_current_workers = len(jobs)
         max_nr_jobs = args.num_parallel_jobs
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
-        if nr_current_workers:
+        if args.verbose_tqdm and nr_current_workers:
             in_brackets.append(f"workers: {nr_current_workers} ({percentage}%/{max_nr_jobs})")
 
         this_values = {
@@ -1808,15 +1809,15 @@ def get_desc_progress_text (new_msgs=[]):
             if is_slurm_job():
                 worker_percentage_usage.append(this_values)
 
-    if submitted_jobs():
+    if args.verbose_tqdm and submitted_jobs():
         in_brackets.append(f"total submitted: {submitted_jobs()}")
 
-    if max_eval:
+    if args.verbose_tqdm and max_eval:
         in_brackets.append(f"max_eval: {max_eval}")
-
-    workers_strings = get_workers_string()
-    if workers_strings:
-        in_brackets.append(workers_strings)
+    if args.verbose_tqdm:
+        workers_strings = get_workers_string()
+        if workers_strings:
+            in_brackets.append(workers_strings)
 
     if len(new_msgs):
         for new_msg in new_msgs:

@@ -57,7 +57,7 @@ if [[ "$NUM_GPUS" -ne "0" ]]; then
 fi
 
 debug=0
-max_eval=20
+max_eval=100
 no_sleep=0
 
 args=("$@")

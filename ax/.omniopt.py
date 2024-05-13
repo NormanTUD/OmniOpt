@@ -1338,8 +1338,10 @@ def save_pd_csv ():
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False)
         print_debug("pd.csv saved")
-    except (signalUSR, signalINT) as e:
-        raise Exception(e)
+    except signalUSR as e:
+        raise signalUSR("" + e)
+    except signalINT as e:
+        raise signalINT("" + e)
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 

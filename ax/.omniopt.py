@@ -1795,7 +1795,7 @@ def get_desc_progress_text (new_msgs=[]):
         percentage = round((nr_current_workers/max_nr_jobs)*100)
 
         if nr_current_workers:
-            in_brackets.append(f"workers: {nr_current_workers} ({percentage}% of max {max_nr_jobs})")
+            in_brackets.append(f"workers: {nr_current_workers} ({percentage}%/{max_nr_jobs})")
 
         this_values = {
             "nr_current_workers": nr_current_workers,

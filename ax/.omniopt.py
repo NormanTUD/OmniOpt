@@ -2760,52 +2760,6 @@ def is_tool(name):
 
     return which(name) is not None
 
-def get_current_workers ():
-    if not is_tool("squeue"):
-        return {}
-
-    if not 'SLURM_JOB_ID' in os.environ:
-        print_debug("Not running inside a slurm job. Returning empty list.")
-        return {}
-
-    command = 'squeue --me --format "%.20i %.100j" --noheader | sed -e "s#^\s*##g" -e "s#\s\s*#  #g"'
-
-    current_jobs = {}
-    output = execute_bash_code(command)[0]
-
-    lines = output.split("\n")
-
-    lines = list(filter(lambda item: item, lines))
-
-    main_job_name = ""
-    main_job_id = ""
-
-    for line in lines:
-        splitted = line.split("  ")
-        job_id = splitted[0]
-        job_name = splitted[1]
-
-        main_job_name = job_name
-        main_job_id = job_id
-
-    if not main_job_id:
-        print_debug("Could not determine current job id. Returning empty list.")
-        return {}
-
-    if not main_job_name:
-        print_debug("Could not determine current job name. Returning empty list.")
-        return {}
-
-    for line in lines:
-        splitted = line.split("  ")
-        job_id = splitted[0]
-        job_name = splitted[1]
-
-        if job_name == main_job_name and job_id != main_job_id:
-            current_jobs[job_id] = splitted[1]
-
-    return current_jobs
-
 def log_nr_of_workers ():
     last_line = ""
     nr_of_workers = len(jobs)

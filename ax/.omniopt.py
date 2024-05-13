@@ -1338,6 +1338,8 @@ def save_pd_csv ():
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False)
         print_debug("pd.csv saved")
+    except (signalUSR, signalINT) as e:
+        raise Exception(e)
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
@@ -2207,6 +2209,8 @@ def main ():
     global current_run_folder
     global ax_client
     global jobs
+
+    print("omniopt " + " ".join(sys.argv[1:]))
 
     check_slurm_job_id()
 

@@ -80,11 +80,6 @@ def getLineInfo():
     return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
           inspect.stack()[1][3])
 
-def mylog (msg):
-    return
-    with open('/home/h8/s3811141/omniax_internal.log', "a") as lf:
-        print(msg, file=lf)
-
 class searchDone (Exception):
     pass
 
@@ -379,14 +374,6 @@ def print_debug (msg):
         print(msg)
 
     _debug(msg)
-
-def print_debug_linewise (msg):
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}: {msg}"
-    if args.debug:
-        print(msg)
-
-    _debug_linewise(msg)
 
 def print_debug_progressbar (msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -950,11 +937,6 @@ def evaluate(parameters):
 
     is_in_evaluate = False
 
-def patched_generator_run_limit(*args, **kwargs):
-    return 1
-
-def patched_current_generator_run_limit(*args, **kwargs):
-    return 1, False
 try:
     if not args.tests:
         with console.status("[bold green]Importing ax...") as status:
@@ -2458,22 +2440,6 @@ def _is_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
-def get_shebang (path):
-    sb = None
-    with open(path) as f:
-        first_line = f.readline()
-
-        if first_line.startswith("#!"):
-            sb = first_line.replace("#!", "").strip()
-
-            sb = re.sub(
-                r".*/",
-                "",
-                sb
-            )
-
-    return sb
-
 def complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_color("yellow", f"Test suite: {_program_name}")
 
@@ -2757,11 +2723,6 @@ def analyze_out_files (rootdir, print_to_stdout=True):
         print_color("red", "\n".join("\n"))
 
     return "\n".join(_strs)
-
-def is_tool(name):
-    """Check whether `name` is on PATH and marked as executable."""
-
-    return which(name) is not None
 
 def log_nr_of_workers ():
     last_line = ""

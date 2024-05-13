@@ -164,7 +164,6 @@ if [[ "$all_at_once" -eq "1" ]]; then
 		 --parameter learning_rate range 0.01 0.2 float \
 		 --parameter epochs range 1 100 int \
 		 --debug
- fi
-
+fi
 
 exit $?

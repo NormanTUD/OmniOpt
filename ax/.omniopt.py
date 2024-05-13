@@ -1809,7 +1809,7 @@ def get_desc_progress_text (new_msgs=[]):
                 worker_percentage_usage.append(this_values)
 
     if submitted_jobs():
-        in_brackets.append(f"submitted (total): {submitted_jobs()}")
+        in_brackets.append(f"total submitted: {submitted_jobs()}")
 
     if max_eval:
         in_brackets.append(f"max_eval: {max_eval}")

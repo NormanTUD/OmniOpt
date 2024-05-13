@@ -265,7 +265,7 @@ fi
 
 yellow_text "Test stuff that goes wrong (totally without successful runs)..."
 
-.tests/test_wronggoing_stuff
+.tests/test_wronggoing_stuff --nosuccess
 
 exit_code=$?
 if [[ "$exit_code" -ne "0" ]]; then

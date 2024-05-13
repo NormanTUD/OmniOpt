@@ -66,7 +66,7 @@ export useramtests=0
 
 export max_eval=500
 export num_parallel_jobs=20
-export worker_timeout=20
+export worker_timeout=30
 export runtime=300
 export all_at_once=0
 

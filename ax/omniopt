@@ -48,11 +48,13 @@ function calltracer () {
 kill_python_if_started () {
 	REASON=$1
 	re='^[0-9]+$'
-	if ! [[ $python_pid =~ $re ]] ; then
-		echo "run_before_end error: Python-PID '$python_pid' is not a number" >&2
-	else
+	if [[ $python_pid =~ $re ]] ; then
 		echo "Sending USR1 to $python_pid (python). Reason: $REASON"
-		kill -USR1 "$python_pid"
+		if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
+			kill -USR1 "$python_pid"
+		else
+			echo "Could not find $python_pid process" >&2
+		fi
 	fi
 }
 
@@ -61,7 +63,7 @@ trap 'kill_python_if_started CONT' CONT
 trap 'kill_python_if_started TERM' TERM
 
 for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*\s*)##g'); do
-	if [[ "$i" != "ERR" ]] && [[ "$i" != "CONT" ]] && [[ "$i" != "TERM" ]]; then
+	if [[ "$i" != "ERR" ]] && [[ "$i" != "CONT" ]] && [[ "$i" != "TERM" ]] && [[ "$i" != "SIGCHLD" ]]; then
 		trap "kill_python_if_started $i" $i
 	fi
 done
@@ -528,8 +530,10 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	run_before_end &
 
 	set +e
-	python3 $SCRIPT_DIR/.omniopt.py $args_string
+	python3 $SCRIPT_DIR/.omniopt.py $args_string &
 	python_pid=$!
+	wait %1
+	echo "Set python_pid to $python_pid"
 	set -e
 
 	EXIT_CODE=$?

@@ -1198,6 +1198,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     sys.exit(_exit)
 
 def end_program (csv_file_path, result_column="result", _force=False):
+    print("TRYING TO START END_PROGRAM")
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         print("returning from end_program, because it can only run in the main thread, not any forks")

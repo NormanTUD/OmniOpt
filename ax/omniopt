@@ -536,7 +536,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
 	#echo "python3 $SCRIPT_DIR/.omniopt.py $args_string"
 
-	run_before_end &
+	#run_before_end &
 
 	set +e
 	python3 $SCRIPT_DIR/.omniopt.py $args_string &

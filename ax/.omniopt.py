@@ -45,6 +45,8 @@ TODO:
 https://github.com/facebook/Ax/issues/2301
 """
 
+import os
+
 is_in_evaluate = False
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
@@ -70,6 +72,7 @@ mem_gb = None
 random_steps = None
 progress_bar = None
 searching_for = None
+main_pid = os.getpid()
 
 import uuid
 
@@ -101,7 +104,6 @@ try:
     from os.path import isfile, join
     import re
     import socket
-    import os
     import stat
     import pwd
     import base64
@@ -382,7 +384,6 @@ def print_debug_progressbar (msg):
     _debug_progressbar(msg)
 
 try:
-    import os
     import socket
     import json
     import signal
@@ -1196,18 +1197,22 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         
     sys.exit(_exit)
 
-def end_program (csv_file_path, result_column="result"):
+def end_program (csv_file_path, result_column="result", _force=False):
+    if os.getpid() != main_pid:
+        print_debug("returning from end_program, because it can only run in the main thread, not any forks")
+        return
+
     global is_in_evaluate
     global end_program_ran
     global current_run_folder
     global ax_client
     global console
 
-    if is_in_evaluate:
+    if is_in_evaluate and not force:
         print("is_in_evaluate true, returning end_program")
         return
 
-    if end_program_ran:
+    if end_program_ran and not force:
         print_debug("[end_program] end_program_ran was true. Returning.")
         print("[end_program] end_program_ran was true. Returning.")
         return
@@ -1953,7 +1958,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print_color("red", f"\n:warning: Detected signal. Will exit.")
         global is_in_evaluate
         is_in_evaluate = False
-        end_program(result_csv_file)
+        end_program(result_csv_file, "result", 1)
     except Exception as e:
         import traceback
         tb = traceback.format_exc()
@@ -2149,7 +2154,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, _all
         botorch.exceptions.errors.InputDataError
     ) as e:
         print_color("red", "\n:warning: " + str(e))
-        end_program(result_csv_file)
+        end_program(result_csv_file, "result", 1)
 
     num_new_keys = 0
     try:
@@ -2383,14 +2388,14 @@ def main ():
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for last jobs of the systematic phase to end ({len(jobs)} left)"])
                     _sleep(args, 1)
-        end_program(result_csv_file)
+        end_program(result_csv_file, "result", 1)
     except searchDone as e:
-        end_program(result_csv_file)
+        end_program(result_csv_file, "result", 1)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
         global is_in_evaluate
         is_in_evaluate = False
-        end_program(result_csv_file)
+        end_program(result_csv_file, "result", 1)
 
 def _unidiff_output(expected, actual):
     """

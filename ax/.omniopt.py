@@ -2742,13 +2742,17 @@ def get_errors_from_outfile (i):
     return errors
 
 def analyze_out_files (rootdir, print_to_stdout=True):
-    print_debug("analyze_out_files")
+    print("analyze_out_files")
+
+    print("outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)")
     outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
+    print("j = 0")
     j = 0
 
     _strs = []
 
+    print("for i in outfiles:")
     for i in outfiles:
         errors = get_errors_from_outfile(i)
 
@@ -2767,9 +2771,11 @@ def analyze_out_files (rootdir, print_to_stdout=True):
 
             j = j + 1
 
+    print("if print_to_stdout:")
     if print_to_stdout:
         print_color("red", "\n".join("\n"))
 
+    print('return "\n".join(_strs)')
     return "\n".join(_strs)
 
 def log_nr_of_workers ():

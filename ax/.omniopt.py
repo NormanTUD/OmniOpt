@@ -1209,69 +1209,54 @@ def end_program (csv_file_path, result_column="result", _force=False):
     global ax_client
     global console
 
-    print("TRYING TO START END_PROGRAM")
     if os.getpid() != main_pid:
-        print("returning from end_program, because it can only run in the main thread, not any forks")
+        print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
     if is_in_evaluate and not force:
-        print("is_in_evaluate true, returning end_program")
+        print_debug("is_in_evaluate true, returning end_program")
         return
 
     if end_program_ran and not force:
-        print("[end_program] end_program_ran was true. Returning.")
+        print_debug("[end_program] end_program_ran was true. Returning.")
         return
 
     end_program_ran = True
 
-    print("AAAA")
     out_files_string = analyze_out_files(current_run_folder)
-    print("BABA")
 
     if out_files_string:
-        print(out_files_string)
-        print("CCCC")
-
-    print("DEFEF")
+        print_debug(out_files_string)
 
     if out_files_string:
         try:
             with open(f"{current_run_folder}/errors.log", "w") as error_file:
                 error_file.write(out_files_string)
         except Exception as e:
-            print(f"Error occurred while writing to errors.log: {e}")
+            print_debug(f"Error occurred while writing to errors.log: {e}")
 
     _exit = 0
 
-    print("Aaaaaa")
-
     try:
         if current_run_folder is None:
-            print("[end_program] current_run_folder was empty. Not running end-algorithm.")
-            print("asdasd")
+            print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
             return
 
         if ax_client is None:
-            print("[end_program] ax_client was empty. Not running end-algorithm.")
-            print("sdasdasda")
+            print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
             return
 
         if console is None:
-            print("[end_program] console was empty. Not running end-algorithm.")
-            print("sidlkjfslkdfkjdslkf")
+            print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
-        print("kjsdunftg")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
-        print("oishfndskufjghdfg")
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
-
-    print("B")
 
     for job, trial_index in jobs[:]:
         if job:
@@ -1283,10 +1268,8 @@ def end_program (csv_file_path, result_column="result", _force=False):
                 print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()
 
-    print("C")
     save_pd_csv()
 
-    print("D")
     sys.exit(_exit)
 
 def save_checkpoint (trial_nr=0, ee=None):

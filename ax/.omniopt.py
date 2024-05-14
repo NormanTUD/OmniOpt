@@ -1931,6 +1931,8 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
     except (signalUSR, signalINT, signalCONT) as e:
         print_color("red", f"\n:warning: Detected signal. Will exit.")
+        global is_in_evaluate
+        is_in_evaluate = False
         end_program(result_csv_file)
     except Exception as e:
         import traceback

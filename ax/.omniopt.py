@@ -1216,11 +1216,15 @@ def end_program (csv_file_path, result_column="result"):
 
     print_debug("[end_program] end_program started")
 
+    print_debug("AAAA")
     out_files_string = analyze_out_files(current_run_folder)
+    print_debug("BABA")
 
     print(out_files_string)
+    print_debug("CCCC")
 
     print_debug("[end_program] printed out files strign")
+    print_debug("DEFEF")
 
     if out_files_string:
         try:

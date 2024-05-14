@@ -2235,7 +2235,7 @@ def done_jobs (nr=0):
 def main ():
     print_debug("main")
 
-    _debug_worker_creation("time, nr_workers, got, requested")
+    _debug_worker_creation("time, nr_workers, got, requested, phase")
 
     global args
     global file_number

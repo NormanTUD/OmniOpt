@@ -2745,38 +2745,42 @@ def analyze_out_files (rootdir, print_to_stdout=True):
     print("analyze_out_files")
 
     print("outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)")
-    outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
+    try:
+        outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
-    print("j = 0")
-    j = 0
+        print("j = 0")
+        j = 0
 
-    _strs = []
+        _strs = []
 
-    print("for i in outfiles:")
-    for i in outfiles:
-        errors = get_errors_from_outfile(i)
+        print("for i in outfiles:")
+        for i in outfiles:
+            errors = get_errors_from_outfile(i)
 
-        if len(errors):
-            if j == 0:
-                _strs.append("")
-            _strs.append(f"Out file {i} contains potential errors:\n")
-            program_code = get_program_code_from_out_file(i)
-            if program_code:
-                _strs.append(program_code)
+            if len(errors):
+                if j == 0:
+                    _strs.append("")
+                _strs.append(f"Out file {i} contains potential errors:\n")
+                program_code = get_program_code_from_out_file(i)
+                if program_code:
+                    _strs.append(program_code)
 
-            for e in errors:
-                _strs.append(f"- {e}\n")
+                for e in errors:
+                    _strs.append(f"- {e}\n")
 
-            _strs.append("\n")
+                _strs.append("\n")
 
-            j = j + 1
+                j = j + 1
 
-    print("if print_to_stdout:")
-    if print_to_stdout:
-        print_color("red", "\n".join("\n"))
+        print("if print_to_stdout:")
+        if print_to_stdout:
+            print_color("red", "\n".join("\n"))
 
-    print('return "\\n".join(_strs)')
-    return "\n".join(_strs)
+        print('return "\\n".join(_strs)')
+        return "\n".join(_strs)
+    except Exception as e:
+        print("error: " + str(e))
+        return ""
 
 def log_nr_of_workers ():
     last_line = ""

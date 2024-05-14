@@ -144,6 +144,20 @@ while os.path.exists(logfile):
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
 logfile_linewise = f'logs/{log_i}_linewise'
 logfile_progressbar = f'logs/{log_i}_progressbar'
+logfile_worker_creation_logs = f'logs/{log_i}_worker_creation_logs'
+
+def _debug_worker_creation (msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        print(f"Cannot write _debug, error: {ee}")
+        return
+
+    try:
+        with open(logfile_worker_creation_logs, 'a') as f:
+            print(msg, file=f)
+    except Exception as e:
+        print("_debug_worker_creation: Error trying to write log file: " + str(e))
+
+        _debug_worker_creation(msg, _lvl + 1, e)
 
 def _debug_progressbar (msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -2220,6 +2234,9 @@ def done_jobs (nr=0):
 
 def main ():
     print_debug("main")
+
+    _debug_worker_creation("time, nr_workers, got, requested")
+
     global args
     global file_number
     global folder_number
@@ -2318,6 +2335,7 @@ def main ():
                         steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
 
                         progressbar_description([f"trying to get {steps_mind_worker} workers"])
+                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
 
                         nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
                         if nr_of_items_random:
@@ -2325,6 +2343,8 @@ def main ():
 
                         if nr_of_items_random == 0:
                             break
+
+                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
 
                         progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
                     except botorch.exceptions.errors.InputDataError as e:
@@ -2351,6 +2371,7 @@ def main ():
 
 
                     finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
+                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
 
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
@@ -2358,6 +2379,8 @@ def main ():
                     nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, args.all_at_once)
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
+
+                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
 
                     finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 

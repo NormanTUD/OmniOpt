@@ -449,7 +449,6 @@ run_before_end () {
 	if command -v sbatch >/dev/null; then
 		# Weird solution, but signals never reached for some reason, and this... works?
 		sleep_time=$((JOB_END_TIME - JOB_START_TIME - 60))
-		echo "Waiting $sleep_time seconds for kill_python_if_started Timeout"
 		# Überprüfen, ob die Zeitdifferenz positiv ist, um zu vermeiden, dass das Skript im negativen Bereich schläft
 		if [ $sleep_time -gt 0 ]; then
 			sleep $sleep_time

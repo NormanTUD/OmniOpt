@@ -1224,11 +1224,12 @@ def end_program (csv_file_path, result_column="result", _force=False):
     print_debug("[end_program] end_program started")
 
     print("AAAA")
-    out_files_string = analyze_out_files(current_run_folder)
+    #out_files_string = analyze_out_files(current_run_folder)
     print("BABA")
 
-    print(out_files_string)
-    print("CCCC")
+    #if out_files_string:
+    #    print(out_files_string)
+    #    print("CCCC")
 
     print_debug("[end_program] printed out files strign")
     print("DEFEF")

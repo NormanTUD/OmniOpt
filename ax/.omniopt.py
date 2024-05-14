@@ -2734,12 +2734,24 @@ def get_errors_from_outfile (i):
 
     return errors
 
+import os
+
+def find_files(directory, extension='.out'):
+    files = []
+    for root, dirs, filenames in os.walk(directory):
+        for filename in filenames:
+            if filename.endswith(extension):
+                files.append(os.path.join(root, filename))
+    return files
+
+
+
 def analyze_out_files (rootdir, print_to_stdout=True):
     print("analyze_out_files")
 
-    print(f"outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)")
     try:
-        outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
+        outfiles = find_files('{rootdir}/')
+        # outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 
         print("j = 0")
         j = 0

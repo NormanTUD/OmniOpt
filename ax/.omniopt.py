@@ -2335,7 +2335,7 @@ def main ():
                         steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
 
                         progressbar_description([f"trying to get {steps_mind_worker} workers"])
-                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
+                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {steps_mind_worker}, {next_nr_steps}, random")
 
                         nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
                         if nr_of_items_random:
@@ -2344,7 +2344,7 @@ def main ():
                         if nr_of_items_random == 0:
                             break
 
-                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
+                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, random")
 
                         progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
                     except botorch.exceptions.errors.InputDataError as e:
@@ -2371,7 +2371,7 @@ def main ():
 
 
                     finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
-                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
+                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
 
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
@@ -2380,7 +2380,7 @@ def main ():
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
-                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
+                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
 
                     finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 

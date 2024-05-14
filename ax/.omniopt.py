@@ -1299,7 +1299,7 @@ def save_checkpoint (trial_nr=0):
 
         print_debug("Checkpoint saved")
     except Exception as e:
-        print("Error during saving checkpoint: " + e)
+        print("Error during saving checkpoint: " + str(e))
         save_checkpoint(trial_nr + 1)
 
 def to_int_when_possible(val):

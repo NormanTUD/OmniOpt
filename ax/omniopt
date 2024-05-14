@@ -45,15 +45,20 @@ function calltracer () {
         caller
 }
 
+already_sent_signal=0
+
 kill_python_if_started () {
 	REASON=$1
 	re='^[0-9]+$'
 	if [[ $python_pid =~ $re ]] ; then
-		echo "Sending USR1 to $python_pid (python). Reason: $REASON"
-		if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
-			kill -USR1 "$python_pid"
-		else
-			echo "Could not find $python_pid process" >&2
+		echo "\nSending USR1 to $python_pid (python). Reason: $REASON"
+		if [[ "$already_sent_signal" -eq "0" ]]; then
+			if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
+				already_sent_signal=1
+				kill -USR1 "$python_pid"
+			else
+				echo "Could not find $python_pid process" >&2
+			fi
 		fi
 	fi
 }

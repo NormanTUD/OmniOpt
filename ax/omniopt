@@ -51,7 +51,7 @@ kill_python_if_started () {
 	REASON=$1
 	re='^[0-9]+$'
 	if [[ $python_pid =~ $re ]] ; then
-		echo "\nSending USR1 to $python_pid (python). Reason: $REASON"
+		echo -e "\nSending USR1 to $python_pid (python). Reason: $REASON"
 		if [[ "$already_sent_signal" -eq "0" ]]; then
 			if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
 				already_sent_signal=1

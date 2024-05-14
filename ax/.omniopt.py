@@ -1274,7 +1274,7 @@ def end_program (csv_file_path, result_column="result"):
 
     sys.exit(_exit)
 
-def save_checkpoint (trial_nr):
+def save_checkpoint (trial_nr=0):
     if trial_nr > 3:
         return
 

@@ -1220,6 +1220,8 @@ def end_program (csv_file_path, result_column="result"):
 
     print(out_files_string)
 
+    print_debug("[end_program] printed out files strign")
+
     if out_files_string:
         try:
             with open(f"{current_run_folder}/errors.log", "w") as error_file:
@@ -1228,6 +1230,8 @@ def end_program (csv_file_path, result_column="result"):
             print(f"Error occurred while writing to errors.log: {e}")
 
     _exit = 0
+
+    print_debug("A")
 
     try:
         if current_run_folder is None:
@@ -1257,6 +1261,7 @@ def end_program (csv_file_path, result_column="result"):
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
 
+    print_debug("B")
     pd_csv = f'{current_run_folder}/pd.csv'
     print_debug(f"[end_program] Trying to save file to {pd_csv}")
 
@@ -1270,8 +1275,10 @@ def end_program (csv_file_path, result_column="result"):
                 print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()
 
+    print_debug("C")
     save_pd_csv()
 
+    print_debug("D")
     sys.exit(_exit)
 
 def save_checkpoint (trial_nr=0):

@@ -1268,7 +1268,7 @@ def end_program (csv_file_path, result_column="result", _force=False):
             try:
                 _trial = ax_client.get_trial(trial_index)
                 _trial.mark_abandoned()
-                jobs.remove((new_job, trial_index))
+                jobs.remove((job, trial_index))
             except Exception as e:
                 print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()

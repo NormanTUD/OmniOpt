@@ -2366,6 +2366,8 @@ def main ():
         end_program(result_csv_file)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
+        global is_in_evaluate
+        is_in_evaluate = False
         end_program(result_csv_file)
 
 def _unidiff_output(expected, actual):

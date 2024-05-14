@@ -541,11 +541,15 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	python_pid=$!
 	echo "Set python_pid to $python_pid"
 	wait $python_pid
-	set -e
-
 	EXIT_CODE=$?
 
+	set -e
+
 	tput bel
+
+	if [[ "$EXIT_CODE" -ne "0" ]]; then
+		echo "Exiting with exit-code $EXIT_CODE"
+	fi
 
 	exit $EXIT_CODE
 else

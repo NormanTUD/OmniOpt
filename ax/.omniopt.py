@@ -1200,6 +1200,7 @@ def end_program (csv_file_path, result_column="result"):
     global is_in_evaluate
 
     if is_in_evaluate:
+        print("is_in_evaluate true, returning end_program")
         return
 
     print_debug("[end_program] end_program started")
@@ -1220,6 +1221,7 @@ def end_program (csv_file_path, result_column="result"):
 
     if end_program_ran:
         print_debug("[end_program] end_program_ran was true. Returning.")
+        print("[end_program] end_program_ran was true. Returning.")
         return
 
     end_program_ran = True
@@ -1233,14 +1235,17 @@ def end_program (csv_file_path, result_column="result"):
     try:
         if current_run_folder is None:
             print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
+            print("[end_program] current_run_folder was empty. Not running end-algorithm.")
             return
 
         if ax_client is None:
             print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
+            print("[end_program] ax_client was empty. Not running end-algorithm.")
             return
 
         if console is None:
             print_debug("[end_program] console was empty. Not running end-algorithm.")
+            print("[end_program] console was empty. Not running end-algorithm.")
             return
 
         print_debug("[end_program] Calling show_end_table_and_save_end_files")

@@ -1234,12 +1234,12 @@ def end_program (csv_file_path, result_column="result", _force=False):
     print_debug("[end_program] printed out files strign")
     print("DEFEF")
 
-    if out_files_string:
-        try:
-            with open(f"{current_run_folder}/errors.log", "w") as error_file:
-                error_file.write(out_files_string)
-        except Exception as e:
-            print(f"Error occurred while writing to errors.log: {e}")
+    #if out_files_string:
+    #    try:
+    #        with open(f"{current_run_folder}/errors.log", "w") as error_file:
+    #            error_file.write(out_files_string)
+    #    except Exception as e:
+    #        print(f"Error occurred while writing to errors.log: {e}")
 
     _exit = 0
 

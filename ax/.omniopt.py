@@ -79,7 +79,7 @@ import uuid
 run_uuid = uuid.uuid4()
 
 def exit_local(_code=0):
-    exit_local(_code)
+    sys.exit(_code)
 
 import inspect
 def getLineInfo():
@@ -1190,7 +1190,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     if args.experimental:
         os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
     #print("Done printing stats")
-    #exit_local(_exit)
 
     return _exit
 

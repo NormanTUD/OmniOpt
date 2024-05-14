@@ -1200,6 +1200,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 def end_program (csv_file_path, result_column="result", _force=False):
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
+        print("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
     global is_in_evaluate
@@ -1221,15 +1222,15 @@ def end_program (csv_file_path, result_column="result", _force=False):
 
     print_debug("[end_program] end_program started")
 
-    print_debug("AAAA")
+    print("AAAA")
     out_files_string = analyze_out_files(current_run_folder)
-    print_debug("BABA")
+    print("BABA")
 
     print(out_files_string)
-    print_debug("CCCC")
+    print("CCCC")
 
     print_debug("[end_program] printed out files strign")
-    print_debug("DEFEF")
+    print("DEFEF")
 
     if out_files_string:
         try:
@@ -1240,7 +1241,7 @@ def end_program (csv_file_path, result_column="result", _force=False):
 
     _exit = 0
 
-    print_debug("A")
+    print("A")
 
     try:
         if current_run_folder is None:
@@ -1270,7 +1271,7 @@ def end_program (csv_file_path, result_column="result", _force=False):
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
 
-    print_debug("B")
+    print("B")
     pd_csv = f'{current_run_folder}/pd.csv'
     print_debug(f"[end_program] Trying to save file to {pd_csv}")
 
@@ -1284,10 +1285,10 @@ def end_program (csv_file_path, result_column="result", _force=False):
                 print(f"ERROR in line {getLineInfo()}: {e}")
             job.cancel()
 
-    print_debug("C")
+    print("C")
     save_pd_csv()
 
-    print_debug("D")
+    print("D")
     sys.exit(_exit)
 
 def save_checkpoint (trial_nr=0, ee=None):

@@ -46,6 +46,7 @@ function calltracer () {
 }
 
 trap 'calltracer' ERR
+trap 'run_before_end' CONT
 
 minutes_to_hh_mm_ss() {
 	var=$1
@@ -414,8 +415,7 @@ if [[ "$continue_previous_job" != "" ]]; then
 	fi
 fi
 
-sent_usr_signal_to_script=0
-python_pid=
+python_pid=""
 
 JOB_START_TIME=$SLURM_JOB_START_TIME
 JOB_END_TIME=$SLURM_JOB_END_TIME
@@ -428,16 +428,11 @@ run_before_end () {
 		if [ $sleep_time -gt 0 ]; then
 			sleep $sleep_time
 
-			if [[ $sent_usr_signal_to_script -eq 0 ]]; then
-				sent_usr_signal_to_script=1
-				re='^[0-9]+$'
-				if ! [[ $python_pid =~ $re ]] ; then
-					echo "run_before_end error: Python-PID '$python_pid' is not a number"
-				else
-					kill -USR1 "$python_pid"
-				fi
+			re='^[0-9]+$'
+			if ! [[ $python_pid =~ $re ]] ; then
+				echo "run_before_end error: Python-PID '$python_pid' is not a number"
 			else
-				echo "Already sent user signal to python PID $python_pid. Not doing that again."
+				kill -USR1 "$python_pid"
 			fi
 		else
 			echo "It is recommended that you run this in a slurm job."

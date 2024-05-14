@@ -1198,30 +1198,26 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     sys.exit(_exit)
 
 def end_program (csv_file_path, result_column="result", _force=False):
-    print("TRYING TO START END_PROGRAM")
-    if os.getpid() != main_pid:
-        print_debug("returning from end_program, because it can only run in the main thread, not any forks")
-        print("returning from end_program, because it can only run in the main thread, not any forks")
-        return
-
     global is_in_evaluate
     global end_program_ran
     global current_run_folder
     global ax_client
     global console
 
+    print("TRYING TO START END_PROGRAM")
+    if os.getpid() != main_pid:
+        print("returning from end_program, because it can only run in the main thread, not any forks")
+        return
+
     if is_in_evaluate and not force:
         print("is_in_evaluate true, returning end_program")
         return
 
     if end_program_ran and not force:
-        print_debug("[end_program] end_program_ran was true. Returning.")
         print("[end_program] end_program_ran was true. Returning.")
         return
 
     end_program_ran = True
-
-    print_debug("[end_program] end_program started")
 
     print("AAAA")
     out_files_string = analyze_out_files(current_run_folder)
@@ -1231,7 +1227,6 @@ def end_program (csv_file_path, result_column="result", _force=False):
         print(out_files_string)
         print("CCCC")
 
-    print_debug("[end_program] printed out files strign")
     print("DEFEF")
 
     if out_files_string:
@@ -1247,35 +1242,27 @@ def end_program (csv_file_path, result_column="result", _force=False):
 
     try:
         if current_run_folder is None:
-            print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
             print("[end_program] current_run_folder was empty. Not running end-algorithm.")
             return
 
         if ax_client is None:
-            print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
             print("[end_program] ax_client was empty. Not running end-algorithm.")
             return
 
         if console is None:
-            print_debug("[end_program] console was empty. Not running end-algorithm.")
             print("[end_program] console was empty. Not running end-algorithm.")
             return
 
-        print_debug("[end_program] Calling show_end_table_and_save_end_files")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
-        print_debug("[end_program] show_end_table_and_save_end_files called")
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
-        print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
-        print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
 
     print("B")
     pd_csv = f'{current_run_folder}/pd.csv'
-    print_debug(f"[end_program] Trying to save file to {pd_csv}")
 
     for job, trial_index in jobs[:]:
         if job:

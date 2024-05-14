@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#SBATCH --signal=B:USR1@120
 
 export ORIGINAL_PWD=$(pwd)
 

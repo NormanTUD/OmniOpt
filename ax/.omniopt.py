@@ -2775,7 +2775,7 @@ def analyze_out_files (rootdir, print_to_stdout=True):
     if print_to_stdout:
         print_color("red", "\n".join("\n"))
 
-    print('return "\n".join(_strs)')
+    print('return "\\n".join(_strs)')
     return "\n".join(_strs)
 
 def log_nr_of_workers ():

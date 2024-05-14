@@ -50,7 +50,7 @@ already_sent_signal=
 kill_python_if_started () {
 	REASON=$1
 	re='^[0-9]+$'
-	if [[ -z "$SLURM_JOB_ID" ]]; then
+	if ! [[ -z "$SLURM_JOB_ID" ]]; then
 		if [[ $python_pid =~ $re ]] ; then
 			if [[ -z "$already_sent_signal" ]]; then
 				if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then

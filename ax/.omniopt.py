@@ -2737,7 +2737,7 @@ def get_errors_from_outfile (i):
 def analyze_out_files (rootdir, print_to_stdout=True):
     print("analyze_out_files")
 
-    print("outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)")
+    print(f"outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)")
     try:
         outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
 

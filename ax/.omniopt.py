@@ -1243,22 +1243,27 @@ def end_program (csv_file_path, result_column="result", _force=False):
 
     _exit = 0
 
-    print("A")
+    print("Aaaaaa")
 
     try:
         if current_run_folder is None:
             print("[end_program] current_run_folder was empty. Not running end-algorithm.")
+            print("asdasd")
             return
 
         if ax_client is None:
             print("[end_program] ax_client was empty. Not running end-algorithm.")
+            print("sdasdasda")
             return
 
         if console is None:
             print("[end_program] console was empty. Not running end-algorithm.")
+            print("sidlkjfslkdfkjdslkf")
             return
 
+        print("kjsdunftg")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
+        print("oishfndskufjghdfg")
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
@@ -1267,7 +1272,6 @@ def end_program (csv_file_path, result_column="result", _force=False):
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
 
     print("B")
-    pd_csv = f'{current_run_folder}/pd.csv'
 
     for job, trial_index in jobs[:]:
         if job:

@@ -397,17 +397,23 @@ class signalUSR (Exception):
 class signalINT (Exception):
     pass
 
+class signalCONT (Exception):
+    pass
+
 def receive_usr_signal_one (signum, stack):
     raise signalUSR(f"USR1-signal received ({signum})")
 
 def receive_usr_signal_int (signum, stack):
     raise signalINT(f"INT-signal received ({signum})")
 
+def receive_signal_cont (signum, stack):
+    raise signalCONT(f"CONT-signal received ({signum})")
+
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
 signal.signal(signal.SIGUSR2, receive_usr_signal_one)
 signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
-signal.signal(signal.SIGQUIT, receive_usr_signal_int)
+signal.signal(signal.SIGCONT, receive_signal_cont)
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -445,7 +451,7 @@ try:
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
     sys.exit(20)
-except (signalUSR, signalINT, KeyboardInterrupt) as e:
+except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
     sys.exit(0)
 
@@ -930,6 +936,10 @@ def evaluate(parameters):
         print("\n:warning: USR1-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
         return return_in_case_of_error
+    except signalCONT:
+        print("\n:warning: CONT-Signal was sent. Cancelling evaluation.")
+        is_in_evaluate = False
+        return return_in_case_of_error
     except signalINT:
         print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
@@ -973,7 +983,7 @@ try:
             except:
                 print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
                 sys.exit(7)
-except (signalUSR, signalINT, KeyboardInterrupt) as e:
+except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
     sys.exit(0)
 
@@ -1236,7 +1246,7 @@ def end_program (csv_file_path, result_column="result"):
         print_debug("[end_program] Calling show_end_table_and_save_end_files")
         exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called")
-    except (signalUSR, signalINT, KeyboardInterrupt) as e:
+    except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
@@ -1323,6 +1333,8 @@ def save_pd_csv ():
         print_debug("pd.csv saved")
     except signalUSR as e:
         raise signalUSR("" + e)
+    except signalCONT as e:
+        raise signalCONT("" + e)
     except signalINT as e:
         raise signalINT("" + e)
     except Exception as e:
@@ -1876,7 +1888,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         pass
     new_job = None
     try:
-        progressbar_description([f"starting new job ({trial_counter - 1}/{next_nr_steps})"])
+        progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
 
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs(1)
@@ -1917,7 +1929,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             trial_counter += 1
         except Exception as e:
             print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
-    except (signalUSR, signalINT) as e:
+    except (signalUSR, signalINT, signalCONT) as e:
         print_color("red", f"\n:warning: Detected signal. Will exit.")
         end_program(result_csv_file)
     except Exception as e:
@@ -2352,7 +2364,7 @@ def main ():
         end_program(result_csv_file)
     except searchDone as e:
         end_program(result_csv_file)
-    except (signalUSR, signalINT, KeyboardInterrupt) as e:
+    except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
         end_program(result_csv_file)
 

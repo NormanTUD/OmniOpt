@@ -1057,7 +1057,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
     print_debug("[show_end_table_and_save_end_files] Getting best params")
 
-    exit = 0
+    _exit = 0
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -1072,7 +1072,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
                 table_str = "Best result could not be determined"
                 print_color("red", table_str)
-                exit = 1
+                _exit = 1
             else:
                 print_debug("[show_end_table_and_save_end_files] Creating table")
                 table = Table(show_header=True, header_style="bold", title="Best parameter:")
@@ -1194,18 +1194,28 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
     #print("Done printing stats")
         
-    sys.exit(exit)
+    sys.exit(_exit)
 
 def end_program (csv_file_path, result_column="result"):
     global is_in_evaluate
+    global end_program_ran
+    global current_run_folder
+    global ax_client
+    global console
 
     if is_in_evaluate:
         print("is_in_evaluate true, returning end_program")
         return
 
+    if end_program_ran:
+        print_debug("[end_program] end_program_ran was true. Returning.")
+        print("[end_program] end_program_ran was true. Returning.")
+        return
+
+    end_program_ran = True
+
     print_debug("[end_program] end_program started")
 
-    global current_run_folder
     out_files_string = analyze_out_files(current_run_folder)
 
     print(out_files_string)
@@ -1217,20 +1227,7 @@ def end_program (csv_file_path, result_column="result"):
         except Exception as e:
             print(f"Error occurred while writing to errors.log: {e}")
 
-    global end_program_ran
-
-    if end_program_ran:
-        print_debug("[end_program] end_program_ran was true. Returning.")
-        print("[end_program] end_program_ran was true. Returning.")
-        return
-
-    end_program_ran = True
-    print_debug("[end_program] Setting end_program_ran = True")
-
-    global ax_client
-    global console
-
-    exit = 0
+    _exit = 0
 
     try:
         if current_run_folder is None:
@@ -1249,13 +1246,13 @@ def end_program (csv_file_path, result_column="result"):
             return
 
         print_debug("[end_program] Calling show_end_table_and_save_end_files")
-        exit = show_end_table_and_save_end_files (csv_file_path, result_column)
+        _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called")
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         print_debug("[end_program] Calling show_end_table_and_save_end_files (in KeyboardInterrupt)")
-        exit = show_end_table_and_save_end_files (csv_file_path, result_column)
+        _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
         print_debug("[end_program] show_end_table_and_save_end_files called (in KeyboardInterrupt)")
     except TypeError:
         print_color("red", "\n:warning: The program has been halted without attaining any results.")
@@ -1275,7 +1272,7 @@ def end_program (csv_file_path, result_column="result"):
 
     save_pd_csv()
 
-    sys.exit(exit)
+    sys.exit(_exit)
 
 def save_checkpoint ():
     print_debug("save_checkpoint")

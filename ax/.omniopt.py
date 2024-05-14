@@ -2230,6 +2230,8 @@ def append_and_read (file, zahl=0):
 
     except FileNotFoundError as e:
         print(f"File not found: {e}")
+    except (signalUSR, signalINT, signalCONT) as e:
+        append_and_read(file, zahl)
     except Exception as e:
         print(f"Error editing the file: {e}")
 

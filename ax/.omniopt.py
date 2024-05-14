@@ -2343,7 +2343,7 @@ def main ():
                         if nr_of_items_random == 0:
                             break
 
-                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items_random}, {steps_mind_worker}, random")
+                        _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items_random}, {steps_mind_worker}, random")
 
                         progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
                     except botorch.exceptions.errors.InputDataError as e:
@@ -2378,7 +2378,7 @@ def main ():
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
-                    _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
+                    _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
 
                     finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 

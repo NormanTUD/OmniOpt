@@ -142,26 +142,31 @@ logfile_nr_workers = f'logs/{log_i}_nr_workers'
 logfile_linewise = f'logs/{log_i}_linewise'
 logfile_progressbar = f'logs/{log_i}_progressbar'
 
-def _debug_progressbar (msg):
+def _debug_progressbar (msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        print(f"Cannot write _debug, error: {ee}")
+        return
+
     try:
         with open(logfile_progressbar, 'a') as f:
             print(msg, file=f)
     except Exception as e:
         print("_debug_progressbar: Error trying to write log file: " + str(e))
 
-def _debug_linewise (msg):
-    try:
-        with open(logfile_linewise, 'a') as f:
-            print(msg, file=f)
-    except Exception as e:
-        print("_debug_linewise: Error trying to write log file: " + str(e))
+        _debug_progressbar(msg, _lvl + 1, e)
 
-def _debug (msg):
+def _debug (msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        print(f"Cannot write _debug, error: {ee}")
+        return
+
     try:
         with open(logfile, 'a') as f:
             print(msg, file=f)
     except Exception as e:
         print("_debug: Error trying to write log file: " + str(e))
+
+        _debug(msg, _lvl + 1, e)
 
 class REMatcher(object):
     def __init__(self, matchstring):

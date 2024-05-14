@@ -78,6 +78,9 @@ import uuid
 
 run_uuid = uuid.uuid4()
 
+def exit_local(_code=0):
+    exit_local(_code)
+
 import inspect
 def getLineInfo():
     return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
@@ -113,10 +116,10 @@ try:
     import plotext
 except ModuleNotFoundError as e:
     print(f"Base modules could not be loaded: {e}")
-    sys.exit(31)
+    exit_local(31)
 except KeyboardInterrupt:
     print("You cancelled loading the basic modules")
-    sys.exit(32)
+    exit_local(32)
 
 def datetime_from_string(input_string, input_format):
     return datetime.datetime.strptime(input_string, input_format)
@@ -181,7 +184,7 @@ class REMatcher(object):
 
 def dier (msg):
     pprint(msg)
-    sys.exit(10)
+    exit_local(10)
 
 parser = argparse.ArgumentParser(
     prog="omniopt",
@@ -267,27 +270,27 @@ else:
         joined_run_program = get_file_as_string(prev_job_file)
     else:
         print(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
-        sys.exit(44)
+        exit_local(44)
 
 experiment_name = args.experiment_name
 
 if not args.tests:
     if args.parameter is None and args.continue_previous_job is None:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
-        sys.exit(19)
+        exit_local(19)
     #elif args.parameter is not None and args.continue_previous_job is not None:
     #    print("You cannot use --parameter and --continue_previous_job. You have to decide for one.")
-    #    sys.exit(20)
+    #    exit_local(20)
     elif not args.run_program and not args.continue_previous_job:
         print("--run_program needs to be defined when --continue_previous_job is not set")
-        sys.exit(42)
+        exit_local(42)
     elif not experiment_name and not args.continue_previous_job:
         print("--experiment_name needs to be defined when --continue_previous_job is not set")
-        sys.exit(43)
+        exit_local(43)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
             print_color("red", f"The previous job folder {args.continue_previous_job} could not be found!")
-            sys.exit(21)
+            exit_local(21)
 
         if not experiment_name:
             exp_name_file = f"{args.continue_previous_job}/experiment_name"
@@ -295,11 +298,11 @@ if not args.tests:
                 experiment_name = get_file_as_string(exp_name_file).strip()
             else:
                 print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
-                sys.exit(46)
+                exit_local(46)
 
     if not args.mem_gb:
         print(f"--mem_gb needs to be set")
-        sys.exit(48)
+        exit_local(48)
 
     if not args.time:
         if not args.continue_previous_job:
@@ -315,7 +318,7 @@ if not args.tests:
                     print(f"Time-setting: The contents of {time_file} do not contain a single number")
             else:
                 print(f"neither --time nor file {time_file} found")
-                sys.exit(1)
+                exit_local(1)
     else:
         _time = args.time
 
@@ -333,7 +336,7 @@ if not args.tests:
                     print(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
             else:
                 print(f"neither --mem_gb nor file {mem_gb_file} found")
-                sys.exit(1)
+                exit_local(1)
     else:
         mem_gb = int(args.mem_gb)
 
@@ -348,7 +351,7 @@ if not args.tests:
                 print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
         else:
             print(f"neither --gpus nor file {gpus_file} found")
-            sys.exit(1)
+            exit_local(1)
     else:
         max_eval = args.max_eval
 
@@ -366,13 +369,13 @@ if not args.tests:
                     print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
             else:
                 print(f"neither --max_eval nor file {max_eval_file} found")
-                sys.exit(1)
+                exit_local(1)
     else:
         max_eval = args.max_eval
 
     if max_eval <= 0:
         print_color("red", "--max_eval must be larger than 0")
-        sys.exit(39)
+        exit_local(39)
 
 def print_debug (msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -395,7 +398,7 @@ try:
     from tqdm import tqdm
 except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
-    sys.exit(24)
+    exit_local(24)
 
 class signalUSR (Exception):
     pass
@@ -456,10 +459,10 @@ try:
         warnings.filterwarnings("ignore", category=RuntimeWarning)
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
-    sys.exit(20)
+    exit_local(20)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
-    sys.exit(0)
+    exit_local(0)
 
 def print_color (color, text):
     print(f"[{color}]{text}[/{color}]")
@@ -551,7 +554,7 @@ def parse_experiment_parameters(args):
 
     #if args.continue_previous_job and len(args.parameter):
     #    print_color("red", "Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
-    #    sys.exit(53)
+    #    exit_local(53)
 
     params = []
 
@@ -569,11 +572,11 @@ def parse_experiment_parameters(args):
 
             if name in invalid_names:
                 print_color("red", f"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
-                sys.exit(18)
+                exit_local(18)
 
             if name in param_names:
                 print_color("red", f"\n:warning: Parameter name '{name}' is not unique. Names for parameters must be unique!")
-                sys.exit(1)
+                exit_local(1)
 
             param_names.append(name)
 
@@ -584,28 +587,28 @@ def parse_experiment_parameters(args):
             if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)
                 print_color("red", f"\n:warning: Invalid type {param_type}, valid types are: {valid_types_string}")
-                sys.exit(3)
+                exit_local(3)
 
             if param_type == "range":
                 if len(this_args) != 5 and len(this_args) != 4:
                     print_color("red", f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
-                    sys.exit(9)
+                    exit_local(9)
 
                 try:
                     lower_bound = float(this_args[j + 2])
                 except:
                     print_color("red", f"\n:warning: {this_args[j + 2]} is not a number")
-                    sys.exit(4)
+                    exit_local(4)
 
                 try:
                     upper_bound = float(this_args[j + 3])
                 except:
                     print_color("red", f"\n:warning: {this_args[j + 3]} is not a number")
-                    sys.exit(5)
+                    exit_local(5)
 
                 if upper_bound == lower_bound:
                     print_color("red", f"Lower bound and upper bound are equal: {lower_bound}")
-                    sys.exit(13)
+                    exit_local(13)
 
                 if lower_bound > upper_bound:
                     print_color("yellow", f"Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
@@ -626,16 +629,16 @@ def parse_experiment_parameters(args):
                 if value_type not in valid_value_types:
                     valid_value_types_string = ", ".join(valid_value_types)
                     print_color("red", f"\n:warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-                    sys.exit(8)
+                    exit_local(8)
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}")
-                        sys.exit(37)
+                        exit_local(37)
 
                     if not looks_like_int(upper_bound):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}")
-                        sys.exit(38)
+                        exit_local(38)
 
                 param = {
                     "name": name,
@@ -650,7 +653,7 @@ def parse_experiment_parameters(args):
             elif param_type == "fixed":
                 if len(this_args) != 3:
                     print_color("red", f"\n:warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
-                    sys.exit(11)
+                    exit_local(11)
 
                 value = this_args[j + 2]
 
@@ -668,7 +671,7 @@ def parse_experiment_parameters(args):
             elif param_type == "choice":
                 if len(this_args) != 3:
                     print_color("red", f"\n:warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
-                    sys.exit(11)
+                    exit_local(11)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
@@ -688,7 +691,7 @@ def parse_experiment_parameters(args):
                 j += 3
             else:
                 print_color("red", f"\n:warning: Parameter type {param_type} not yet implemented.");
-                sys.exit(14)
+                exit_local(14)
         i += 1
 
     return params
@@ -967,20 +970,20 @@ try:
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
                 print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-                sys.exit(33)
+                exit_local(33)
             except KeyboardInterrupt:
                 print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-                sys.exit(34)
+                exit_local(34)
 
         with console.status("[bold green]Importing botorch...") as status:
             try:
                 import botorch
             except ModuleNotFoundError as e:
                 print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-                sys.exit(35)
+                exit_local(35)
             except KeyboardInterrupt:
                 print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-                sys.exit(36)
+                exit_local(36)
 
         with console.status("[bold green]Importing submitit...") as status:
             try:
@@ -988,10 +991,10 @@ try:
                 from submitit import AutoExecutor, LocalJob, DebugJob
             except:
                 print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
-                sys.exit(7)
+                exit_local(7)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
-    sys.exit(0)
+    exit_local(0)
 
 def disable_logging ():
     print_debug("disable_logging")
@@ -1187,7 +1190,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     if args.experimental:
         os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
     #print("Done printing stats")
-    #sys.exit(_exit)
+    #exit_local(_exit)
 
     return _exit
 
@@ -1259,7 +1262,7 @@ def end_program (csv_file_path, result_column="result", _force=False):
 
     save_pd_csv()
 
-    sys.exit(_exit)
+    exit_local(_exit)
 
 def save_checkpoint (trial_nr=0, ee=None):
     if trial_nr > 3:
@@ -1346,7 +1349,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         checkpoint_file = continue_previous_job + "/checkpoint.json"
         if not os.path.exists(checkpoint_file):
             print_color("red", f"{checkpoint_file} not found")
-            sys.exit(47)
+            exit_local(47)
 
         ax_client = (AxClient.load_from_json_file(checkpoint_file))
 
@@ -1354,7 +1357,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         if not os.path.exists(checkpoint_params_file):
             print_color(f"Cannot find {checkpoint_params_file}")
-            sys.exit(49)
+            exit_local(49)
 
         f = open(checkpoint_params_file)
         experiment_parameters = json.load(f)
@@ -1381,7 +1384,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         if not os.path.exists(checkpoint_params_file):
             print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
-            sys.exit(22)
+            exit_local(22)
 
         with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
             print(f"Continuation from checkpoint {continue_previous_job}", file=f)
@@ -1416,16 +1419,16 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 print_color("yellow", "--parameter_constraints is experimental!")
             else:
                 print_color("red", "Experiment constraints are invalid.")
-                sys.exit(28)
+                exit_local(28)
 
         try:
             experiment = ax_client.create_experiment(**experiment_args)
         except ValueError as error:
             print_color("red", f"An error has occured: {error}")
-            sys.exit(29)
+            exit_local(29)
         except TypeError as error:
             print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
-            sys.exit(50)
+            exit_local(50)
 
     return ax_client, experiment_parameters
 
@@ -1463,7 +1466,7 @@ def print_overview_table (experiment_parameters):
             rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
         else:
             print_color("red", f"Type {_type} is not yet implemented in the overview table.");
-            sys.exit(15)
+            exit_local(15)
 
     table = Table(header_style="bold", title="Experiment parameters:")
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
@@ -2429,7 +2432,7 @@ def _is_not_equal (name, input, output):
             return 1
     else:
         print_color("red", f"Unknown data type for test {name}")
-        sys.exit(100)
+        exit_local(100)
 
     print_color("green", f"Test OK: {name}")
     return 0
@@ -2452,7 +2455,7 @@ def _is_equal (name, input, output):
             return 1
     else:
         print_color("red", f"Unknown data type for test {name}")
-        sys.exit(100)
+        exit_local(100)
 
     print_color("green", f"Test OK: {name}")
     return 0
@@ -2466,7 +2469,7 @@ def complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal
 
     if not os.path.exists(program_path):
         print_color("red", f"Program path {program_path} not found!")
-        sys.exit(99)
+        exit_local(99)
 
     program_path_with_program = f"{program_path}"
 
@@ -2558,7 +2561,7 @@ def run_tests ():
         is_equal("test_find_paths failed", true, false)
         nr_errors += find_path_res
 
-    sys.exit(nr_errors)
+    exit_local(nr_errors)
 
 def file_contains_text(f, t):
     print_debug("file_contains_text")
@@ -2644,7 +2647,7 @@ def get_errors_from_outfile (i):
                     errors.append(f"{err} detected")
             else:
                 print_color(f"Wrong type, should be list or string, is {type(err)}")
-                sys.exit(41)
+                exit_local(41)
 
         if "Can't locate" in file_as_string and "@INC" in file_as_string:
             errors.append("Perl module not found")

@@ -2343,7 +2343,7 @@ def main ():
                         if nr_of_items_random == 0:
                             break
 
-                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items_random}, {next_nr_steps}, random")
+                        _debug_worker_creation(f"{time.time()}, {len(jobs)}, {nr_of_items_random}, {steps_mind_worker}, random")
 
                         progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
                     except botorch.exceptions.errors.InputDataError as e:

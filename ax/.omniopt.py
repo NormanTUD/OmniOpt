@@ -1274,15 +1274,22 @@ def end_program (csv_file_path, result_column="result"):
 
     sys.exit(_exit)
 
-def save_checkpoint ():
-    print_debug("save_checkpoint")
-    global current_run_folder
-    global ax_client
+def save_checkpoint (trial_nr):
+    if trial_nr > 3:
+        return
 
-    checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
-    ax_client.save_to_json_file(filepath=checkpoint_filepath)
+    try:
+        print_debug("save_checkpoint")
+        global current_run_folder
+        global ax_client
 
-    print_debug("Checkpoint saved")
+        checkpoint_filepath = f"{current_run_folder}/checkpoint.json"
+        ax_client.save_to_json_file(filepath=checkpoint_filepath)
+
+        print_debug("Checkpoint saved")
+    except Exception as e:
+        print("Error during saving checkpoint: " + e)
+        save_checkpoint(trial_nr + 1)
 
 def to_int_when_possible(val):
     # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte

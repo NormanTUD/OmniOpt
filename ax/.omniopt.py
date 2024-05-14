@@ -1341,11 +1341,11 @@ def save_pd_csv ():
         pd_frame.to_csv(pd_csv, index=False)
         print_debug("pd.csv saved")
     except signalUSR as e:
-        raise signalUSR("" + e)
+        raise signalUSR(str(e))
     except signalCONT as e:
-        raise signalCONT("" + e)
+        raise signalCONT(str(e))
     except signalINT as e:
-        raise signalINT("" + e)
+        raise signalINT(str(e))
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 

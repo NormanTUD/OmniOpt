@@ -532,8 +532,8 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	set +e
 	python3 $SCRIPT_DIR/.omniopt.py $args_string &
 	python_pid=$!
-	wait %1
 	echo "Set python_pid to $python_pid"
+	wait $python_pid
 	set -e
 
 	EXIT_CODE=$?

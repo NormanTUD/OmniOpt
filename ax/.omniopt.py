@@ -1290,8 +1290,12 @@ def end_program (csv_file_path, result_column="result", _force=False):
     print_debug("D")
     sys.exit(_exit)
 
-def save_checkpoint (trial_nr=0):
+def save_checkpoint (trial_nr=0, ee=None):
     if trial_nr > 3:
+        if ee:
+            print("Error during saving checkpoint: " + str(ee))
+        else:
+            print("Error during saving checkpoint")
         return
 
     try:
@@ -1304,8 +1308,7 @@ def save_checkpoint (trial_nr=0):
 
         print_debug("Checkpoint saved")
     except Exception as e:
-        print("Error during saving checkpoint: " + str(e))
-        save_checkpoint(trial_nr + 1)
+        save_checkpoint(trial_nr + 1, e)
 
 def to_int_when_possible(val):
     # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte

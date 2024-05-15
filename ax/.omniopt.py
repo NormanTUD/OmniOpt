@@ -489,9 +489,14 @@ def is_executable_in_path(executable_name):
             return True
     return False
 
+system_has_sbatch = False
+
+if is_executable_in_path("sbatch"):
+    system_has_sbatch = True
+
 def check_slurm_job_id():
     print_debug("check_slurm_job_id")
-    if is_executable_in_path('sbatch'):
+    if system_has_sbatch:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_color("red", "Not a valid SLURM_JOB_ID.")
@@ -2322,7 +2327,7 @@ def main ():
                     log_nr_of_workers()
                     #print(f"\ndone_jobs(): {done_jobs()}")
 
-                    if args.allow_slurm_overload and is_executable_in_path('sbatch'):
+                    if args.allow_slurm_overload and system_has_sbatch:
                         while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
@@ -2362,7 +2367,7 @@ def main ():
                     #print(f"\ndone_jobs(): {done_jobs()}")
                     log_nr_of_workers()
 
-                    if args.allow_slurm_overload and is_executable_in_path('sbatch'):
+                    if args.allow_slurm_overload and system_has_sbatch:
                         while len(jobs) > args.num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:

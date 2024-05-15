@@ -145,6 +145,22 @@ logfile_nr_workers = f'logs/{log_i}_nr_workers'
 logfile_linewise = f'logs/{log_i}_linewise'
 logfile_progressbar = f'logs/{log_i}_progressbar'
 logfile_worker_creation_logs = f'logs/{log_i}_worker_creation_logs'
+logfile_trial_index_to_param_logs = f'logs/{log_i}_trial_index_to_param_logs'
+
+def _log_trial_index_to_param (trial_index, _lvl=0, ee=None):
+    if _lvl > 3:
+        print(f"Cannot write _debug, error: {ee}")
+        return
+
+    try:
+        with open(logfile_trial_index_to_param_logs, 'a') as f:
+            print(f"========= {time.time()} =========", file=f)
+            print(trial_index, file=f)
+    except Exception as e:
+        print("_log_trial_index_to_param: Error trying to write log file: " + str(e))
+
+        _log_trial_index_to_param(trial_index, _lvl + 1, e)
+
 
 def _debug_worker_creation (msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -2124,6 +2140,8 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             if not args.not_all_at_once:
                 trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
 
+                _log_trial_index_to_param(trial_index_to_param)
+
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
@@ -2132,6 +2150,8 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             else:
                 for i in range(1, next_nr_steps + 1):
                     trial_index_to_param = _get_next_trials(ax_client, 1)
+
+                    _log_trial_index_to_param(trial_index_to_param)
 
                     for trial_index, parameters in trial_index_to_param.items():
                         finish_previous_jobs(args, ["finishing previous jobs before executing new one"])

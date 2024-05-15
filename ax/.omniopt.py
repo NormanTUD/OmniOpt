@@ -1991,7 +1991,7 @@ def _get_next_trials (ax_client, next_nr_steps):
 
     new_msgs = []
 
-    if is_executable_in_path("sbatch"):
+    if system_has_sbatch:
         if last_ax_client_time:
             new_msgs.append(f"_get_next_trials {next_nr_steps} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
@@ -2025,7 +2025,7 @@ def _get_next_trials (ax_client, next_nr_steps):
 def get_next_nr_steps(num_parallel_jobs, max_eval):
     global jobs
 
-    if not is_executable_in_path("sbatch"):
+    if not system_has_sbatch:
         return 1
 
     return num_parallel_jobs

@@ -2010,7 +2010,7 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
     if not is_executable_in_path("sbatch"):
         return 1
 
-    #return num_parallel_jobs
+    return num_parallel_jobs
 
     requested = max(1, min(num_parallel_jobs - len(jobs), max_eval - submitted_jobs()))
 

@@ -2028,9 +2028,9 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
     if not system_has_sbatch:
         return 1
 
-    return num_parallel_jobs
+    #return num_parallel_jobs
 
-    requested = max(1, min(num_parallel_jobs - len(jobs), max_eval - submitted_jobs()))
+    requested = min(num_parallel_jobs - len(jobs), max_eval - submitted_jobs())
 
     return requested
 

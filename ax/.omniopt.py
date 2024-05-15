@@ -2018,6 +2018,8 @@ def _get_next_trials (ax_client, next_nr_steps):
 
     time_get_next_trials_took.append(_ax_took)
 
+    _log_trial_index_to_param(trial_index_to_param)
+
     return trial_index_to_param
 
 def get_next_nr_steps(num_parallel_jobs, max_eval):
@@ -2140,8 +2142,6 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             if not args.not_all_at_once:
                 trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
 
-                _log_trial_index_to_param(trial_index_to_param)
-
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
@@ -2150,8 +2150,6 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             else:
                 for i in range(1, next_nr_steps + 1):
                     trial_index_to_param = _get_next_trials(ax_client, 1)
-
-                    _log_trial_index_to_param(trial_index_to_param)
 
                     for trial_index, parameters in trial_index_to_param.items():
                         finish_previous_jobs(args, ["finishing previous jobs before executing new one"])

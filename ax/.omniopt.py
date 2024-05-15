@@ -2010,7 +2010,11 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
     if not is_executable_in_path("sbatch"):
         return 1
 
-    return num_parallel_jobs
+    #return num_parallel_jobs
+
+    requested = max(1, min(num_parallel_jobs - len(jobs), max_eval - submitted_jobs()))
+
+    return requested
 
     """
     total_number_of_jobs_left = max_eval - submitted_jobs()
@@ -2082,6 +2086,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
             num_trials=max(args.num_parallel_jobs, random_steps),
             min_trials_observed=min(max_eval, random_steps),
             max_parallelism=num_parallel_jobs,  # Max parallelism for this step
+            enforce_num_trials=True,
             model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
             model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
         ))
@@ -2093,6 +2098,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
         num_trials=max(max_eval, num_parallel_jobs - len(jobs)),  # No limitation on how many trials should be produced from this step
         max_parallelism=num_parallel_jobs,  # Max parallelism for this step
         #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
+        enforce_num_trials=True,
         model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
         # More on parallelism vs. required samples in BayesOpt:
         # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials

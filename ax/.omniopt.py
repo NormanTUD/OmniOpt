@@ -251,7 +251,7 @@ optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as
 optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=True)
-optional.add_argument('--not_all_at_once', help='In the 2nd phase, should all workers be generated at once? Or one after another? Default is one after another', action='store_false', default=True) # TODO: default false?
+optional.add_argument('--not_all_at_once', help='In the 2nd phase, should all workers be generated at once? Or one after another? Default is one after another', action='store_true', default=False) # TODO: default false?
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)

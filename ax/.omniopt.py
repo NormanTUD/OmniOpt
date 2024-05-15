@@ -2406,10 +2406,11 @@ def main ():
 
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
-                    progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
+                    if next_nr_steps:
+                        progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
+                        nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
-                    progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
+                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 
                     _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
 

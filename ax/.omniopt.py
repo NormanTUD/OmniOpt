@@ -2010,6 +2010,9 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
     if not is_executable_in_path("sbatch"):
         return 1
 
+    return num_parallel_jobs
+
+    """
     total_number_of_jobs_left = max_eval - submitted_jobs()
 
     needed_number_of_trials = max(1, min(num_parallel_jobs, total_number_of_jobs_left))
@@ -2027,6 +2030,7 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
         new_nr_jobs = rest_jobs
 
     return new_nr_jobs
+    """
 
 def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     global random_steps

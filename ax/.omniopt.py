@@ -2095,7 +2095,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, _all_at_once=True):
+def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
     global random_steps
 
     if next_nr_steps == 0:
@@ -2106,7 +2106,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, _all
         print_debug("Trying to get trial_index_to_param")
 
         try:
-            if _all_at_once:
+            if not args.not_all_at_once:
                 trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
 
                 i = 1
@@ -2374,7 +2374,7 @@ def main ():
                     next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
 
                     progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])
-                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, not args.not_all_at_once)
+                    nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
                     progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
 

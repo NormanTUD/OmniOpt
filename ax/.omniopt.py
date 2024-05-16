@@ -1977,7 +1977,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-def _get_next_trials (ax_client, next_nr_steps):
+def _get_next_trials (ax_client, num_parallel_jobs):
     global time_get_next_trials_took
 
     last_ax_client_time = None
@@ -1990,16 +1990,16 @@ def _get_next_trials (ax_client, next_nr_steps):
 
     if system_has_sbatch:
         if last_ax_client_time:
-            new_msgs.append(f"getting {next_nr_steps} trials (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"getting {num_parallel_jobs} trials (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"getting {next_nr_steps} trials")
+            new_msgs.append(f"getting {num_parallel_jobs} trials")
     else:
-        next_nr_steps = 1
+        num_parallel_jobs = 1
 
         if last_ax_client_time:
-            new_msgs.append(f"getting {next_nr_steps} trials (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"getting {num_parallel_jobs} trials (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"getting {next_nr_steps} trials (no sbatch)")
+            new_msgs.append(f"getting {num_parallel_jobs} trials (no sbatch)")
 
     progressbar_description(new_msgs)
 
@@ -2007,7 +2007,7 @@ def _get_next_trials (ax_client, next_nr_steps):
 
     get_next_trials_time_start = time.time()
     trial_index_to_param, _ = ax_client.get_next_trials(
-        max_trials=next_nr_steps
+        max_trials=num_parallel_jobs
     )
     get_next_trials_time_end = time.time()
 
@@ -2141,20 +2141,25 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
 
         try:
             if not args.not_all_at_once:
-                trial_index_to_param = _get_next_trials(ax_client, next_nr_steps)
+                trial_index_to_param = _get_next_trials(ax_client, args.num_parallel_jobs)
 
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                    while len(jobs) > args.num_parallel_jobs:
+                        finish_previous_jobs(args, ["finishing previous jobs before executing new one (waiting)"])
+                        time.sleep(5)
                     execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
                     i += 1
             else:
                 for i in range(1, next_nr_steps + 1):
-                    trial_index_to_param = _get_next_trials(ax_client, 1)
+                    trial_index_to_param = _get_next_trials(ax_client, args.num_parallel_jobs)
 
                     for trial_index, parameters in trial_index_to_param.items():
                         finish_previous_jobs(args, ["finishing previous jobs before executing new one"])
-                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                        while len(jobs) > args.num_parallel_jobs:
+                            finish_previous_jobs(args, ["finishing previous jobs before executing new one (waiting)"])
+                            time.sleep(5)
                         execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
                         finish_previous_jobs(args, ["finishing previous jobs after executing new one"])
         except botorch.exceptions.errors.InputDataError as e:

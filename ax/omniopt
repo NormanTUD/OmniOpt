@@ -46,6 +46,7 @@ function calltracer () {
         caller
 
 	echo "Runtime: $(displaytime $SECONDS)"
+	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 }
 
 already_sent_signal=
@@ -67,6 +68,7 @@ kill_python_if_started () {
 		fi
 	fi
 	echo "Runtime: $(displaytime $SECONDS)"
+	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 }
 
 trap 'calltracer' ERR
@@ -661,4 +663,5 @@ else
 
 fi
 
+echo "Runtime: $(displaytime $SECONDS)"
 echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

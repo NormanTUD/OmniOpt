@@ -1774,7 +1774,7 @@ def get_workers_string ():
             string = ", ".join(cleaned_strings)
 
         if string:
-            string = f"(jobs: {string})"
+            string = f"jobs: {string}"
 
     return string
 
@@ -1789,7 +1789,6 @@ def get_desc_progress_text (new_msgs=[]):
     
     in_brackets = []
 
-    #print(f"failed jobs: {failed_jobs()}")
     if failed_jobs():
         in_brackets.append(f"failed: {failed_jobs()}")
 

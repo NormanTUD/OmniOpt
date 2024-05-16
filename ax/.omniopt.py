@@ -1795,7 +1795,7 @@ def get_workers_string ():
 
     for key in stats.keys():
         string_keys.append(key.lower()[0])
-        string_values(stats[key])
+        string_values.append(stats[key])
 
     if len(string_keys) and len(string_values):
         _keys = "/".join(string_keys)

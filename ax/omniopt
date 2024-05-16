@@ -44,6 +44,8 @@ function calltracer () {
 	git rev-parse HEAD
         red_text 'Error occured in file/line:'
         caller
+
+	echo "Runtime: $(displaytime $SECONDS)"
 }
 
 already_sent_signal=
@@ -64,6 +66,7 @@ kill_python_if_started () {
 			fi
 		fi
 	fi
+	echo "Runtime: $(displaytime $SECONDS)"
 }
 
 trap 'calltracer' ERR

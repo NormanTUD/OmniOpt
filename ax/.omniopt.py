@@ -2113,7 +2113,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     _steps.append(
         GenerationStep(
             model=Models.BOTORCH_MODULAR,
-            num_trials=max(max_eval, num_parallel_jobs - len(jobs)),  # No limitation on how many trials should be produced from this step
+            num_trials=-1,  # No limitation on how many trials should be produced from this step
             max_parallelism=num_parallel_jobs,  # Max parallelism for this step
             #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
             enforce_num_trials=True,

@@ -229,7 +229,7 @@ else
 		--parameter int_param_two range -6 6 int \
 		--follow \
 		--show_worker_percentage_table_at_end \
-		--all_at_once
+		--not_all_at_once
 fi
 
 exit_code=$?

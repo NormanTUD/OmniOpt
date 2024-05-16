@@ -1842,7 +1842,7 @@ def get_desc_progress_text (new_msgs=[]):
 
     if args.verbose_tqdm and max_eval:
         in_brackets.append(f"max_eval: {max_eval}")
-    if args.verbose_tqdm:
+    if system_has_sbatch:
         workers_strings = get_workers_string()
         if workers_strings:
             in_brackets.append(workers_strings)

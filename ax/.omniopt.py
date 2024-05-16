@@ -2312,7 +2312,7 @@ def execute_nvidia_smi():
             if host and output:
                 append_to_nvidia_smi_logs(_file, output)
         except Exception as e:
-            log(f"An error occurred: {e}")
+            print(f"An error occurred: {e}")
         time.sleep(10)
 
 def start_nvidia_smi_thread():

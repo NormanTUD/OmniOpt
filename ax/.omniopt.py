@@ -3,7 +3,7 @@
 original_print = print
 
 """
-TODO: 
+TODO:
 
     Problem: the amount of workers that start decrease over time.
 
@@ -14,7 +14,7 @@ TODO:
 
     Trying to define enforce_sequential_optimization to true and false. Both had no effect.
 
-    Trying to set the generation strategy manual (search "gs = "), first num_parallel_jobs jobs randomly 
+    Trying to set the generation strategy manual (search "gs = "), first num_parallel_jobs jobs randomly
     with SOBOL, then the rest with BOTORCH_MODULAR. but no effect. Also trying to set min_trials_observed
     for both types, but to no effect
 
@@ -1186,13 +1186,8 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
         with open(csv_filename, 'w', newline='') as csvfile:
-            # Erstelle den CSV-Writer
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            
-            # Schreibe die Spaltenüberschriften
             csv_writer.writeheader()
-            
-            # Schreibe die Datenzeilen
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
 
@@ -1461,7 +1456,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 "num_initialization_trials": num_parallel_jobs,
                 "max_parallelism_cap": num_parallel_jobs,
                 #"use_batch_trials": True,
-                "max_parallelism_override": -1 
+                "max_parallelism_override": -1
             },
         }
 
@@ -1654,7 +1649,7 @@ def finish_previous_jobs (args, new_msgs):
 
     #print("jobs in finish_previous_jobs:")
     #print(jobs)
-    
+
     jobs_finished = 0
 
     for job, trial_index in jobs[:]:
@@ -1815,7 +1810,7 @@ def get_desc_progress_text (new_msgs=[]):
     global max_eval
 
     desc = ""
-    
+
     in_brackets = []
 
     if failed_jobs():
@@ -2089,7 +2084,7 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
 def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     global random_steps
 
-    """ 
+    """
 
     Valid models?
 
@@ -2124,7 +2119,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     if random_steps is None:
         random_steps = 0
-    
+
     if max_eval is None:
         max_eval = max(1, random_steps)
 
@@ -2201,7 +2196,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
         print_color("red", "\n:warning: " + str(e))
     except (
         botorch.exceptions.errors.ModelFittingError,
-        ax.exceptions.core.SearchSpaceExhausted, 
+        ax.exceptions.core.SearchSpaceExhausted,
         ax.exceptions.core.DataRequiredError,
         botorch.exceptions.errors.InputDataError
     ) as e:
@@ -2935,7 +2930,7 @@ def get_best_params(csv_file_path, result_column):
         if type(this_line_result) in [float, int]:
             if best_result is None:
                 best_line = this_line
-                best_result = this_line_result               
+                best_result = this_line_result
             elif args.maximize and this_line_result >= best_result:
                 best_line = this_line
                 best_result = this_line_result

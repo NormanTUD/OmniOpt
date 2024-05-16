@@ -48,6 +48,7 @@ export worker_timeout=30
 export mem_gb=5
 export runtime=300
 export not_all_at_once=0
+export max_epochs=10
 
 function help () {
         echo "Possible options:"
@@ -59,6 +60,7 @@ function help () {
 	echo "  --time=n                                           Max runtime in minutes (default: $runtime)"
 	echo "  --max_eval=n                                       Max number of evals (default: $max_eval)"
 	echo "  --not_all_at_once                                  Run all jobs at once in the scheduler instead of one-by-one (default: $not_all_at_once)"
+	echo "  --max_epochs=n                                     Number of max epochs (default: $max_epochs)"
         exit $1
 }
 
@@ -85,6 +87,10 @@ for i in $@; do
 			;;
 		--time=*)
 			runtime="${i#*=}"
+			shift
+			;;
+		--max_epochs=*)
+			max_epochs="${i#*=}"
 			shift
 			;;
 		--max_eval=*)
@@ -143,7 +149,7 @@ if [[ "$not_all_at_once" -eq "1" ]]; then
 		 --parameter height range 20 80 int \
 		 --parameter validation_split range 0 0.4 float \
 		 --parameter learning_rate range 0.001 0.4 float \
-		 --parameter epochs range 1 10 int \
+		 --parameter epochs range 1 $max_epochs int \
 		 --not_all_at_once \
 		 --debug
  else
@@ -161,7 +167,7 @@ if [[ "$not_all_at_once" -eq "1" ]]; then
 		 --parameter height range 20 80 int \
 		 --parameter validation_split range 0 0.4 float \
 		 --parameter learning_rate range 0.001 0.4 float \
-		 --parameter epochs range 1 10 int \
+		 --parameter epochs range 1 $max_epochs int \
 		 --debug
 fi
 

@@ -51,6 +51,7 @@ export not_all_at_once=0
 export max_epochs=10
 
 function help () {
+        echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
         echo "Possible options:"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"

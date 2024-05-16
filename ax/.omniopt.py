@@ -922,7 +922,7 @@ def find_file_paths_and_print_infos (_text, program_code):
 def evaluate(parameters):
     global is_in_evaluate
 
-    start_nvidia_smi_thread()
+    nvidia_smi_thread = start_nvidia_smi_thread()
 
     is_in_evaluate = True
     if args.evaluate_to_random_value:
@@ -1007,8 +1007,6 @@ def evaluate(parameters):
         print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
         return return_in_case_of_error
-
-    is_in_evaluate = False
 
 try:
     if not args.tests:
@@ -2334,7 +2332,7 @@ def start_nvidia_smi_thread():
 def main ():
     print_debug("main")
 
-    start_nvidia_smi_thread()
+    nvidia_smi_thread = start_nvidia_smi_thread()
 
     _debug_worker_creation("time, nr_workers, got, requested, phase")
 
@@ -2496,6 +2494,7 @@ def main ():
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
         global is_in_evaluate
         is_in_evaluate = False
+
         end_program(result_csv_file, "result", 1)
 
 def _unidiff_output(expected, actual):

@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+original_print = print
+
 """
 TODO: 
 
@@ -185,7 +187,7 @@ def append_to_nvidia_smi_logs (_file, result, _lvl=0, ee=None):
     try:
         msg = result
         with open(_file, 'a') as f:
-            print(msg, file=f)
+            original_print(msg, file=f)
     except Exception as e:
         print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
 
@@ -2311,9 +2313,6 @@ def execute_nvidia_smi():
             output = result.stdout
 
             output = output.rstrip('\n')
-
-            print(_file)
-            print(output)
 
             if host and output:
                 append_to_nvidia_smi_logs(_file, output)

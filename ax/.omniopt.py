@@ -1815,7 +1815,7 @@ def get_desc_progress_text (new_msgs=[]):
     global random_steps
     global max_eval
 
-    desc = f"Searching {searching_for}"
+    desc = ""
     
     in_brackets = []
 
@@ -1837,8 +1837,6 @@ def get_desc_progress_text (new_msgs=[]):
 
             if str(best_result) != NO_RESULT and best_result is not None:
                 in_brackets.append(f"best result: {best_result_int_if_possible}")
-
-            in_brackets.append(f"done: {done_jobs()}")
 
             this_progress_values = {
                 "best_result": str(best_result_int_if_possible),
@@ -1885,7 +1883,10 @@ def get_desc_progress_text (new_msgs=[]):
                 in_brackets_clean.append(item)
 
         if in_brackets_clean:
-            desc += f" ({', '.join(in_brackets_clean)})"
+            desc += f"{', '.join(in_brackets_clean)}"
+
+    capitalized_string = lambda s: s[0].upper() + s[1:] if s else ''
+    desc = capitalized_string(desc)
 
     return desc
 
@@ -2408,6 +2409,7 @@ def main ():
             initial_text = get_desc_progress_text()
             if random_steps:
                 print(f"\nStarting random search for {random_steps} steps")
+            print(f"Searching {searching_for}")
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
@@ -2462,7 +2464,7 @@ def main ():
                         raise searchDone("Search done")
 
 
-                    finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
+                    finish_previous_jobs(args, ["finishing jobs"])
 
                     next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
 

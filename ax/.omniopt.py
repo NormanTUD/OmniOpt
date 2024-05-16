@@ -118,10 +118,10 @@ try:
     from pprint import pformat
     import plotext
 except ModuleNotFoundError as e:
-    print(f"Base modules could not be loaded: {e}")
+    original_print(f"Base modules could not be loaded: {e}")
     exit_local(31)
 except KeyboardInterrupt:
-    print("You cancelled loading the basic modules")
+    original_print("You cancelled loading the basic modules")
     exit_local(32)
 
 def datetime_from_string(input_string, input_format):
@@ -134,7 +134,7 @@ def datetime_to_plotext_format(dt):
 try:
     Path("logs").mkdir(parents=True, exist_ok=True)
 except Exception as e:
-    print("Could not create logs: " + str(e))
+    original_print("Could not create logs: " + str(e))
 
 log_i = 0
 logfile = f'logs/{log_i}'
@@ -153,35 +153,35 @@ logfile_trial_index_to_param_logs = f'logs/{log_i}_trial_index_to_param_logs'
 
 def _log_trial_index_to_param (trial_index, _lvl=0, ee=None):
     if _lvl > 3:
-        print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {ee}")
         return
 
     try:
         with open(logfile_trial_index_to_param_logs, 'a') as f:
-            print(f"========= {time.time()} =========", file=f)
-            print(trial_index, file=f)
+            original_print(f"========= {time.time()} =========", file=f)
+            original_print(trial_index, file=f)
     except Exception as e:
-        print("_log_trial_index_to_param: Error trying to write log file: " + str(e))
+        original_print("_log_trial_index_to_param: Error trying to write log file: " + str(e))
 
         _log_trial_index_to_param(trial_index, _lvl + 1, e)
 
 
 def _debug_worker_creation (msg, _lvl=0, ee=None):
     if _lvl > 3:
-        print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {ee}")
         return
 
     try:
         with open(logfile_worker_creation_logs, 'a') as f:
-            print(msg, file=f)
+            original_print(msg, file=f)
     except Exception as e:
-        print("_debug_worker_creation: Error trying to write log file: " + str(e))
+        original_print("_debug_worker_creation: Error trying to write log file: " + str(e))
 
         _debug_worker_creation(msg, _lvl + 1, e)
 
 def append_to_nvidia_smi_logs (_file, result, _lvl=0, ee=None):
     if _lvl > 3:
-        print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {ee}")
         return
 
     try:
@@ -189,33 +189,33 @@ def append_to_nvidia_smi_logs (_file, result, _lvl=0, ee=None):
         with open(_file, 'a') as f:
             original_print(msg, file=f)
     except Exception as e:
-        print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
+        original_print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
 
         append_to_nvidia_smi_logs(host, result, _lvl + 1, e)
 
 def _debug_progressbar (msg, _lvl=0, ee=None):
     if _lvl > 3:
-        print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {ee}")
         return
 
     try:
         with open(logfile_progressbar, 'a') as f:
-            print(msg, file=f)
+            original_print(msg, file=f)
     except Exception as e:
-        print("_debug_progressbar: Error trying to write log file: " + str(e))
+        original_print("_debug_progressbar: Error trying to write log file: " + str(e))
 
         _debug_progressbar(msg, _lvl + 1, e)
 
 def _debug (msg, _lvl=0, ee=None):
     if _lvl > 3:
-        print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {ee}")
         return
 
     try:
         with open(logfile, 'a') as f:
-            print(msg, file=f)
+            original_print(msg, file=f)
     except Exception as e:
-        print("_debug: Error trying to write log file: " + str(e))
+        original_print("_debug: Error trying to write log file: " + str(e))
 
         _debug(msg, _lvl + 1, e)
 

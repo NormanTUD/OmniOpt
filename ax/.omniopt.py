@@ -2404,7 +2404,7 @@ def main ():
         # Run until all the jobs have finished and our budget is used up.
 
         global searching_for
-        searching_for = "min." if not args.maximize else "max."
+        searching_for = "minimum" if not args.maximize else "maximum"
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

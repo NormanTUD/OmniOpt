@@ -2433,7 +2433,7 @@ def main ():
 
                         nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
                         if nr_of_items_random:
-                            progressbar_description([f"random phase: got {nr_of_items_random} random, requested {random_steps}"])
+                            progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
 
                         if nr_of_items_random == 0:
                             break
@@ -2472,7 +2472,7 @@ def main ():
                         progressbar_description([f"trying to get {next_nr_steps} next steps"])
                         nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
 
-                        progressbar_description([f"systemic phase: got {nr_of_items}, requested {next_nr_steps}"])
+                        progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
                     _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
 

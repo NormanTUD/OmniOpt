@@ -42,16 +42,23 @@ function calltracer () {
 
 trap 'calltracer' ERR
 
+export max_eval=200
+export num_parallel_jobs=20
+export worker_timeout=30
+export mem_gb=5
+export runtime=300
+export not_all_at_once=0
+
 function help () {
         echo "Possible options:"
-	echo "  --use-ram-tests                                    Run test that allocates more and more memory"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
-	echo "  --num_parallel_jobs=n                              Number of parallel jobs"
-	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout"
-	echo "  --time=n                                           Max runtime in minutes"
-	echo "  --max_eval=n                                       Max number of evals"
-	echo "  --not_all_at_once                                  Run all jobs at once in the scheduler instead of one-by-one"
+	echo "  --num_parallel_jobs=n                              Number of parallel jobs (default: $num_parallel_jobs)"
+	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout (default: $worker_timeout)"
+	echo "  --mem_gb=n                                         Memory in GB (default $mem_gb)"
+	echo "  --time=n                                           Max runtime in minutes (default: $runtime)"
+	echo "  --max_eval=n                                       Max number of evals (default: $max_eval)"
+	echo "  --not_all_at_once                                  Run all jobs at once in the scheduler instead of one-by-one (default: $not_all_at_once)"
         exit $1
 }
 
@@ -61,15 +68,6 @@ function join_by {
 		printf %s "$f" "${@/#/$d}"
 	fi
 }
-
-export useramtests=0
-
-export max_eval=200
-export num_parallel_jobs=20
-export worker_timeout=30
-export mem_gb=30
-export runtime=300
-export not_all_at_once=0
 
 for i in $@; do
         case $i in
@@ -95,10 +93,6 @@ for i in $@; do
 			;;
                 --not_all_at_once)
                         not_all_at_once=1
-                        shift
-                        ;;
-                --use-ram-tests)
-                        useramtests=1
                         shift
                         ;;
                 -h|--help)

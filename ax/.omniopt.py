@@ -1816,7 +1816,7 @@ def get_desc_progress_text (new_msgs=[]):
 
     best_params = None
 
-    this_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    this_time = time.time()
 
     if done_jobs():
         best_params = get_best_params(result_csv_file, "result")

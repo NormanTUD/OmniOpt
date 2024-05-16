@@ -2342,7 +2342,7 @@ def main ():
     global ax_client
     global jobs
 
-    print("omniopt " + " ".join(sys.argv[1:]))
+    original_print("omniopt " + " ".join(sys.argv[1:]))
 
     check_slurm_job_id()
 

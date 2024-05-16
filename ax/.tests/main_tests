@@ -191,7 +191,7 @@ if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("omniopt script failed.")
 fi
 
-yellow_text "Starting main program with --all_at_once..."
+yellow_text "Starting main program with --not_all_at_once..."
 
 if [[ "$no_sleep" -eq 1 ]]; then
 	./omniopt \
@@ -211,7 +211,7 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--follow \
 		--no_sleep \
 		--show_worker_percentage_table_at_end \
-		--all_at_once
+		--not_all_at_once
 else
 	./omniopt \
 		--partition=$PARTITION \

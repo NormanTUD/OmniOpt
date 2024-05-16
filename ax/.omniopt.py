@@ -14,7 +14,7 @@ TODO:
 
     Trying to define enforce_sequential_optimization to true and false. Both had no effect.
 
-    Trying to set the generation strategy manual (search "gs = "), first args.num_parallel_jobs jobs randomly 
+    Trying to set the generation strategy manual (search "gs = "), first num_parallel_jobs jobs randomly 
     with SOBOL, then the rest with BOTORCH_MODULAR. but no effect. Also trying to set min_trials_observed
     for both types, but to no effect
 
@@ -76,6 +76,7 @@ random_steps = None
 progress_bar = None
 searching_for = None
 main_pid = os.getpid()
+num_parallel_jobs = None
 
 import uuid
 
@@ -291,6 +292,9 @@ debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 
 args = parser.parse_args()
+
+if args.num_parallel_jobs:
+    num_parallel_jobs = args.num_parallel_jobs
 
 if args.follow and args.wait_until_ended:
     print("--follow and --wait_until_ended at the same time. May not be what you want.")
@@ -533,6 +537,9 @@ system_has_sbatch = False
 
 if is_executable_in_path("sbatch"):
     system_has_sbatch = True
+
+if not system_has_sbatch:
+    num_parallel_jobs = 1
 
 def check_slurm_job_id():
     print_debug("check_slurm_job_id")
@@ -1453,8 +1460,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
             "choose_generation_strategy_kwargs": {
                 "num_trials": max_eval,
-                "num_initialization_trials": args.num_parallel_jobs,
-                "max_parallelism_cap": args.num_parallel_jobs,
+                "num_initialization_trials": num_parallel_jobs,
+                "max_parallelism_cap": num_parallel_jobs,
                 #"use_batch_trials": True,
                 "max_parallelism_override": -1 
             },
@@ -1845,7 +1852,7 @@ def get_desc_progress_text (new_msgs=[]):
                 progress_plot.append(this_progress_values)
 
         nr_current_workers = len(jobs)
-        max_nr_jobs = args.num_parallel_jobs
+        max_nr_jobs = num_parallel_jobs
         percentage = round((nr_current_workers/max_nr_jobs) * 100)
 
         if nr_current_workers:
@@ -2125,7 +2132,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=max(args.num_parallel_jobs, random_steps),
+                num_trials=max(num_parallel_jobs, random_steps),
                 min_trials_observed=min(max_eval, random_steps),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
@@ -2167,23 +2174,23 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
 
         try:
             if not args.not_all_at_once:
-                trial_index_to_param = _get_next_trials(ax_client, args.num_parallel_jobs)
+                trial_index_to_param = _get_next_trials(ax_client, num_parallel_jobs)
 
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                    while len(jobs) > args.num_parallel_jobs:
+                    while len(jobs) > num_parallel_jobs:
                         finish_previous_jobs(args, ["finishing previous jobs before executing new one (waiting)"])
                         time.sleep(5)
                     execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
                     i += 1
             else:
                 for i in range(1, next_nr_steps + 1):
-                    trial_index_to_param = _get_next_trials(ax_client, args.num_parallel_jobs)
+                    trial_index_to_param = _get_next_trials(ax_client, num_parallel_jobs)
 
                     for trial_index, parameters in trial_index_to_param.items():
                         finish_previous_jobs(args, ["finishing previous jobs before executing new one"])
-                        while len(jobs) > args.num_parallel_jobs:
+                        while len(jobs) > num_parallel_jobs:
                             finish_previous_jobs(args, ["finishing previous jobs before executing new one (waiting)"])
                             time.sleep(5)
                         execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
@@ -2227,10 +2234,10 @@ def get_number_of_steps (args, max_eval):
     if random_steps > max_eval:
         print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
-    if random_steps < args.num_parallel_jobs and is_executable_in_path("sbatch"):
+    if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps
-        random_steps = args.num_parallel_jobs
-        print(f"random_steps {old_random_steps} <- num_parallel_jobs {args.num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({args.num_parallel_jobs}) to not have idle workers.")
+        random_steps = num_parallel_jobs
+        print(f"random_steps {old_random_steps} <- num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers.")
 
     if random_steps > max_eval:
         max_eval = random_steps
@@ -2391,7 +2398,7 @@ def main ():
 
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
-        gs = get_generation_strategy(args.num_parallel_jobs, args.seed, args.max_eval)
+        gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 
         ax_client = AxClient(
             verbose_logging=args.verbose,
@@ -2428,7 +2435,7 @@ def main ():
                     #print(f"\ndone_jobs(): {done_jobs()}")
 
                     if args.allow_slurm_overload and system_has_sbatch:
-                        while len(jobs) > args.num_parallel_jobs:
+                        while len(jobs) > num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
@@ -2437,7 +2444,7 @@ def main ():
                         break
 
                     try:
-                        steps_mind_worker = min(random_steps, max(1, args.num_parallel_jobs - len(jobs)))
+                        steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(jobs)))
 
                         progressbar_description([f"trying to get {steps_mind_worker} workers"])
 
@@ -2468,7 +2475,7 @@ def main ():
                     log_nr_of_workers()
 
                     if args.allow_slurm_overload and system_has_sbatch:
-                        while len(jobs) > args.num_parallel_jobs:
+                        while len(jobs) > num_parallel_jobs:
                             time.sleep(10)
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
@@ -2476,7 +2483,7 @@ def main ():
 
                     finish_previous_jobs(args, ["finishing previous jobs before starting new jobs"])
 
-                    next_nr_steps = get_next_nr_steps(args.num_parallel_jobs, max_eval)
+                    next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
 
                     if next_nr_steps:
                         progressbar_description([f"started systematic search, trying to get {next_nr_steps} next steps"])

@@ -152,7 +152,6 @@ if [[ "$follow" -eq "1" ]]; then
 		 --parameter validation_split range 0 0.4 float \
 		 --parameter learning_rate range 0.001 0.4 float \
 		 --parameter epochs range 1 $max_epochs int \
-		 --debug \
 		 --follow
 else
 
@@ -170,8 +169,7 @@ else
 		 --parameter height range 20 80 int \
 		 --parameter validation_split range 0 0.4 float \
 		 --parameter learning_rate range 0.001 0.4 float \
-		 --parameter epochs range 1 $max_epochs int \
-		 --debug
+		 --parameter epochs range 1 $max_epochs int
 fi
 
 exit $?

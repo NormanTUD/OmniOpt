@@ -57,7 +57,6 @@ NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 already_shown_worker_usage_over_time = False
 ax_client = None
 time_get_next_trials_took = []
-done_jobs = 0
 progress_plot = []
 worker_percentage_usage = []
 jobs = []
@@ -2015,12 +2014,14 @@ def _get_next_trials (ax_client):
 
     new_msgs = []
 
-    total_jobs_left = max_eval - done_jobs()
+    total_jobs_left = max_eval - submitted_jobs()
 
-    if total_jobs_left < num_parallel_jobs:
-        num_parallel_jobs = total_jobs_left
+    real_num_parallel_jobs = num_parallel_jobs
 
-    base_msg = f"getting {num_parallel_jobs} trials "
+    if total_jobs_left < real_num_parallel_jobs:
+        real_num_parallel_jobs = total_jobs_left
+
+    base_msg = f"getting {real_num_parallel_jobs} trials "
 
     if system_has_sbatch:
         if last_ax_client_time:
@@ -2028,7 +2029,7 @@ def _get_next_trials (ax_client):
         else:
             new_msgs.append(f"{base_msg}")
     else:
-        num_parallel_jobs = 1
+        real_num_parallel_jobs = 1
 
         if last_ax_client_time:
             new_msgs.append(f"{base_msg}(no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
@@ -2041,7 +2042,7 @@ def _get_next_trials (ax_client):
 
     get_next_trials_time_start = time.time()
     trial_index_to_param, _ = ax_client.get_next_trials(
-        max_trials=num_parallel_jobs
+        max_trials=real_num_parallel_jobs
     )
     get_next_trials_time_end = time.time()
 

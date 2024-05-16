@@ -1993,16 +1993,16 @@ def _get_next_trials (ax_client, next_nr_steps):
 
     if system_has_sbatch:
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {next_nr_steps} (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"getting {next_nr_steps} trials (last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"_get_next_trials {next_nr_steps}")
+            new_msgs.append(f"getting {next_nr_steps} trials")
     else:
         next_nr_steps = 1
 
         if last_ax_client_time:
-            new_msgs.append(f"_get_next_trials {next_nr_steps} (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
+            new_msgs.append(f"getting {next_nr_steps} trials (no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
-            new_msgs.append(f"_get_next_trials {next_nr_steps} (no sbatch)")
+            new_msgs.append(f"getting {next_nr_steps} trials (no sbatch)")
 
     progressbar_description(new_msgs)
 

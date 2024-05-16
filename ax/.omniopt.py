@@ -1848,6 +1848,7 @@ def get_desc_progress_text (new_msgs=[]):
                 progress_plot.append(this_progress_values)
 
         nr_current_workers = len(jobs)
+        percentage = round((nr_current_workers/num_parallel_jobs) * 100)
 
         this_values = {
             "nr_current_workers": nr_current_workers,

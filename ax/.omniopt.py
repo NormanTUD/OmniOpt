@@ -1103,8 +1103,6 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            #best_parameters, (means, covariances) = ax_client.get_best_parameters() # TODO get_best_params nutzen
-
             best_params = get_best_params(csv_file_path, result_column)
 
             best_result = best_params["result"]

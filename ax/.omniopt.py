@@ -2410,9 +2410,9 @@ def main ():
             warnings.simplefilter("ignore")
 
             initial_text = get_desc_progress_text()
+            print(f"Searching {searching_for}")
             if random_steps:
                 print(f"\nStarting random search for {random_steps} steps")
-            print(f"Searching {searching_for}")
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar

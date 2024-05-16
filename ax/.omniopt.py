@@ -1781,7 +1781,8 @@ def get_workers_string ():
 
     string = ""
 
-    strings = []
+    string_keys = []
+    string_values = []
 
     stats = {}
 
@@ -1793,20 +1794,15 @@ def get_workers_string ():
         stats[state] += 1
 
     for key in stats.keys():
-        strings.append(f"{key.lower()}: {stats[key]}")
+        string_keys.append(key.lower()[0])
+        string_values(stats[key])
 
-    if len(strings):
-        cleaned_strings = []
+    if len(string_keys) and len(string_values):
+        _keys = "/".join(string_keys)
+        _values = "/".join(string_values)
 
-        for item in strings:
-            if item:
-                cleaned_strings.append(item)
-
-        if len(cleaned_strings):
-            string = ", ".join(cleaned_strings)
-
-        if string:
-            string = f"jobs: {string}"
+        if len(_keys):
+            string = f"jobs: {_keys} {_values}"
 
     return string
 

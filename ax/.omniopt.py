@@ -2452,7 +2452,7 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    finish_previous_jobs(args, [f"waiting for last jobs to end (phase 1/2, {len(jobs)} left)"])
+                    finish_previous_jobs(args, [f"waiting for last jobs to end (phase 1/2, {len(jobs) - 1} left)"])
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")

@@ -271,7 +271,6 @@ optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for 
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
 optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-optional.add_argument('--allow_slurm_overload', help='Allow slurm to allocate as many workers as it can. Default is to wait until older workers died.', action='store_true', default=False)
 optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
@@ -2420,8 +2419,9 @@ def main ():
                     log_nr_of_workers()
                     #print(f"\ndone_jobs(): {done_jobs()}")
 
-                    if args.allow_slurm_overload and system_has_sbatch:
+                    if system_has_sbatch:
                         while len(jobs) > num_parallel_jobs:
+                            progressbar_description([f"waiting for new jobs to start"])
                             time.sleep(10)
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
@@ -2460,8 +2460,9 @@ def main ():
                     #print(f"\ndone_jobs(): {done_jobs()}")
                     log_nr_of_workers()
 
-                    if args.allow_slurm_overload and system_has_sbatch:
+                    if system_has_sbatch:
                         while len(jobs) > num_parallel_jobs:
+                            progressbar_description([f"waiting for new jobs to start"])
                             time.sleep(10)
                     if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
                         raise searchDone("Search done")

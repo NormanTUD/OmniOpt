@@ -1090,6 +1090,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
+    print_debug("disable_logging done")
 
 def show_end_table_and_save_end_files (csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")

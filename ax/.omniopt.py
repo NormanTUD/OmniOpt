@@ -2307,7 +2307,7 @@ def execute_nvidia_smi():
                 f'--format=csv{noheader}'], capture_output=True, text=True)
             assert result.returncode == 0, "nvidia-smi execution failed"
 
-            output = proc.stdout.read()
+            output = result.stdout.read()
 
             if host and output:
                 append_to_nvidia_smi_logs(_file, output)

@@ -612,7 +612,7 @@ else
 
 				set +x
 
-				echo -n "Waiting until the path $LOG_PATH exists. When it does, it will automatically be followed. CTRL-c does NOT cancel the optimization, only the tail...  "
+				echo -n "Waiting until the path $LOG_PATH exists. CTRL-c does NOT cancel the optimization, only the tail...  "
 
 				while ! [[ -e $LOG_PATH ]]; do
 					for i in "${spin[@]}"; do

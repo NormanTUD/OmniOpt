@@ -2304,10 +2304,18 @@ def execute_nvidia_smi():
             result = subprocess.run([
                 'nvidia-smi',
                 '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
-                f'--format=csv{noheader}'], capture_output=True, text=True)
+                f'--format=csv{noheader}'],
+                capture_output=True,
+                text=True
+            )
             assert result.returncode == 0, "nvidia-smi execution failed"
 
-            output = result.stdout.read()
+            output = result.stdout
+
+            output = output.rstrip('\n')
+
+            print(_file)
+            print(output)
 
             if host and output:
                 append_to_nvidia_smi_logs(_file, output)

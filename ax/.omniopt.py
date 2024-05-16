@@ -2114,7 +2114,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
         GenerationStep(
             model=Models.BOTORCH_MODULAR,
             num_trials=-1,  # No limitation on how many trials should be produced from this step
-            max_parallelism=num_parallel_jobs,  # Max parallelism for this step
+            max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
             #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
             enforce_num_trials=True,
             model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`

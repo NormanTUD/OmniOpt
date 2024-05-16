@@ -2,6 +2,7 @@
 
 #SBATCH --signal=B:USR1@200
 
+export CUDA_DEVICE_ORDER=PCI_BUS_ID
 export ORIGINAL_PWD=$(pwd)
 
 echo -ne "\033]30;OmniOpt\007"

@@ -46,6 +46,7 @@ https://github.com/facebook/Ax/issues/2301
 """
 
 import os
+import threading
 
 is_in_evaluate = False
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
@@ -144,6 +145,7 @@ while os.path.exists(logfile):
 logfile_nr_workers = f'logs/{log_i}_nr_workers'
 logfile_linewise = f'logs/{log_i}_linewise'
 logfile_progressbar = f'logs/{log_i}_progressbar'
+nvidia_smi_logs_base = f'logs/{log_i}_nvidia_smi_logs'
 logfile_worker_creation_logs = f'logs/{log_i}_worker_creation_logs'
 logfile_trial_index_to_param_logs = f'logs/{log_i}_trial_index_to_param_logs'
 
@@ -174,6 +176,20 @@ def _debug_worker_creation (msg, _lvl=0, ee=None):
         print("_debug_worker_creation: Error trying to write log file: " + str(e))
 
         _debug_worker_creation(msg, _lvl + 1, e)
+
+def append_to_nvidia_smi_logs (_file, result, _lvl=0, ee=None):
+    if _lvl > 3:
+        print(f"Cannot write _debug, error: {ee}")
+        return
+
+    try:
+        msg = result
+        with open(_file, 'a') as f:
+            print(msg, file=f)
+    except Exception as e:
+        print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
+
+        append_to_nvidia_smi_logs(host, result, _lvl + 1, e)
 
 def _debug_progressbar (msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -905,6 +921,9 @@ def find_file_paths_and_print_infos (_text, program_code):
 
 def evaluate(parameters):
     global is_in_evaluate
+
+    start_nvidia_smi_thread()
+
     is_in_evaluate = True
     if args.evaluate_to_random_value:
         rand_res = random.uniform(0, 1)
@@ -2271,8 +2290,43 @@ def submitted_jobs (nr=0):
 def done_jobs (nr=0):
     return append_and_read(f"{current_run_folder}/done_jobs", nr)
 
+def execute_nvidia_smi():
+    while True:
+        try:
+            host = socket.gethostname()
+
+            _file = nvidia_smi_logs_base + "_" + host
+            noheader = ""
+
+            if os.path.exists(_file):
+                noheader = ",noheader"
+
+            result = subprocess.run([
+                'nvidia-smi',
+                '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
+                f'--format=csv{noheader}'], capture_output=True, text=True)
+            assert result.returncode == 0, "nvidia-smi execution failed"
+
+            output = proc.stdout.read()
+
+            if host and output:
+                append_to_nvidia_smi_logs(_file, output)
+        except Exception as e:
+            log(f"An error occurred: {e}")
+        time.sleep(10)
+
+def start_nvidia_smi_thread():
+    print_debug("start_nvidia_smi_thread")
+    if is_executable_in_path("nvidia-smi"):
+        nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
+        nvidia_smi_thread.start()
+        return nvidia_smi_thread
+    return None
+
 def main ():
     print_debug("main")
+
+    start_nvidia_smi_thread()
 
     _debug_worker_creation("time, nr_workers, got, requested, phase")
 

@@ -18,6 +18,9 @@ set -o pipefail
 function calltracer () {
         echo 'Last file/last line:'
         caller
+
+	echo "Runtime: $(displaytime $SECONDS)"
+	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 }
 trap 'calltracer' ERR
 help=0
@@ -69,4 +72,5 @@ else
 	echo "$OUTPUT"
 fi
 
+echo "Runtime: $(displaytime $SECONDS)"
 echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

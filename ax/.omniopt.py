@@ -2449,7 +2449,7 @@ def main ():
                     _sleep(args, 0.1)
 
                 while len(jobs):
-                    finish_previous_jobs(args, [f"waiting for jobs to end (phase 1/2, {len(jobs) - 1} left)"])
+                    finish_previous_jobs(args, [f"waiting for jobs to end ({len(jobs) - 1} left)"])
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
@@ -2481,7 +2481,7 @@ def main ():
                     _sleep(args, 1)
 
                 while len(jobs):
-                    finish_previous_jobs(args, [f"waiting for jobs to end (phase 2/2, {len(jobs) - 1} left)"])
+                    finish_previous_jobs(args, [f"waiting for jobs to end ({len(jobs) - 1} left)"])
                     _sleep(args, 1)
         end_program(result_csv_file, "result", 1)
     except searchDone as e:

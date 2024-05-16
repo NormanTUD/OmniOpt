@@ -1178,13 +1178,13 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         for column in columns:
             table.add_column(column)
         for row in worker_percentage_usage:
-            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["max_nr_jobs"]), f'{row["percentage"]}%', style='bright_green')
+            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%', style='bright_green')
         console.print(table)
 
     if len(worker_percentage_usage):
         csv_filename = f"{current_run_folder}/worker_usage.csv"
 
-        csv_columns = ['time', 'max_nr_jobs', 'nr_current_workers', 'percentage']
+        csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
         with open(csv_filename, 'w', newline='') as csvfile:
             # Erstelle den CSV-Writer
@@ -1202,7 +1202,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         try:
             plotext.theme('pro')
 
-            ideal_situation = [entry["max_nr_jobs"] for entry in worker_percentage_usage]
+            ideal_situation = [entry["num_parallel_jobs"] for entry in worker_percentage_usage]
             times = [datetime_to_plotext_format(entry["time"]) for entry in worker_percentage_usage]
             num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
 
@@ -1802,7 +1802,8 @@ def get_workers_string ():
         _values = "/".join(string_values)
 
         if len(_keys):
-            string = f"jobs: {_keys} {_values}"
+            percentage = round((nr_current_workers/num_parallel_jobs) * 100)
+            string = f"jobs: {_keys} {_values} ({percentage}%/{num_parallel_jobs})"
 
     return string
 
@@ -1847,15 +1848,10 @@ def get_desc_progress_text (new_msgs=[]):
                 progress_plot.append(this_progress_values)
 
         nr_current_workers = len(jobs)
-        max_nr_jobs = num_parallel_jobs
-        percentage = round((nr_current_workers/max_nr_jobs) * 100)
-
-        if nr_current_workers:
-            in_brackets.append(f"workers: {nr_current_workers} ({percentage}%/{max_nr_jobs})")
 
         this_values = {
             "nr_current_workers": nr_current_workers,
-            "max_nr_jobs": max_nr_jobs,
+            "num_parallel_jobs": num_parallel_jobs,
             "percentage": percentage,
             "time": this_time
         }

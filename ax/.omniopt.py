@@ -1846,7 +1846,7 @@ def get_desc_progress_text (new_msgs=[]):
 
         nr_current_workers = len(jobs)
         max_nr_jobs = args.num_parallel_jobs
-        percentage = round((nr_current_workers/max_nr_jobs)*100)
+        percentage = round((nr_current_workers/max_nr_jobs) * 100)
 
         if nr_current_workers:
             in_brackets.append(f"workers: {nr_current_workers} ({percentage}%/{max_nr_jobs})")
@@ -2559,7 +2559,7 @@ def _is_not_equal (name, input, output):
             return 1
     else:
         print_color("red", f"Unknown data type for test {name}")
-        exit_local(100)
+        exit_local(193)
 
     print_color("green", f"Test OK: {name}")
     return 0
@@ -2582,7 +2582,7 @@ def _is_equal (name, input, output):
             return 1
     else:
         print_color("red", f"Unknown data type for test {name}")
-        exit_local(100)
+        exit_local(192)
 
     print_color("green", f"Test OK: {name}")
     return 0

@@ -2471,7 +2471,7 @@ def main ():
 
                         progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
-                    _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}, systematic")
+                    _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
 
                     finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 

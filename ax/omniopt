@@ -577,11 +577,14 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	set -e
 
-	tput bel
-
 	if [[ "$EXIT_CODE" -ne "0" ]]; then
+		echo -ne "\033]30;OmniOpt: Failed\007"
 		echo "Exiting with exit-code $EXIT_CODE"
+	else
+		echo -ne "\033]30;OmniOpt: done\007"
 	fi
+
+	tput bel
 
 	exit $EXIT_CODE
 else

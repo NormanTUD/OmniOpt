@@ -128,8 +128,14 @@ def datetime_from_string(input_string, input_format):
     return datetime.datetime.strptime(input_string, input_format)
 
 def datetime_to_plotext_format(dt):
-    dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")
-    return dt.strftime("%d/%m/%Y %H:%M:%S")
+    if isinstance(dt, (int, float)):
+        try:
+            readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt))
+            return readable_format
+        except Exception as e:
+            dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")
+            return dt.strftime("%d/%m/%Y %H:%M:%S")
+
 
 try:
     Path("logs").mkdir(parents=True, exist_ok=True)
@@ -1299,8 +1305,8 @@ def end_program (csv_file_path, result_column="result", _force=False):
         print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
-    except TypeError:
-        print_color("red", "\n:warning: The program has been halted without attaining any results.")
+    except TypeError as e:
+        print_color("red", f"\n:warning: The program has been halted without attaining any results. Error: {e}")
 
     for job, trial_index in jobs[:]:
         if job:

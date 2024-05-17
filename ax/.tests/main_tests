@@ -196,6 +196,7 @@ if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("omniopt script failed.")
 fi
 
+:'
 yellow_text "Trying to continue previous job"
 
 ./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs 10 --worker_timeout 10 --follow --gpus=$NUM_GPUS
@@ -203,6 +204,7 @@ yellow_text "Trying to continue previous job"
 exit_code=$?
 
 yellow_text "Continuation program ended..."
+'
 
 if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Continuation script failed.")

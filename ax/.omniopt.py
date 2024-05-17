@@ -140,7 +140,6 @@ def get_timezone_offset_seconds():
     return offset
 
 def datetime_to_plotext_format(dt):
-    print(f"A: {dt}")
     if isinstance(dt, (int, float)):
         try:
             readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt))

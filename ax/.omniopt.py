@@ -1203,12 +1203,14 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
                 csv_writer.writerow(row)
 
     shown_first_plot = False
+    tz_offset = get_timezone_offset_seconds()
+
     if len(worker_percentage_usage):
         try:
             plotext.theme('pro')
 
             ideal_situation = [entry["num_parallel_jobs"] for entry in worker_percentage_usage]
-            times = [datetime_to_plotext_format(entry["time"]) for entry in worker_percentage_usage]
+            times = [datetime_to_plotext_format(entry["time"] + tz_offset) for entry in worker_percentage_usage]
             num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
 
             plotext.date_form("d/m/Y H:M:S")
@@ -1238,7 +1240,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             max_val = max(best_results_over_time)
 
             best_results_over_time = (lambda br: [(x - min(br)) / (max(br) - min(br)) * 100 if max(br) != min(br) else 100.0 for x in br])(best_results_over_time)
-            times = [datetime_to_plotext_format(entry["time"]) for entry in progress_plot]
+            times = [datetime_to_plotext_format(entry["time"] + tz_offset) for entry in progress_plot]
 
             plotext.date_form("d/m/Y H:M:S")
 

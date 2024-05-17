@@ -2224,8 +2224,6 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
 def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps
 
-    print(f"Random evaluations before the search begins: {random_steps}")
-
     if random_steps > max_eval:
         print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
 
@@ -2239,7 +2237,6 @@ def get_number_of_steps (args, max_eval):
 
     original_second_steps = max_eval - random_steps
     second_step_steps = max(0, original_second_steps)
-    print(f"Number of steps in the 2nd stragegy: {second_step_steps}")
     if second_step_steps != original_second_steps:
         print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
     if second_step_steps == 0:

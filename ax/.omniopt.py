@@ -132,7 +132,7 @@ def datetime_from_string(input_string):
 def get_timezone_offset_seconds():
     # Get the current time in the local timezone
     local_tz = get_localzone()
-    local_time = datetime.now(local_tz)
+    local_time = datetime.datetime.now(local_tz)
 
     # Get the offset of the local timezone from UTC in seconds
     offset = local_time.utcoffset().total_seconds()

@@ -95,6 +95,8 @@ class searchDone (Exception):
 import sys
 
 try:
+    from datetime import datetime, timezone
+    from tzlocal import get_localzone
     import platform
     from importlib.metadata import version
     from unittest.mock import patch
@@ -127,10 +129,20 @@ except KeyboardInterrupt:
 def datetime_from_string(input_string, input_format):
     return datetime.datetime.strptime(input_string, input_format)
 
+def get_timezone_offset_seconds():
+    # Get the current time in the local timezone
+    local_tz = get_localzone()
+    local_time = datetime.now(local_tz)
+
+    # Get the offset of the local timezone from UTC in seconds
+    offset = local_time.utcoffset().total_seconds()
+
+    return offset
+
 def datetime_to_plotext_format(dt):
     if isinstance(dt, (int, float)):
         try:
-            readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt))
+            readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt) + get_timezone_offset_seconds())
             return readable_format
         except Exception as e:
             dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")

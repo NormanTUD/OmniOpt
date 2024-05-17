@@ -136,7 +136,6 @@ def datetime_to_plotext_format(dt):
             dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")
             return dt.strftime("%d/%m/%Y %H:%M:%S")
 
-
 try:
     Path("logs").mkdir(parents=True, exist_ok=True)
 except Exception as e:
@@ -1205,7 +1204,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.scatter(times, num_workers, label="Num workers (total)", marker="hd")
 
             plotext.xlabel("Time")
-            plotext.ylabel("Percentage of max workers")
+            plotext.ylabel("Number workers")
             plotext.title("Worker Usage Over Time")
 
             plotext.show()

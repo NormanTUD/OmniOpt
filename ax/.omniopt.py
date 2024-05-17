@@ -2,51 +2,6 @@
 
 original_print = print
 
-"""
-TODO:
-
-    Problem: the amount of workers that start decrease over time.
-
-    - Trying to split the single "get_next_trials" into several get_next_trials calls
-    - Each one of them having max_eval=1, but doing it in a loop
-
-    Problem: sometimes get_next_trials is empty, and no job can get started.
-
-    Trying to define enforce_sequential_optimization to true and false. Both had no effect.
-
-    Trying to set the generation strategy manual (search "gs = "), first num_parallel_jobs jobs randomly
-    with SOBOL, then the rest with BOTORCH_MODULAR. but no effect. Also trying to set min_trials_observed
-    for both types, but to no effect
-
-    Trying to force with max_parallelism_override, but had no effect.
-
-    Trying to set num_initialization_trials to initialize with more trials, but had no effect.
-
-    use_batch_trials used, but had no effect
-
-    https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
-
-    In Bayesian Optimization (any optimization, really), we have the choice between performing evaluations of our function in a sequential fashion (i.e. only generate a new candidate point to evaluate after the previous candidate has been evaluated), or in a parallel fashion (where we evaluate multiple candidates concurrently). The sequential approach will (in expectation) produce better optimization results, since at any point during the optimization the ML model that drives it uses strictly more information than the parallel approach. However, if function evaluations take a long time and end-to-end optimization time is important, then the parallel approach becomes attractive. The difference between the performance of a sequential (aka 'fully adaptive') algorithm and that of a (partially) parallelized algorithm is referred to as the 'adaptivity gap'.
-
-    To balance end-to-end optimization time with finding the optimal solution in fewer trials, we opt for a ‘staggered’ approach by allowing a limited number of trials to be evaluated in parallel. By default, in simplified Ax APIs (e.g., in Service API) the allowed parallelism for the Bayesian phase of the optimization is 3. Service API tutorial has more information on how to handle and change allowed parallelism for that API.
-
-    For cases where its not too computationally expensive to run many trials (and therefore sample efficiency is less of a concern), higher parallelism can significantly speed up the end-to-end optimization time. By default, we recommend keeping the ratio of allowed parallelism to total trials relatively small (<10%) in order to not hurt optimization performance too much, but the reasonable ratio can differ depending on the specific setup.
-
-    https://ax.dev/tutorials/gpei_hartmann_service.html#How-many-trials-can-run-in-parallel?
-    By default, Ax restricts number of trials that can run in parallel for some optimization stages, in order to improve the optimization performance and reduce the number of trials that the optimization will require. To check the maximum parallelism for each optimization stage:
-    In [6]:
-
-    ax_client.get_max_parallelism()
-
-    Out[6]:
-
-    [(12, 12), (-1, 3)]
-
-    The output of this function is a list of tuples of form (number of trials, max parallelism), so the example above means "the max parallelism is 12 for the first 12 trials and 3 for all subsequent trials." This is because the first 12 trials are produced quasi-randomly and can all be evaluated at once, and subsequent trials are produced via Bayesian optimization, which converges on optimal point in fewer trials when parallelism is limited. MaxParallelismReachedException indicates that the parallelism limit has been reached –– refer to the 'Service API Exceptions Meaning and Handling' section at the end of the tutorial for handling.
-
-https://github.com/facebook/Ax/issues/2301
-"""
-
 import os
 import threading
 

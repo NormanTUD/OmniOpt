@@ -126,7 +126,7 @@ except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     exit_local(32)
 
-def datetime_from_string(input_string, input_format):
+def datetime_from_string(input_string):
     return datetime.datetime.fromtimestamp(input_string)
 
 def get_timezone_offset_seconds():
@@ -146,7 +146,7 @@ def datetime_to_plotext_format(dt):
             readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt) + get_timezone_offset_seconds())
             return readable_format
         except Exception as e:
-            dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")
+            dt = datetime_from_string(dt)
             print(f"B: {dt}")
             return dt.strftime("%d/%m/%Y %H:%M:%S")
 

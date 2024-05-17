@@ -41,6 +41,7 @@ trap 'calltracer' ERR
 function help () {
         echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
+	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --no_sleep                                         Disables sleeping after job creation (not recommended on HPC)"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
@@ -58,6 +59,7 @@ fi
 
 debug=0
 max_eval=100
+num_parallel_jobs=20
 no_sleep=0
 
 args=("$@")
@@ -75,15 +77,15 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			;;
-		--max_eval)
-			old_max_eval=$max_eval
+		--num_parallel_jobs)
+			old_num_parallel_jobs=$max_eval
 
 			shift
 			k=$((k+1))
 
-			max_eval="${args[k]}"
-			if ! [[ $max_eval =~ $int_re ]] ; then
-				red_text "error: --max_eval not a INT: $i" >&2
+			num_parallel_jobs="${args[k]}"
+			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
+				red_text "error: --num_parallel_jobs not a INT: $i" >&2
 				exit 100
 			fi
 
@@ -105,6 +107,11 @@ while [ $k -lt ${#args[@]} ]; do
 	esac
 	k=$((k+1))
 done
+
+if [[ "$num_parallel_jobs" -lt "1" ]]; then
+	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs"
+	exit 1
+fi
 
 if [[ "$max_eval" -lt "1" ]]; then
 	red_text "Max_eval must be 1 or more, is $max_eval"
@@ -154,7 +161,7 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--time=30 \
 		--worker_timeout=1 \
 		--max_eval=$max_eval \
-		--num_parallel_jobs=$max_eval \
+		--num_parallel_jobs=$num_parallel_jobs \
 		--gpus=$GPUS \
 		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 		--parameter int_param range -5 5 int \
@@ -172,7 +179,7 @@ else
 		--time=30 \
 		--worker_timeout=1 \
 		--max_eval=$max_eval \
-		--num_parallel_jobs=$max_eval \
+		--num_parallel_jobs=$num_parallel_jobs \
 		--gpus=$GPUS \
 		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 		--parameter int_param range -5 5 int \

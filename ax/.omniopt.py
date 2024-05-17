@@ -127,7 +127,7 @@ except KeyboardInterrupt:
     exit_local(32)
 
 def datetime_from_string(input_string, input_format):
-    return datetime.datetime.fromtimestamp(input_string).strftime(input_format)
+    return datetime.datetime.fromtimestamp(input_string)
 
 def get_timezone_offset_seconds():
     # Get the current time in the local timezone

@@ -140,12 +140,14 @@ def get_timezone_offset_seconds():
     return offset
 
 def datetime_to_plotext_format(dt):
+    print(f"A: {dt}")
     if isinstance(dt, (int, float)):
         try:
             readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt) + get_timezone_offset_seconds())
             return readable_format
         except Exception as e:
             dt = datetime_from_string(dt, "%Y-%m-%d %H:%M:%S")
+            print(f"B: {dt}")
             return dt.strftime("%d/%m/%Y %H:%M:%S")
 
 try:

@@ -143,7 +143,7 @@ def datetime_to_plotext_format(dt):
     print(f"A: {dt}")
     if isinstance(dt, (int, float)):
         try:
-            readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt) + get_timezone_offset_seconds())
+            readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt))
             return readable_format
         except Exception as e:
             dt = datetime_from_string(dt)

@@ -1025,7 +1025,7 @@ try:
                 exit_local(7)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
-    exit_local(0)
+    exit_local(242)
 
 def disable_logging ():
     print_debug("disable_logging")

@@ -386,7 +386,10 @@ if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
 
-echo "Current git-hash: $(git rev-parse HEAD)"
+
+if [[ -z "$SLURM_JOB_ID" ]]; then
+	echo "Current git-hash: $(git rev-parse HEAD)"
+fi
 
 set +x
 if [[ -d ".git" ]]; then

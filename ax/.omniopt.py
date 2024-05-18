@@ -2894,6 +2894,9 @@ def get_best_params(csv_file_path, result_column):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
+        if re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
+            this_line_result = float(this_line_result)
+
         if type(this_line_result) in [float, int]:
             if best_result is None:
                 best_line = this_line
@@ -2941,7 +2944,7 @@ def warn_versions ():
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            #dier(get_best_params("runs/test_wronggoing_stuff/4/0.csv", "result"))
+            #dier(get_best_params("runs/test_wronggoing_stuff/2/0.csv", "result"))
             #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
 
             run_tests()

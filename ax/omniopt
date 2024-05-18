@@ -52,13 +52,11 @@ function red_text {
 }
 
 function calltracer () {
-	if [[ -z $NO_CALLTRACER ]]; then
-		echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
-		yellow_text "Git status hash:"
-		git rev-parse HEAD
-		red_text 'Error occured in file/line:'
-		caller
-	fi
+	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
+	yellow_text "Git status hash:"
+	git rev-parse HEAD
+        red_text 'Error occured in file/line:'
+        caller
 
 	echo "Runtime: $(displaytime $SECONDS)"
 	echo -ne "\033]30;OmniOpt: Failed\007"

@@ -2894,7 +2894,7 @@ def get_best_params(csv_file_path, result_column):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
-        if re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
+        if type(this_line_result) == str and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
             this_line_result = float(this_line_result)
 
         if type(this_line_result) in [float, int]:

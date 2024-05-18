@@ -200,7 +200,7 @@ yellow_text 'Trying to continue previous job'
 
 ./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS
 
-exit_code=\$?
+exit_code=$?
 
 yellow_text 'Continuation program ended...'
 

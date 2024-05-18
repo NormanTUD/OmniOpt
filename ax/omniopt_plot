@@ -2,8 +2,6 @@
 
 export ORIGINAL_PWD=$(pwd)
 
-echo -ne "\033]30;OmniOpt: plot\007"
-
 function echoerr() {
         echo "$@" 1>&2
 }
@@ -20,7 +18,6 @@ function calltracer () {
         caller
 
 	echo "Runtime: $(displaytime $SECONDS)"
-	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 }
 trap 'calltracer' ERR
 help=0
@@ -73,4 +70,3 @@ else
 fi
 
 echo "Runtime: $(displaytime $SECONDS)"
-echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

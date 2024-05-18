@@ -2,8 +2,6 @@
 
 cd $(pwd)
 
-echo -ne "\033]30;OmniOpt: evaluate-run\007"
-
 mkdir -p debuglogs
 bash_logname=debuglogs/evaluate_run.log
 let i=1
@@ -923,5 +921,3 @@ if [[ $sourced == "0" ]]; then
 
 	main
 fi
-
-echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

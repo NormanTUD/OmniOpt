@@ -18,8 +18,6 @@ function displaytime {
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 export ORIGINAL_PWD=$(pwd)
 
-echo -ne "\033]30;OmniOpt\007"
-
 set -e
 set -o pipefail
 
@@ -52,16 +50,13 @@ function red_text {
 }
 
 function calltracer () {
-	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 	yellow_text "Git status hash:"
 	git rev-parse HEAD
         red_text 'Error occured in file/line:'
         caller
 
 	echo "Runtime: $(displaytime $SECONDS)"
-	echo -ne "\033]30;OmniOpt: Failed\007"
 	tput bel
-	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 }
 
 already_sent_signal=
@@ -85,9 +80,7 @@ kill_python_if_started () {
 	fi
 
 	echo "Runtime: $(displaytime $SECONDS)"
-	echo -ne "\033]30;OmniOpt: Failed\007"
 	tput bel
-	echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"
 }
 
 trap 'calltracer' ERR
@@ -590,10 +583,8 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	set -e
 
 	if [[ "$EXIT_CODE" -ne "0" ]]; then
-		echo -ne "\033]30;OmniOpt: Failed\007"
 		echo "Exiting with exit-code $EXIT_CODE"
 	else
-		echo -ne "\033]30;OmniOpt: done\007"
 	fi
 
 	tput bel
@@ -704,4 +695,3 @@ else
 fi
 
 echo "Runtime: $(displaytime $SECONDS)"
-echo -ne "\033]30;$(basename $(pwd)): $(basename $SHELL)\007"

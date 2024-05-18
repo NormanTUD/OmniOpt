@@ -1962,7 +1962,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print(tb)
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
 
-    finish_previous_jobs(args, ["finishing last remaining jobs"])
+    finish_previous_jobs(args, ["finishing jobs"])
 
     return trial_counter
 

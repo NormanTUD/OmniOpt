@@ -2144,7 +2144,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
             for trial_index, parameters in trial_index_to_param.items():
                 progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                 while len(jobs) > num_parallel_jobs:
-                    finish_previous_jobs(args, ["finishing previous jobs before executing new one (waiting)"])
+                    finish_previous_jobs(args, ["finishing previous jobs (waiting)"])
                     time.sleep(5)
                 execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
                 i += 1

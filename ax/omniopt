@@ -1,5 +1,28 @@
 #!/bin/bash
 
+# Idea for how this works and is implemented technically:
+# This main script that is supposed to be called is a bash script.
+# Step 1:
+# , it checks whether the environment already exists, and
+# if so, loads it.
+# If it doesn't exist. it creates it in 
+# ~/.omniax_$(uname -m)
+# i.e. e.g. ~/.omniax__x86_64.
+# Then it installs all modules.
+# These steps are skipped, when you installed it as a module. Then,
+# the module environment is the used environment.
+# This logic is defined in .shellscript_functions
+# Step 2:
+# It checks whether sbatch is installed. If so, it will re-start
+# itself as a bascript in a slurmjob.
+# If not, the python-script with the parsed parameters are run directly.
+# Otherwise, the python-script is started inside the sbatch-script,
+# which's end is awaited (by checking squeue every 10 seconds in the
+# background if the started job is still there, and, if --follow is
+# defined, a tail -f on the slurm.out file is loaded in the foreground).
+# This way, the whole slurm procedure is transparent to the user,
+# and the program looks basically the same on every device.
+
 function displaytime {
 	local T=$1
 		local D=$((T/60/60/24))

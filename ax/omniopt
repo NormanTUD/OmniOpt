@@ -8,7 +8,8 @@
 # If it doesn't exist. it creates it in 
 # ~/.omniax_$(uname -m)
 # i.e. e.g. ~/.omniax__x86_64.
-# Then it installs all modules.
+# Then it installs all modules. Then it loads the environment and the job
+# continues.
 # These steps are skipped, when you installed it as a module. Then,
 # the module environment is the used environment.
 # This logic is defined in .shellscript_functions

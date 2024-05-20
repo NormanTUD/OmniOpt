@@ -1394,11 +1394,20 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color(f"Cannot find {checkpoint_params_file}")
             exit_local(49)
 
+        done_jobs_file = f"{continue_previous_job}/submitted_jobs"
+        done_jobs_file_dest = f"{current_run_folder}/submitted_jobs"
+        if not os.path.exists(done_jobs_file):
+            print_color(f"Cannot find {done_jobs_file}")
+            exit_local(95)
+
+        if not os.path.exists(done_jobs_file_dest):
+            shutil.copy(done_jobs_file, done_jobs_file_dest)
+
         submitted_jobs_file = f"{continue_previous_job}/submitted_jobs"
         submitted_jobs_file_dest = f"{current_run_folder}/submitted_jobs"
         if not os.path.exists(submitted_jobs_file):
             print_color(f"Cannot find {submitted_jobs_file}")
-            exit_local(95)
+            exit_local(96)
 
         if not os.path.exists(submitted_jobs_file_dest):
             shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
@@ -2460,7 +2469,7 @@ def main ():
                         while len(jobs) > num_parallel_jobs:
                             progressbar_description([f"waiting for new jobs to start"])
                             time.sleep(10)
-                    if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
+                    if submitted_jobs() >= max_eval:
                         raise searchDone("Search done")
 
 

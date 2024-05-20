@@ -222,7 +222,7 @@ debug = parser.add_argument_group('Debug', "These options are mainly useful for 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
 required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
-required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, required=True)
+required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)

@@ -105,25 +105,26 @@ def datetime_to_plotext_format(dt):
             print(f"B: {dt}")
             return dt.strftime("%d/%m/%Y %H:%M:%S")
 
+log_dir = ".logs"
 try:
-    Path("logs").mkdir(parents=True, exist_ok=True)
+    Path(log_dir).mkdir(parents=True, exist_ok=True)
 except Exception as e:
     original_print("Could not create logs: " + str(e))
 
 log_i = 0
-logfile = f'logs/{log_i}'
-logfile_linewise = f'logs/{log_i}_linewise'
-logfile_nr_workers = f'logs/{log_i}_nr_workers'
+logfile = f'{log_dir}/{log_i}'
+logfile_linewise = f'{log_dir}/{log_i}_linewise'
+logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
 while os.path.exists(logfile):
     log_i = log_i + 1
-    logfile = f'logs/{log_i}'
+    logfile = f'{log_dir}/{log_i}'
 
-logfile_nr_workers = f'logs/{log_i}_nr_workers'
-logfile_linewise = f'logs/{log_i}_linewise'
-logfile_progressbar = f'logs/{log_i}_progressbar'
-nvidia_smi_logs_base = f'logs/{log_i}_nvidia_smi_logs'
-logfile_worker_creation_logs = f'logs/{log_i}_worker_creation_logs'
-logfile_trial_index_to_param_logs = f'logs/{log_i}_trial_index_to_param_logs'
+logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
+logfile_linewise = f'{log_dir}/{log_i}_linewise'
+logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
+nvidia_smi_logs_base = f'{log_dir}/{log_i}_nvidia_smi_logs'
+logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
+logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
 
 def _log_trial_index_to_param (trial_index, _lvl=0, ee=None):
     if _lvl > 3:

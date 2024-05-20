@@ -2266,6 +2266,9 @@ def append_and_read (file, zahl=0):
 def failed_jobs (nr=0):
     return append_and_read(f"{current_run_folder}/failed_jobs", nr)
 
+def get_steps_from_prev_job (prev_job, nr=0):
+    return append_and_read(f"{prev_job}/submitted_jobs", nr)
+
 def submitted_jobs (nr=0):
     return append_and_read(f"{current_run_folder}/submitted_jobs", nr)
 
@@ -2324,6 +2327,7 @@ def main ():
     global current_run_folder
     global ax_client
     global jobs
+    global max_eval
 
     original_print("omniopt " + " ".join(sys.argv[1:]))
 
@@ -2394,12 +2398,12 @@ def main ():
 
             initial_text = get_desc_progress_text()
             print(f"Searching {searching_for}")
-            if random_steps:
+            if random_steps and random_steps > submitted_jobs():
                 print(f"\nStarting random search for {random_steps} steps")
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
-                while done_jobs() < random_steps or jobs:
+                while random_steps > submitted_jobs():
                     log_nr_of_workers()
                     #print(f"\ndone_jobs(): {done_jobs()}")
 
@@ -2440,7 +2444,14 @@ def main ():
                     _sleep(args, 1)
 
                 print(f"\nStarting systematic search for {max_eval - random_steps} steps")
-                while submitted_jobs() < (random_steps + second_step_steps) or jobs:
+
+                max_nr_steps = (random_steps + second_step_steps)
+
+                if args.continue_previous_job:
+                    max_nr_steps = get_steps_from_prev_job(args.continue_previous_job) + max_nr_steps
+                    max_eval = max_nr_steps
+
+                while submitted_jobs() < max_nr_steps or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")
                     log_nr_of_workers()
 

@@ -4,6 +4,7 @@ original_print = print
 
 import os
 import threading
+import shutil
 
 is_in_evaluate = False
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
@@ -1368,6 +1369,9 @@ def save_pd_csv ():
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
+def get_num_jobs (ax_client):
+    return len(ax_client.get_trials_data_frame())
+
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
@@ -1389,6 +1393,15 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         if not os.path.exists(checkpoint_params_file):
             print_color(f"Cannot find {checkpoint_params_file}")
             exit_local(49)
+
+        submitted_jobs_file = f"{continue_previous_job}/submitted_jobs"
+        submitted_jobs_file_dest = f"{current_run_folder}/submitted_jobs"
+        if not os.path.exists(submitted_jobs_file):
+            print_color(f"Cannot find {submitted_jobs_file}")
+            exit_local(95)
+
+        if not os.path.exists(submitted_jobs_file_dest):
+            shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
 
         f = open(checkpoint_params_file)
         experiment_parameters = json.load(f)

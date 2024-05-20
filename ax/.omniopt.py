@@ -2322,6 +2322,46 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
+def run_random_jobs(random_steps, num_parallel_jobs, max_eval, ax_client, executor):
+    while random_steps > submitted_jobs():
+        log_nr_of_workers()
+
+        if system_has_sbatch:
+            while len(jobs) > num_parallel_jobs:
+                progressbar_description([f"waiting for new jobs to start"])
+                time.sleep(10)
+        if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
+            raise searchDone("Search done")
+
+        if submitted_jobs() >= random_steps or len(jobs) == random_steps:
+            break
+
+        try:
+            steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(jobs)))
+
+            progressbar_description([f"trying to get {steps_mind_worker} workers"])
+
+            nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
+            if nr_of_items_random:
+                progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
+
+            if nr_of_items_random == 0:
+                break
+
+            _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items_random}, {steps_mind_worker}, random")
+
+            progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
+        except botorch.exceptions.errors.InputDataError as e:
+            print_color("red", f"Error 1: {e}")
+        except ax.exceptions.core.DataRequiredError as e:
+            print_color("red", f"Error 2: {e}")
+
+        _sleep(args, 0.1)
+
+def finish_previous_jobs_random(args):
+    while len(jobs):
+        finish_previous_jobs(args, [f"waiting for jobs ({len(jobs) - 1} left)"])
+        _sleep(args, 1)
 def main ():
     print_debug("main")
 
@@ -2387,11 +2427,15 @@ def main ():
             generation_strategy=gs
         )
 
+
         minimize_or_maximize = not args.maximize
 
         experiment = None
 
         ax_client, experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+
+        if args.continue_previous_job:
+            max_eval = get_num_jobs(ax_client) + random_steps + second_step_steps
 
         print_overview_table(experiment_parameters)
 
@@ -2409,57 +2453,29 @@ def main ():
             print(f"Searching {searching_for}")
             if random_steps and random_steps > submitted_jobs():
                 print(f"\nStarting random search for {random_steps} steps")
+
+
+            max_nr_steps = second_step_steps
+            if get_num_jobs(ax_client) < random_steps:
+                max_nr_steps = (random_steps - get_num_jobs(ax_client)) + second_step_steps
+                max_eval = max_nr_steps
+
+            if args.continue_previous_job:
+                max_nr_steps = get_steps_from_prev_job(args.continue_previous_job) + max_nr_steps
+                max_eval = max_nr_steps
+
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar
                 progress_bar = _progress_bar
-                while random_steps > submitted_jobs():
-                    log_nr_of_workers()
-                    #print(f"\ndone_jobs(): {done_jobs()}")
 
-                    if system_has_sbatch:
-                        while len(jobs) > num_parallel_jobs:
-                            progressbar_description([f"waiting for new jobs to start"])
-                            time.sleep(10)
-                    if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
-                        raise searchDone("Search done")
+                progress_bar.update(get_num_jobs(ax_client))
 
-                    if submitted_jobs() >= random_steps or len(jobs) == random_steps:
-                        break
+                run_random_jobs(random_steps, num_parallel_jobs, max_eval, ax_client, executor)
 
-                    try:
-                        steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(jobs)))
-
-                        progressbar_description([f"trying to get {steps_mind_worker} workers"])
-
-                        nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
-                        if nr_of_items_random:
-                            progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
-
-                        if nr_of_items_random == 0:
-                            break
-
-                        _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items_random}, {steps_mind_worker}, random")
-
-                        progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
-                    except botorch.exceptions.errors.InputDataError as e:
-                        print_color("red", f"Error 1: {e}")
-                    except ax.exceptions.core.DataRequiredError as e:
-                        print_color("red", f"Error 2: {e}")
-
-                    _sleep(args, 0.1)
-
-                while len(jobs):
-                    finish_previous_jobs(args, [f"waiting for jobs ({len(jobs) - 1} left)"])
-                    _sleep(args, 1)
+                finish_previous_jobs_random(args)
 
                 if not args.continue_previous_job:
                     print(f"\nStarting systematic search for {max_eval - random_steps} steps")
-
-                max_nr_steps = (random_steps + second_step_steps)
-
-                if args.continue_previous_job:
-                    max_nr_steps = get_steps_from_prev_job(args.continue_previous_job) + max_nr_steps
-                    max_eval = max_nr_steps
 
                 while submitted_jobs() < max_nr_steps or jobs:
                     #print(f"\ndone_jobs(): {done_jobs()}")

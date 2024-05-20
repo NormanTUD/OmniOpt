@@ -1377,7 +1377,12 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", f"{checkpoint_file} not found")
             exit_local(47)
 
-        ax_client = (AxClient.load_from_json_file(checkpoint_file))
+        ax_client = None
+        try:
+            ax_client = (AxClient.load_from_json_file(checkpoint_file))
+        except json.decoder.JSONDecodeError as e:
+            print_color("red", f"Error parsing checkpoint_file {checkpoint_file}")
+            exit_local(157)
 
         checkpoint_params_file = continue_previous_job + "/checkpoint.json.parameters.json"
 

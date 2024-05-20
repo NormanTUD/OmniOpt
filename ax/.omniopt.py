@@ -2443,7 +2443,8 @@ def main ():
                     finish_previous_jobs(args, [f"waiting for jobs ({len(jobs) - 1} left)"])
                     _sleep(args, 1)
 
-                print(f"\nStarting systematic search for {max_eval - random_steps} steps")
+                if not args.continue_previous_job:
+                    print(f"\nStarting systematic search for {max_eval - random_steps} steps")
 
                 max_nr_steps = (random_steps + second_step_steps)
 

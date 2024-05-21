@@ -2324,7 +2324,7 @@ def start_nvidia_smi_thread():
     return None
 
 def run_random_jobs(random_steps, num_parallel_jobs, max_eval, ax_client, executor):
-    while random_steps > submitted_jobs():
+    while random_steps >= submitted_jobs():
         log_nr_of_workers()
 
         if system_has_sbatch:

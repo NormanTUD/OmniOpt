@@ -2323,6 +2323,38 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
+def run_systematic_search (args, max_nr_steps):
+    if not args.continue_previous_job:
+        print(f"\nStarting systematic search for {max_eval - random_steps} steps")
+
+    while submitted_jobs() < max_nr_steps or jobs:
+        #print(f"\ndone_jobs(): {done_jobs()}")
+        log_nr_of_workers()
+
+        if system_has_sbatch:
+            while len(jobs) > num_parallel_jobs:
+                progressbar_description([f"waiting for new jobs to start"])
+                time.sleep(10)
+        if submitted_jobs() >= max_eval:
+            raise searchDone("Search done")
+
+
+        finish_previous_jobs(args, ["finishing jobs"])
+
+        next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
+
+        if next_nr_steps:
+            progressbar_description([f"trying to get {next_nr_steps} next steps"])
+            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
+
+            progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
+
+        _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
+
+        finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
+
+        _sleep(args, 1)
+
 def run_random_jobs(random_steps, num_parallel_jobs, max_eval, ax_client, executor):
     while random_steps >= submitted_jobs():
         log_nr_of_workers()
@@ -2478,37 +2510,7 @@ def main ():
                 if max_eval - random_steps <= 0:
                     raise searchDone("Search done")
                     
-
-                if not args.continue_previous_job:
-                    print(f"\nStarting systematic search for {max_eval - random_steps} steps")
-
-                while submitted_jobs() < max_nr_steps or jobs:
-                    #print(f"\ndone_jobs(): {done_jobs()}")
-                    log_nr_of_workers()
-
-                    if system_has_sbatch:
-                        while len(jobs) > num_parallel_jobs:
-                            progressbar_description([f"waiting for new jobs to start"])
-                            time.sleep(10)
-                    if submitted_jobs() >= max_eval:
-                        raise searchDone("Search done")
-
-
-                    finish_previous_jobs(args, ["finishing jobs"])
-
-                    next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
-
-                    if next_nr_steps:
-                        progressbar_description([f"trying to get {next_nr_steps} next steps"])
-                        nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
-
-                        progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
-
-                    _debug_worker_creation(f"{int(time.time())}, {len(jobs)}, {nr_of_items}, {next_nr_steps}")
-
-                    finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
-
-                    _sleep(args, 1)
+                run_systematic_search(args, max_nr_steps)
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for jobs ({len(jobs) - 1} left)"])

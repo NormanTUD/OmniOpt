@@ -2022,7 +2022,7 @@ sub module_load {
                 } else {
                         if(exists($ENV{LMOD_CMD})) {
                                 my $lmod_path = $ENV{LMOD_CMD};
-                                my $command = "eval \$($lmod_path sh load $toload 2>/dev/null)";
+                                my $command = "eval \$($lmod_path sh load --ignore_cache $toload 2>/dev/null)";
                                 debug $command;
                                 local $Env::Modify::CMDOPT{startup} = 1;
                                 modify_system($command);

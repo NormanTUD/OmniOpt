@@ -2475,6 +2475,10 @@ def main ():
 
                 finish_previous_jobs_random(args)
 
+                if max_eval - random_steps <= 0:
+                    raise searchDone("Search done")
+                    
+
                 if not args.continue_previous_job:
                     print(f"\nStarting systematic search for {max_eval - random_steps} steps")
 

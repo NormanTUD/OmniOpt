@@ -2323,7 +2323,7 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
-def run_systematic_search (args, max_nr_steps):
+def run_systematic_search (args, max_nr_steps, executor):
     if not args.continue_previous_job:
         print(f"\nStarting systematic search for {max_eval - random_steps} steps")
 
@@ -2510,7 +2510,7 @@ def main ():
                 if max_eval - random_steps <= 0:
                     raise searchDone("Search done")
                     
-                run_systematic_search(args, max_nr_steps)
+                run_systematic_search(args, max_nr_steps, executor)
 
                 while len(jobs):
                     finish_previous_jobs(args, [f"waiting for jobs ({len(jobs) - 1} left)"])

@@ -174,3 +174,4 @@ log
 logs
 .omniopt.dist/
 nohup.out
+*.out

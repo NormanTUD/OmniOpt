@@ -318,7 +318,7 @@ if [[ "$project_has_run" -eq "1" ]]; then
 fi
 
 if [[ "$quota_tests" -eq "1" ]]; then
-    if pwd | grep "/home/"; then
+    if pwd | grep "/home/" && command -v quota 2>/dev/null >/dev/null; then
         QUOTA_DATA=$(quota -u $USER | grep -A1 hrsk_userhome | tail -n1 2>/dev/null)
 	exit_code=$?
 	if [[ "$exit_code" -eq "0" ]]; then

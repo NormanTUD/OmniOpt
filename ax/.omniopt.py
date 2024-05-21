@@ -2356,7 +2356,7 @@ def run_systematic_search (args, max_nr_steps, executor, ax_client):
         _sleep(args, 1)
 
 def run_random_jobs(random_steps, ax_client, executor):
-    while random_steps >= submitted_jobs() + 1:
+    while random_steps >= done_jobs() + 1:
         log_nr_of_workers()
 
         if system_has_sbatch:

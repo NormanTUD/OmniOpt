@@ -586,6 +586,7 @@ if [[ "$ASK_FOR_GIT_PULL" -eq "1" ]]; then
 fi
 
 if [[ "$WARNINGHOME" -eq "1" ]]; then
+	mkdir -p $OOFOLDER
         if (echo "$(realpath $OOFOLDER)" | grep $HOME 2>/dev/null >/dev/null); then
                 if [[ "$INTERACTIVE" == "1" ]]; then
                         if (whiptail --title 'Home-Directory warning' --yesno --yes-button "Yes, I am sure" --no-button "No, don't continue" 'It is not recommended to run this script somewhere in your home directory, since the database might grow quite large. Are you sure about this?' 8 78); then

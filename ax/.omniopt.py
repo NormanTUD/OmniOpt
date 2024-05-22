@@ -50,6 +50,16 @@ class searchDone (Exception):
 
 import sys
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
 try:
     from datetime import datetime, timezone
     from tzlocal import get_localzone
@@ -447,16 +457,6 @@ signal.signal(signal.SIGUSR2, receive_usr_signal_one)
 signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
-
-script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=helpers_file,
-)
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
 
 try:
     from rich.console import Console

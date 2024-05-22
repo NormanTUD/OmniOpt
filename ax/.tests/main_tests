@@ -158,7 +158,7 @@ if [[ "$no_sleep" -eq 1 ]]; then
 		--partition=$PARTITION \
 		--experiment_name=$TESTNAME \
 		--mem_gb=1 \
-		--time=30 \
+		--time=60 \
 		--worker_timeout=1 \
 		--max_eval=$max_eval \
 		--num_parallel_jobs=$num_parallel_jobs \
@@ -175,7 +175,7 @@ else
 		--partition=$PARTITION \
 		--experiment_name=$TESTNAME \
 		--mem_gb=1 \
-		--time=30 \
+		--time=60 \
 		--worker_timeout=1 \
 		--max_eval=$max_eval \
 		--num_parallel_jobs=$num_parallel_jobs \

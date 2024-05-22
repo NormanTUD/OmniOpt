@@ -1071,6 +1071,43 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
     print_debug("disable_logging done")
 
+def print_best_result (csv_file_path, result_column):
+    try:
+        best_params = get_best_params(csv_file_path, result_column)
+
+        best_result = best_params["result"]
+
+        if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
+            table_str = "Best result could not be determined"
+            print_color("red", table_str)
+            _exit = 1
+        else:
+            table = Table(show_header=True, header_style="bold", title="Best parameter:")
+
+            for key in best_params["parameters"].keys():
+                table.add_column(key)
+
+            table.add_column("result")
+
+            row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()];
+            row = [*row_without_result, str(best_result)]
+
+            table.add_row(*row)
+
+            console.print(table)
+
+
+            with console.capture() as capture:
+                console.print(table)
+            table_str = capture.get()
+
+        with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
+            text_file.write(table_str)
+
+        shown_end_table = True
+    except Exception as e:
+        print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
+
 def show_end_table_and_save_end_files (csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")
 
@@ -1101,41 +1138,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        try:
-            best_params = get_best_params(csv_file_path, result_column)
-
-            best_result = best_params["result"]
-
-            if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
-                table_str = "Best result could not be determined"
-                print_color("red", table_str)
-                _exit = 1
-            else:
-                table = Table(show_header=True, header_style="bold", title="Best parameter:")
-
-                for key in best_params["parameters"].keys():
-                    table.add_column(key)
-
-                table.add_column("result")
-
-                row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()];
-                row = [*row_without_result, str(best_result)]
-
-                table.add_row(*row)
-
-                console.print(table)
-
-
-                with console.capture() as capture:
-                    console.print(table)
-                table_str = capture.get()
-
-            with open(f"{current_run_folder}/best_result.txt", "w") as text_file:
-                text_file.write(table_str)
-
-            shown_end_table = True
-        except Exception as e:
-            print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
+        print_best_result(csv_file_path, result_column)
 
     if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
         already_shown_worker_usage_over_time = True
@@ -1148,6 +1151,20 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%', style='bright_green')
         console.print(table)
 
+    write_worker_usage()
+
+    show_worker_plot()
+
+    show_progress_plot()
+
+    #print("Printing stats")
+    if args.experimental:
+        os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
+    #print("Done printing stats")
+
+    return _exit
+
+def write_worker_usage ():
     if len(worker_percentage_usage):
         csv_filename = f"{current_run_folder}/worker_usage.csv"
 
@@ -1159,10 +1176,9 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
 
-    shown_first_plot = False
-    tz_offset = get_timezone_offset_seconds()
-
+def show_worker_plot ():
     if len(worker_percentage_usage):
+        tz_offset = get_timezone_offset_seconds()
         try:
             plotext.theme('pro')
 
@@ -1182,12 +1198,12 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.show()
 
             plotext.clf()
-
-            shown_first_plot = True
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
+def show_progress_plot ():
     if len(progress_plot):
+        tz_offset = get_timezone_offset_seconds()
         try:
             plotext.theme('pro')
 
@@ -1206,21 +1222,11 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
             plotext.ylabel("Best result")
             plotext.title("Best Results Over Time")
 
-            if shown_first_plot:
-                print("")
-
             plotext.show()
 
             plotext.clf()
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
-
-    #print("Printing stats")
-    if args.experimental:
-        os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
-    #print("Done printing stats")
-
-    return _exit
 
 def end_program (csv_file_path, result_column="result", _force=False):
     global is_in_evaluate

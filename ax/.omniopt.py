@@ -3283,6 +3283,7 @@ def find_promising_bubbles(pd_csv):
 
 
     if len(param_directions_strings):
+        print("\nParameter suggestions:\n")
         print("- " + "\n- ".join(param_directions_strings) + "\n")
 
         argv_copy = sys.argv

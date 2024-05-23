@@ -2432,7 +2432,7 @@ def main ():
 
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
-    print(f"[yellow]Run-Folder[/yellow]: [underline]{current_run_folder}[/underline]")
+    print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
     print_color("green", program_name)
 
     check_python_version()

@@ -194,9 +194,12 @@ def _debug_progressbar (msg, _lvl=0, ee=None):
 
         _debug_progressbar(msg, _lvl + 1, e)
 
-def add_to_phase_counter (phase, nr):
-    return append_and_read(f'{current_run_folder}/phase_{phase}_steps', nr)
+def add_to_phase_counter (phase, nr=0, run_folder=""):
+    global current_run_folder
 
+    if run_folder == "":
+        run_folder = current_run_folder
+    return append_and_read(f'{run_folder}/phase_{phase}_steps', nr)
 
 def _debug (msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -2232,8 +2235,23 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, phas
 
     return num_new_keys
 
+def get_random_steps_from_prev_job(args):
+    if not args.continue_previous_job:
+        return 0
+
+    prev_step_file = args.continue_previous_job + "/phase_random_steps"
+
+    if not os.path.exists(prev_step_file):
+        return 0
+
+    return add_to_phase_counter("random", 0, args.continue_previous_job)
+
 def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps
+
+    already_done_random_steps = get_random_steps_from_prev_job(args)
+
+    random_steps = random_steps - already_done_random_steps
 
     if random_steps > max_eval:
         print_color("red", f"You have less --max_eval than --num_random_steps.")
@@ -2252,6 +2270,11 @@ def get_number_of_steps (args, max_eval):
         print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
     if second_step_steps == 0:
         print_color("red", "This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+
+    second_step_steps = second_step_steps - already_done_random_steps
+
+    if args.continue_previous_job:
+        second_step_steps = max_eval
 
     return random_steps, second_step_steps
 

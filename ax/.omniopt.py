@@ -248,6 +248,7 @@ required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
+required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 10), calculation is point [+-] maximizer * abs(point)', type=float, default=10)
 
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
 required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint", type=str, default=None)
@@ -306,8 +307,9 @@ def get_file_as_string (f):
 
 global_vars["joined_run_program"] = ""
 if not args.continue_previous_job:
-    global_vars["joined_run_program"] = " ".join(args.run_program[0])
-    global_vars["joined_run_program"] = decode_if_base64(global_vars["joined_run_program"])
+    if args.run_program:
+        global_vars["joined_run_program"] = " ".join(args.run_program[0])
+        global_vars["joined_run_program"] = decode_if_base64(global_vars["joined_run_program"])
 else:
     prev_job_folder = args.continue_previous_job
     prev_job_file = prev_job_folder + "/joined_run_program"
@@ -1325,6 +1327,9 @@ def end_program (csv_file_path, result_column="result", _force=False):
             job.cancel()
 
     save_pd_csv()
+
+    pd_csv = f'{current_run_folder}/pd.csv'
+    find_promising_bubbles(pd_csv)
 
     exit_local(_exit)
 
@@ -3188,6 +3193,137 @@ def get_best_params(csv_file_path, result_column):
 
     return results
 
+def is_near_boundary(value, min_value, max_value, threshold=0.1):
+    """
+    Überprüft, ob ein Wert nahe an einem der Ränder seiner Parametergrenzen liegt.
+    
+    :param value: Der zu überprüfende Wert
+    :param min_value: Der minimale Grenzwert
+    :param max_value: Der maximale Grenzwert
+    :param threshold: Der Prozentsatz der Nähe zum Rand (Standard ist 10%)
+    :return: True, wenn der Wert nahe am Rand ist, sonst False
+    """
+    range_value = max_value - min_value
+    return abs(value - min_value) < threshold * range_value or abs(value - max_value) < threshold * range_value
+
+def calculate_probability(value, min_value, max_value):
+    """
+    Berechnet die Wahrscheinlichkeit basierend auf der relativen Nähe des Werts zu den Grenzen.
+    
+    :param value: Der zu überprüfende Wert
+    :param min_value: Der minimale Grenzwert
+    :param max_value: Der maximale Grenzwert
+    :return: Wahrscheinlichkeit, dass eine Erweiterung sinnvoll ist
+    """
+    range_value = max_value - min_value
+    if abs(value - min_value) < abs(value - max_value):
+        distance_to_boundary = abs(value - min_value)
+    else:
+        distance_to_boundary = abs(value - max_value)
+        
+    # Je näher am Rand, desto höher die Wahrscheinlichkeit
+    probability = (1 - (distance_to_boundary / range_value)) * 100
+    return round(probability, 2)
+
+def find_promising_bubbles(pd_csv):
+    """
+    Findet vielversprechende Punkte (grüne Bubbles) am Rand des Parameterraums.
+    
+    :param csv_file: Der Pfad zur CSV-Datei
+    """
+    # CSV-Datei einlesen
+    data = pd.read_csv(pd_csv)
+    
+    # Ignoriere irrelevante Spalten
+    relevant_columns = [col for col in data.columns if col not in ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']]
+    
+    # Ergebnisse sortieren (niedrigste Werte zuerst)
+    sorted_data = data.sort_values(by='result')
+    
+    # Bestimmen der Parametergrenzen für jede relevante Spalte
+    param_bounds = {col: (sorted_data[col].min(), sorted_data[col].max()) for col in relevant_columns}
+
+    # Berechnung des automatischen result_thresholds
+    min_result = sorted_data['result'].min()
+    result_threshold = min_result + 0.2 * abs(min_result)
+    
+    # Vielversprechende Punkte finden
+    promising_bubbles = set()
+    probability_dict = {}
+    
+    for index, row in sorted_data.iterrows():
+        if row['result'] > result_threshold:
+            continue
+        try:
+            for col in relevant_columns:
+                min_value, max_value = param_bounds[col]
+                if is_near_boundary(float(row[col]), float(min_value), float(max_value)):
+                    direction = 'negative' if abs(float(row[col]) - float(min_value)) < abs(float(row[col]) - float(max_value)) else 'positive'
+                    probability = calculate_probability(float(row[col]), float(min_value), float(max_value))
+                    key = (col, direction)
+                    promising_bubbles.add(key)
+                    probability_dict[key] = probability_dict.get(key, []) + [probability]
+        except Exception as e:
+            pass
+    
+
+    param_directions = {}
+    param_directions_strings = []
+
+    for point in promising_bubbles:
+        param, direction = point
+
+        param_directions[param] = direction
+
+        smaller_or_larger = "smaller"
+        if direction == "positive":
+            smaller_or_larger = "larger"
+
+        param_directions_strings.append(f"It may be worthwhile to try to allow {smaller_or_larger} numbers for parameter {param}.")
+
+
+    if len(param_directions_strings):
+        print("- " + "\n- ".join(param_directions_strings) + "\n")
+
+        argv_copy = sys.argv
+
+        argv_copy[0] = "./omniopt "
+
+        # --parameter float_param range -5 5 float
+        # --parameter choice_param choice 1,2,4,8,16,hallo
+
+        i = 0
+
+        while i < len(argv_copy):
+            param = argv_copy[i]
+            if param == "--parameter":
+                i = i + 1
+                param = argv_copy[i]
+
+                _name = param
+
+                i = i + 1
+                param = argv_copy[i]
+
+                _type = param
+                
+                if _type == "range":
+                    for this_changable_name, this_changable_direction in promising_bubbles:
+                        if _name == this_changable_name:
+                            i = i + 1
+                            param = argv_copy[i]
+
+                            if this_changable_direction == "negative":
+                                argv_copy[i] = str(float(argv_copy[i]) - args.maximizer * abs(float(argv_copy[i])))
+                            else:
+                                argv_copy[i] = str(float(argv_copy[i]) + args.maximizer * abs(float(argv_copy[i])))
+
+            i = i + 1
+
+        argv_copy_string = " ".join(argv_copy)
+
+        original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")
+
 def warn_versions ():
     wrns = []
 
@@ -3217,4 +3353,5 @@ if __name__ == "__main__":
         else:
             warnings.simplefilter("ignore")
 
+            #dier(find_promising_bubbles("runs/custom_run/8/pd.csv"))
             main()

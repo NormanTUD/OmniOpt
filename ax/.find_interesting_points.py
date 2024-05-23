@@ -38,12 +38,11 @@ def calculate_probability(value, min_value, max_value):
     probability = (1 - (distance_to_boundary / range_value)) * 100
     return round(probability, 2)
 
-def find_promising_bubbles(csv_file, result_threshold):
+def find_promising_bubbles(csv_file):
     """
     Findet vielversprechende Punkte (grüne Bubbles) am Rand des Parameterraums.
     
     :param csv_file: Der Pfad zur CSV-Datei
-    :param result_threshold: Schwellenwert für die Klassifizierung von guten (grünen) Punkten
     """
     # CSV-Datei einlesen
     data = pd.read_csv(csv_file)
@@ -57,6 +56,10 @@ def find_promising_bubbles(csv_file, result_threshold):
     # Bestimmen der Parametergrenzen für jede relevante Spalte
     param_bounds = {col: (sorted_data[col].min(), sorted_data[col].max()) for col in relevant_columns}
 
+    # Berechnung des automatischen result_thresholds
+    min_result = sorted_data['result'].min()
+    result_threshold = min_result + 0.2 * abs(min_result)
+    
     # Vielversprechende Punkte finden
     promising_bubbles = set()
     probability_dict = {}
@@ -84,6 +87,4 @@ def find_promising_bubbles(csv_file, result_threshold):
 
 # Beispielausführung
 csv_file = 'runs/custom_run/0/pd.csv'  # Ersetzen Sie diesen Pfad durch den tatsächlichen Pfad zu Ihrer CSV-Datei
-result_threshold = -2000  # Schwellenwert für gute Ergebnisse (anpassen nach Bedarf)
-find_promising_bubbles(csv_file, result_threshold)
-
+find_promising_bubbles(csv_file)

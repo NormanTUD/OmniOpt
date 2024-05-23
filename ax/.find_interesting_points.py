@@ -43,9 +43,32 @@ def find_promising_points(csv_file):
     
     # Ergebnisse ausgeben
     for point in promising_points:
-        print(point)
+        print_promising_point(point, int_param_min, int_param_max, float_param_min, float_param_max, int_param_two_min, int_param_two_max)
+
+def print_promising_point(point, int_param_min, int_param_max, float_param_min, float_param_max, int_param_two_min, int_param_two_max):
+    """
+    Gibt einen vielversprechenden Punkt in einem lesbaren Format aus.
+    
+    :param point: Der Punkt, der ausgegeben werden soll
+    :param int_param_min: Der minimale Wert des int_param
+    :param int_param_max: Der maximale Wert des int_param
+    :param float_param_min: Der minimale Wert des float_param
+    :param float_param_max: Der maximale Wert des float_param
+    :param int_param_two_min: Der minimale Wert des int_param_two
+    :param int_param_two_max: Der maximale Wert des int_param_two
+    """
+    if is_near_boundary(point['int_param'], int_param_min, int_param_max):
+        direction = 'negative' if abs(point['int_param'] - int_param_min) < abs(point['int_param'] - int_param_max) else 'positive'
+        print(f"Es wäre gut, den Parameter 'int_param' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: 80%)")
+        
+    if is_near_boundary(point['float_param'], float_param_min, float_param_max):
+        direction = 'negative' if abs(point['float_param'] - float_param_min) < abs(point['float_param'] - float_param_max) else 'positive'
+        print(f"Es wäre gut, den Parameter 'float_param' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: 80%)")
+        
+    if is_near_boundary(point['int_param_two'], int_param_two_min, int_param_two_max):
+        direction = 'negative' if abs(point['int_param_two'] - int_param_two_min) < abs(point['int_param_two'] - int_param_two_max) else 'positive'
+        print(f"Es wäre gut, den Parameter 'int_param_two' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: 80%)")
 
 # Beispielausführung
-csv_file = 'runs/custom_run/114/pd.csv'  # Ersetzen Sie diesen Pfad durch den tatsächlichen Pfad zu Ihrer CSV-Datei
+csv_file = 'runs/custom_run/0/pd.csv'  # Ersetzen Sie diesen Pfad durch den tatsächlichen Pfad zu Ihrer CSV-Datei
 find_promising_points(csv_file)
-

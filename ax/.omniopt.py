@@ -629,7 +629,7 @@ def parse_experiment_parameters(args):
 
     i = 0
 
-    while i < len(args.parameter):
+    while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
         j = 0
         while j < len(this_args):

@@ -1330,7 +1330,10 @@ def end_program (csv_file_path, result_column="result", _force=False):
     save_pd_csv()
 
     pd_csv = f'{current_run_folder}/pd.csv'
-    find_promising_bubbles(pd_csv)
+    try:
+        find_promising_bubbles(pd_csv)
+    except Exception as e:
+        print("Error trying to find promising bubbles: " + str(e))
 
     exit_local(_exit)
 

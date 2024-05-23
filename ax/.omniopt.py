@@ -1641,7 +1641,7 @@ def print_overview_table (experiment_parameters):
             values = param["values"]
             values = [str(to_int_when_possible(item)) for item in values]
 
-            rows.append([str(param["name"]), _type, "", "", ", ".join(values), ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), ""])
         else:
             print_color("red", f"Type {_type} is not yet implemented in the overview table.");
             exit_local(15)

@@ -8,31 +8,31 @@ import shutil
 
 global_vars = {}
 
-global_vars["is_in_evaluate"] = False
-global_vars["val_if_nothing_found"] = 99999999999999999999999999999999999999999999999999999999999
-global_vars["NO_RESULT"] = "{:.0e}".format(global_vars["val_if_nothing_found"])
+val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
-global_vars["already_shown_worker_usage_over_time"] = False
-global_vars["ax_client"] = None
-global_vars["time_get_next_trials_took"] = []
-progress_plot = []
-global_vars["worker_percentage_usage"] = []
 global_vars["jobs"] = []
-global_vars["end_program_ran"] = False
-global_vars["program_name"] = "OmniOpt"
-global_vars["current_run_folder"] = None
 global_vars["file_number"] = 0
-global_vars["folder_number"] = 0
-global_vars["args"] = None
-global_vars["result_csv_file"] = None
-shown_end_table = False
-max_eval = None
 global_vars["_time"] = None
 global_vars["mem_gb"] = None
-global_vars["random_steps"] = None
-global_vars["progress_bar"] = None
-global_vars["searching_for"] = None
 global_vars["num_parallel_jobs"] = None
+
+worker_percentage_usage = []
+is_in_evaluate = False
+end_program_ran = False
+already_shown_worker_usage_over_time = False
+ax_client = None
+time_get_next_trials_took = []
+progress_plot = []
+current_run_folder = None
+folder_number = 0
+args = None
+result_csv_file = None
+shown_end_table = False
+max_eval = None
+random_steps = None
+progress_bar = None
+searching_for = None
 
 main_pid = os.getpid()
 
@@ -195,7 +195,7 @@ def _debug_progressbar (msg, _lvl=0, ee=None):
         _debug_progressbar(msg, _lvl + 1, e)
 
 def add_to_phase_counter (phase, nr):
-    return append_and_read(f'{global_vars["current_run_folder"]}/phase_{phase}_steps', nr)
+    return append_and_read(f'{current_run_folder}/phase_{phase}_steps', nr)
 
 
 def _debug (msg, _lvl=0, ee=None):
@@ -513,6 +513,10 @@ if is_executable_in_path("sbatch"):
 
 if not system_has_sbatch:
     num_parallel_jobs = 1
+
+def save_global_vars ():
+    with open(f'current_run_folder/global_vars.json', "w") as f:
+        json.dump([{"f_name": f_name, "l_name": l_name}], f)
 
 def check_slurm_job_id():
     print_debug("check_slurm_job_id")
@@ -909,13 +913,14 @@ def find_file_paths_and_print_infos (_text, program_code):
 
 def evaluate(parameters):
     global global_vars
+    global is_in_evaluate
 
     nvidia_smi_thread = start_nvidia_smi_thread()
 
-    global_vars["is_in_evaluate"] = True
+    is_in_evaluate = True
     if args.evaluate_to_random_value:
         rand_res = random.uniform(0, 1)
-        global_vars["is_in_evaluate"] = False
+        is_in_evaluate = False
         return {"result": float(rand_res)}
 
     print_debug(f"evaluate with parameters {parameters}")
@@ -925,10 +930,10 @@ def evaluate(parameters):
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
-    return_in_case_of_error = {"result": global_vars["val_if_nothing_found"]}
+    return_in_case_of_error = {"result": val_if_nothing_found}
 
     if args.maximize:
-        return_in_case_of_error = {"result": -global_vars["val_if_nothing_found"]}
+        return_in_case_of_error = {"result": -val_if_nothing_found}
 
     try:
         print("parameters:", parameters)
@@ -975,25 +980,25 @@ def evaluate(parameters):
         add_to_csv(result_csv_file, headline, values)
 
         if type(result) == int:
-            global_vars["is_in_evaluate"] = False
+            is_in_evaluate = False
             return {"result": int(result)}
         elif type(result) == float:
-            global_vars["is_in_evaluate"] = False
+            is_in_evaluate = False
             return {"result": float(result)}
         else:
-            global_vars["is_in_evaluate"] = False
+            is_in_evaluate = False
             return return_in_case_of_error
     except signalUSR:
         print("\n:warning: USR1-Signal was sent. Cancelling evaluation.")
-        global_vars["is_in_evaluate"] = False
+        is_in_evaluate = False
         return return_in_case_of_error
     except signalCONT:
         print("\n:warning: CONT-Signal was sent. Cancelling evaluation.")
-        global_vars["is_in_evaluate"] = False
+        is_in_evaluate = False
         return return_in_case_of_error
     except signalINT:
         print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
-        global_vars["is_in_evaluate"] = False
+        is_in_evaluate = False
         return return_in_case_of_error
 
 try:
@@ -1084,7 +1089,7 @@ def print_best_result (csv_file_path, result_column):
 
         best_result = best_params["result"]
 
-        if str(best_result) == global_vars["NO_RESULT"] or best_result is None or best_result == "None":
+        if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             table_str = "Best result could not be determined"
             print_color("red", table_str)
             _exit = 1
@@ -1108,7 +1113,7 @@ def print_best_result (csv_file_path, result_column):
                 console.print(table)
             table_str = capture.get()
 
-        with open(f'{global_vars["current_run_folder"]}/best_result.txt', "w") as text_file:
+        with open(f'{current_run_folder}/best_result.txt', "w") as text_file:
             text_file.write(table_str)
 
         shown_end_table = True
@@ -1130,6 +1135,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
     global console
     global shown_end_table
     global args
+    global already_shown_worker_usage_over_time
     global global_vars
 
     if shown_end_table:
@@ -1144,14 +1150,15 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
         warnings.simplefilter("ignore")
         print_best_result(csv_file_path, result_column)
 
-    if args.show_worker_percentage_table_at_end and len(global_vars["worker_percentage_usage"]) and not global_vars["already_shown_worker_usage_over_time"]:
-        global_vars["already_shown_worker_usage_over_time"] = True
+
+    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
+        already_shown_worker_usage_over_time = True
 
         table = Table(header_style="bold", title="Worker usage over time:")
         columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
         for column in columns:
             table.add_column(column)
-        for row in global_vars["worker_percentage_usage"]:
+        for row in worker_percentage_usage:
             table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%', style='bright_green')
         console.print(table)
 
@@ -1163,32 +1170,32 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
     #print("Printing stats")
     if args.experimental:
-        os.system(f'bash {script_dir}/omniopt_plot --run_dir {global_vars["current_run_folder"]} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
+        os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
     #print("Done printing stats")
 
     return _exit
 
 def write_worker_usage ():
-    if len(global_vars["worker_percentage_usage"]):
-        csv_filename = f'{global_vars["current_run_folder"]}/worker_usage.csv'
+    if len(worker_percentage_usage):
+        csv_filename = f'{current_run_folder}/worker_usage.csv'
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
         with open(csv_filename, 'w', newline='') as csvfile:
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
             csv_writer.writeheader()
-            for row in global_vars["worker_percentage_usage"]:
+            for row in worker_percentage_usage:
                 csv_writer.writerow(row)
 
 def show_worker_plot ():
-    if len(global_vars["worker_percentage_usage"]):
+    if len(worker_percentage_usage):
         tz_offset = get_timezone_offset_seconds()
         try:
             plotext.theme('pro')
 
-            ideal_situation = [entry["num_parallel_jobs"] for entry in global_vars["worker_percentage_usage"]]
-            times = [datetime_to_plotext_format(entry["time"] - tz_offset) for entry in global_vars["worker_percentage_usage"]]
-            num_workers = [entry["nr_current_workers"] for entry in global_vars["worker_percentage_usage"]]
+            ideal_situation = [entry["num_parallel_jobs"] for entry in worker_percentage_usage]
+            times = [datetime_to_plotext_format(entry["time"] - tz_offset) for entry in worker_percentage_usage]
+            num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
 
             plotext.date_form("d/m/Y H:M:S")
 
@@ -1236,29 +1243,30 @@ def end_program (csv_file_path, result_column="result", _force=False):
     global global_vars
     global ax_client
     global console
+    global end_program_ran
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
-    if global_vars["is_in_evaluate"] and not force:
+    if is_in_evaluate and not force:
         print_debug("is_in_evaluate true, returning end_program")
         return
 
-    if global_vars["end_program_ran"] and not force:
+    if end_program_ran and not force:
         print_debug("[end_program] end_program_ran was true. Returning.")
         return
 
-    global_vars["end_program_ran"] = True
+    end_program_ran = True
 
-    out_files_string = analyze_out_files(global_vars["current_run_folder"])
+    out_files_string = analyze_out_files(current_run_folder)
 
     if out_files_string:
         print_debug(out_files_string)
 
     if out_files_string:
         try:
-            with open(f'{global_vars["current_run_folder"]}/errors.log', "w") as error_file:
+            with open(f'{current_run_folder}/errors.log', "w") as error_file:
                 error_file.write(out_files_string)
         except Exception as e:
             print_debug(f"Error occurred while writing to errors.log: {e}")
@@ -1266,7 +1274,7 @@ def end_program (csv_file_path, result_column="result", _force=False):
     _exit = 0
 
     try:
-        if global_vars["current_run_folder"] is None:
+        if current_run_folder is None:
             print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
             return
 
@@ -1312,7 +1320,7 @@ def save_checkpoint (trial_nr=0, ee=None):
         print_debug("save_checkpoint")
         global ax_client
 
-        checkpoint_filepath = f'{global_vars["current_run_folder"]}/checkpoint.json'
+        checkpoint_filepath = f'{current_run_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
 
         print_debug("Checkpoint saved")
@@ -1347,7 +1355,7 @@ def save_pd_csv ():
     print_debug("save_pd_csv")
     global ax_client
 
-    pd_csv = f'{global_vars["current_run_folder"]}/pd.csv'
+    pd_csv = f'{current_run_folder}/pd.csv'
     try:
         logger = logging.getLogger()
         logger.setLevel(logging.ERROR)
@@ -1399,7 +1407,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             exit_local(49)
 
         done_jobs_file = f"{continue_previous_job}/submitted_jobs"
-        done_jobs_file_dest = f'{global_vars["current_run_folder"]}/submitted_jobs'
+        done_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
         if not os.path.exists(done_jobs_file):
             print_color(f"Cannot find {done_jobs_file}")
             exit_local(95)
@@ -1408,7 +1416,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             shutil.copy(done_jobs_file, done_jobs_file_dest)
 
         submitted_jobs_file = f"{continue_previous_job}/submitted_jobs"
-        submitted_jobs_file_dest = f'{global_vars["current_run_folder"]}/submitted_jobs'
+        submitted_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
         if not os.path.exists(submitted_jobs_file):
             print_color(f"Cannot find {submitted_jobs_file}")
             exit_local(96)
@@ -1435,7 +1443,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if not _replaced:
                     print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
 
-        checkpoint_filepath = f'{global_vars["current_run_folder"]}/checkpoint.json'
+        checkpoint_filepath = f'{current_run_folder}/checkpoint.json'
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
@@ -1443,7 +1451,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
             exit_local(22)
 
-        with open(f'{global_vars["current_run_folder"]}/checkpoint_load_source', 'w') as f:
+        with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
             print(f"Continuation from checkpoint {continue_previous_job}", file=f)
     else:
         experiment_args = {
@@ -1504,7 +1512,7 @@ def print_overview_table (experiment_parameters):
     if args.maximize:
         min_or_max = "maximize"
 
-    with open(f"{global_vars['current_run_folder']}/{min_or_max}", 'w') as f:
+    with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
     rows = []
@@ -1536,7 +1544,7 @@ def print_overview_table (experiment_parameters):
         console.print(table)
     table_str = capture.get()
 
-    with open(f"{global_vars['current_run_folder']}/parameters.txt", "w") as text_file:
+    with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
         text_file.write(table_str)
 
 def check_equation (variables, equation):
@@ -1661,7 +1669,7 @@ def finish_previous_jobs (args, new_msgs):
                 result = result["result"]
                 #print_debug(f"Got job result: {result}")
                 jobs_finished += 1
-                if result != global_vars["val_if_nothing_found"]:
+                if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
                     done_jobs(1)
@@ -1827,7 +1835,7 @@ def get_desc_progress_text (new_msgs=[]):
         if type(best_result) == float or type(best_result) == int or looks_like_float(best_result):
             best_result_int_if_possible = to_int_when_possible(float(best_result))
 
-            if str(best_result) != global_vars["NO_RESULT"] and best_result is not None:
+            if str(best_result) != NO_RESULT and best_result is not None:
                 in_brackets.append(f"best result: {best_result_int_if_possible}")
 
             this_progress_values = {
@@ -1848,9 +1856,9 @@ def get_desc_progress_text (new_msgs=[]):
             "time": this_time
         }
 
-        if len(global_vars["worker_percentage_usage"]) == 0 or global_vars["worker_percentage_usage"][len(global_vars["worker_percentage_usage"]) - 1] != this_values:
+        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
             if is_slurm_job():
-                global_vars["worker_percentage_usage"].append(this_values)
+                worker_percentage_usage.append(this_values)
 
     if args.verbose_tqdm and submitted_jobs():
         in_brackets.append(f"total submitted: {submitted_jobs()}")
@@ -1893,30 +1901,30 @@ def _sleep (args, t):
         time.sleep(t)
 
 def save_state_files (args, _time):
-    with open(f'{global_vars["current_run_folder"]}/joined_run_program', 'w') as f:
+    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
         print(global_vars["joined_run_program"], file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/experiment_name', 'w') as f:
+    with open(f'{current_run_folder}/experiment_name', 'w') as f:
         print(global_vars["experiment_name"], file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/mem_gb', 'w') as f:
+    with open(f'{current_run_folder}/mem_gb', 'w') as f:
         print(global_vars["mem_gb"], file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/max_eval', 'w') as f:
+    with open(f'{current_run_folder}/max_eval', 'w') as f:
         print(max_eval, file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/gpus', 'w') as f:
+    with open(f'{current_run_folder}/gpus', 'w') as f:
         print(args.gpus, file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/time', 'w') as f:
+    with open(f'{current_run_folder}/time', 'w') as f:
         print(_time, file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/env', 'a') as f:
+    with open(f'{current_run_folder}/env', 'a') as f:
         env = dict(os.environ)
         for key in env:
             print(str(key) + " = " + str(env[key]), file=f)
 
-    with open(f'{global_vars["current_run_folder"]}/run.sh', 'w') as f:
+    with open(f'{current_run_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
 def check_python_version ():
@@ -1983,7 +1991,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
     except (signalUSR, signalINT, signalCONT) as e:
         print_color("red", f"\n:warning: Detected signal. Will exit.")
-        global_vars["is_in_evaluate"] = False
+        is_in_evaluate = False
         end_program(result_csv_file, "result", 1)
     except Exception as e:
         import traceback
@@ -2002,9 +2010,9 @@ def _get_next_trials (ax_client):
 
     last_ax_client_time = None
     ax_client_time_avg = None
-    if len(global_vars["time_get_next_trials_took"]):
-        last_ax_client_time = global_vars["time_get_next_trials_took"][len(global_vars["time_get_next_trials_took"]) - 1]
-        ax_client_time_avg = sum(global_vars["time_get_next_trials_took"]) / len(global_vars["time_get_next_trials_took"])
+    if len(time_get_next_trials_took):
+        last_ax_client_time = time_get_next_trials_took[len(time_get_next_trials_took) - 1]
+        ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
 
     new_msgs = []
 
@@ -2042,7 +2050,7 @@ def _get_next_trials (ax_client):
 
     _ax_took = get_next_trials_time_end - get_next_trials_time_start
 
-    global_vars["time_get_next_trials_took"].append(_ax_took)
+    time_get_next_trials_took.append(_ax_took)
 
     _log_trial_index_to_param(trial_index_to_param)
 
@@ -2234,7 +2242,7 @@ def get_number_of_steps (args, max_eval):
 def get_executor(args):
     global run_uuid
 
-    log_folder = f'{global_vars["current_run_folder"]}/%j'
+    log_folder = f'{current_run_folder}/%j'
     executor = submitit.AutoExecutor(folder=log_folder)
 
     # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
@@ -2274,16 +2282,16 @@ def append_and_read (file, zahl=0):
     return 0
 
 def failed_jobs (nr=0):
-    return append_and_read(f'{global_vars["current_run_folder"]}/failed_jobs', nr)
+    return append_and_read(f'{current_run_folder}/failed_jobs', nr)
 
 def get_steps_from_prev_job (prev_job, nr=0):
     return append_and_read(f"{prev_job}/submitted_jobs", nr)
 
 def submitted_jobs (nr=0):
-    return append_and_read(f'{global_vars["current_run_folder"]}/submitted_jobs', nr)
+    return append_and_read(f'{current_run_folder}/submitted_jobs', nr)
 
 def done_jobs (nr=0):
-    return append_and_read(f'{global_vars["current_run_folder"]}/done_jobs', nr)
+    return append_and_read(f'{current_run_folder}/done_jobs', nr)
 
 def execute_nvidia_smi():
     while True:
@@ -2408,31 +2416,33 @@ def main ():
     global global_vars
     global max_eval
     global global_vars
+    global folder_number
+    global current_run_folder
 
     original_print("omniopt " + " ".join(sys.argv[1:]))
 
     check_slurm_job_id()
 
-    global_vars["current_run_folder"] = f"{args.run_dir}/{global_vars['experiment_name']}/{global_vars['folder_number']}"
-    while os.path.exists(f"{global_vars['current_run_folder']}"):
-        global_vars["current_run_folder"] = f"{args.run_dir}/{global_vars['experiment_name']}/{global_vars['folder_number']}"
-        global_vars['folder_number'] = global_vars['folder_number'] + 1
+    current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{folder_number}"
+    while os.path.exists(f"{current_run_folder}"):
+        current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{folder_number}"
+        folder_number = folder_number + 1
 
-    result_csv_file = create_folder_and_file(f"{global_vars['current_run_folder']}", "csv")
+    result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
     save_state_files(args, _time)
 
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
-    print(f"[yellow]Run-folder[/yellow]: [underline]{global_vars['current_run_folder']}[/underline]")
-    print_color("green", global_vars["program_name"])
+    print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
+    print_color("green", "OmniOpt")
 
     check_python_version()
     warn_versions()
 
     experiment_parameters = None
     cli_params_experiment_parameters = None
-    checkpoint_filepath = f"{global_vars['current_run_folder']}/checkpoint.json.parameters.json"
+    checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
 
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args)
@@ -2482,8 +2492,13 @@ def main ():
 
             initial_text = get_desc_progress_text()
             print(f"Searching {searching_for}")
+
+            second_step_steps_string = ""
+            if second_step_steps:
+                second_step_steps_string = f", followed by {second_step_steps} systematic steps"
+
             if random_steps and random_steps > submitted_jobs():
-                print(f"\nStarting random search for {random_steps} steps")
+                print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
 
 
             max_nr_steps = second_step_steps
@@ -2518,7 +2533,7 @@ def main ():
         end_program(result_csv_file, "result", 1)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
-        global_vars["is_in_evaluate"] = False
+        is_in_evaluate = False
 
         end_program(result_csv_file, "result", 1)
 

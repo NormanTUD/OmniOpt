@@ -1447,7 +1447,6 @@ def get_ax_param_representation (data):
         }
 
     else:
-        dier(data)
         dier(f"Unknown data range {data['type']}")
 
 

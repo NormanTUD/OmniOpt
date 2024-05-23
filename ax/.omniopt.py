@@ -3350,7 +3350,7 @@ def find_promising_bubbles(pd_csv):
 
         original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")
 
-        if arg.auto_execute_suggestions:
+        if args.auto_execute_suggestions:
             if system_has_sbatch:
                 print_color("red", "Warning: Auto-executing on systems with sbatch may not work as expected. The main worker may get killed with all subjobs")
             subprocess.run(argv_copy)

@@ -208,8 +208,6 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         row = i // num_cols
         col = i % num_cols
         if not param1 in args.exclude_params[0] or param2 in args.exclude_params[0]:
-            print("param1:" + str(param1))
-            print("param2:" + str(param2))
             try:
                     scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
                     axs[row, col].set_xlabel(param1)

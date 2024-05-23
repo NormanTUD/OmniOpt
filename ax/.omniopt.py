@@ -2603,10 +2603,8 @@ def main ():
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
         if len(args.parameter) and args.continue_previous_job and random_steps <= 0:
-            print("A parameter has been reset. To look at the new search space, {args.renew_searchspace_num_random} random steps will be executed.")
+            print(f"A parameter has been reset. To look at the new search space, {args.renew_searchspace_num_random} random steps will be executed.")
             random_steps = args.renew_searchspace_num_random
-
-        dier(random_steps)
 
         gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 

@@ -3,7 +3,6 @@
 export NO_WHIPTAIL=1
 
 run_dir=$1
-prev_runs=()
 
 function join_by {
 	local d=${1-} f=${2-}
@@ -15,13 +14,7 @@ function join_by {
 for i in $(ls $run_dir | sort -n); do
 	if [[ ! -e "$i.png" ]]; then
 		echo "Creating $i.png"
-		if [[ ${#prev_runs[@]} -eq "0" ]]; then
-			bash omniopt_plot --run_dir $run_dir/$i --save_to_file "$i.png" --bubblesize 200 --exclude choice_param
-		else
-			bash omniopt_plot --run_dir $run_dir/$i --save_to_file "$i.png" --bubblesize 200 --merge_with_previous_runs $(join_by " --merge_with_previous_runs " $prev_runs) --exclude choice_param
-		fi
-
-		prev_runs+=("$run_dir/$i")
+		bash omniopt_plot --run_dir $run_dir/$i --save_to_file "$i.png" --bubblesize 200 --exclude choice_param
 	fi
 done
 

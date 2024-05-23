@@ -2365,6 +2365,7 @@ def ax_client_load_prev_data(args):
                     print(f"from_json_snapshot ({this_prev_path})")
                     json_snapshot = json.load(f)
                     ax_client.from_json_snapshot(json_snapshot)
+                    # TODO: Lädt nicfht richtig!
             else:
                 print_color("red", f"{this_prev_path} was not found")
 

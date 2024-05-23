@@ -2675,7 +2675,7 @@ def main ():
 
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
-        if len(args.parameter) and args.continue_previous_job and random_steps <= 0:
+        if args.parameter and len(args.parameter) and args.continue_previous_job and random_steps <= 0:
             print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
             random_steps = args.num_random_steps
 

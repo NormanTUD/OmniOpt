@@ -276,6 +276,7 @@ debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
+debug.add_argument('--use_gpu', help='Searches and uses a GPU device if available to create predictions on where to look next', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -1488,6 +1489,24 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         if seed:
             experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
+
+        if args.use_gpu:
+            try:
+                import torch
+
+                cuda_is_available = torch.cuda.is_available()
+
+                if not cuda_is_available or cuda_is_available == 0:
+                    print_color("red", "No suitable CUDA devices found")
+                else:
+                    if torch.cuda.device_count() >= 1:
+                        torch_device = torch.cuda.current_device()
+                        experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+                        print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
+                    else:
+                        print_color("red", "No CUDA devices found")
+            except ModuleNotFoundError:
+                print_color("red", "Cannot load torch and thus, cannot use --use-torch")
 
         #dier(experiment_args)
 

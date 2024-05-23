@@ -2,17 +2,17 @@
 
 run_dir=$1
 
-for i in $(ls $run_dir); do
+for i in $(ls $run_dir | sort -n); do
 	if [[ ! -e "$i.png" ]]; then
 		echo "Creating $i.png"
 		bash omniopt_plot --run_dir runs/custom_run/$i --save_to_file "$i.png" --bubblesize 200
 	fi
 done
 
-for i in $(ls *.png | sort -nr | sed -e 's#\.png##'); do
+for i in $(ls *.png | sort -n | sed -e 's#\.png##'); do
 	if [[ ! -e "${i}_with_text.jpg" ]]; then
 		echo "Creating ${i}_with_text.png"
-		convert ${i}.png -gravity North -pointsize 30 -annotate +-600+0 "${i}" ${i}_with_text.png
+		convert ${i}.png -gravity North -pointsize 30 -annotate +-660+0 "${i}" ${i}_with_text.png
 	fi
 done
 

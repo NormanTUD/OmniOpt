@@ -13,3 +13,7 @@ for i in $(ls *.png | sort -nr | sed -e 's#\.png##'); do
 		convert ${i}.png -gravity North -pointsize 30 -annotate +-600+0 "${i}" ${i}_with_text.png
 	fi
 done
+
+rm *.png
+
+echo "file: output.gif"

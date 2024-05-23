@@ -86,5 +86,5 @@ def find_promising_bubbles(csv_file):
         print(f"Es wäre gut, den Parameter '{param}' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: {average_probability:.2f}%)")
 
 # Beispielausführung
-csv_file = 'runs/custom_run/1/pd.csv'  # Ersetzen Sie diesen Pfad durch den tatsächlichen Pfad zu Ihrer CSV-Datei
+csv_file = 'runs/custom_run/2/pd.csv'  # Ersetzen Sie diesen Pfad durch den tatsächlichen Pfad zu Ihrer CSV-Datei
 find_promising_bubbles(csv_file)

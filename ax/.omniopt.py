@@ -3338,9 +3338,9 @@ def find_promising_bubbles(pd_csv):
                                     integerize = True
 
                                 if integerize:
-                                    new_lower_limit = round(new_lower_limit)
+                                    new_upper_limit = round(new_upper_limit)
                                 else:
-                                    new_lower_limit = round(new_lower_limit, 2)
+                                    new_upper_limit = round(new_upper_limit, 2)
 
                                 argv_copy[i] = str(new_upper_limit)
 

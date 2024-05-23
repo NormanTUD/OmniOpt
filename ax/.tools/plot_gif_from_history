@@ -14,6 +14,8 @@ for i in $(ls *.png | sort -nr | sed -e 's#\.png##'); do
 	fi
 done
 
+convert -size 1080x1080 -delay 200 -loop 0 $(ls *_with_text.png | sort -n) output.gif
+
 rm *.png
 
 echo "file: output.gif"

@@ -13,6 +13,25 @@ def is_near_boundary(value, min_value, max_value, threshold=0.1):
     range_value = max_value - min_value
     return abs(value - min_value) < threshold * range_value or abs(value - max_value) < threshold * range_value
 
+def calculate_probability(value, min_value, max_value):
+    """
+    Berechnet die Wahrscheinlichkeit basierend auf der relativen Nähe des Werts zu den Grenzen.
+    
+    :param value: Der zu überprüfende Wert
+    :param min_value: Der minimale Grenzwert
+    :param max_value: Der maximale Grenzwert
+    :return: Wahrscheinlichkeit, dass eine Erweiterung sinnvoll ist
+    """
+    range_value = max_value - min_value
+    if abs(value - min_value) < abs(value - max_value):
+        distance_to_boundary = abs(value - min_value)
+    else:
+        distance_to_boundary = abs(value - max_value)
+        
+    # Je näher am Rand, desto höher die Wahrscheinlichkeit
+    probability = (1 - (distance_to_boundary / range_value)) * 100
+    return round(probability, 2)
+
 def find_promising_points(csv_file):
     """
     Findet vielversprechende Punkte aus einer CSV-Datei, die hyperparametrische Suchergebnisse enthält.
@@ -59,16 +78,20 @@ def print_promising_point(point, int_param_min, int_param_max, float_param_min, 
     """
     if is_near_boundary(point['int_param'], int_param_min, int_param_max):
         direction = 'negative' if abs(point['int_param'] - int_param_min) < abs(point['int_param'] - int_param_max) else 'positive'
-        print(f"Es wäre gut, den Parameter 'int_param' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: 80%)")
+        probability = calculate_probability(point['int_param'], int_param_min, int_param_max)
+        print(f"Es wäre gut, den Parameter 'int_param' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: {probability}%)")
         
     if is_near_boundary(point['float_param'], float_param_min, float_param_max):
         direction = 'negative' if abs(point['float_param'] - float_param_min) < abs(point['float_param'] - float_param_max) else 'positive'
-        print(f"Es wäre gut, den Parameter 'float_param' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: 80%)")
+        probability = calculate_probability(point['float_param'], float_param_min, float_param_max)
+        print(f"Es wäre gut, den Parameter 'float_param' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: {probability}%)")
         
     if is_near_boundary(point['int_param_two'], int_param_two_min, int_param_two_max):
         direction = 'negative' if abs(point['int_param_two'] - int_param_two_min) < abs(point['int_param_two'] - int_param_two_max) else 'positive'
-        print(f"Es wäre gut, den Parameter 'int_param_two' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: 80%)")
+        probability = calculate_probability(point['int_param_two'], int_param_two_min, int_param_two_max)
+        print(f"Es wäre gut, den Parameter 'int_param_two' ins {direction} zu erweitern (Wahrscheinlichkeit, dass es klappt: {probability}%)")
 
 # Beispielausführung
 csv_file = 'runs/custom_run/0/pd.csv'  # Ersetzen Sie diesen Pfad durch den tatsächlichen Pfad zu Ihrer CSV-Datei
 find_promising_points(csv_file)
+

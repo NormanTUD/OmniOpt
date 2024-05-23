@@ -699,12 +699,12 @@ def parse_experiment_parameters(args):
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
-                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}")
-                        exit_local(37)
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded.")
+                        lower_bound = round(lower_bound)
 
                     if not looks_like_int(upper_bound):
-                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}")
-                        exit_local(38)
+                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded.")
+                        upper_bound = round(upper_bound)
 
                 param = {
                     "name": name,

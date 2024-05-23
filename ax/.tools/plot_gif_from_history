@@ -1,0 +1,15 @@
+#!/bin/bash
+
+run_dir=$1
+
+for i in $(ls $run_dir); do
+	if [[ ! -e "$i.png" ]]; then
+		bash omniopt_plot --run_dir runs/custom_run/$i --save_to_file "$i.png" --bubblesize 200
+	fi
+done
+
+for i in $(ls *.png | sort -nr | sed -e 's#\.png##'); do
+	if [[ ! -e "${i}_with_text.jpg" ]]; then
+		convert ${i}.png -gravity North -pointsize 30 -annotate +-600+0 "${i}" ${i}_with_text.png
+	fi
+done

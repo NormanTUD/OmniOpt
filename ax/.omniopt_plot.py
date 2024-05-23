@@ -208,9 +208,10 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         row = i // num_cols
         col = i % num_cols
         try:
-            scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-            axs[row, col].set_xlabel(param1)
-            axs[row, col].set_ylabel(param2)
+            if not param1 in args.exclude_params or param2 in args.exclude_params:
+                scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                axs[row, col].set_xlabel(param1)
+                axs[row, col].set_ylabel(param2)
         except Exception as e:
             print(str(e))
             sys.exit(17)
@@ -309,6 +310,7 @@ def get_args ():
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
+    parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 
     args = parser.parse_args()
 

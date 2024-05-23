@@ -2356,13 +2356,15 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 def ax_client_load_prev_data(args):
     print("TODO: Loading snapshots from json doesnt work yet")
     global ax_client
+
     if args.load_previous_job_data:
         for this_prev_path in args.load_previous_job_data[0]:
             this_prev_path += "/pd.json"
             if os.path.exists(this_prev_path):
                 with open(this_prev_path) as f:
-                    print("from_json_snapshot (prev)")
-                    ax_client.from_json_snapshot(json.load(f))
+                    print(f"from_json_snapshot ({this_prev_path})")
+                    json_snapshot = json.load(f)
+                    ax_client.from_json_snapshot(json_snapshot)
             else:
                 print_color("red", f"{this_prev_path} was not found")
 

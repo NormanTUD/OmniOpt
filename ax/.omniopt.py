@@ -1921,7 +1921,7 @@ def save_state_files (current_run_folder, joined_run_program, experiment_name, m
             print(str(key) + " = " + str(env[key]), file=f)
 
     with open(f"{current_run_folder}/run.sh", 'w') as f:
-        print("bash run.sh '" + "' '".join(sys.argv[1:]) + "'", file=f)
+        print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
 def check_python_version ():
     python_version = platform.python_version()

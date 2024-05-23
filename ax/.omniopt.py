@@ -191,6 +191,10 @@ def _debug_progressbar (msg, _lvl=0, ee=None):
 
         _debug_progressbar(msg, _lvl + 1, e)
 
+def add_to_phase_counter (phase, nr):
+    return append_and_read(f"{current_run_folder}/phase_{phase}_steps", nr)
+
+
 def _debug (msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
@@ -1926,7 +1930,7 @@ def check_python_version ():
     if not python_version in supported_versions:
         print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps):
+def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global jobs
     global progress_bar
 
@@ -1994,6 +1998,8 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print_color("red", f"\n:warning: Starting job failed with error: {e}")
 
     finish_previous_jobs(args, ["finishing jobs"])
+
+    add_to_phase_counter(phase, 1)
 
     return trial_counter
 
@@ -2158,7 +2164,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
+def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
     if next_nr_steps == 0:
@@ -2177,7 +2183,7 @@ def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor):
                 while len(jobs) > num_parallel_jobs:
                     finish_previous_jobs(args, ["finishing previous jobs"])
                     time.sleep(5)
-                execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps)
+                execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                 i += 1
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")
@@ -2348,7 +2354,7 @@ def run_systematic_search (args, max_nr_steps, executor, ax_client):
 
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps"])
-            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor)
+            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -2377,7 +2383,7 @@ def run_random_jobs(random_steps, ax_client, executor):
 
             progressbar_description([f"trying to get {steps_mind_worker} workers"])
 
-            nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor)
+            nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor, "random")
             if nr_of_items_random:
                 progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
 

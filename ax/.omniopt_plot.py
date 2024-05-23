@@ -458,6 +458,8 @@ def main(args):
         fig.canvas.manager.set_window_title(args.run_dir)
 
     if args.save_to_file:
+        fig.set_size_inches(15.5, 9.5)
+
         plt.savefig(args.save_to_file)
 
         if args.print_to_command_line:

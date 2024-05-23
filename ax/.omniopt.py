@@ -242,7 +242,8 @@ bash = parser.add_argument_group('Bash', "These options are for the main worker 
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
+required.add_argument('--num_random_steps', help='Number of urandom steps to start with', type=int, default=20)
+required.add_argument('--renew_searchspace_num_random', help='Number of random steps to start explore new search spaces', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
@@ -1415,9 +1416,6 @@ def get_tmp_file_from_json (experiment_args):
     return str(k)
 
 def get_ax_param_representation (data):
-    #
-    #{"name": "int_param", "type": "range", "bounds": [-1000.0, 1000.0], "value_type": "int"}
-
     if data["type"] == "range":
         return {
                 "__type": "RangeParameter",
@@ -1585,8 +1583,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                         print_color("red", "No CUDA devices found")
             except ModuleNotFoundError:
                 print_color("red", "Cannot load torch and thus, cannot use --use_gpu")
-
-        #dier(experiment_args)
 
         if experiment_constraints:
             constraints_string = " ".join(experiment_constraints[0])
@@ -2605,6 +2601,10 @@ def main ():
         global second_step_steps
 
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
+
+        if len(args.parameter) and args.continue_previous_job and random_steps <= 0:
+            print("A parameter has been reset. To look at the new search space, {args.renew_searchspace_num_random} random steps will be executed.")
+            random_steps = args.renew_searchspace_num_random
 
         gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 

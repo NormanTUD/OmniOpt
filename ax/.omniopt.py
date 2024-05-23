@@ -2606,6 +2606,8 @@ def main ():
             print("A parameter has been reset. To look at the new search space, {args.renew_searchspace_num_random} random steps will be executed.")
             random_steps = args.renew_searchspace_num_random
 
+        dier(random_steps)
+
         gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 
         ax_client = AxClient(

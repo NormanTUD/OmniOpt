@@ -1376,9 +1376,6 @@ def save_pd_csv ():
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
-def get_num_jobs (ax_client):
-    return len(ax_client.get_trials_data_frame())
-
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
@@ -2474,7 +2471,7 @@ def main ():
         ax_client, experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
 
         if args.continue_previous_job:
-            max_eval = get_num_jobs(ax_client) + random_steps + second_step_steps
+            max_eval = submitted_jobs() + random_steps + second_step_steps
 
         print_overview_table(experiment_parameters)
 
@@ -2495,8 +2492,8 @@ def main ():
 
 
             max_nr_steps = second_step_steps
-            if get_num_jobs(ax_client) < random_steps:
-                max_nr_steps = (random_steps - get_num_jobs(ax_client)) + second_step_steps
+            if submitted_jobs() < random_steps:
+                max_nr_steps = (random_steps - submitted_jobs()) + second_step_steps
                 max_eval = max_nr_steps
 
             if args.continue_previous_job:
@@ -2507,7 +2504,7 @@ def main ():
                 global progress_bar
                 progress_bar = _progress_bar
 
-                progress_bar.update(get_num_jobs(ax_client))
+                progress_bar.update(submitted_jobs())
 
                 run_random_jobs(random_steps, ax_client, executor)
 

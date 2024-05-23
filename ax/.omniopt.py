@@ -248,7 +248,7 @@ required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
-required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 10), calculation is point [+-] maximizer * abs(point)', type=float, default=10)
+required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 0.5), calculation is point [+-] maximizer * abs(point)', type=float, default=0.5)
 
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
 required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint", type=str, default=None)

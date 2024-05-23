@@ -61,7 +61,11 @@ set -e
 
 if [[ "$exit_code" -ne "0" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then
-		error_message "$OUTPUT"
+		if [[ -z $NO_WHIPTAIL ]]; then
+			error_message "$OUTPUT"
+		else
+			echo $OUTPUT
+		fi
 	else
 		echo -- "$OUTPUT"
 	fi

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export NO_WHIPTAIL=1
+
 run_dir=$1
 prev_runs=()
 

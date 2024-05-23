@@ -1404,6 +1404,16 @@ def save_pd_csv ():
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
+def get_tmp_file_from_json (experiment_args):
+    k = 0
+    while os.path.exists(str(k)):
+        k = k + 1
+
+    with open(f'{k}', "w") as f:
+        json.dump(experiment_args, f)
+
+    return str(k)
+
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
@@ -1415,7 +1425,42 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         ax_client = None
         try:
-            ax_client = (AxClient.load_from_json_file(checkpoint_file))
+            try:
+                tmp_experiment_args = None
+
+                if args.use_gpu:
+                    with open(checkpoint_file) as f:
+                        tmp_experiment_args = json.load(f)
+
+                    import torch
+
+                    cuda_is_available = torch.cuda.is_available()
+
+                    if not cuda_is_available or cuda_is_available == 0:
+                        print_color("red", "No suitable CUDA devices found")
+                    else:
+                        if torch.cuda.device_count() >= 1:
+                            torch_device = torch.cuda.current_device()
+                            if "choose_generation_strategy_kwargs" not in tmp_experiment_args:
+                                tmp_experiment_args["choose_generation_strategy_kwargs"] = {}
+                            tmp_experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+                            print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
+                        else:
+                            print_color("red", "No CUDA devices found")
+                            tmp_experiment_args = None
+            except ModuleNotFoundError:
+                print_color("red", "Cannot load torch and thus, cannot use --use_gpu")
+                tmp_experiment_args = None
+
+            if tmp_experiment_args:
+                import io
+                tmp_file_path = get_tmp_file_from_json(tmp_experiment_args)
+
+                ax_client = (AxClient.load_from_json_file(tmp_file_path))
+
+                os.unlink(tmp_file_path)
+            else:
+                ax_client = (AxClient.load_from_json_file(checkpoint_file))
         except json.decoder.JSONDecodeError as e:
             print_color("red", f"Error parsing checkpoint_file {checkpoint_file}")
             exit_local(157)
@@ -1506,7 +1551,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     else:
                         print_color("red", "No CUDA devices found")
             except ModuleNotFoundError:
-                print_color("red", "Cannot load torch and thus, cannot use --use-torch")
+                print_color("red", "Cannot load torch and thus, cannot use --use_gpu")
 
         #dier(experiment_args)
 

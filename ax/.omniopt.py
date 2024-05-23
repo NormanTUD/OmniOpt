@@ -2214,7 +2214,7 @@ def get_number_of_steps (args, max_eval):
     random_steps = args.num_random_steps
 
     if random_steps > max_eval:
-        print(f"You have less --max_eval than --num_random_steps. This basically means this will be a random search")
+        print_color("red", f"You have less --max_eval than --num_random_steps.")
 
     if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps
@@ -2229,7 +2229,7 @@ def get_number_of_steps (args, max_eval):
     if second_step_steps != original_second_steps:
         print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
     if second_step_steps == 0:
-        print("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        print_color("red", "This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
     return random_steps, second_step_steps
 

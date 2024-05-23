@@ -1,4 +1,10 @@
 import pandas as pd
+from pprint import pprint
+import sys
+
+def dier (msg):
+    pprint(msg)
+    sys.exit(1)
 
 def is_near_boundary(value, min_value, max_value, threshold=0.1):
     """
@@ -58,9 +64,6 @@ def find_promising_bubbles(csv_file, result_threshold):
     for index, row in sorted_data.iterrows():
         if row['result'] > result_threshold:
             continue
-        
-        dier(row["result"])
-        
         try:
             for col in relevant_columns:
                 min_value, max_value = param_bounds[col]

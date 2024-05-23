@@ -2351,6 +2351,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
     return gs
 
 def ax_client_load_prev_data(args):
+    print("TODO: Loading snapshots from json doesnt work yet")
     global ax_client
     if args.load_previous_job_data:
         for this_prev_path in args.load_previous_job_data[0]:

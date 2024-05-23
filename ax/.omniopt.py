@@ -265,6 +265,7 @@ optional.add_argument('--enforce_sequential_optimization', help='Enforce sequent
 optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
+optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1385,6 +1386,8 @@ def save_pd_csv ():
     global ax_client
 
     pd_csv = f'{current_run_folder}/pd.csv'
+    pd_json = f'{current_run_folder}/pd.json'
+
     try:
         logger = logging.getLogger()
         logger.setLevel(logging.ERROR)
@@ -1402,8 +1405,16 @@ def save_pd_csv ():
         logger.setLevel(logging.ERROR)
 
         pd_frame = ax_client.get_trials_data_frame()
+
         pd_frame.to_csv(pd_csv, index=False)
-        print_debug("pd.csv saved")
+        #pd_frame.to_json(pd_json)
+
+        json_snapshot = ax_client.to_json_snapshot()
+
+        with open(pd_json, 'w') as json_file:
+            json.dump(json_snapshot, json_file, indent=4)
+
+        print_debug("pd.{csv,json} saved")
     except signalUSR as e:
         raise signalUSR(str(e))
     except signalCONT as e:
@@ -2339,6 +2350,17 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
+def ax_client_load_prev_data(args):
+    global ax_client
+    if args.load_previous_job_data:
+        for this_prev_path in args.load_previous_job_data[0]:
+            this_prev_path += "/pd.json"
+            if os.path.exists(this_prev_path):
+                with open(this_prev_path) as f:
+                    ax_client.from_json_snapshot(json.load(f))
+            else:
+                print_color("red", f"{this_prev_path} was not found")
+
 def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
@@ -2664,6 +2686,7 @@ def main ():
             generation_strategy=gs
         )
 
+        ax_client_load_prev_data(args)
 
         minimize_or_maximize = not args.maximize
 

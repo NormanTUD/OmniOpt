@@ -2587,6 +2587,9 @@ def main ():
                     _sleep(args, 1)
         end_program(result_csv_file, "result", 1)
     except searchDone as e:
+        _get_perc = int((submitted_jobs() / max_eval) * 100)
+        print_color("yellow", f"It seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
+
         end_program(result_csv_file, "result", 1)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")

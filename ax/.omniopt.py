@@ -3314,9 +3314,29 @@ def find_promising_bubbles(pd_csv):
                             param = argv_copy[i]
 
                             if this_changable_direction == "negative":
-                                argv_copy[i] = str(float(argv_copy[i]) - args.maximizer * abs(float(argv_copy[i])))
+                                new_lower_limit = str(float(argv_copy[i]) - args.maximizer * abs(float(argv_copy[i])))
+
+                                integerize = False
+
+                                if argv_copy[i + 2] == "int":
+                                    integerize = True
+
+                                if integerize:
+                                    new_lower_limit = round(new_lower_limit)
+
+                                argv_copy[i] = new_lower_limit
                             else:
-                                argv_copy[i] = str(float(argv_copy[i]) + args.maximizer * abs(float(argv_copy[i])))
+                                new_upper_limit = str(float(argv_copy[i]) + args.maximizer * abs(float(argv_copy[i])))
+
+                                integerize = False
+
+                                if argv_copy[i + 1] == "int":
+                                    integerize = True
+
+                                if integerize:
+                                    new_lower_limit = round(new_lower_limit)
+
+                                argv_copy[i] = new_upper_limit
 
             i = i + 1
 

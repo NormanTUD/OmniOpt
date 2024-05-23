@@ -24,6 +24,8 @@
 # This way, the whole slurm procedure is transparent to the user,
 # and the program looks basically the same on every device.
 
+export NO_WHIPTAIL=1
+
 function displaytime {
 	local T=$1
 		local D=$((T/60/60/24))

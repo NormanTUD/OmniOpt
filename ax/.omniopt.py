@@ -1490,7 +1490,9 @@ def get_ax_param_representation (data):
         dier(f"Unknown data range {data['type']}")
 
 
-def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+def get_experiment_parameters(continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+    global ax_client
+
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 
@@ -1504,7 +1506,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         ax_client = None
         try:
             try:
-                f = open(checkpoint_file)
+                f = open(f"{continue_previous_job}/pd.json")
                 experiment_parameters = json.load(f)
                 f.close()
 
@@ -1575,7 +1577,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
-        ax_client = (AxClient.load_from_json_file(tmp_file_path))
+        print("load_from_json_file, modified file")
+        ax_client = AxClient.from_json_snapshot(tmp_file_path)
 
         os.unlink(tmp_file_path)
 
@@ -1647,7 +1650,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
             exit_local(50)
 
-    return ax_client, experiment_parameters
+    return experiment_parameters
 
 def get_type_short (typename):
     if typename == "RangeParameter":
@@ -2358,6 +2361,7 @@ def ax_client_load_prev_data(args):
             this_prev_path += "/pd.json"
             if os.path.exists(this_prev_path):
                 with open(this_prev_path) as f:
+                    print("from_json_snapshot (prev)")
                     ax_client.from_json_snapshot(json.load(f))
             else:
                 print_color("red", f"{this_prev_path} was not found")
@@ -2438,7 +2442,7 @@ def get_number_of_steps (args, max_eval):
     if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps
         random_steps = num_parallel_jobs
-        print(f"random_steps {old_random_steps} <- num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers.")
+        original_print(f"random_steps {old_random_steps} <- num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers.")
 
     if random_steps > max_eval:
         max_eval = random_steps
@@ -2693,7 +2697,7 @@ def main ():
 
         experiment = None
 
-        ax_client, experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+        experiment_parameters = get_experiment_parameters(args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
 
         if args.continue_previous_job:
             max_eval = submitted_jobs() + random_steps + second_step_steps

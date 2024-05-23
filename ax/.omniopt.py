@@ -1447,6 +1447,8 @@ def get_ax_param_representation (data):
         }
 
     else:
+        print("data:")
+        pprint(data)
         dier(f"Unknown data range {data['type']}")
 
 

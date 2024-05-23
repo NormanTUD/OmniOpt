@@ -315,7 +315,23 @@ else:
 
 global_vars["experiment_name"] = args.experiment_name
 
+def load_global_vars(_file):
+    if not os.path.exists(_file):
+        print(f"You've tried to continue a non-existing job: {_file}")
+        sys.exit(99)
+    try:
+        import json
+        global global_vars
+        with open(_file) as f:
+            global_vars = json.load(f)
+    except Exception as e:
+        print("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
+        exit_local(94)
+
 if not args.tests:
+    if args.continue_previous_job:
+        load_global_vars(f"{args.continue_previous_job}/global_vars.json")
+
     if args.parameter is None and args.continue_previous_job is None:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
         exit_local(19)
@@ -1400,16 +1416,16 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", f"Error parsing checkpoint_file {checkpoint_file}")
             exit_local(157)
 
-        checkpoint_params_file = continue_previous_job + "/checkpoint.json.parameters.json"
+        checkpoint_filepath = continue_previous_job + "/checkpoint.json.parameters.json"
 
-        if not os.path.exists(checkpoint_params_file):
-            print_color(f"Cannot find {checkpoint_params_file}")
+        if not os.path.exists(checkpoint_filepath):
+            print_color("red", f"Cannot find {checkpoint_filepath}")
             exit_local(49)
 
         done_jobs_file = f"{continue_previous_job}/submitted_jobs"
         done_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
         if not os.path.exists(done_jobs_file):
-            print_color(f"Cannot find {done_jobs_file}")
+            print_color("red", f"Cannot find {done_jobs_file}")
             exit_local(95)
 
         if not os.path.exists(done_jobs_file_dest):
@@ -1418,13 +1434,13 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         submitted_jobs_file = f"{continue_previous_job}/submitted_jobs"
         submitted_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
         if not os.path.exists(submitted_jobs_file):
-            print_color(f"Cannot find {submitted_jobs_file}")
+            print_color("red", f"Cannot find {submitted_jobs_file}")
             exit_local(96)
 
         if not os.path.exists(submitted_jobs_file_dest):
             shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
 
-        f = open(checkpoint_params_file)
+        f = open(checkpoint_filepath)
         experiment_parameters = json.load(f)
         f.close()
 
@@ -1447,8 +1463,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
-        if not os.path.exists(checkpoint_params_file):
-            print_color("red", f"{checkpoint_params_file} not found. Cannot continue_previous_job without.")
+        if not os.path.exists(checkpoint_filepath):
+            print_color("red", f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
             exit_local(22)
 
         with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:

@@ -515,8 +515,8 @@ if not system_has_sbatch:
     num_parallel_jobs = 1
 
 def save_global_vars ():
-    with open(f'current_run_folder/global_vars.json', "w") as f:
-        json.dump([{"f_name": f_name, "l_name": l_name}], f)
+    with open(f'{current_run_folder}/global_vars.json', "w") as f:
+        json.dump(global_vars, f)
 
 def check_slurm_job_id():
     print_debug("check_slurm_job_id")
@@ -2509,6 +2509,8 @@ def main ():
             if args.continue_previous_job:
                 max_nr_steps = get_steps_from_prev_job(args.continue_previous_job) + max_nr_steps
                 max_eval = max_nr_steps
+
+            save_global_vars()
 
             with tqdm(total=max_eval, disable=False) as _progress_bar:
                 global progress_bar

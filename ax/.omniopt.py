@@ -12,11 +12,11 @@ val_if_nothing_found = 999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
 global_vars["jobs"] = []
-global_vars["file_number"] = 0
 global_vars["_time"] = None
 global_vars["mem_gb"] = None
 global_vars["num_parallel_jobs"] = None
 
+file_number = 0
 worker_percentage_usage = []
 is_in_evaluate = False
 end_program_ran = False
@@ -547,20 +547,20 @@ def check_slurm_job_id():
 
 def create_folder_and_file (folder, extension):
     print_debug("create_folder_and_file")
-    global global_vars
+    global file_number
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
     while True:
-        filename = os.path.join(folder, f"{global_vars['file_number']}.{extension}")
+        filename = os.path.join(folder, f"{file_number}.{extension}")
 
         if not os.path.exists(filename):
             with open(filename, 'w') as file:
                 pass
             return filename
 
-        global_vars["file_number"] += 1
+        file_number += 1
 
 def sort_numerically_or_alphabetically(arr):
     print_debug("sort_numerically_or_alphabetically")

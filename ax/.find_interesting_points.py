@@ -59,6 +59,8 @@ def find_promising_bubbles(csv_file, result_threshold):
         if row['result'] > result_threshold:
             continue
         
+        dier(row["result"])
+        
         try:
             for col in relevant_columns:
                 min_value, max_value = param_bounds[col]

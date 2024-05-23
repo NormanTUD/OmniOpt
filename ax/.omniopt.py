@@ -1414,11 +1414,36 @@ def get_tmp_file_from_json (experiment_args):
 
     return str(k)
 
+def get_ax_param_representation (data):
+    #
+    #{"name": "int_param", "type": "range", "bounds": [-1000.0, 1000.0], "value_type": "int"}
+
+    if data["type"] == "range":
+        return {
+                "__type": "RangeParameter",
+                "name": data["name"],
+                "parameter_type": {
+                    "__type": "ParameterType", "name": data["value_type"].upper()
+                },
+                "lower": data["bounds"][0],
+                "upper": data["bounds"][1],
+                "log_scale": False,
+                "logit_scale": False,
+                "digits": None, 
+                "is_fidelity": False, 
+                "target_value": None
+            }
+    else:
+        dier(f"Unknown data range {data['type']}")
+
+
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 
         checkpoint_file = continue_previous_job + "/checkpoint.json"
+        checkpoint_parameters_filepath = continue_previous_job + "/checkpoint.json.parameters.json"
+
         if not os.path.exists(checkpoint_file):
             print_color("red", f"{checkpoint_file} not found")
             exit_local(47)
@@ -1426,11 +1451,13 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         ax_client = None
         try:
             try:
-                tmp_experiment_args = None
+                f = open(checkpoint_file)
+                experiment_parameters = json.load(f)
+                f.close()
 
                 if args.use_gpu:
                     with open(checkpoint_file) as f:
-                        tmp_experiment_args = json.load(f)
+                        experiment_parameters = json.load(f)
 
                     import torch
 
@@ -1441,34 +1468,22 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     else:
                         if torch.cuda.device_count() >= 1:
                             torch_device = torch.cuda.current_device()
-                            if "choose_generation_strategy_kwargs" not in tmp_experiment_args:
-                                tmp_experiment_args["choose_generation_strategy_kwargs"] = {}
-                            tmp_experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+                            if "choose_generation_strategy_kwargs" not in experiment_parameters:
+                                experiment_parameters["choose_generation_strategy_kwargs"] = {}
+                            experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
                             print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
                         else:
                             print_color("red", "No CUDA devices found")
-                            tmp_experiment_args = None
             except ModuleNotFoundError:
                 print_color("red", "Cannot load torch and thus, cannot use --use_gpu")
-                tmp_experiment_args = None
+                experiment_parameters = None
 
-            if tmp_experiment_args:
-                import io
-                tmp_file_path = get_tmp_file_from_json(tmp_experiment_args)
-
-                ax_client = (AxClient.load_from_json_file(tmp_file_path))
-
-                os.unlink(tmp_file_path)
-            else:
-                ax_client = (AxClient.load_from_json_file(checkpoint_file))
         except json.decoder.JSONDecodeError as e:
             print_color("red", f"Error parsing checkpoint_file {checkpoint_file}")
             exit_local(157)
 
-        checkpoint_filepath = continue_previous_job + "/checkpoint.json.parameters.json"
-
-        if not os.path.exists(checkpoint_filepath):
-            print_color("red", f"Cannot find {checkpoint_filepath}")
+        if not os.path.exists(checkpoint_parameters_filepath):
+            print_color("red", f"Cannot find {checkpoint_parameters_filepath}")
             exit_local(49)
 
         done_jobs_file = f"{continue_previous_job}/submitted_jobs"
@@ -1489,24 +1504,27 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         if not os.path.exists(submitted_jobs_file_dest):
             shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
 
-        f = open(checkpoint_filepath)
-        experiment_parameters = json.load(f)
-        f.close()
 
         if parameter:
             for _item in cli_params_experiment_parameters:
                 _replaced = False
-                for _item_id_to_overwrite in range(0, len(experiment_parameters)):
-                    if _item["name"] == experiment_parameters[_item_id_to_overwrite]["name"]:
-                        old_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
-                        experiment_parameters[_item_id_to_overwrite] = _item;
-                        new_param_json = json.dumps(experiment_parameters[_item_id_to_overwrite])
+                for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
+                    if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
+                        old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item);
+                        new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
                         _replaced = True
 
                         print_color("orange", f"Replaced this parameter:\n{old_param_json}\nwith new parameter:\n{new_param_json}")
 
                 if not _replaced:
                     print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
+
+        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+
+        ax_client = (AxClient.load_from_json_file(tmp_file_path))
+
+        os.unlink(tmp_file_path)
 
         checkpoint_filepath = f'{current_run_folder}/checkpoint.json'
         with open(checkpoint_filepath, "w") as outfile:
@@ -1580,6 +1598,13 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
     return ax_client, experiment_parameters
 
+def get_type_short (typename):
+    if typename == "RangeParameter":
+        return "range"
+    
+    if typename == "ChoiceParameter":
+        return "choice"
+
 def print_overview_table (experiment_parameters):
     if not experiment_parameters:
         print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -1600,13 +1625,19 @@ def print_overview_table (experiment_parameters):
 
     rows = []
 
+    if "_type" in experiment_parameters:
+        experiment_parameters = experiment_parameters["experiment"]["search_space"]["parameters"]
+
     for param in experiment_parameters:
-        _type = str(param["type"])
-        if _type == "range":
-            rows.append([str(param["name"]), _type, str(to_int_when_possible(param["bounds"][0])), str(to_int_when_possible(param["bounds"][1])), "", str(param["value_type"])])
-        elif _type == "fixed":
-            rows.append([str(param["name"]), _type, "", "", str(to_int_when_possible(param["value"])), ""])
-        elif _type == "choice":
+        _type = ""
+
+        _type = param["__type"]
+
+        if "range" in _type.lower():
+            rows.append([str(param["name"]), get_type_short(_type), str(to_int_when_possible(param["lower"])), str(to_int_when_possible(param["upper"])), "", param["parameter_type"]["name"].lower()])
+        elif "fixed" in _type.lower():
+            rows.append([str(param["name"]), get_type_short(_type), "", "", str(to_int_when_possible(param["value"])), ""])
+        elif "choice" in _type.lower():
             values = param["values"]
             values = [str(to_int_when_possible(item)) for item in values]
 
@@ -2542,13 +2573,13 @@ def main ():
 
     experiment_parameters = None
     cli_params_experiment_parameters = None
-    checkpoint_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
+    checkpoint_parameters_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
 
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args)
         cli_params_experiment_parameters = experiment_parameters
 
-        with open(checkpoint_filepath, "w") as outfile:
+        with open(checkpoint_parameters_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
     if not args.verbose:

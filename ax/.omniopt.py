@@ -243,7 +243,6 @@ debug = parser.add_argument_group('Debug', "These options are mainly useful for 
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
 required.add_argument('--num_random_steps', help='Number of urandom steps to start with', type=int, default=20)
-required.add_argument('--renew_searchspace_num_random', help='Number of random steps to start explore new search spaces', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
@@ -2603,8 +2602,8 @@ def main ():
         random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
         if len(args.parameter) and args.continue_previous_job and random_steps <= 0:
-            print(f"A parameter has been reset. To look at the new search space, {args.renew_searchspace_num_random} random steps will be executed.")
-            random_steps = args.renew_searchspace_num_random
+            print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
+            random_steps = args.num_random_steps
 
         gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 

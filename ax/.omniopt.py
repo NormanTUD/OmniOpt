@@ -1414,6 +1414,27 @@ def get_tmp_file_from_json (experiment_args):
 
     return str(k)
 
+def compare_parameters(old_param_json, new_param_json):
+    try:
+        old_param = json.loads(old_param_json)
+        new_param = json.loads(new_param_json)
+
+        differences = []
+        for key in old_param:
+            if old_param[key] != new_param[key]:
+                differences.append(f"{key} from {old_param[key]} to {new_param[key]}")
+        
+        if differences:
+            differences_message = f"Changed parameter {old_param['name']} " + ", ".join(differences)
+            return differences_message
+        else:
+            return "No differences found between the old and new parameters."
+    
+    except AssertionError as e:
+        print(f"Assertion error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
 def get_ax_param_representation (data):
     if data["type"] == "range":
         return {
@@ -1527,7 +1548,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                         new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
                         _replaced = True
 
-                        print_color("orange", f"Replaced this parameter:\n{old_param_json}\nwith new parameter:\n{new_param_json}")
+                        print_color("orange", compare_parameters(old_param_json, new_param_json))
 
                 if not _replaced:
                     print_color("orange", f"--parameter named {item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")

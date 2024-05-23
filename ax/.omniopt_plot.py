@@ -308,6 +308,7 @@ def get_args ():
     parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
+    parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
 
     args = parser.parse_args()
 
@@ -429,6 +430,15 @@ def main(args):
     csv_file_path = get_csv_file_path(args)
 
     df = get_data(args, csv_file_path, result_column)
+
+    if len(args.merge_with_previous_runs):
+        for prev_run in args.merge_with_previous_runs:
+            prev_run_csv_path = prev_run[0] + "/pd.csv"
+            prev_run_df = get_data(args, prev_run_csv_path, result_column)
+
+            #df = pd.join([prev_run_csv_path, df])
+            df = df.merge(prev_run_df, how='outer')
+
     nr_of_items_before_filtering = len(df)
 
     df_filtered = get_df_filtered(df)

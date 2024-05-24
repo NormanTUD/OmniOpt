@@ -2006,7 +2006,6 @@ def load_data_from_existing_run_folders(args, _paths):
 
             for old_trial_index in old_trials:
                 old_trial = old_trials[old_trial_index]
-                pprint(old_trial)
 
                 old_arm_parameter = old_trial.arm.parameters
 

@@ -1891,6 +1891,7 @@ def load_existing_job_data_into_ax_client(args):
         load_data_from_existing_run_folders(args, args.load_previous_job_data[0])
 
 def load_data_from_existing_run_folders(args, _paths):
+    #dier(help(ax_client.experiment.search_space))
     for this_path in _paths:
         this_path_json = str(this_path) + "/ax_client.experiment.json"
         this_path_checkpoint = str(this_path) + "/checkpoint.json"

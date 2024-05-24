@@ -507,6 +507,8 @@ def main(args):
 
         plt.show()
 
+        update_graph(None)
+
 # Define update function for the button
 def update_graph(event):
     global fig

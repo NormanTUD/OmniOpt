@@ -775,8 +775,12 @@ def parse_experiment_parameters(args):
                     exit_local(5)
 
                 if upper_bound == lower_bound:
-                    print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}")
-                    exit_local(13)
+                    if lower_bound == 0:
+                        print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
+                        sys.exit(13)
+                    print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+                    lower_bound = -upper_bound
+
 
                 if lower_bound > upper_bound:
                     print_color("yellow", f":warning: Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")

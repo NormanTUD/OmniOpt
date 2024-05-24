@@ -10,6 +10,8 @@ import math
 import time
 
 fig = None
+maximum_textbox = None
+minimum_textbox = None
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -93,7 +95,7 @@ def check_if_results_are_empty(result_column_values):
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-def set_title(fig, args, df_filtered, result_column_values, num_entries):
+def set_title(fig, args, df_filtered, result_column_values, num_entries, _min, _max):
     #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_index = result_column_values.idxmin()
     if os.path.exists(args.run_dir + "/maximize"):
@@ -466,7 +468,7 @@ def main(args):
     result_column_values = get_result_column_values(df, "result")
 
     if not args.print_to_command_line:
-        set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
+        set_title(fig, args, df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
         set_margins(fig)
 
@@ -560,7 +562,7 @@ def update_graph(event):
         plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
         
         result_column_values = get_result_column_values(df, result_column)
-        set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
+        set_title(fig, args, df_filtered, result_column_values, len(df_filtered), _min, _max)
         set_margins(fig)
 
         plt.draw()

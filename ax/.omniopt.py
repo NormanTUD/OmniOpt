@@ -232,7 +232,7 @@ def dier (msg):
 parser = argparse.ArgumentParser(
     prog="omniopt",
     description='A hyperparameter optimizer for slurmbased HPC-systems',
-    epilog="Example:\n\n./main --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int"
+    epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int"
 )
 
 required = parser.add_argument_group('Required arguments', "These options have to be set")
@@ -2970,8 +2970,8 @@ def test_find_paths (program_code):
     nr_errors = 0
 
     files = [
-        "main",
-        ".main.py",
+        "omniopt",
+        ".omniopt.py",
         "plot",
         ".plot.py",
         "/etc/passwd",
@@ -3455,6 +3455,8 @@ def find_promising_bubbles(pd_csv):
                 print_color("red", "Warning: Auto-executing on systems with sbatch may not work as expected. The main worker may get killed with all subjobs")
             print("Auto-executing is not recommended")
             subprocess.run([*argv_copy])
+        elif args.auto_execute_suggestions:
+            print("Auto executing suggestions is so fucking experimental that you need the --experimental switch to be set")
 
 def warn_versions ():
     wrns = []

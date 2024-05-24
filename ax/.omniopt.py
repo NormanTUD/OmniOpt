@@ -2925,6 +2925,12 @@ def main ():
             if random_steps and random_steps > submitted_jobs():
                 print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
 
+            if args.auto_execute_counter:
+                if args.max_auto_execute:
+                    print(f"Auto-Executing step {args.auto_execute_counter}/max. {args.max_auto_execute}")
+                else:
+                    print(f"Auto-Executing step {args.auto_execute_counter}")
+
 
             max_nr_steps = second_step_steps
             if submitted_jobs() < random_steps:

@@ -676,7 +676,7 @@ def get_min_column_value(pd_csv, column):
         raise
 
 def get_bound_if_prev_data (_type, _column, _default):
-    if len(args.load_previous_job_data[0]):
+    if args.load_previous_job_data and len(args.load_previous_job_data[0]):
         for prev_run in args.load_previous_job_data[0]:
             pd_csv = f"{prev_run}/pd.csv"
 

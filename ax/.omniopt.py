@@ -2044,6 +2044,8 @@ def load_data_from_existing_run_folders(args, _paths):
         else:
             print_color("red", f"{this_path_json} does not exist, cannot load data from it")
 
+    print(f"Restored trials: {len(already_inserted_param_hashes)}")
+
 def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")
 

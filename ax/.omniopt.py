@@ -3443,6 +3443,9 @@ def find_promising_bubbles(pd_csv):
 
             i = i + 1
 
+        argv_copy.append("--load_previous_job_data")
+        argv_copy.append(f"{current_run_folder}/")
+
         argv_copy_string = " ".join(argv_copy)
 
         original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")

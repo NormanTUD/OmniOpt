@@ -1036,6 +1036,7 @@ try:
                 from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
                 from ax.modelbridge.registry import ModelRegistryBase, Models
                 from ax.storage.json_store.save import save_experiment
+                from ax.storage.json_store.load import load_experiment
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
                 print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
@@ -1413,6 +1414,8 @@ def save_pd_csv ():
 
         with open(pd_json, 'w') as json_file:
             json.dump(json_snapshot, json_file, indent=4)
+
+        save_experiment(ax_client.experiment, f"{current_run_folder}/ax_client.experiment.json")
 
         print_debug("pd.{csv,json} saved")
     except signalUSR as e:
@@ -1831,6 +1834,81 @@ def clean_completed_jobs ():
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
 
+def dataframe_dier():
+    pd_frame = ax_client.get_trials_data_frame()
+    dier(pd_frame)
+
+
+def get_old_result_by_params(file_path, params):
+    """
+    Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
+    Return the value of the 'result' column from that row.
+
+    :param file_path: The path to the CSV file.
+    :param params: A dictionary of parameters with column names as keys and values to match.
+    :return: The value of the 'result' column from the matched row.
+    """
+    assert isinstance(file_path, str), "file_path must be a string"
+    assert isinstance(params, dict), "params must be a dictionary"
+
+    try:
+        # Load the CSV file into a pandas DataFrame
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        raise
+
+    # Check if 'result' column exists in the DataFrame
+    assert 'result' in df.columns, "CSV file must contain 'result' column"
+
+    # Filter the DataFrame based on the parameters
+    try:
+        matching_rows = df
+        for param, value in params.items():
+            if param in df.columns:
+                matching_rows = matching_rows[matching_rows[param] == value]
+
+        # Check if any matching row is found
+        assert not matching_rows.empty, "No matching row found for the given parameters."
+
+        # Get the result value from the matching row
+        result_value = matching_rows['result'].values[0]
+        return result_value
+
+    except AssertionError as ae:
+        print_color("red", f"Assertion error: {str(ae)}")
+        raise
+    except Exception as e:
+        print_color("red", f"Error during filtering or extracting result: {str(e)}")
+        raise
+
+
+def load_from_pd_csv (args):
+    if args.load_previous_job_data:
+        for this_prev_path in args.load_previous_job_data[0]:
+            this_prev_path_json = str(this_prev_path) + "/ax_client.experiment.json"
+            this_prev_path_checkpoint = str(this_prev_path) + "/checkpoint.json"
+
+            if os.path.exists(this_prev_path_json):
+                old_experiments = load_experiment(this_prev_path_json)
+
+                old_trials = old_experiments.trials
+                #dataframe_dier()
+
+                for old_trial_index in old_trials:
+                    old_trial = old_trials[old_trial_index]
+
+                    old_arm_parameter = old_trial.arm.parameters
+
+                    old_result_simple = get_old_result_by_params(f"{this_prev_path}/pd.csv", old_arm_parameter)
+                    if old_result_simple:
+                        old_result = {'result': old_result_simple}
+
+                        new_old_trial = ax_client.attach_trial(old_arm_parameter)
+
+                        ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+            else:
+                print_color("red", f"{this_prev_path_json} does not exist, cannot load data from it")
+
 def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")
 
@@ -1859,6 +1937,7 @@ def finish_previous_jobs (args, new_msgs):
                 #print_debug(f"Got job result: {result}")
                 jobs_finished += 1
                 if result != val_if_nothing_found:
+
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
                     done_jobs(1)
@@ -2353,22 +2432,6 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def ax_client_load_prev_data(args):
-    print("TODO: Loading snapshots from json doesnt work yet")
-    global ax_client
-
-    if args.load_previous_job_data:
-        for this_prev_path in args.load_previous_job_data[0]:
-            this_prev_path += "/pd.json"
-            if os.path.exists(this_prev_path):
-                with open(this_prev_path) as f:
-                    print(f"from_json_snapshot ({this_prev_path})")
-                    json_snapshot = json.load(f)
-                    ax_client.from_json_snapshot(json_snapshot)
-                    # TODO: Lädt nicfht richtig!
-            else:
-                print_color("red", f"{this_prev_path} was not found")
-
 def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
@@ -2694,8 +2757,6 @@ def main ():
             generation_strategy=gs
         )
 
-        ax_client_load_prev_data(args)
-
         minimize_or_maximize = not args.maximize
 
         experiment = None
@@ -2713,6 +2774,8 @@ def main ():
 
         global searching_for
         searching_for = "minimum" if not args.maximize else "maximum"
+
+        load_from_pd_csv(args)
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

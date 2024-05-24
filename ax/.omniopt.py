@@ -2053,7 +2053,6 @@ def load_data_from_existing_run_folders(args, _paths):
             global already_inserted_param_hashes
 
             if old_result_simple:
-                print("old_result: " + str(old_result_simple))
                 if hashed_params_result not in already_inserted_param_hashes.keys():
                     old_result = {'result': old_result_simple}
 
@@ -2061,12 +2060,12 @@ def load_data_from_existing_run_folders(args, _paths):
 
                     ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
 
-                    already_inserted_param_hashes["hashed_params_result"] = 1
+                    already_inserted_param_hashes[hashed_params_result] = 1
                 else:
                     print_debug("Prevented inserting a double entry")
-                    already_inserted_param_hashes["hashed_params_result"] += 1
+                    already_inserted_param_hashes[hashed_params_result] += 1
             else:
-                print_debug(f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
+                print_color("yellow", f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
 
 def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")

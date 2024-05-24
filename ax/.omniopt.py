@@ -2032,13 +2032,14 @@ def load_data_from_existing_run_folders(args, _paths):
     for this_path in _paths:
         this_path_json = str(this_path) + "/ax_client.experiment.json"
 
-        if os.path.exists(this_path_json):
+        if not os.path.exists(this_path_json):
             print_color("red", f"{this_path_json} does not exist, cannot load data from it")
             return
 
         old_experiments = load_experiment(this_path_json)
 
         old_trials = old_experiments.trials
+        dier(old_trials)
         #dataframe_dier()
 
         for old_trial_index in old_trials:

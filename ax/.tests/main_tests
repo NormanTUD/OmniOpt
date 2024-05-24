@@ -264,7 +264,7 @@ yellow_text "Test stuff that goes wrong..."
 .tests/test_wronggoing_stuff
 
 exit_code=$?
-if [[ "$exit_code" -ne "0" ]]; then
+if [[ "$exit_code" -ne "87" ]]; then
 	errors+=("test_wronggoing_stuff failed")
 fi
 

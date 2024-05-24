@@ -2941,8 +2941,8 @@ def main ():
             print(f"Restored trials: {len(already_inserted_param_hashes)}")
 
             double_hashes = all(already_inserted_param_hashes[i] >= 2 for i in already_inserted_param_hashes.keys())
-            if len(double_hashes):
-                print(f"Double parameters not inserted: {len(double_hashes)}")
+            if double_hashes:
+                print(f"Double parameters not inserted: {double_hashes}")
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

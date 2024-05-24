@@ -2943,7 +2943,8 @@ def main ():
             double_hashes = []
 
             for _hash in already_inserted_param_hashes.keys():
-                double_hashes.append(_hash)
+                if already_inserted_param_hashes[_hash] > 1:
+                    double_hashes.append(_hash)
 
             if len(double_hashes):
                 print(f"Double parameters not inserted: {len(double_hashes)}")

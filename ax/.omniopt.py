@@ -775,11 +775,11 @@ def parse_experiment_parameters(args):
                     exit_local(5)
 
                 if upper_bound == lower_bound:
-                    print_color("red", f"Lower bound and upper bound are equal: {lower_bound}")
+                    print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}")
                     exit_local(13)
 
                 if lower_bound > upper_bound:
-                    print_color("yellow", f"Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+                    print_color("yellow", f":warning: Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
                     tmp = upper_bound
                     upper_bound = lower_bound
                     lower_bound = tmp
@@ -796,17 +796,17 @@ def parse_experiment_parameters(args):
 
                 if value_type not in valid_value_types:
                     valid_value_types_string = ", ".join(valid_value_types)
-                    print_color("red", f"\n:warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+                    print_color("red", f":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     exit_local(8)
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
-                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded.")
+                        print_color("red", f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded.")
                         lower_bound = math.floor(lower_bound)
 
 
                     if not looks_like_int(upper_bound):
-                        print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded.")
+                        print_color("red", f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded.")
                         upper_bound = math.ceil(upper_bound)
 
                 old_lower_bound = lower_bound
@@ -839,7 +839,7 @@ def parse_experiment_parameters(args):
                 j += skip
             elif param_type == "fixed":
                 if len(this_args) != 3:
-                    print_color("red", f"\n:warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
+                    print_color("red", f":warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
                     exit_local(11)
 
                 value = this_args[j + 2]
@@ -857,7 +857,7 @@ def parse_experiment_parameters(args):
                 j += 3
             elif param_type == "choice":
                 if len(this_args) != 3:
-                    print_color("red", f"\n:warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
+                    print_color("red", f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
                     exit_local(11)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
@@ -877,7 +877,7 @@ def parse_experiment_parameters(args):
 
                 j += 3
             else:
-                print_color("red", f"\n:warning: Parameter type {param_type} not yet implemented.");
+                print_color("red", f":warning: Parameter type {param_type} not yet implemented.");
                 exit_local(14)
         i += 1
 

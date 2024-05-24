@@ -2039,7 +2039,6 @@ def load_data_from_existing_run_folders(args, _paths):
         old_experiments = load_experiment(this_path_json)
 
         old_trials = old_experiments.trials
-        dier(old_trials)
         #dataframe_dier()
 
         for old_trial_index in old_trials:

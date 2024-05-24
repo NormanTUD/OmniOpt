@@ -359,6 +359,7 @@ def get_args ():
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
+    parser.add_argument('--enable_watcher', help='Watches the CSV file automatically and updates the plot with new results periodically (alpha)', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -479,8 +480,9 @@ def main(args):
 
     csv_file_path = get_csv_file_path(args)
 
-    #watcher = CSVWatcher(csv_file_path, update_graph)
-    #watcher.start()
+    if args.enable_watcher:
+        watcher = CSVWatcher(csv_file_path, update_graph)
+        watcher.start()
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 

@@ -713,7 +713,7 @@ def get_bound_if_prev_data (_type, _column, _default):
         else:
             print_color("red", f"{pd_csv} was not found")
 
-    return ret_val
+    return round(ret_val, 4)
 
 def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")

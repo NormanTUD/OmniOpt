@@ -683,7 +683,7 @@ if __name__ == "__main__":
     try:
         args = get_args()
 
-        theme = "ggplot"
+        theme = "fast"
 
         if args.darkmode:
             theme = "dark_background"

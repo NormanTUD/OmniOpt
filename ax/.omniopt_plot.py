@@ -483,6 +483,8 @@ def main(args):
             else:
                 print("only jpg and png are currently supported")
     else:
+        global maximum_textbox, minimum_textbox, button
+
         # Create a Button and set its position
         button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
         button = Button(button_ax, 'Update Graph')
@@ -508,29 +510,50 @@ def main(args):
         plt.show()
 
         update_graph(None)
-
 # Define update function for the button
 def update_graph(event):
-    global fig
+    global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:
+        result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
         csv_file_path = get_csv_file_path(args)
-        df = get_data(args, csv_file_path, "result")
+        df = get_data(args, csv_file_path, result_column)
         
         # Redo previous run merges if needed
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
                 prev_run_csv_path = prev_run[0] + "/pd.csv"
-                prev_run_df = get_data(args, prev_run_csv_path, "result")
+                prev_run_df = get_data(args, prev_run_csv_path, result_column)
                 df = df.merge(prev_run_df, how='outer')
         
         nr_of_items_before_filtering = len(df)
         df_filtered = get_df_filtered(df)
+        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path)
+
+        parameter_combinations = get_parameter_combinations(df_filtered, result_column)
+        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
+
+        num_subplots = len(non_empty_graphs)
+        num_cols = math.ceil(math.sqrt(num_subplots))
+        num_rows = math.ceil(num_subplots / num_cols)
+
+        # Clear the figure, but keep the widgets
+        for widget in fig.axes:
+            if widget not in [button.ax, maximum_textbox.ax, minimum_textbox.ax]:
+                widget.remove()
+
+        axs = fig.subplots(num_rows, num_cols)  # Create new subplots
+
+        if num_subplots == 1:
+            axs = [axs]
+
+        plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
         
-        # Redraw the plot with updated data
-        fig.clf()
-        ax = fig.add_subplot(111)
-        ax.plot(df_filtered["result"])
+        if not args.print_to_command_line:
+            result_column_values = get_result_column_values(df, result_column)
+            set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
+            set_margins(fig)
+
         plt.draw()
         
         print("Graph updated successfully.")
@@ -539,6 +562,8 @@ def update_graph(event):
 
 # Define submit function for the textbox
 def submit(expression):
+    global args
+
     try:
         # Assuming the expression is a filter value update for min/max
         if expression.startswith('min='):
@@ -552,7 +577,32 @@ def submit(expression):
         print("Graph updated with new filter values.")
     except Exception as e:
         print(f"Failed to update graph with expression '{expression}': {e}")
-        
+
+def create_widgets():
+    global button, maximum_textbox, minimum_textbox
+
+    # Create a Button and set its position
+    button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
+    button = Button(button_ax, 'Update Graph')
+    button.on_clicked(update_graph)
+
+    # Create TextBoxes and set their positions
+    max_string = ""
+    if args.max:
+        max_string = str(args.max)
+
+    min_string = ""
+    if args.min:
+        min_string = str(args.min)
+
+    textbox_maximum = plt.axes([0.2, 0.025, 0.1, 0.04])
+    maximum_textbox = TextBox(textbox_maximum, 'Maximum', initial=max_string)
+    maximum_textbox.on_submit(submit)
+
+    textbox_minimum = plt.axes([0.5, 0.025, 0.1, 0.04])
+    minimum_textbox = TextBox(textbox_minimum, 'Minimum', initial=min_string)
+    minimum_textbox.on_submit(submit)
+     
 if __name__ == "__main__":
     try:
         args = get_args()

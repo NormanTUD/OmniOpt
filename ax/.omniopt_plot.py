@@ -199,7 +199,7 @@ def check_dir_and_csv (args, csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(10)
 
-def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max):
+def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if _min and not _max:
@@ -212,7 +212,8 @@ def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_
                 print(f"For some reason, there were values in the beginning but not after filtering")
         else:
             print(f"No applicable values could be found in {csv_file_path}.")
-        sys.exit(4)
+        if _exit:
+            sys.exit(4)
 
 def get_data (args, csv_file_path, result_column, _min, _max):
     try:
@@ -410,7 +411,7 @@ def check_path(args):
         print(f'The folder {args.run_dir} does not exist.')
         sys.exit(1)
 
-def get_non_empty_graphs(parameter_combinations, df_filtered):
+def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     non_empty_graphs = []
 
     if len(parameter_combinations) == 1:
@@ -422,7 +423,8 @@ def get_non_empty_graphs(parameter_combinations, df_filtered):
 
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
-        sys.exit(2)
+        if _exit:
+            sys.exit(2)
 
     return non_empty_graphs
 
@@ -502,7 +504,7 @@ def main(args):
 
     parameter_combinations = get_parameter_combinations(df_filtered, result_column)
 
-    non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
+    non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
     num_subplots = len(non_empty_graphs)
 
@@ -589,10 +591,10 @@ def update_graph(event=None):
         nr_of_items_before_filtering = len(df)
         df_filtered = get_df_filtered(df)
 
-        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
+        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 
         parameter_combinations = get_parameter_combinations(df_filtered, result_column)
-        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
+        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
 
         num_subplots = len(non_empty_graphs)
         num_cols = math.ceil(math.sqrt(num_subplots))

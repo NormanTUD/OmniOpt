@@ -682,8 +682,8 @@ def get_bound_if_prev_data (_type, _column, _default):
 
             if os.path.exists(pd_csv):
                 if _type == "lower":
-                    return get_min_column_value(pd_csv, _column)
-                return get_max_column_value(pd_csv, _column)
+                    return min(_default, get_min_column_value(pd_csv, _column))
+                return max(_default, get_max_column_value(pd_csv, _column))
             else:
                 print_color("red", f"{pd_csv} was not found")
 
@@ -691,8 +691,8 @@ def get_bound_if_prev_data (_type, _column, _default):
         pd_csv = "{args.continue_previous_job}/pd.csv"
         if os.path.exists(pd_csv):
             if _type == "lower":
-                return get_min_column_value(pd_csv, _column)
-            return get_max_column_value(pd_csv, _column)
+                return min(_default, get_min_column_value(pd_csv, _column))
+            return max(_default, get_max_column_value(pd_csv, _column))
         else:
             print_color("red", f"{pd_csv} was not found")
 

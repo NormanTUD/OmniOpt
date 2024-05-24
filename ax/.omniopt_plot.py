@@ -169,11 +169,9 @@ def get_data (args, csv_file_path, result_column):
         df = pd.read_csv(csv_file_path, index_col=0)
 
         if args.min is not None:
-            f = df[result_column] >= args.min
-            df.where(f, inplace=True)
+            df = df[df[result_column] >= args.min]
         if args.max is not None:
-            f = df[result_column] <= args.max
-            df.where(f, inplace=True)
+            df = df[df[result_column] <= args.max]
         df.dropna(subset=[result_column], inplace=True)
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")

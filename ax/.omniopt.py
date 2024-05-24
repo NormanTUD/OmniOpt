@@ -2,7 +2,7 @@
 
 original_print = print
 
-already_inserted_param_hashes = []
+already_inserted_param_hashes = {}
 
 import os
 import threading
@@ -2050,16 +2050,17 @@ def load_data_from_existing_run_folders(args, _paths):
                 global already_inserted_param_hashes
 
                 if old_result_simple:
-                    if hashed_params_result not in already_inserted_param_hashes:
+                    if hashed_params_result not in already_inserted_param_hashes.keys():
                         old_result = {'result': old_result_simple}
 
                         new_old_trial = ax_client.attach_trial(old_arm_parameter)
 
                         ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
 
-                        already_inserted_param_hashes.append(hashed_params_result)
+                        already_inserted_param_hashes["hashed_params_result"] = 1
                     else:
-                        print("Prevented inserting a double entry")
+                        print_debug("Prevented inserting a double entry")
+                        already_inserted_param_hashes["hashed_params_result"] += 1
                 else:
                     print_debug(f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
 
@@ -2936,8 +2937,12 @@ def main ():
             print_color("red", f"When you do a parameter search space, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
 
         load_existing_job_data_into_ax_client(args)
-        if len(already_inserted_param_hashes):
+        if len(already_inserted_param_hashes.keys()):
             print(f"Restored trials: {len(already_inserted_param_hashes)}")
+
+            double_hashes = all(already_inserted_param_hashes[i] >= 2 for i in already_inserted_param_hashes.keys())
+            if len(double_hashes):
+                print(f"Double parameters not inserted: {len(double_hashes)}")
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

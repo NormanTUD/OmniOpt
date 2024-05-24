@@ -8,6 +8,31 @@ import os
 import argparse
 import math
 import time
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+class MyHandler(FileSystemEventHandler):
+    def __init__(self, callback):
+        super().__init__()
+        self.callback = callback
+
+    def on_modified(self, event):
+        if not event.is_directory and event.src_path.endswith('.csv'):
+            print("CSV file modified. Updating graph...")
+            self.callback()
+
+def watch_csv_file(csv_file_path, callback):
+    observer = Observer()
+    event_handler = MyHandler(callback)
+    observer.schedule(event_handler, path=csv_file_path)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
 
 fig = None
 maximum_textbox = None
@@ -434,6 +459,8 @@ def main(args):
     use_matplotlib(args)
 
     csv_file_path = get_csv_file_path(args)
+
+    watch_csv_file(csv_file_path, update_graph)
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 

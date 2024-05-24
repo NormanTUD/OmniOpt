@@ -1995,7 +1995,6 @@ def load_data_from_existing_run_folders(args, _paths):
     #dier(help(ax_client.experiment.search_space))
     for this_path in _paths:
         this_path_json = str(this_path) + "/ax_client.experiment.json"
-        this_path_checkpoint = str(this_path) + "/checkpoint.json"
 
         if os.path.exists(this_path_json):
             old_experiments = load_experiment(this_path_json)
@@ -2005,6 +2004,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
             for old_trial_index in old_trials:
                 old_trial = old_trials[old_trial_index]
+                pprint(old_trial)
 
                 old_arm_parameter = old_trial.arm.parameters
 

@@ -6,6 +6,18 @@ import os
 import threading
 import shutil
 
+import json
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
 global_vars = {}
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
@@ -616,6 +628,76 @@ def get_program_code_from_out_file (f):
             if "Program-Code:" in line:
                 return line
 
+
+def get_max_column_value(pd_csv, column):
+    """
+    Reads the CSV file and returns the maximum value in the specified column.
+
+    :param pd_csv: The path to the CSV file.
+    :param column: The column name for which the maximum value is to be found.
+    :return: The maximum value in the specified column.
+    """
+    assert_condition(isinstance(pd_csv, str), "pd_csv must be a string")
+    assert_condition(isinstance(column, str), "column must be a string")
+
+    if not os.path.exists(pd_csv):
+        raise FileNotFoundError(f"CSV file {pd_csv} not found")
+
+    try:
+        df = pd.read_csv(pd_csv)
+        assert_condition(column in df.columns, f"Column {column} not found in CSV file")
+        max_value = df[column].max()
+        return max_value
+    except Exception as e:
+        print_color("red", f"Error while getting max value from column {column}: {str(e)}")
+        raise
+
+def get_min_column_value(pd_csv, column):
+    """
+    Reads the CSV file and returns the minimum value in the specified column.
+
+    :param pd_csv: The path to the CSV file.
+    :param column: The column name for which the minimum value is to be found.
+    :return: The minimum value in the specified column.
+    """
+    assert_condition(isinstance(pd_csv, str), "pd_csv must be a string")
+    assert_condition(isinstance(column, str), "column must be a string")
+
+    if not os.path.exists(pd_csv):
+        raise FileNotFoundError(f"CSV file {pd_csv} not found")
+
+    try:
+        df = pd.read_csv(pd_csv)
+        assert_condition(column in df.columns, f"Column {column} not found in CSV file")
+        min_value = df[column].min()
+        return min_value
+    except Exception as e:
+        print_color("red", f"Error while getting min value from column {column}: {str(e)}")
+        raise
+
+def get_bound_if_prev_data (_type, _column, _default):
+    if len(args.load_previous_job_data[0]):
+        for prev_run in args.load_previous_job_data[0]:
+            pd_csv = f"{prev_run}/pd.csv"
+
+            if os.path.exists(pd_csv):
+                if _type == "lower":
+                    return get_min_column_value(pd_csv, _column)
+                return get_max_column_value(pd_csv, _column)
+            else:
+                print_color("red", f"{pd_csv} was not found")
+
+    if args.continue_previous_job:
+        pd_csv = "{args.continue_previous_job}/pd.csv"
+        if os.path.exists(pd_csv):
+            if _type == "lower":
+                return get_min_column_value(pd_csv, _column)
+            return get_max_column_value(pd_csv, _column)
+        else:
+            print_color("red", f"{pd_csv} was not found")
+
+    return _default
+
 def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")
 
@@ -703,9 +785,13 @@ def parse_experiment_parameters(args):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded.")
                         lower_bound = round(lower_bound)
 
+
                     if not looks_like_int(upper_bound):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded.")
                         upper_bound = round(upper_bound)
+
+                lower_bound = get_bound_if_prev_data("lower", name, lower_bound)
+                upper_bound = get_bound_if_prev_data("upper", name, upper_bound)
 
                 param = {
                     "name": name,
@@ -1644,10 +1730,10 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         try:
             experiment = ax_client.create_experiment(**experiment_args)
         except ValueError as error:
-            print_color("red", f"An error has occured: {error}")
+            print_color("red", f"An error has occured while creating the experiment: {error}")
             exit_local(29)
         except TypeError as error:
-            print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
+            print_color("red", f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             exit_local(50)
 
     return ax_client, experiment_parameters
@@ -2742,7 +2828,7 @@ def main ():
         cli_params_experiment_parameters = experiment_parameters
 
         with open(checkpoint_parameters_filepath, "w") as outfile:
-            json.dump(experiment_parameters, outfile)
+            json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
     if not args.verbose:
         disable_logging()

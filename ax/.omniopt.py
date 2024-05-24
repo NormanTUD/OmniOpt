@@ -5,7 +5,7 @@ original_print = print
 import os
 import threading
 import shutil
-
+import math
 import json
 
 class NpEncoder(json.JSONEncoder):
@@ -783,15 +783,28 @@ def parse_experiment_parameters(args):
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded.")
-                        lower_bound = round(lower_bound)
+                        lower_bound = math.floor(lower_bound)
 
 
                     if not looks_like_int(upper_bound):
                         print_color("red", f"\n:warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded.")
-                        upper_bound = round(upper_bound)
+                        upper_bound = math.ceil(upper_bound)
 
+                old_lower_bound = lower_bound
                 lower_bound = get_bound_if_prev_data("lower", name, lower_bound)
+
+                if old_lower_bound != lower_bound:
+                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space minimization is not currently supported on continued runs or runs that have previous data. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+
+                old_upper_bound = upper_bound
                 upper_bound = get_bound_if_prev_data("upper", name, upper_bound)
+
+                if value_type == "int":
+                    lower_bound = math.floor(lower_bound)
+                    upper_bound = math.ceil(upper_bound)
+
+                if old_upper_bound != upper_bound:
+                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space minimization is not currently supported on continued runs or runs that have previous data. The upper bound will be set from {old_upper_bound} to {upper_bound}")
 
                 param = {
                     "name": name,

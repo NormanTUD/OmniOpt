@@ -1335,7 +1335,7 @@ def end_program (csv_file_path, result_column="result", _force=False):
     try:
         find_promising_bubbles(pd_csv)
     except Exception as e:
-        print("Error trying to find promising bubbles: " + str(e))
+        print_debug("Error trying to find promising bubbles: " + str(e))
 
     exit_local(_exit)
 
@@ -1581,7 +1581,10 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
         try:
-            ax_client = AxClient.from_json_snapshot(tmp_file_path)
+            ax_client = (AxClient.from_json_snapshot(tmp_file_path))
+            dier(ax_client)
+
+            load_existing_job_data_into_ax_client(args, [args.continue_previous_job])
         except Exception as e:
             print_color("red", str(e))
 
@@ -1887,9 +1890,6 @@ def get_old_result_by_params(file_path, params):
 def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:
         load_data_from_existing_run_folders(args, args.load_previous_job_data[0])
-
-    if args.continue_previous_job:
-        load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
 def load_data_from_existing_run_folders(args, _paths):
     for this_path in _paths:

@@ -20,11 +20,16 @@ try:
     parser.add_argument('--learning_rate', type=float, help='Learning rate as a floating point number', default=0.001)
     parser.add_argument('--epochs', type=int, help='Number of epochs as an integer', default=10)
     parser.add_argument('--validation_split', type=float, help='Validation split as a floating point number', default=0.2)
+    parser.add_argument('--data', type=str, help='Data dir', default='data')
     parser.add_argument('--width', type=int, help='Width as an integer', default=40)
     parser.add_argument('--height', type=int, help='Height as an integer', default=40)
     parser.add_argument('--debug', action='store_true', help='Enables debug mode (set -x)')
 
     args = parser.parse_args()
+
+    if not os.path.exists(args.data):
+        print(f"--data {args.data}: cannot be found")
+        sys.exit(95)
 
     from pprint import pprint
     def dier (msg):
@@ -71,7 +76,7 @@ try:
     model.add(layers.Dense(
         trainable=True,
         use_bias=True,
-        units=len([name for name in os.listdir('data') if os.path.isdir(os.path.join('data', name))]),
+        units=len([name for name in os.listdir(args.data) if os.path.isdir(os.path.join(args.data, name))]),
         activation="softmax",
         kernel_initializer="glorot_uniform",
         bias_initializer="variance_scaling",
@@ -98,14 +103,14 @@ try:
 
     # Read images and split them into training and validation dataset automatically
     train_generator = datagen.flow_from_directory(
-        'data',
+        args.data,
         target_size=target_size,
         batch_size=10,
         class_mode='categorical',
         subset='training')
 
     validation_generator = datagen.flow_from_directory(
-        'data',
+        args.data,
         target_size=target_size,
         batch_size=32,
         class_mode='categorical',

@@ -32,8 +32,9 @@ function help () {
         echo "  --learning_rate=FLOAT"
         echo "  --epochs=INT"
         echo "  --validation_split=FLOAT"
-        echo "  --width=(INT)=INT"
-        echo "  --height=(INT)=INT"
+        echo "  --width=INT"
+        echo "  --height=INT"
+        echo "  --data=DIRNAME"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -47,6 +48,13 @@ for i in $@; do
                 --train)
                         train=1
                         predict=0
+                        shift
+                        ;;
+                --data=*)
+                        shift
+			;;
+                --data)
+                        shift
                         shift
                         ;;
                 --predict)

@@ -136,6 +136,5 @@ EXPECTED_TO_FAIL=1
 	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \
 	--follow
-EXPECTED_TO_FAIL=0
 
 exit $?

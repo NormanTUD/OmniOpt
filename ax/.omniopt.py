@@ -2938,13 +2938,15 @@ def main ():
 
         load_existing_job_data_into_ax_client(args)
         if len(already_inserted_param_hashes.keys()):
+            dier(already_inserted_param_hashes)
             print(f"Restored trials: {len(already_inserted_param_hashes)}")
 
             double_hashes = []
 
             for _hash in already_inserted_param_hashes.keys():
                 if already_inserted_param_hashes[_hash] > 1:
-                    double_hashes.append(_hash)
+                    for l in range(0, already_inserted_param_hashes[_hash]):
+                        double_hashes.append(_hash)
 
             if len(double_hashes):
                 print(f"Double parameters not inserted: {len(double_hashes)}")

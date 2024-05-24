@@ -1390,7 +1390,7 @@ def show_progress_plot ():
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
-def end_program (csv_file_path, result_column="result", _force=False):
+def end_program (csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars
     global ax_client
     global console
@@ -1462,6 +1462,9 @@ def end_program (csv_file_path, result_column="result", _force=False):
         find_promising_bubbles(pd_csv)
     except Exception as e:
         print_debug("Error trying to find promising bubbles: " + str(e))
+
+    if exit_code:
+        _exit = exit_code
 
     exit_local(_exit)
 
@@ -2981,7 +2984,7 @@ def main ():
         if _get_perc != 100:
             print_color("yellow", f"It seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
 
-        end_program(result_csv_file, "result", 1)
+        end_program(result_csv_file, "result", 1, 87)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
         print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
         is_in_evaluate = False

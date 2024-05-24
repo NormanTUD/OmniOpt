@@ -273,7 +273,7 @@ yellow_text "Test stuff that goes wrong (totally without successful runs)..."
 .tests/test_wronggoing_stuff --nosuccess
 
 exit_code=$?
-if [[ "$exit_code" -ne "1" ]]; then
+if [[ "$exit_code" -ne "87" ]]; then
 	errors+=("test_wronggoing_stuff (without successes) failed (exit-code: $exit_code)")
 fi
 
@@ -281,6 +281,7 @@ if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
 	exit 0
 else
+	red_text "=> ERRORS => ERRORS => ERRORS =>"
 	for i in "${errors[@]}"; do
 		red_text "$i"
 	done

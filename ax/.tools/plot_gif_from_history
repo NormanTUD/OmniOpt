@@ -14,7 +14,7 @@ function join_by {
 for i in $(ls $run_dir | sort -n); do
 	if [[ ! -e "$i.png" ]]; then
 		echo "Creating $i.png"
-		bash omniopt_plot --run_dir $run_dir/$i --save_to_file "$i.png" --bubblesize 200 --exclude choice_param
+		bash omniopt_plot --run_dir $run_dir/$i --save_to_file "$i.png" --bubblesize 50 --exclude choice_param
 	fi
 done
 

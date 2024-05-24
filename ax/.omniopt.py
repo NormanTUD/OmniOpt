@@ -1030,6 +1030,7 @@ try:
         with console.status("[bold green]Importing ax...") as status:
             try:
                 import ax.modelbridge.generation_node
+                import numpy as np
                 import ax
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
@@ -1834,53 +1835,53 @@ def dataframe_dier():
     pd_frame = ax_client.get_trials_data_frame()
     dier(pd_frame)
 
+def assert_condition(condition, error_text):
+    if not condition:
+        raise AssertionError(error_text)
 
-def get_old_result_by_params(file_path, params):
+def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
     Return the value of the 'result' column from that row.
 
     :param file_path: The path to the CSV file.
     :param params: A dictionary of parameters with column names as keys and values to match.
+    :param float_tolerance: The tolerance for comparing float values.
     :return: The value of the 'result' column from the matched row.
     """
-    assert isinstance(file_path, str), "file_path must be a string"
-    assert isinstance(params, dict), "params must be a dictionary"
-
+    assert_condition(isinstance(file_path, str), "file_path must be a string")
+    assert_condition(isinstance(params, dict), "params must be a dictionary")
+    
     if not os.path.exists(file_path):
-        print_color("red", f"{file_path} for getting old csv results cannot be found")
+        print_color("red", f"{file_path} for getting old CSV results cannot be found")
         return None
-
+    
     try:
-        # Load the CSV file into a pandas DataFrame
         df = pd.read_csv(file_path)
     except Exception as e:
-        raise
-
-    # Check if 'result' column exists in the DataFrame
-    assert 'result' in df.columns, "CSV file must contain 'result' column"
-
-    # Filter the DataFrame based on the parameters
+        raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
+    
+    assert_condition('result' in df.columns, "CSV file must contain 'result' column")
+    
     try:
         matching_rows = df
         for param, value in params.items():
             if param in df.columns:
-                matching_rows = matching_rows[matching_rows[param] == value]
+                if isinstance(value, float):
+                    matching_rows = matching_rows[np.isclose(matching_rows[param], value, atol=float_tolerance)]
+                else:
+                    matching_rows = matching_rows[matching_rows[param] == value]
 
-        # Check if any matching row is found
-        assert not matching_rows.empty, f"No matching row found for the given parameters (csv: {file_path}, params: {params})."
-
-        # Get the result value from the matching row
+        assert_condition(not matching_rows.empty, f"No matching row found for the given parameters (csv: {file_path}, params: {params}).")
+        
         result_value = matching_rows['result'].values[0]
         return result_value
-
     except AssertionError as ae:
         print_color("red", f"Assertion error: {str(ae)}")
         raise
     except Exception as e:
         print_color("red", f"Error during filtering or extracting result: {str(e)}")
         raise
-
 
 def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:

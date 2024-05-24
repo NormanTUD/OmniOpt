@@ -1492,10 +1492,7 @@ def get_ax_param_representation (data):
         pprint(data)
         dier(f"Unknown data range {data['type']}")
 
-
-def get_experiment_parameters(continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
-    global ax_client
-
+def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 
@@ -1509,7 +1506,7 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
         ax_client = None
         try:
             try:
-                f = open(f"{continue_previous_job}/pd.json")
+                f = open(checkpoint_file)
                 experiment_parameters = json.load(f)
                 f.close()
 
@@ -1580,13 +1577,7 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
-        try:
-            ax_client = (AxClient.from_json_snapshot(tmp_file_path))
-            dier(ax_client)
-
-            load_existing_job_data_into_ax_client(args, [args.continue_previous_job])
-        except Exception as e:
-            print_color("red", str(e))
+        ax_client = (AxClient.load_from_json_file(tmp_file_path))
 
         os.unlink(tmp_file_path)
 
@@ -1658,7 +1649,7 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
             print_color("red", f"An error has occured: {error}. This is probably a bug in OmniOpt.")
             exit_local(50)
 
-    return experiment_parameters
+    return ax_client, experiment_parameters
 
 def get_type_short (typename):
     if typename == "RangeParameter":
@@ -2769,7 +2760,7 @@ def main ():
 
         experiment = None
 
-        experiment_parameters = get_experiment_parameters(args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+        ax_client, experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
 
         if args.continue_previous_job:
             max_eval = submitted_jobs() + random_steps + second_step_steps

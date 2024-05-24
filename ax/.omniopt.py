@@ -1083,7 +1083,7 @@ def evaluate(parameters):
         return_in_case_of_error = {"result": -val_if_nothing_found}
 
     try:
-        print("parameters:", parameters)
+        original_print("parameters:", parameters)
 
         parameters_keys = list(parameters.keys())
         parameters_values = list(parameters.values())
@@ -1094,9 +1094,9 @@ def evaluate(parameters):
 
         string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
-        print("Debug-Infos:", string)
+        original_print("Debug-Infos:", string)
 
-        print_color("green", program_string_with_params)
+        original_print(program_string_with_params)
 
         start_time = int(time.time())
 
@@ -1111,12 +1111,12 @@ def evaluate(parameters):
 
         run_time = end_time - start_time
 
-        print("stdout:")
-        print(stdout)
+        original_print("stdout:")
+        original_print(stdout)
 
         result = get_result(stdout)
 
-        print(f"Result: {result}")
+        original_print(f"Result: {result}")
 
         headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"];
         values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, _signal, socket.gethostname()];

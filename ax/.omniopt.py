@@ -1882,32 +1882,38 @@ def get_old_result_by_params(file_path, params):
         raise
 
 
-def load_from_pd_csv (args):
+def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:
-        for this_prev_path in args.load_previous_job_data[0]:
-            this_prev_path_json = str(this_prev_path) + "/ax_client.experiment.json"
-            this_prev_path_checkpoint = str(this_prev_path) + "/checkpoint.json"
+        load_data_from_existing_run_folders(args, args.load_previous_job_data[0])
 
-            if os.path.exists(this_prev_path_json):
-                old_experiments = load_experiment(this_prev_path_json)
+    if args.continue_previous_job:
+        load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
-                old_trials = old_experiments.trials
-                #dataframe_dier()
+def load_data_from_existing_run_folders(args, _paths):
+    for this_path in _paths:
+        this_path_json = str(this_path) + "/ax_client.experiment.json"
+        this_path_checkpoint = str(this_path) + "/checkpoint.json"
 
-                for old_trial_index in old_trials:
-                    old_trial = old_trials[old_trial_index]
+        if os.path.exists(this_path_json):
+            old_experiments = load_experiment(this_path_json)
 
-                    old_arm_parameter = old_trial.arm.parameters
+            old_trials = old_experiments.trials
+            #dataframe_dier()
 
-                    old_result_simple = get_old_result_by_params(f"{this_prev_path}/pd.csv", old_arm_parameter)
-                    if old_result_simple:
-                        old_result = {'result': old_result_simple}
+            for old_trial_index in old_trials:
+                old_trial = old_trials[old_trial_index]
 
-                        new_old_trial = ax_client.attach_trial(old_arm_parameter)
+                old_arm_parameter = old_trial.arm.parameters
 
-                        ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
-            else:
-                print_color("red", f"{this_prev_path_json} does not exist, cannot load data from it")
+                old_result_simple = get_old_result_by_params(f"{this_path}/pd.csv", old_arm_parameter)
+                if old_result_simple:
+                    old_result = {'result': old_result_simple}
+
+                    new_old_trial = ax_client.attach_trial(old_arm_parameter)
+
+                    ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+        else:
+            print_color("red", f"{this_path_json} does not exist, cannot load data from it")
 
 def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")
@@ -2775,7 +2781,7 @@ def main ():
         global searching_for
         searching_for = "minimum" if not args.maximize else "maximum"
 
-        load_from_pd_csv(args)
+        load_existing_job_data_into_ax_client(args)
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

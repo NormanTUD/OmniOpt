@@ -262,6 +262,8 @@ required.add_argument('--experiment_name', help='Name of the experiment.', type=
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 0.5), calculation is point [+-] maximizer * abs(point)', type=float, default=0.5)
 debug.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
+debug.add_argument('--auto_execute_counter', help='(Will automatically be set)', type=int, default=0)
+debug.add_argument('--max_auto_execute', help='How many nested jobs should be done', type=int, default=3)
 
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
 required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint", type=str, default=None)
@@ -3554,6 +3556,9 @@ def find_promising_bubbles(pd_csv):
         argv_copy.append("--load_previous_job_data")
         argv_copy.append(f"{current_run_folder}/")
 
+        argv_copy.append("--auto_execute_counter")
+        argv_copy.append(str(args.auto_execute_counter + 1))
+
         argv_copy_string = " ".join(argv_copy)
 
         original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")
@@ -3562,6 +3567,11 @@ def find_promising_bubbles(pd_csv):
             if system_has_sbatch:
                 print_color("red", "Warning: Auto-executing on systems with sbatch may not work as expected. The main worker may get killed with all subjobs")
             print("Auto-executing is not recommended")
+
+            if args.auto_execute_counter is not None and args.max_auto_execute is not None and args.auto_execute_counter >= args.max_auto_execute:
+                print("Too nested")
+                exit_local(0)
+
             subprocess.run([*argv_copy])
         elif args.auto_execute_suggestions:
             print("Auto executing suggestions is so fucking experimental that you need the --experimental switch to be set")

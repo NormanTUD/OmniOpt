@@ -128,10 +128,10 @@ def set_title(fig, args, df_filtered, result_column_values, num_entries, _min, _
     title += f"\nNumber of evaluations shown: {num_entries}"
 
     if _min is not None:
-        title += f", show min = {to_int_when_possible(args.min)}"
+        title += f", show min = {to_int_when_possible(_min)}"
 
     if _max is not None:
-        title += f", show max = {to_int_when_possible(args.max)}"
+        title += f", show max = {to_int_when_possible(_max)}"
 
     fig.suptitle(title)
 

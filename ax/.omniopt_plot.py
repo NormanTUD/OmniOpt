@@ -44,6 +44,10 @@ class CSVWatcher:
         self.observer.start()
         try:
             while True:
+                if not plt.get_fignums():
+                    print("Matplotlib window closed. Stopping watcher.")
+                    self.stop()
+                    break
                 time.sleep(1)
         except KeyboardInterrupt:
             self.observer.stop()

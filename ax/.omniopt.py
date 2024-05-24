@@ -1211,6 +1211,12 @@ def disable_logging ():
     logging.getLogger("ax.core.experiment").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.base").setLevel(logging.ERROR)
 
+    logging.getLogger().setLevel(logging.ERROR)
+    logging.getLogger("ax").setLevel(logging.ERROR)
+    logging.getLogger("ax.service").setLevel(logging.ERROR)
+    logging.getLogger("ax.service.utils").setLevel(logging.ERROR)
+    logging.getLogger("ax.service.utils.report_utils").setLevel(logging.ERROR)
+
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
     warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
 
@@ -1523,21 +1529,6 @@ def save_pd_csv ():
     pd_json = f'{current_run_folder}/pd.json'
 
     try:
-        logger = logging.getLogger()
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service.utils")
-        logger.setLevel(logging.ERROR)
-
-        logger = logging.getLogger("ax.service.utils.report_utils")
-        logger.setLevel(logging.ERROR)
-
         pd_frame = ax_client.get_trials_data_frame()
 
         pd_frame.to_csv(pd_csv, index=False)

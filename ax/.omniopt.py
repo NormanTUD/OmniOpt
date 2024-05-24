@@ -811,7 +811,7 @@ def parse_experiment_parameters(args):
                 lower_bound = get_bound_if_prev_data("lower", name, lower_bound)
 
                 if old_lower_bound != lower_bound:
-                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space minimization is not currently supported on continued runs or runs that have previous data. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space reduction is not currently supported on continued runs or runs that have previous data. The lower bound will be set from {old_lower_bound} to {lower_bound}")
 
                 old_upper_bound = upper_bound
                 upper_bound = get_bound_if_prev_data("upper", name, upper_bound)
@@ -821,7 +821,7 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if old_upper_bound != upper_bound:
-                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space minimization is not currently supported on continued runs or runs that have previous data. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space reduction is not currently supported on continued runs or runs that have previous data. The upper bound will be set from {old_upper_bound} to {upper_bound}")
 
                 param = {
                     "name": name,
@@ -1198,6 +1198,7 @@ def disable_logging ():
     logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.cross_validation").setLevel(logging.ERROR)
     logging.getLogger("ax.core.experiment").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.base").setLevel(logging.ERROR)
 
     warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
     warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")

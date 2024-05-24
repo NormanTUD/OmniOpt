@@ -1,5 +1,7 @@
 #!/bin/bash
 
+EXPECTED_TO_FAIL=0
+
 function yellow_text {
         echoerr -e "\e\033[0;33m$1\e[0m"
 }
@@ -22,10 +24,12 @@ set -e
 set -o pipefail
 
 function calltracer () {
-	yellow_text "Git status hash:"
-	git rev-parse HEAD
-        red_text 'Error occured in file/line:'
-        caller
+	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
+		yellow_text "Git status hash:"
+		git rev-parse HEAD
+		red_text 'Error occured in file/line:'
+		caller
+	fi
 }
 
 trap 'calltracer' ERR
@@ -119,6 +123,7 @@ NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
 cd ..
 cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
+EXPECTED_TO_FAIL=1
 ./omniopt \
 	--partition=$PARTITION \
 	--experiment_name=test_wronggoing_stuff \
@@ -131,5 +136,6 @@ cd ..
 	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \
 	--follow
+EXPECTED_TO_FAIL=0
 
 exit $?

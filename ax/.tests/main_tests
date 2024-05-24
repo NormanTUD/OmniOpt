@@ -1,5 +1,7 @@
 #!/bin/bash
 
+EXPECTED_TO_FAIL=0
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
@@ -30,10 +32,12 @@ function green_text {
 set -o pipefail
 
 function calltracer () {
-	yellow_text "Git status hash:"
-	git rev-parse HEAD
-        red_text 'Error occured in file/line:'
-        caller
+	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
+		yellow_text "Git status hash:"
+		git rev-parse HEAD
+		red_text 'Error occured in file/line:'
+		caller
+	fi
 }
 
 trap 'calltracer' ERR
@@ -270,7 +274,9 @@ fi
 
 yellow_text "Test stuff that goes wrong (totally without successful runs)..."
 
+EXPECTED_TO_FAIL=1
 .tests/test_wronggoing_stuff --nosuccess
+EXPECTED_TO_FAIL=0
 
 exit_code=$?
 if [[ "$exit_code" -ne "87" ]]; then
@@ -288,4 +294,3 @@ else
 
 	exit ${#errors[@]}
 fi
-

@@ -262,7 +262,7 @@ required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
-required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 0.5), calculation is point [+-] maximizer * abs(point)', type=float, default=0.5)
+required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 0.5), calculation is point [+-] maximizer * abs(point)', type=float, default=2)
 debug.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
 debug.add_argument('--auto_execute_counter', help='(Will automatically be set)', type=int, default=0)
 debug.add_argument('--max_auto_execute', help='How many nested jobs should be done', type=int, default=3)
@@ -821,7 +821,7 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if old_upper_bound != upper_bound:
-                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. Search space reduction is not currently supported on continued runs or runs that have previous data. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    print_color("red", f"\n:warning: previous jobs contained larger values for the parameter {name} than are currently possible. Search space reduction is not currently supported on continued runs or runs that have previous data. The upper bound will be set from {old_upper_bound} to {upper_bound}")
 
                 param = {
                     "name": name,
@@ -3528,7 +3528,10 @@ def find_promising_bubbles(pd_csv):
 
     if len(param_directions_strings):
         print("\nParameter suggestions:\n")
+
         print("- " + "\n- ".join(param_directions_strings) + "\n")
+
+        print(f"--maximizer: {args.maximizer}")
 
         argv_copy = sys.argv
 

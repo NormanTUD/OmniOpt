@@ -518,14 +518,14 @@ def update_graph(event):
         result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
         csv_file_path = get_csv_file_path(args)
         df = get_data(args, csv_file_path, result_column)
-        
+
         # Redo previous run merges if needed
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
                 prev_run_csv_path = prev_run[0] + "/pd.csv"
                 prev_run_df = get_data(args, prev_run_csv_path, result_column)
                 df = df.merge(prev_run_df, how='outer')
-        
+
         nr_of_items_before_filtering = len(df)
         df_filtered = get_df_filtered(df)
         check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path)
@@ -560,18 +560,35 @@ def update_graph(event):
     except Exception as e:
         print(f"Failed to update graph: {e}")
 
-# Define submit function for the textbox
-def submit(expression):
+def looks_like_float(x):
+    if isinstance(x, (int, float)):
+        return True  # int and float types are directly considered as floats
+    elif isinstance(x, str):
+        try:
+            float(x)  # Try converting string to float
+            return True
+        except ValueError:
+            return False  # If conversion fails, it's not a float-like string
+    return False  # If x is neither str, int, nor float, it's not float-like
+
+
+def change_min_max(expression):
     global args
 
     try:
+        has_params = False
         # Assuming the expression is a filter value update for min/max
-        if expression.startswith('min='):
-            args.min = float(expression.split('=')[1])
-        elif expression.startswith('max='):
-            args.max = float(expression.split('=')[1])
-        else:
-            raise ValueError("Invalid expression format. Use 'min=value' or 'max=value'.")
+        if looks_like_float(textbox_maximum.text):
+            args.min = float(textbox_maximum.text)
+            print(f"set arg min to {args.min}")
+            has_params = True
+        if looks_like_float(textbox_minimum.text):
+            args.min = float(textbox_minimum.text)
+            print(f"set arg max to {args.max}")
+            has_params = True
+        if has_params:
+            args.min = None
+            args.max = None
         
         update_graph(None)
         print("Graph updated with new filter values.")

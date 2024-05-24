@@ -8,7 +8,7 @@ import os
 import argparse
 import math
 import time
-import time
+import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -22,17 +22,32 @@ class MyHandler(FileSystemEventHandler):
             print("CSV file modified. Updating graph...")
             self.callback()
 
-def watch_csv_file(csv_file_path, callback):
-    observer = Observer()
-    event_handler = MyHandler(callback)
-    observer.schedule(event_handler, path=csv_file_path)
-    observer.start()
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+class CSVWatcher:
+    def __init__(self, csv_file_path, callback):
+        self.csv_file_path = csv_file_path
+        self.callback = callback
+        self.observer = Observer()
+        self.event_handler = MyHandler(callback)
+        self.observer.schedule(self.event_handler, path=csv_file_path)
+        self.thread = None
+
+    def start(self):
+        self.thread = threading.Thread(target=self._run)
+        self.thread.start()
+
+    def stop(self):
+        self.observer.stop()
+        if self.thread:
+            self.thread.join()
+
+    def _run(self):
+        self.observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.observer.stop()
+            self.observer.join()
 
 fig = None
 maximum_textbox = None
@@ -460,7 +475,10 @@ def main(args):
 
     csv_file_path = get_csv_file_path(args)
 
-    watch_csv_file(csv_file_path, update_graph)
+    watcher = CSVWatcher(csv_file_path, update_graph)
+    watcher.start()
+
+
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 
@@ -538,9 +556,9 @@ def main(args):
 
         plt.show()
 
-        update_graph(None)
+        update_graph()
 # Define update function for the button
-def update_graph(event):
+def update_graph(event=None):
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:

@@ -537,7 +537,7 @@ def update_graph(event):
         if textbox_maximum and looks_like_float(textbox.maximum_textbox.text):
             _max = float(textbox_maximum.text)
 
-        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path _min, _max)
+        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 
         parameter_combinations = get_parameter_combinations(df_filtered, result_column)
         non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)

@@ -2049,14 +2049,17 @@ def load_data_from_existing_run_folders(args, _paths):
 
                 global already_inserted_param_hashes
 
-                if old_result_simple and hashed_params_result not in already_inserted_param_hashes:
-                    old_result = {'result': old_result_simple}
+                if old_result_simple:
+                    if hashed_params_result not in already_inserted_param_hashes:
+                        old_result = {'result': old_result_simple}
 
-                    new_old_trial = ax_client.attach_trial(old_arm_parameter)
+                        new_old_trial = ax_client.attach_trial(old_arm_parameter)
 
-                    ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+                        ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
 
-                    already_inserted_param_hashes.append(hashed_params_result)
+                        already_inserted_param_hashes.append(hashed_params_result)
+                    else:
+                        print("Prevented inserting a double entry")
                 else:
                     print_debug(f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
 

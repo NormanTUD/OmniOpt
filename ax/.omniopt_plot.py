@@ -615,8 +615,6 @@ def update_graph(event=None):
         set_margins(fig)
 
         plt.draw()
-        
-        print("Graph updated successfully.")
     except Exception as e:
         print(f"Failed to update graph: {e}")
 

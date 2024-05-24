@@ -2938,7 +2938,7 @@ def main ():
 
         load_existing_job_data_into_ax_client(args)
         if len(already_inserted_param_hashes.keys()):
-            print(f"Restored trials: {len(already_inserted_param_hashes)}")
+            print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
 
             double_hashes = []
 

@@ -813,7 +813,7 @@ def parse_experiment_parameters(args):
                 lower_bound = get_bound_if_prev_data("lower", name, lower_bound)
 
                 if old_lower_bound != lower_bound:
-                    print_color("red", f"\n:warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                    print_color("red", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
                     search_space_reduction_warning = True
 
                 old_upper_bound = upper_bound
@@ -824,7 +824,7 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if old_upper_bound != upper_bound:
-                    print_color("red", f"\n:warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    print_color("red", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                     search_space_reduction_warning = True
 
                 param = {
@@ -882,7 +882,7 @@ def parse_experiment_parameters(args):
         i += 1
 
     if search_space_reduction_warning:
-        print_color("red", f"Search space reduction is not currently supported on continued runs or runs that have previous data.")
+        print_color("red", f":warning: Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
 

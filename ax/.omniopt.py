@@ -2033,39 +2033,40 @@ def load_data_from_existing_run_folders(args, _paths):
         this_path_json = str(this_path) + "/ax_client.experiment.json"
 
         if os.path.exists(this_path_json):
-            old_experiments = load_experiment(this_path_json)
-
-            old_trials = old_experiments.trials
-            #dataframe_dier()
-
-            for old_trial_index in old_trials:
-                old_trial = old_trials[old_trial_index]
-
-                old_arm_parameter = old_trial.arm.parameters
-
-                old_result_simple = get_old_result_by_params(f"{this_path}/pd.csv", old_arm_parameter)
-
-                hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
-
-                global already_inserted_param_hashes
-
-                if old_result_simple:
-                    if hashed_params_result not in already_inserted_param_hashes.keys():
-                        old_result = {'result': old_result_simple}
-
-                        new_old_trial = ax_client.attach_trial(old_arm_parameter)
-
-                        ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
-
-                        already_inserted_param_hashes["hashed_params_result"] = 1
-                    else:
-                        print_debug("Prevented inserting a double entry")
-                        already_inserted_param_hashes["hashed_params_result"] += 1
-                else:
-                    print_debug(f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
-
-        else:
             print_color("red", f"{this_path_json} does not exist, cannot load data from it")
+            return
+
+        old_experiments = load_experiment(this_path_json)
+
+        old_trials = old_experiments.trials
+        #dataframe_dier()
+
+        for old_trial_index in old_trials:
+            old_trial = old_trials[old_trial_index]
+
+            old_arm_parameter = old_trial.arm.parameters
+
+            old_result_simple = get_old_result_by_params(f"{this_path}/pd.csv", old_arm_parameter)
+
+            hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
+
+            global already_inserted_param_hashes
+
+            if old_result_simple:
+                print("old_result: " + str(old_result_simple))
+                if hashed_params_result not in already_inserted_param_hashes.keys():
+                    old_result = {'result': old_result_simple}
+
+                    new_old_trial = ax_client.attach_trial(old_arm_parameter)
+
+                    ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+
+                    already_inserted_param_hashes["hashed_params_result"] = 1
+                else:
+                    print_debug("Prevented inserting a double entry")
+                    already_inserted_param_hashes["hashed_params_result"] += 1
+            else:
+                print_debug(f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
 
 def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")

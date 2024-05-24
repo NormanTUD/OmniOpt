@@ -33,15 +33,16 @@ export param_three=
 export param_four=
 for i in $@; do
         case $i in
-                --param_two=*)
-                        param_two="${i#*=}"
-                        shift
-                        ;;
                 --param=*)
                         param="${i#*=}"
                         shift
                         ;;
+                --param_two=*)
+                        param_two="${i#*=}"
+                        shift
+                        ;;
                 --param_three=*)
+                        param_three="${i#*=}"
                         shift
                         ;;
                 --param_four=*)

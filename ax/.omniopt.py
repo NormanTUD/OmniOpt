@@ -1847,6 +1847,10 @@ def get_old_result_by_params(file_path, params):
     assert isinstance(file_path, str), "file_path must be a string"
     assert isinstance(params, dict), "params must be a dictionary"
 
+    if not os.path.exists(file_path):
+        print_color("red", f"{file_path} for getting old csv results cannot be found")
+        return None
+
     try:
         # Load the CSV file into a pandas DataFrame
         df = pd.read_csv(file_path)
@@ -1864,7 +1868,7 @@ def get_old_result_by_params(file_path, params):
                 matching_rows = matching_rows[matching_rows[param] == value]
 
         # Check if any matching row is found
-        assert not matching_rows.empty, "No matching row found for the given parameters."
+        assert not matching_rows.empty, f"No matching row found for the given parameters (csv: {file_path}, params: {params})."
 
         # Get the result value from the matching row
         result_value = matching_rows['result'].values[0]
@@ -2703,7 +2707,7 @@ def main ():
     global folder_number
     global current_run_folder
 
-    original_print("omniopt " + " ".join(sys.argv[1:]))
+    original_print("./omniopt " + " ".join(sys.argv[1:]))
 
     check_slurm_job_id()
 

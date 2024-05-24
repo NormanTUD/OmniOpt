@@ -2021,7 +2021,7 @@ def load_existing_job_data_into_ax_client(args):
             load_data_from_existing_run_folders(args, this_path)
 
     if args.continue_previous_job:
-        load_data_from_existing_run_folders(args, args.continue_previous_job)
+        load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
 def load_data_from_existing_run_folders(args, _paths):
     #dier(help(ax_client.experiment.search_space))

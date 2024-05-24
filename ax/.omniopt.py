@@ -678,16 +678,28 @@ def get_min_column_value(pd_csv, column):
     except Exception as e:
         print_color("red", f"Error while getting min value from column {column}: {str(e)}")
         raise
+def flatten_extend(matrix):
+    flat_list = []
+    for row in matrix:
+        flat_list.extend(row)
+    return flat_list
+
 
 def get_bound_if_prev_data (_type, _column, _default):
-    if args.load_previous_job_data and len(args.load_previous_job_data[0]):
-        for prev_run in args.load_previous_job_data[0]:
+    ret_val = _default
+
+    strictly_larger = 1.1 # cause the search space has to be strictly larger
+
+    if args.load_previous_job_data and len(args.load_previous_job_data):
+        prev_runs = flatten_extend(args.load_previous_job_data)
+        for prev_run in prev_runs:
             pd_csv = f"{prev_run}/pd.csv"
 
             if os.path.exists(pd_csv):
                 if _type == "lower":
-                    return min(_default, get_min_column_value(pd_csv, _column))
-                return max(_default, get_max_column_value(pd_csv, _column))
+                    ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column)) * strictly_larger
+                else:
+                    ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column)) * strictly_larger
             else:
                 print_color("red", f"{pd_csv} was not found")
 
@@ -695,12 +707,13 @@ def get_bound_if_prev_data (_type, _column, _default):
         pd_csv = "{args.continue_previous_job}/pd.csv"
         if os.path.exists(pd_csv):
             if _type == "lower":
-                return min(_default, get_min_column_value(pd_csv, _column))
-            return max(_default, get_max_column_value(pd_csv, _column))
+                ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column)) * strictly_larger
+            else:
+                ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column)) * strictly_larger
         else:
             print_color("red", f"{pd_csv} was not found")
 
-    return _default
+    return ret_val
 
 def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")

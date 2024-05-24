@@ -2039,7 +2039,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
                     already_inserted_param_hashes.append(hashed_params_result)
                 else:
-                    print_color("red", f"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
+                    print_debugf"old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
 
         else:
             print_color("red", f"{this_path_json} does not exist, cannot load data from it")

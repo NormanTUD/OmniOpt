@@ -1989,7 +1989,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
 def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:
-        load_data_from_existing_run_folders(args, args.load_previous_job_data[0])
+        for this_path in args.load_previous_job_data:
+            load_data_from_existing_run_folders(args, this_path)
 
 def load_data_from_existing_run_folders(args, _paths):
     #dier(help(ax_client.experiment.search_space))

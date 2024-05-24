@@ -170,14 +170,14 @@ def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_
             print(f"No applicable values could be found in {csv_file_path}.")
         sys.exit(4)
 
-def get_data (args, csv_file_path, result_column):
+def get_data (args, csv_file_path, result_column, _min, _max):
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 
-        if args.min is not None:
-            df = df[df[result_column] >= args.min]
-        if args.max is not None:
-            df = df[df[result_column] <= args.max]
+        if _min is not None:
+            df = df[df[result_column] >= _min]
+        if _max is not None:
+            df = df[df[result_column] <= _max]
         df.dropna(subset=[result_column], inplace=True)
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")
@@ -435,7 +435,7 @@ def main(args):
 
     csv_file_path = get_csv_file_path(args)
 
-    df = get_data(args, csv_file_path, result_column)
+    df = get_data(args, csv_file_path, result_column, args.min, args.max)
 
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
@@ -517,20 +517,6 @@ def update_graph(event):
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:
-        result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
-        csv_file_path = get_csv_file_path(args)
-        df = get_data(args, csv_file_path, result_column)
-
-        # Redo previous run merges if needed
-        if len(args.merge_with_previous_runs):
-            for prev_run in args.merge_with_previous_runs:
-                prev_run_csv_path = prev_run[0] + "/pd.csv"
-                prev_run_df = get_data(args, prev_run_csv_path, result_column)
-                df = df.merge(prev_run_df, how='outer')
-
-        nr_of_items_before_filtering = len(df)
-        df_filtered = get_df_filtered(df)
-
         _min = None
         _max = None
 
@@ -539,6 +525,21 @@ def update_graph(event):
 
         if maximum_textbox and looks_like_float(maximum_textbox.text):
             _max = float(maximum_textbox.text)
+
+        result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
+        csv_file_path = get_csv_file_path(args)
+        df = get_data(args, csv_file_path, result_column, _min, _max)
+
+        # Redo previous run merges if needed
+        if len(args.merge_with_previous_runs):
+            for prev_run in args.merge_with_previous_runs:
+                prev_run_csv_path = prev_run[0] + "/pd.csv"
+                prev_run_df = get_data(args, prev_run_csv_path, result_column, _min, _max)
+                df = df.merge(prev_run_df, how='outer')
+
+        nr_of_items_before_filtering = len(df)
+        df_filtered = get_df_filtered(df)
+
 
         print(f"min: {_min}, max: {_max}")
 

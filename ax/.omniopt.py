@@ -1580,8 +1580,10 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
-        print("load_from_json_file, modified file")
-        ax_client = AxClient.from_json_snapshot(tmp_file_path)
+        try:
+            ax_client = AxClient.from_json_snapshot(tmp_file_path)
+        except Exception as e:
+            print_color("red", str(e))
 
         os.unlink(tmp_file_path)
 

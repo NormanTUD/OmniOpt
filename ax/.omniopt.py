@@ -1976,7 +1976,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
                 else:
                     matching_rows = matching_rows[matching_rows[param] == value]
 
-        assert_condition(not matching_rows.empty, f"No matching row found for the given parameters (csv: {file_path}, params: {params}).")
+        if matching_rows.empty:
+            return None
         
         result_value = matching_rows['result'].values[0]
         return result_value
@@ -2016,6 +2017,9 @@ def load_data_from_existing_run_folders(args, _paths):
                     new_old_trial = ax_client.attach_trial(old_arm_parameter)
 
                     ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+                else:
+                    print_color("red", "old result for {old_arm_parameter} could not be found in {this_path_json}. If it exists in other files, it will probably be added.")
+
         else:
             print_color("red", f"{this_path_json} does not exist, cannot load data from it")
 

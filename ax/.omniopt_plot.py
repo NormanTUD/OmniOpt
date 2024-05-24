@@ -153,14 +153,14 @@ def check_dir_and_csv (args, csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(10)
 
-def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_path):
+def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max):
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
-            if args.min and not args.max:
+            if _min and not _max:
                 print(f"Using --min filtered out all results")
-            elif not args.min and args.max:
+            elif not _min and _max:
                 print(f"Using --max filtered out all results")
-            elif args.min and args.max:
+            elif _min and _max:
                 print(f"Using --min and --max filtered out all results")
             else:
                 print(f"For some reason, there were values in the beginning but not after filtering")
@@ -447,7 +447,7 @@ def main(args):
 
     df_filtered = get_df_filtered(df)
 
-    check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path)
+    check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
     parameter_combinations = get_parameter_combinations(df_filtered, result_column)
 
@@ -528,7 +528,16 @@ def update_graph(event):
 
         nr_of_items_before_filtering = len(df)
         df_filtered = get_df_filtered(df)
-        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path)
+
+        _min = None
+        _max = None
+        if textbox_minimum and looks_like_float(textbox.minimum_textbox.text):
+            _min = float(textbox_minimum.text)
+
+        if textbox_maximum and looks_like_float(textbox.maximum_textbox.text):
+            _max = float(textbox_maximum.text)
+
+        check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path _min, _max)
 
         parameter_combinations = get_parameter_combinations(df_filtered, result_column)
         non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered)
@@ -549,10 +558,9 @@ def update_graph(event):
 
         plot_graphs(df, args, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
         
-        if not args.print_to_command_line:
-            result_column_values = get_result_column_values(df, result_column)
-            set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
-            set_margins(fig)
+        result_column_values = get_result_column_values(df, result_column)
+        set_title(fig, args, df_filtered, result_column_values, len(df_filtered))
+        set_margins(fig)
 
         plt.draw()
         

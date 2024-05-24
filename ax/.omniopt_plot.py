@@ -127,10 +127,10 @@ def set_title(fig, args, df_filtered, result_column_values, num_entries, _min, _
 
     title += f"\nNumber of evaluations shown: {num_entries}"
 
-    if args.min is not None:
+    if _min is not None:
         title += f", show min = {to_int_when_possible(args.min)}"
 
-    if args.max is not None:
+    if _max is not None:
         title += f", show max = {to_int_when_possible(args.max)}"
 
     fig.suptitle(title)
@@ -534,11 +534,13 @@ def update_graph(event):
         _min = None
         _max = None
 
-        if maximum_textbox and looks_like_float(maximum_textbox.text):
-            _min = float(maximum_textbox.text)
-
         if minimum_textbox and looks_like_float(minimum_textbox.text):
-            _max = float(minimum_textbox.text)
+            _min = float(minimum_textbox.text)
+
+        if maximum_textbox and looks_like_float(maximum_textbox.text):
+            _max = float(maximum_textbox.text)
+
+        print(f"min: {_min}, max: {_max}")
 
         check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 

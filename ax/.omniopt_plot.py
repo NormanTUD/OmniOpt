@@ -479,10 +479,8 @@ def main(args):
 
     csv_file_path = get_csv_file_path(args)
 
-    watcher = CSVWatcher(csv_file_path, update_graph)
-    watcher.start()
-
-
+    #watcher = CSVWatcher(csv_file_path, update_graph)
+    #watcher.start()
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 

@@ -531,11 +531,12 @@ def update_graph(event):
 
         _min = None
         _max = None
-        if textbox_minimum and looks_like_float(textbox.minimum_textbox.text):
-            _min = float(textbox_minimum.text)
 
-        if textbox_maximum and looks_like_float(textbox.maximum_textbox.text):
-            _max = float(textbox_maximum.text)
+        if maximum_textbox and looks_like_float(maximum_textbox.text):
+            _min = float(maximum_textbox.text)
+
+        if minimum_textbox and looks_like_float(minimum_textbox.text):
+            _max = float(minimum_textbox.text)
 
         check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 

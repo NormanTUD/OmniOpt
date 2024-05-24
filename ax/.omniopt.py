@@ -2832,13 +2832,13 @@ def finish_previous_jobs_random(args):
     while len(global_vars['jobs']):
         finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
         _sleep(args, 1)
+
 def main ():
     print_debug("main")
 
     nvidia_smi_thread = start_nvidia_smi_thread()
 
     _debug_worker_creation("time, nr_workers, got, requested, phase")
-
     global args
     global result_csv_file
     global ax_client
@@ -2918,6 +2918,9 @@ def main ():
 
         global searching_for
         searching_for = "minimum" if not args.maximize else "maximum"
+
+        if args.auto_execute_suggestions and args.experimental and not current_run_folder.endswith("/0") and args.auto_execute_counter == 0:
+            print_color("red", f"When you do a parameter search space, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
 
         load_existing_job_data_into_ax_client(args)
         if len(already_inserted_param_hashes):

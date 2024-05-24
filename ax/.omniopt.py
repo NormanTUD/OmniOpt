@@ -2044,8 +2044,6 @@ def load_data_from_existing_run_folders(args, _paths):
         else:
             print_color("red", f"{this_path_json} does not exist, cannot load data from it")
 
-    print(f"Restored trials: {len(already_inserted_param_hashes)}")
-
 def finish_previous_jobs (args, new_msgs):
     print_debug("finish_previous_jobs")
 
@@ -2913,6 +2911,8 @@ def main ():
         searching_for = "minimum" if not args.maximize else "maximum"
 
         load_existing_job_data_into_ax_client(args)
+        if len(already_inserted_param_hashes):
+            print(f"Restored trials: {len(already_inserted_param_hashes)}")
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

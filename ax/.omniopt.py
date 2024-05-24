@@ -1694,11 +1694,14 @@ def print_overview_table (experiment_parameters):
             _lower = ""
             _upper = ""
             _type = ""
+            value_type = ""
 
             if "parameter_type" in param:
                 _type = param["parameter_type"]["name"].lower()
+                value_type = _type
             else:
                 _type = param["type"]
+                value_type = param["value_type"]
 
             if "lower" in param:
                 _lower = param["lower"]
@@ -1709,7 +1712,7 @@ def print_overview_table (experiment_parameters):
             else:
                 _upper = param["bounds"][1]
 
-            rows.append([str(param["name"]), get_type_short(_type), str(to_int_when_possible(_lower)), str(to_int_when_possible(_upper)), "", _type])
+            rows.append([str(param["name"]), get_type_short(_type), str(to_int_when_possible(_lower)), str(to_int_when_possible(_upper)), "", value_type])
         elif "fixed" in _type.lower():
             rows.append([str(param["name"]), get_type_short(_type), "", "", str(to_int_when_possible(param["value"])), ""])
         elif "choice" in _type.lower():

@@ -540,9 +540,6 @@ def update_graph(event):
         nr_of_items_before_filtering = len(df)
         df_filtered = get_df_filtered(df)
 
-
-        print(f"min: {_min}, max: {_max}")
-
         check_min_and_max(args, len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 
         parameter_combinations = get_parameter_combinations(df_filtered, result_column)
@@ -605,7 +602,6 @@ def change_min_max(expression):
             args.max = None
         
         update_graph(None)
-        print("Graph updated with new filter values.")
     except Exception as e:
         print(f"Failed to update graph with expression '{expression}': {e}")
 

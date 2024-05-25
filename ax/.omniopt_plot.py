@@ -9,8 +9,13 @@ import argparse
 import math
 import time
 import threading
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+has_watchdog = False
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    has_watchdog = True
+except ModuleNotFoundError:
+    has_watchdog = False
 
 class MyHandler(FileSystemEventHandler):
     def __init__(self, callback):
@@ -483,8 +488,11 @@ def main(args):
     csv_file_path = get_csv_file_path(args)
 
     if args.enable_watcher:
-        watcher = CSVWatcher(csv_file_path, update_graph)
-        watcher.start()
+        if not has_watchdog:
+            print(f"Module watchdog not found. Ignoring --enable_watcher.")
+        else:
+            watcher = CSVWatcher(csv_file_path, update_graph)
+            watcher.start()
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 

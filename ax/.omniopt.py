@@ -1374,7 +1374,7 @@ def show_worker_plot ():
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
 def show_progress_plot ():
-    if len(progress_plot):
+    if len(progress_plot) > 1:
         tz_offset = get_timezone_offset_seconds()
         try:
             plotext.theme('pro')

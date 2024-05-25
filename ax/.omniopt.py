@@ -3627,8 +3627,9 @@ def find_promising_bubbles(pd_csv):
         argv_copy.append("--load_previous_job_data")
         argv_copy.append(f"{current_run_folder}/")
 
-        argv_copy.append("--auto_execute_counter")
-        argv_copy.append(str(args.auto_execute_counter + 1))
+        if args.auto_execute_suggestions:
+            argv_copy.append("--auto_execute_counter")
+            argv_copy.append(str(args.auto_execute_counter + 1))
 
         argv_copy_string = " ".join(argv_copy)
 

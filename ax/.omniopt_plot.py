@@ -318,6 +318,8 @@ def get_args ():
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 
+    parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
+
     args = parser.parse_args()
 
     if args.bubblesize:

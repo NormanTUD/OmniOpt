@@ -20,10 +20,15 @@ function calltracer () {
 	echo "Runtime: $(displaytime $SECONDS)"
 }
 trap 'calltracer' ERR
+
+plot_type="general"
 help=0
 
 for i in $@; do
         case $i in
+		--plot_type=*)
+			plot_type="${i#*=}"
+			;;
                 --help|-h)
 			help=1
                         ;;
@@ -55,7 +60,11 @@ source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
 
 set +e
-OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot.py $* 2>&1)
+if [[ "$plot_type" -eq "default" ]]; then
+	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot.py $* 2>&1)
+else
+	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_general.py $* 2>&1)
+fi
 exit_code=$?
 set -e
 

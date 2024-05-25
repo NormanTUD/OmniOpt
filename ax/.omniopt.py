@@ -3655,7 +3655,7 @@ def warn_versions ():
         "ax": ["0.3.7", "0.3.8.dev133", "0.52.0"],
         "plotext": ["5.2.8"],
         "submitit": ["1.5.1"],
-        "botorch": ["0.10.0", "0.10.1.dev46+g7a844b9e", "0.9.5"]
+        "botorch": ["0.10.0", "0.10.1.dev46+g7a844b9e", "0.9.5", "0.11.0"]
     }
 
     for key in supported_versions.keys():

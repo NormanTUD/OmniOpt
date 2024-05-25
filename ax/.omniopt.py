@@ -78,6 +78,7 @@ my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
 try:
+    import signal
     from datetime import datetime, timezone
     from tzlocal import get_localzone
     import platform
@@ -344,7 +345,6 @@ def load_global_vars(_file):
         print(f"You've tried to continue a non-existing job: {_file}")
         sys.exit(99)
     try:
-        import json
         global global_vars
         with open(_file) as f:
             global_vars = json.load(f)
@@ -473,9 +473,6 @@ def print_debug_progressbar (msg):
     _debug_progressbar(msg)
 
 try:
-    import socket
-    import json
-    import signal
     from tqdm import tqdm
 except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
@@ -518,14 +515,12 @@ try:
 
         import time
         import csv
-        import argparse
         from rich.pretty import pprint
         from pprint import pprint
         from rich.progress import BarColumn, Progress, TextColumn, TaskProgressColumn, TimeRemainingColumn, Column
         import subprocess
 
         import logging
-        import warnings
         logging.basicConfig(level=logging.ERROR)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
 except ModuleNotFoundError as e:
@@ -3342,8 +3337,6 @@ def get_errors_from_outfile (i):
                     errors.append(search_for_error)
 
     return errors
-
-import os
 
 def find_files(directory, extension='.out'):
     files = []

@@ -183,11 +183,12 @@ function list_option_for_job {
 			args+=(
 				"p)" "2d scatter-plots" 
 				"P)" "2d scatterplots with min/max value" 
+				"pg)" "plot general job info" 
 			)
 		fi
 		args+=(
 			"psvg)" "2d scatterplots to svg file" 
-			"Psvg)" "2d scatterplots with min/max value to svg" 
+			"pg)" "plot general job info" 
 		)
 	fi
 
@@ -310,6 +311,20 @@ close $fh;
 
 			list_option_for_job $PROJECT $NUMBER
 
+		elif [[ "$WHATTODO" =~ "pg)" ]]; then
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
+				set +e
+				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --plot_type=general)
+				if [[ $? -ne 0 ]]; then
+					error_message "$OUTPUT"
+				fi
+				set -e
+			else
+				eval `resize`
+				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
+			fi
+			list_option_for_job $PROJECT $NUMBER
+
 		elif [[ "$WHATTODO" =~ "p)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				set +e
@@ -323,6 +338,7 @@ close $fh;
 				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 			list_option_for_job $PROJECT $NUMBER
+
 		elif [[ "$WHATTODO" =~ "psvg)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				SVGDIR=$PROJECTDIR/$PROJECT/$NUMBER/2d-scatterplots/

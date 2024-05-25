@@ -154,7 +154,7 @@ def check_dir_and_csv (args, csv_file_path):
 
     if not os.path.exists(csv_file_path):
         print(f'The file {csv_file_path} does not exist.')
-        sys.exit(10)
+        sys.exit(39)
 
 def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
     if num_entries is None or num_entries == 0:
@@ -186,6 +186,9 @@ def get_data (args, csv_file_path, result_column, _min, _max, old_headers_string
             df = df[df[result_column] >= _min]
         if _max is not None:
             df = df[df[result_column] <= _max]
+        if not result_column in df:
+            print(f"There was no {result_column} in {csv_file_path}. This may means all tests failed. Cannot continue.")
+            sys.exit(10)
         df.dropna(subset=[result_column], inplace=True)
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")

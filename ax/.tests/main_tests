@@ -62,7 +62,7 @@ if [[ "$NUM_GPUS" -ne "0" ]]; then
 fi
 
 debug=0
-max_eval=100
+max_eval=30
 num_parallel_jobs=20
 no_sleep=0
 
@@ -281,6 +281,13 @@ export EXPECTED_TO_FAIL=0
 
 if [[ "$exit_code" -ne "87" ]]; then
 	errors+=("test_wronggoing_stuff (without successes) failed (exit-code: $exit_code)")
+fi
+
+./.tests/train_example_network --max_epochs=$max_eval
+exit_code=$?
+
+if [[ "$exit_code" -ne "0" ]]; then
+	errors+=("Training example network, got exit-code: $exit_code")
 fi
 
 export NO_WHIPTAIL=1

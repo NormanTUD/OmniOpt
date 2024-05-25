@@ -3558,8 +3558,8 @@ def find_promising_bubbles(pd_csv):
         print("\nParameter suggestions:\n")
 
         for param in param_directions_strings.keys():
-            joiner = f"\n- Suggestion for {param}: "
-            print(joiner + joiner.join(param_directions_strings[param]) + "\n")
+            joiner = f"- Suggestion for {param}: "
+            print(joiner + ("\n" + joiner).join(param_directions_strings[param]) + "\n")
 
         print(f"--maximizer: {args.maximizer}")
 

@@ -3550,9 +3550,9 @@ def find_promising_bubbles(pd_csv):
             param_directions_strings[param] = []
 
         if direction == "positive":
-            param_directions_strings[param].append(f"larger {param} upper bound.")
+            param_directions_strings[param].append(f"larger {param} upper bound")
         else:
-            param_directions_strings[param].append(f"smaller {param} lower bound.")
+            param_directions_strings[param].append(f"smaller {param} lower bound")
 
     if len(param_directions_strings.keys()):
         print("\nParameter suggestions:\n")

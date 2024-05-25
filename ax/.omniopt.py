@@ -1204,7 +1204,6 @@ def disable_logging ():
     logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.cross_validation").setLevel(logging.ERROR)

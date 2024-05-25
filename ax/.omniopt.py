@@ -55,6 +55,7 @@ import uuid
 run_uuid = uuid.uuid4()
 
 def exit_local(_code=0):
+    print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
 import inspect

@@ -78,12 +78,12 @@ def to_int_when_possible(val):
 
 
 def set_margins (fig):
-    left  = 0.125
-    right = 0.85
-    bottom = 0.12
+    left  = 0.102
+    right = 0.82
+    bottom = 0.171
     top = 0.9
-    wspace = 0.2
-    hspace = 0.6
+    wspace = 0.27
+    hspace = 0.31
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 

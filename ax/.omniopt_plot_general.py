@@ -92,7 +92,14 @@ if __name__ == "__main__":
             logging.warning("DataFrame is empty after filtering.")
             sys.exit()
 
-        fig, axes = plt.subplots(2, 2, figsize=(10, 10), gridspec_kw={'left': 0.071, 'bottom': 0.07, 'right': 0.983, 'top': 0.976, 'wspace': 0.167, 'hspace': 0.68})
+        left = 0.071
+        bottom = 0.07
+        right = 0.983
+        top = 0.926
+        wspace = 0.167
+        hspace = 0.276
+
+        fig, axes = plt.subplots(2, 2, figsize=(10, 10))
 
         plot_boxplot(df, axes[0, 0])
         plot_barplot(df, axes[0, 1])
@@ -100,6 +107,8 @@ if __name__ == "__main__":
         plot_distribution_by_generation(df, axes[1, 1])
 
         #plt.tight_layout()
+
+        fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
         if args.save_to_file:
             plt.savefig(args.save_to_file)

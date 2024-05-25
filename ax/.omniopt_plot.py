@@ -458,8 +458,8 @@ def main(args):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/pd.csv"
             prev_run_df = get_data(args, prev_run_csv_path, result_column, args.min, args.max, old_headers_string)
-            if prev_run_df:
-                #df = pd.join([prev_run_csv_path, df])
+            if prev_run_df is not None:
+                print(f"Loading {prev_run_csv_path} into the dataset")
                 df = df.merge(prev_run_df, how='outer')
 
     nr_of_items_before_filtering = len(df)

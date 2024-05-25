@@ -99,7 +99,7 @@ if __name__ == "__main__":
         plot_correlation_matrix(df, axes[1, 0])
         plot_distribution_by_generation(df, axes[1, 1])
 
-        plt.tight_layout()
+        #plt.tight_layout()
 
         if args.save_to_file:
             plt.savefig(args.save_to_file)

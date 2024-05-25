@@ -407,8 +407,12 @@ def get_parameter_combinations (df_filtered, result_column):
     return parameter_combinations
 
 def use_matplotlib(args):
-    if not args.save_to_file:
-        matplotlib.use('TkAgg')
+    try:
+        if not args.save_to_file:
+            matplotlib.use('TkAgg')
+    except Exception as e:
+        print("An error occured while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
+        sys.exit(33)
 
 def get_result_column_values(df, result_column):
     result_column_values = df[result_column]

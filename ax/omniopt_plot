@@ -89,3 +89,4 @@ else
 fi
 
 echo "Runtime: $(displaytime $SECONDS)"
+exit $exit_code

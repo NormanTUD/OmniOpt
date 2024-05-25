@@ -76,7 +76,12 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     try:
-        df = pd.read_csv(args.run_dir + "/pd.csv")
+        pd_csv = args.run_dir + "/pd.csv"
+        df = pd.read_csv(pd_csv)
+
+        if not "result" in df:
+            print(f"Error: the file {pd_csv} has no result column. Cannot continue.")
+            sys.exit(10)
 
         if args.min is not None or args.max is not None:
             df = filter_data(df, args.min, args.max)

@@ -3549,12 +3549,13 @@ def find_promising_bubbles(pd_csv):
         if direction == "positive":
             smaller_or_larger = "larger"
 
-        param_directions_strings.append(f"It may be worthwhile to try to allow {smaller_or_larger} numbers for parameter {param}.")
+        param_directions_strings.append(f"{smaller_or_larger} numbers for parameter {param}.")
 
     if len(param_directions_strings):
         print("\nParameter suggestions:\n")
+        print("It may be worthwhile to try...")
 
-        print("- " + "\n- ".join(param_directions_strings) + "\n")
+        print("- ... " + "\n- ... ".join(param_directions_strings) + "\n")
 
         print(f"--maximizer: {args.maximizer}")
 

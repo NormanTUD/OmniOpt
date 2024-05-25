@@ -12,3 +12,4 @@ Pyarrow
 textual
 tqdm
 watchdog
+seaborn

@@ -130,6 +130,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		ppip plotext
 		ppip plotille
 		ppip watchdog
+		ppip seaborn
 	fi
 
 	source $VENV_DIR/bin/activate

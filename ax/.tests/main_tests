@@ -46,7 +46,6 @@ function help () {
         echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
-	echo "  --no_sleep                                         Disables sleeping after job creation (not recommended on HPC)"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -64,7 +63,6 @@ fi
 debug=0
 max_eval=30
 num_parallel_jobs=20
-no_sleep=0
 
 args=("$@")
 k=0
@@ -93,9 +91,6 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 100
 			fi
 
-			;;
-		--no_sleep)
-			no_sleep=1
 			;;
 		--help*)
 			help 1
@@ -157,40 +152,21 @@ fi
 
 yellow_text "Starting main program..."
 
-if [[ "$no_sleep" -eq 1 ]]; then
-	./omniopt \
-		--partition=$PARTITION \
-		--experiment_name=$TESTNAME \
-		--mem_gb=1 \
-		--time=60 \
-		--worker_timeout=1 \
-		--max_eval=$max_eval \
-		--num_parallel_jobs=$num_parallel_jobs \
-		--gpus=$GPUS \
-		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-		--parameter int_param range -5 5 int \
-		--parameter float_param range -5 5 float \
-		--parameter choice_param choice 1,2,4,8,16,hallo \
-		--parameter int_param_two range -6 6 int \
-		--follow \
-		--no_sleep
-else
-	./omniopt \
-		--partition=$PARTITION \
-		--experiment_name=$TESTNAME \
-		--mem_gb=1 \
-		--time=60 \
-		--worker_timeout=1 \
-		--max_eval=$max_eval \
-		--num_parallel_jobs=$num_parallel_jobs \
-		--gpus=$GPUS \
-		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-		--parameter int_param range -5 5 int \
-		--parameter float_param range -5 5 float \
-		--parameter choice_param choice 1,2,4,8,16,hallo \
-		--parameter int_param_two range -6 6 int \
-		--follow
-fi
+./omniopt \
+	--partition=$PARTITION \
+	--experiment_name=$TESTNAME \
+	--mem_gb=1 \
+	--time=60 \
+	--worker_timeout=1 \
+	--max_eval=$max_eval \
+	--num_parallel_jobs=$num_parallel_jobs \
+	--gpus=$GPUS \
+	--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+	--parameter int_param range -5 5 int \
+	--parameter float_param range -5 5 float \
+	--parameter choice_param choice 1,2,4,8,16,hallo \
+	--parameter int_param_two range -6 6 int \
+	--follow
 
 exit_code=$?
 

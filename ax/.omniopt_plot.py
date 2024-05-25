@@ -449,7 +449,7 @@ def main(args):
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/pd.csv"
-            prev_run_df = get_data(args, prev_run_csv_path, result_column)
+            prev_run_df = get_data(args, prev_run_csv_path, result_column, args.min, args.max)
 
             #df = pd.join([prev_run_csv_path, df])
             df = df.merge(prev_run_df, how='outer')

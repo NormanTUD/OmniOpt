@@ -312,6 +312,7 @@ close $fh;
 			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "pg)" ]]; then
+			echo "Warning: Depending on your job size, generating this graph may take a while"
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				set +e
 				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --plot_type=general)

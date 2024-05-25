@@ -38,7 +38,6 @@ for i in $@; do
         esac
 done
 
-
 #SBATCH --signal=B:USR1@120
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -60,12 +59,17 @@ source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
 
 set +e
-if [[ "$plot_type" -eq "default" ]]; then
+if [[ "$plot_type" == "default" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot.py $* 2>&1)
-else
+	exit_code=$?
+elif [[ "$plot_type" == "general" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_general.py $* 2>&1)
+	exit_code=$?
+else
+	echo "Unknown --plot_type: $plot_type"
+	false
+	exit_code=$?
 fi
-exit_code=$?
 set -e
 
 if [[ "$exit_code" -ne "0" ]]; then

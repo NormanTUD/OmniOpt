@@ -154,7 +154,7 @@ nvidia_smi_logs_base = f'{log_dir}/{log_i}_nvidia_smi_logs'
 logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
 logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
 
-def _log_trial_index_to_param (trial_index, _lvl=0, ee=None):
+def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
         return
@@ -169,7 +169,7 @@ def _log_trial_index_to_param (trial_index, _lvl=0, ee=None):
         _log_trial_index_to_param(trial_index, _lvl + 1, e)
 
 
-def _debug_worker_creation (msg, _lvl=0, ee=None):
+def _debug_worker_creation(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
         return
@@ -182,7 +182,7 @@ def _debug_worker_creation (msg, _lvl=0, ee=None):
 
         _debug_worker_creation(msg, _lvl + 1, e)
 
-def append_to_nvidia_smi_logs (_file, result, _lvl=0, ee=None):
+def append_to_nvidia_smi_logs(_file, result, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
         return
@@ -196,7 +196,7 @@ def append_to_nvidia_smi_logs (_file, result, _lvl=0, ee=None):
 
         append_to_nvidia_smi_logs(host, result, _lvl + 1, e)
 
-def _debug_progressbar (msg, _lvl=0, ee=None):
+def _debug_progressbar(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
         return
@@ -209,14 +209,14 @@ def _debug_progressbar (msg, _lvl=0, ee=None):
 
         _debug_progressbar(msg, _lvl + 1, e)
 
-def add_to_phase_counter (phase, nr=0, run_folder=""):
+def add_to_phase_counter(phase, nr=0, run_folder=""):
     global current_run_folder
 
     if run_folder == "":
         run_folder = current_run_folder
     return append_and_read(f'{run_folder}/phase_{phase}_steps', nr)
 
-def _debug (msg, _lvl=0, ee=None):
+def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
         return
@@ -240,7 +240,7 @@ class REMatcher(object):
     def group(self,i):
         return self.rematch.group(i)
 
-def dier (msg):
+def dier(msg):
     pprint(msg)
     exit_local(10)
 
@@ -314,7 +314,7 @@ def decode_if_base64(input_str):
     except Exception as e:
         return input_str
 
-def get_file_as_string (f):
+def get_file_as_string(f):
     datafile = ""
     if not os.path.exists(f):
         print_color("red", f"{f} not found!")
@@ -458,7 +458,7 @@ if not args.tests:
         print_color("red", "--max_eval must be larger than 0")
         exit_local(39)
 
-def print_debug (msg):
+def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
     if args.debug:
@@ -466,7 +466,7 @@ def print_debug (msg):
 
     _debug(msg)
 
-def print_debug_progressbar (msg):
+def print_debug_progressbar(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
 
@@ -487,13 +487,13 @@ class signalINT (Exception):
 class signalCONT (Exception):
     pass
 
-def receive_usr_signal_one (signum, stack):
+def receive_usr_signal_one(signum, stack):
     raise signalUSR(f"USR1-signal received ({signum})")
 
-def receive_usr_signal_int (signum, stack):
+def receive_usr_signal_int(signum, stack):
     raise signalINT(f"INT-signal received ({signum})")
 
-def receive_signal_cont (signum, stack):
+def receive_signal_cont(signum, stack):
     raise signalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
@@ -530,7 +530,7 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
     exit_local(0)
 
-def print_color (color, text):
+def print_color(color, text):
     print(f"[{color}]{text}[/{color}]")
 
 def is_executable_in_path(executable_name):
@@ -549,7 +549,7 @@ if is_executable_in_path("sbatch"):
 if not system_has_sbatch:
     num_parallel_jobs = 1
 
-def save_global_vars ():
+def save_global_vars():
     with open(f'{current_run_folder}/global_vars.json', "w") as f:
         json.dump(global_vars, f)
 
@@ -564,7 +564,7 @@ def check_slurm_job_id():
                 "This may cause the system to slow down for all other users. It is recommended uou run the main script in a Slurm job."
             )
 
-def create_folder_and_file (folder, extension):
+def create_folder_and_file(folder, extension):
     print_debug("create_folder_and_file")
     global file_number
 
@@ -616,7 +616,7 @@ def looks_like_int(x):
     else:
         return False
 
-def get_program_code_from_out_file (f):
+def get_program_code_from_out_file(f):
     print_debug("get_program_code_from_out_file")
     if not os.path.exists(f):
         print(f"{f} not found")
@@ -685,7 +685,7 @@ def flatten_extend(matrix):
     return flat_list
 
 
-def get_bound_if_prev_data (_type, _column, _default):
+def get_bound_if_prev_data(_type, _column, _default):
     ret_val = _default
 
     strictly_larger = 1.1 # cause the search space has to be strictly larger
@@ -944,7 +944,7 @@ def execute_bash_code(code):
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-def get_result (input_string):
+def get_result(input_string):
     print_debug("get_result")
     if input_string is None:
         print("Input-String is None")
@@ -1044,7 +1044,7 @@ def check_file_info(file_path):
 
     return string
 
-def find_file_paths_and_print_infos (_text, program_code):
+def find_file_paths_and_print_infos(_text, program_code):
     print_debug("find_file_paths_and_print_infos")
     file_paths = find_file_paths(_text)
 
@@ -1194,7 +1194,7 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
     exit_local(242)
 
-def disable_logging ():
+def disable_logging():
     print_debug("disable_logging")
     logging.basicConfig(level=logging.ERROR)
 
@@ -1243,7 +1243,7 @@ def disable_logging ():
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
     print_debug("disable_logging done")
 
-def print_best_result (csv_file_path, result_column):
+def print_best_result(csv_file_path, result_column):
     try:
         best_params = get_best_params(csv_file_path, result_column)
 
@@ -1280,7 +1280,7 @@ def print_best_result (csv_file_path, result_column):
     except Exception as e:
         print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
 
-def show_end_table_and_save_end_files (csv_file_path, result_column):
+def show_end_table_and_save_end_files(csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")
 
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
@@ -1335,7 +1335,7 @@ def show_end_table_and_save_end_files (csv_file_path, result_column):
 
     return _exit
 
-def write_worker_usage ():
+def write_worker_usage():
     if len(worker_percentage_usage):
         csv_filename = f'{current_run_folder}/worker_usage.csv'
 
@@ -1347,7 +1347,7 @@ def write_worker_usage ():
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
 
-def show_worker_plot ():
+def show_worker_plot():
     if len(worker_percentage_usage):
         tz_offset = get_timezone_offset_seconds()
         try:
@@ -1372,7 +1372,7 @@ def show_worker_plot ():
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
-def show_progress_plot ():
+def show_progress_plot():
     if len(progress_plot) > 1:
         tz_offset = get_timezone_offset_seconds()
         try:
@@ -1399,7 +1399,7 @@ def show_progress_plot ():
         except ModuleNotFoundError:
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
-def end_program (csv_file_path, result_column="result", _force=False, exit_code=None):
+def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars
     global ax_client
     global console
@@ -1477,7 +1477,7 @@ def end_program (csv_file_path, result_column="result", _force=False, exit_code=
 
     exit_local(_exit)
 
-def save_checkpoint (trial_nr=0, ee=None):
+def save_checkpoint(trial_nr=0, ee=None):
     if trial_nr > 3:
         if ee:
             print("Error during saving checkpoint: " + str(ee))
@@ -1520,7 +1520,7 @@ def to_int_when_possible(val):
         # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val
 
-def save_pd_csv ():
+def save_pd_csv():
     print_debug("save_pd_csv")
     global ax_client
 
@@ -1550,7 +1550,7 @@ def save_pd_csv ():
     except Exception as e:
         print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
-def get_tmp_file_from_json (experiment_args):
+def get_tmp_file_from_json(experiment_args):
     k = 0
     while os.path.exists(str(k)):
         k = k + 1
@@ -1581,7 +1581,7 @@ def compare_parameters(old_param_json, new_param_json):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-def get_ax_param_representation (data):
+def get_ax_param_representation(data):
     if data["type"] == "range":
         return {
                 "__type": "RangeParameter",
@@ -1774,7 +1774,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
     return ax_client, experiment_parameters
 
-def get_type_short (typename):
+def get_type_short(typename):
     if typename == "RangeParameter":
         return "range"
     
@@ -1783,7 +1783,7 @@ def get_type_short (typename):
 
     return typename
 
-def print_overview_table (experiment_parameters):
+def print_overview_table(experiment_parameters):
     if not experiment_parameters:
         print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")
         return
@@ -1863,7 +1863,7 @@ def print_overview_table (experiment_parameters):
     with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
         text_file.write(table_str)
 
-def check_equation (variables, equation):
+def check_equation(variables, equation):
     print_debug("check_equation")
     if not (">=" in equation or "<=" in equation):
         return False
@@ -1941,7 +1941,7 @@ def check_equation (variables, equation):
 
     return equation
 
-def progressbar_description (new_msgs=[]):
+def progressbar_description(new_msgs=[]):
     global result_csv_file
     global random_steps
     global searching_for
@@ -1952,7 +1952,7 @@ def progressbar_description (new_msgs=[]):
     progress_bar.set_description(desc)
     progress_bar.refresh()
 
-def clean_completed_jobs ():
+def clean_completed_jobs():
     global jobs
     for job, trial_index in global_vars["jobs"][:]:
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
@@ -2061,7 +2061,7 @@ def load_data_from_existing_run_folders(args, _paths):
             else:
                 print_color("yellow", f"Old result for {old_arm_parameter} could not be found in {this_path}/pd.csv, if it exists in other files, it will probably be added.")
 
-def finish_previous_jobs (args, new_msgs):
+def finish_previous_jobs(args, new_msgs):
     print_debug("finish_previous_jobs")
 
     log_nr_of_workers()
@@ -2183,7 +2183,7 @@ def finish_previous_jobs (args, new_msgs):
 
     clean_completed_jobs()
 
-def state_from_job (job):
+def state_from_job(job):
     job_string = f'{job}'
     match = re.search(r'state="([^"]+)"', job_string)
 
@@ -2196,7 +2196,7 @@ def state_from_job (job):
 
     return state
 
-def get_workers_string ():
+def get_workers_string():
     global jobs
 
     string = ""
@@ -2228,7 +2228,7 @@ def get_workers_string ():
 
     return string
 
-def get_desc_progress_text (new_msgs=[]):
+def get_desc_progress_text(new_msgs=[]):
     global global_vars
     global result_csv_file
     global progress_plot
@@ -2315,12 +2315,12 @@ def is_slurm_job():
         return True
     return False
 
-def _sleep (args, t):
+def _sleep(args, t):
     if not args.no_sleep:
         print_debug(f"Sleeping {t} second(s) before continuation")
         time.sleep(t)
 
-def save_state_files (args, _time):
+def save_state_files(args, _time):
     with open(f'{current_run_folder}/joined_run_program', 'w') as f:
         print(global_vars["joined_run_program"], file=f)
 
@@ -2347,7 +2347,7 @@ def save_state_files (args, _time):
     with open(f'{current_run_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def check_python_version ():
+def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.10.4", "3.11.2", "3.11.9"]
     if not python_version in supported_versions:
@@ -2425,7 +2425,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-def _get_next_trials (ax_client):
+def _get_next_trials(ax_client):
     global global_vars
 
     last_ax_client_time = None
@@ -2506,7 +2506,7 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
     return new_nr_jobs
     """
 
-def get_generation_strategy (num_parallel_jobs, seed, max_eval):
+def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     global random_steps
 
     """
@@ -2584,7 +2584,7 @@ def get_generation_strategy (num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs (args, ax_client, next_nr_steps, executor, phase):
+def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
     if next_nr_steps == 0:
@@ -2647,7 +2647,7 @@ def get_random_steps_from_prev_job(args):
 
     return add_to_phase_counter("random", 0, args.continue_previous_job)
 
-def get_number_of_steps (args, max_eval):
+def get_number_of_steps(args, max_eval):
     random_steps = args.num_random_steps
 
     already_done_random_steps = get_random_steps_from_prev_job(args)
@@ -2700,7 +2700,7 @@ def get_executor(args):
 
     return executor
 
-def append_and_read (file, zahl=0):
+def append_and_read(file, zahl=0):
     try:
         with open(file, 'a+') as f:
             f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
@@ -2721,16 +2721,16 @@ def append_and_read (file, zahl=0):
 
     return 0
 
-def failed_jobs (nr=0):
+def failed_jobs(nr=0):
     return append_and_read(f'{current_run_folder}/failed_jobs', nr)
 
-def get_steps_from_prev_job (prev_job, nr=0):
+def get_steps_from_prev_job(prev_job, nr=0):
     return append_and_read(f"{prev_job}/submitted_jobs", nr)
 
-def submitted_jobs (nr=0):
+def submitted_jobs(nr=0):
     return append_and_read(f'{current_run_folder}/submitted_jobs', nr)
 
-def done_jobs (nr=0):
+def done_jobs(nr=0):
     return append_and_read(f'{current_run_folder}/done_jobs', nr)
 
 def execute_nvidia_smi():
@@ -2771,7 +2771,7 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
-def run_systematic_search (args, max_nr_steps, executor, ax_client):
+def run_systematic_search(args, max_nr_steps, executor, ax_client):
     while submitted_jobs() < max_nr_steps or global_vars["jobs"]:
         #print(f"\ndone_jobs(): {done_jobs()}")
         log_nr_of_workers()
@@ -2841,7 +2841,7 @@ def finish_previous_jobs_random(args):
         finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
         _sleep(args, 1)
 
-def main ():
+def main():
     print_debug("main")
 
     nvidia_smi_thread = start_nvidia_smi_thread()
@@ -3019,7 +3019,7 @@ def _unidiff_output(expected, actual):
 
     return ''.join(diff)
 
-def print_diff (o, i):
+def print_diff(o, i):
     if type(i) == str:
         print("Should be:", i.strip())
     else:
@@ -3032,7 +3032,7 @@ def print_diff (o, i):
     #if type(i) == str or type(o) == str:
     #    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
-def is_equal (n, i, o):
+def is_equal(n, i, o):
     r = _is_equal(n, i, o)
 
     if r:
@@ -3040,7 +3040,7 @@ def is_equal (n, i, o):
 
     return r
 
-def is_not_equal (n, i, o):
+def is_not_equal(n, i, o):
     r = _is_not_equal(n, i, o)
 
     if r:
@@ -3048,7 +3048,7 @@ def is_not_equal (n, i, o):
 
     return r
 
-def _is_not_equal (name, input, output):
+def _is_not_equal(name, input, output):
     if type(input) == str or type(input) == int or type(input) == float:
         if input == output:
             print_color("red", f"Failed test: {name}")
@@ -3068,7 +3068,7 @@ def _is_not_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
-def _is_equal (name, input, output):
+def _is_equal(name, input, output):
     if type(input) != type(output):
         print_color("red", f"Failed test: {name}")
         return 1
@@ -3091,7 +3091,7 @@ def _is_equal (name, input, output):
     print_color("green", f"Test OK: {name}")
     return 0
 
-def complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
+def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_color("yellow", f"Test suite: {_program_name}")
 
     nr_errors = 0
@@ -3135,13 +3135,13 @@ def complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal
 
     return nr_errors
 
-def get_files_in_dir (mypath):
+def get_files_in_dir(mypath):
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
-def test_find_paths (program_code):
+def test_find_paths(program_code):
     nr_errors = 0
 
     files = [
@@ -3168,7 +3168,7 @@ def test_find_paths (program_code):
 
     return nr_errors
 
-def run_tests ():
+def run_tests():
     nr_errors = 0
 
     nr_errors += is_not_equal("nr equal string", 1, "1")
@@ -3204,7 +3204,7 @@ def file_contains_text(f, t):
             return True
     return False
 
-def get_first_line_of_file_that_contains_string (i, s):
+def get_first_line_of_file_that_contains_string(i, s):
     print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
         print(f"File {i} not found")
@@ -3217,7 +3217,7 @@ def get_first_line_of_file_that_contains_string (i, s):
             return line
     return None
 
-def get_errors_from_outfile (i):
+def get_errors_from_outfile(i):
     print_debug("get_errors_from_outfile")
     file_as_string = get_file_as_string(i)
     m = REMatcher(file_as_string)
@@ -3354,7 +3354,7 @@ def find_files(directory, extension='.out'):
 
 
 
-def analyze_out_files (rootdir, print_to_stdout=True):
+def analyze_out_files(rootdir, print_to_stdout=True):
     try:
         outfiles = find_files('{rootdir}/')
         # outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
@@ -3389,7 +3389,7 @@ def analyze_out_files (rootdir, print_to_stdout=True):
         print("error: " + str(e))
         return ""
 
-def log_nr_of_workers ():
+def log_nr_of_workers():
     last_line = ""
     nr_of_workers = len(global_vars["jobs"])
 
@@ -3647,7 +3647,7 @@ def find_promising_bubbles(pd_csv):
         elif args.auto_execute_suggestions:
             print("Auto executing suggestions is so fucking experimental that you need the --experimental switch to be set")
 
-def warn_versions ():
+def warn_versions():
     wrns = []
 
     supported_versions = {

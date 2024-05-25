@@ -38,9 +38,6 @@ Green='\033[0;32m'
 Color_Off='\033[0m'
 Red='\033[0;31m'
 
-VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
-VENV_DIR=$HOME/$VENV_DIR_NAME
-
 function red {
 	echo -e "${Red}$1${Color_Off}"
 }
@@ -81,6 +78,9 @@ if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
 		myml GCC/12.2.0 OpenBLAS/0.3.21
 	fi
 fi
+
+VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
+VENV_DIR=$HOME/$VENV_DIR_NAME
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 	if [[ ! -d "$VENV_DIR" ]]; then

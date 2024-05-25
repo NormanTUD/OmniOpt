@@ -172,7 +172,11 @@ def check_min_and_max(args, num_entries, nr_of_items_before_filtering, csv_file_
         if _exit:
             sys.exit(4)
 
-def get_data (args, csv_file_path, result_column, _min, _max):
+def get_data (args, csv_file_path, result_column, _min, _max, old_headers_string):
+    if old_headers_string:
+        df_header_string = ','.join(sorted(df.columns))
+        if df_header_string != old_header_string:
+
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 
@@ -446,10 +450,12 @@ def main(args):
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 
+    old_headers_string = ','.join(sorted(df.columns))
+
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/pd.csv"
-            prev_run_df = get_data(args, prev_run_csv_path, result_column, args.min, args.max)
+            prev_run_df = get_data(args, prev_run_csv_path, result_column, args.min, args.max, old_headers_string)
 
             #df = pd.join([prev_run_csv_path, df])
             df = df.merge(prev_run_df, how='outer')
@@ -539,11 +545,13 @@ def update_graph(event=None):
         csv_file_path = get_csv_file_path(args)
         df = get_data(args, csv_file_path, result_column, _min, _max)
 
+        old_headers_string = ','.join(sorted(df.columns))
+
         # Redo previous run merges if needed
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
                 prev_run_csv_path = prev_run[0] + "/pd.csv"
-                prev_run_df = get_data(args, prev_run_csv_path, result_column, _min, _max)
+                prev_run_df = get_data(args, prev_run_csv_path, result_column, _min, _max, old_headers_string)
                 df = df.merge(prev_run_df, how='outer')
 
         nr_of_items_before_filtering = len(df)

@@ -3551,7 +3551,6 @@ def find_promising_bubbles(pd_csv):
 
         param_directions_strings.append(f"It may be worthwhile to try to allow {smaller_or_larger} numbers for parameter {param}.")
 
-
     if len(param_directions_strings):
         print("\nParameter suggestions:\n")
 

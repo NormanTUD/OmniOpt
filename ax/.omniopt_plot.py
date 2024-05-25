@@ -9,54 +9,6 @@ import argparse
 import math
 import time
 import threading
-has_watchdog = False
-try:
-    from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
-    has_watchdog = True
-except ModuleNotFoundError:
-    has_watchdog = False
-
-class MyHandler(FileSystemEventHandler):
-    def __init__(self, callback):
-        super().__init__()
-        self.callback = callback
-
-    def on_modified(self, event):
-        if not event.is_directory and event.src_path.endswith('.csv'):
-            print("CSV file modified. Updating graph...")
-            self.callback()
-
-class CSVWatcher:
-    def __init__(self, csv_file_path, callback):
-        self.csv_file_path = csv_file_path
-        self.callback = callback
-        self.observer = Observer()
-        self.event_handler = MyHandler(callback)
-        self.observer.schedule(self.event_handler, path=csv_file_path)
-        self.thread = None
-
-    def start(self):
-        self.thread = threading.Thread(target=self._run)
-        self.thread.start()
-
-    def stop(self):
-        self.observer.stop()
-        if self.thread:
-            self.thread.join()
-
-    def _run(self):
-        self.observer.start()
-        try:
-            while True:
-                if not plt.get_fignums():
-                    print("Matplotlib window closed. Stopping watcher.")
-                    self.stop()
-                    break
-                time.sleep(1)
-        except KeyboardInterrupt:
-            self.observer.stop()
-            self.observer.join()
 
 fig = None
 maximum_textbox = None
@@ -365,7 +317,6 @@ def get_args ():
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
-    parser.add_argument('--enable_watcher', help='Watches the CSV file automatically and updates the plot with new results periodically (alpha)', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -486,13 +437,6 @@ def main(args):
     use_matplotlib(args)
 
     csv_file_path = get_csv_file_path(args)
-
-    if args.enable_watcher:
-        if not has_watchdog:
-            print(f"Module watchdog not found. Ignoring --enable_watcher.")
-        else:
-            watcher = CSVWatcher(csv_file_path, update_graph)
-            watcher.start()
 
     df = get_data(args, csv_file_path, result_column, args.min, args.max)
 

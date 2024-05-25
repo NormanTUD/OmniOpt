@@ -21,7 +21,7 @@ function calltracer () {
 }
 trap 'calltracer' ERR
 
-plot_type="general"
+plot_type="default"
 help=0
 
 for i in $@; do
@@ -57,6 +57,8 @@ cd $ORIGINAL_PWD
 
 source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
+
+echo "Showing plot type: $plot_type"
 
 set +e
 if [[ "$plot_type" == "default" ]]; then

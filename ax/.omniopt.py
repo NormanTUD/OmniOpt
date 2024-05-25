@@ -1782,6 +1782,8 @@ def get_type_short (typename):
     if typename == "ChoiceParameter":
         return "choice"
 
+    return typename
+
 def print_overview_table (experiment_parameters):
     if not experiment_parameters:
         print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")

@@ -2997,7 +2997,7 @@ def main():
     except searchDone as e:
         _get_perc = int((submitted_jobs() / max_eval) * 100)
         if _get_perc != 100:
-            print_color("yellow", f"It seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
+            original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
             end_program(result_csv_file, "result", 1, 87)
         else:
             end_program(result_csv_file, "result", 1)

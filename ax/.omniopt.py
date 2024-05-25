@@ -628,7 +628,7 @@ def get_program_code_from_out_file (f):
                 return line
 
 
-def get_max_column_value(pd_csv, column):
+def get_max_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the maximum value in the specified column.
 
@@ -644,14 +644,16 @@ def get_max_column_value(pd_csv, column):
 
     try:
         df = pd.read_csv(pd_csv)
-        assert_condition(column in df.columns, f"Column {column} not found in CSV file")
+        if not column in df.columns:
+            print_color("red", f"Cannot load data from {pd_csv}: column {column} does not exist")
+            return _default
         max_value = df[column].max()
         return max_value
     except Exception as e:
         print_color("red", f"Error while getting max value from column {column}: {str(e)}")
         raise
 
-def get_min_column_value(pd_csv, column):
+def get_min_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the minimum value in the specified column.
 
@@ -667,12 +669,15 @@ def get_min_column_value(pd_csv, column):
 
     try:
         df = pd.read_csv(pd_csv)
-        assert_condition(column in df.columns, f"Column {column} not found in CSV file")
+        if not column in df.columns:
+            print_color("red", f"Cannot load data from {pd_csv}: column {column} does not exist")
+            return _default
         min_value = df[column].min()
         return min_value
     except Exception as e:
         print_color("red", f"Error while getting min value from column {column}: {str(e)}")
         raise
+
 def flatten_extend(matrix):
     flat_list = []
     for row in matrix:
@@ -692,9 +697,9 @@ def get_bound_if_prev_data (_type, _column, _default):
 
             if os.path.exists(pd_csv):
                 if _type == "lower":
-                    ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column)) * strictly_larger
+                    ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column, _default)) * strictly_larger
                 else:
-                    ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column)) * strictly_larger
+                    ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column, _default)) * strictly_larger
             else:
                 print_color("red", f"{pd_csv} was not found")
 
@@ -702,9 +707,9 @@ def get_bound_if_prev_data (_type, _column, _default):
         pd_csv = "{args.continue_previous_job}/pd.csv"
         if os.path.exists(pd_csv):
             if _type == "lower":
-                ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column)) * strictly_larger
+                ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column, _default)) * strictly_larger
             else:
-                ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column)) * strictly_larger
+                ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column), _default) * strictly_larger
         else:
             print_color("red", f"{pd_csv} was not found")
 
@@ -800,19 +805,19 @@ def parse_experiment_parameters(args):
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
-                        print_color("red", f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded.")
+                        print_color("yellow", f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
                         lower_bound = math.floor(lower_bound)
 
 
                     if not looks_like_int(upper_bound):
-                        print_color("red", f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded.")
+                        print_color("yellow", f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
                         upper_bound = math.ceil(upper_bound)
 
                 old_lower_bound = lower_bound
                 lower_bound = get_bound_if_prev_data("lower", name, lower_bound)
 
                 if old_lower_bound != lower_bound:
-                    print_color("red", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                    print_color("yellow", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
                     search_space_reduction_warning = True
 
                 old_upper_bound = upper_bound
@@ -823,7 +828,7 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if old_upper_bound != upper_bound:
-                    print_color("red", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                     search_space_reduction_warning = True
 
                 param = {
@@ -1984,7 +1989,9 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     except Exception as e:
         raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
     
-    assert_condition('result' in df.columns, "CSV file must contain 'result' column")
+    if not 'result' in df.columns:
+        print_color("red", f"Error: Could not get old result for {params} in {file_path}")
+        return None
     
     try:
         matching_rows = df

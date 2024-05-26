@@ -15,7 +15,8 @@ def dier(msg):
 def plot_gpu_usage(run_dir):
     gpu_data = []
     num_plots = 0
-
+    plot_rows = 2
+    plot_cols = 2  # standard number of columns for subplot grid
     _paths = []
 
     for root, dirs, files in os.walk(run_dir):
@@ -23,7 +24,6 @@ def plot_gpu_usage(run_dir):
             if file.startswith("gpu_usage_") and file.endswith(".csv"):
                 file_path = os.path.join(root, file)
                 _paths.append(file_path)
-                # Einlesen der Daten mit expliziter Angabe der Spaltennamen
                 df = pd.read_csv(file_path,
                                  names=["timestamp", "name", "pci.bus_id", "driver_version", "pstate",
                                         "pcie.link.gen.max", "pcie.link.gen.current", "temperature.gpu",
@@ -36,20 +36,20 @@ def plot_gpu_usage(run_dir):
         print("No GPU usage data found.")
         return
 
-    fig, axs = plt.subplots(num_plots, 1, figsize=(10, 5*num_plots))
-    if num_plots == 1:
-        axs = [axs]  # Wenn nur ein Plot vorhanden ist, wandeln wir axs in eine Liste um
+    plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
+    plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns
+
+    fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5*plot_rows))
+    axs = axs.flatten()  # Flatten the axs array to handle both 1D and 2D subplots
 
     for i, df in enumerate(gpu_data):
-        # Sortieren der Daten nach Datum
         df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y/%m/%d %H:%M:%S.%f', errors='coerce')
         df = df.sort_values(by='timestamp')
 
-        # Gruppieren der Daten nach pci.bus_id
         grouped_data = df.groupby('pci.bus_id')
         for bus_id, group in grouped_data:
             group['utilization.gpu [%]'] = group['utilization.gpu [%]'].str.replace('%', '').astype(float)
-            group = group.dropna(subset=['timestamp'])  # Entfernen von ungültigen Zeitstempeln
+            group = group.dropna(subset=['timestamp'])
             axs[i].plot(group['timestamp'], group['utilization.gpu [%]'], label=f'pci.bus_id: {bus_id}')
 
         axs[i].set_xlabel('Time')
@@ -57,6 +57,10 @@ def plot_gpu_usage(run_dir):
         axs[i].set_title(f'GPU Usage Over Time - {os.path.basename(_paths[i])}')
         if not args.no_legend:
             axs[i].legend(loc='upper right')
+
+    # Hide empty subplots
+    for j in range(num_plots, plot_rows * plot_cols):
+        axs[j].axis('off')
 
     plt.subplots_adjust(bottom=0.2, hspace=0.35)
     plt.show()

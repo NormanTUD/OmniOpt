@@ -12,6 +12,14 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+root = None
+
+def _quit():
+    global root
+    if root:
+        root.quit()
+        root.destroy()
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def setup_logging():
@@ -74,6 +82,7 @@ def update_graph():
     try:
         dataframe = pd.read_csv(pd_csv)
 
+        global root
         main_frame = ttk.Frame(root, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -103,6 +112,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     root = tk.Tk()
+    root.protocol("WM_DELETE_WINDOW", _quit)
     root.title(f"KDE Plot for {args.run_dir}")
     root.geometry("800x600")
 

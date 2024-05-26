@@ -40,12 +40,13 @@ def plot_histograms(dataframe, main_frame):
     for i, col in enumerate(numeric_columns):
         ax = axes[i]
         values = dataframe[col]
-        bin_edges = np.linspace(values.min(), values.max(), 11)  # Divide the range into 10 equal bins
+        result_values = dataframe['result']
+        bin_edges = np.linspace(result_values.min(), result_values.max(), 11)  # Divide the range into 10 equal bins
         colormap = plt.cm.get_cmap('RdYlGn_r')  # Reverse RdYlGn colormap
 
         for j in range(10):
             color = colormap(j / 9)  # Calculate color based on colormap
-            bin_mask = (values >= bin_edges[j]) & (values <= bin_edges[j+1])
+            bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j+1])
             bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j+1]:.2f}'
             ax.hist(values[bin_mask], bins=10, alpha=0.7, color=color, label=f'{bin_range}')
 

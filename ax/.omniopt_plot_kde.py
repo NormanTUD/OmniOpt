@@ -1,4 +1,5 @@
 # DESCRIPTION: Kernel-Density estimation plot
+# EXPECTED FILES: pd.csv
 
 import numpy as np
 import math

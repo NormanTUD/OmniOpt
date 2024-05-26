@@ -17,6 +17,10 @@ def plot_worker_usage(pd_csv):
     #try:
     data = pd.read_csv(pd_csv)
 
+    if "time" not in data:
+        print("time column could not be found. Is the header line 'time,num_parallel_jobs,nr_current_workers,percentage' missing?")
+        sys.exit(52)
+
     duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
     data = data[~duplicate_mask].reset_index(drop=True)
     

@@ -45,12 +45,35 @@ function calltracer () {
 trap 'calltracer' ERR
 
 plot_type="default"
+run_dir=""
 help=0
 
-for i in $@; do
+args=("$@")
+k=0
+while [ $k -lt ${#args[@]} ]; do
+	i="${args[k]}"
+
         case $i in
+		--run_dir=*)
+			run_dir="${i#*=}"
+			;;
+
+		--run_dir)
+			shift
+			k=$((k+1))
+
+			run_dir="${args[k]}"
+			shift
+			;;
 		--plot_type=*)
 			plot_type="${i#*=}"
+			;;
+		--plot_type)
+			shift
+			k=$((k+1))
+
+			plot_type="${args[k]}"
+			shift
 			;;
                 --help|-h)
 			help=1
@@ -59,6 +82,7 @@ for i in $@; do
                         set -x
                         ;;
         esac
+	k=$((k+1))
 done
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
@@ -69,7 +93,7 @@ if [[ "$plot_type" == "default" ]]; then
 	eval `resize`
 
 	WHATTODO=$(whiptail \
-		--title "Available options for >${PROJECT}< (run number $NUMBER)" \
+		--title "Available options for $run_dir" \
 		--menu \
 		"Chose what plot to open:" \
 		$LINES $COLUMNS $(( $LINES - 8 )) \

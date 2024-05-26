@@ -10,6 +10,14 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+root = None
+
+def _quit():
+    global root
+    if root:
+        root.quit()
+        root.destroy()
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def plot_boxplot(dataframe, axis):
@@ -140,6 +148,7 @@ if __name__ == "__main__":
         sys.exit(35)
 
     root = tk.Tk()
+    root.protocol("WM_DELETE_WINDOW", _quit)
     root.title("General info for run " + args.run_dir)
     root.geometry("800x800")
 

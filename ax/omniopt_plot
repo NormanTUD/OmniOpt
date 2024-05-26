@@ -22,7 +22,25 @@ whiptail_args=()
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
 	expected_plot_types+=("$possible_plot_type")
 
-	whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')")
+	expected_files=()
+	for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //');
+		expected_files+=("$run_dir/$expected_file")
+	done
+
+	ALL_FILES_THERE=1
+
+	for expected_file in "${expected_files[@]}"; do
+		if ! [[ -e $expected_file ]]; then
+			ALL_FILES_THERE=0
+		fi
+	done
+
+	print "expected files: $expected_files[@]"
+	print "ALL_FILES_THERE=$ALL_FILES_THERE"
+
+	if [[ $ALL_FILES_THERE -eq 1 ]]; then
+		whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')")
+	}
 done
 
 function echoerr() {

@@ -18,7 +18,7 @@ def plot_worker_usage(pd_csv):
         plt.legend()
 
         # Reduziere die Anzahl der x-Achsenbeschriftungen
-        num_ticks = 10
+        num_ticks = min(10, len(data['time']))
         x_ticks_indices = range(0, len(data['time']), len(data['time']) // num_ticks)
         x_tick_labels = [data['time'][i] for i in x_ticks_indices]
         plt.xticks(x_ticks_indices, x_tick_labels, rotation=45)

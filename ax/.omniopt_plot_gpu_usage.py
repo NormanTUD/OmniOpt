@@ -50,7 +50,7 @@ def plot_gpu_usage(run_dir):
         for bus_id, group in grouped_data:
             group['utilization.gpu [%]'] = group['utilization.gpu [%]'].str.replace('%', '').astype(float)
             group = group.dropna(subset=['timestamp'])
-            axs[i].plot(group['timestamp'], group['utilization.gpu [%]'], label=f'pci.bus_id: {bus_id}')
+            axs[i].scatter(group['timestamp'], group['utilization.gpu [%]'], label=f'pci.bus_id: {bus_id}')
 
         axs[i].set_xlabel('Time')
         axs[i].set_ylabel('GPU Usage (%)')

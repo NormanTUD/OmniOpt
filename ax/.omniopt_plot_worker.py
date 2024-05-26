@@ -50,6 +50,9 @@ def plot_worker_usage(pd_csv):
             print("No data could be found!")
             sys.exit(53)
 
+        duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
+        data = data[~duplicate_mask].reset_index(drop=True)
+
         data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
 
         plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers')

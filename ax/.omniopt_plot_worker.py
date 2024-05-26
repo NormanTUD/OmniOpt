@@ -117,6 +117,18 @@ def main():
 
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
+
+    parser.add_argument('--min', type=float, help='Minimum value for result filtering (useless here)')
+    parser.add_argument('--darkmode', help='Enable darktheme (useless here)', action='store_true', default=False)
+    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
+    parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)
+    parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
+    parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with (useless here)", default=[])
+    parser.add_argument('--result_column', type=str, help='Name of the result column (useless here)', default="result")
+    parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
+    parser.add_argument('--max', type=float, help='Maximum value for result filtering (useless here)')
+    parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
+    parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
     args = parser.parse_args()
 
     if args.debug:

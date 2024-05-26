@@ -32,6 +32,9 @@ def plot_gpu_usage(run_dir):
                 gpu_data.append(df)
                 num_plots += 1
 
+    if len(_paths) == 0:
+        print(f"No gpu_usage_*.csv files could be found in {run_dir}")
+
     if not gpu_data:
         print("No GPU usage data found.")
         return

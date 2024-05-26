@@ -74,7 +74,10 @@ def plot_worker_usage(pd_csv):
         plt.gcf().autofmt_xdate()  # Rotate and align the x labels
 
         plt.tight_layout()
-        plt.show()
+        if args.save_to_file:
+            plt.savefig(args.save_to_file)
+        else:
+            plt.show()
     except FileNotFoundError:
         log_error(f"File '{pd_csv}' not found.")
     except AssertionError as e:

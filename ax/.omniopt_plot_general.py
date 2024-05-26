@@ -12,33 +12,33 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def plot_boxplot(df, ax):
-    sns.boxplot(x='generation_method', y='result', data=df, ax=ax)
-    ax.set_title('Results by Generation Method')
-    ax.set_xlabel('Generation Method')
-    ax.set_ylabel('Result')
+def plot_boxplot(dataframe, axis):
+    sns.boxplot(x='generation_method', y='result', data=dataframe, ax=axis)
+    axis.set_title('Results by Generation Method')
+    axis.set_xlabel('Generation Method')
+    axis.set_ylabel('Result')
 
-def plot_barplot(df, ax):
-    sns.countplot(x='trial_status', data=df, ax=ax)
-    ax.set_title('Distribution of Trial Status')
-    ax.set_xlabel('Trial Status')
-    ax.set_ylabel('Count')
+def plot_barplot(dataframe, axis):
+    sns.countplot(x='trial_status', data=dataframe, ax=axis)
+    axis.set_title('Distribution of Trial Status')
+    axis.set_xlabel('Trial Status')
+    axis.set_ylabel('Count')
 
-def plot_correlation_matrix(df, ax):
-    exclude_cols = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
-    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
-    numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
-    corr_matrix = df[numeric_cols].corr()
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=ax)
-    ax.set_title('Correlation Matrix')
+def plot_correlation_matrix(dataframe, axis):
+    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
+    numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
+    correlation_matrix = dataframe[numeric_columns].corr()
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=axis)
+    axis.set_title('Correlation Matrix')
 
-def plot_distribution_by_generation(df, ax):
-    hist = sns.histplot(data=df, x='result', hue='generation_method', multiple="stack", kde=True, bins=20, ax=ax)
-    for patch in hist.patches:
+def plot_distribution_by_generation(dataframe, axis):
+    histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=20, ax=axis)
+    for patch in histogram.patches:
         patch.set_alpha(0.5)
-    ax.set_title('Distribution of Results by Generation Method')
-    ax.set_xlabel('Result')
-    ax.set_ylabel('Frequency')
+    axis.set_title('Distribution of Results by Generation Method')
+    axis.set_xlabel('Result')
+    axis.set_ylabel('Frequency')
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -48,7 +48,6 @@ def parse_arguments():
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering')
     parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
@@ -59,44 +58,45 @@ def parse_arguments():
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
-
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
 
     return parser.parse_args()
 
-def filter_data(df, min_value=None, max_value=None):
+def filter_data(dataframe, min_value=None, max_value=None):
     if min_value is not None:
-        df = df[df['result'] >= min_value]
+        dataframe = dataframe[dataframe['result'] >= min_value]
     if max_value is not None:
-        df = df[df['result'] <= max_value]
-    return df
+        dataframe = dataframe[dataframe['result'] <= max_value]
+    return dataframe
 
 def update_graph():
     try:
-        df = pd.read_csv(pd_csv)
+        dataframe = pd.read_csv(pd_csv)
 
         if args.min is not None or args.max is not None:
-            df = filter_data(df, args.min, args.max)
+            dataframe = filter_data(dataframe, args.min, args.max)
 
-        if df.empty:
+        if dataframe.empty:
             logging.warning("DataFrame is empty after filtering.")
             return
 
-        for ax in axes.flatten():
-            ax.clear()
+        for axis in axes.flatten():
+            axis.clear()
 
-        plot_boxplot(df, axes[0, 0])
-        plot_barplot(df, axes[0, 1])
-        plot_correlation_matrix(df, axes[1, 0])
-        plot_distribution_by_generation(df, axes[1, 1])
+        plot_boxplot(dataframe, axes[0, 0])
+        plot_barplot(dataframe, axes[0, 1])
+        plot_correlation_matrix(dataframe, axes[1, 0])
+        plot_distribution_by_generation(dataframe, axes[1, 1])
 
-        # Clear previous legends
-        axes[1, 0].get_legend().remove()
+        for axis in axes.flatten():
+            if axis.get_legend() is not None:
+                axis.get_legend().remove()
+
         fig.canvas.draw()
     except FileNotFoundError:
         logging.error("File not found: %s", pd_csv)
-    except Exception as e:
-        logging.error("An unexpected error occurred: %s", str(e))
+    except Exception as exception:
+        logging.error("An unexpected error occurred: %s", str(exception))
 
 def on_key_press(event):
     if event.keysym == 'F5':
@@ -107,21 +107,20 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     if not args.run_dir:
-        print("--run_dir not specified")
+        logging.error("--run_dir not specified")
         sys.exit(33)
 
     if not os.path.exists(args.run_dir):
-        print("--run_dir not specified")
+        logging.error("Specified --run_dir does not exist")
         sys.exit(34)
 
     pd_csv = os.path.join(args.run_dir, "pd.csv")
     if not os.path.exists(pd_csv):
-        print(f"{pd_csv} could not be found")
+        logging.error(f"{pd_csv} could not be found")
         sys.exit(35)
 
     root = tk.Tk()
     root.title("Data Plotting Tool")
-
     root.geometry("800x800")
 
     main_frame = ttk.Frame(root, padding=10)
@@ -139,12 +138,11 @@ if __name__ == "__main__":
     update_button = ttk.Button(button_frame, text="Update Graph", command=update_graph)
     update_button.pack(side=tk.LEFT, padx=5, pady=0)
 
-    quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
-    quit_button.pack(side=tk.RIGHT, padx=5, pady=10)
+    quit_button = ttk.Button(button_frame, text="Quit", command=root.quit)
+    quit_button.pack(side=tk.RIGHT, padx=5, pady=0)
 
     root.bind('<KeyPress>', on_key_press)
 
     update_graph()
-
     root.mainloop()
 

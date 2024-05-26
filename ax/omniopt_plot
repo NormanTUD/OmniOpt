@@ -50,7 +50,8 @@ function ask_min_max {
 			minvalue="$maxvalue"
 			maxvalue="$temp"
 		else
-			echo "minvalue is less than or equal to maxvalue. No need to swap."
+			#echo "minvalue is less than or equal to maxvalue. No need to swap."
+			true
 		fi
 	fi
 }

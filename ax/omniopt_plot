@@ -236,11 +236,22 @@ if [[ "$plot_type" == "default" ]]; then
 		#minmaxstring="Neither min nor max were set"
 		true
 	elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
-		minmaxstring="(max: $maxvalue)"
+		minmaxstring=" (max: $maxvalue)"
 	elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
 		minmaxstring=" (min: $minvalue)"
 	else
 		minmaxstring=" (min: $minvalue, max: $maxvalue)"
+	fi
+
+	if [[ -z $min ]] && [[ -z $max ]]; then
+		#minmaxstring="Neither min nor max were set"
+		true
+	elif [[ -z $min ]] && ! [[ -z $max ]]; then 
+		minmaxstring="(max: $max)"
+	elif ! [[ -z $min ]] && [[ -z $max ]]; then 
+		minmaxstring=" (min: $min)"
+	else
+		minmaxstring=" (min: $min, max: $max)"
 	fi
 
 	WHATTODO=$(whiptail \

@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 def plot_worker_usage(pd_csv):
     try:
         data = pd.read_csv(pd_csv)
+
+        data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(x).strftime('%Y-%m-%d %H:%M:%S'))
+
         plt.plot(data['time'], data['num_parallel_jobs'], label='Number of Parallel Jobs')
         plt.plot(data['time'], data['nr_current_workers'], label='Number of Current Workers')
         plt.xlabel('Time')

@@ -32,6 +32,10 @@ def parse_arguments():
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
 
+    #parser.add_argument('--min', type=float, help='Minimum value', default=None)
+
+    parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
+
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
     return parser.parse_args()
 
@@ -66,7 +70,8 @@ def plot_histograms(dataframe, main_frame):
         ax.set_title(f'Histogram for {col}')
         ax.set_xlabel(col)
         ax.set_ylabel('Count')
-        ax.legend(loc='upper right')
+        if not args.no_legend:
+            ax.legend(loc='upper right')
 
     # Hide any unused subplots
     for j in range(num_plots, len(axes)):

@@ -78,4 +78,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     plot_gpu_usage(args.run_dir)
-

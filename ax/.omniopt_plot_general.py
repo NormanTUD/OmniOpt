@@ -68,7 +68,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering')
-    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
+    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s) (useless)')
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")

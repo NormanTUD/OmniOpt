@@ -37,7 +37,7 @@ def looks_like_int(x):
         return bool(re.match(r'^\d+$', x))
     return False
 
-def plot_worker_usage(pd_csv):
+def plot_worker_usage(args, pd_csv):
     try:
         data = pd.read_csv(pd_csv)
 
@@ -117,7 +117,7 @@ def main():
         worker_usage_csv = os.path.join(args.run_dir, "worker_usage.csv")
         if os.path.exists(worker_usage_csv):
             try:
-                plot_worker_usage(worker_usage_csv)
+                plot_worker_usage(args, worker_usage_csv)
             except Exception as e:
                 log_error(f"Error: {e}")
                 sys.exit(3)

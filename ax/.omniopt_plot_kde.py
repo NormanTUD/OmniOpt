@@ -57,7 +57,7 @@ def plot_histograms(dataframe, main_frame):
         bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
         colormap = plt.cm.get_cmap('RdYlGn_r')  # Reverse RdYlGn colormap
 
-        for j in range(10):
+        for j in range(args.bins):
             color = colormap(j / 9)  # Calculate color based on colormap
             bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j+1])
             bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j+1]:.2f}'

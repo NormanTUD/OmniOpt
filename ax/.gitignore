@@ -178,3 +178,5 @@ nohup.out
 output.gif
 *.svg
 old_runs
+*.png
+*.jpg

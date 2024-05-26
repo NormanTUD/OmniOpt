@@ -17,7 +17,7 @@ def plot_worker_usage(pd_csv):
     #try:
     data = pd.read_csv(pd_csv)
 
-    if data "time" not in data.columns:
+    if data and "time" not in data.columns:
         print("time column could not be found. Is the header line 'time,num_parallel_jobs,nr_current_workers,percentage' missing?")
         sys.exit(52)
     elif not data:

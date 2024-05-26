@@ -1,3 +1,5 @@
+# DESCRIPTION: Scatter plot
+
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 

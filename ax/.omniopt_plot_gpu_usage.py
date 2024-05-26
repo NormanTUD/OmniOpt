@@ -15,10 +15,14 @@ def dier(msg):
 def plot_gpu_usage(run_dir):
     gpu_data = []
     num_plots = 0
+
+    _paths = []
+
     for root, dirs, files in os.walk(run_dir):
         for file in files:
             if file.startswith("gpu_usage_") and file.endswith(".csv"):
                 file_path = os.path.join(root, file)
+                _paths.append(file_path)
                 # Einlesen der Daten mit expliziter Angabe der Spaltennamen
                 df = pd.read_csv(file_path,
                                  names=["timestamp", "name", "pci.bus_id", "driver_version", "pstate",
@@ -41,12 +45,17 @@ def plot_gpu_usage(run_dir):
         df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y/%m/%d %H:%M:%S.%f', errors='coerce')
         df = df.sort_values(by='timestamp')
 
-        df['utilization.gpu [%]'] = df['utilization.gpu [%]'].str.replace('%', '').astype(float)
-        df = df.dropna(subset=['timestamp'])  # Entfernen von ungültigen Zeitstempeln
-        axs[i].plot(df['timestamp'], df['utilization.gpu [%]'])
+        # Gruppieren der Daten nach pci.bus_id
+        grouped_data = df.groupby('pci.bus_id')
+        for bus_id, group in grouped_data:
+            group['utilization.gpu [%]'] = group['utilization.gpu [%]'].str.replace('%', '').astype(float)
+            group = group.dropna(subset=['timestamp'])  # Entfernen von ungültigen Zeitstempeln
+            axs[i].plot(group['timestamp'], group['utilization.gpu [%]'], label=f'pci.bus_id: {bus_id}')
+
         axs[i].set_xlabel('Time')
         axs[i].set_ylabel('GPU Usage (%)')
-        axs[i].set_title(f'GPU Usage Over Time - {os.path.basename(file_path)}')
+        axs[i].set_title(f'GPU Usage Over Time - {os.path.basename(_paths[i])}')
+        axs[i].legend()
 
     plt.subplots_adjust(bottom=0.2, hspace=0.35)
     plt.show()

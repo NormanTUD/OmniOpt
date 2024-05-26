@@ -21,24 +21,6 @@ whiptail_args=()
 
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
 	expected_plot_types+=("$possible_plot_type")
-
-	expected_files=()
-	for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
-		echo "$possible_plot_type: $expected_files"
-		expected_files+=("$run_dir/$expected_file")
-	done
-
-	ALL_FILES_THERE=1
-
-	for expected_file in "${expected_files[@]}"; do
-		if [[ $(ls $expected_file | wc -l) -lt 1 ]]; then
-			ALL_FILES_THERE=0
-		fi
-	done
-
-	if [[ $ALL_FILES_THERE -eq 1 ]]; then
-		whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')")
-	fi
 done
 
 function echoerr() {
@@ -122,6 +104,30 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	eval `resize`
+
+	for possible_plot_type in "${expected_plot_types[@]}"; do
+		if [[ "$possible_plot_type" == "default" ]]; then
+			continue
+		fi
+
+		expected_files=()
+		for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
+			echo "$possible_plot_type: $expected_files"
+			expected_files+=("$run_dir/$expected_file")
+		done
+
+		ALL_FILES_THERE=1
+
+		for expected_file in "${expected_files[@]}"; do
+			if [[ $(ls $expected_file | wc -l 2>/dev/null) -lt 1 ]]; then
+				ALL_FILES_THERE=0
+			fi
+		done
+
+		if [[ $ALL_FILES_THERE -eq 1 ]]; then
+			whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')")
+		fi
+	done
 
 	WHATTODO=$(whiptail \
 		--title "Available options for $run_dir" \

@@ -21,6 +21,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
 
+    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     return parser.parse_args()
 
@@ -43,14 +44,14 @@ def plot_histograms(dataframe, main_frame):
         ax = axes[i]
         values = dataframe[col]
         result_values = dataframe['result']
-        bin_edges = np.linspace(result_values.min(), result_values.max(), 11)  # Divide the range into 10 equal bins
+        bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
         colormap = plt.cm.get_cmap('RdYlGn_r')  # Reverse RdYlGn colormap
 
         for j in range(10):
             color = colormap(j / 9)  # Calculate color based on colormap
             bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j+1])
             bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j+1]:.2f}'
-            ax.hist(values[bin_mask], bins=10, alpha=0.7, color=color, label=f'{bin_range}')
+            ax.hist(values[bin_mask], bins=args.bins, alpha=0.7, color=color, label=f'{bin_range}')
 
         ax.set_title(f'Histogram for {col}')
         ax.set_xlabel(col)

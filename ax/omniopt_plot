@@ -115,7 +115,6 @@ if [[ "$plot_type" == "default" ]]; then
 
 		expected_files=()
 		for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
-			echo "$possible_plot_type: $expected_file"
 			expected_files+=("$expected_file")
 		done
 
@@ -126,6 +125,8 @@ if [[ "$plot_type" == "default" ]]; then
 				ALL_FILES_THERE=0
 			fi
 		done
+
+		echo "ALL_FILES_THERE: $ALL_FILES_THERE for $possible_plot_type"
 
 		if [[ $ALL_FILES_THERE -eq 1 ]]; then
 			whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')")

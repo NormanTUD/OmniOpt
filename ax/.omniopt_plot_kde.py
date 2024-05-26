@@ -32,7 +32,7 @@ def parse_arguments():
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
 
-    #parser.add_argument('--min', type=float, help='Minimum value', default=None)
+    parser.add_argument('--alpha', type=float, help='Transparency of plot bars', default=0.5)
 
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
 
@@ -65,7 +65,7 @@ def plot_histograms(dataframe, main_frame):
             color = colormap(j / 9)  # Calculate color based on colormap
             bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j+1])
             bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j+1]:.2f}'
-            ax.hist(values[bin_mask], bins=args.bins, alpha=0.7, color=color, label=f'{bin_range}')
+            ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
 
         ax.set_title(f'Histogram for {col}')
         ax.set_xlabel(col)

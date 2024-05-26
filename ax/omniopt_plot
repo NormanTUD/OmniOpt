@@ -1,6 +1,11 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export ORIGINAL_PWD=$(pwd)
+
+for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
+	expected_plot_types+=("$possible_plot_type")
+done
 
 function echoerr() {
         echo "$@" 1>&2
@@ -21,7 +26,7 @@ function calltracer () {
 }
 trap 'calltracer' ERR
 
-plot_type="default"
+plot_type="scatter"
 help=0
 
 for i in $@; do
@@ -38,9 +43,13 @@ for i in $@; do
         esac
 done
 
+
+if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
+    echo "Wrong plot type: $plot_type"
+fi
+
 #SBATCH --signal=B:USR1@120
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
@@ -60,24 +69,14 @@ source $SCRIPT_DIR/.general.sh
 
 echo "Showing plot type: $plot_type"
 
-set +e
-if [[ "$plot_type" == "default" ]]; then
-	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot.py $* 2>&1)
-	exit_code=$?
-elif [[ "$plot_type" == "general" ]]; then
-	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_general.py $* 2>&1)
-	exit_code=$?
-elif [[ "$plot_type" == "worker" ]]; then
-	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_worker.py $* 2>&1)
-	exit_code=$?
-elif [[ "$plot_type" == "kde" ]]; then
-	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_kde.py $* 2>&1)
-	exit_code=$?
-else
-	echo "Unknown --plot_type: $plot_type"
-	false
-	exit_code=$?
+if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
+	echo "Invalid plot type $plot_type"
+	exit 5
 fi
+
+set +e
+OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py $* 2>&1)
+exit_code=$?
 set -e
 
 if [[ "$exit_code" -ne "0" ]]; then

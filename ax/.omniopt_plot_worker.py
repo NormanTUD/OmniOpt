@@ -1,4 +1,5 @@
 # DESCRIPTION: Plot number of workers over time
+# EXPECTED FILES: worker_usage.csv
 
 import re
 import traceback

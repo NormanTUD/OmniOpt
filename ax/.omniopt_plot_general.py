@@ -82,6 +82,8 @@ def update_graph():
 
         for axis in axes.flatten():
             axis.clear()
+            if axis.get_legend() is not None:
+                axis.get_legend().remove()
 
         plot_boxplot(dataframe, axes[0, 0])
         plot_barplot(dataframe, axes[0, 1])

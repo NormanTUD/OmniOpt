@@ -19,8 +19,8 @@ function inputbox {
 }
 
 function ask_min_max {
-	min=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "$min")
-	max=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "$max")
+	min=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "")
+	max=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "")
 
 	if [ -n "$min" ]; then
 		# Check if $min is a number (integer or float, positive or negative)
@@ -47,7 +47,7 @@ function ask_min_max {
 			min="$max"
 			max="$temp"
 		else
-			#echo "min is less than or equal to max. No need to swap."
+			echo "min is less than or equal to max. No need to swap."
 			true
 		fi
 	fi
@@ -268,33 +268,26 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	if [[ "$WHATTODO" == "minmax)" ]]; then
-		echo "A"
 		ask_min_max
-		echo "B"
 
 		if [[ -z $min ]] && [[ -z $max ]]; then
 			#echo "Neither min nor max were set"
 			bash $SCRIPT_DIR/omniopt_plot --run_dir $run_dir $*
 		elif [[ -z $min ]] && ! [[ -z $max ]]; then 
 			echo "min was not set but max ($max)"
-			if [[ $max -ne $max ]]; then
-				bash $SCRIPT_DIR/omniopt_plot --max=$max --run_dir $run_dir $*
-				exit $?
-			fi
+			bash $SCRIPT_DIR/omniopt_plot --max=$max --run_dir $run_dir $*
+			exit $?
 		elif ! [[ -z $min ]] && [[ -z $max ]]; then 
-			if [[ $min -ne $min ]]; then
-				echo "min ($min) was set but max was not"
-				bash $SCRIPT_DIR/omniopt_plot --min=$min --run_dir $run_dir $*
-				exit $?
-			fi
+			echo "min ($min) was set but max was not"
+			bash $SCRIPT_DIR/omniopt_plot --min=$min --run_dir $run_dir $*
+			exit $?
 		else
-			if [[ $max -ne $max ]] && [[ $min -ne $min ]]; then
-				echo "min ($min) and max ($max) were set"
-				bash $SCRIPT_DIR/omniopt_plot --max=$min -max=$max --run_dir $run_dir $*
-				exit $?
-			fi
+			echo "min ($min) and max ($max) were set"
+			bash $SCRIPT_DIR/omniopt_plot --max=$min -max=$max --run_dir $run_dir $*
+			exit $?
 		fi
 
+		echo "This exit should never be reached"
 		exit
 	fi
 

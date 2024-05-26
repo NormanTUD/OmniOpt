@@ -49,6 +49,7 @@ def main():
     parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')
 
+    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     args = parser.parse_args()
 

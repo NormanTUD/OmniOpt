@@ -80,6 +80,8 @@ def parse_arguments():
 
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
+    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+
     return parser.parse_args()
 
 def filter_data(dataframe, min_value=None, max_value=None):

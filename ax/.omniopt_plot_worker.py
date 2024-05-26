@@ -32,8 +32,6 @@ def plot_worker_usage(pd_csv):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
-
 def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
     parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')

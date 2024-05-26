@@ -18,6 +18,9 @@ def assert_condition(condition, error_text):
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)
 
+def log(message):
+    print(f"Log: {message}")
+
 def looks_like_number(x):
     return looks_like_float(x) or looks_like_int(x)
 
@@ -49,19 +52,36 @@ def plot_worker_usage(pd_csv):
         assert_condition("time" in data.columns, "The 'time' column is missing.")
         assert_condition(data is not None, "No data could be found in the CSV file.")
 
+        log(f"Initial data loaded:\n{data.head()}")
+
         duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
         data = data[~duplicate_mask].reset_index(drop=True)
+
+        log(f"Data after removing duplicates:\n{data.head()}")
 
         # Filter out invalid 'time' entries
         valid_times = data['time'].apply(looks_like_number)
         data = data[valid_times]
 
+        log(f"Data after filtering invalid 'time' entries:\n{data.head()}")
+
         data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
         data['time'] = pd.to_datetime(data['time'])
 
+        log(f"Data after converting 'time' to datetime:\n{data.head()}")
+
+        # Sort data by time
+        data = data.sort_values(by='time')
+        log(f"Data after sorting by 'time':\n{data.head()}")
+
         plt.figure(figsize=(12, 6))
+
+        # Plot Requested Number of Workers
         plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers', color='blue')
+
+        # Plot Number of Current Workers
         plt.plot(data['time'], data['nr_current_workers'], label='Number of Current Workers', color='orange')
+
         plt.xlabel('Time')
         plt.ylabel('Count')
         plt.title('Worker Usage Plot')
@@ -83,6 +103,7 @@ def plot_worker_usage(pd_csv):
     except Exception as e:
         log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')

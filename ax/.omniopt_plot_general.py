@@ -79,7 +79,6 @@ def parse_arguments():
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
 
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
 
     return parser.parse_args()
 

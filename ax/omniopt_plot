@@ -155,7 +155,6 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	plot_type=$WHATTODO
-	echo "$plot_type"
 	if [[ "$plot_type" == *"save_to_file"* ]]; then
 		plot_type=$(echo "$plot_type" | sed -e 's# .*##')
 		_save_to_file=1

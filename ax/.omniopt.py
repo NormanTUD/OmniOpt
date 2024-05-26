@@ -2741,10 +2741,7 @@ def execute_nvidia_smi():
             host = socket.gethostname()
 
             _file = nvidia_smi_logs_base + "_" + host + ".csv"
-            noheader = ""
-
-            if os.path.exists(_file):
-                noheader = ",noheader"
+            noheader = ",noheader"
 
             result = subprocess.run([
                 'nvidia-smi',

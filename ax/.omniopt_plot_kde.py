@@ -23,6 +23,8 @@ def parse_arguments():
 
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
+
+    parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
     return parser.parse_args()
 
 def plot_histograms(dataframe, main_frame):

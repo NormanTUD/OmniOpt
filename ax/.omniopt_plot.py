@@ -328,6 +328,7 @@ def get_args ():
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
+    parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
     args = parser.parse_args()
 

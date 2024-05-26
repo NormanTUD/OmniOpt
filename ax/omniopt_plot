@@ -161,7 +161,7 @@ if [[ "$plot_type" == "default" ]]; then
 		_save_to_file=1
 	fi
 
-	if [[ "$_save_to_file" == 1 ]]; then
+	if [[ "$_save_to_file" == "1" ]]; then
 		_path=$(whiptail --inputbox "Path of the plot?" 8 39 "$run_dir/$plot_type.svg" --title "Choose path" 3>&1 1>&2 2>&3)
 
 		exitstatus=$?
@@ -191,15 +191,15 @@ if [[ "$plot_type" != "default" ]]; then
 	fi
 fi
 
-set +e
-if [[ "_save_to_file" != "0" ]]; then
+set +ex
+if [[ "$_save_to_file" != "0" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
 	exit_code=$?
 else
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file $_save_to_file $* 2>&1)
 	exit_code=$?
 fi
-set -e
+set -ex
 
 if [[ "$exit_code" -ne "0" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then

@@ -331,6 +331,7 @@ def get_args ():
 
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
+    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
 
     args = parser.parse_args()
 

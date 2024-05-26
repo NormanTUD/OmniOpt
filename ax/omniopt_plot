@@ -3,7 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export ORIGINAL_PWD=$(pwd)
 
-expected_plot_types=()
+expected_plot_types=("default")
 
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
 	expected_plot_types+=("$possible_plot_type")
@@ -28,7 +28,7 @@ function calltracer () {
 }
 trap 'calltracer' ERR
 
-plot_type="scatter"
+plot_type="default"
 help=0
 
 for i in $@; do
@@ -47,6 +47,11 @@ done
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
     echo "Wrong plot type: $plot_type, but got $plot_type"
+fi
+
+if [[ "$plot_type" == "default" ]]; then
+	echo "default, start whiptail now"
+	exit 5
 fi
 
 #SBATCH --signal=B:USR1@120

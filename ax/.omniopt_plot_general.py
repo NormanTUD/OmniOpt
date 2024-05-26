@@ -37,7 +37,7 @@ def plot_correlation_matrix(dataframe, axis):
 
 def plot_distribution_by_generation(dataframe, axis):
     axis.clear()
-    histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=20, ax=axis)
+    histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=args.bins, ax=axis)
     for patch in histogram.patches:
         patch.set_alpha(0.5)
     axis.set_title('Distribution of Results by Generation Method')
@@ -63,6 +63,7 @@ def parse_arguments():
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
+    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
 
     return parser.parse_args()
 

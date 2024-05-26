@@ -2872,12 +2872,12 @@ def main():
 
     save_state_files(args, _time)
 
-    nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
-
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
     print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
     print_color("green", "OmniOpt")
+
+    nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
 
     check_python_version()
     warn_versions()

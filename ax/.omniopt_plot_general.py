@@ -27,6 +27,7 @@ def plot_barplot(dataframe, axis):
     axis.set_ylabel('Count')
 
 def plot_correlation_matrix(dataframe, axis):
+    axis.get_legend().remove()
     axis.clear()
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns

@@ -106,6 +106,21 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 fi
 
 if [[ "$plot_type" == "default" ]]; then
+	if [[ "$run_dir" == "" ]]; then
+		echo "--run_dir is missing"
+		exit 1
+	fi
+
+	if [[ -f "$run_dir" ]]; then
+		echo "--run_dir is a file"
+		exit 1
+	fi
+
+	if [[ ! -d "$run_dir" ]]; then
+		echo "--run_dir is not a directory"
+		exit 1
+	fi
+
 	eval `resize`
 
 	WHATTODO=$(whiptail \

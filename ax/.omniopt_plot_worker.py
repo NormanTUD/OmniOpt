@@ -11,23 +11,26 @@ from pprint import pprint
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def dier(msg):
-    pprint(msg)
-    sys.exit(1)
+def assert_condition(condition, error_text):
+    if not condition:
+        raise AssertionError(error_text)
 
-def looks_like_number (x):
+def log_error(error_text):
+    print(f"Error: {error_text}", file=sys.stderr)
+
+def looks_like_number(x):
     return looks_like_float(x) or looks_like_int(x)
 
 def looks_like_float(x):
     if isinstance(x, (int, float)):
-        return True  # int and float types are directly considered as floats
+        return True
     elif isinstance(x, str):
         try:
-            float(x)  # Try converting string to float
+            float(x)
             return True
         except ValueError:
-            return False  # If conversion fails, it's not a float-like string
-    return False  # If x is neither str, int, nor float, it's not float-like
+            return False
+    return False
 
 def looks_like_int(x):
     if isinstance(x, int):
@@ -36,47 +39,50 @@ def looks_like_int(x):
         return x.is_integer()
     elif isinstance(x, str):
         return bool(re.match(r'^\d+$', x))
-    else:
-        return False
+    return False
 
 def plot_worker_usage(pd_csv):
     try:
         data = pd.read_csv(pd_csv)
 
-        if len(data.columns) and "time" not in data.columns:
-            print("time column could not be found. Is the header line 'time,num_parallel_jobs,nr_current_workers,percentage' missing?")
-            sys.exit(52)
-        elif data is None:
-            print("No data could be found!")
-            sys.exit(53)
+        assert_condition(len(data.columns) > 0, "CSV file has no columns.")
+        assert_condition("time" in data.columns, "The 'time' column is missing.")
+        assert_condition(data is not None, "No data could be found in the CSV file.")
 
         duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
         data = data[~duplicate_mask].reset_index(drop=True)
 
-        data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
+        # Filter out invalid 'time' entries
+        valid_times = data['time'].apply(looks_like_number)
+        data = data[valid_times]
 
-        plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers')
-        plt.plot(data['time'], data['nr_current_workers'], label='Number of Current Workers')
+        data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
+        data['time'] = pd.to_datetime(data['time'])
+
+        plt.figure(figsize=(12, 6))
+        plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers', color='blue')
+        plt.plot(data['time'], data['nr_current_workers'], label='Number of Current Workers', color='orange')
         plt.xlabel('Time')
         plt.ylabel('Count')
         plt.title('Worker Usage Plot')
         plt.legend()
 
-        # Reduziere die Anzahl der x-Achsenbeschriftungen
         num_ticks = min(10, len(data['time']))
-        x_ticks_indices = range(0, len(data['time']), len(data['time']) // num_ticks)
-        x_tick_labels = [data['time'][i] for i in x_ticks_indices]
+        x_ticks_indices = range(0, len(data['time']), max(1, len(data['time']) // num_ticks))
+        x_tick_labels = [data['time'].dt.strftime('%Y-%m-%d %H:%M:%S').iloc[i] for i in x_ticks_indices]
         plt.xticks(x_ticks_indices, x_tick_labels, rotation=45)
 
-        plt.ylim(bottom=0.238)  # Setze bottom auf 0.238
+        plt.ylim(bottom=0.238)
 
-        plt.tight_layout()  # Optimiere Layout, um Überlappungen zu minimieren
+        plt.tight_layout()
         plt.show()
     except FileNotFoundError:
-        print(f"File '{pd_csv}' not found.")
+        log_error(f"File '{pd_csv}' not found.")
+    except AssertionError as e:
+        log_error(str(e))
     except Exception as e:
-        print(f"An error occurred: {e}")
-        print(traceback.format_exc())
+        log_error(f"An unexpected error occurred: {e}")
+        print(traceback.format_exc(), file=sys.stderr)
 
 def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
@@ -96,10 +102,11 @@ def main():
             try:
                 plot_worker_usage(worker_usage_csv)
             except Exception as e:
-                print(f"Error: {e}")
+                log_error(f"Error: {e}")
                 sys.exit(3)
         else:
-            print(f"File '{worker_usage_csv}' does not exist.")
+            log_error(f"File '{worker_usage_csv}' does not exist.")
 
 if __name__ == "__main__":
     main()
+

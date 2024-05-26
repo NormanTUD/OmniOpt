@@ -191,7 +191,7 @@ if [[ "$plot_type" != "default" ]]; then
 fi
 
 set +ex
-if [[ "$_save_to_file" != "0" ]]; then
+if [[ "$_save_to_file" == "0" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
 	exit_code=$?
 else

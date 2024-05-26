@@ -22,6 +22,8 @@ def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
     parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+
+    parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     args = parser.parse_args()
 
     if args.debug:

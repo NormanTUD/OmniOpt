@@ -1,18 +1,16 @@
 import os
 import sys
 import signal
-signal.signal(signal.SIGINT, signal.SIG_DFL)
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import argparse
+import logging
+import tkinter as tk
+from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-try:
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import argparse
-    import logging
-except ModuleNotFoundError as e:
-    print(f"Warning: {e}")
-    print("Please make sure to install the required modules.")
-    sys.exit(1)
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def plot_boxplot(df, ax):
     sns.boxplot(x='generation_method', y='result', data=df, ax=ax)
@@ -73,9 +71,37 @@ def filter_data(df, min_value=None, max_value=None):
         df = df[df['result'] <= max_value]
     return df
 
+def update_graph():
+    try:
+        df = pd.read_csv(pd_csv)
+
+        if args.min is not None or args.max is not None:
+            df = filter_data(df, args.min, args.max)
+
+        if df.empty:
+            logging.warning("DataFrame is empty after filtering.")
+            return
+
+        for ax in axes.flatten():
+            ax.clear()
+
+        plot_boxplot(df, axes[0, 0])
+        plot_barplot(df, axes[0, 1])
+        plot_correlation_matrix(df, axes[1, 0])
+        plot_distribution_by_generation(df, axes[1, 1])
+
+        fig.canvas.draw()
+    except FileNotFoundError:
+        logging.error("File not found: %s", pd_csv)
+    except Exception as e:
+        logging.error("An unexpected error occurred: %s", str(e))
+
+def on_key_press(event):
+    if event.keysym == 'F5':
+        update_graph()
+
 if __name__ == "__main__":
     setup_logging()
-
     args = parse_arguments()
 
     if not args.run_dir:
@@ -86,47 +112,32 @@ if __name__ == "__main__":
         print("--run_dir not specified")
         sys.exit(34)
 
-    pd_csv = args.run_dir + "/pd.csv"
+    pd_csv = os.path.join(args.run_dir, "pd.csv")
     if not os.path.exists(pd_csv):
         print(f"{pd_csv} could not be found")
         sys.exit(35)
 
-    try:
-        df = pd.read_csv(pd_csv)
+    root = tk.Tk()
+    root.title("Data Plotting Tool")
 
-        if not "result" in df:
-            print(f"Error: the file {pd_csv} has no result column. Cannot continue.")
-            sys.exit(10)
+    frame = ttk.Frame(root, padding=10)
+    frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
-        if args.min is not None or args.max is not None:
-            df = filter_data(df, args.min, args.max)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    fig.subplots_adjust(left=0.071, bottom=0.07, right=0.983, top=0.926, wspace=0.167, hspace=0.276)
 
-        if df.empty:
-            logging.warning("DataFrame is empty after filtering.")
-            sys.exit()
+    canvas = FigureCanvasTkAgg(fig, master=frame)
+    canvas.get_tk_widget().grid(row=0, column=0, columnspan=2)
 
-        left = 0.071
-        bottom = 0.07
-        right = 0.983
-        top = 0.926
-        wspace = 0.167
-        hspace = 0.276
+    update_button = ttk.Button(frame, text="Update Graph", command=update_graph)
+    update_button.grid(row=1, column=0, pady=10)
 
-        fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    quit_button = ttk.Button(frame, text="Quit", command=root.destroy)
+    quit_button.grid(row=1, column=1, pady=10)
 
-        plot_boxplot(df, axes[0, 0])
-        plot_barplot(df, axes[0, 1])
-        plot_correlation_matrix(df, axes[1, 0])
-        plot_distribution_by_generation(df, axes[1, 1])
+    root.bind('<KeyPress>', on_key_press)
 
-        fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
+    update_graph()
 
-        if args.save_to_file:
-            plt.savefig(args.save_to_file)
-        else:
-            plt.show()
+    root.mainloop()
 
-    except FileNotFoundError:
-        logging.error("File not found: %s", pd_csv)
-    except Exception as e:
-        logging.error("An unexpected error occurred: %s", str(e))

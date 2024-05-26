@@ -2,17 +2,71 @@
 
 _save_to_file=0
 
+function inputbox {
+	TITLE=$1
+	MSG=$2
+	DEFAULT=$3
+
+	eval `resize`
+	RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
+	exitstatus=$?
+	if [[ $exitstatus == 0 ]]; then
+		echo "$RESULT"
+	else
+		echo_red "You chose to cancel (1)"
+		exit 1
+	fi
+}
+
+minvalue=
+maxvalue=
+
+function ask_min_max {
+	minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "")
+	maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "")
+
+	if [ -n "$minvalue" ]; then
+		# Check if $minvalue is a number (integer or float, positive or negative)
+		if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+			echo "\$minvalue is not a valid number. Setting it to empty."
+			minvalue=""
+		fi
+	fi
+
+
+	if [ -n "$maxvalue" ]; then
+		# Check if $maxvalue is a number (integer or float, positive or negative)
+		if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+			echo "\$maxvalue is not a valid number. Setting it to empty."
+			maxvalue=""
+		fi
+	fi
+
+	if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
+		# Check if minvalue is greater than maxvalue
+		if (( $(echo "$maxvalue > $minvalue" |bc -l) )); then
+			# Swap values
+			temp="$minvalue"
+			minvalue="$maxvalue"
+			maxvalue="$temp"
+		else
+			echo "minvalue is less than or equal to maxvalue. No need to swap."
+		fi
+	fi
+}
+
+
 function displaytime {
 	local T=$1
-		local D=$((T/60/60/24))
-		local H=$((T/60/60%24))
-		local M=$((T/60%60))
-		local S=$((T%60))
-		(( $D > 0 )) && printf '%d days ' $D
-		(( $H > 0 )) && printf '%d hours ' $H
-		(( $M > 0 )) && printf '%d minutes ' $M
-		(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-		printf '%d seconds\n' $S
+	local D=$((T/60/60/24))
+	local H=$((T/60/60%24))
+	local M=$((T/60%60))
+	local S=$((T%60))
+	(( $D > 0 )) && printf '%d days ' $D
+	(( $H > 0 )) && printf '%d hours ' $H
+	(( $M > 0 )) && printf '%d minutes ' $M
+	(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+	printf '%d seconds\n' $S
 }
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -110,6 +164,10 @@ if [[ "$plot_type" == "default" ]]; then
 
 	eval `resize`
 
+
+ask_min_max
+exit
+
 	for possible_plot_type in "${expected_plot_types[@]}"; do
 		if [[ "$possible_plot_type" == "default" ]]; then
 			continue
@@ -158,11 +216,16 @@ if [[ "$plot_type" == "default" ]]; then
 		--menu \
 		"Chose what plot to open:" \
 		$LINES $COLUMNS $(( $LINES - 8 )) \
+		"minmax)" "set min/max values"
 		"${whiptail_args[@]}" \
 		"q)" "quit" 3>&1 1>&2 2>&3
 	)
 
 	if [[ "$WHATTODO" == "q)" ]]; then
+		exit 0
+	fi
+
+	if [[ "$WHATTODO" == "minmax)" ]]; then
 		exit 0
 	fi
 

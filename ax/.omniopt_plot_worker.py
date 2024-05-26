@@ -6,6 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pprint import pprint
 
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 def dier(msg):
     pprint(msg)
     sys.exit(1)

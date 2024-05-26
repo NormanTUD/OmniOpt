@@ -19,7 +19,7 @@ def setup_logging():
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-    parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
+    parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
     return parser.parse_args()
 
 def plot_histograms(dataframe, main_frame):

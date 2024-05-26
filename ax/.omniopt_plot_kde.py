@@ -25,7 +25,7 @@ def parse_arguments():
 def plot_histograms(dataframe, main_frame):
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
-    
+
     num_plots = len(numeric_columns)
     num_rows = 1
     num_cols = num_plots
@@ -42,11 +42,12 @@ def plot_histograms(dataframe, main_frame):
         values = dataframe[col]
         bin_edges = np.linspace(values.min(), values.max(), 11)  # Divide the range into 10 equal bins
         colormap = plt.cm.get_cmap('RdYlGn_r')  # Reverse RdYlGn colormap
-        
+
         for j in range(10):
             color = colormap(j / 9)  # Calculate color based on colormap
             bin_mask = (values >= bin_edges[j]) & (values <= bin_edges[j+1])
-            ax.hist(values[bin_mask], bins=10, alpha=0.7, color=color, label=f'Bin {j+1}')
+            bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j+1]:.2f}'
+            ax.hist(values[bin_mask], bins=10, alpha=0.7, color=color, label=f'{bin_range}')
 
         ax.set_title(f'Histogram for {col}')
         ax.set_xlabel(col)
@@ -61,7 +62,6 @@ def plot_histograms(dataframe, main_frame):
     canvas = FigureCanvasTkAgg(fig, master=main_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
 
 def update_graph():
     pd_csv = args.run_dir + "/pd.csv"

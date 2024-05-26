@@ -151,9 +151,10 @@ while os.path.exists(logfile):
 logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
 logfile_linewise = f'{log_dir}/{log_i}_linewise'
 logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
-nvidia_smi_logs_base = f'{log_dir}/{log_i}_nvidia_smi_logs'
 logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
 logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
+
+nvidia_smi_logs_base = None
 
 def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
     if _lvl > 3:
@@ -2856,6 +2857,9 @@ def main():
     global global_vars
     global folder_number
     global current_run_folder
+
+    global nvidia_smi_logs_base
+    nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage.csv'
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
 

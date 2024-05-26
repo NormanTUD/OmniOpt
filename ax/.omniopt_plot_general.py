@@ -132,7 +132,7 @@ if __name__ == "__main__":
         sys.exit(35)
 
     root = tk.Tk()
-    root.title("Data Plotting Tool")
+    root.title("General info for run " + args.run_dir)
     root.geometry("800x800")
 
     main_frame = ttk.Frame(root, padding=10)
@@ -157,4 +157,3 @@ if __name__ == "__main__":
 
     update_graph()
     root.mainloop()
-

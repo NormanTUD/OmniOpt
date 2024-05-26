@@ -120,20 +120,25 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Data Plotting Tool")
 
+    root.geometry("800x800")
+
     frame = ttk.Frame(root, padding=10)
-    frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+    frame.pack(fill=tk.BOTH, expand=True)
 
     fig, axes = plt.subplots(2, 2, figsize=(10, 10))
     fig.subplots_adjust(left=0.071, bottom=0.07, right=0.983, top=0.926, wspace=0.167, hspace=0.276)
 
     canvas = FigureCanvasTkAgg(fig, master=frame)
-    canvas.get_tk_widget().grid(row=0, column=0, columnspan=2)
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    update_button = ttk.Button(frame, text="Update Graph", command=update_graph)
-    update_button.grid(row=1, column=0, pady=10)
+    button_frame = ttk.Frame(root, padding=10)
+    button_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-    quit_button = ttk.Button(frame, text="Quit", command=root.destroy)
-    quit_button.grid(row=1, column=1, pady=10)
+    update_button = ttk.Button(button_frame, text="Update Graph", command=update_graph)
+    update_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    quit_button = ttk.Button(button_frame, text="Quit", command=root.destroy)
+    quit_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
     root.bind('<KeyPress>', on_key_press)
 

@@ -181,15 +181,9 @@ function list_option_for_job {
 	if [[ -e $THISPDCSV ]]; then
 		if [[ ! -z $DISPLAY ]]; then
 			args+=(
-				"p)" "2d scatter-plots" 
-				"P)" "2d scatterplots with min/max value" 
-				"pg)" "plot general job info" 
+				"plot)" "different plotting options" 
 			)
 		fi
-		args+=(
-			"psvg)" "2d scatterplots to svg file" 
-			"pg)" "plot general job info" 
-		)
 	fi
 
 	if [[ -e $THISMAINCSV ]]; then
@@ -311,22 +305,7 @@ close $fh;
 
 			list_option_for_job $PROJECT $NUMBER
 
-		elif [[ "$WHATTODO" =~ "pg)" ]]; then
-			echo "Warning: Depending on your job size, generating this graph may take a while"
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
-				set +e
-				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --plot_type=general)
-				if [[ $? -ne 0 ]]; then
-					error_message "$OUTPUT"
-				fi
-				set -e
-			else
-				eval `resize`
-				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
-			fi
-			list_option_for_job $PROJECT $NUMBER
-
-		elif [[ "$WHATTODO" =~ "p)" ]]; then
+		elif [[ "$WHATTODO" =~ "plot)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				set +e
 				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
@@ -340,36 +319,6 @@ close $fh;
 			fi
 			list_option_for_job $PROJECT $NUMBER
 
-		elif [[ "$WHATTODO" =~ "psvg)" ]]; then
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
-				SVGDIR=$PROJECTDIR/$PROJECT/$NUMBER/2d-scatterplots/
-				mkdir -p $SVGDIR
-				export PLOTPATH=$SVGDIR/${PROJECT}.svg
-				export CNT=0
-				while [[ -e $PLOTPATH ]]; do
-					export CNT=$(($CNT+1))
-					export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}.svg
-				done
-
-				set +e
-				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
-				if [[ $? -ne 0 ]]; then
-					error_message "$OUTPUT"
-				fi
-				set -e
-
-				eval `resize`
-				if [[ -e "$PLOTPATH" ]]; then
-					whiptail --title "File saved" --msgbox "The file >$PLOTPATH< was saved." $LINES $COLUMNS $(( $LINES - 8 ))
-				else
-					whiptail --title "File NOT saved" --msgbox "The file >$PLOTPATH< could not be saved." $LINES $COLUMNS $(( $LINES - 8 ))
-				fi
-
-			else
-				eval `resize`
-				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
-			fi
-			list_option_for_job $PROJECT $NUMBER
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
 				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
@@ -436,95 +385,6 @@ close $fh;
 						fi
 						set -e
 					fi
-				fi
-			else
-				eval `resize`
-				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
-			fi
-
-			list_option_for_job $PROJECT $NUMBER
-		elif [[ "$WHATTODO" =~ "Psvg)" ]]; then
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
-				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
-				maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
-
-				if [ -n "$minvalue" ]; then
-					# Check if $minvalue is a number (integer or float, positive or negative)
-					if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$minvalue is not a valid number. Setting it to empty."
-						minvalue=""
-					fi
-				fi
-
-
-				if [ -n "$maxvalue" ]; then
-					# Check if $maxvalue is a number (integer or float, positive or negative)
-					if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$maxvalue is not a valid number. Setting it to empty."
-						maxvalue=""
-					fi
-				fi
-
-				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
-					# Check if minvalue is greater than maxvalue
-					if (( $(echo "$maxvalue > $minvalue" |bc -l) )); then
-						# Swap values
-						temp="$minvalue"
-						minvalue="$maxvalue"
-						maxvalue="$temp"
-					else
-						echo "minvalue is less than or equal to maxvalue. No need to swap."
-					fi
-				fi
-
-				SVGDIR=$PROJECTDIR/$PROJECT/$NUMBER/2d-scatterplots/
-				mkdir -p $SVGDIR
-				export PLOTPATH=$SVGDIR/${PROJECT}.svg
-				export CNT=0
-				while [[ -e $PLOTPATH ]]; do
-					export CNT=$(($CNT+1))
-					export PLOTPATH=$SVGDIR/${PROJECT}_${CNT}.svg
-				done
-
-				if [[ -z "$minvalue" ]]; then
-					if [[ -z "$maxvalue" ]]; then
-						set +e
-						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --save_to_file $PLOTPATH)
-						if [[ $? -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					else
-						set +e
-						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue --save_to_file $PLOTPATH)
-						if [[ $? -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					fi
-				else
-					if [[ -z "$maxvalue" ]]; then
-						set +e
-						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --save_to_file $PLOTPATH)
-						if [[ $? -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					else
-						set +e
-						OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue --save_to_file $PLOTPATH)
-						if [[ $? -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					fi
-				fi
-
-				eval `resize`
-				if [[ -e "$PLOTPATH" ]]; then
-					whiptail --title "File saved" --msgbox "The file >$PLOTPATH< was saved." $LINES $COLUMNS $(( $LINES - 8 ))
-				else
-					whiptail --title "File NOT saved" --msgbox "The file >$PLOTPATH< could not be saved." $LINES $COLUMNS $(( $LINES - 8 ))
 				fi
 			else
 				eval `resize`

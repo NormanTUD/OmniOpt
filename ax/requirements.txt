@@ -7,7 +7,7 @@ scikit-learn
 submitit
 ax
 ax-platform
-matplotlib==3.6.3
+matplotlib
 Pyarrow
 textual
 tqdm

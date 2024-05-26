@@ -69,6 +69,8 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	bash $SCRIPT_DIR/omniopt_plot $* --plot_type=$WHATTODO
+
+	exit $?
 fi
 
 #SBATCH --signal=B:USR1@120

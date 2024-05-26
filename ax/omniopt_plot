@@ -13,13 +13,10 @@ function inputbox {
 	if [[ $exitstatus == 0 ]]; then
 		echo "$RESULT"
 	else
-		echo_red "You chose to cancel (1)"
+		echo "You chose to cancel (1)"
 		exit 1
 	fi
 }
-
-min=
-max=
 
 function ask_min_max {
 	min=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "$min")
@@ -100,6 +97,8 @@ function calltracer () {
 trap 'calltracer' ERR
 
 plot_type="default"
+min=
+max=
 run_dir=""
 help=0
 

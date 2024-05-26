@@ -8,10 +8,6 @@ import argparse
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-from pprint import pprint
-
-import signal
-signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def assert_condition(condition, error_text):
     if not condition:
@@ -89,12 +85,7 @@ def plot_worker_usage(pd_csv):
         plt.title('Worker Usage Plot')
         plt.legend()
 
-        num_ticks = min(10, len(data['time']))
-        x_ticks_indices = range(0, len(data['time']), max(1, len(data['time']) // num_ticks))
-        x_tick_labels = [data['time'].dt.strftime('%Y-%m-%d %H:%M:%S').iloc[i] for i in x_ticks_indices]
-        plt.xticks(x_ticks_indices, x_tick_labels, rotation=45)
-
-        plt.ylim(bottom=0.238)
+        plt.gcf().autofmt_xdate()  # Rotate and align the x labels
 
         plt.tight_layout()
         plt.show()
@@ -105,7 +96,6 @@ def plot_worker_usage(pd_csv):
     except Exception as e:
         log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
-
 
 def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')

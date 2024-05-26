@@ -122,6 +122,29 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			shift
 			;;
+
+
+
+		--min=*)
+			min="${arg#*=}"
+			shift
+			;;
+		--min)
+			k=$((k+1))
+
+			min="${args[k]}"
+			shift
+			;;
+		--max=*)
+			max="${arg#*=}"
+			shift
+			;;
+		--max)
+			k=$((k+1))
+
+			max="${args[k]}"
+			shift
+			;;
 		--plot_type=*)
 			plot_type="${arg#*=}"
 			shift
@@ -239,13 +262,26 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	if [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then
-		echo "Neither min nor max were set"
+		#echo "Neither min nor max were set"
+		true
 	elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
 		echo "minvalue was not set but maxvalue ($maxvalue)"
+		if [[ $max -ne $maxvalue ]]; then
+			bash $SCRIPT_DIR/omniopt_plot --max=$maxvalue $*
+			exit $?
+		fi
 	elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
-		echo "minvalue ($minvalue) was set but maxvalue was not"
+		if [[ $min -ne $minvalue ]]; then
+			echo "minvalue ($minvalue) was set but maxvalue was not"
+			bash $SCRIPT_DIR/omniopt_plot --minvalue=$minvalue $*
+			exit $?
+		fi
 	else
-		echo "minvalue ($minvalue) and maxvalue ($maxvalue) were set"
+		if [[ $max -ne $maxvalue ]] && [[ $min -ne $minvalue ]]; then
+			echo "minvalue ($minvalue) and maxvalue ($maxvalue) were set"
+			bash $SCRIPT_DIR/omniopt_plot --max=$minvalue -max=$maxvalue $*
+			exit $?
+		fi
 	fi
 
 	echo $minvalue

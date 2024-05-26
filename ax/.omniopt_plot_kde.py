@@ -112,6 +112,14 @@ if __name__ == "__main__":
     setup_logging()
     args = parse_arguments()
 
+    if not args.alpha:
+        logging.error("--alpha cannot be left unset.")
+        sys.exit(2)
+
+    if args.alpha > 1 or args.alpha < 0:
+        logging.error("--alpha must between 0 and 1")
+        sys.exit(3)
+
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)

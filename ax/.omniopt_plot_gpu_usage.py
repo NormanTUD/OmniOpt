@@ -34,6 +34,7 @@ def plot_gpu_usage(run_dir):
 
     if len(_paths) == 0:
         print(f"No gpu_usage_*.csv files could be found in {run_dir}")
+        sys.exit(10)
 
     if not gpu_data:
         print("No GPU usage data found.")

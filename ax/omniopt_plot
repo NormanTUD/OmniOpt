@@ -207,12 +207,24 @@ if [[ "$plot_type" == "default" ]]; then
 		exit 3
 	fi
 
+	minmaxstring=""
+	if [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then
+		#minmaxstring="Neither min nor max were set"
+		true
+	elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
+		minmaxstring="(max: $maxvalue)"
+	elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
+		minmaxstring=" (min: $minvalue)"
+	else
+		minmaxstring=" (min: $minvalue, max: $maxvalue)"
+	fi
+
 	WHATTODO=$(whiptail \
 		--title "Available options for $run_dir" \
 		--menu \
 		"Chose what plot to open:" \
 		$LINES $COLUMNS $(( $LINES - 8 )) \
-		"minmax)" "set min/max values ($minvalue, $maxvalue)" \
+		"minmax)" "set min/max values$minmaxstring" \
 		"${whiptail_args[@]}" \
 		"q)" "quit" 3>&1 1>&2 2>&3
 	)

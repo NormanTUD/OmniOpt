@@ -119,7 +119,7 @@ if [[ "$plot_type" == "default" ]]; then
 		ALL_FILES_THERE=1
 
 		for expected_file in "${expected_files[@]}"; do
-			if [[ $(ls $expected_file | wc -l 2>/dev/null) -lt 1 ]]; then
+			if [[ $(eval(ls $expected_file | wc -l) 2>/dev/null) -lt 1 ]]; then
 				ALL_FILES_THERE=0
 			fi
 		done

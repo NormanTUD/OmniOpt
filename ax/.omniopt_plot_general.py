@@ -1,3 +1,4 @@
+import os
 import sys
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -77,8 +78,20 @@ if __name__ == "__main__":
 
     args = parse_arguments()
 
+    if not args.run_dir:
+        print("--run_dir not specified")
+        sys.exit(33)
+
+    if not os.path.exists(args.run_dir):
+        print("--run_dir not specified")
+        sys.exit(34)
+
+    pd_csv = args.run_dir + "/pd.csv"
+    if not os.path.exists(pd_csv):
+        print(f"{pd_csv} could not be found")
+        sys.exit(35)
+
     try:
-        pd_csv = args.run_dir + "/pd.csv"
         df = pd.read_csv(pd_csv)
 
         if not "result" in df:
@@ -116,6 +129,6 @@ if __name__ == "__main__":
             plt.show()
 
     except FileNotFoundError:
-        logging.error("File not found: %s", args.run_dir + "/pd.csv")
+        logging.error("File not found: %s", pd_csv)
     except Exception as e:
         logging.error("An unexpected error occurred: %s", str(e))

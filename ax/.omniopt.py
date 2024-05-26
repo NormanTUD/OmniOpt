@@ -2740,7 +2740,7 @@ def execute_nvidia_smi():
         try:
             host = socket.gethostname()
 
-            _file = nvidia_smi_logs_base + "_" + host
+            _file = nvidia_smi_logs_base + "_" + host + ".csv"
             noheader = ""
 
             if os.path.exists(_file):
@@ -2857,9 +2857,7 @@ def main():
     global global_vars
     global folder_number
     global current_run_folder
-
     global nvidia_smi_logs_base
-    nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage.csv'
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
 
@@ -2873,6 +2871,8 @@ def main():
     result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
 
     save_state_files(args, _time)
+
+    nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
 
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")

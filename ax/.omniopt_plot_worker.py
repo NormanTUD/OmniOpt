@@ -91,15 +91,15 @@ def main():
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
     if args.run_dir:
-        pd_csv = os.path.join(args.run_dir, "worker_usage.csv")
-        if os.path.exists(pd_csv):
+        worker_usage_csv = os.path.join(args.run_dir, "worker_usage.csv")
+        if os.path.exists(worker_usage_csv):
             try:
-                plot_worker_usage(pd_csv)
+                plot_worker_usage(worker_usage_csv)
             except Exception as e:
                 print(f"Error: {e}")
                 sys.exit(3)
         else:
-            print(f"File '{pd_csv}' does not exist.")
+            print(f"File '{worker_usage_csv}' does not exist.")
 
 if __name__ == "__main__":
     main()

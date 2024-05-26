@@ -117,14 +117,14 @@ if [[ "$plot_type" == "default" ]]; then
 
 		expected_files=()
 		for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
-			echo "$possible_plot_type: $expected_files"
-			expected_files+=("$run_dir/$expected_file")
+			echo "$possible_plot_type: $expected_file"
+			expected_files+=("$expected_file")
 		done
 
 		ALL_FILES_THERE=1
 
 		for expected_file in "${expected_files[@]}"; do
-			if [[ $(ls $expected_file | wc -l 2>/dev/null) -lt 1 ]]; then
+			if [[ $(ls $run_dir | grep "$expected_file" | wc -l 2>/dev/null) -lt 1 ]]; then
 				ALL_FILES_THERE=0
 			fi
 		done

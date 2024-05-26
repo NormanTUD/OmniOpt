@@ -3,7 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export ORIGINAL_PWD=$(pwd)
 
-expected_plot_types=("all")
+#expected_plot_types=("all")
 
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
 	expected_plot_types+=("$possible_plot_type")
@@ -45,6 +45,7 @@ for i in $@; do
         esac
 done
 
+'
 if [[ "$plot_type" == "all" ]]; then
 	for this_plot_type in "${expected_plot_types[@]}"; do
 		if [[ "$this_plot_type" != "all" ]]; then
@@ -54,6 +55,7 @@ if [[ "$plot_type" == "all" ]]; then
 
 	wait
 fi
+'
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
     echo "Wrong plot type: $plot_type, but got $plot_type"

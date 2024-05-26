@@ -1,4 +1,5 @@
 # DESCRIPTION: Plot general job info
+# EXPECTED FILES: pd.csv
 
 import os
 import sys

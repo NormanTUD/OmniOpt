@@ -131,6 +131,11 @@ if [[ "$plot_type" == "default" ]]; then
 		fi
 	done
 
+	if [ ${#whiptail_args[@]} -eq 0 ]; then
+		echo "It seems like the run folder does not have any plottable data."
+		exit 3
+	fi
+
 	WHATTODO=$(whiptail \
 		--title "Available options for $run_dir" \
 		--menu \

@@ -1,3 +1,5 @@
+# DESCRIPTION: Plot general job info
+
 import os
 import sys
 import signal

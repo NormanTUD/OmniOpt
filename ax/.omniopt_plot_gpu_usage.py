@@ -1,3 +1,5 @@
+# DESCRIPTION: Plot GPU usage over time on different hosts
+
 import sys
 import os
 import argparse

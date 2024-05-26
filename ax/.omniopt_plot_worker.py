@@ -1,3 +1,5 @@
+# DESCRIPTION: Plot number of workers over time
+
 import re
 import traceback
 import sys

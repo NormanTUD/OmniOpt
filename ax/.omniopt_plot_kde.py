@@ -1,3 +1,5 @@
+# DESCRIPTION: Kernel-Density estimation plot
+
 import numpy as np
 import math
 import os

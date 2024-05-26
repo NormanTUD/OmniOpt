@@ -32,7 +32,13 @@ def plot_correlation_matrix(dataframe, axis):
     numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
     numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
     correlation_matrix = dataframe[numeric_columns].corr()
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=axis)
+
+    # Remove existing legend if it exists
+    legend = axis.get_legend()
+    if legend:
+        legend.remove()
+    
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=axis, cbar=False)
     axis.set_title('Correlation Matrix')
 
 def plot_distribution_by_generation(dataframe, axis):

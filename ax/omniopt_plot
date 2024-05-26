@@ -147,7 +147,7 @@ if [[ "$plot_type" == "default" ]]; then
 		exit 0
 	fi
 
-	bash $SCRIPT_DIR/omniopt_plot $* --plot_type=$WHATTODO
+	bash $SCRIPT_DIR/omniopt_plot $* --plot_type=$WHATTODO --run_dir $run_dir
 
 	exit $?
 fi

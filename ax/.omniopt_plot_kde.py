@@ -48,6 +48,7 @@ def parse_arguments():
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--max', type=float, help='Maximum value for result filtering (useless here)')
+    parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
 
     return parser.parse_args()
 

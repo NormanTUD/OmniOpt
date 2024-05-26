@@ -40,49 +40,39 @@ def filter_data(dataframe, min_value=None, max_value=None):
         dataframe = dataframe[dataframe['result'] <= max_value]
     return dataframe
 
-def plot_boxplot(dataframe, save_to_file=None):
-    plt.figure()
+def plot_graph(dataframe, save_to_file=None):
+    plt.figure(figsize=(12, 8))
+
+    plt.subplot(2, 2, 1)
     sns.boxplot(x='generation_method', y='result', data=dataframe)
     plt.title('Results by Generation Method')
     plt.xlabel('Generation Method')
     plt.ylabel('Result')
-    if save_to_file:
-        plt.savefig(save_to_file)
-    else:
-        plt.show()
 
-def plot_barplot(dataframe, save_to_file=None):
-    plt.figure()
+    plt.subplot(2, 2, 2)
     sns.countplot(x='trial_status', data=dataframe)
     plt.title('Distribution of Trial Status')
     plt.xlabel('Trial Status')
     plt.ylabel('Count')
-    if save_to_file:
-        plt.savefig(save_to_file)
-    else:
-        plt.show()
 
-def plot_correlation_matrix(dataframe, save_to_file=None):
-    plt.figure()
+    plt.subplot(2, 2, 3)
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
     numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
     correlation_matrix = dataframe[numeric_columns].corr()
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", cbar=False)
     plt.title('Correlation Matrix')
-    if save_to_file:
-        plt.savefig(save_to_file)
-    else:
-        plt.show()
 
-def plot_distribution_by_generation(dataframe, save_to_file=None):
-    plt.figure()
+    plt.subplot(2, 2, 4)
     histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=args.bins)
     for patch in histogram.patches:
         patch.set_alpha(args.alpha)
     plt.title('Distribution of Results by Generation Method')
     plt.xlabel('Result')
     plt.ylabel('Frequency')
+
+    plt.tight_layout()
+
     if save_to_file:
         plt.savefig(save_to_file)
     else:
@@ -99,17 +89,7 @@ def update_graph():
             logging.warning("DataFrame is empty after filtering.")
             return
 
-        if args.save_to_file:
-            plot_boxplot(dataframe, args.save_to_file + "_boxplot.png")
-            plot_barplot(dataframe, args.save_to_file + "_barplot.png")
-            plot_correlation_matrix(dataframe, args.save_to_file + "_correlation.png")
-            plot_distribution_by_generation(dataframe, args.save_to_file + "_distribution.png")
-            logging.info("Plots saved to files.")
-        else:
-            plot_boxplot(dataframe)
-            plot_barplot(dataframe)
-            plot_correlation_matrix(dataframe)
-            plot_distribution_by_generation(dataframe)
+        plot_graph(dataframe, args.save_to_file)
 
     except FileNotFoundError:
         logging.error("File not found: %s", args.run_dir + "/pd.csv")

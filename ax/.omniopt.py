@@ -2659,7 +2659,7 @@ def get_number_of_steps(args, max_eval):
     if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps
         random_steps = num_parallel_jobs
-        original_print(f"random_steps {old_random_steps} <- num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers.")
+        original_print(f"random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
 
     if random_steps > max_eval:
         max_eval = random_steps

@@ -259,28 +259,28 @@ if [[ "$plot_type" == "default" ]]; then
 
 	if [[ "$WHATTODO" == "minmax)" ]]; then
 		ask_min_max
-	fi
 
-	if [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then
-		#echo "Neither min nor max were set"
-		true
-	elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
-		echo "minvalue was not set but maxvalue ($maxvalue)"
-		if [[ $max -ne $maxvalue ]]; then
-			bash $SCRIPT_DIR/omniopt_plot --max=$maxvalue --run_dir $run_dir $*
-			exit $?
-		fi
-	elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
-		if [[ $min -ne $minvalue ]]; then
-			echo "minvalue ($minvalue) was set but maxvalue was not"
-			bash $SCRIPT_DIR/omniopt_plot --minvalue=$minvalue --run_dir $run_dir $*
-			exit $?
-		fi
-	else
-		if [[ $max -ne $maxvalue ]] && [[ $min -ne $minvalue ]]; then
-			echo "minvalue ($minvalue) and maxvalue ($maxvalue) were set"
-			bash $SCRIPT_DIR/omniopt_plot --max=$minvalue -max=$maxvalue --run_dir $run_dir $*
-			exit $?
+		if [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then
+			#echo "Neither min nor max were set"
+			bash $SCRIPT_DIR/omniopt_plot --run_dir $run_dir $*
+		elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
+			echo "minvalue was not set but maxvalue ($maxvalue)"
+			if [[ $max -ne $maxvalue ]]; then
+				bash $SCRIPT_DIR/omniopt_plot --max=$maxvalue --run_dir $run_dir $*
+				exit $?
+			fi
+		elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
+			if [[ $min -ne $minvalue ]]; then
+				echo "minvalue ($minvalue) was set but maxvalue was not"
+				bash $SCRIPT_DIR/omniopt_plot --minvalue=$minvalue --run_dir $run_dir $*
+				exit $?
+			fi
+		else
+			if [[ $max -ne $maxvalue ]] && [[ $min -ne $minvalue ]]; then
+				echo "minvalue ($minvalue) and maxvalue ($maxvalue) were set"
+				bash $SCRIPT_DIR/omniopt_plot --max=$minvalue -max=$maxvalue --run_dir $run_dir $*
+				exit $?
+			fi
 		fi
 	fi
 

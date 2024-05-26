@@ -1,4 +1,5 @@
 # DESCRIPTION: Plot GPU usage over time on different hosts
+# EXPECTED FILES: gpu_usage_*.csv
 
 import sys
 import os

@@ -24,6 +24,7 @@ for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##
 
 	expected_files=()
 	for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
+		echo "$possible_plot_type: $expected_files"
 		expected_files+=("$run_dir/$expected_file")
 	done
 

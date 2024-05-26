@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_save_to_file=0
+
 function displaytime {
 	local T=$1
 		local D=$((T/60/60/24))
@@ -153,6 +155,22 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	plot_type=$WHATTODO
+	echo "$plot_type"
+	if [[ "$plot_type" == *"save_to_file"* ]]; then
+		plot_type=$(echo "$plot_type" | sed -e 's# .*##')
+		_save_to_file=1
+	fi
+
+	if [[ "$_save_to_file" == 1 ]]; then
+		_path=$(whiptail --inputbox "Path of the plot?" 8 39 "$run_dir/$plot_type.svg" --title "Choose path" 3>&1 1>&2 2>&3)
+
+		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+			_save_to_file="$_path"
+		else
+			exit 0
+		fi
+	fi
 fi
 
 cd $ORIGINAL_PWD
@@ -174,8 +192,13 @@ if [[ "$plot_type" != "default" ]]; then
 fi
 
 set +e
-OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
-exit_code=$?
+if [[ "_save_to_file" != "0" ]]; then
+	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
+	exit_code=$?
+else
+	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file $_save_to_file $* 2>&1)
+	exit_code=$?
+fi
 set -e
 
 if [[ "$exit_code" -ne "0" ]]; then

@@ -146,25 +146,7 @@ if [[ "$plot_type" == "default" ]]; then
 		exit 0
 	fi
 
-	set -x
-	bash $SCRIPT_DIR/omniopt_plot $* --run_dir $run_dir --plot_type=$WHATTODO 
-	set +x
-
-	exit $?
-fi
-
-#SBATCH --signal=B:USR1@120
-
-
-if [ -n "${SLURM_JOB_ID:-}" ] ; then
-	SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-	SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
-
-	if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
-		SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
-	else
-		echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
-	fi
+	plot_type=$WHATTODO
 fi
 
 cd $ORIGINAL_PWD
@@ -186,7 +168,7 @@ if [[ "$plot_type" != "default" ]]; then
 fi
 
 set +e
-OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py $* 2>&1)
+OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
 exit_code=$?
 set -e
 

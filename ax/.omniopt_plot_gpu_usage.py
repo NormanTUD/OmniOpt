@@ -70,7 +70,10 @@ def plot_gpu_usage(run_dir):
         axs[j].axis('off')
 
     plt.subplots_adjust(bottom=0.086, hspace=0.35)
-    plt.show()
+    if args.save_to_file:
+        plt.savefig(args.save_to_file)  # Save the plot to the specified file
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -82,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
     parser.add_argument('--min', type=float, help='Minimum value for result filtering (useless here)')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering (useless here)')
-    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s) (useless here)')
+    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with (useless here)", default=[])

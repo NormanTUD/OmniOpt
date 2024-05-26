@@ -90,18 +90,17 @@ cd $ORIGINAL_PWD
 source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
 
-if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
-	# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
-	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
+if [[ "$plot_type" != "default" ]]; then
+	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
+		# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
+		joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
 
-	# Entfernen Sie das letzte "," vom gejointen String
-	joined_plot_types=${joined_plot_types%, }
+		# Entfernen Sie das letzte "," vom gejointen String
+		joined_plot_types=${joined_plot_types%, }
 
-	# Ausgabe des gejointen Strings
-	echo $joined_plot_types
-
-	echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
-	exit 5
+		echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+		exit 5
+	fi
 fi
 
 set +e

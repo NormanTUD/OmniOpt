@@ -67,8 +67,6 @@ cd $ORIGINAL_PWD
 source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
 
-echo "Showing plot type: $plot_type"
-
 if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
 	# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")

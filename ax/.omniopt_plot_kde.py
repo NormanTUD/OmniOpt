@@ -1,3 +1,4 @@
+import math
 import os
 import sys
 import signal
@@ -20,20 +21,36 @@ def parse_arguments():
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     return parser.parse_args()
 
-def plot_kde_plots(dataframe, main_frame):
+def plot_histograms(dataframe, main_frame):
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
     
-    for col in numeric_columns:
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.kdeplot(data=dataframe, x=col, ax=ax, fill=True)
-        ax.set_title(f'Kernel Density Estimation for {col}')
+    num_plots = len(numeric_columns)
+    num_rows = 1
+    num_cols = num_plots
+
+    if num_plots > 1:
+        num_rows = int(num_plots ** 0.5)
+        num_cols = int(math.ceil(num_plots / num_rows))
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
+    axes = axes.flatten()
+
+    for i, col in enumerate(numeric_columns):
+        ax = axes[i]
+        ax.hist(dataframe[col], bins=10, alpha=0.7)
+        ax.set_title(f'Histogram for {col}')
         ax.set_xlabel(col)
-        ax.set_ylabel('Density')
-        
-        canvas = FigureCanvasTkAgg(fig, master=main_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        ax.set_ylabel('Count')
+
+    # Hide any unused subplots
+    for j in range(num_plots, len(axes)):
+        axes[j].axis('off')
+
+    plt.tight_layout()
+    canvas = FigureCanvasTkAgg(fig, master=main_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 def update_graph():
     pd_csv = args.run_dir + "/pd.csv"
@@ -43,7 +60,7 @@ def update_graph():
         main_frame = ttk.Frame(root, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        plot_kde_plots(dataframe, main_frame)
+        plot_histograms(dataframe, main_frame)
 
         # Add scrollbar
         scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL)

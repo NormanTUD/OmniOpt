@@ -58,7 +58,11 @@ def main():
     if args.run_dir:
         pd_csv = os.path.join(args.run_dir, "worker_usage.csv")
         if os.path.exists(pd_csv):
-            plot_worker_usage(pd_csv)
+            try:
+                plot_worker_usage(pd_csv)
+            except Exception as e:
+                print(f"Error: {e}")
+                sys.exit(3)
         else:
             print(f"File '{pd_csv}' does not exist.")
 

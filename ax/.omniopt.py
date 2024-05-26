@@ -2840,8 +2840,6 @@ def finish_previous_jobs_random(args):
 def main():
     print_debug("main")
 
-    nvidia_smi_thread = start_nvidia_smi_thread()
-
     _debug_worker_creation("time, nr_workers, got, requested, phase")
     global args
     global result_csv_file
@@ -2872,6 +2870,7 @@ def main():
     print_color("green", "OmniOpt")
 
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
+    nvidia_smi_thread = start_nvidia_smi_thread()
 
     check_python_version()
     warn_versions()

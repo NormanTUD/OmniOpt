@@ -67,6 +67,9 @@ if [[ "$plot_type" == "default" ]]; then
 elif [[ "$plot_type" == "general" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_general.py $* 2>&1)
 	exit_code=$?
+elif [[ "$plot_type" == "worker" ]]; then
+	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_worker.py $* 2>&1)
+	exit_code=$?
 elif [[ "$plot_type" == "kde" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_kde.py $* 2>&1)
 	exit_code=$?

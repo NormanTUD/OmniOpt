@@ -62,7 +62,7 @@ def plot_gpu_usage(run_dir):
     for j in range(num_plots, plot_rows * plot_cols):
         axs[j].axis('off')
 
-    plt.subplots_adjust(bottom=0.2, hspace=0.35)
+    plt.subplots_adjust(bottom=0.086, hspace=0.35)
     plt.show()
 
 if __name__ == "__main__":

@@ -65,7 +65,6 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering')
-    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
@@ -149,30 +148,36 @@ if __name__ == "__main__":
         logging.error(f"{pd_csv} could not be found")
         sys.exit(35)
 
-    root = tk.Tk()
-    root.protocol("WM_DELETE_WINDOW", _quit)
-    root.title("General info for run " + args.run_dir)
-    root.geometry("800x800")
-
-    main_frame = ttk.Frame(root, padding=10)
-    main_frame.pack(fill=tk.BOTH, expand=True)
-
     fig, axes = plt.subplots(2, 2, figsize=(10, 10))
     fig.subplots_adjust(left=0.071, bottom=0.07, right=0.983, top=0.926, wspace=0.167, hspace=0.276)
 
-    canvas = FigureCanvasTkAgg(fig, master=main_frame)
-    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    button_frame = ttk.Frame(main_frame)
-    button_frame.pack(side=tk.BOTTOM, fill=tk.X)
+    if not args.save_to_file:
 
-    update_button = ttk.Button(button_frame, text="Update Graph", command=update_graph)
-    update_button.pack(side=tk.LEFT, padx=5, pady=0)
 
-    quit_button = ttk.Button(button_frame, text="Quit", command=root.quit)
-    quit_button.pack(side=tk.RIGHT, padx=5, pady=0)
+        root = tk.Tk()
+        root.protocol("WM_DELETE_WINDOW", _quit)
+        root.title("General info for run " + args.run_dir)
+        root.geometry("800x800")
 
-    root.bind('<KeyPress>', on_key_press)
+        main_frame = ttk.Frame(root, padding=10)
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-    update_graph()
-    root.mainloop()
+        canvas = FigureCanvasTkAgg(fig, master=main_frame)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        update_button = ttk.Button(button_frame, text="Update Graph", command=update_graph)
+        update_button.pack(side=tk.LEFT, padx=5, pady=0)
+
+        quit_button = ttk.Button(button_frame, text="Quit", command=root.quit)
+        quit_button.pack(side=tk.RIGHT, padx=5, pady=0)
+
+        root.bind('<KeyPress>', on_key_press)
+
+        update_graph()
+        root.mainloop()
+    else:
+        fig.save(args.save_to_file)

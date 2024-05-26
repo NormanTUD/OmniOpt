@@ -164,10 +164,6 @@ if [[ "$plot_type" == "default" ]]; then
 
 	eval `resize`
 
-
-ask_min_max
-exit
-
 	for possible_plot_type in "${expected_plot_types[@]}"; do
 		if [[ "$possible_plot_type" == "default" ]]; then
 			continue
@@ -226,8 +222,10 @@ exit
 	fi
 
 	if [[ "$WHATTODO" == "minmax)" ]]; then
-		exit 0
+		ask_min_max
 	fi
+
+	echo $minvalue
 
 	plot_type=$WHATTODO
 	if [[ "$plot_type" == *"save_to_file"* ]]; then

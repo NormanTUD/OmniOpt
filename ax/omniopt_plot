@@ -268,7 +268,9 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	if [[ "$WHATTODO" == "minmax)" ]]; then
+		echo "A"
 		ask_min_max
+		echo "B"
 
 		if [[ -z $min ]] && [[ -z $max ]]; then
 			#echo "Neither min nor max were set"

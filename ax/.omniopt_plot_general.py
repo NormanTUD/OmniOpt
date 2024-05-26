@@ -53,7 +53,7 @@ def plot_distribution_by_generation(dataframe, axis):
     axis.clear()
     histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=args.bins, ax=axis)
     for patch in histogram.patches:
-        patch.set_alpha(0.5)
+        patch.set_alpha(args.alpha)
     axis.set_title('Distribution of Results by Generation Method')
     axis.set_xlabel('Result')
     axis.set_ylabel('Frequency')
@@ -77,6 +77,8 @@ def parse_arguments():
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
+    parser.add_argument('--alpha', type=float, help='Transparency of plot bars', default=0.5)
+    parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
 
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 

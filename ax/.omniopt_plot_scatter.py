@@ -329,6 +329,9 @@ def get_args ():
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
+    parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
+    parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
+
     args = parser.parse_args()
 
     if args.bubblesize:

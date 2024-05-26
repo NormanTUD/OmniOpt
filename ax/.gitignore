@@ -176,4 +176,5 @@ logs
 nohup.out
 *.out
 output.gif
+*.svg
 old_runs

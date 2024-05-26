@@ -55,7 +55,8 @@ def plot_gpu_usage(run_dir):
         axs[i].set_xlabel('Time')
         axs[i].set_ylabel('GPU Usage (%)')
         axs[i].set_title(f'GPU Usage Over Time - {os.path.basename(_paths[i])}')
-        axs[i].legend()
+        if not args.no_legend:
+            axs[i].legend(loc='upper right')
 
     plt.subplots_adjust(bottom=0.2, hspace=0.35)
     plt.show()
@@ -65,6 +66,7 @@ if __name__ == "__main__":
     parser.add_argument('--run_dir', type=str, help='Directory where to search for CSV files')
     parser.add_argument('--plot_type', type=str, default="irgendwas", help='Type of plot (ignored)')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode (ignored)')
+    parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     args = parser.parse_args()
 
     plot_gpu_usage(args.run_dir)

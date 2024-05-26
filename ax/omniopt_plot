@@ -18,39 +18,39 @@ function inputbox {
 	fi
 }
 
-minvalue=
-maxvalue=
+min=
+max=
 
 function ask_min_max {
-	minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "")
-	maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "")
+	min=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "$min")
+	max=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "$max")
 
-	if [ -n "$minvalue" ]; then
-		# Check if $minvalue is a number (integer or float, positive or negative)
-		if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-			echo "\$minvalue is not a valid number. Setting it to empty."
-			minvalue=""
+	if [ -n "$min" ]; then
+		# Check if $min is a number (integer or float, positive or negative)
+		if [[ ! "$min" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+			echo "\$min is not a valid number. Setting it to empty."
+			min=""
 		fi
 	fi
 
 
-	if [ -n "$maxvalue" ]; then
-		# Check if $maxvalue is a number (integer or float, positive or negative)
-		if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-			echo "\$maxvalue is not a valid number. Setting it to empty."
-			maxvalue=""
+	if [ -n "$max" ]; then
+		# Check if $max is a number (integer or float, positive or negative)
+		if [[ ! "$max" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+			echo "\$max is not a valid number. Setting it to empty."
+			max=""
 		fi
 	fi
 
-	if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
-		# Check if minvalue is greater than maxvalue
-		if (( $(echo "$maxvalue < $minvalue" |bc -l) )); then
+	if [ -n "$min" ] && [ -n "$max" ]; then
+		# Check if min is greater than max
+		if (( $(echo "$max < $min" |bc -l) )); then
 			# Swap values
-			temp="$minvalue"
-			minvalue="$maxvalue"
-			maxvalue="$temp"
+			temp="$min"
+			min="$max"
+			max="$temp"
 		else
-			#echo "minvalue is less than or equal to maxvalue. No need to swap."
+			#echo "min is less than or equal to max. No need to swap."
 			true
 		fi
 	fi
@@ -232,15 +232,15 @@ if [[ "$plot_type" == "default" ]]; then
 	fi
 
 	minmaxstring=""
-	if [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then
+	if [[ -z $min ]] && [[ -z $max ]]; then
 		#minmaxstring="Neither min nor max were set"
 		true
-	elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
-		minmaxstring=" (max: $maxvalue)"
-	elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
-		minmaxstring=" (min: $minvalue)"
+	elif [[ -z $min ]] && ! [[ -z $max ]]; then 
+		minmaxstring=" (max: $max)"
+	elif ! [[ -z $min ]] && [[ -z $max ]]; then 
+		minmaxstring=" (min: $min)"
 	else
-		minmaxstring=" (min: $minvalue, max: $maxvalue)"
+		minmaxstring=" (min: $min, max: $max)"
 	fi
 
 	if [[ -z $min ]] && [[ -z $max ]]; then
@@ -271,25 +271,25 @@ if [[ "$plot_type" == "default" ]]; then
 	if [[ "$WHATTODO" == "minmax)" ]]; then
 		ask_min_max
 
-		if [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then
+		if [[ -z $min ]] && [[ -z $max ]]; then
 			#echo "Neither min nor max were set"
 			bash $SCRIPT_DIR/omniopt_plot --run_dir $run_dir $*
-		elif [[ -z $minvalue ]] && ! [[ -z $maxvalue ]]; then 
-			echo "minvalue was not set but maxvalue ($maxvalue)"
-			if [[ $max -ne $maxvalue ]]; then
-				bash $SCRIPT_DIR/omniopt_plot --max=$maxvalue --run_dir $run_dir $*
+		elif [[ -z $min ]] && ! [[ -z $max ]]; then 
+			echo "min was not set but max ($max)"
+			if [[ $max -ne $max ]]; then
+				bash $SCRIPT_DIR/omniopt_plot --max=$max --run_dir $run_dir $*
 				exit $?
 			fi
-		elif ! [[ -z $minvalue ]] && [[ -z $maxvalue ]]; then 
-			if [[ $min -ne $minvalue ]]; then
-				echo "minvalue ($minvalue) was set but maxvalue was not"
-				bash $SCRIPT_DIR/omniopt_plot --minvalue=$minvalue --run_dir $run_dir $*
+		elif ! [[ -z $min ]] && [[ -z $max ]]; then 
+			if [[ $min -ne $min ]]; then
+				echo "min ($min) was set but max was not"
+				bash $SCRIPT_DIR/omniopt_plot --min=$min --run_dir $run_dir $*
 				exit $?
 			fi
 		else
-			if [[ $max -ne $maxvalue ]] && [[ $min -ne $minvalue ]]; then
-				echo "minvalue ($minvalue) and maxvalue ($maxvalue) were set"
-				bash $SCRIPT_DIR/omniopt_plot --max=$minvalue -max=$maxvalue --run_dir $run_dir $*
+			if [[ $max -ne $max ]] && [[ $min -ne $min ]]; then
+				echo "min ($min) and max ($max) were set"
+				bash $SCRIPT_DIR/omniopt_plot --max=$min -max=$max --run_dir $run_dir $*
 				exit $?
 			fi
 		fi

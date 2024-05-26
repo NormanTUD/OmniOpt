@@ -13,18 +13,21 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def plot_boxplot(dataframe, axis):
+    axis.clear()
     sns.boxplot(x='generation_method', y='result', data=dataframe, ax=axis)
     axis.set_title('Results by Generation Method')
     axis.set_xlabel('Generation Method')
     axis.set_ylabel('Result')
 
 def plot_barplot(dataframe, axis):
+    axis.clear()
     sns.countplot(x='trial_status', data=dataframe, ax=axis)
     axis.set_title('Distribution of Trial Status')
     axis.set_xlabel('Trial Status')
     axis.set_ylabel('Count')
 
 def plot_correlation_matrix(dataframe, axis):
+    axis.clear()
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
     numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
@@ -33,6 +36,7 @@ def plot_correlation_matrix(dataframe, axis):
     axis.set_title('Correlation Matrix')
 
 def plot_distribution_by_generation(dataframe, axis):
+    axis.clear()
     histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=20, ax=axis)
     for patch in histogram.patches:
         patch.set_alpha(0.5)
@@ -80,19 +84,25 @@ def update_graph():
             logging.warning("DataFrame is empty after filtering.")
             return
 
+        """
         for axis in axes.flatten():
             axis.clear()
             if axis.get_legend() is not None:
+                print(f"removing {axis.get_legend()} legend")
                 axis.get_legend().remove()
+        """
 
         plot_boxplot(dataframe, axes[0, 0])
         plot_barplot(dataframe, axes[0, 1])
         plot_correlation_matrix(dataframe, axes[1, 0])
         plot_distribution_by_generation(dataframe, axes[1, 1])
 
+        """
         for axis in axes.flatten():
             if axis.get_legend() is not None:
+                print(f"removing {axis.get_legend()} legend B")
                 axis.get_legend().remove()
+        """
 
         fig.canvas.draw()
     except FileNotFoundError:

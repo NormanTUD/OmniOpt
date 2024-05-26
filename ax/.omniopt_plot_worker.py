@@ -17,14 +17,18 @@ def plot_worker_usage(pd_csv):
     #try:
     data = pd.read_csv(pd_csv)
 
-    if "time" not in data:
+    if data "time" not in data.columns:
         print("time column could not be found. Is the header line 'time,num_parallel_jobs,nr_current_workers,percentage' missing?")
         sys.exit(52)
+    elif not data:
+        print("No data could be found!")
+        sys.exit(53)
 
     duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
     data = data[~duplicate_mask].reset_index(drop=True)
     
     data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(x).strftime('%Y-%m-%d %H:%M:%S'))
+    dier(data)
 
     plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers')
     plt.plot(data['time'], data['nr_current_workers'], label='Number of Current Workers')

@@ -184,7 +184,7 @@ def _debug_worker_creation(msg, _lvl=0, ee=None):
 
         _debug_worker_creation(msg, _lvl + 1, e)
 
-def append_to_nvidia_smi_logs(_file, result, _lvl=0, ee=None):
+def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
         return
@@ -196,7 +196,7 @@ def append_to_nvidia_smi_logs(_file, result, _lvl=0, ee=None):
     except Exception as e:
         original_print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
 
-        append_to_nvidia_smi_logs(host, result, _lvl + 1, e)
+        append_to_nvidia_smi_logs(_host, result, _lvl + 1, e)
 
 def _debug_progressbar(msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -2760,7 +2760,7 @@ def execute_nvidia_smi():
             output = output.rstrip('\n')
 
             if host and output:
-                append_to_nvidia_smi_logs(_file, output)
+                append_to_nvidia_smi_logs(_file, host, output)
         except Exception as e:
             print(f"An error occurred: {e}")
         time.sleep(10)

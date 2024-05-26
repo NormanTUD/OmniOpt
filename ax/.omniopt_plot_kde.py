@@ -5,25 +5,11 @@ import numpy as np
 import math
 import os
 import sys
-import signal
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 import logging
-import tkinter as tk
-from tkinter import ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-root = None
-
-def _quit():
-    global root
-    if root:
-        root.quit()
-        root.destroy()
-
-signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -31,17 +17,12 @@ def setup_logging():
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
-
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
-
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars', default=0.5)
-
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
-
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file (useless)', default=None)
+    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--darkmode', help='Enable darktheme (useless here)', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)
     parser.add_argument('--min', type=float, help='Minimum value for result filtering (useless here)')
@@ -52,10 +33,9 @@ def parse_arguments():
     parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--max', type=float, help='Maximum value for result filtering (useless here)')
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
-
     return parser.parse_args()
 
-def plot_histograms(dataframe, main_frame):
+def plot_histograms(dataframe, save_to_file=None):
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
 
@@ -94,31 +74,17 @@ def plot_histograms(dataframe, main_frame):
         axes[j].axis('off')
 
     plt.tight_layout()
-    canvas = FigureCanvasTkAgg(fig, master=main_frame)
-    canvas.draw()
-    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    if save_to_file:
+        plt.savefig(save_to_file)
+    else:
+        plt.show()
 
 def update_graph():
     pd_csv = args.run_dir + "/pd.csv"
     try:
         dataframe = pd.read_csv(pd_csv)
-
-        global root
-        main_frame = ttk.Frame(root, padding=10)
-        main_frame.pack(fill=tk.BOTH, expand=True)
-
-        plot_histograms(dataframe, main_frame)
-
-        # Add scrollbar
-        scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-        canvas = FigureCanvasTkAgg(plt.figure(), master=main_frame)
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        canvas.get_tk_widget().config(yscrollcommand=scrollbar.set)
-        scrollbar.config(command=canvas.get_tk_widget().yview)
-
-        root.mainloop()
+        plot_histograms(dataframe, args.save_to_file)
     except FileNotFoundError:
         logging.error("File not found: %s", pd_csv)
     except Exception as exception:
@@ -139,11 +105,6 @@ if __name__ == "__main__":
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
-
-    root = tk.Tk()
-    root.protocol("WM_DELETE_WINDOW", _quit)
-    root.title(f"KDE Plot for {args.run_dir}")
-    root.geometry("800x600")
 
     update_graph()
 

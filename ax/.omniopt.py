@@ -2952,7 +2952,7 @@ def main():
             initial_text = get_desc_progress_text()
             print(f"Searching {searching_for}")
 
-            print(f"Run-Program: {global_vars['joined_run_program']}")
+            original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
             second_step_steps_string = ""
             if second_step_steps:

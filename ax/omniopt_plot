@@ -345,7 +345,7 @@ if [[ "$plot_type" != "default" ]]; then
 	fi
 fi
 
-set +ex
+set +e
 if [[ "$_save_to_file" == "0" ]]; then
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
 	exit_code=$?
@@ -353,7 +353,7 @@ else
 	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=$_save_to_file $* 2>&1)
 	exit_code=$?
 fi
-set -ex
+set -e
 
 if [[ "$exit_code" -ne "0" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then

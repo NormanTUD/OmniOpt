@@ -654,7 +654,6 @@ def update_graph(event=None, _min=None, _max=None):
         
         result_column_values = get_result_column_values(df, result_column)
         set_title(fig, df_filtered, result_column_values, len(df_filtered), _min, _max)
-        set_margins(fig)
 
         plt.draw()
     except Exception as e:

@@ -123,6 +123,22 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 
+		--save_to_file=*)
+			_save_to_file="${arg#*=}"
+			shift
+			;;
+
+		--save_to_file)
+			k=$((k+1))
+
+			_save_to_file="${args[k]}"
+
+			shift
+			shift
+			;;
+
+
+
 
 		--min=*)
 			min="${arg#*=}"

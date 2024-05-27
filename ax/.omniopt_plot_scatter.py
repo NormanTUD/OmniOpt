@@ -718,11 +718,11 @@ def create_widgets():
 
     textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
     minimum_textbox = TextBox(textbox_minimum, 'Minimum result:', initial=min_string)
-    minimum_textbox.on_submit(update_graph)
+    #minimum_textbox.on_submit(update_graph)
 
     textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
     maximum_textbox = TextBox(textbox_maximum, 'Maximum result:', initial=max_string)
-    maximum_textbox.on_submit(update_graph)
+    #maximum_textbox.on_submit(update_graph)
      
 if __name__ == "__main__":
     try:

@@ -788,14 +788,14 @@ if [[ $sourced == "0" ]]; then
         set +x
         (
 		for this_module in ${modules_to_load[*]}; do
-		let load_percent=$load_percent+$stepsize
-		echo "XXX"
-		echo $load_percent
-		echo "Loading modules... ($this_module...)"
-		echo "XXX"
-		if ! myml is-loaded $this_module; then
-			ml $this_module 2>/dev/null
-		fi
+			let load_percent=$load_percent+$stepsize
+			echo "XXX"
+			echo $load_percent
+			echo "Loading modules... ($this_module...)"
+			echo "XXX"
+			if ! myml is-loaded $this_module; then
+				ml $this_module 2>/dev/null
+			fi
 		done
         ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
 

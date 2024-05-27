@@ -13,3 +13,4 @@ textual
 tqdm
 watchdog
 seaborn
+art

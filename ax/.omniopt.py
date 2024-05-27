@@ -2838,7 +2838,11 @@ def finish_previous_jobs_random(args):
 def main():
     print_debug("main")
 
-    print_color("green", "OmniOpt")
+    try:
+        from art import text2art
+        original_print(text2art("OmniOpt", font="random"))
+    except Exception as e:
+        print_color("green", "OmniOpt")
 
     _debug_worker_creation("time, nr_workers, got, requested, phase")
     global args

@@ -128,6 +128,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		ppip plotille
 		ppip watchdog
 		ppip seaborn
+		ppip art
 		if ! declare -f ml 2>/dev/null >/dev/null; then
 			ppip tkinter
 		else

@@ -551,7 +551,7 @@ def main():
 
         plt.show()
 
-        update_graph()
+        update_graph(args.min, args.max)
 
 def convert_string_to_number(input_string):
     print_debug("convert_string_to_number")
@@ -596,14 +596,11 @@ def convert_string_to_number(input_string):
 
 
 # Define update function for the button
-def update_graph(event=None):
+def update_graph(_min=None, _max=None):
     print_debug("update_graph")
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:
-        _min = None
-        _max = None
-
         if minimum_textbox and looks_like_float(minimum_textbox.text):
             _min = convert_string_to_number(minimum_textbox.text)
 
@@ -715,11 +712,9 @@ def create_widgets():
 
     textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
     minimum_textbox = TextBox(textbox_minimum, 'Minimum result:', initial=min_string)
-    #minimum_textbox.on_submit(update_graph)
 
     textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
     maximum_textbox = TextBox(textbox_maximum, 'Maximum result:', initial=max_string)
-    #maximum_textbox.on_submit(update_graph)
      
 if __name__ == "__main__":
     try:

@@ -260,7 +260,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         axs[row, col].set_visible(False)
 
     # Color bar addition für mehrere Subplots
-    if not args.print_to_command_line:
+    if not args.print_to_command_line and not args.no_legend:
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)
 
@@ -273,7 +273,7 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
     # Farbgebung und Legende für das einzelne Scatterplot
-    if not args.print_to_command_line:
+    if not args.print_to_command_line and not args.no_legend:
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)
 
@@ -299,7 +299,7 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
     ax.set_xlabel(non_empty_graphs[0][0])
     ax.set_ylabel(result_column)
 
-    if not args.print_to_command_line:
+    if not args.print_to_command_line and not args.no_legend:
         cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)
 
@@ -357,7 +357,7 @@ def get_args ():
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
-    parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
+    parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
 
     args = parser.parse_args()

@@ -64,7 +64,7 @@ def plot_graph(dataframe, save_to_file=None):
     plt.title('Correlation Matrix')
 
     plt.subplot(2, 2, 4)
-    histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=True, bins=args.bins)
+    histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=False, bins=args.bins)
     for patch in histogram.patches:
         patch.set_alpha(args.alpha)
     plt.title('Distribution of Results by Generation Method')

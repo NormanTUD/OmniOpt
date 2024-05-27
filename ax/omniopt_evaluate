@@ -307,12 +307,10 @@ close $fh;
 
 		elif [[ "$WHATTODO" =~ "plot)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
-				set +e
-				OUTPUT=$(./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/)
+				./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
-				set -e
 			else
 				eval `resize`
 				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))

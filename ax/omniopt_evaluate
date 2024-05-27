@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 cd $(pwd)
 
 mkdir -p debuglogs
@@ -307,7 +309,7 @@ close $fh;
 
 		elif [[ "$WHATTODO" =~ "plot)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
-				./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+				bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
@@ -354,14 +356,14 @@ close $fh;
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
+						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -370,14 +372,14 @@ close $fh;
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
+						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						./omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
+						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -751,7 +753,7 @@ if [[ $sourced == "0" ]]; then
 			eval `resize`
 			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 			    git pull
-			    bash ./evaluate-run --dont_load_modules --no_upgrade $@
+			    bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
 			    exit
 			else
 			    eval `resize`

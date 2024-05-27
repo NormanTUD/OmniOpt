@@ -247,9 +247,9 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
-                    scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-                    axs[row, col].set_xlabel(param1)
-                    axs[row, col].set_ylabel(param2)
+                scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                axs[row, col].set_xlabel(param1)
+                axs[row, col].set_ylabel(param2)
             except Exception as e:
                 print(str(e))
                 sys.exit(17)
@@ -259,7 +259,12 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-    # Color bar addition für mehrere Subplots
+    show_legend(scatter, axs, result_column)
+    
+def show_legend(scatter, axs, result_column):
+    print_debug("show_legend")
+    global args
+
     if not args.print_to_command_line and not args.no_legend:
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)
@@ -269,16 +274,13 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
 
 def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
     print_debug("plot_two_graphs()")
-    scatter = axs.scatter(df_filtered[non_empty_graphs[0][0]], df_filtered[non_empty_graphs[0][1]], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+    _x = df_filtered[non_empty_graphs[0][0]]
+    _y = df_filtered[non_empty_graphs[0][1]]
+    scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
     # Farbgebung und Legende für das einzelne Scatterplot
-    if not args.print_to_command_line and not args.no_legend:
-        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
-        cbar.set_label(result_column, rotation=270, labelpad=15)
-
-        cbar.formatter.set_scientific(False)
-        cbar.formatter.set_useMathText(False)
+    show_legend(_x, axs, result_column)
 
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs):
     print_debug("plot_single_graph()")
@@ -299,12 +301,7 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
     ax.set_xlabel(non_empty_graphs[0][0])
     ax.set_ylabel(result_column)
 
-    if not args.print_to_command_line and not args.no_legend:
-        cbar = fig.colorbar(scatter, ax=ax, orientation='vertical', fraction=0.02, pad=0.1)
-        cbar.set_label(result_column, rotation=270, labelpad=15)
-
-        cbar.formatter.set_scientific(False)
-        cbar.formatter.set_useMathText(False)
+    show_legend(_y, axs, result_column)
 
 def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     print_debug("plot_graphs")

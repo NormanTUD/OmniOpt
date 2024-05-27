@@ -310,10 +310,12 @@ if [[ "$plot_type" == "default" ]]; then
 	plot_type=$WHATTODO
 	if [[ "$plot_type" == *"save_to_file"* ]]; then
 		plot_type=$(echo "$plot_type" | sed -e 's# .*##')
-		_save_to_file=1
+		if [[ "$_save_to_file" -eq "0" ]]; then
+			_save_to_file=1
+		fi
 	fi
 
-	if [[ "$_save_to_file" == "1" ]]; then
+	if [[ "$_save_to_file" != "0" ]]; then
 		_path=$(whiptail --inputbox "Path of the plot?" 8 39 "$run_dir/$plot_type.svg" --title "Choose path" 3>&1 1>&2 2>&3)
 
 		exitstatus=$?

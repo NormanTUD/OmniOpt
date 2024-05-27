@@ -345,7 +345,7 @@ def get_args ():
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
-    parser.add_argument('--delete_temp', help='Delete temp files', action='store_true', default=False)
+    parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
     parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)

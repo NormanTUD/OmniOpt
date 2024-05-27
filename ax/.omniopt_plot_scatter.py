@@ -521,20 +521,21 @@ def main(args):
 
         # Create a TextBox and set its position
         max_string = ""
-        if args.max:
+        min_string = ""
+
+        if looks_like_float(args.max):
             max_string = str(args.max)
 
-        min_string = ""
-        if args.min:
+        if looks_like_float(args.min):
             min_string = str(args.min)
 
         textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
         minimum_textbox = TextBox(textbox_minimum, 'Minimum:', initial=min_string)
-        minimum_textbox.on_submit(update_graph)
+        minimum_textbox.stop_typing(update_graph)
 
         textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
         maximum_textbox = TextBox(textbox_maximum, 'Maximum:', initial=min_string)
-        maximum_textbox.on_submit(update_graph)
+        maximum_textbox.stop_typing(update_graph)
 
         plt.show()
 

@@ -102,88 +102,109 @@ max=
 run_dir=""
 help=0
 
-args=($*)
+args=("$@")
 k=0
+
 while [ $k -lt ${#args[@]} ]; do
-	arg="${args[k]}"
+    arg="${args[k]}"
 
-        case $arg in
-		--run_dir=*)
-			run_dir="${arg#*=}"
-			shift
-			;;
+    case $arg in
+        --run_dir=*)
+            run_dir="${arg#*=}"
+            shift
+            ;;
 
-		--run_dir)
-			k=$((k+1))
+        --run_dir)
+            k=$((k+1))
+            if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                echo "Error: --run_dir requires a value"
+                exit 1
+            fi
+            run_dir="${args[k]}"
+            shift
+            shift
+            ;;
 
-			run_dir="${args[k]}"
+        --save_to_file=*)
+            _save_to_file="${arg#*=}"
+            shift
+            ;;
 
-			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --run_dir requires a value"
-				exit 1
-			fi
+        --save_to_file)
+            k=$((k+1))
+            if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                echo "Error: --save_to_file requires a value"
+                exit 1
+            fi
+            _save_to_file="${args[k]}"
+            shift
+            shift
+            ;;
 
-			shift
-			shift
-			;;
+        --min=*)
+            min="${arg#*=}"
+            shift
+            ;;
 
+        --min)
+            k=$((k+1))
+            if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                echo "Error: --min requires a value"
+                exit 1
+            fi
+            min="${args[k]}"
+            shift
+            shift
+            ;;
 
-		--save_to_file=*)
-			_save_to_file="${arg#*=}"
-			shift
-			;;
+        --max=*)
+            max="${arg#*=}"
+            shift
+            ;;
 
-		--save_to_file)
-			k=$((k+1))
+        --max)
+            k=$((k+1))
+            if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                echo "Error: --max requires a value"
+                exit 1
+            fi
+            max="${args[k]}"
+            shift
+            shift
+            ;;
 
-			_save_to_file="${args[k]}"
+        --plot_type=*)
+            plot_type="${arg#*=}"
+            shift
+            ;;
 
-			shift
-			shift
-			;;
+        --plot_type)
+            k=$((k+1))
+            if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                echo "Error: --plot_type requires a value"
+                exit 1
+            fi
+            plot_type="${args[k]}"
+            shift
+            shift
+            ;;
 
+        --help|-h)
+            help=1
+            shift
+            ;;
 
+        --debug)
+            set -x
+            shift
+            ;;
 
-
-		--min=*)
-			min="${arg#*=}"
-			shift
-			;;
-		--min)
-			k=$((k+1))
-
-			min="${args[k]}"
-			shift
-			;;
-		--max=*)
-			max="${arg#*=}"
-			shift
-			;;
-		--max)
-			k=$((k+1))
-
-			max="${args[k]}"
-			shift
-			;;
-		--plot_type=*)
-			plot_type="${arg#*=}"
-			shift
-			;;
-		--plot_type)
-			k=$((k+1))
-
-			plot_type="${args[k]}"
-			shift
-			;;
-                --help|-h)
-			help=1
-			shift
-                        ;;
-                --debug)
-                        set -x
-                        ;;
-        esac
-	k=$((k+1))
+        *)
+            echo "Unknown option: $arg"
+            exit 1
+            ;;
+    esac
+    k=$((k+1))
 done
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then

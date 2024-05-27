@@ -39,7 +39,7 @@ if os.path.isfile(requirement_path):
 
 
 setup(name='omniopt',
-    version='0.1',
+    version='0.2',
     description='Automatic hyperparameter optimizer based on Ax/Botorch',
     author='Norman Koch',
     author_email='norman.koch@tu-dresden.de',

@@ -267,7 +267,7 @@ fi
 export NO_WHIPTAIL=1
 
 export EXPECTED_TO_FAIL=1
-./omniopt_plot --run_dir /home/norman/repos/OmniOpt/ax/runs/test_wronggoing_stuff/1
+./omniopt_plot --run_dir /home/norman/repos/OmniOpt/ax/runs/test_wronggoing_stuff/1 --plot_type=scatter --save_to_file tmp.svg
 exit_code=$?
 export EXPECTED_TO_FAIL=0
 
@@ -276,9 +276,11 @@ if [[ "$exit_code" -ne "10" ]]; then
 fi
 
 export EXPECTED_TO_FAIL=1
-./omniopt_plot --run_dir /home/norman/repos/OmniOpt/ax/runs/test_wronggoing_stuff/1 --plot_type=general
+./omniopt_plot --run_dir /home/norman/repos/OmniOpt/ax/runs/test_wronggoing_stuff/1 --plot_type=general --save_to_file tmp.svg
 exit_code=$?
 export EXPECTED_TO_FAIL=0
+
+rm tmp.svg
 
 if [[ "$exit_code" -ne "10" ]]; then
 	errors+=("Plotting general info for test_wronggoing_stuff --nosuccess should not be possible and exit with error code 10 because no result colum was given, got exit-code: $exit_code")

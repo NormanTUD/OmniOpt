@@ -657,7 +657,8 @@ def update_graph(event=None, _min=None, _max=None):
 
         plt.draw()
     except Exception as e:
-        print(f"Failed to update graph: {e}")
+        if not "invalid command name" in str(e):
+            print(f"Failed to update graph: {e}")
 
 def looks_like_float(x):
     print_debug(f"looks_like_float(x = {x})")

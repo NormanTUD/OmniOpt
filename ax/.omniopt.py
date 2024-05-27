@@ -3645,9 +3645,9 @@ def warn_versions():
         "botorch": ["0.10.0", "0.10.1.dev46+g7a844b9e", "0.11.0", "0.9.5"],
         "torch": ["2.3.0"],
         "seaborn": ["0.13.2"],
-        "pandas": ["1.5.3"],
+        "pandas": ["1.5.3", "2.2.2"],
         "numpy": ["1.26.4"],
-        "matplotlib": ["3.6.3"],
+        "matplotlib": ["3.6.3", "3.9.0"],
         "plotext": ["5.2.8"],
         "submitit": ["1.5.1"],
         "tqdm": ["4.66.4"]

@@ -431,6 +431,12 @@ while (my $line = <$fh>) {
 close $fh;
 			' "$input_file" | egrep -v '^\s*0\s*$' | wc -l)
 
+			exit_code=$?
+			if [[ $exit_code -ne 0 ]]; then
+				echo "inline python script failed"
+				exit $exit_code
+			fi
+
 			FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
 
 			GENERAL_INFO="$NUMBEROFJOBS\n$FAILED_JOBS_STRING\n$WALLCLOCK_TIME"

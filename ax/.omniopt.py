@@ -31,7 +31,6 @@ global_vars["mem_gb"] = None
 global_vars["num_parallel_jobs"] = None
 
 pd_csv_filename = "pd.csv"
-file_number = 0
 worker_percentage_usage = []
 is_in_evaluate = False
 end_program_ran = False
@@ -568,20 +567,16 @@ def check_slurm_job_id():
 
 def create_folder_and_file(folder, extension):
     print_debug("create_folder_and_file")
-    global file_number
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    while True:
-        filename = os.path.join(folder, f"{file_number}.{extension}")
+    file_path = os.path.join(folder, f"main.{extension}")
 
-        if not os.path.exists(filename):
-            with open(filename, 'w') as file:
-                pass
-            return filename
+    with open(file_path, 'w') as file:
+        pass
 
-        file_number += 1
+    return file_path
 
 def sort_numerically_or_alphabetically(arr):
     print_debug("sort_numerically_or_alphabetically")
@@ -975,7 +970,7 @@ def add_to_csv(file_path, heading, data_line):
     print_debug("add_to_csv")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
-    with open(file_path, 'a', newline='') as file:
+    with open(file_path, 'a+', newline='') as file:
         csv_writer = csv.writer(file)
 
         if is_empty:

@@ -688,10 +688,11 @@ def create_widgets():
 
     # Create TextBoxes and set their positions
     max_string = ""
+    min_string = ""
+
     if looks_like_float(args.max):
         max_string = str(args.max)
 
-    min_string = ""
     if looks_like_float(args.min):
         min_string = str(args.min)
 

@@ -9,13 +9,16 @@ for i in $(cat .omniop*.py | grep import | grep -v with | sed -e 's#^\s*##' -e '
 import importlib
 import importlib.metadata
 module_name = '$i'
+exists = True
+_str = ''
 try:
     importlib.import_module(module_name)
-    print(f'{module_name}=', end='')
-    print(importlib.metadata.version(module_name))
-except ModuleNotFoundError:
-    print(f'{module_name} not found')
-except Exception as e:
-    print(e)
+    _str += f'{module_name}='
+    _str += importlib.metadata.version(module_name)
+except (Exception, ModuleNotFoundError):
+    exists = False
+
+if exists:
+    print(_str)
 "
 done

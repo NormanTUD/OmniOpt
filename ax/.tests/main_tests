@@ -207,7 +207,7 @@ fi
 yellow_text "Calling plot function for runs/$TESTNAME/0"
 
 TMP_FILE_PATH="._test_run.svg"
-./omniopt_plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH
+./omniopt_plot --run_dir runs/$TESTNAME/0 --save_to_file $TMP_FILE_PATH --plot_type=scatter
 
 yellow_text "Checking plot function"
 if [[ -e $TMP_FILE_PATH ]]; then

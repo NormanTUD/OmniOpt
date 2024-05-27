@@ -662,7 +662,7 @@ def update_graph(event=None):
         print(f"Failed to update graph: {e}")
 
 def looks_like_float(x):
-    print_debug("looks_like_float")
+    print_debug(f"looks_like_float(x = {x})")
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
     elif isinstance(x, str):

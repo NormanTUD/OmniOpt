@@ -92,8 +92,8 @@ def to_int_when_possible(val):
 
 def set_margins (fig):
     print_debug("set_margins()")
-    left  = 0.102
-    right = 0.82
+    left  = 0.04
+    right = 0.864
     bottom = 0.171
     top = 0.9
     wspace = 0.27
@@ -271,7 +271,7 @@ def show_legend(scatter, axs, result_column):
                 if axs[i][j].get_legend():
                     axs[i][j].get_legend().remove()
 
-        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
+        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
         cbar.set_label(result_column, rotation=270, labelpad=15)
 
         cbar.formatter.set_scientific(False)

@@ -512,30 +512,7 @@ def main(args):
             else:
                 print("only jpg and png are currently supported")
     else:
-        global maximum_textbox, minimum_textbox, button
-
-        # Create a Button and set its position
-        button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
-        button = Button(button_ax, 'Update Graph')
-        button.on_clicked(update_graph)
-
-        # Create a TextBox and set its position
-        max_string = ""
-        min_string = ""
-
-        if looks_like_float(args.max):
-            max_string = str(args.max)
-
-        if looks_like_float(args.min):
-            min_string = str(args.min)
-
-        textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
-        minimum_textbox = TextBox(textbox_minimum, 'Minimum:', initial=min_string)
-        minimum_textbox.on_submit(update_graph)
-
-        textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
-        maximum_textbox = TextBox(textbox_maximum, 'Maximum:', initial=max_string)
-        maximum_textbox.on_submit(update_graph)
+        create_widgets()
 
         plt.show()
 

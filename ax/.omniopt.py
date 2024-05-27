@@ -170,7 +170,6 @@ def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
 
         _log_trial_index_to_param(trial_index, _lvl + 1, e)
 
-
 def _debug_worker_creation(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
@@ -623,7 +622,6 @@ def get_program_code_from_out_file(f):
             if "Program-Code:" in line:
                 return line
 
-
 def get_max_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the maximum value in the specified column.
@@ -679,7 +677,6 @@ def flatten_extend(matrix):
     for row in matrix:
         flat_list.extend(row)
     return flat_list
-
 
 def get_bound_if_prev_data(_type, _column, _default):
     ret_val = _default
@@ -777,7 +774,6 @@ def parse_experiment_parameters(args):
                     print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
                     lower_bound = -upper_bound
 
-
                 if lower_bound > upper_bound:
                     print_color("yellow", f":warning: Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
                     tmp = upper_bound
@@ -803,7 +799,6 @@ def parse_experiment_parameters(args):
                     if not looks_like_int(lower_bound):
                         print_color("yellow", f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
                         lower_bound = math.floor(lower_bound)
-
 
                     if not looks_like_int(upper_bound):
                         print_color("yellow", f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
@@ -1269,7 +1264,6 @@ def print_best_result(csv_file_path, result_column):
 
             console.print(table)
 
-
             with console.capture() as capture:
                 console.print(table)
             table_str = capture.get()
@@ -1308,7 +1302,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         print_best_result(csv_file_path, result_column)
-
 
     if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
         already_shown_worker_usage_over_time = True
@@ -1627,32 +1620,31 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         ax_client = None
         try:
-            try:
-                f = open(checkpoint_file)
+            f = open(checkpoint_file)
+            experiment_parameters = json.load(f)
+            f.close()
+
+            with open(checkpoint_file) as f:
                 experiment_parameters = json.load(f)
-                f.close()
 
-                with open(checkpoint_file) as f:
-                    experiment_parameters = json.load(f)
+            import torch
 
-                import torch
+            cuda_is_available = torch.cuda.is_available()
 
-                cuda_is_available = torch.cuda.is_available()
-
-                if not cuda_is_available or cuda_is_available == 0:
-                    print_color("red", "No suitable CUDA devices found")
+            if not cuda_is_available or cuda_is_available == 0:
+                print_color("red", "No suitable CUDA devices found")
+            else:
+                if torch.cuda.device_count() >= 1:
+                    torch_device = torch.cuda.current_device()
+                    if "choose_generation_strategy_kwargs" not in experiment_parameters:
+                        experiment_parameters["choose_generation_strategy_kwargs"] = {}
+                    experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+                    print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
-                    if torch.cuda.device_count() >= 1:
-                        torch_device = torch.cuda.current_device()
-                        if "choose_generation_strategy_kwargs" not in experiment_parameters:
-                            experiment_parameters["choose_generation_strategy_kwargs"] = {}
-                        experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
-                        print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
-                    else:
-                        print_color("red", "No CUDA devices found")
-            except ModuleNotFoundError:
-                print_color("red", "Cannot load torch and thus, cannot use gpu")
-                experiment_parameters = None
+                    print_color("red", "No CUDA devices found")
+        except ModuleNotFoundError:
+            print_color("red", "Cannot load torch and thus, cannot use gpu")
+            experiment_parameters = None
 
         except json.decoder.JSONDecodeError as e:
             print_color("red", f"Error parsing checkpoint_file {checkpoint_file}")
@@ -1679,7 +1671,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         if not os.path.exists(submitted_jobs_file_dest):
             shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
-
 
         if parameter:
             for _item in cli_params_experiment_parameters:
@@ -2609,7 +2600,6 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
             print_color("red", f"Error 2: {e}")
             return 0
 
-
         random_steps_left = done_jobs() - random_steps
 
         if random_steps_left <= 0 and done_jobs() <= random_steps:
@@ -2776,7 +2766,6 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
                 time.sleep(10)
         if submitted_jobs() >= max_eval:
             raise searchDone("Search done")
-
 
         finish_previous_jobs(args, ["finishing jobs"])
 
@@ -2966,7 +2955,6 @@ def main():
                     print(f"Auto-Executing step {args.auto_execute_counter}/max. {args.max_auto_execute}")
                 else:
                     print(f"Auto-Executing step {args.auto_execute_counter}")
-
 
             max_nr_steps = second_step_steps
             if submitted_jobs() < random_steps:
@@ -3355,8 +3343,6 @@ def find_files(directory, extension='.out'):
             if filename.endswith(extension):
                 files.append(os.path.join(root, filename))
     return files
-
-
 
 def analyze_out_files(rootdir, print_to_stdout=True):
     try:

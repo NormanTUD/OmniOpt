@@ -266,8 +266,8 @@ def show_legend(scatter, axs, result_column):
     global args
 
     if not args.print_to_command_line and not args.no_legend:
-        if ax.get_legend():
-            ax.get_legend().remove()
+        if axs[0][0].get_legend():
+            axs[0][0].get_legend().remove()
 
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)
@@ -599,7 +599,7 @@ def convert_string_to_number(input_string):
 
 
 # Define update function for the button
-def update_graph(_min=None, _max=None):
+def update_graph(event=None, _min=None, _max=None):
     print_debug("update_graph")
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
@@ -692,6 +692,10 @@ def change_min_max(expression):
         
         update_graph(None)
     except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
         print(f"Failed to update graph with expression '{expression}': {e}")
 
 def create_widgets():

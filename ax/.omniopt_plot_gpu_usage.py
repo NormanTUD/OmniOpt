@@ -94,8 +94,6 @@ if __name__ == "__main__":
     parser.add_argument('--darkmode', help='Enable darktheme (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)
-    parser.add_argument('--result_column', type=str, help='Name of the result column (useless here)', default="result")
-
 
     args = parser.parse_args()
 

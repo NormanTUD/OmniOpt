@@ -131,7 +131,7 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
     title_values = []
 
     for l in extreme_values_items:
-        if not args.result_column in l:
+        if not "result" in l:
             key = l[0]
             value = to_int_when_possible(l[1])
             title_values.append(f"{key} = {value}")
@@ -494,7 +494,7 @@ def plot_image_to_command_line(title, path):
 def main():
     global args
     #plot_image_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
-    result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
+    result_column = os.getenv("OO_RESULT_COLUMN_NAME", "result")
 
     use_matplotlib()
 
@@ -614,7 +614,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
-        result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
+        result_column = os.getenv("OO_RESULT_COLUMN_NAME", "result")
         csv_file_path = get_csv_file_path()
         df = get_data(csv_file_path, result_column, _min, _max)
 

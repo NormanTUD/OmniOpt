@@ -107,7 +107,6 @@ def main():
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with (useless here)", default=[])
-    parser.add_argument('--result_column', type=str, help='Name of the result column (useless here)', default="result")
     parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)

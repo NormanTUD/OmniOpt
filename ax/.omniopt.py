@@ -2840,6 +2840,7 @@ def main():
 
     try:
         from art import text2art
+        print("")
         original_print(text2art("OmniOpt", font="random"))
     except Exception as e:
         print_color("green", "OmniOpt")

@@ -534,7 +534,7 @@ def main(args):
         minimum_textbox.on_submit(update_graph)
 
         textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
-        maximum_textbox = TextBox(textbox_maximum, 'Maximum:', initial=min_string)
+        maximum_textbox = TextBox(textbox_maximum, 'Maximum:', initial=max_string)
         maximum_textbox.on_submit(update_graph)
 
         plt.show()
@@ -695,13 +695,13 @@ def create_widgets():
     if looks_like_float(args.min):
         min_string = str(args.min)
 
-    textbox_maximum = plt.axes([0.2, 0.025, 0.1, 0.04])
-    maximum_textbox = TextBox(textbox_maximum, 'Maximum:', initial=max_string)
-    maximum_textbox.on_submit(submit)
-
-    textbox_minimum = plt.axes([0.5, 0.025, 0.1, 0.04])
+    textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
     minimum_textbox = TextBox(textbox_minimum, 'Minimum:', initial=min_string)
-    minimum_textbox.on_submit(submit)
+    minimum_textbox.on_submit(update_graph)
+
+    textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
+    maximum_textbox = TextBox(textbox_maximum, 'Maximum:', initial=max_string)
+    maximum_textbox.on_submit(update_graph)
      
 if __name__ == "__main__":
     try:

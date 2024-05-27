@@ -280,7 +280,7 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
     # Farbgebung und Legende für das einzelne Scatterplot
-    show_legend(_x, axs, result_column)
+    show_legend(_y, axs, result_column)
 
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs):
     print_debug("plot_single_graph()")

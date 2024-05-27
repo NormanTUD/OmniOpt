@@ -266,8 +266,10 @@ def show_legend(scatter, axs, result_column):
     global args
 
     if not args.print_to_command_line and not args.no_legend:
-        if axs[0][0].get_legend():
-            axs[0][0].get_legend().remove()
+        for i in range(0, len(axs[0]) - 1):
+            for j in range(0, len(axs[0]) - 1):
+                if axs[i][j].get_legend():
+                    axs[i][j].get_legend().remove()
 
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.1)
         cbar.set_label(result_column, rotation=270, labelpad=15)

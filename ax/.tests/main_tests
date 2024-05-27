@@ -195,7 +195,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --max_eval 10 --mem_gb 1 --time 30 --follow --gpus=$NUM_GPUS
+./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --max_eval=10 --mem_gb 1 --time 30 --follow --gpus=$NUM_GPUS
 exit_code=$?
 
 yellow_text "Continuation failed program ended..."

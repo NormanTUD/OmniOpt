@@ -242,7 +242,7 @@ if [[ "$plot_type" == "default" ]]; then
 	done
 
 	if [ ${#whiptail_args[@]} -eq 0 ]; then
-		echo "It seems like the run folder does not have any plottable data."
+		echo "It seems like the run folder $run_dir does not have any plottable data."
 		exit 3
 	fi
 

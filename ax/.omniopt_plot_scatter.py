@@ -494,7 +494,7 @@ def plot_image_to_command_line(title, path):
 def main():
     global args
     #plot_image_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
-    result_column = os.getenv("OO_RESULT_COLUMN_NAME", "result")
+    result_column = "result"
 
     use_matplotlib()
 
@@ -614,7 +614,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
-        result_column = os.getenv("OO_RESULT_COLUMN_NAME", "result")
+        result_column = "result"
         csv_file_path = get_csv_file_path()
         df = get_data(csv_file_path, result_column, _min, _max)
 

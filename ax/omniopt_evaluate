@@ -27,7 +27,6 @@ export HIDEMAXVALUESINPLOT=0
 export ASKEDTOUPGRADE=0
 export DISPLAYGAUGE=1
 export SCIENTIFICNOTATION=4
-export OO_RESULT_COLUMN_NAME=result
 export DEBUG=0
 export LOAD_MODULES=1
 export UPGRADE=1
@@ -462,7 +461,7 @@ close $fh;
 
 function change_variables {
 	eval `resize`
-	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run (currently $DEBUG)" "OO_RESULT_COLUMN_NAME" "The name of the result column in scatter plots (default: result, currently: $OO_RESULT_COLUMN_NAME)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "s)" "Save current settings as default for this OmniOpt-installation" "S)" "Save current settings as default for all OmniOpt-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
+	MENU_CHOICE=$(whiptail --title "Change variables" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" "DEBUG" "Debug evaluate-run (currently $DEBUG)" "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" "s)" "Save current settings as default for this OmniOpt-installation" "S)" "Save current settings as default for all OmniOpt-installations on your account" "m)" "Main menu" 3>&1 1>&2 2>&3)
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$MENU_CHOICE" =~ "m)" ]]; then
@@ -512,10 +511,6 @@ function change_variables {
 				export HIDEMAXVALUESINPLOT=0
 			fi
 
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "OO_RESULT_COLUMN_NAME" ]]; then
-			chosenvar=$(whiptail --inputbox "Name of the default result-column for plots (default: result)" 8 80 "$OO_RESULT_COLUMN_NAME" --title "OO_RESULT_COLUMN_NAME" 3>&1 1>&2 2>&3)
-			eval "export $MENU_CHOICE=$chosenvar"
 			change_variables
 		elif [[ "$MENU_CHOICE" =~ "SCIENTIFICNOTATION" ]]; then
 			chosenvar=$(whiptail --inputbox "Use scientific notation? 0 = no, 1 = yes with 1 decimal point, 2 = yes with 2 decimal points, ..." 8 80 "$SCIENTIFICNOTATION" --title "SCIENTIFICNOTATION" 3>&1 1>&2 2>&3)
@@ -573,7 +568,6 @@ function change_variables {
 			echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
 			echo "export DEBUG=$DEBUG" >> .oax_default_settings
 			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .oax_default_settings
-			echo "export OO_RESULT_COLUMN_NAME=$OO_RESULT_COLUMN_NAME" >> .oax_default_settings
 		elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
 			if [[ -e "$HOME/.oax_default_settings" ]]; then
 				rm ~/.oax_default_settings
@@ -588,7 +582,6 @@ function change_variables {
 			echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
 			echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings
 			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oax_default_settings
-			echo "export OO_RESULT_COLUMN_NAME=$OO_RESULT_COLUMN_NAME" >> ~/.oax_default_settings
 		else
 			eval `resize`
 			whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3

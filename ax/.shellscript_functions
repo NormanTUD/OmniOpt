@@ -128,7 +128,11 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		ppip plotille
 		ppip watchdog
 		ppip seaborn
-		ppip tkinter
+		if ! declare -f ml 2>/dev/null >/dev/null; then
+			ppip tkinter
+		else
+			echo "Not installing tkinter, because it (hopefully) has already been loaded with ml"
+		fi
 	fi
 
 	source $VENV_DIR/bin/activate

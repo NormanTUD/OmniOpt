@@ -2838,6 +2838,8 @@ def finish_previous_jobs_random(args):
 def main():
     print_debug("main")
 
+    print_color("green", "OmniOpt")
+
     _debug_worker_creation("time, nr_workers, got, requested, phase")
     global args
     global result_csv_file
@@ -2865,7 +2867,6 @@ def main():
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
     print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
-    print_color("green", "OmniOpt")
 
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
     nvidia_smi_thread = start_nvidia_smi_thread()

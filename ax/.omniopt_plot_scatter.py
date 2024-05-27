@@ -613,7 +613,7 @@ def update_graph(event=None):
         if maximum_textbox and looks_like_float(maximum_textbox.text):
             _max = convert_string_to_number(maximum_textbox.text)
 
-        print(f"update_graph: _min = {_min}, _max = {_max}")
+        print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
         result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
         csv_file_path = get_csv_file_path()

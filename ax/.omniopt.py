@@ -523,7 +523,6 @@ try:
 
         import logging
         logging.basicConfig(level=logging.ERROR)
-        warnings.filterwarnings("ignore", category=RuntimeWarning)
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
     exit_local(20)
@@ -1213,31 +1212,36 @@ def disable_logging():
     logging.getLogger("ax.service.utils").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.report_utils").setLevel(logging.ERROR)
 
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
+    warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
 
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
     warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
-    warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
 
+    warnings.filterwarnings("ignore", category=UserWarning)
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
     warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.cross_validation")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge")
-    warnings.filterwarnings("ignore", category=Warning, module="ax")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.best_point")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
     warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
     warnings.filterwarnings("ignore", category=UserWarning, module="botorch.optim.fit")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
+    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
     warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
+
+    warnings.filterwarnings("ignore", category=Warning)
+    warnings.filterwarnings("ignore", category=Warning, module="ax")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.cross_validation")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.best_point")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
+    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
+
     print_debug("disable_logging done")
 
 def print_best_result(csv_file_path, result_column):
@@ -1298,8 +1302,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
     if shown_end_table:
         print("End table already shown, not doing it again")
         return
-
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
 
     _exit = 0
 

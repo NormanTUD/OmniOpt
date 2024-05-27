@@ -30,6 +30,7 @@ global_vars["_time"] = None
 global_vars["mem_gb"] = None
 global_vars["num_parallel_jobs"] = None
 
+pd_csv_filename = "pd.csv"
 file_number = 0
 worker_percentage_usage = []
 is_in_evaluate = False
@@ -694,7 +695,7 @@ def get_bound_if_prev_data(_type, _column, _default):
     if args.load_previous_job_data and len(args.load_previous_job_data):
         prev_runs = flatten_extend(args.load_previous_job_data)
         for prev_run in prev_runs:
-            pd_csv = f"{prev_run}/pd.csv"
+            pd_csv = f"{prev_run}/{pd_csv_filename}"
 
             if os.path.exists(pd_csv):
                 if _type == "lower":
@@ -705,7 +706,7 @@ def get_bound_if_prev_data(_type, _column, _default):
                 print_color("red", f"{pd_csv} was not found")
 
     if args.continue_previous_job:
-        pd_csv = "{args.continue_previous_job}/pd.csv"
+        pd_csv = "{args.continue_previous_job}/pd_csv_filename"
         if os.path.exists(pd_csv):
             if _type == "lower":
                 ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column, _default)) * strictly_larger
@@ -1467,7 +1468,7 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
 
     save_pd_csv()
 
-    pd_csv = f'{current_run_folder}/pd.csv'
+    pd_csv = f'{current_run_folder}/{pd_csv_filename}'
     try:
         find_promising_bubbles(pd_csv)
     except Exception as e:
@@ -1525,7 +1526,7 @@ def save_pd_csv():
     print_debug("save_pd_csv")
     global ax_client
 
-    pd_csv = f'{current_run_folder}/pd.csv'
+    pd_csv = f'{current_run_folder}/{pd_csv_filename}'
     pd_json = f'{current_run_folder}/pd.json'
 
     try:
@@ -2039,7 +2040,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
             old_arm_parameter = old_trial.arm.parameters
 
-            old_result_simple = get_old_result_by_params(f"{this_path}/pd.csv", old_arm_parameter)
+            old_result_simple = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)
 
             hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
 
@@ -2058,7 +2059,7 @@ def load_data_from_existing_run_folders(args, _paths):
                     print_debug("Prevented inserting a double entry")
                     already_inserted_param_hashes[hashed_params_result] += 1
             else:
-                print_color("yellow", f"Old result for {old_arm_parameter} could not be found in {this_path}/pd.csv, if it exists in other files, it will probably be added.")
+                print_color("yellow", f"Old result for {old_arm_parameter} could not be found in {this_path}/{pd_csv_filename}, if it exists in other files, it will probably be added.")
 
 def finish_previous_jobs(args, new_msgs):
     print_debug("finish_previous_jobs")
@@ -2166,7 +2167,7 @@ def finish_previous_jobs(args, new_msgs):
             progress_bar.update(1)
 
             if args.verbose:
-                progressbar_description(["saving checkpoints and pd.csv"])
+                progressbar_description([f"saving checkpoints and {pd_csv_filename}"])
             save_checkpoint()
             save_pd_csv()
         else:
@@ -3674,5 +3675,5 @@ if __name__ == "__main__":
         else:
             warnings.simplefilter("ignore")
 
-            #dier(find_promising_bubbles("runs/custom_run/8/pd.csv"))
+            #dier(find_promising_bubbles(f"runs/custom_run/8/{pd_csv_filename}"))
             main()

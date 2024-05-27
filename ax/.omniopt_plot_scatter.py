@@ -539,6 +539,48 @@ def main(args):
         plt.show()
 
         update_graph()
+
+def convert_string_to_number(input_string):
+    try:
+        assert isinstance(input_string, str), "Input must be a string"
+        
+        # Replace commas with dots
+        input_string = input_string.replace(",", ".")
+
+        # Regular expression patterns for int and float
+        float_pattern = re.compile(r"[+-]?\d*\.\d+")
+        int_pattern = re.compile(r"[+-]?\d+")
+
+        # Search for float pattern
+        float_match = float_pattern.search(input_string)
+        if float_match:
+            number_str = float_match.group(0)
+            try:
+                number = float(number_str)
+                return number
+            except ValueError as e:
+                print(f"Failed to convert {number_str} to float: {e}")
+
+        # If no float found, search for int pattern
+        int_match = int_pattern.search(input_string)
+        if int_match:
+            number_str = int_match.group(0)
+            try:
+                number = int(number_str)
+                return number
+            except ValueError as e:
+                print(f"Failed to convert {number_str} to int: {e}")
+
+        return None
+
+    except AssertionError as e:
+        print(f"Assertion error: {e}")
+        return None
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return None
+
+
 # Define update function for the button
 def update_graph(event=None):
     global fig, ax, button, maximum_textbox, minimum_textbox, args
@@ -548,10 +590,10 @@ def update_graph(event=None):
         _max = None
 
         if minimum_textbox and looks_like_float(minimum_textbox.text):
-            _min = float(minimum_textbox.text)
+            _min = convert_string_to_number(minimum_textbox.text)
 
         if maximum_textbox and looks_like_float(maximum_textbox.text):
-            _max = float(maximum_textbox.text)
+            _max = convert_string_to_number(maximum_textbox.text)
 
         result_column = os.getenv("OO_RESULT_COLUMN_NAME", args.result_column)
         csv_file_path = get_csv_file_path(args)

@@ -565,13 +565,13 @@ def check_slurm_job_id():
                 "This may cause the system to slow down for all other users. It is recommended uou run the main script in a Slurm job."
             )
 
-def create_folder_and_file(folder, extension):
+def create_folder_and_file(folder):
     print_debug("create_folder_and_file")
 
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    file_path = os.path.join(folder, f"main.{extension}")
+    file_path = os.path.join(folder, f"main.csv")
 
     with open(file_path, 'w') as file:
         pass
@@ -2856,7 +2856,7 @@ def main():
         current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{folder_number}"
         folder_number = folder_number + 1
 
-    result_csv_file = create_folder_and_file(f"{current_run_folder}", "csv")
+    result_csv_file = create_folder_and_file(f"{current_run_folder}")
 
     save_state_files(args, _time)
 
@@ -3663,7 +3663,7 @@ def warn_versions():
 if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
-            #dier(get_best_params("runs/test_wronggoing_stuff/2/0.csv", "result"))
+            #dier(get_best_params("runs/test_wronggoing_stuff/2/results.csv", "result"))
             #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
 
             run_tests()

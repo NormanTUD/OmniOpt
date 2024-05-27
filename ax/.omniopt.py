@@ -571,7 +571,7 @@ def create_folder_and_file(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    file_path = os.path.join(folder, f"main.csv")
+    file_path = os.path.join(folder, f"results.csv")
 
     with open(file_path, 'w') as file:
         pass

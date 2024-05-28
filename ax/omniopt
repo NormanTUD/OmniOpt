@@ -77,8 +77,10 @@ function red_text {
 }
 
 function calltracer () {
-        red_text 'Error occured in file/line:'
-        caller
+	LINE_AND_FUNCTION=$(caller)
+	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]]; then
+		red_text "Error occured in file/line: $LINE_AND_FUNCTION"
+	fi
 
 	echo "Runtime: $(displaytime $SECONDS)"
 	tput bel

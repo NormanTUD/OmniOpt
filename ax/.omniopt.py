@@ -2078,6 +2078,7 @@ def load_data_from_existing_run_folders(args, _paths):
             hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
 
             global already_inserted_param_hashes
+            print(f"old_result_simple: {old_result_simple}")
 
             if old_result_simple:
                 if hashed_params_result not in already_inserted_param_hashes.keys():

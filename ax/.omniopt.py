@@ -1767,8 +1767,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if equation:
                     experiment_args["parameter_constraints"].append(constraints_string)
                 else:
-                    print_color("red", "Experiment constraints are invalid.")
-                    exit_local(28)
+                    print_color("red", f"Experiment constraint '{constraints_string}' is invalid and will be ignored.")
 
         try:
             experiment = ax_client.create_experiment(**experiment_args)
@@ -1934,7 +1933,7 @@ def check_equation(variables, equation):
                 "value": item
             })
         else:
-            print_color("red", f"constraint error: Invalid item {item} in constraint '{equation}'")
+            print_color("red", f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
             return False
 
     parsed_order_string = ";".join(parsed_order)

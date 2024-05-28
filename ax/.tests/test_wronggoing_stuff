@@ -135,6 +135,7 @@ EXPECTED_TO_FAIL=1
 	--gpus=$GPUS \
 	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \
+	--hide_ascii_plots \
 	--follow
 
 exit $?

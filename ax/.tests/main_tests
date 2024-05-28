@@ -268,7 +268,7 @@ fi
 export NO_WHIPTAIL=1
 
 export EXPECTED_TO_FAIL=1
-./omniopt_plot --run_dir /home/norman/repos/OmniOpt/ax/runs/test_wronggoing_stuff/1 --plot_type=scatter --save_to_file=tmp.svg
+./omniopt_plot --run_dir ax/runs/test_wronggoing_stuff/1 --plot_type=scatter --save_to_file=tmp.svg
 exit_code=$?
 export EXPECTED_TO_FAIL=0
 
@@ -277,7 +277,7 @@ if [[ "$exit_code" -ne "10" ]]; then
 fi
 
 export EXPECTED_TO_FAIL=1
-./omniopt_plot --run_dir /home/norman/repos/OmniOpt/ax/runs/test_wronggoing_stuff/0 --plot_type=general --save_to_file=tmp.svg
+./omniopt_plot --run_dir runs/test_wronggoing_stuff/0 --plot_type=general --save_to_file=tmp.svg
 exit_code=$?
 export EXPECTED_TO_FAIL=0
 

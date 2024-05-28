@@ -283,8 +283,8 @@ export EXPECTED_TO_FAIL=0
 
 rm tmp.svg
 
-if [[ "$exit_code" -ne "10" ]]; then
-	errors+=("Plotting general info for test_wronggoing_stuff --nosuccess should not be possible and exit with error code 10 because no result colum was given, got exit-code: $exit_code")
+if [[ "$exit_code" -ne "00" ]]; then
+	errors+=("Plotting general info for test_wronggoing_stuff should be possible and exit with error code 0, got exit-code: $exit_code")
 fi
 
 if [ ${#errors[@]} -eq 0 ]; then

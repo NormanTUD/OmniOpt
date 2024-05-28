@@ -594,6 +594,8 @@ def looks_like_number (x):
     return looks_like_float(x) or looks_like_int(x)
 
 def looks_like_float(x):
+    if x == "nan":
+        return False
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
     elif isinstance(x, str):

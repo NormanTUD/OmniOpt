@@ -2098,6 +2098,7 @@ def load_data_from_existing_run_folders(args, _paths):
                             already_inserted_param_hashes[hashed_params_result] = 1
 
                             done_converting = True
+                            save_pd_csv()
                         except ax.exceptions.core.UnsupportedError as e:
                             parsed_error = parse_parameter_type_error(e)
 

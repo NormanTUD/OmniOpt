@@ -2026,6 +2026,36 @@ def load_existing_job_data_into_ax_client(args):
     if args.continue_previous_job:
         load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
+def parse_parameter_type_error(error_message):
+    error_message = str(error_message)
+    try:
+        # Defining the regex pattern to match the required parts of the error message
+        pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected  <class '(?P<expected_type>\w+)'>."
+        match = re.search(pattern, error_message)
+
+        # Asserting the match is found
+        assert match is not None, "Pattern did not match the error message."
+
+        # Extracting values from the match object
+        parameter_name = match.group("parameter_name")
+        current_type = match.group("current_type")
+        expected_type = match.group("expected_type")
+
+        # Asserting the extracted values are correct
+        assert parameter_name is not None, "Parameter name not found in the error message."
+        assert current_type is not None, "Current type not found in the error message."
+        assert expected_type is not None, "Expected type not found in the error message."
+
+        # Returning the parsed values
+        return {
+            "parameter_name": parameter_name,
+            "current_type": current_type,
+            "expected_type": expected_type
+        }
+    except AssertionError as e:
+        # Logging the error
+        return None
+
 def load_data_from_existing_run_folders(args, _paths):
     #dier(help(ax_client.experiment.search_space))
     for this_path in _paths:
@@ -2055,11 +2085,24 @@ def load_data_from_existing_run_folders(args, _paths):
                 if hashed_params_result not in already_inserted_param_hashes.keys():
                     old_result = {'result': old_result_simple}
 
-                    new_old_trial = ax_client.attach_trial(old_arm_parameter)
+                    done_converting = False
 
-                    ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+                    while not done_converting:
+                        try:
+                            new_old_trial = ax_client.attach_trial(old_arm_parameter)
 
-                    already_inserted_param_hashes[hashed_params_result] = 1
+                            ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+
+                            already_inserted_param_hashes[hashed_params_result] = 1
+
+                            done_converting = True
+                        except ax.exceptions.core.UnsupportedError as e:
+                            parsed_error = parse_parameter_type_error(e)
+
+                            if parsed_error["expected_type"] == "int":
+                                old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
+                            else:
+                                old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
                 else:
                     print_debug("Prevented inserting a double entry")
                     already_inserted_param_hashes[hashed_params_result] += 1

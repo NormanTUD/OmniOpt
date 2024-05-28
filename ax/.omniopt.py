@@ -3684,7 +3684,8 @@ def find_promising_bubbles(pd_csv):
 
         argv_copy_string = " ".join(argv_copy)
 
-        original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")
+        if "--parameter" in argv_copy_string:
+            original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")
 
         if args.experimental and args.auto_execute_suggestions:
             if system_has_sbatch:

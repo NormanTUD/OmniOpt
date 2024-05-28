@@ -1,6 +1,8 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
+FROZEN=""
+
 function displaytime {
 	local T=$1
 		local D=$((T/60/60/24))
@@ -70,7 +72,10 @@ VENV_DIR=$HOME/$VENV_DIR_NAME
 UPGRADED_PIP=0
 
 function ppip {
-	if ! pip freeze | grep "$1" 2>/dev/null >/dev/null; then
+	echo "$FROZEN" | grep -i "$1" 2>/dev/null >/dev/null
+	_exit_code=$?
+
+	if [[ "$_exit_code" != "0" ]]; then
 		if [[ "$UPGRADED_PIP" -eq "0" ]]; then
 			pip install --upgrade pip
 			UPGRADED_PIP=1
@@ -87,8 +92,6 @@ function ppip {
 		}
 
 		green "$1 installed successfully"
-	else
-		green "$1 is already installed"
 	fi
 }
 
@@ -148,8 +151,12 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		green "Virtual Environment activated. Now installing software. This may take some time."
 
 	fi
-
-	source $VENV_DIR/bin/activate
 fi
 
+source $VENV_DIR/bin/activate || {
+	red "Failed to activate $VENV_DIR"
+	exit 2
+}
+
+FROZEN=$(pip3 freeze)
 install_required_modules

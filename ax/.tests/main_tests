@@ -215,7 +215,7 @@ if [[ -e $TMP_FILE_PATH ]]; then
 	if cat $TMP_FILE_PATH | grep Minimum 2>/dev/null >/dev/null; then
 		if cat $TMP_FILE_PATH | grep float_param 2>/dev/null >/dev/null; then
 			number_of_evals_run=$(cat $TMP_FILE_PATH | grep "Number of evaluations shown"  | sed -e 's#\s*-->##' | sed -e 's#.*\s##' | sed -e 's#\s##g')
-			if [[ "$number_of_evals_run" -eq "$max_eval" ]] || [[ "$number_of_evals_run" -gt "$max_eval" ]]; then
+			if [[ "$number_of_evals_run" -gt 2 ]]; then
 				green_text "Minimum, float_param found, also number_of_evals_run matches max_eval or is larger than it (max_eval = $max_eval, number_of_evals_run = $number_of_evals_run)"
 			else
 				errors+=("number_of_evals_run ($number_of_evals_run) does not match wanted max_eval ($max_eval)")

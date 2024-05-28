@@ -2122,7 +2122,7 @@ def load_data_from_existing_run_folders(args, _paths):
                     print_debug("Prevented inserting a double entry")
                     already_inserted_param_hashes[hashed_params_result] += 1
             else:
-                original_print(f"Old result for {old_arm_parameter} could not be found in {this_path}/{pd_csv_filename}, if it exists in other files, it will probably be added.")
+                original_print(f"Old result for {old_arm_parameter} could not be found in {this_path}/{pd_csv_filename}.")
 
 def finish_previous_jobs(args, new_msgs):
     print_debug("finish_previous_jobs")

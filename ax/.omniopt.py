@@ -594,8 +594,6 @@ def looks_like_number (x):
     return looks_like_float(x) or looks_like_int(x)
 
 def looks_like_float(x):
-    if x == "nan":
-        return False
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
     elif isinstance(x, str):
@@ -2084,7 +2082,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
             global already_inserted_param_hashes
 
-            if looks_like_number(old_result_simple):
+            if looks_like_number(old_result_simple) and old_result_simple != "nan":
                 if hashed_params_result not in already_inserted_param_hashes.keys():
                     print(f"old_result_simple: {old_result_simple}")
                     old_result = {'result': old_result_simple}

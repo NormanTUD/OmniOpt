@@ -590,6 +590,9 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
+def looks_like_number (x):
+    return looks_like_float(x) or looks_like_int(x)
+
 def looks_like_float(x):
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
@@ -2080,7 +2083,7 @@ def load_data_from_existing_run_folders(args, _paths):
             global already_inserted_param_hashes
             print(f"old_result_simple: {old_result_simple}")
 
-            if old_result_simple:
+            if looks_like_number(old_result_simple):
                 if hashed_params_result not in already_inserted_param_hashes.keys():
                     old_result = {'result': old_result_simple}
 

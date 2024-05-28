@@ -201,8 +201,8 @@ exit_code=$?
 
 yellow_text "Continuation failed program ended..."
 
-if [[ "$exit_code" -ne "44" ]]; then
-	errors+=("Continuation of failed path failed with $exit_code (should have been 44)")
+if [[ "$exit_code" -ne "105" ]]; then
+	errors+=("Continuation of failed path failed with $exit_code (should have been 105)")
 fi
 
 yellow_text "Calling plot function for runs/$TESTNAME/0"

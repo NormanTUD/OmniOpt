@@ -472,6 +472,11 @@ if [[ $tests -eq 0 ]]; then
 fi
 
 if [[ "$continue_previous_job" != "" ]]; then
+	if [[ ! -d "$continue_previous_job" ]]; then
+		echo "The folder $continue_previous_job was not found"
+		exit 105
+	fi
+
 	if [[ -z "$mem_gb" ]]; then
 		if [[ -e "$continue_previous_job/mem_gb" ]]; then
 			mem_gb=$(cat "$continue_previous_job/mem_gb")

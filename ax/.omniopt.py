@@ -683,6 +683,8 @@ def get_bound_if_prev_data(_type, _column, _default):
 
     strictly_larger = 1.1 # cause the search space has to be strictly larger
 
+    found_in_file = False
+
     if args.load_previous_job_data and len(args.load_previous_job_data):
         prev_runs = flatten_extend(args.load_previous_job_data)
         for prev_run in prev_runs:
@@ -690,9 +692,15 @@ def get_bound_if_prev_data(_type, _column, _default):
 
             if os.path.exists(pd_csv):
                 if _type == "lower":
-                    ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column, _default)) * strictly_larger
+                    _old_min_col = get_min_column_value(pd_csv, _column, _default)
+                    if _old_min_col:
+                        found_in_file = True
+                    ret_val = min(ret_val, _default, _old_min_col) * strictly_larger
                 else:
-                    ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column, _default)) * strictly_larger
+                    _old_max_col = get_max_column_value(pd_csv, _column, _default)
+                    if _old_max_col:
+                        found_in_file = True
+                    ret_val = max(ret_val, _default, _old_max_col) * strictly_larger
             else:
                 print_color("red", f"{pd_csv} was not found")
 
@@ -700,13 +708,19 @@ def get_bound_if_prev_data(_type, _column, _default):
         pd_csv = f"{args.continue_previous_job}/{pd_csv_filename}"
         if os.path.exists(pd_csv):
             if _type == "lower":
-                ret_val = min(ret_val, _default, get_min_column_value(pd_csv, _column, _default)) * strictly_larger
+                _old_min_col = get_min_column_value(pd_csv, _column, _default)
+                if _old_min_col:
+                    found_in_file = True
+                ret_val = min(ret_val, _default, _old_min_col) * strictly_larger
             else:
-                ret_val = max(ret_val, _default, get_max_column_value(pd_csv, _column, _default)) * strictly_larger
+                _old_max_col = get_max_column_value(pd_csv, _column, _default)
+                if _old_max_col:
+                    found_in_file = True
+                ret_val = max(ret_val, _default, _old_max_col) * strictly_larger
         else:
             print_color("red", f"{pd_csv} was not found")
 
-    return round(ret_val, 4)
+    return round(ret_val, 4), found_in_file
 
 def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")
@@ -807,29 +821,32 @@ def parse_experiment_parameters(args):
                 old_lower_bound = lower_bound
                 old_upper_bound = upper_bound
 
-                lower_bound = get_bound_if_prev_data("lower", name, lower_bound)
-                upper_bound = get_bound_if_prev_data("upper", name, upper_bound)
+                lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
+                upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
 
-                if value_type == "int":
-                    lower_bound = math.floor(lower_bound)
-                    upper_bound = math.ceil(upper_bound)
+                if found_lower_bound_in_file or found_upper_bound_in_file:
+                    if value_type == "int":
+                        lower_bound = math.floor(lower_bound)
+                        upper_bound = math.ceil(upper_bound)
 
-                if old_lower_bound != lower_bound:
-                    print_color("yellow", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
-                    search_space_reduction_warning = True
+                    if old_lower_bound != lower_bound:
+                        print_color("yellow", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                        search_space_reduction_warning = True
 
-                if old_upper_bound != upper_bound:
-                    print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
-                    search_space_reduction_warning = True
+                    if old_upper_bound != upper_bound:
+                        print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                        search_space_reduction_warning = True
 
-                param = {
-                    "name": name,
-                    "type": param_type,
-                    "bounds": [lower_bound, upper_bound],
-                    "value_type": value_type
-                }
+                    param = {
+                        "name": name,
+                        "type": param_type,
+                        "bounds": [lower_bound, upper_bound],
+                        "value_type": value_type
+                    }
 
-                params.append(param)
+                    params.append(param)
+                else:
+                    print_color("red", f"Parameter {name} not found in previous file. Cannot add it to the parameter list in a continued job or a job that loads previous data.")
 
                 j += skip
             elif param_type == "fixed":

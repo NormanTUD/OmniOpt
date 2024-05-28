@@ -824,29 +824,26 @@ def parse_experiment_parameters(args):
                 lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
                 upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
 
-                if found_lower_bound_in_file or found_upper_bound_in_file:
-                    if value_type == "int":
-                        lower_bound = math.floor(lower_bound)
-                        upper_bound = math.ceil(upper_bound)
+                if value_type == "int":
+                    lower_bound = math.floor(lower_bound)
+                    upper_bound = math.ceil(upper_bound)
 
-                    if old_lower_bound != lower_bound:
-                        print_color("yellow", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
-                        search_space_reduction_warning = True
+                if old_lower_bound != lower_bound:
+                    print_color("yellow", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                    search_space_reduction_warning = True
 
-                    if old_upper_bound != upper_bound:
-                        print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
-                        search_space_reduction_warning = True
+                if old_upper_bound != upper_bound:
+                    print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    search_space_reduction_warning = True
 
-                    param = {
-                        "name": name,
-                        "type": param_type,
-                        "bounds": [lower_bound, upper_bound],
-                        "value_type": value_type
-                    }
+                param = {
+                    "name": name,
+                    "type": param_type,
+                    "bounds": [lower_bound, upper_bound],
+                    "value_type": value_type
+                }
 
-                    params.append(param)
-                else:
-                    print_color("red", f"Parameter {name} not found in previous file. Cannot add it to the parameter list in a continued job or a job that loads previous data.")
+                params.append(param)
 
                 j += skip
             elif param_type == "fixed":

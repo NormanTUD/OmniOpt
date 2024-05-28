@@ -610,10 +610,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	set -e
 
-	if [[ "$EXIT_CODE" -ne "0" ]]; then
-		echo "Exiting with exit-code $EXIT_CODE"
-	fi
-
 	tput bel
 
 	exit $EXIT_CODE

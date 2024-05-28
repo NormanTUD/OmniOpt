@@ -2082,8 +2082,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
             global already_inserted_param_hashes
 
-            print(f"NOT YET ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
-            if looks_like_number(old_result_simple) and old_result_simple != "nan":
+            if looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 if hashed_params_result not in already_inserted_param_hashes.keys():
                     print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
                     old_result = {'result': old_result_simple}

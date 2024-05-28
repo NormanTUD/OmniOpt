@@ -1702,7 +1702,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                         print_color("orange", compare_parameters(old_param_json, new_param_json))
 
                 if not _replaced:
-                    print_color("orange", f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters when continuing a job, only update their values.")
+                    print_color("orange", f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 

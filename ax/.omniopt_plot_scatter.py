@@ -266,11 +266,6 @@ def show_legend(scatter, axs, result_column):
     global args
 
     if not args.print_to_command_line and not args.no_legend:
-        for i in range(0, len(axs[0]) - 1):
-            for j in range(0, len(axs[0]) - 1):
-                if axs[i][j].get_legend():
-                    axs[i][j].get_legend().remove()
-
         cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
         cbar.set_label(result_column, rotation=270, labelpad=15)
 
@@ -305,8 +300,6 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
     scatter = ax.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     ax.set_xlabel(non_empty_graphs[0][0])
     ax.set_ylabel(result_column)
-
-    show_legend(_y, axs, result_column)
 
 def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     print_debug("plot_graphs")

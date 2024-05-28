@@ -27,6 +27,7 @@
 export NO_WHIPTAIL=1
 
 function displaytime {
+	set +x
 	local T=$1
 		local D=$((T/60/60/24))
 		local H=$((T/60/60%24))

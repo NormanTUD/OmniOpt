@@ -35,29 +35,14 @@ for i in $@; do
         case $i in
                 --int_param_two=*)
                         int_param_two="${i#*=}"
-                        re='^[+-]?[0-9]+$'
-                        if ! [[ $int_param_two =~ $re ]] ; then
-                                red_text "error: Not a INT: $i" >&2
-                                help 1
-                        fi
                         shift
                         ;;
                 --int_param=*)
                         int_param="${i#*=}"
-                        re='^[+-]?[0-9]+$'
-                        if ! [[ $int_param =~ $re ]] ; then
-                                red_text "error: Not a INT: $i" >&2
-                                help 1
-                        fi
                         shift
                         ;;
                 --float_param=*)
                         float_param="${i#*=}"
-                        re='^[+-]?[0-9]+([.][0-9]+)?$'
-                        if ! [[ $float_param =~ $re ]] ; then
-                                red_text "error: Not a FLOAT: $i" >&2
-                                help 1
-                        fi
                         shift
                         ;;
                 --choice_param=*)

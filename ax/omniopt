@@ -78,7 +78,7 @@ function red_text {
 
 function calltracer () {
 	LINE_AND_FUNCTION=$(caller)
-	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]]; then
+	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]];  then
 		red_text "Error occured in file/line: $LINE_AND_FUNCTION"
 	fi
 

@@ -182,7 +182,8 @@
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
-				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' }
+				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>' },
+				{ label: "Constraints", id: "constraints", type: "text", value: "", placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <tt>a + b >= 10</tt>, where a and b are parameter names. Possible comparisions: <tt>>=</tt>, <tt><=</tt>" },
 			];
 
 			var partition_data = {
@@ -519,13 +520,17 @@
 
 						value = btoa(value)
 
-						command += " --" + item.id + "=" + value;
-						$("#" + item.id).css("background-color", "");
+						if (item.id != "constraints") {
+							command += " --" + item.id + "=" + value;
+							$("#" + item.id).css("background-color", "");
+						}
 					} else {
 						if(!errors.length) {
-							command += " --" + item.id + "=" + value;
-							$("#" + item.id + "_error").html("").hide();
-							$("#" + item.id).css("background-color", "");
+							if (item.id != "constraints") {
+								command += " --" + item.id + "=" + value;
+								$("#" + item.id + "_error").html("").hide();
+								$("#" + item.id).css("background-color", "");
+							}
 						}
 					}
 				});
@@ -666,6 +671,16 @@
 
 				if (parameters.length > 0) {
 					command += " --parameter " + parameters.join(" --parameter ");
+				}
+
+				if ($("#constraints").val()) {
+					var _constraints = $("#constraints").val().split(";");
+					_constraints = _constraints.filter(function(entry) { return entry.trim() != ''; }).map(function (el) {
+						return el.trim();
+					});
+					for (var r = 0; r < _constraints.length; r++) {
+						command += " --experiment_constraints '" + _constraints[r] + "'";
+					}
 				}
 
 				var errors_visible = false;

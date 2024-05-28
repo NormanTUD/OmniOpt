@@ -135,7 +135,7 @@ errors=()
 
 cd ..
 
-./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name
+./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots
 exit_code=$?
 if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Simple tests failed")
@@ -178,7 +178,7 @@ fi
 
 yellow_text 'Trying to continue previous job'
 
-./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS
+./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots
 
 exit_code=$?
 
@@ -195,7 +195,7 @@ if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --max_eval=10 --mem_gb 1 --time 30 --follow --gpus=$NUM_GPUS
+./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --max_eval=10 --mem_gb 1 --time 30 --follow --gpus=$NUM_GPUS --hide_ascii_plots
 exit_code=$?
 
 yellow_text "Continuation failed program ended..."

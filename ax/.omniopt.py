@@ -284,6 +284,7 @@ optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they
 optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
+optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1354,7 +1355,7 @@ def write_worker_usage():
                 csv_writer.writerow(row)
 
 def show_worker_plot():
-    if len(worker_percentage_usage):
+    if len(worker_percentage_usage) and not args.hide_ascii_plots:
         tz_offset = get_timezone_offset_seconds()
         try:
             plotext.theme('pro')
@@ -1379,7 +1380,7 @@ def show_worker_plot():
             print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
 def show_progress_plot():
-    if len(progress_plot) > 1:
+    if len(progress_plot) > 1 and not args.hide_ascii_plots:
         tz_offset = get_timezone_offset_seconds()
         try:
             plotext.theme('pro')

@@ -1872,27 +1872,24 @@ def print_overview_table(experiment_parameters):
 
 def check_equation(variables, equation):
     print_debug("check_equation")
-    if not (">=" in equation or "<=" in equation or ">" in equation or "<" in equation or "=" in equation):
+    if not (">=" in equation or "<=" in equation):
         return False
 
-    comparer_at_beginning = re.search("^\s*((<=|>=)|(<=|>=)|=)", equation)
+    comparer_at_beginning = re.search("^\s*((<=|>=)|(<=|>=))", equation)
     if comparer_at_beginning:
-        print(f"The restraints {equation} contained comparision operator like <=, >= or at at the beginning. This is not a valid equation.")
+        print(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
         return False
 
-    comparer_at_end = re.search("((<=|>=)|(<=|>=)|=)\s*$", equation)
+    comparer_at_end = re.search("((<=|>=)|(<=|>=))\s*$", equation)
     if comparer_at_end:
-        print(f"The restraints {equation} contained comparision operator like <=, >= or at at the end. This is not a valid equation.")
+        print(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
         return False
 
     equation = equation.replace("\\*", "*")
     equation = equation.replace(" * ", "*")
 
     equation = equation.replace(">=", " >= ")
-    equation = equation.replace(">", " > ")
-
     equation = equation.replace("<=", " <= ")
-    equation = equation.replace("<", " < ")
 
     equation = re.sub(r'\s+', ' ', equation)
     #equation = equation.replace("", "")
@@ -1937,7 +1934,7 @@ def check_equation(variables, equation):
                 "value": item
             })
         else:
-            print_color("red", f"constraint error: Invalid item {item}")
+            print_color("red", f"constraint error: Invalid item {item} in constraint '{equation}'")
             return False
 
     parsed_order_string = ";".join(parsed_order)

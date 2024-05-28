@@ -1755,7 +1755,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         except ModuleNotFoundError:
             print_color("red", "Cannot load torch and thus, cannot use gpus")
 
-        if experiment_constraints:
+        if experiment_constraints and len(experiment_constraints):
+            experiment_args["parameter_constraints"] = []
             for l in range(0, len(experiment_constraints)):
                 constraints_string = " ".join(experiment_constraints[l])
 
@@ -1764,8 +1765,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 equation = check_equation(variables, constraints_string)
 
                 if equation:
-                    experiment_args["parameter_constraints"] = [constraints_string]
-                    print_color("yellow", "--parameter_constraints is experimental!")
+                    experiment_args["parameter_constraints"].append(constraints_string)
                 else:
                     print_color("red", "Experiment constraints are invalid.")
                     exit_local(28)

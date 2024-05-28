@@ -1756,18 +1756,19 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", "Cannot load torch and thus, cannot use gpus")
 
         if experiment_constraints:
-            constraints_string = " ".join(experiment_constraints[0])
+            for l in range(0, len(experiment_constraints)):
+                constraints_string = " ".join(experiment_constraints[l])
 
-            variables = [item['name'] for item in experiment_parameters]
+                variables = [item['name'] for item in experiment_parameters]
 
-            equation = check_equation(variables, constraints_string)
+                equation = check_equation(variables, constraints_string)
 
-            if equation:
-                experiment_args["parameter_constraints"] = [constraints_string]
-                print_color("yellow", "--parameter_constraints is experimental!")
-            else:
-                print_color("red", "Experiment constraints are invalid.")
-                exit_local(28)
+                if equation:
+                    experiment_args["parameter_constraints"] = [constraints_string]
+                    print_color("yellow", "--parameter_constraints is experimental!")
+                else:
+                    print_color("red", "Experiment constraints are invalid.")
+                    exit_local(28)
 
         try:
             experiment = ax_client.create_experiment(**experiment_args)
@@ -1880,8 +1881,12 @@ def check_equation(variables, equation):
 
     equation = equation.replace("\\*", "*")
     equation = equation.replace(" * ", "*")
+
     equation = equation.replace(">=", " >= ")
+    equation = equation.replace(">", " > ")
+
     equation = equation.replace("<=", " <= ")
+    equation = equation.replace("<", " < ")
 
     equation = re.sub(r'\s+', ' ', equation)
     #equation = equation.replace("", "")

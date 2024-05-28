@@ -72,6 +72,7 @@ VENV_DIR=$HOME/$VENV_DIR_NAME
 UPGRADED_PIP=0
 
 function ppip {
+	set +e
 	echo "$FROZEN" | grep -i "$1" 2>/dev/null >/dev/null
 	_exit_code=$?
 
@@ -92,7 +93,10 @@ function ppip {
 		}
 
 		green "$1 installed successfully"
+
+		FROZEN=$(pip3 freeze)
 	fi
+	set -e
 }
 
 function install_required_modules {

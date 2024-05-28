@@ -67,18 +67,52 @@ fi
 VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 VENV_DIR=$HOME/$VENV_DIR_NAME
 
+UPGRADED_PIP=0
+
 function ppip {
-	pip3 install $* || {
-		red "Failed to install $*. Deleting $VENV_DIR..."
-		rm -rf $VENV_DIR || {
-			red "Failed to delete $VENV_DIR"
-			exit 4
+	if ! pip freeze | grep "$1" 2>/dev/null >/dev/null; then
+		if [[ "$UPGRADED_PIP" -eq "0" ]]; then
+			pip install --upgrade pip
+			UPGRADED_PIP=1
+		fi
+
+		pip3 install $1 || {
+			red "Failed to install $1. Deleting $VENV_DIR..."
+			rm -rf $VENV_DIR || {
+				red "Failed to delete $VENV_DIR"
+				exit 4
+			}
+
+			exit 3
 		}
 
-		exit 3
-	}
+		green "$1 installed successfully"
+	else
+		green "$1 is already installed"
+	fi
+}
 
-	green "$* installed successfully"
+function install_required_modules {
+	ppip Rich
+	ppip scikit-learn
+	ppip submitit
+	ppip ax
+	ppip ax-platform
+	ppip matplotlib
+	ppip Pyarrow
+	ppip textual
+	ppip tqdm
+	ppip plotext
+	ppip plotille
+	ppip watchdog
+	ppip seaborn
+	ppip art
+
+	#if ! declare -f ml 2>/dev/null >/dev/null; then
+	#	ppip tkinter
+	#else
+	#	echo "Not installing tkinter, because it (hopefully) has already been loaded with ml"
+	#fi
 }
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
@@ -113,28 +147,9 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 
 		green "Virtual Environment activated. Now installing software. This may take some time."
 
-		pip install --upgrade pip
-
-		ppip Rich
-		ppip scikit-learn
-		ppip submitit
-		ppip ax
-		ppip ax-platform
-		ppip matplotlib
-		ppip Pyarrow
-		ppip textual
-		ppip tqdm
-		ppip plotext
-		ppip plotille
-		ppip watchdog
-		ppip seaborn
-		ppip art
-		if ! declare -f ml 2>/dev/null >/dev/null; then
-			ppip tkinter
-		else
-			echo "Not installing tkinter, because it (hopefully) has already been loaded with ml"
-		fi
 	fi
 
 	source $VENV_DIR/bin/activate
 fi
+
+install_required_modules

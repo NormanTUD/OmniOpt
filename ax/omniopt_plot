@@ -198,11 +198,6 @@ while [ $k -lt ${#args[@]} ]; do
             set -x
             shift
             ;;
-
-        *)
-            echo "Unknown option: $arg"
-            exit 1
-            ;;
     esac
     k=$((k+1))
 done

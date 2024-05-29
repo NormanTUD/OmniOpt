@@ -1,6 +1,17 @@
 # DESCRIPTION: Plot get_next_trials got/requested
 # EXPECTED FILES: get_next_trials.csv
 
+import os
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -9,7 +20,6 @@ import traceback
 import sys
 from datetime import datetime
 import argparse
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from pprint import pprint

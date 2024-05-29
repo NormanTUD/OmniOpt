@@ -1,12 +1,22 @@
 # DESCRIPTION: Plot number of workers over time
 # EXPECTED FILES: worker_usage.csv
 
+import os
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
 import re
 import traceback
 import sys
 from datetime import datetime
 import argparse
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 

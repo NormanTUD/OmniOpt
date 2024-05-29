@@ -84,7 +84,6 @@ try:
     from datetime import datetime, timezone
     from tzlocal import get_localzone
     import platform
-    from importlib.metadata import version
     from unittest.mock import patch
     import difflib
     import datetime
@@ -2998,7 +2997,6 @@ def main():
     write_worker_usage()
 
     check_python_version()
-    warn_versions()
 
     experiment_parameters = None
     cli_params_experiment_parameters = None
@@ -3770,30 +3768,6 @@ def find_promising_bubbles(pd_csv):
         elif args.auto_execute_suggestions:
             print("Auto executing suggestions is so fucking experimental that you need the --experimental switch to be set")
 
-def warn_versions():
-    wrns = []
-
-    supported_versions = {
-        "ax": ["0.3.7", "0.3.8.dev133", "0.52.0"],
-        "botorch": ["0.10.0", "0.10.1.dev46+g7a844b9e", "0.11.0", "0.9.5"],
-        "torch": ["2.3.0"],
-        "seaborn": ["0.13.2"],
-        "pandas": ["1.5.3", "2.2.2"],
-        "numpy": ["1.26.4"],
-        "matplotlib": ["3.6.3", "3.9.0"],
-        "plotext": ["5.2.8"],
-        "submitit": ["1.5.1"],
-        "tqdm": ["4.66.4"]
-    }
-
-    for key in supported_versions.keys():
-        _supported_versions = supported_versions[key]
-        _real_version = version(key)
-        if _real_version not in _supported_versions:
-            wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported {', '.join(_supported_versions)}")
-
-    if len(wrns):
-        print("- " + ("\n- ".join(wrns)))
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

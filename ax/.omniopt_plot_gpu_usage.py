@@ -1,8 +1,18 @@
 # DESCRIPTION: Plot GPU usage over time on different hosts
 # EXPECTED FILES: gpu_usage_
 
-import sys
 import os
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
+import sys
 import argparse
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -1,6 +1,17 @@
 # DESCRIPTION: Scatter plot
 # EXPECTED FILES: pd.csv
 
+import os
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
@@ -14,7 +25,6 @@ def print_debug(msg):
         pprint(msg)
 
 import sys
-import os
 import argparse
 import math
 import time

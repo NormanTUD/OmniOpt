@@ -9,6 +9,17 @@ import seaborn as sns
 import argparse
 import logging
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
+
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 

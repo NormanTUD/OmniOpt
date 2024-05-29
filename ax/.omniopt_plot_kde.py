@@ -1,9 +1,19 @@
 # DESCRIPTION: Kernel-Density estimation plot
 # EXPECTED FILES: pd.csv
 
+import os
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
+
 import numpy as np
 import math
-import os
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt

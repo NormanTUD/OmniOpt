@@ -2815,6 +2815,10 @@ def done_jobs(nr=0):
     return append_and_read(f'{current_run_folder}/done_jobs', nr)
 
 def execute_nvidia_smi():
+    if not is_executable_in_path("nvidia-smi"):
+        print_debug(f"Cannot find nvidia-smi. Cannot take GPU logs")
+        return
+
     while True:
         try:
             host = socket.gethostname()

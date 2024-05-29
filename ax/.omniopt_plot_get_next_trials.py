@@ -97,6 +97,7 @@ def plot_trial_usage(args, log_file_path):
         if args.save_to_file:
             plt.savefig(args.save_to_file)
         else:
+            fig.canvas.manager.set_window_title("get_next_trials-Counter-Plot: " + str(args.run_dir))
             plt.show()
     except Exception as e:
         log_error(f"An error occurred while plotting: {e}")

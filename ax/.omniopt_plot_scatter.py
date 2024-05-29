@@ -532,7 +532,7 @@ def main():
 
         set_margins(fig)
 
-        fig.canvas.manager.set_window_title(args.run_dir)
+        fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
 
     if args.save_to_file:
         fig.set_size_inches(15.5, 9.5)

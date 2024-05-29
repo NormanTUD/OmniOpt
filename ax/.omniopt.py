@@ -151,6 +151,7 @@ while os.path.exists(logfile):
 logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
 logfile_linewise = f'{log_dir}/{log_i}_linewise'
 logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
+logfile_debug_get_next_trials = f'{log_dir}/{log_i}_get_next_trials'
 logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
 logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
 
@@ -196,6 +197,21 @@ def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
         original_print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
 
         append_to_nvidia_smi_logs(_host, result, _lvl + 1, e)
+
+def _debug_get_next_trials(msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        original_print(f"Cannot write _debug, error: {ee}")
+        return
+
+    try:
+        with open(logfile_debug_get_next_trials, 'a') as f:
+            original_print(msg, file=f)
+    except Exception as e:
+        original_print("_debug_get_next_trials: Error trying to write log file: " + str(e))
+
+        _debug_get_next_trials(msg, _lvl + 1, e)
+
+
 
 def _debug_progressbar(msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -466,6 +482,12 @@ def print_debug(msg):
         print(msg)
 
     _debug(msg)
+
+def print_debug_get_next_trials(got, requested):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}, {got}, {requested}"
+
+    _debug_get_next_trials(msg)
 
 def print_debug_progressbar(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -2875,6 +2897,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
+            print_debug_get_next_trials(nr_of_items, next_nr_steps)
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
@@ -2904,6 +2927,7 @@ def run_random_jobs(random_steps, ax_client, executor):
             nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor, "random")
             if nr_of_items_random:
                 progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
+                print_debug_get_next_trials(nr_of_items_random, random_steps)
 
             if nr_of_items_random == 0:
                 break
@@ -2911,6 +2935,7 @@ def run_random_jobs(random_steps, ax_client, executor):
             _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items_random}, {steps_mind_worker}, random")
 
             progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
+            print_debug_get_next_trials(nr_of_items_random, steps_mind_worker)
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")
         except ax.exceptions.core.DataRequiredError as e:

@@ -2847,6 +2847,7 @@ def execute_nvidia_smi():
 
 def start_nvidia_smi_thread():
     print_debug("start_nvidia_smi_thread")
+
     if is_executable_in_path("nvidia-smi"):
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
@@ -2961,7 +2962,6 @@ def main():
     print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
 
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
-    nvidia_smi_thread = start_nvidia_smi_thread()
 
     check_python_version()
     warn_versions()

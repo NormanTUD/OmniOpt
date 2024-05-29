@@ -111,7 +111,7 @@ def main():
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
     if args.run_dir:
-        log_file_path = os.path.join(args.run_dir, "get_next_trials")
+        log_file_path = os.path.join(args.run_dir, "get_next_trials.csv")
         if os.path.exists(log_file_path):
             try:
                 plot_trial_usage(args, log_file_path)

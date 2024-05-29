@@ -486,7 +486,7 @@ def print_debug(msg):
 
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}, {got}, {requested}, {_line}"
+    msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 

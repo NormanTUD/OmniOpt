@@ -1778,7 +1778,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_color("red", f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             exit_local(50)
 
-    return ax_client, experiment_parameters
+    return ax_client, experiment_parameters, experiment_args
 
 def get_type_short(typename):
     if typename == "RangeParameter":
@@ -1789,12 +1789,12 @@ def get_type_short(typename):
 
     return typename
 
-def print_overview_table(experiment_parameters):
+def print_overview_tables(experiment_parameters, experiment_args):
     if not experiment_parameters:
         print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")
         return
 
-    print_debug("print_overview_table")
+    print_debug("print_overview_tables")
     global args
 
     if not experiment_parameters:
@@ -1868,6 +1868,25 @@ def print_overview_table(experiment_parameters):
 
     with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
         text_file.write(table_str)
+
+    if "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
+        constraints = experiment_args["parameter_constraints"]
+        table = Table(header_style="bold", title="Constraints:")
+        columns = ["Constraints"]
+        for column in columns:
+            table.add_column(column)
+        for column in constraints:
+            table.add_row(column)
+
+        with console.capture() as capture:
+            console.print(table)
+
+        table_str = capture.get()
+
+        console.print(table)
+
+        with open(f"{current_run_folder}/constraints.txt", "w") as text_file:
+            text_file.write(table_str)
 
 def check_equation(variables, equation):
     print_debug("check_equation")
@@ -2979,12 +2998,12 @@ def main():
 
         experiment = None
 
-        ax_client, experiment_parameters = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+        ax_client, experiment_parameters, experiment_args = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
 
         if args.continue_previous_job:
             max_eval = submitted_jobs() + random_steps + second_step_steps
 
-        print_overview_table(experiment_parameters)
+        print_overview_tables(experiment_parameters, experiment_args)
 
         executor = get_executor(args)
 

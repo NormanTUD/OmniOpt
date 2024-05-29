@@ -42,7 +42,7 @@ def looks_like_int(x):
 
 def plot_worker_usage(args, pd_csv):
     try:
-        data = pd.read_csv(pd_csv)
+        data = pd.read_csv(pd_csv, names=['time', 'got', 'requested', 'percentage'])
 
         assert_condition(len(data.columns) > 0, "CSV file has no columns.")
         assert_condition("time" in data.columns, "The 'time' column is missing.")

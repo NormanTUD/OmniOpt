@@ -1,4 +1,5 @@
 # DESCRIPTION: Plot get_next_trials got/requested
+# EXPECTED FILES: get_next_trials.csv
 
 import re
 import traceback

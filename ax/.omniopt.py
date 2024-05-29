@@ -1369,6 +1369,8 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
     return _exit
 
 def write_worker_usage():
+    global current_run_folder
+
     if len(worker_percentage_usage):
         csv_filename = f'{current_run_folder}/worker_usage.csv'
 
@@ -2476,6 +2478,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
 
         new_job = executor.submit(evaluate, parameters)
+        write_worker_usage()
         submitted_jobs(1)
 
         global_vars["jobs"].append((new_job, trial_index))
@@ -2992,6 +2995,8 @@ def main():
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
 
     logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'
+
+    write_worker_usage()
 
     check_python_version()
     warn_versions()

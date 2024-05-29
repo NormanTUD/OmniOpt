@@ -1,6 +1,9 @@
 # DESCRIPTION: Plot get_next_trials got/requested
 # EXPECTED FILES: get_next_trials.csv
 
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 import re
 import traceback
 import sys

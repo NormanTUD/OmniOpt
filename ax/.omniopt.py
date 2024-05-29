@@ -3761,7 +3761,6 @@ if __name__ == "__main__":
     with warnings.catch_warnings():
         if args.tests:
             #dier(get_best_params("runs/test_wronggoing_stuff/2/results.csv", "result"))
-            #dier(add_to_csv("x.csv", ["hallo", "welt"], [1, 0.0000001, "hallo welt"]))
 
             run_tests()
         else:

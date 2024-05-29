@@ -9,6 +9,7 @@ import threading
 import shutil
 import math
 import json
+from inspect import currentframe, getframeinfo
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -483,9 +484,9 @@ def print_debug(msg):
 
     _debug(msg)
 
-def print_debug_get_next_trials(got, requested):
+def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}, {got}, {requested}"
+    msg = f"{time_str}, {got}, {requested}, {_line}"
 
     _debug_get_next_trials(msg)
 
@@ -2897,7 +2898,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
-            print_debug_get_next_trials(nr_of_items, next_nr_steps)
+            print_debug_get_next_trials(nr_of_items, next_nr_steps, getframeinfo(currentframe()).lineno)
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
@@ -2927,15 +2928,15 @@ def run_random_jobs(random_steps, ax_client, executor):
             nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor, "random")
             if nr_of_items_random:
                 progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
-                print_debug_get_next_trials(nr_of_items_random, random_steps)
+                print_debug_get_next_trials(nr_of_items_random, random_steps, getframeinfo(currentframe()).lineno)
 
             if nr_of_items_random == 0:
                 break
 
             _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items_random}, {steps_mind_worker}, random")
 
-            progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
-            print_debug_get_next_trials(nr_of_items_random, steps_mind_worker)
+            #progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
+            #print_debug_get_next_trials(nr_of_items_random, steps_mind_worker, getframeinfo(currentframe()).lineno)
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")
         except ax.exceptions.core.DataRequiredError as e:

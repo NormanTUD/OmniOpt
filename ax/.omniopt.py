@@ -39,7 +39,7 @@ ax_client = None
 time_get_next_trials_took = []
 progress_plot = []
 current_run_folder = None
-folder_number = 0
+run_folder_number = 0
 args = None
 result_csv_file = None
 shown_end_table = False
@@ -2940,7 +2940,7 @@ def main():
     global global_vars
     global max_eval
     global global_vars
-    global folder_number
+    global run_folder_number
     global current_run_folder
     global nvidia_smi_logs_base
 
@@ -2948,10 +2948,10 @@ def main():
 
     check_slurm_job_id()
 
-    current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{folder_number}"
+    current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{run_folder_number}"
     while os.path.exists(f"{current_run_folder}"):
-        current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{folder_number}"
-        folder_number = folder_number + 1
+        current_run_folder = f"{args.run_dir}/{global_vars['experiment_name']}/{run_folder_number}"
+        run_folder_number = run_folder_number + 1
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}")
 

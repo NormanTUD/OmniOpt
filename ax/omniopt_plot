@@ -397,5 +397,5 @@ else
 	fi
 fi
 
-echo "Runtime: $(displaytime $SECONDS), exit-code: $exit_code"
+echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
 exit $exit_code

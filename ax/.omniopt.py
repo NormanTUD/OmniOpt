@@ -1368,7 +1368,7 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     return _exit
 
-def write_worker_usage():
+def write_worker_usage(write_headers=0):
     global current_run_folder
 
     if len(worker_percentage_usage):
@@ -1378,7 +1378,8 @@ def write_worker_usage():
 
         with open(csv_filename, 'w', newline='') as csvfile:
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            csv_writer.writeheader()
+            if(write_headers):
+                csv_writer.writeheader()
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
 
@@ -2996,7 +2997,7 @@ def main():
 
     logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'
 
-    write_worker_usage()
+    write_worker_usage(1)
 
     check_python_version()
     warn_versions()

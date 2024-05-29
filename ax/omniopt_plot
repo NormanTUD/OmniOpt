@@ -70,7 +70,7 @@ function displaytime {
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export ORIGINAL_PWD=$(pwd)
 
-expected_plot_types=("default")
+expected_plot_types=("menu")
 whiptail_args=()
 
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
@@ -96,7 +96,7 @@ function calltracer () {
 }
 trap 'calltracer' ERR
 
-plot_type="default"
+plot_type="menu"
 min=
 max=
 run_dir=""
@@ -218,7 +218,7 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 	exit 99
 fi
 
-if [[ "$plot_type" == "default" ]]; then
+if [[ "$plot_type" == "menu" ]]; then
 	if [[ "$run_dir" == "" ]]; then
 		echo "--run_dir is missing"
 		exit 1
@@ -237,7 +237,7 @@ if [[ "$plot_type" == "default" ]]; then
 	eval `resize`
 
 	for possible_plot_type in "${expected_plot_types[@]}"; do
-		if [[ "$possible_plot_type" == "default" ]]; then
+		if [[ "$possible_plot_type" == "menu" ]]; then
 			continue
 		fi
 
@@ -365,7 +365,7 @@ cd $ORIGINAL_PWD
 source $SCRIPT_DIR/.shellscript_functions
 source $SCRIPT_DIR/.general.sh
 
-if [[ "$plot_type" != "default" ]]; then
+if [[ "$plot_type" != "menu" ]]; then
 	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
 		# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 		joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")

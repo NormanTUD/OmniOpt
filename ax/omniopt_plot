@@ -209,6 +209,7 @@ done
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
     echo "Wrong plot type: $plot_type, but got $plot_type"
+    exit 99
 fi
 
 if [[ "$plot_type" == "default" ]]; then

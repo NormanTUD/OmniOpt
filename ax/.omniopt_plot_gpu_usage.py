@@ -32,6 +32,7 @@ def plot_gpu_usage(run_dir):
                                         "pcie.link.gen.max", "pcie.link.gen.current", "temperature.gpu",
                                         "utilization.gpu [%]", "utilization.memory [%]", "memory.total [MiB]",
                                         "memory.free [MiB]", "memory.used [MiB]"])
+                df = df.dropna()
                 gpu_data.append(df)
                 num_plots += 1
 
@@ -41,6 +42,10 @@ def plot_gpu_usage(run_dir):
 
     if not gpu_data:
         print("No GPU usage data found.")
+        return
+
+    if len(gpu_data) <= 1:
+        print("No valid GPU usage data found.")
         return
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots

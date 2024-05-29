@@ -151,9 +151,9 @@ while os.path.exists(logfile):
 logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
 logfile_linewise = f'{log_dir}/{log_i}_linewise'
 logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
-logfile_debug_get_next_trials = f'{log_dir}/{log_i}_get_next_trials'
 logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
 logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
+logfile_debug_get_next_trials = None
 
 nvidia_smi_logs_base = None
 
@@ -2968,6 +2968,7 @@ def main():
     global run_folder_number
     global current_run_folder
     global nvidia_smi_logs_base
+    global logfile_debug_get_next_trials
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
 
@@ -2987,6 +2988,8 @@ def main():
     print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
 
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
+
+    logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'
 
     check_python_version()
     warn_versions()

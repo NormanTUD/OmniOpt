@@ -75,7 +75,6 @@ def plot_graph(dataframe, save_to_file=None):
     if save_to_file:
         plt.savefig(save_to_file)
     else:
-        fig.canvas.manager.set_window_title("General: " + str(args.run_dir))
         plt.show()
 
 def update_graph():

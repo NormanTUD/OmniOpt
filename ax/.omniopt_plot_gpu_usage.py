@@ -42,11 +42,11 @@ def plot_gpu_usage(run_dir):
 
     if not gpu_data:
         print("No GPU usage data found.")
-        return
+        sys.exit(44)
 
     if len(gpu_data) <= 1:
         print("No valid GPU usage data found.")
-        return
+        sys.exit(55)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns

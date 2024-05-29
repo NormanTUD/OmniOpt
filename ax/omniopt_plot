@@ -395,5 +395,5 @@ else
 	echo "$OUTPUT"
 fi
 
-echo "Runtime: $(displaytime $SECONDS)"
+echo "Runtime: $(displaytime $SECONDS), exit-code: $exit_code"
 exit $exit_code

@@ -2571,6 +2571,10 @@ def _get_next_trials(ax_client):
     trial_index_to_param, _ = ax_client.get_next_trials(
         max_trials=real_num_parallel_jobs
     )
+
+
+    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
+
     get_next_trials_time_end = time.time()
 
     _ax_took = get_next_trials_time_end - get_next_trials_time_start
@@ -2898,7 +2902,6 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
-            print_debug_get_next_trials(nr_of_items, next_nr_steps, getframeinfo(currentframe()).lineno)
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
@@ -2928,7 +2931,6 @@ def run_random_jobs(random_steps, ax_client, executor):
             nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor, "random")
             if nr_of_items_random:
                 progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
-                print_debug_get_next_trials(nr_of_items_random, random_steps, getframeinfo(currentframe()).lineno)
 
             if nr_of_items_random == 0:
                 break
@@ -2936,7 +2938,6 @@ def run_random_jobs(random_steps, ax_client, executor):
             _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items_random}, {steps_mind_worker}, random")
 
             #progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
-            #print_debug_get_next_trials(nr_of_items_random, steps_mind_worker, getframeinfo(currentframe()).lineno)
         except botorch.exceptions.errors.InputDataError as e:
             print_color("red", f"Error 1: {e}")
         except ax.exceptions.core.DataRequiredError as e:

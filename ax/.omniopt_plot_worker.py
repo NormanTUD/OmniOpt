@@ -80,7 +80,6 @@ def plot_worker_usage(args, pd_csv):
         if args.save_to_file:
             plt.savefig(args.save_to_file)
         else:
-            fig.canvas.manager.set_window_title("Worker: " + str(args.run_dir))
             plt.show()
     except FileNotFoundError:
         log_error(f"File '{pd_csv}' not found.")

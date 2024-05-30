@@ -1649,6 +1649,7 @@ def get_ax_param_representation(data):
         dier(f"Unknown data range {data['type']}")
 
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+    experiment_args = None
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 

@@ -1893,7 +1893,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
         text_file.write(table_str)
 
-    if "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
+    if not experiment_args is None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
         constraints = experiment_args["parameter_constraints"]
         table = Table(header_style="bold", title="Constraints:")
         columns = ["Constraints"]

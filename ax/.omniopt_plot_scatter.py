@@ -258,11 +258,12 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
+                print(f"row: {row}, col: {col}")
                 scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
                 axs[row, col].set_xlabel(param1)
                 axs[row, col].set_ylabel(param2)
             except Exception as e:
-                print(str(e))
+                print("ERROR: " + str(e))
                 sys.exit(17)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
@@ -333,13 +334,11 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     c = c[::-1]
     v = [0, 0.3, 0.5, 0.7, 0.9, 1]
     l = list(zip(v,c))
-    cmap = LinearSegmentedColormap.from_list('rg',l, N=256)
 
-    if num_subplots == 1:
-        if len(non_empty_graphs[0]) == 1:
-            plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs)
-        else:
-            plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column)
+    cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
+
+    if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
+        plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column)
     else:
         plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows)
 
@@ -652,9 +651,6 @@ def update_graph(event=None, _min=None, _max=None):
                 widget.remove()
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
-
-        if num_subplots == 1:
-            axs = [axs]
 
         plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
         

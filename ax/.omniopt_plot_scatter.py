@@ -24,6 +24,7 @@ def print_debug(msg):
         print("DEBUG: ", end="")
         pprint(msg)
 
+import numpy as np
 import sys
 import argparse
 import math
@@ -271,20 +272,19 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
 
     show_legend(scatter, axs, result_column)
     
-def show_legend(scatter, axs, result_column):
+def show_legend(_scatter, axs, result_column):
     print_debug("show_legend")
     global args
 
-    try:
-        if not args.print_to_command_line and not args.no_legend:
-            cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
+    if not args.print_to_command_line and not args.no_legend:
+        try:
+            cbar = fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
             cbar.set_label(result_column, rotation=270, labelpad=15)
 
             cbar.formatter.set_scientific(False)
             cbar.formatter.set_useMathText(False)
-    except Exception as e:
-        print_debug(f"Error in show_legend: {e}")
-        pass
+        except Exception as e:
+            print_debug(f"ERROR: show_legend failed with error: {e}")
 
 def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
     print_debug("plot_two_graphs()")

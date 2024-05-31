@@ -687,11 +687,11 @@ def change_min_max(expression):
     try:
         has_params = False
         # Assuming the expression is a filter value update for min/max
-        if looks_like_float(textbox_maximum.text):
+        if textbox_maximum.text and  looks_like_float(textbox_maximum.text):
             args.min = float(textbox_maximum.text)
             print(f"set arg min to {args.min}")
             has_params = True
-        if looks_like_float(textbox_minimum.text):
+        if textbox_minimum.text and looks_like_float(textbox_minimum.text):
             args.min = float(textbox_minimum.text)
             print(f"set arg max to {args.max}")
             has_params = True

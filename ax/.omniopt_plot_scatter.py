@@ -275,12 +275,16 @@ def show_legend(scatter, axs, result_column):
     print_debug("show_legend")
     global args
 
-    if not args.print_to_command_line and not args.no_legend:
-        cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
-        cbar.set_label(result_column, rotation=270, labelpad=15)
+    try:
+        if not args.print_to_command_line and not args.no_legend:
+            cbar = fig.colorbar(scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
+            cbar.set_label(result_column, rotation=270, labelpad=15)
 
-        cbar.formatter.set_scientific(False)
-        cbar.formatter.set_useMathText(False)
+            cbar.formatter.set_scientific(False)
+            cbar.formatter.set_useMathText(False)
+    except Exception as e:
+        print_debug(f"Error in show_legend: {e}")
+        pass
 
 def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
     print_debug("plot_two_graphs()")
@@ -424,7 +428,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     print_debug("get_non_empty_graphs")
     non_empty_graphs = []
 
-    if len(parameter_combinations) == 1:
+    if len(parameter_combinations[0]) == 1:
         param = parameter_combinations[0][0]
         if param in df_filtered and df_filtered[param].notna().any():
             non_empty_graphs = [(param,)]
@@ -516,7 +520,6 @@ def main():
                 df = df.merge(prev_run_df, how='outer')
 
     nr_of_items_before_filtering = len(df)
-
     df_filtered = get_df_filtered(df)
 
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)

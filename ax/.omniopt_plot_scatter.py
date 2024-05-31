@@ -274,7 +274,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
     
 def show_legend(_scatter, axs, result_column):
     print_debug("show_legend")
-    global args
+    global args, fig
 
     if not args.print_to_command_line and not args.no_legend:
         try:

@@ -299,7 +299,6 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
 
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs):
     print_debug("plot_single_graph()")
-    ax = axs  # Use the single axis
     _range = range(len(df_filtered))
     _data = df_filtered
 
@@ -312,9 +311,9 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
         _x.append(l[0])
         _y.append(l[1])
 
-    scatter = ax.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-    ax.set_xlabel(non_empty_graphs[0][0])
-    ax.set_ylabel(result_column)
+    scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+    axs.set_xlabel(non_empty_graphs[0][0])
+    axs.set_ylabel(result_column)
 
 def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     print_debug("plot_graphs")

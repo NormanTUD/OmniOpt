@@ -2941,9 +2941,9 @@ def run_random_jobs(random_steps, ax_client, executor):
 
             #progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
         except botorch.exceptions.errors.InputDataError as e:
-            print_color("red", f"Error 1: {e}")
+            print_color("red", f"Error 3: {e}")
         except ax.exceptions.core.DataRequiredError as e:
-            print_color("red", f"Error 2: {e}")
+            print_color("red", f"Error 4: {e}")
 
         _sleep(args, 0.1)
 

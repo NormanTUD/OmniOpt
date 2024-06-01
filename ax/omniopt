@@ -24,6 +24,12 @@
 # This way, the whole slurm procedure is transparent to the user,
 # and the program looks basically the same on every device.
 
+if [[ ! -z $PRINT_SEPERATOR ]]; then
+	echo ""
+	echo "========================================================================"
+	echo ""
+fi
+
 export NO_WHIPTAIL=1
 
 function displaytime {

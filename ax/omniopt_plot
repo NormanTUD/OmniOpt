@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ ! -z $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
+	echo ""
+	echo "========================================================================"
+	echo ""
+fi
+
 _save_to_file=0
 
 function inputbox {

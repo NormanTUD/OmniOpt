@@ -24,7 +24,7 @@
 # This way, the whole slurm procedure is transparent to the user,
 # and the program looks basically the same on every device.
 
-if [[ ! -z $PRINT_SEPERATOR ]]; then
+if [[ ! -z $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""
 	echo "========================================================================"
 	echo ""

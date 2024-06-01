@@ -2722,7 +2722,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         except ax.exceptions.core.DataRequiredError as e:
             if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
                 print_color("red", f"Error 5: {e}. This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
-                sys.exit(153)
+                sys.exit(133)
             else:
                 print_color("red", f"Error 2: {e}")
                 return 0

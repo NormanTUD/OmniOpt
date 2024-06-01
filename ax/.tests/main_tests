@@ -274,8 +274,8 @@ export EXPECTED_TO_FAIL=1
 exit_code=$?
 export EXPECTED_TO_FAIL=0
 
-if [[ "$exit_code" -ne "1" ]]; then
-	errors+=("Plotting scatter for test_wronggoing_stuff --nosuccess should not be possible and exit with error code 1 because no result column was given, got exit-code: $exit_code")
+if [[ "$exit_code" -ne "10" ]]; then
+	errors+=("Plotting scatter for test_wronggoing_stuff --nosuccess should not be possible and exit with error code 10 because no result column was given, got exit-code: $exit_code")
 fi
 
 export EXPECTED_TO_FAIL=1

@@ -3134,6 +3134,8 @@ def main():
 
         end_program(result_csv_file, "result", 1)
 
+    end_program(result_csv_file, "result", 0)
+
 def _unidiff_output(expected, actual):
     """
     Helper function. Returns a string containing the unified diff of two multiline strings.

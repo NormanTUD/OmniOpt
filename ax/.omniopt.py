@@ -1280,6 +1280,8 @@ def disable_logging():
     print_debug("disable_logging done")
 
 def print_best_result(csv_file_path, result_column):
+    global current_run_folder
+
     try:
         best_params = get_best_params(csv_file_path, result_column)
 
@@ -1288,7 +1290,6 @@ def print_best_result(csv_file_path, result_column):
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             table_str = "Best result could not be determined"
             print_color("red", table_str)
-            _exit = 1
         else:
             table = Table(show_header=True, header_style="bold", title="Best parameter:")
 

@@ -12,6 +12,9 @@ import seaborn as sns
 import argparse
 import logging
 
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 import importlib.util
@@ -152,14 +155,12 @@ def plot_graph(dataframe, save_to_file=None):
     plt.ylabel('Generation Method')
     plt.show()
 
-    """
-
     plt.figure(figsize=(10, 6))
     sns.barplot(x='generation_method', y='result', data=dataframe, errorbar=None)
     plt.title('Average Results by Generation Method')
     plt.xlabel('Generation Method')
     plt.ylabel('Average Result')
-
+    """
 
     plt.tight_layout()
 

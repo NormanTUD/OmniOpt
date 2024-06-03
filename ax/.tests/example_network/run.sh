@@ -94,11 +94,6 @@ if [[ ! -d "$ENV_DIR" ]]; then
         pip install tensorflow tensorflowjs protobuf scikit-image opencv-python keras termcolor pyyaml h5py
 fi
 
-if [[ ! -z $exit_after_install ]]; then
-	echo "exit_after_install"
-	exit 0
-fi
-
 source $ENV_DIR/bin/activate
 
 if [[ "$train" == 1 ]]; then

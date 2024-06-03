@@ -3515,7 +3515,9 @@ def get_errors_from_outfile(i):
             ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
             ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
             ["error: argument", "Wrong argparse argument"],
-            ["error: unrecognized arguments", "Wrong argparse argument"]
+            ["error: unrecognized arguments", "Wrong argparse argument"],
+            ["CUDNN_STATUS_INTERNAL_ERROR", "Cuda had a problem. Try to delete ~/.nv and try again."],
+            ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
         ]
 
         for search_array in search_for_python_errors:

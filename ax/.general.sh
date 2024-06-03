@@ -36,7 +36,7 @@ border=white,red
 textbox=white,red
 button=black,white
 '
-    whiptail --title "Error Message" --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
+    whiptail --title "Error Message" --scrolltext --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
 	export NEWT_COLORS=""
 }
 

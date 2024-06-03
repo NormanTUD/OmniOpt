@@ -61,9 +61,9 @@ def plot_graph(dataframe, save_to_file=None):
 
     plt.subplot(2, 2, 2)
     sns.countplot(x='trial_status', data=dataframe)
-    plt.title('Distribution of Trial Status')
+    plt.title('Distribution of job status')
     plt.xlabel('Trial Status')
-    plt.ylabel('Count')
+    plt.ylabel('Nr. of jobs')
 
     plt.subplot(2, 2, 3)
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']

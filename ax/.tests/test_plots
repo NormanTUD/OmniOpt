@@ -85,6 +85,7 @@ for possible_plot_type in "${expected_plot_types[@]}"; do
 					red_text "$this_img does not have enough <svg> tags"
 					errors+=("$this_img does not have enough <svg> tags")
 				else
+					echo "Test OK"
 					rm "$this_img"
 				fi
 			else

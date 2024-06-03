@@ -123,9 +123,7 @@ for projectname in "${test_projects[@]}"; do
 
 					if [[ -e "$this_img" ]]; then
 						if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
-							echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 							red_text "$_command: $this_img does not have enough <svg> tags"
-							echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 							errors+=("$_command: $this_img does not have enough <svg> tags")
 						else
 							MISSING_OUTPUTS=()
@@ -145,18 +143,14 @@ for projectname in "${test_projects[@]}"; do
 								fi
 							else
 								missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
-								echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 								red_text "$_command: Missing outputs: $missing_outputs_str"
-								echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 								errors+=("$_command: Missing outputs: $missing_outputs_str")
 							fi
 							IFS=$saved_IFS
 						fi
 					else
-						echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 						red_text "$_command: $this_img does not exist"
 						errors+=("$_command: $this_img does not exist")
-						echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 					fi
 				else
 					missing_files_str=$(join_by "," $missing_files)

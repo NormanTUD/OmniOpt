@@ -272,6 +272,11 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
                 axs[row, col].set_ylabel(param2)
             except Exception as e:
                 print("ERROR: " + str(e))
+
+                import traceback
+                tb = traceback.format_exc()
+                print(tb)
+
                 sys.exit(17)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):

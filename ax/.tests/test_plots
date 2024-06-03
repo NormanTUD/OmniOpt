@@ -131,7 +131,6 @@ for projectname in "${test_projects[@]}"; do
 							saved_IFS=$IFS
 							IFS=$'\n'
 							for needed_output in $(cat .omniopt_plot_${possible_plot_type}.py | grep "TEST_OUTPUT_MUST_CONTAIN" | sed -e 's#.*TEST_OUTPUT_MUST_CONTAIN:\s##g'); do
-								yellow_text "Checking for $needed_output in $this_img"
 								if ! grep "$needed_output" "$this_img" 2>/dev/null >/dev/null; then
 									MISSING_OUTPUTS+=("$needed_output")
 								fi

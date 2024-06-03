@@ -47,7 +47,6 @@ export num_parallel_jobs=20
 export worker_timeout=30
 export mem_gb=5
 export runtime=300
-export not_all_at_once=0
 export max_epochs=10
 export follow=0
 

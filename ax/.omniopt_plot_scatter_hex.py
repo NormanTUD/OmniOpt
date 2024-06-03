@@ -264,6 +264,25 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
+def looks_like_number (x):
+    return looks_like_float(x) or looks_like_int(x) or type(x) == int or type(x) == float or type(x) == np.int64
+
+def remove_lines_where_y_is_string (_x, _y):
+    if len(_x) != len(_y):
+        print(f"remove_lines_where_y_is_string: len(_x) is != len(_y). Consider this a bug. Both should have the same length.")
+        return _x, _y
+
+    del_indices = []
+
+    for i in range(0, len(_x)):
+        if not looks_like_number(_y[i]):
+            del_indices.append(i)
+
+    _x = np.delete(_x, del_indices)
+    _y = np.delete(_y, del_indices)
+
+    return _x, _y
+
 def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values):
     print_debug("plot_multiple_graphs")
     global bins
@@ -272,20 +291,34 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
+                _x = df_filtered[param1]
+                _y = df_filtered[param2]
+
+                _x, _y = remove_lines_where_y_is_string(_x, _y)
+                print(_y)
+
                 if bins:
-                    scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
                 else:
-                    scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
+                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
             except Exception as e:
                 if "'Axes' object is not subscriptable" in str(e):
                     if bins:
-                        scatter = axs.hexbin(df_filtered[param1], df_filtered[param2], result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                        scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
                     else:
-                        scatter = axs.hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
+                        scatter = axs.hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
                     axs.set_xlabel(param1)
                     axs.set_ylabel(param2)
+                elif "could not convert string to float" in str(e):
+                    print("ERROR: " + str(e))
+
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(tb)
+
+                    sys.exit(177)
                 else:
                     print("ERROR: " + str(e))
 

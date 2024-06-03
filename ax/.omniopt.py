@@ -2820,9 +2820,9 @@ def get_number_of_steps(args, max_eval):
     original_second_steps = max_eval - random_steps
     second_step_steps = max(0, original_second_steps)
     if second_step_steps != original_second_steps:
-        print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
+        original_print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
     if second_step_steps == 0:
-        print_color("red", "This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        original_print("red", "This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
     second_step_steps = second_step_steps - already_done_random_steps
 

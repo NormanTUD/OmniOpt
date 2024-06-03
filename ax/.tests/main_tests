@@ -243,6 +243,8 @@ if [[ "$exit_code" -ne "87" ]]; then
 	errors+=("test_wronggoing_stuff (without successes) failed (exit-code: $exit_code)")
 fi
 
+./.tests/train_example_network --exit_after_install
+
 ./.tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval
 exit_code=$?
 

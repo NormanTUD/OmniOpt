@@ -55,15 +55,12 @@ def plot_graph(dataframe, save_to_file=None):
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
     numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
-    
-    plt.figure(figsize=(10, 6))
-    sns.pairplot(dataframe, hue='generation_method', vars=numeric_columns)
-    plt.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
 
-    plt.tight_layout()
+    pair_plot = sns.pairplot(dataframe, hue='generation_method', vars=numeric_columns)
+    pair_plot.fig.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
 
     if save_to_file:
-        plt.savefig(save_to_file)
+        pair_plot.savefig(save_to_file)
     else:
         plt.show()
 

@@ -1,5 +1,24 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+
 export PRINT_SEPERATOR=1
 
-echo "This is for later. Implement generalized test suite for different scenarios here."
+expected_plot_types=()
+
+for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
+	expected_plot_types+=("$possible_plot_type")
+done
+
+for possible_plot_type in "${expected_plot_types[@]}"; do
+	if grep add_argument .omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
+		echo "save to file possible: $possible_plot_type"
+
+
+	fi
+done

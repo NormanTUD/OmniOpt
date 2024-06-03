@@ -177,6 +177,7 @@
 				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000 },
 				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 20, placeholder: "Maximum number of parallel evaluations", 'min': 1, 'max': 100000000 },
 				{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10 },
+				{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1 },
 				{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt runs reproducible, given your program also acts deterministically.", required: false },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<code>tail -f</code> the <code>.out</code>-file automatically, so you can see the output as soon as it appears." },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },

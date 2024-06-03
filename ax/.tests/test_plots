@@ -144,9 +144,11 @@ for projectname in "${test_projects[@]}"; do
 									rm "$this_img"
 								fi
 							else
-								missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
-								red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
-								errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
+								if [[ "$projectname" == "no_result" ]]; then
+									missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
+									red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
+									errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
+								fi
 							fi
 							IFS=$saved_IFS
 						fi

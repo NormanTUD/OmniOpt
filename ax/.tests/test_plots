@@ -121,10 +121,12 @@ for projectname in "${test_projects[@]}"; do
 					_command="bash omniopt_plot --run_dir $run_dir --save_to_file=$this_img --plot_type=$possible_plot_type"
 					bash omniopt_plot --run_dir $run_dir --save_to_file=$this_img --plot_type=$possible_plot_type
 
+					_exit_code=$?
+
 					if [[ -e "$this_img" ]]; then
 						if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
-							red_text "$_command: $this_img does not have enough <svg> tags"
-							errors+=("$_command: $this_img does not have enough <svg> tags")
+							red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code"
+							errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code")
 						else
 							MISSING_OUTPUTS=()
 
@@ -143,8 +145,8 @@ for projectname in "${test_projects[@]}"; do
 								fi
 							else
 								missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
-								red_text "$_command: Missing outputs: $missing_outputs_str"
-								errors+=("$_command: Missing outputs: $missing_outputs_str")
+								red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
+								errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
 							fi
 							IFS=$saved_IFS
 						fi

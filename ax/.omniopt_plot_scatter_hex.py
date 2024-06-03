@@ -398,7 +398,7 @@ def get_args ():
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
 
-    parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=10)
+    parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=5)
 
     args = parser.parse_args()
 

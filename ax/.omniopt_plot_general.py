@@ -171,14 +171,6 @@ def plot_graph(dataframe, save_to_file=None):
     plt.ylabel('Average Result')
     plt.show()
 
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(x='trial_index', y='result', hue='generation_method', style='trial_status', data=dataframe)
-    plt.title('Scatter Plot of Results by Trial Index and Generation Method')
-    plt.xlabel('Trial Index')
-    plt.ylabel('Result')
-    plt.show()
-
-
     plt.tight_layout()
 
     if save_to_file:

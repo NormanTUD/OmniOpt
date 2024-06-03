@@ -158,12 +158,6 @@ def plot_graph(dataframe, save_to_file=None):
     plt.ylabel('Average Result')
 
 
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(x='epochs', y='result', hue='generation_method', data=dataframe)
-    plt.title('Average Results over Epochs by Generation Method')
-    plt.xlabel('Epochs')
-    plt.ylabel('Average Result')
-
     plt.tight_layout()
 
     if save_to_file:

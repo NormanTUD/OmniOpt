@@ -87,11 +87,13 @@ for possible_plot_type in "${expected_plot_types[@]}"; do
 				else
 					green_text "Test OK"
 					rm "$this_img"
+
 				fi
 			else
 				red_text "$this_img does not exist"
 				errors+=("$this_img does not exist")
 			fi
+			echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 		else
 			missing_files_str=$(join_by "," $missing_files)
 			errors+=("Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str")

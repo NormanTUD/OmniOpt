@@ -154,9 +154,12 @@ if [[ ! -d "$ENV_DIR" ]]; then
         source $ENV_DIR/bin/activate
 
         pip install tensorflow tensorflowjs protobuf scikit-image opencv-python keras termcolor pyyaml h5py
-fi
 
-source $ENV_DIR/bin/activate
+
+	deactivate
+else
+	green_text "$ENV_DIR already exists"
+fi
 
 ./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots
 exit_code=$?

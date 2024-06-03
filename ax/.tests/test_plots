@@ -123,7 +123,9 @@ for projectname in "${test_projects[@]}"; do
 
 					if [[ -e "$this_img" ]]; then
 						if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
+							echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 							red_text "$_command: $this_img does not have enough <svg> tags"
+							echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 							errors+=("$_command: $this_img does not have enough <svg> tags")
 						else
 							MISSING_OUTPUTS=()
@@ -152,7 +154,6 @@ for projectname in "${test_projects[@]}"; do
 						red_text "$this_img does not exist"
 						errors+=("$this_img does not exist")
 					fi
-					echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 				else
 					missing_files_str=$(join_by "," $missing_files)
 					errors+=("Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str")

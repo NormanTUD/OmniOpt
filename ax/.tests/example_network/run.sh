@@ -95,6 +95,7 @@ if [[ ! -d "$ENV_DIR" ]]; then
 fi
 
 if [[ ! -z $exit_after_install ]]; then
+	echo "exit_after_install"
 	exit 0
 fi
 

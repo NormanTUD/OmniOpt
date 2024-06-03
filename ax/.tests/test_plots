@@ -139,19 +139,23 @@ for projectname in "${test_projects[@]}"; do
 							done
 
 							if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
-								green_text "$_command: OK"
+								green_text "OK: $_command"
 								if [[ "$keep_tmp" -eq 0 ]]; then
 									rm "$this_img"
 								fi
 							else
 								missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
+								echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 								red_text "$_command: Missing outputs: $missing_outputs_str"
+								echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 								errors+=("$_command: Missing outputs: $missing_outputs_str")
 							fi
 							IFS=$saved_IFS
 						fi
 					else
+						echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 						red_text "$this_img does not exist"
+						echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 						errors+=("$this_img does not exist")
 					fi
 				else

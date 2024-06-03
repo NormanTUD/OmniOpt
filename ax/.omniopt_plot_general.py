@@ -55,6 +55,10 @@ def filter_data(dataframe, min_value=None, max_value=None):
     return dataframe
 
 def plot_graph(dataframe, save_to_file=None):
+    if not "result" in dataframe:
+        print("Result column not found in dataframe. That may mean that the job had no valid runs")
+        sys.exit(169)
+
     plt.figure(figsize=(12, 8))
 
     plt.subplot(2, 2, 1)

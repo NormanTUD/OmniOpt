@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export NO_RUNTIME=1
 
 help=0
 

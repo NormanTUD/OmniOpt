@@ -1,5 +1,40 @@
 #!/bin/bash
 
+
+help=0
+
+args=("$@")
+k=0
+keep_tmp=0
+
+while [ $k -lt ${#args[@]} ]; do
+    arg="${args[k]}"
+
+    case $arg in
+        --keep_tmp)
+            keep_tmp=1
+            shift
+            ;;
+
+        --help|-h)
+            help=1
+            shift
+            ;;
+
+        --debug)
+            set -x
+            shift
+            ;;
+    esac
+    k=$((k+1))
+done
+
+if [[ "$help" -eq "1" ]]; then
+	echo ".tests/test_plots:"
+	echo "--keep_tmp                            Keep tmp files"
+	exit 0
+fi
+
 export NO_WHIPTAIL=1
 
 errors=()
@@ -91,8 +126,9 @@ for projectname in "${test_projects[@]}"; do
 							errors+=("$this_img does not have enough <svg> tags")
 						else
 							green_text "Test OK"
-							rm "$this_img"
-
+							if [[ "$keep_tmp" -eq 0 ]]; then
+								rm "$this_img"
+							fi
 						fi
 					else
 						red_text "$this_img does not exist"

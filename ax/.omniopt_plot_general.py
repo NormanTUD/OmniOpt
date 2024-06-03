@@ -152,7 +152,7 @@ def plot_graph(dataframe, save_to_file=None):
     """
 
     plt.figure(figsize=(10, 6))
-    sns.barplot(x='generation_method', y='result', data=dataframe, ci=None)
+    sns.barplot(x='generation_method', y='result', data=dataframe, errorbar=None)
     plt.title('Average Results by Generation Method')
     plt.xlabel('Generation Method')
     plt.ylabel('Average Result')

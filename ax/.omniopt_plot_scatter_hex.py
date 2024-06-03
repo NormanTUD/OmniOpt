@@ -7,6 +7,8 @@
 from rich.traceback import install
 install(show_locals=True)
 
+bins = None
+
 import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -269,7 +271,8 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
-                scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap, bins=args.bins)
+                global bins
+                scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap, bins=bins)
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
             except Exception as e:
@@ -342,7 +345,8 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
         _x.append(l[0])
         _y.append(l[1])
 
-    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm, bins=args.bins)
+    global bins
+    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm, bins=bins)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(result_column)
 
@@ -402,10 +406,17 @@ def get_args ():
 
     args = parser.parse_args()
 
+    global bins
+
     if args.bins:
         if not (args.bins == "log" or looks_like_int(args.bins)):
             print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
             sys.exit(193)
+
+        if looks_like_int(args.bins):
+            bins = int(args.bins)
+        else:
+            bins = args.bins
 
     if args.bubblesize:
         global BUBBLESIZEINPX

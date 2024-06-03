@@ -136,7 +136,6 @@ for projectname in "${test_projects[@]}"; do
 									MISSING_OUTPUTS+=("$needed_output")
 								fi
 							done
-							IFS=$saved_IFS
 
 							if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
 								green_text "Test OK"
@@ -148,6 +147,7 @@ for projectname in "${test_projects[@]}"; do
 								red_text "Missing outputs: $missing_outputs_str"
 								errors+=("Missing outputs: $missing_outputs_str")
 							fi
+							IFS=$saved_IFS
 						fi
 					else
 						red_text "$this_img does not exist"

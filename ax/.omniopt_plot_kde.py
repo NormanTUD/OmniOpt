@@ -57,10 +57,24 @@ def plot_histograms(dataframe, save_to_file=None):
         num_cols = int(math.ceil(num_plots / num_rows))
 
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
-    axes = axes.flatten()
+    try:
+        axes = axes.flatten()
+    except Exception as e:
+        if not "'Axes' object has no attribute 'flatten'" in str(e):
+            print(e)
+
+            import traceback
+            tb = traceback.format_exc()
+            print(tb)
+
+            sys.exit(145)
 
     for i, col in enumerate(numeric_columns):
-        ax = axes[i]
+        try:
+            ax = axes[i]
+        except TypeError:
+            ax = axes
+
         values = dataframe[col]
         result_values = dataframe['result']
         bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
@@ -79,7 +93,15 @@ def plot_histograms(dataframe, save_to_file=None):
             ax.legend(loc='upper right')
 
     # Hide any unused subplots
-    for j in range(num_plots, len(axes)):
+
+    nr_axes = 1
+
+    try:
+        nr_axes = len(axes)
+    except:
+        pass
+
+    for j in range(num_plots, nr_axes):
         axes[j].axis('off')
 
     plt.tight_layout()

@@ -3381,7 +3381,7 @@ def get_first_line_of_file_that_contains_string(i, s):
 
     for line in f.split("\n"):
         if s in line:
-            return line
+            return line.lstrip()
     return None
 
 def get_errors_from_outfile(i):

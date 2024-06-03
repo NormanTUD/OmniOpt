@@ -309,6 +309,9 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
 
         print("df_filtered:")
         print(df_filtered.to_string(index=False))
+
+        print("non_empty_graphs:")
+        print(non_empty_graphs)
         sys.exit(45)
 
     scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
@@ -358,7 +361,7 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
 
     if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
-        plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column)
+        plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs)
     else:
         plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows)
 

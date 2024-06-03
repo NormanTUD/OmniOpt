@@ -86,7 +86,6 @@ try:
 
     divide_by = 255
 
-
     from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
     # Define size of images

@@ -95,10 +95,12 @@ set -e
 set -o pipefail
 
 function calltracer () {
-        echo 'Last file/last line:'
-        caller
+	if [[ -z $NO_RUNTIME ]]; then
+		echo 'Last file/last line:'
+		caller
 
-	echo "Runtime: $(displaytime $SECONDS)"
+		echo "Runtime: $(displaytime $SECONDS)"
+	fi
 }
 trap 'calltracer' ERR
 

@@ -266,12 +266,12 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
 
 def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values):
     print_debug("plot_multiple_graphs")
+    global bins
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
-                global bins
                 if bins:
                     scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
                 else:
@@ -279,13 +279,21 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
             except Exception as e:
-                print("ERROR: " + str(e))
+                if "'Axes' object is not subscriptable" in str(e):
+                    if bins:
+                        scatter = axs.hexbin(df_filtered[param1], df_filtered[param2], result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                    else:
+                        scatter = axs.hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
+                    axs.set_xlabel(param1)
+                    axs.set_ylabel(param2)
+                else:
+                    print("ERROR: " + str(e))
 
-                import traceback
-                tb = traceback.format_exc()
-                print(tb)
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(tb)
 
-                sys.exit(17)
+                    sys.exit(17)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
         row = i // num_cols

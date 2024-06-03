@@ -266,18 +266,22 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
-                #print(f"row: {row}, col: {col}")
                 scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
                 axs[row, col].set_xlabel(param1)
                 axs[row, col].set_ylabel(param2)
             except Exception as e:
-                print("ERROR: " + str(e))
+                if "" in str(e):
+                    scatter = axs.scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                    axs.set_xlabel(param1)
+                    axs.set_ylabel(param2)
+                else:
+                    print("ERROR: " + str(e))
 
-                import traceback
-                tb = traceback.format_exc()
-                print(tb)
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(tb)
 
-                sys.exit(17)
+                    sys.exit(17)
 
     for i in range(len(parameter_combinations), num_rows*num_cols):
         row = i // num_cols

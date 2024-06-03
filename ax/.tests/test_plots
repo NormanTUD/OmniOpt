@@ -1,5 +1,32 @@
 #!/bin/bash
 
+export NO_WHIPTAIL=1
+
+errors=()
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
@@ -19,6 +46,29 @@ for possible_plot_type in "${expected_plot_types[@]}"; do
 	if grep add_argument .omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
 		echo "save to file possible: $possible_plot_type"
 
+		this_img="image_${possible_plot_type}.svg"
 
+		bash omniopt_plot --run_dir .tests/plot_example_runs/one_param/0 --save_to_file=$this_img --plot_type=$possible_plot_type
+
+		if [[ -e "$this_img" ]]; then
+			echo "$this_img exists"
+		else
+			red_text "$this_img does not exist"
+			errors+=("$this_img does not exist")
+		fi
+	else
+		echo "save to file is not possible for $possible_plot_type"
 	fi
 done
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No errors"
+	exit 0
+else
+	red_text "=> ERRORS => ERRORS => ERRORS =>"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi

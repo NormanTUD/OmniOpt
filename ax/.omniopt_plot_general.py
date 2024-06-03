@@ -156,7 +156,6 @@ def plot_graph(dataframe, save_to_file=None):
     plt.title('Average Results by Generation Method')
     plt.xlabel('Generation Method')
     plt.ylabel('Average Result')
-    plt.show()
 
 
     plt.figure(figsize=(10, 6))
@@ -164,7 +163,6 @@ def plot_graph(dataframe, save_to_file=None):
     plt.title('Average Results over Epochs by Generation Method')
     plt.xlabel('Epochs')
     plt.ylabel('Average Result')
-    plt.show()
 
     plt.tight_layout()
 

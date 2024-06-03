@@ -43,7 +43,7 @@ try:
     from keras import layers
     for i in range(0, args.conv):
         model.add(layers.Conv2D(
-            4,
+            args.conv_filters,
             (3,3),
             trainable=True,
             use_bias=True,

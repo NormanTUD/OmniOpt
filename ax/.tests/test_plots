@@ -86,6 +86,8 @@ for possible_plot_type in "${expected_plot_types[@]}"; do
 				if [[ $(cat image_get_next_trials.svg | grep svg | wc -l) -lt 2 ]]; then
 					red_text "$this_img does not have enough <svg> tags"
 					errors+=("$this_img does not have enough <svg> tags")
+				else
+					rm "$this_img"
 				fi
 			else
 				red_text "$this_img does not exist"

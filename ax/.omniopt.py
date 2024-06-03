@@ -2187,22 +2187,18 @@ def print_outfile_analyzed(job):
         for e in errors:
             _strs.append(f"- {e}\n")
 
-        _strs.append("\n")
-
         j = j + 1
-
-    print_color("red", "\n".join(errors))
 
     out_files_string = "\n".join(_strs)
 
-    if out_files_string:
+    if len(_strs):
         try:
             with open(f'{current_run_folder}/errors.log', "a+") as error_file:
                 error_file.write(out_files_string)
         except Exception as e:
             print_debug(f"Error occurred while writing to errors.log: {e}")
 
-    print(out_files_string)
+        print(out_files_string)
 
 def finish_previous_jobs(args, new_msgs):
     print_debug("finish_previous_jobs")

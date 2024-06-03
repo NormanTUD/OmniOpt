@@ -302,6 +302,11 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
         _y = df_filtered[non_empty_graphs[0][1]]
     except Exception as e:
         print(f"Error in plot_two_graphs: {e}")
+
+        import traceback
+        tb = traceback.format_exc()
+        print("Traceback ==>", tb, "<==")
+
         print("df_filtered:")
         print(df_filtered.to_string(index=False))
         sys.exit(45)

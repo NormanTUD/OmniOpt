@@ -130,7 +130,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		fi
 
 		if ! command -v resize >/dev/null 2>/dev/null; then
-			red "resize not found. Try installing with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
+			red "resize not found. Try installing xterm with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
 			exit 4
 		fi
 

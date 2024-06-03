@@ -1,6 +1,5 @@
 # DESCRIPTION: Plot general job info
 # EXPECTED FILES: pd.csv
-# TEST_OUTPUT_MUST_CONTAIN: Sobol
 # TEST_OUTPUT_MUST_CONTAIN: generation_method
 
 import os

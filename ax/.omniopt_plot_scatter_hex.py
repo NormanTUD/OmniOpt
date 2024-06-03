@@ -269,7 +269,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
-                scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap, alpha=0.5)
+                scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap, bins=args.bins)
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
             except Exception as e:
@@ -342,7 +342,7 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
         _x.append(l[0])
         _y.append(l[1])
 
-    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
+    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm, bins=args.bins)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(result_column)
 
@@ -396,11 +396,16 @@ def get_args ():
 
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
+    parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)
 
     parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=5)
 
     args = parser.parse_args()
+
+    if args.bins:
+        if not (args.bins == "log" or looks_like_int(args.bins)):
+            print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
+            sys.exit(193)
 
     if args.bubblesize:
         global BUBBLESIZEINPX
@@ -699,6 +704,18 @@ def update_graph(event=None, _min=None, _max=None):
     except Exception as e:
         if not "invalid command name" in str(e):
             print(f"Failed to update graph: {e}")
+
+def looks_like_int(x):
+    print_debug("looks_like_int")
+    if isinstance(x, int):
+        return True
+    elif isinstance(x, float):
+        return x.is_integer()
+    elif isinstance(x, str):
+        return bool(re.match(r'^\d+$', x))
+    else:
+        return False
+
 
 def looks_like_float(x):
     print_debug(f"looks_like_float(x = {x})")

@@ -79,7 +79,7 @@ def plot_graph(dataframe, save_to_file=None):
         patch.set_alpha(args.alpha)
     plt.title('Distribution of Results by Generation Method')
     plt.xlabel('Result')
-    plt.ylabel('Frequency')
+    plt.ylabel('Nr. of jobs')
 
     plt.tight_layout()
 

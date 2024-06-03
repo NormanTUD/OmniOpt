@@ -137,6 +137,8 @@ errors=()
 
 cd ..
 
+./.tests/train_example_network --exit_after_install
+
 ./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots
 exit_code=$?
 if [[ "$exit_code" -ne "0" ]]; then
@@ -242,8 +244,6 @@ export EXPECTED_TO_FAIL=0
 if [[ "$exit_code" -ne "87" ]]; then
 	errors+=("test_wronggoing_stuff (without successes) failed (exit-code: $exit_code)")
 fi
-
-./.tests/train_example_network --exit_after_install
 
 ./.tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval
 exit_code=$?

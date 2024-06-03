@@ -81,7 +81,7 @@ for projectname in "${test_projects[@]}"; do
 					fi
 				fi
 
-				this_img="image_${possible_plot_type}.svg"
+				this_img="${projectname}_${projectnumber}_image_${possible_plot_type}.svg"
 
 				if [[ $ALL_FILES_THERE -ne 0 ]]; then
 					echo "bash omniopt_plot --run_dir $run_dir --save_to_file=$this_img --plot_type=$possible_plot_type"

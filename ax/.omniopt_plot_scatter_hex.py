@@ -327,7 +327,7 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
         print(non_empty_graphs)
         sys.exit(45)
 
-    scatter = axs.hexbin(_x, _y, result_column_values, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])
 

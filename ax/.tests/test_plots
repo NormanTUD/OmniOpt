@@ -154,9 +154,9 @@ for projectname in "${test_projects[@]}"; do
 						fi
 					else
 						echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-						red_text "$this_img does not exist"
+						red_text "$_command: $this_img does not exist"
+						errors+=("$_command: $this_img does not exist")
 						echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-						errors+=("$this_img does not exist")
 					fi
 				else
 					missing_files_str=$(join_by "," $missing_files)

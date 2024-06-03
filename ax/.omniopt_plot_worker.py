@@ -1,5 +1,8 @@
 # DESCRIPTION: Plot number of workers over time
 # EXPECTED FILES: worker_usage.csv
+# TEST_OUTPUT_MUST_CONTAIN: Requested Number of Workers
+# TEST_OUTPUT_MUST_CONTAIN: Number of Current Workers
+# TEST_OUTPUT_MUST_CONTAIN: Worker Usage Plot
 
 import os
 script_dir = os.path.dirname(os.path.realpath(__file__))

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+unset PRINT_SEPERATOR
 export NO_RUNTIME=1
 
 help=0

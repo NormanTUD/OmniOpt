@@ -1,5 +1,9 @@
 # DESCRIPTION: Plot GPU usage over time on different hosts
 # EXPECTED FILES: gpu_usage_
+# TEST_OUTPUT_MUST_CONTAIN: GPU Usage Over Time
+# TEST_OUTPUT_MUST_CONTAIN: pci.bus_id
+# TEST_OUTPUT_MUST_CONTAIN: GPU Usage
+# TEST_OUTPUT_MUST_CONTAIN: Time
 
 import os
 script_dir = os.path.dirname(os.path.realpath(__file__))

@@ -35,6 +35,10 @@ function help () {
         echo "  --width=INT"
         echo "  --height=INT"
         echo "  --data=DIRNAME"
+	echo "  --conv"
+	echo "  --conv_filters"
+	echo "  --dense"
+	echo "  --dense_units"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1

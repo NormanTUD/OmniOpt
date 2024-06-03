@@ -23,6 +23,10 @@ try:
     parser.add_argument('--data', type=str, help='Data dir', default='data')
     parser.add_argument('--width', type=int, help='Width as an integer', default=40)
     parser.add_argument('--height', type=int, help='Height as an integer', default=40)
+    parser.add_argument('--conv', type=int, help='Number of conv layers', default=2)
+    parser.add_argument('--conv_filters', type=int, help='Number of conv filters per', default=4)
+    parser.add_argument('--dense', type=int, help='Number of dense layers', default=2)
+    parser.add_argument('--dense_units', type=int, help='Number of dense units per layer', default=32)
     parser.add_argument('--debug', action='store_true', help='Enables debug mode (set -x)')
 
     args = parser.parse_args()
@@ -37,42 +41,34 @@ try:
         sys.exit(1)
 
     from keras import layers
-    model.add(layers.Conv2D(
-        4,
-        (3,3),
-        trainable=True,
-        use_bias=True,
-        activation="relu",
-        padding="valid",
-        strides=(1, 1),
-        dilation_rate=(1,1),
-        kernel_initializer="glorot_uniform",
-        bias_initializer="variance_scaling",
-        dtype="float32"
-    ))
-    model.add(layers.Conv2D(
-        1,
-        (3,3),
-        trainable=True,
-        use_bias=True,
-        activation="relu",
-        padding="valid",
-        strides=(1, 1),
-        dilation_rate=(1,1),
-        kernel_initializer="glorot_uniform",
-        bias_initializer="variance_scaling",
-        dtype="float32"
-    ))
+    for i in range(0, args.conv):
+        model.add(layers.Conv2D(
+            4,
+            (3,3),
+            trainable=True,
+            use_bias=True,
+            activation="relu",
+            padding="valid",
+            strides=(1, 1),
+            dilation_rate=(1,1),
+            kernel_initializer="glorot_uniform",
+            bias_initializer="variance_scaling",
+            dtype="float32"
+        ))
+
     model.add(layers.Flatten())
-    model.add(layers.Dense(
-        trainable=True,
-        use_bias=True,
-        units=32,
-        activation="relu",
-        kernel_initializer="glorot_uniform",
-        bias_initializer="variance_scaling",
-        dtype="float32"
-    ))
+
+    for i in range(0, args.dense):
+        model.add(layers.Dense(
+            trainable=True,
+            use_bias=True,
+            units=args.dense_units,
+            activation="relu",
+            kernel_initializer="glorot_uniform",
+            bias_initializer="variance_scaling",
+            dtype="float32"
+        ))
+
     model.add(layers.Dense(
         trainable=True,
         use_bias=True,

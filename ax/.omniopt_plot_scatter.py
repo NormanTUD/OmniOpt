@@ -1,5 +1,8 @@
 # DESCRIPTION: Scatter plot
 # EXPECTED FILES: pd.csv
+# TEST_OUTPUT_MUST_CONTAIN: Number of evaluations shown
+# TEST_OUTPUT_MUST_CONTAIN: mean result
+# TEST_OUTPUT_MUST_CONTAIN: result
 
 from rich.traceback import install
 install(show_locals=True)

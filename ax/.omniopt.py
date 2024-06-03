@@ -1290,8 +1290,6 @@ def print_best_result(csv_file_path, result_column):
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             table_str = "Best result could not be determined"
             print_color("red", table_str)
-
-            print(analyze_out_files(current_run_folder))
         else:
             table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
@@ -1455,17 +1453,16 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
 
     end_program_ran = True
 
-    out_files_string = analyze_out_files(current_run_folder)
+    #out_files_string = analyze_out_files(current_run_folder)
+    #if out_files_string:
+    #    print_debug(out_files_string)
 
-    if out_files_string:
-        print_debug(out_files_string)
-
-    if out_files_string:
-        try:
-            with open(f'{current_run_folder}/errors.log', "w") as error_file:
-                error_file.write(out_files_string)
-        except Exception as e:
-            print_debug(f"Error occurred while writing to errors.log: {e}")
+    #if out_files_string:
+    #    try:
+    #        with open(f'{current_run_folder}/errors.log', "w") as error_file:
+    #            error_file.write(out_files_string)
+    #    except Exception as e:
+    #        print_debug(f"Error occurred while writing to errors.log: {e}")
 
     _exit = 0
 
@@ -2170,6 +2167,43 @@ def load_data_from_existing_run_folders(args, _paths):
             else:
                 original_print(f"Old result for {old_arm_parameter} could not be found in {this_path}/{pd_csv_filename}.")
 
+def print_outfile_analyzed(job):
+    stdout_path = str(job.paths.stdout.resolve())
+    stderr_path = str(job.paths.stderr.resolve())
+    errors = get_errors_from_outfile(stdout_path)
+    #errors.append(...get_errors_from_outfile(stderr_path))
+
+    _strs = []
+    j = 0
+
+    if len(errors):
+        if j == 0:
+            _strs.append("")
+        _strs.append(f"Out file {stdout_path} contains potential errors:\n")
+        program_code = get_program_code_from_out_file(stdout_path)
+        if program_code:
+            _strs.append(program_code)
+
+        for e in errors:
+            _strs.append(f"- {e}\n")
+
+        _strs.append("\n")
+
+        j = j + 1
+
+    print_color("red", "\n".join(errors))
+
+    out_files_string = "\n".join(_strs)
+
+    if out_files_string:
+        try:
+            with open(f'{current_run_folder}/errors.log', "a+") as error_file:
+                error_file.write(out_files_string)
+        except Exception as e:
+            print_debug(f"Error occurred while writing to errors.log: {e}")
+
+    print(out_files_string)
+
 def finish_previous_jobs(args, new_msgs):
     print_debug("finish_previous_jobs")
 
@@ -2209,12 +2243,14 @@ def finish_previous_jobs(args, new_msgs):
                         _trial.mark_completed(unsafe=True)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
+                    print_outfile_analyzed(job)
                 else:
                     if job:
                         try:
                             progressbar_description([f"job_failed"])
 
                             ax_client.log_trial_failure(trial_index=trial_index)
+                            print_outfile_analyzed(job)
                         except Exception as e:
                             print(f"ERROR in line {getLineInfo()}: {e}")
                         job.cancel()
@@ -2230,6 +2266,7 @@ def finish_previous_jobs(args, new_msgs):
                         progressbar_description([f"job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
+                        print_outfile_analyzed(job)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
@@ -2246,6 +2283,7 @@ def finish_previous_jobs(args, new_msgs):
                         progressbar_description([f"job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
+                        print_outfile_analyzed(job)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
@@ -2264,6 +2302,7 @@ def finish_previous_jobs(args, new_msgs):
                     try:
                         progressbar_description([f"job_failed"])
                         ax_client.log_trial_failure(trial_index=trial_index)
+                        print_outfile_analyzed(job)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     job.cancel()
@@ -3512,7 +3551,7 @@ def analyze_out_files(rootdir, print_to_stdout=True):
                 j = j + 1
 
         if print_to_stdout:
-            print_color("red", "\n".join("\n"))
+            print_color("red", "\n".join(errors))
 
         return "\n".join(_strs)
     except Exception as e:

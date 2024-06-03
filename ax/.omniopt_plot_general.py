@@ -89,11 +89,6 @@ def plot_graph(dataframe, save_to_file=None):
     plt.xlabel('Generation Method')
     plt.ylabel('Average Result')
 
-    plt.subplot(2, 2, 6)
-    sns.pairplot(dataframe, hue='generation_method', vars=numeric_columns)
-    plt.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
-
-
     plt.subplot(2, 2, 7)
     plt.figure(figsize=(10, 6))
     sns.lineplot(x='epochs', y='result', hue='generation_method', data=dataframe)

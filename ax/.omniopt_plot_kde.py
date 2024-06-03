@@ -1,5 +1,7 @@
 # DESCRIPTION: Kernel-Density estimation plot
 # EXPECTED FILES: pd.csv
+# TEST_OUTPUT_MUST_CONTAIN: Histogram for
+# TEST_OUTPUT_MUST_CONTAIN: Count
 
 import os
 script_dir = os.path.dirname(os.path.realpath(__file__))

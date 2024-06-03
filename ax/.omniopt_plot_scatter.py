@@ -170,6 +170,7 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
 def check_args ():
     print_debug("check_args()")
     global args
+
     if args.min and args.max:
         if args.min > args.max:
             tmp = args.max

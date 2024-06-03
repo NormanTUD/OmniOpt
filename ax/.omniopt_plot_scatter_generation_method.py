@@ -51,37 +51,7 @@ def filter_data(dataframe, min_value=None, max_value=None):
     return dataframe
 
 def plot_graph(dataframe, save_to_file=None):
-    plt.figure(figsize=(12, 8))
-
-    plt.subplot(2, 2, 1)
-    sns.boxplot(x='generation_method', y='result', data=dataframe)
-    plt.title('Results by Generation Method')
-    plt.xlabel('Generation Method')
-    plt.ylabel('Result')
-
-    plt.subplot(2, 2, 2)
-    sns.countplot(x='trial_status', data=dataframe)
-    plt.title('Distribution of job status')
-    plt.xlabel('Trial Status')
-    plt.ylabel('Nr. of jobs')
-
-    plt.subplot(2, 2, 3)
-    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
-    numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
-    numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
-    correlation_matrix = dataframe[numeric_columns].corr()
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", cbar=False)
-    plt.title('Correlation Matrix')
-
-    plt.subplot(2, 2, 4)
-    histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=False, bins=args.bins)
-    for patch in histogram.patches:
-        patch.set_alpha(args.alpha)
-    plt.title('Distribution of Results by Generation Method')
-    plt.xlabel('Result')
-    plt.ylabel('Nr. of jobs')
-
-    """
+     """
     plt.subplot(2, 2, 5)
     plt.figure(figsize=(10, 6))
     sns.barplot(x='generation_method', y='result', data=dataframe, ci=None)
@@ -157,27 +127,9 @@ def plot_graph(dataframe, save_to_file=None):
     """
 
     plt.figure(figsize=(10, 6))
-    sns.barplot(x='generation_method', y='result', data=dataframe, ci=None)
-    plt.title('Average Results by Generation Method')
-    plt.xlabel('Generation Method')
-    plt.ylabel('Average Result')
+    sns.pairplot(dataframe, hue='generation_method', vars=numeric_columns)
+    plt.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
     plt.show()
-
-
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(x='epochs', y='result', hue='generation_method', data=dataframe)
-    plt.title('Average Results over Epochs by Generation Method')
-    plt.xlabel('Epochs')
-    plt.ylabel('Average Result')
-    plt.show()
-
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(x='trial_index', y='result', hue='generation_method', style='trial_status', data=dataframe)
-    plt.title('Scatter Plot of Results by Trial Index and Generation Method')
-    plt.xlabel('Trial Index')
-    plt.ylabel('Result')
-    plt.show()
-
 
     plt.tight_layout()
 

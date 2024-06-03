@@ -342,7 +342,7 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
         _x.append(l[0])
         _y.append(l[1])
 
-    scatter = axs.hexbin(_x, _y, result_column_values, c=colors, cmap=cmap, norm=norm)
+    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=5, norm=norm)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(result_column)
 

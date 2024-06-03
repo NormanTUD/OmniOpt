@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export PRINT_SEPERATOR=1
+
+echo "This is for later. Implement generalized test suite for different scenarios here."

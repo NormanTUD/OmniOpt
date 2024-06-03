@@ -298,7 +298,14 @@ def show_legend(_scatter, axs, result_column):
 def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
     print_debug("plot_two_graphs()")
     _x = df_filtered[non_empty_graphs[0][0]]
-    _y = df_filtered[non_empty_graphs[0][1]]
+    try:
+        _y = df_filtered[non_empty_graphs[0][1]]
+    except Exception as e:
+        print(f"Error in plot_two_graphs: {e}")
+        print("df_filtered:")
+        print(df_filtered.to_string(index=False))
+        sys.exit(45)
+
     scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(non_empty_graphs[0][1])

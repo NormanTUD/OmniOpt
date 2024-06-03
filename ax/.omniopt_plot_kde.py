@@ -100,6 +100,10 @@ def update_graph():
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
 if __name__ == "__main__":
     setup_logging()
     args = parse_arguments()

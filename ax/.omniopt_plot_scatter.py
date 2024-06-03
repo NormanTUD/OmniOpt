@@ -625,6 +625,11 @@ def convert_string_to_number(input_string):
         return None
     except Exception as e:
         print(f"Unexpected error: {e}")
+
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
         return None
 
 

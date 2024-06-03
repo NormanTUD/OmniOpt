@@ -269,7 +269,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         col = i % num_cols
         if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
-                scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=5, cmap=cmap, alpha=0.5)
+                scatter = axs[row][col].hexbin(df_filtered[param1], df_filtered[param2], result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap, alpha=0.5)
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
             except Exception as e:
@@ -342,7 +342,7 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
         _x.append(l[0])
         _y.append(l[1])
 
-    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=5, norm=norm)
+    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(result_column)
 
@@ -397,6 +397,8 @@ def get_args ():
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
+
+    parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=10)
 
     args = parser.parse_args()
 

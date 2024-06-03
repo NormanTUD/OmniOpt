@@ -3378,10 +3378,24 @@ def get_first_line_of_file_that_contains_string(i, s):
         return
 
     f = get_file_as_string(i)
+    
+    lines = ""
+    get_lines_until_end = False
 
     for line in f.split("\n"):
         if s in line:
-            return line.lstrip()
+            if get_lines_until_end:
+                lines += line
+            else:
+                line = line.strip()
+                if line.endswith("(") and "raise" in line:
+                    get_lines_until_end = True
+                    lines += line
+                else:
+                    return line
+    if lines != "":
+        return lines
+
     return None
 
 def get_errors_from_outfile(i):

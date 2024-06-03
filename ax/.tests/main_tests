@@ -137,7 +137,7 @@ errors=()
 
 cd ..
 
-./.tests/train_example_network --exit_after_install
+bash ./.tests/train_example_network --exit_after_install
 
 ./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots
 exit_code=$?

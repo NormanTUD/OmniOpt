@@ -49,7 +49,7 @@ export mem_gb=5
 export runtime=300
 export max_epochs=10
 export follow=0
-export exit_after_install=0
+exit_after_install=0
 
 function help () {
         echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
@@ -101,7 +101,7 @@ for i in $@; do
 			shift
 			;;
                 --exit_after_install)
-                        export exit_after_install=1
+                        exit_after_install=1
                         shift
                         ;;
                 --follow)
@@ -120,6 +120,9 @@ for i in $@; do
                         ;;
         esac
 done
+
+
+export exit_after_install
 
 PARTITION="alpha"
 NUM_GPUS=0

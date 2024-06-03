@@ -1,6 +1,9 @@
 # DESCRIPTION: Scatter plot
 # EXPECTED FILES: pd.csv
 
+from rich.traceback import install
+install(show_locals=True)
+
 import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"

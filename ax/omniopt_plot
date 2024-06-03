@@ -79,7 +79,7 @@ export ORIGINAL_PWD=$(pwd)
 expected_plot_types=("menu")
 whiptail_args=()
 
-for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
+for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tac); do
 	expected_plot_types+=("$possible_plot_type")
 done
 

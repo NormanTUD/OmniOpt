@@ -312,6 +312,7 @@ debug.add_argument('--debug', help='Enable debugging', action='store_true', defa
 debug.add_argument('--wait_until_ended', help='Wait until the program has ended', action='store_true', default=False)
 debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
 debug.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
+debug.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
@@ -2852,7 +2853,7 @@ def get_executor(args):
         stderr_to_stdout=args.stderr_to_stdout,
         mem_gb=args.mem_gb,
         slurm_signal_delay_s=args.slurm_signal_delay_s,
-        slurm_use_srun=False
+        slurm_use_srun=args.slurm_use_srun
     )
 
     return executor

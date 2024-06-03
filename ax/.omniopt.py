@@ -2198,7 +2198,7 @@ def print_outfile_analyzed(job):
         except Exception as e:
             print_debug(f"Error occurred while writing to errors.log: {e}")
 
-        print(out_files_string)
+        original_print(out_files_string)
 
 def finish_previous_jobs(args, new_msgs):
     print_debug("finish_previous_jobs")

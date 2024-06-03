@@ -278,26 +278,11 @@ if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Training example network, got exit-code: $exit_code")
 fi
 
-export NO_WHIPTAIL=1
-
-export EXPECTED_TO_FAIL=1
-./omniopt_plot --run_dir runs/test_wronggoing_stuff/1 --plot_type=scatter --save_to_file=tmp.svg
+bash ./.tests/test_plots
 exit_code=$?
-export EXPECTED_TO_FAIL=0
 
-if [[ "$exit_code" -ne "10" ]]; then
-	errors+=("Plotting scatter for test_wronggoing_stuff --nosuccess should not be possible and exit with error code 10 because no result column was given, got exit-code: $exit_code")
-fi
-
-export EXPECTED_TO_FAIL=1
-./omniopt_plot --run_dir runs/test_wronggoing_stuff/0 --plot_type=general --save_to_file=tmp.svg
-exit_code=$?
-export EXPECTED_TO_FAIL=0
-
-rm tmp.svg
-
-if [[ "$exit_code" -ne "00" ]]; then
-	errors+=("Plotting general info for test_wronggoing_stuff should be possible and exit with error code 0, got exit-code: $exit_code")
+if [[ "$exit_code" -ne "0" ]]; then
+	errors+=("Plotting tests didn't exit with error code 0, got exit-code: $exit_code")
 fi
 
 if [ ${#errors[@]} -eq 0 ]; then

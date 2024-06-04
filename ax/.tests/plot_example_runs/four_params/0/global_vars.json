@@ -1,0 +1,1 @@
+{"jobs": [], "_time": null, "mem_gb": null, "num_parallel_jobs": null, "joined_run_program": "echo \"RESULT: %one%two%three%four%five%six%seven%eight%nine%ten\"", "experiment_name": "ten_params"}

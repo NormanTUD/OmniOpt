@@ -363,7 +363,7 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     try:
         norm = plt.Normalize(colors.min(), colors.max())
     except:
-        print(f"Wrong values in {csv_file_path}")
+        print(f"Wrong values in csv file")
         sys.exit(16)
 
     c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]

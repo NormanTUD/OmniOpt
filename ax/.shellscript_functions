@@ -114,6 +114,7 @@ function install_required_modules {
 	ppip watchdog
 	ppip seaborn
 	ppip art
+	ppip plotly
 
 	#if ! declare -f ml 2>/dev/null >/dev/null; then
 	#	ppip tkinter

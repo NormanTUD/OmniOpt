@@ -2731,6 +2731,37 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
 def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     global random_steps
 
+    """
+
+    Valid models?
+
+    "Sobol"
+    "GPEI"
+    "GPKG"
+    "GPMES"
+    "Factorial"
+    "SAASBO"
+    "FullyBayesian"
+    "FullyBayesianMOO"
+    "SAAS_MTGP"
+    "FullyBayesian_MTGP"
+    "FullyBayesianMOO_MTGP"
+    "Thompson"
+    "GPEI"
+    "BoTorch"
+    "EB"
+    "Uniform"
+    "MOO"
+    "ST_MTGP_LEGACY"
+    "ST_MTGP"
+    "ALEBO"
+    "BO_MIXED"
+    "ST_MTGP_NEHVI"
+    "ALEBO_Initializer"
+    "Contextual_SACBO"
+
+    """
+
     _steps = []
 
     if random_steps is None:

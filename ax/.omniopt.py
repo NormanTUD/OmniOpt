@@ -302,6 +302,7 @@ optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: 
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
+optional.add_argument('--model', help='Use special models for nonrandom steps.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -2758,11 +2759,23 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
             )
         )
 
+    chosen_non_random_model = Models.BOTORCH_MODULAR
+
+    available_models = list(Models.__members__.keys())
+
+    if args.model:
+        if str(args.model).upper() in available_models:
+            print_debug(f"Using model {str(args.model).upper()}")
+            chosen_non_random_model = Models.__members__[str(args.model).upper()]
+            # todo
+        else:
+            print_color("red", f":warning: Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
     _steps.append(
         GenerationStep(
-            model=Models.BOTORCH_MODULAR,
+            model=chosen_non_random_model,
             num_trials=-1,  # No limitation on how many trials should be produced from this step
             max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
             #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model

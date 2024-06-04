@@ -68,14 +68,14 @@ def plot_gpu_usage(run_dir):
     fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5*plot_rows))
     axs = axs.flatten()  # Flatten the axs array to handle both 1D and 2D subplots
 
-    for i, df in enumerate(gpu_data):
+    for i, df in enumerate(gpu_data):                                                                                                                                                      
         df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y/%m/%d %H:%M:%S.%f', errors='coerce')
         df = df.sort_values(by='timestamp')
 
         grouped_data = df.groupby('pci.bus_id')
         for bus_id, group in grouped_data:
-            group['utilization.gpu [%]'] = group['utilization.gpu [%]'].str.replace('%', '').astype(float)
-            group = group.dropna(subset=['timestamp'])
+            group['utilization.gpu [%]'] = pd.to_numeric(group['utilization.gpu [%]'].str.replace('%', ''), errors='coerce')
+            group = group.dropna(subset=['timestamp', 'utilization.gpu [%]'])
             axs[i].scatter(group['timestamp'], group['utilization.gpu [%]'], label=f'pci.bus_id: {bus_id}')
 
         axs[i].set_xlabel('Time')
@@ -83,6 +83,7 @@ def plot_gpu_usage(run_dir):
         axs[i].set_title(f'GPU Usage Over Time - {os.path.basename(_paths[i])}')
         if not args.no_legend:
             axs[i].legend(loc='upper right')
+
 
     # Hide empty subplots
     for j in range(num_plots, plot_rows * plot_cols):

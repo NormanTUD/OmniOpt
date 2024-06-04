@@ -1,5 +1,17 @@
 #!/bin/env python3
 
+SUPPORTED_MODELS = [
+    "SOBOL",
+    "GPEI",
+    "FACTORIAL", # ValueError: RangeParameter(name='float_param', parameter_type=FLOAT, range=[-5.0, 5.0]) not ChoiceParameter or FixedParameter
+    "SAASBO",
+    "FULLYBAYESIAN",
+    "LEGACY_BOTORCH",
+    "BOTORCH_MODULAR",
+    "UNIFORM",
+    "BO_MIXED"
+]
+
 original_print = print
 
 already_inserted_param_hashes = {}
@@ -302,7 +314,7 @@ optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: 
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
-optional.add_argument('--model', help='Use special models for nonrandom steps.', type=str, default=None)
+optional.add_argument('--model', help='Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -320,6 +332,10 @@ debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 
 args = parser.parse_args()
+
+if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
+    print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
+    exit_local(203)
 
 if args.num_parallel_jobs:
     num_parallel_jobs = args.num_parallel_jobs
@@ -795,6 +811,10 @@ def parse_experiment_parameters(args):
                 exit_local(3)
 
             if param_type == "range":
+                if args.model and args.model == "FACTORIAL":
+                    print_color("red", f"\n:warning: --model FACTORIAL cannot be used with range parameter")
+                    exit_local(191)
+
                 if len(this_args) != 5 and len(this_args) != 4:
                     print_color("red", f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
                     exit_local(9)
@@ -2660,12 +2680,11 @@ def _get_next_trials(ax_client):
             max_trials=real_num_parallel_jobs
         )
     except np.linalg.LinAlgError as e:
-        if args.model and args.model.upper() == "THOMPSON":
+        if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
             print_color("red", f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
         else:
             print_color("red", f"Error: {e}")
         sys.exit(142)
-
 
     print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
 

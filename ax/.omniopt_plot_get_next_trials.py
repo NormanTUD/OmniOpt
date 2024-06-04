@@ -67,12 +67,19 @@ def parse_log_file(log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
-        assert_condition(len(data.columns) > 0, "Log file has no columns.")
-        assert_condition("time" in data.columns, "The 'time' column is missing.")
-        assert_condition(data is not None, "No data could be found in the log file.")
+        def is_valid_time_format(time_string):
+            try:
+                datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+                return True
+            except ValueError:
+                return False
 
-        data['time'] = data['time'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        data['time'] = pd.to_datetime(data['time'])
+        valid_time_mask = data['time'].apply(is_valid_time_format)
+        if not valid_time_mask.all():
+            log_error("Some rows have invalid time format and will be removed.")
+        data = data[valid_time_mask]
+
+        data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d %H:%M:%S')
 
         # Sort data by time
         data = data.sort_values(by='time')

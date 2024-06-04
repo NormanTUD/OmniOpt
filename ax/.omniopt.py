@@ -2655,9 +2655,16 @@ def _get_next_trials(ax_client):
     trial_index_to_param = None
 
     get_next_trials_time_start = time.time()
-    trial_index_to_param, _ = ax_client.get_next_trials(
-        max_trials=real_num_parallel_jobs
-    )
+    try:
+        trial_index_to_param, _ = ax_client.get_next_trials(
+            max_trials=real_num_parallel_jobs
+        )
+    except np.linalg.LinAlgError as e:
+        if args.model and args.model.upper() == "THOMPSON":
+            print_color("red", f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
+        else:
+            print_color("red", f"Error: {e}")
+        sys.exit(142)
 
 
     print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)

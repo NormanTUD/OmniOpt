@@ -159,7 +159,7 @@ for projectname in "${test_projects[@]}"; do
 							IFS=$saved_IFS
 						fi
 					else
-						if [[ "$projectname" == "no_result" ]]; then
+						if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]]; then
 							green_text "OK: $_command"
 						else
 							red_text "$_command: $this_img does not exist"

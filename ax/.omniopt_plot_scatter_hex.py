@@ -295,7 +295,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
                 _x = df_filtered[param1]
                 _y = df_filtered[param2]
 
-                _x, _y = remove_lines_where_y_is_string(_x, _y)
+                #_x, _y = remove_lines_where_y_is_string(_x, _y)
 
                 if bins:
                     scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)

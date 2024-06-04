@@ -79,7 +79,8 @@ def plot_histograms(dataframe, save_to_file=None):
 
         values = dataframe[col]
         if not "result" in dataframe:
-            print("KDE: Result column not found in dataframe. That may mean that the job had no valid runs")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print("KDE: Result column not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
         result_values = dataframe['result']
         bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins

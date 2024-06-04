@@ -37,7 +37,8 @@ def filter_data(dataframe, min_value=None, max_value=None):
 
 def plot_graph(dataframe, save_to_file=None):
     if not "result" in dataframe:
-        print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
         sys.exit(169)
 
     plt.figure(figsize=(12, 8))

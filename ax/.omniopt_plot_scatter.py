@@ -230,7 +230,8 @@ def get_data (csv_file_path, result_column, _min, _max, old_headers_string=None)
         if _max is not None:
             df = df[df[result_column] <= _max]
         if not result_column in df:
-            print(f"There was no {result_column} in {csv_file_path}. This may means all tests failed. Cannot continue.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"There was no {result_column} in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
         df.dropna(subset=[result_column], inplace=True)
     except pd.errors.EmptyDataError:

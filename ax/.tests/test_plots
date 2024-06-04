@@ -2,6 +2,7 @@
 
 export PRINT_SEPERATOR=""
 export NO_RUNTIME=1
+export NO_NO_RESULT_ERROR=1
 
 help=0
 

@@ -1,4 +1,4 @@
-trial_index,arm_name,trial_status,generation_method,result,x,y,z
+trial_index,arm_name,trial_status,generation_method,result,param_one,param_two,param_three
 0,0_0,COMPLETED,Sobol,9553741.214811802,95,53,741.2148118019104
 1,1_0,COMPLETED,Sobol,9662284.99763459,96,62,284.9976345896721
 2,2_0,COMPLETED,Sobol,50403453.849449754,50,403,453.8494497537613

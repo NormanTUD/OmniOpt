@@ -14,4 +14,4 @@ tqdm
 watchdog
 seaborn
 art
-plotly
+pyvista

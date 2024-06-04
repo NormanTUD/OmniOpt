@@ -301,6 +301,7 @@ optional.add_argument('--experimental', help='Do some stuff not well tested yet.
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
+optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1190,6 +1191,8 @@ try:
         with console.status("[bold green]Importing botorch and torch...") as status:
             try:
                 from typing import Optional
+                from ax.models.torch.botorch_modular.model import BoTorchModel
+                from ax.models.torch.botorch_modular.surrogate import Surrogate
 
                 from botorch.models.gpytorch import GPyTorchModel
                 from gpytorch.distributions import MultivariateNormal
@@ -2771,6 +2774,34 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     gs = GenerationStrategy(
         steps=_steps
     )
+
+    if args.use_custom_generation_strategy:
+        from ax.storage.botorch_modular_registry import MODEL_REGISTRY
+        from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
+
+        MODEL_REGISTRY.update({SimpleCustomGP:"SimpleCustomGP"})
+        REVERSE_MODEL_REGISTRY.update({"SimpleCustomGP":SimpleCustomGP})
+
+        gs = GenerationStrategy(
+            steps=[
+                # Quasi-random initialization step
+                GenerationStep(
+                    model=Models.SOBOL,
+                    num_trials=random_steps,  # How many trials should be produced from this generation step
+                ),
+                # Bayesian optimization step using the custom acquisition function
+                GenerationStep(
+                    model=Models.BOTORCH_MODULAR,
+                    num_trials=-1,  # No limitation on how many trials should be produced from this step
+                    # For `BOTORCH_MODULAR`, we pass in kwargs to specify what surrogate or acquisition function to use.
+                    model_kwargs={
+                        "surrogate": Surrogate(SimpleCustomGP),
+                    },
+                ),
+            ]
+        )
+
+        return gs
 
     return gs
 

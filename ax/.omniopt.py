@@ -1237,6 +1237,7 @@ try:
 
                     def forward(self, x):
                         mean_x = self.mean_module(x)
+                        print(f"mean_x: {mean_x}")
                         covar_x = self.covar_module(x)
                         return MultivariateNormal(mean_x, covar_x)
 

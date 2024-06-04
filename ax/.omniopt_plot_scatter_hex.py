@@ -216,6 +216,9 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
         if _exit:
             sys.exit(4)
 
+def contains_strings(series):
+    return series.apply(lambda x: isinstance(x, str)).any()
+
 def get_data (csv_file_path, result_column, _min, _max, old_headers_string=None):
     print_debug("get_data")
     try:
@@ -236,6 +239,9 @@ def get_data (csv_file_path, result_column, _min, _max, old_headers_string=None)
                 print(f"There was no {result_column} in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
         df.dropna(subset=[result_column], inplace=True)
+
+        columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
+        df = df.drop(columns=columns_with_strings)
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)

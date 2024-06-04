@@ -1188,6 +1188,7 @@ def evaluate(parameters):
 
 try:
     if not args.tests:
+        """
         with console.status("[bold green]Importing botorch and torch...") as status:
             try:
                 from typing import Optional
@@ -1207,7 +1208,7 @@ try:
             except KeyboardInterrupt:
                 print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
                 exit_local(34)
-
+        """
 
         with console.status("[bold green]Importing ax...") as status:
             try:
@@ -1222,6 +1223,7 @@ try:
                 from ax.storage.json_store.load import load_experiment
                 from ax.service.utils.report_utils import exp_to_df
 
+                """
                 class SimpleCustomGP(ExactGP, GPyTorchModel):
                     _num_outputs = 1  # to inform GPyTorchModel API
 
@@ -1237,10 +1239,9 @@ try:
 
                     def forward(self, x):
                         mean_x = self.mean_module(x)
-                        print(f"mean_x: {mean_x}")
                         covar_x = self.covar_module(x)
                         return MultivariateNormal(mean_x, covar_x)
-
+                """
 
             except ModuleNotFoundError as e:
                 print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
@@ -2777,6 +2778,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     )
 
     if args.use_custom_generation_strategy:
+        """
         from ax.storage.botorch_modular_registry import MODEL_REGISTRY
         from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
 
@@ -2803,6 +2805,8 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         )
 
         return gs
+        """
+        print("--use_custom_generation_strategy is not yet implemented")
 
     return gs
 

@@ -33,6 +33,7 @@ def main():
             print(f"Error: {e} This may happen when your pd.csv has no result column or you don't have at least 3 numeric columns.")
             sys.exit(12)
 
+        plotted = 0
         for index, (col1, col2, col3) in enumerate(column_permutations):
             row, col = divmod(index, 2)
             plotter.subplot(row, col)
@@ -55,8 +56,13 @@ def main():
                 plotter.add_scalar_bar(title='Result')
             except TypeError as e:
                 print(f"Cannot plot {col1}, {col2}, {col3}")
+                plotted += 1
 
-        plotter.show()
+        if plotted:
+            plotter.show()
+        else:
+            print(f"Did not plot anything")
+            sys.exit(42)
     except FileNotFoundError:
         print(f"pd.csv cannot be found under {args.run_dir}")
         sys.exit(45)

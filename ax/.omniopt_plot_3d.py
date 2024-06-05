@@ -55,6 +55,7 @@ def main():
         plotter.show()
     except FileNotFoundError:
         print(f"pd.csv cannot be found under {args.run_dir}")
+        sys.exit(45)
 
 if __name__ == "__main__":
     main()

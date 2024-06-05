@@ -178,6 +178,9 @@ def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
         with open(logfile_trial_index_to_param_logs, 'a') as f:
             original_print(f"========= {time.time()} =========", file=f)
             original_print(trial_index, file=f)
+    except FileNotFoundError:
+        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_log_trial_index_to_param: Error trying to write log file: " + str(e))
 
@@ -191,6 +194,9 @@ def _debug_worker_creation(msg, _lvl=0, ee=None):
     try:
         with open(logfile_worker_creation_logs, 'a') as f:
             original_print(msg, file=f)
+    except FileNotFoundError:
+        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_debug_worker_creation: Error trying to write log file: " + str(e))
 
@@ -205,6 +211,9 @@ def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
         msg = result
         with open(_file, 'a') as f:
             original_print(msg, file=f)
+    except FileNotFoundError:
+        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("append_to_nvidia_smi_logs:  Error trying to write log file: " + str(e))
 
@@ -259,6 +268,9 @@ def _debug(msg, _lvl=0, ee=None):
     try:
         with open(logfile, 'a') as f:
             original_print(msg, file=f)
+    except FileNotFoundError:
+        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_debug: Error trying to write log file: " + str(e))
 

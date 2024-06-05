@@ -30,7 +30,7 @@ def main():
         try:
             plotter = pv.Plotter(shape=plotter_shape)
         except ValueError as e:
-            print(f"Error: {e} This may happen when your pd.csv has no result column")
+            print(f"Error: {e} This may happen when your pd.csv has no result column or you don't have at least 3 numeric columns.")
             sys.exit(12)
 
         for index, (col1, col2, col3) in enumerate(column_permutations):

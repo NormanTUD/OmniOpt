@@ -3120,9 +3120,22 @@ def main():
     print_debug("main")
 
     try:
-        from art import text2art
         print("")
-        original_print(text2art("OmniOpt", font="random"))
+        if random.uniform(0, 1) < 0.99:
+            from art import text2art
+            original_print(text2art("OmniOpt", font="random"))
+        else:
+            original_print("""
+           --------
+          (OmniOpt!)
+           --------
+                   \/     
+                 /\_/\\
+                ( o.o )
+                 > ^ <  ,"",
+                 ( " ) :
+                  (|)""
+""")
     except Exception as e:
         print_color("green", "OmniOpt")
 

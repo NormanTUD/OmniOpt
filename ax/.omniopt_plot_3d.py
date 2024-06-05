@@ -1,3 +1,6 @@
+# DESCRIPTION: 3d plot
+# EXPECTED FILES: pd.csv
+
 import sys
 from pprint import pprint
 def dier (msg):

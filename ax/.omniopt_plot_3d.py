@@ -57,9 +57,9 @@ def main():
                 plotter.show_grid()
                 plotter.add_axes(interactive=True, **labels)
                 plotter.add_scalar_bar(title='Result')
+                plotted += 1
             except TypeError as e:
                 print(f"Cannot plot {col1}, {col2}, {col3}")
-                plotted += 1
 
         if plotted:
             plotter.show()

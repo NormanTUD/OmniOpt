@@ -1750,7 +1750,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
                     print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
-                    print_color("red", "No CUDA devices found")
+                    if args.verbose:
+                        print_color("red", "No CUDA devices found")
         except ModuleNotFoundError:
             print_color("red", "Cannot load torch and thus, cannot use gpu")
             experiment_parameters = None
@@ -1842,7 +1843,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
                     print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
-                    print_color("red", "No CUDA devices found")
+                    if args.verbose:
+                        print_color("red", "No CUDA devices found")
         except ModuleNotFoundError:
             print_color("red", "Cannot load torch and thus, cannot use gpus")
 

@@ -35,6 +35,7 @@ def plot_gpu_usage(run_dir):
     plot_rows = 2
     plot_cols = 2  # standard number of columns for subplot grid
     _paths = []
+    gpu_data_len = 0
 
     for root, dirs, files in os.walk(run_dir):
         for file in files:
@@ -49,6 +50,7 @@ def plot_gpu_usage(run_dir):
                 df = df.dropna()
                 gpu_data.append(df)
                 num_plots += 1
+                gpu_data_len += len(df)
 
     if len(_paths) == 0:
         print(f"No gpu_usage_*.csv files could be found in {run_dir}")
@@ -58,8 +60,8 @@ def plot_gpu_usage(run_dir):
         print("No GPU usage data found.")
         sys.exit(44)
 
-    if len(gpu_data) <= 1:
-        print("No valid GPU usage data found.")
+    if gpu_data_len < 1:
+        print(f"No valid GPU usage data foundf (len = {gpu_data_len}).")
         sys.exit(55)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots

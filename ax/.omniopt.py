@@ -1290,35 +1290,38 @@ def disable_logging():
     logging.getLogger("ax.service.utils").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.report_utils").setLevel(logging.ERROR)
 
-    warnings.filterwarnings("ignore", category=FutureWarning, module="ax.core.data")
+    categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
+    modules = [
+        "ax",
+        "ax.core.data",
+        "ax.service.utils.report_utils",
+        "ax.modelbridge"
+        "ax.modelbridge.transforms.standardize_y",
+        "botorch.models.utils.assorted",
+        "ax.modelbridge.torch",
+        "ax.models.torch.botorch_modular.acquisition",
+        "ax.modelbridge.cross_validation",
+        "ax.service.utils.best_point",
+        "torch.autograd",
+        "torch.autograd.__init__",
+        "botorch.optim.fit",
+        "ax.core.parameter",
+        "ax.service.utils.report_utils",
+        "ax.modelbridge.transforms.int_to_float",
+        "ax.modelbridge.cross_validation",
+        "ax.service.utils.best_point",
+        "ax.modelbridge.transforms.int_to_float",
+        "ax.modelbridge.dispatch_utils",
+        "ax.service.utils.instantiation",
+        "botorch.optim.optimize",
+        "linear_operator.utils.cholesky"
+    ]
 
-    warnings.filterwarnings("ignore", category=RuntimeWarning)
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="botorch.optim.optimize")
-    warnings.filterwarnings("ignore", category=RuntimeWarning, module="linear_operator.utils.cholesky")
+    for _module in modules:
+        for _cat in categories:
+            warnings.filterwarnings("ignore", category=_cat)
+            warnings.filterwarnings("ignore", category=_cat, module=_module)
 
-    warnings.filterwarnings("ignore", category=UserWarning)
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.standardize_y")
-    warnings.filterwarnings("ignore", category=UserWarning, module="botorch.models.utils.assorted")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.torch")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.models.torch.botorch_modular.acquisition")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.cross_validation")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.best_point")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
-    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd")
-    warnings.filterwarnings("ignore", category=UserWarning, module="torch.autograd.__init__")
-    warnings.filterwarnings("ignore", category=UserWarning, module="botorch.optim.fit")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.core.parameter")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.service.utils.report_utils")
-    warnings.filterwarnings("ignore", category=UserWarning, module="ax.modelbridge.transforms.int_to_float")
-
-    warnings.filterwarnings("ignore", category=Warning)
-    warnings.filterwarnings("ignore", category=Warning, module="ax")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.cross_validation")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.best_point")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.transforms.int_to_float")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.modelbridge.dispatch_utils")
-    warnings.filterwarnings("ignore", category=Warning, module="ax.service.utils.instantiation")
 
     print_debug("disable_logging done")
 

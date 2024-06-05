@@ -37,16 +37,19 @@ def main():
 
         labels = dict(xlabel=col1, ylabel=col2, zlabel=col3)
 
-        plotter.add_mesh(pv.PolyData(points),
-                         scalars=scalars,
-                         point_size=10,
-                         render_points_as_spheres=True,
-                         cmap="coolwarm",  # Colormap ranging from blue to red
-                         scalar_bar_args={'title': 'Result'})
+        try:
+            plotter.add_mesh(pv.PolyData(points),
+                             scalars=scalars,
+                             point_size=10,
+                             render_points_as_spheres=True,
+                             cmap="coolwarm",  # Colormap ranging from blue to red
+                             scalar_bar_args={'title': 'Result'})
 
-        plotter.show_grid()
-        plotter.add_axes(interactive=True, **labels)
-        plotter.add_scalar_bar(title='Result')
+            plotter.show_grid()
+            plotter.add_axes(interactive=True, **labels)
+            plotter.add_scalar_bar(title='Result')
+        except TypeError as e:
+            print(f"Cannot plot {col1}, {col2}, {col3}")
 
     plotter.show()
 

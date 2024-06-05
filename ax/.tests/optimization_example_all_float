@@ -85,6 +85,11 @@ sub shekel {
                 }
         }
 
+	print "x: $args[0]\n";
+	print "y: $args[1]\n";
+	print "z: $args[2]\n";
+	print "a: $args[3]\n";
+
         my @beta = map { $_ / 10 } (1, 2, 2, 4, 4, 6, 3, 7, 5, 5);
 
         my @C = (

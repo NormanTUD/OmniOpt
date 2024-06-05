@@ -12,7 +12,6 @@
 # continues.
 # These steps are skipped, when you installed it as a module. Then,
 # the module environment is the used environment.
-# This logic is defined in .shellscript_functions
 # Step 2:
 # It checks whether sbatch is installed. If so, it will re-start
 # itself as a bascript in a slurmjob.
@@ -23,6 +22,7 @@
 # defined, a tail -f on the slurm.out file is loaded in the foreground).
 # This way, the whole slurm procedure is transparent to the user,
 # and the program looks basically the same on every device.
+# This logic is defined in .shellscript_functions
 
 if [[ ! -z $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""

@@ -3719,8 +3719,12 @@ def log_nr_of_workers():
             last_line = line.strip()
 
     if (last_line.isnumeric() or last_line == "") and str(last_line) != str(nr_of_workers):
-        with open(logfile_nr_workers, 'a+') as f:
-            f.write(str(nr_of_workers) + "\n")
+        try:
+            with open(logfile_nr_workers, 'a+') as f:
+                f.write(str(nr_of_workers) + "\n")
+        except FileNotFoundError:
+            print_color("red", f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
+            sys.exit(93)
 
 def get_best_params(csv_file_path, result_column):
     results = {

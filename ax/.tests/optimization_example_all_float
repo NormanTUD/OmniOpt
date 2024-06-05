@@ -1,0 +1,121 @@
+#!/bin/bash
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+set -e
+set -o pipefail
+
+function calltracer () {
+        echo 'Last file/last line:'
+        caller
+}
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+        echo "  --x=(FLOAT)"
+        echo "  --y=(FLOAT)"
+        echo "  --z=(FLOAT)"
+        echo "  --a=(FLOAT)"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+export x=
+export y=
+export z=
+export a=
+for i in $@; do
+        case $i in
+                --y=*)
+                        y="${i#*=}"
+                        shift
+                        ;;
+                --x=*)
+                        x="${i#*=}"
+                        shift
+                        ;;
+                --z=*)
+                        z="${i#*=}"
+                        shift
+                        ;;
+                --a=*)
+                        a="${i#*=}"
+                        shift
+                        ;;
+                -h|--help)
+                        help 0
+                        ;;
+                --debug)
+                        set -x
+                        ;;
+                *)
+                        red_text "Unknown parameter $i" >&2
+                        help 1
+                        ;;
+        esac
+done
+
+if [[ -z "$x" ]]; then red_text "Parameter --x cannot be empty"; help 1; fi
+if [[ -z "$y" ]]; then red_text "Parameter --y cannot be empty"; help 1; fi
+if [[ -z "$z" ]]; then red_text "Parameter --z cannot be empty"; help 1; fi
+if [[ -z "$a" ]]; then red_text "Parameter --a cannot be empty"; help 1; fi
+
+if [[ "$a" == "hallo" ]]; then
+	a=10
+fi
+
+# https://www.sfu.ca/~ssurjano/shekel.html
+
+perl -e 'use strict;
+use warnings;
+use autodie;
+use Data::Dumper;
+
+sub shekel {
+        my @args = @_;
+        die qq#too many args, need 4# if(@args > 4);
+        die qq#not enough args, need 4# if(@args < 4);
+
+        for (my $k = 0; $k < scalar(@args); $k++) {
+                if ($args[$k] !~ /^[-+]?\d+(?:\.\d+)?$/) {
+                        die qq#Invalid parameter $k: $args[$k] is not a number#;
+                }
+        }
+
+        my @beta = map { $_ / 10 } (1, 2, 2, 4, 4, 6, 3, 7, 5, 5);
+
+        my @C = (
+                [4, 1, 8, 7, 3, 2, 5, 8, 6, 7],
+                [4, 1, 8, 6, 7, 9, 3, 1, 2, 3.6],
+                [4, 1, 8, 6, 3, 2, 5, 8, 6, 7],
+                [4, 1, 8, 6, 7, 9, 3, 1, 2, 3.6]
+        );
+
+        my $outer_sum = 0;
+        for (my $i = 0; $i < scalar(@beta); $i++) {
+                my $inner_sum = 0;
+                for (my $j = 0; $j < 4; $j++) {
+                        my $x_j = $args[$j];
+                        my $beta_i = $beta[$i];
+                        my $C_j_i = $C[$j]->[$i];
+
+                        $inner_sum += (($x_j - $C_j_i) ** 2) + $beta_i;
+                }
+                $outer_sum += $inner_sum;
+        }
+
+        $outer_sum = -$outer_sum;
+
+        return $outer_sum;
+}
+
+
+print qq#RESULT: #.shekel(@ARGV).qq#\n#;
+' -- $x $y $z $a

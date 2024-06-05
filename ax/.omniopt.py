@@ -314,7 +314,7 @@ optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: 
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
-optional.add_argument('--model', help='Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
+optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)

@@ -3171,9 +3171,6 @@ def main():
         experiment_parameters = parse_experiment_parameters(args)
         cli_params_experiment_parameters = experiment_parameters
 
-        with open(checkpoint_parameters_filepath, "w") as outfile:
-            json.dump(experiment_parameters, outfile, cls=NpEncoder)
-
     if not args.verbose:
         disable_logging()
 
@@ -3200,6 +3197,9 @@ def main():
         experiment = None
 
         ax_client, experiment_parameters, experiment_args = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+
+        with open(checkpoint_parameters_filepath, "w") as outfile:
+            json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
         if args.continue_previous_job:
             max_eval = submitted_jobs() + random_steps + second_step_steps

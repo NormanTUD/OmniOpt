@@ -68,7 +68,7 @@ def plot_gpu_usage(run_dir):
     fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5*plot_rows))
     axs = axs.flatten()  # Flatten the axs array to handle both 1D and 2D subplots
 
-    for i, df in enumerate(gpu_data):                                                                                                                                                      
+    for i, df in enumerate(gpu_data):
         df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y/%m/%d %H:%M:%S.%f', errors='coerce')
         df = df.sort_values(by='timestamp')
 

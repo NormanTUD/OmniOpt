@@ -215,6 +215,19 @@ if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Continuation script failed.")
 fi
 
+yellow_text 'Trying to continue already continued previous job'
+
+./omniopt --continue runs/__main__tests__/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5
+
+exit_code=$?
+
+yellow_text 'Continued continuation program ended...'
+
+if [[ "$exit_code" -ne "0" ]]; then
+	errors+=("Continued continuation script failed.")
+fi
+
+
 yellow_text "Trying to continue non-existing job"
 
 if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then

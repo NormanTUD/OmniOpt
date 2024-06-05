@@ -318,6 +318,7 @@ debug.add_argument('--max_auto_execute', help='How many nested jobs should be do
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
 required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint", type=str, default=None)
 
+optional.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
 optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
@@ -2984,6 +2985,7 @@ def get_executor(args):
         timeout_min=args.worker_timeout,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
+        nodes=args.nodes_per_job,
         stderr_to_stdout=args.stderr_to_stdout,
         mem_gb=args.mem_gb,
         slurm_signal_delay_s=args.slurm_signal_delay_s,

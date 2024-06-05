@@ -6,8 +6,8 @@
 # , it checks whether the environment already exists, and
 # if so, loads it.
 # If it doesn't exist. it creates it in 
-# ~/.omniax_$(uname -m)
-# i.e. e.g. ~/.omniax__x86_64.
+# ~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
+# i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ .
 # Then it installs all modules. Then it loads the environment and the job
 # continues.
 # These steps are skipped, when you installed it as a module. Then,

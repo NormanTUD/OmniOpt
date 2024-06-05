@@ -3,13 +3,17 @@
 # Idea for how this works and is implemented technically:
 # This main script that is supposed to be called is a bash script.
 # Step 1:
-# , it checks whether the environment already exists, and
+# It checks whether the environment already exists, and
 # if so, loads it.
 # If it doesn't exist. it creates it in 
 # ~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
-# i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ .
+# i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ . This is done so that there
+# is no need for multiple installations, so that, once installed, it doesn't 
+# need to be installed again.
 # Then it installs all modules. Then it loads the environment and the job
-# continues.
+# continues. It also does pip freeze to check if new modules need to be
+# installed and if the environment already exists, but the new modules are 
+# missing, they will be installed automatically.
 # These steps are skipped, when you installed it as a module. Then,
 # the module environment is the used environment.
 # Step 2:

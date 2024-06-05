@@ -144,8 +144,8 @@ if [[ "$follow" -eq "1" ]]; then
 		 --num_parallel_jobs=$num_parallel_jobs \
 		 --gpus=$NUM_GPUS \
 		 --run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-		 --parameter width range 20 80 int \
-		 --parameter height range 20 80 int \
+		 --parameter width range 60 100 int \
+		 --parameter height range 60 100 int \
 		 --parameter validation_split range 0 0.4 float \
 		 --parameter learning_rate range 0.001 0.4 float \
 		 --parameter epochs range 1 $max_epochs int \
@@ -167,8 +167,8 @@ else
 		 --num_parallel_jobs=$num_parallel_jobs \
 		 --gpus=$NUM_GPUS \
 		 --run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-		 --parameter width range 20 80 int \
-		 --parameter height range 20 80 int \
+		 --parameter width range 60 100 int \
+		 --parameter height range 60 100 int \
 		 --parameter validation_split range 0 0.4 float \
 		 --parameter learning_rate range 0.001 0.4 float \
 		 --parameter dense range 1 32 int \

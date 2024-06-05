@@ -67,10 +67,6 @@ if [[ -z "$y" ]]; then red_text "Parameter --y cannot be empty"; help 1; fi
 if [[ -z "$z" ]]; then red_text "Parameter --z cannot be empty"; help 1; fi
 if [[ -z "$a" ]]; then red_text "Parameter --a cannot be empty"; help 1; fi
 
-if [[ "$a" == "hallo" ]]; then
-	a=10
-fi
-
 # https://www.sfu.ca/~ssurjano/shekel.html
 
 perl -e 'use strict;

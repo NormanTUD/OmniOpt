@@ -27,7 +27,11 @@ def main():
         # Create a plotter with the appropriate shape
         num_plots = len(column_permutations)
         plotter_shape = (num_plots // 2 + num_plots % 2, 2)  # Create a shape that fits all plots
-        plotter = pv.Plotter(shape=plotter_shape)
+        try:
+            plotter = pv.Plotter(shape=plotter_shape)
+        except ValueError as e:
+            print(f"Error: {e} This may happen when your pd.csv has no result column")
+            sys.exit(12)
 
         for index, (col1, col2, col3) in enumerate(column_permutations):
             row, col = divmod(index, 2)

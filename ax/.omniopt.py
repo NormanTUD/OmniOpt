@@ -398,7 +398,7 @@ global_vars["experiment_name"] = args.experiment_name
 def load_global_vars(_file):
     if not os.path.exists(_file):
         print(f"You've tried to continue a non-existing job: {_file}")
-        sys.exit(99)
+        sys.exit(109)
     try:
         global global_vars
         with open(_file) as f:

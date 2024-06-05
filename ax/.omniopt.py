@@ -1228,28 +1228,6 @@ def evaluate(parameters):
 
 try:
     if not args.tests:
-        """
-        with console.status("[bold green]Importing botorch and torch...") as status:
-            try:
-                from typing import Optional
-                from ax.models.torch.botorch_modular.model import BoTorchModel
-                from ax.models.torch.botorch_modular.surrogate import Surrogate
-
-                from botorch.models.gpytorch import GPyTorchModel
-                from gpytorch.distributions import MultivariateNormal
-                from gpytorch.kernels import RBFKernel, ScaleKernel
-                from gpytorch.likelihoods import GaussianLikelihood
-                from gpytorch.means import ConstantMean
-                from gpytorch.models import ExactGP
-                from torch import Tensor
-            except ModuleNotFoundError as e:
-                print_color("red", "\n:warning: botorch and torch could not be loaded. Did you create and load the virtual environment properly?")
-                exit_local(33)
-            except KeyboardInterrupt:
-                print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
-                exit_local(34)
-        """
-
         with console.status("[bold green]Importing ax...") as status:
             try:
                 import ax.modelbridge.generation_node

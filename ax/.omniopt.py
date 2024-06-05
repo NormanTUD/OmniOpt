@@ -218,6 +218,9 @@ def _debug_get_next_trials(msg, _lvl=0, ee=None):
     try:
         with open(logfile_debug_get_next_trials, 'a') as f:
             original_print(msg, file=f)
+    except FileNotFoundError:
+        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_debug_get_next_trials: Error trying to write log file: " + str(e))
 
@@ -233,6 +236,9 @@ def _debug_progressbar(msg, _lvl=0, ee=None):
     try:
         with open(logfile_progressbar, 'a') as f:
             original_print(msg, file=f)
+    except FileNotFoundError:
+        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_debug_progressbar: Error trying to write log file: " + str(e))
 

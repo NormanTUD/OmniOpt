@@ -132,7 +132,7 @@ EXPECTED_TO_FAIL=1
 	--time=20 \
 	--worker_timeout=1 \
 	--max_eval=$NUMBER_OF_EVALS \
-	--num_parallel_jobs=50 \
+	--num_parallel_jobs=10 \
 	--gpus=$GPUS \
 	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \

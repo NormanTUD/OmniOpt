@@ -1,5 +1,6 @@
 #!/bin/bash
 
+int_re='^[+-]?[0-9]+$'
 errors=()
 
 export PRINT_SEPERATOR=1
@@ -144,6 +145,8 @@ if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
 
+num_random_steps=$num_parallel_jobs
+
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"
 function _test {
 	NAME=$1
@@ -199,16 +202,17 @@ if [[ -d "runs/$TESTNAME" ]]; then
 	fi
 fi
 
-_test "Simple optimization run" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs" 0
-_test "Continued test run" "./omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5" 0
-_test "Continuing already continued job" "./omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5" 0
+_test "Simple optimization run" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps" 0
+_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps" 0
+_test "Continued test run" "./omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps" 0
+_test "Continuing already continued job" "./omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps" 0
 
 if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
 	yellow_text "Deleting runs/__main__I_DO_NOT_EXIST_tests__/0"
 	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 fi
 
-_test "Continue non-existing job" "./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --max_eval=10 --mem_gb 1 --time 30 --follow --gpus=$NUM_GPUS --hide_ascii_plots" 105
+_test "Continue non-existing job" "./omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --max_eval=10 --mem_gb 1 --time 30 --follow --gpus=$NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps" 105
 _test "Trying to run 0 random steps (should fail)" "./omniopt --partition=alpha --experiment_name=$TESTNAME --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus=1 --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0" 233
 
 yellow_text "Deleting runs/test_wronggoing_stuff/..."
@@ -216,9 +220,9 @@ if [[ -d runs/test_wronggoing_stuff/ ]]; then
 	rm -rf runs/test_wronggoing_stuff/
 fi
 
-_test "Test stuff that goes wrong" "./.tests/test_wronggoing_stuff" 0
-_test "Test stuff that goes wrong without successes" "./.tests/test_wronggoing_stuff --nosuccess" 87
-_test "Example Network" "./.tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval" 0
+_test "Test stuff that goes wrong" "./.tests/test_wronggoing_stuff --num_random_steps=$num_random_steps" 0
+_test "Test stuff that goes wrong without successes" "./.tests/test_wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps" 87
+_test "Example Network" "./.tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps" 0
 _test "Plot-Tests" "bash ./.tests/test_plots" 0
 
 if [ ${#errors[@]} -eq 0 ]; then

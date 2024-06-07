@@ -1088,7 +1088,7 @@ def find_file_paths_and_print_infos(_text, program_code):
 
     return string
 
-def write_data_and_headers(data_dict, error_description):
+def write_data_and_headers(data_dict, error_description=""):
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
 

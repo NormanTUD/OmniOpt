@@ -105,7 +105,8 @@ def update_graph():
             dataframe = filter_data(dataframe, args.min, args.max)
 
         if dataframe.empty:
-            logging.warning("DataFrame is empty after filtering.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"No applicable values could be found in {csv_file_path}.")
             return
 
         plot_graph(dataframe, args.save_to_file)

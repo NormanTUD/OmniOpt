@@ -62,7 +62,8 @@ def update_graph():
             dataframe = filter_data(dataframe, args.min, args.max)
 
         if dataframe.empty:
-            logging.warning("DataFrame is empty after filtering.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                logging.warning("DataFrame is empty after filtering.")
             return
 
         plot_graph(dataframe, args.save_to_file)

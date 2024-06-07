@@ -76,7 +76,8 @@ def parse_log_file(log_file_path):
 
         valid_time_mask = data['time'].apply(is_valid_time_format)
         if not valid_time_mask.all():
-            log_error("Some rows have invalid time format and will be removed.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                log_error("Some rows have invalid time format and will be removed.")
         data = data[valid_time_mask]
 
         data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d %H:%M:%S')

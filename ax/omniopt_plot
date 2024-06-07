@@ -102,6 +102,7 @@ function calltracer () {
 		echo "Runtime: $(displaytime $SECONDS)"
 	fi
 }
+
 trap 'calltracer' ERR
 
 plot_type="menu"
@@ -410,4 +411,5 @@ fi
 if [[ -z $NO_RUNTIME ]]; then
 	echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
 fi
+
 exit $exit_code

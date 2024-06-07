@@ -1,6 +1,6 @@
 #!/bin/env python3
 
-# Idee: Gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
+# Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 
 class searchSpaceExhausted (Exception):
     pass
@@ -291,6 +291,7 @@ optional.add_argument('--load_previous_job_data', action="append", nargs="+", he
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
+optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -862,12 +863,30 @@ def parse_experiment_parameters(args):
                     print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                     search_space_reduction_warning = True
 
-                param = {
-                    "name": name,
-                    "type": param_type,
-                    "bounds": [lower_bound, upper_bound],
-                    "value_type": value_type
-                }
+                
+                if args.gridsearch:
+                    print_color("yellow", f":warning: --gridsearch converts range parameters into choice parameters.")
+
+                    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
+
+                    if param_type == "int":
+                        values = [int(value) for value in values]
+
+                    values = [str(to_int_when_possible(value)) for value in values]
+
+                    param = {
+                        "name": name,
+                        "type": "choice",
+                        "is_ordered": True,
+                        "values": values
+                    }
+                else:
+                    param = {
+                        "name": name,
+                        "type": param_type,
+                        "bounds": [lower_bound, upper_bound],
+                        "value_type": value_type
+                    }
 
                 params.append(param)
 
@@ -890,7 +909,7 @@ def parse_experiment_parameters(args):
                 params.append(param)
 
                 j += 3
-            elif param_type == "choice":
+            elif value_type == "choice":
                 if len(this_args) != 3:
                     print_color("red", f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
                     my_exit(11)

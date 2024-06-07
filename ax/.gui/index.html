@@ -874,27 +874,27 @@
 					var valueCell = $("<td>").attr("colspan", "2");
 
 					if (item.type === "select") {
-						var select = $("<select>").attr("id", item.id);
+						var $select = $("<select>").attr("id", item.id);
 
 						$.each(item.options, function(index, option) {
 							var $option = $("<option></option>")
 								.attr("value", option.value)
 								.text(option.text);
 
-							select.append($option);
+							if (index == 0) {
+								$option.prop("selected", "selected");
+							}
+
+							$select.append($option);
 						});
 
+						$select.change(update_command);
 
 						if (Object.keys(item).includes("onchange")) {
-							$(select).change(item.onchange);
+							$select.change(item.onchange);
 						}
 
-						$(select).prop("selectedIndex", 0);
-						if (item.options.length) {
-							$(select).val(item.options[0].value);
-						}
-
-						valueCell.append(select);
+						valueCell.append($select);
 					} else if (item.type === "textarea") {
 						var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 						$(input).css({"width": "95%", "height": "95%"});

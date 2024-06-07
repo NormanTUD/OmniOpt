@@ -23,7 +23,7 @@ function help () {
         echo "  --int_param_two=(INT)"
         echo "  --float_param=(FLOAT)"
         echo "  --choice_param=(STRING)                            Must be 1, 2, 4, 8, 16 or hallo"
-        echo "  --fail=0|1                                         Whether to fail or not"
+        echo "  --fail_or_not=0|1                                         Whether to fail or not"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -53,7 +53,10 @@ for i in $@; do
                         shift
                         ;;
                 --fail_or_not=*)
-                        fail_or_not="${i#*=}"
+                        new_param="${i#*=}"
+			if [[ "$new_param" == *"1"* ]]; then
+				fail_or_not=1
+			fi
                         shift
                         ;;
                 -h|--help)
@@ -74,7 +77,7 @@ if [[ -z "$int_param_two" ]]; then red_text "Parameter --int_param_two cannot be
 if [[ -z "$float_param" ]]; then red_text "Parameter --float_param cannot be empty"; help 1; fi
 if [[ -z "$choice_param" ]]; then red_text "Parameter --choice_param cannot be empty"; help 1; fi
 
-if [[ "$fail_or_not" -eq "1" ]] || [[ "$fail_or_not" -eq "1.0" ]]; then
+if [[ "$fail_or_not" -eq "1" ]]; then
 	exit 1
 fi
 

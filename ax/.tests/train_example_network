@@ -49,7 +49,8 @@ export mem_gb=5
 export runtime=300
 export max_epochs=10
 export follow=0
-num_random_steps=$num_parallel_jobs
+export gridsearch=0
+export num_random_steps=$num_parallel_jobs
 
 function help () {
         echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
@@ -64,6 +65,7 @@ function help () {
 	echo "  --max_eval=n                                       Max number of evals (default: $max_eval)"
 	echo "  --max_epochs=n                                     Number of max epochs (default: $max_epochs)"
 	echo "  --follow                                           Follow the output (default: $follow)"
+	echo "  --gridsearch                                       Do gridsearch"
         exit $1
 }
 
@@ -119,6 +121,10 @@ for i in $@; do
 			max_eval="${i#*=}"
 			shift
 			;;
+                --gridsearch)
+                        gridsearch=1
+                        shift
+                        ;;
                 --follow)
                         follow=1
                         shift
@@ -154,52 +160,110 @@ cd ..
 #	rm -rf runs/example_network/
 #fi
 
-if [[ "$follow" -eq "1" ]]; then
-	 ./omniopt \
-		 --partition=$PARTITION \
-		 --experiment_name=example_network \
-		 --mem_gb=$mem_gb \
-		 --time=$runtime \
-		 --worker_timeout=$worker_timeout \
-		 --max_eval=$max_eval \
-		 --num_parallel_jobs=$num_parallel_jobs \
-		 --gpus=$NUM_GPUS \
-		 --run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-		 --parameter width range 60 100 int \
-		 --parameter height range 60 100 int \
-		 --parameter validation_split range 0 0.4 float \
-		 --parameter learning_rate range 0.001 0.4 float \
-		 --parameter epochs range 1 $max_epochs int \
-		 --parameter dense range 1 32 int \
-		 --parameter dense_units range 1 32 int \
-		 --parameter conv range 1 32 int \
-		 --parameter conv_filters range 1 32 int \
-		 --hide_ascii_plots \
-		--num_random_steps=$num_random_steps \
-		 --follow
+exit_code=0
+
+if [[ "$gridsearch" -eq "1" ]]; then
+	if [[ "$follow" -eq "1" ]]; then
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=example_network \
+			--mem_gb=$mem_gb \
+			--time=$runtime \
+			--worker_timeout=$worker_timeout \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$NUM_GPUS \
+			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
+			--parameter width range 60 100 int \
+			--parameter height range 60 100 int \
+			--parameter validation_split range 0 0.4 float \
+			--parameter learning_rate range 0.001 0.4 float \
+			--parameter epochs range 1 $max_epochs int \
+			--parameter dense range 1 32 int \
+			--parameter dense_units range 1 32 int \
+			--parameter conv range 1 32 int \
+			--parameter conv_filters range 1 32 int \
+			--hide_ascii_plots \
+			--num_random_steps=$num_random_steps \
+			--follow
+		exit_code=$?
+	else
+
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=example_network \
+			--mem_gb=$mem_gb \
+			--time=$runtime \
+			--worker_timeout=$worker_timeout \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$NUM_GPUS \
+			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
+			--parameter width range 60 100 int \
+			--parameter height range 60 100 int \
+			--parameter validation_split range 0 0.4 float \
+			--parameter learning_rate range 0.001 0.4 float \
+			--parameter dense range 1 32 int \
+			--parameter dense_units range 1 32 int \
+			--parameter conv range 1 32 int \
+			--parameter conv_filters range 1 32 int \
+			--hide_ascii_plots \
+			--num_random_steps=$num_random_steps \
+			--parameter epochs range 1 $max_epochs int
+		exit_code=$?
+	fi
+
 else
 
-	 ./omniopt \
-		 --partition=$PARTITION \
-		 --experiment_name=example_network \
-		 --mem_gb=$mem_gb \
-		 --time=$runtime \
-		 --worker_timeout=$worker_timeout \
-		 --max_eval=$max_eval \
-		 --num_parallel_jobs=$num_parallel_jobs \
-		 --gpus=$NUM_GPUS \
-		 --run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-		 --parameter width range 60 100 int \
-		 --parameter height range 60 100 int \
-		 --parameter validation_split range 0 0.4 float \
-		 --parameter learning_rate range 0.001 0.4 float \
-		 --parameter dense range 1 32 int \
-		 --parameter dense_units range 1 32 int \
-		 --parameter conv range 1 32 int \
-		 --parameter conv_filters range 1 32 int \
-		 --hide_ascii_plots \
-		--num_random_steps=$num_random_steps \
-		 --parameter epochs range 1 $max_epochs int
+	if [[ "$follow" -eq "1" ]]; then
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=example_network \
+			--mem_gb=$mem_gb \
+			--time=$runtime \
+			--worker_timeout=$worker_timeout \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$NUM_GPUS \
+			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
+			--parameter width range 60 100 int \
+			--parameter height range 60 100 int \
+			--parameter validation_split range 0 0.4 float \
+			--parameter learning_rate range 0.001 0.4 float \
+			--parameter epochs range 1 $max_epochs int \
+			--parameter dense range 1 32 int \
+			--parameter dense_units range 1 32 int \
+			--parameter conv range 1 32 int \
+			--parameter conv_filters range 1 32 int \
+			--hide_ascii_plots \
+			--num_random_steps=$num_random_steps \
+			--follow
+		exit_code=$?
+	else
+
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=example_network \
+			--mem_gb=$mem_gb \
+			--time=$runtime \
+			--worker_timeout=$worker_timeout \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$NUM_GPUS \
+			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
+			--parameter width range 60 100 int \
+			--parameter height range 60 100 int \
+			--parameter validation_split range 0 0.4 float \
+			--parameter learning_rate range 0.001 0.4 float \
+			--parameter dense range 1 32 int \
+			--parameter dense_units range 1 32 int \
+			--parameter conv range 1 32 int \
+			--parameter conv_filters range 1 32 int \
+			--hide_ascii_plots \
+			--num_random_steps=$num_random_steps \
+			--parameter epochs range 1 $max_epochs int
+		exit_code=$?
+	fi
 fi
 
-exit $?
+exit $exit_code

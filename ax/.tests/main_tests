@@ -226,6 +226,7 @@ fi
 _test "Test stuff that goes wrong" "./.tests/test_wronggoing_stuff --num_random_steps=$num_random_steps" 0
 _test "Test stuff that goes wrong without successes" "./.tests/test_wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps" 87
 _test "Example Network" "./.tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps" 0
+_test "Example Network (grid search)" "./.tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0
 _test "Plot-Tests" "bash ./.tests/test_plots" 0
 
 if [ ${#errors[@]} -eq 0 ]; then

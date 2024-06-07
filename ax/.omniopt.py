@@ -1,6 +1,6 @@
 #!/bin/env python3
 
-# Idee: Tabelle, die Hyperparameter anzeigt, die jobs erzeugt haben, die gefailt sind
+# Idee: Gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 
 class searchSpaceExhausted (Exception):
     pass

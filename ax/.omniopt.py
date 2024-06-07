@@ -1383,7 +1383,6 @@ def display_failed_jobs_table():
         console.print(table)
     except Exception as e:
         print_color("red", f"Error: {str(e)}")
-        raise e
 
 def print_best_result(csv_file_path, result_column):
     global current_run_folder

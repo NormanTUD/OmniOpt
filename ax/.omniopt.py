@@ -2937,10 +2937,10 @@ def get_number_of_steps(args, max_eval):
 def get_executor(args):
     global run_uuid
 
-    log_folder = f'{current_run_folder}/%j'
+    log_folder = f'{current_run_folder}/single_runs/%j'
     executor = None
     if args.force_local_execution:
-        executor = submitit.LocalExecutor(folder=self.folder)
+        executor = submitit.LocalExecutor(folder=log_folder)
     else:
         executor = submitit.AutoExecutor(folder=log_folder)
 

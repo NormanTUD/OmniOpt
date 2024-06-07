@@ -1431,7 +1431,7 @@ def print_best_result(csv_file_path, result_column):
 
         shown_end_table = True
     except Exception as e:
-        print(f"[show_end_table_and_save_end_files] Error during show_end_table_and_save_end_files: {e}")
+        print(f"[print_best_result] Error during print_best_result: {e}")
 
 def show_end_table_and_save_end_files(csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")
@@ -1457,12 +1457,9 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     _exit = 0
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+    display_failed_jobs_table()
 
-        display_failed_jobs_table()
-
-        print_best_result(csv_file_path, result_column)
+    print_best_result(csv_file_path, result_column)
 
     if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
         already_shown_worker_usage_over_time = True
@@ -1572,17 +1569,6 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
         return
 
     end_program_ran = True
-
-    #out_files_string = analyze_out_files(current_run_folder)
-    #if out_files_string:
-    #    print_debug(out_files_string)
-
-    #if out_files_string:
-    #    try:
-    #        with open(f'{current_run_folder}/errors.log', "w") as error_file:
-    #            error_file.write(out_files_string)
-    #    except Exception as e:
-    #        print_debug(f"Error occurred while writing to errors.log: {e}")
 
     _exit = 0
 

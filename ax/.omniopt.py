@@ -2,7 +2,10 @@
 
 # Idee: Tabelle, die Hyperparameter anzeigt, die jobs erzeugt haben, die gefailt sind
 
-search_is_done = False
+class searchSpaceExhausted (Exception):
+    pass
+
+search_space_exhausted = False
 SUPPORTED_MODELS = [
     "SOBOL",
     "GPEI",
@@ -3111,9 +3114,9 @@ def start_nvidia_smi_thread():
     return None
 
 def run_systematic_search(args, max_nr_steps, executor, ax_client):
-    global search_is_done
+    global search_space_exhausted
 
-    while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_is_done:
+    while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
         #print(f"\ndone_jobs(): {done_jobs()}")
         log_nr_of_workers()
 
@@ -3122,7 +3125,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
         if submitted_jobs() >= max_eval:
-            return True
+            raise searchSpaceExhausted("Search space exhausted")
 
         finish_previous_jobs(args, ["finishing jobs"])
 
@@ -3143,9 +3146,9 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     return False
 
 def run_random_jobs(random_steps, ax_client, executor):
-    global search_is_done
+    global search_space_exhausted
 
-    while random_steps >= done_jobs() + 1 and not search_is_done:
+    while random_steps >= done_jobs() + 1 and not search_space_exhausted:
         log_nr_of_workers()
 
         if system_has_sbatch:
@@ -3153,7 +3156,7 @@ def run_random_jobs(random_steps, ax_client, executor):
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
         if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
-            return True
+            raise searchSpaceExhausted("Search space exhausted")
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
             break
@@ -3221,7 +3224,7 @@ def main():
     global current_run_folder
     global nvidia_smi_logs_base
     global logfile_debug_get_next_trials
-    global search_is_done
+    global search_space_exhausted
     global random_steps
     global second_step_steps
 
@@ -3334,26 +3337,18 @@ def main():
 
         progress_bar.update(submitted_jobs())
 
-        search_is_done = run_random_jobs(random_steps, ax_client, executor)
+        run_random_jobs(random_steps, ax_client, executor)
 
         finish_previous_jobs_random(args)
 
         if max_eval - random_steps <= 0:
-            search_is_done = True
+            raise searchSpaceExhausted("Search space exhausted")
             
-        search_is_done = run_systematic_search(args, max_nr_steps, executor, ax_client)
+        run_systematic_search(args, max_nr_steps, executor, ax_client)
 
         while len(global_vars["jobs"]):
             finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
             _sleep(args, 1)
-
-    if search_is_done:
-        _get_perc = int((submitted_jobs() / max_eval) * 100)
-        if _get_perc != 100:
-            original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
-            end_program(result_csv_file, "result", 1, 87)
-        else:
-            end_program(result_csv_file, "result", 1)
 
     end_program(result_csv_file)
 
@@ -4035,3 +4030,10 @@ if __name__ == "__main__":
                     is_in_evaluate = False
 
                     end_program(result_csv_file, "result", 1)
+                except searchSpaceExhausted:
+                    _get_perc = int((submitted_jobs() / max_eval) * 100)
+                    if _get_perc != 100:
+                        original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
+                        end_program(result_csv_file, "result", 1, 87)
+                    else:
+                        end_program(result_csv_file, "result", 1)

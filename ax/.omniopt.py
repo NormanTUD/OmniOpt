@@ -869,8 +869,6 @@ def parse_experiment_parameters(args):
                 if args.gridsearch:
                     global changed_grid_search_params
 
-                    print_color("yellow", f":warning: --gridsearch converts range parameter '{name}' into choice parameter.")
-
                     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
                     if value_type == "int":

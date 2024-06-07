@@ -210,7 +210,8 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
             else:
                 print(f"For some reason, there were values in the beginning but not after filtering")
         else:
-            print(f"No applicable values could be found in {csv_file_path}.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"No applicable values could be found in {csv_file_path}.")
         if _exit:
             sys.exit(4)
 

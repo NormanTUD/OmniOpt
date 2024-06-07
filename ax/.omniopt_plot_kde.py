@@ -59,7 +59,8 @@ def plot_histograms(dataframe, save_to_file=None):
         num_cols = int(math.ceil(num_plots / num_rows))
 
     if num_rows == 0 or num_cols == 0:
-        print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
         sys.exit(42)
 
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))

@@ -166,7 +166,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	if [[ "$follow" -eq "1" ]]; then
 		./omniopt \
 			--partition=$PARTITION \
-			--experiment_name=example_network \
+			--experiment_name=example_network_gridsearch \
 			--mem_gb=$mem_gb \
 			--time=$runtime \
 			--worker_timeout=$worker_timeout \
@@ -192,7 +192,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 
 		./omniopt \
 			--partition=$PARTITION \
-			--experiment_name=example_network \
+			--experiment_name=example_network_gridsearch \
 			--mem_gb=$mem_gb \
 			--time=$runtime \
 			--worker_timeout=$worker_timeout \

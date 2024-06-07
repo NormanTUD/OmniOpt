@@ -2016,6 +2016,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
         if _param_name in changed_grid_search_params:
             changed_text = changed_grid_search_params[_param_name]
+            row[1] = "gridsearch"
             row[4] = changed_text
 
         table.add_row(*row, style='bright_green')

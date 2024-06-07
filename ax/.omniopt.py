@@ -865,7 +865,7 @@ def parse_experiment_parameters(args):
 
                 
                 if args.gridsearch:
-                    print_color("yellow", f":warning: --gridsearch converts range parameters into choice parameters.")
+                    print_color("yellow", f":warning: --gridsearch converts range parameter '{name}' into choice parameter.")
 
                     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 

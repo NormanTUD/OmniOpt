@@ -189,7 +189,20 @@
 					{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
 					{ "text": "UNIFORM", "value":  "UNIFORM" },
 					{ "text": "BO_MIXED", "value":  "BO_MIXED" }
-				], "required": true },
+				], "required": true, info: `
+					<ul>
+						<li>BOTORCH_MODULAR: Default model</li>
+						<li>SOBOL: Random search</li>
+						<li>GPEI: ???</li>
+						<li>FACTORIAL: ???</li>
+						<li>SAASBO: ???</li>
+						<li>FULLYBAYESIAN: ???</li>
+						<li>LEGACY_BOTORCH: ???</li>
+						<li>UNIFORM: ???</li>
+						<li>BO_MIXED: ???</li>
+					</ul>
+				`
+				},
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<code>tail -f</code> the <code>.out</code>-file automatically, so you can see the output as soon as it appears." },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },

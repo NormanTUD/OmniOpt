@@ -1,5 +1,21 @@
 #!/bin/bash
 
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
 LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
 
 if [[ -d $LMOD_DIR ]]; then

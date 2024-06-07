@@ -872,9 +872,8 @@ def parse_experiment_parameters(args):
                     if value_type == "int":
                         values = [int(value) for value in values]
 
-                    values = [str(to_int_when_possible(value)) for value in values]
-
                     values = sorted(set(values))
+                    values = [str(to_int_when_possible(value)) for value in values]
 
                     param = {
                         "name": name,

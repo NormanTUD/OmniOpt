@@ -23,6 +23,7 @@ function help () {
         echo "  --int_param_two=(INT)"
         echo "  --float_param=(FLOAT)"
         echo "  --choice_param=(STRING)                            Must be 1, 2, 4, 8, 16 or hallo"
+        echo "  --fail=0|1                                         Whether to fail or not"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -31,6 +32,8 @@ export int_param=
 export int_param_two=
 export float_param=
 export choice_param=
+export fail_or_not=0
+
 for i in $@; do
         case $i in
                 --int_param_two=*)
@@ -47,6 +50,10 @@ for i in $@; do
                         ;;
                 --choice_param=*)
                         choice_param="${i#*=}"
+                        shift
+                        ;;
+                --fail_or_not=*)
+                        fail_or_not="${i#*=}"
                         shift
                         ;;
                 -h|--help)
@@ -66,6 +73,10 @@ if [[ -z "$int_param" ]]; then red_text "Parameter --int_param cannot be empty";
 if [[ -z "$int_param_two" ]]; then red_text "Parameter --int_param_two cannot be empty"; help 1; fi
 if [[ -z "$float_param" ]]; then red_text "Parameter --float_param cannot be empty"; help 1; fi
 if [[ -z "$choice_param" ]]; then red_text "Parameter --choice_param cannot be empty"; help 1; fi
+
+if [[ "$fail_or_not" -eq "1" ]]; then
+	exit 1
+fi
 
 case $choice_param in
     1|2|4|8|16|hallo)

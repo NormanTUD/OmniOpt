@@ -181,17 +181,17 @@ yellow_text "Starting main program..."
 ./omniopt \
 	--partition=$PARTITION \
 	--experiment_name=$TESTNAME \
-	--mem_gb=1 \
+	--mem_gb=5 \
 	--time=60 \
-	--worker_timeout=1 \
+	--worker_timeout=5 \
 	--max_eval=$max_eval \
 	--num_parallel_jobs=$num_parallel_jobs \
 	--gpus=$GPUS \
 	--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-	--parameter int_param range -5 5 int \
-	--parameter float_param range -5 5 float \
+	--parameter int_param range -10 10 int \
+	--parameter float_param range -10 10 float \
 	--parameter choice_param choice 1,2,4,8,16,hallo \
-	--parameter int_param_two range -6 6 int \
+	--parameter int_param_two range -10 10 int \
 	--follow \
 	--hide_ascii_plots
 

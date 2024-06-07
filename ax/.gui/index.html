@@ -179,10 +179,22 @@
 				{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10 },
 				{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1 },
 				{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.", required: false },
+				{ label: "Model", id: "model", type: "select", value: "", options: [
+					{ "text": "BOTORCH_MODULAR", "value":  "BOTORCH_MODULAR" },
+					{ "text": "SOBOL", "value":  "SOBOL" },
+					{ "text": "GPEI", "value":  "GPEI" },
+					{ "text": "FACTORIAL", "value":  "FACTORIAL" },
+					{ "text": "SAASBO", "value":  "SAASBO" },
+					{ "text": "FULLYBAYESIAN", "value":  "FULLYBAYESIAN" },
+					{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
+					{ "text": "UNIFORM", "value":  "UNIFORM" },
+					{ "text": "BO_MIXED", "value":  "BO_MIXED" }
+				], "required": true },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<code>tail -f</code> the <code>.out</code>-file automatically, so you can see the output as soon as it appears." },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0 },
+				{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0 },
 				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.html">this tutorial</a> to learn about the <code>run.sh</code>-file' },
 				{ label: "Constraints", id: "constraints", type: "text", value: "", placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisions: <code>>=</code>, <code><=</code>" },
 			];
@@ -863,16 +875,26 @@
 
 					if (item.type === "select") {
 						var select = $("<select>").attr("id", item.id);
+
 						$.each(item.options, function(index, option) {
-							select.append($("<option></option>")
+							var $option = $("<option></option>")
 								.attr("value", option.value)
-								.text(option.text));
+								.text(option.text);
+
+							select.append($option);
 						});
-						valueCell.append(select);
+
 
 						if (Object.keys(item).includes("onchange")) {
 							$(select).change(item.onchange);
 						}
+
+						$(select).prop("selectedIndex", 0);
+						if (item.options.length) {
+							$(select).val(item.options[0].value);
+						}
+
+						valueCell.append(select);
 					} else if (item.type === "textarea") {
 						var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 						$(input).css({"width": "95%", "height": "95%"});

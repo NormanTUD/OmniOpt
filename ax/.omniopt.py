@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+# Idee: Tabelle, die Hyperparameter anzeigt, die jobs erzeugt haben, die gefailt sind
+
 SUPPORTED_MODELS = [
     "SOBOL",
     "GPEI",
@@ -2226,7 +2228,6 @@ def finish_previous_jobs(args, new_msgs):
                 #print_debug(f"Got job result: {result}")
                 jobs_finished += 1
                 if result != val_if_nothing_found:
-
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
                     done_jobs(1)

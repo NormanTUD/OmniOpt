@@ -171,6 +171,7 @@ if [[ "$PARTITION" == "alpha" ]]; then
 fi
 
 if [[ "$gridsearch" -eq "1" ]]; then
+	TESTNAME="${TESTNAME}_gridsearch"
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
 			--partition=$PARTITION \

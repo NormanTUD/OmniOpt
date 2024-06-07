@@ -49,6 +49,7 @@ export mem_gb=5
 export runtime=300
 export max_epochs=10
 export follow=0
+num_random_steps=$num_parallel_jobs
 
 function help () {
         echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
@@ -59,6 +60,7 @@ function help () {
 	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout (default: $worker_timeout)"
 	echo "  --mem_gb=n                                         Memory in GB (default $mem_gb)"
 	echo "  --time=n                                           Max runtime in minutes (default: $runtime)"
+	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --max_eval=n                                       Max number of evals (default: $max_eval)"
 	echo "  --max_epochs=n                                     Number of max epochs (default: $max_epochs)"
 	echo "  --follow                                           Follow the output (default: $follow)"
@@ -74,6 +76,25 @@ function join_by {
 
 for i in $@; do
         case $i in
+		--num_random_steps=*)
+			num_random_steps="${i#*=}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_random_steps)
+			shift
+			k=$((k+1))
+
+			num_random_steps="${args[k]}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
 		--mem_gb=*)
 			mem_gb="${i#*=}"
 			shift
@@ -154,6 +175,7 @@ if [[ "$follow" -eq "1" ]]; then
 		 --parameter conv range 1 32 int \
 		 --parameter conv_filters range 1 32 int \
 		 --hide_ascii_plots \
+		--num_random_steps=$num_random_steps \
 		 --follow
 else
 
@@ -176,6 +198,7 @@ else
 		 --parameter conv range 1 32 int \
 		 --parameter conv_filters range 1 32 int \
 		 --hide_ascii_plots \
+		--num_random_steps=$num_random_steps \
 		 --parameter epochs range 1 $max_epochs int
 fi
 

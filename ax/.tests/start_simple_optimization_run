@@ -180,6 +180,7 @@ if [[ "$allow_failure" -eq "0" ]]; then
 		--parameter choice_param choice 1,2,4,8,16,hallo \
 		--parameter int_param_two range -10 10 int \
 		--follow \
+		--num_random_steps=$num_random_steps \
 		--hide_ascii_plots
 else
 	./omniopt \
@@ -198,6 +199,7 @@ else
 		--parameter int_param_two range -10 10 int \
 		--parameter fail_or_not choice "0,1" \
 		--follow \
+		--num_random_steps=$num_random_steps \
 		--hide_ascii_plots
 fi
 

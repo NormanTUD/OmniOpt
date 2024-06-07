@@ -74,7 +74,7 @@ if [[ -z "$int_param_two" ]]; then red_text "Parameter --int_param_two cannot be
 if [[ -z "$float_param" ]]; then red_text "Parameter --float_param cannot be empty"; help 1; fi
 if [[ -z "$choice_param" ]]; then red_text "Parameter --choice_param cannot be empty"; help 1; fi
 
-if [[ "$fail_or_not" -eq "1" ]]; then
+if [[ "$fail_or_not" -eq "1" ]] || [[ "$fail_or_not" -eq "1.0" ]]; then
 	exit 1
 fi
 

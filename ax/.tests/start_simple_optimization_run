@@ -1,0 +1,121 @@
+#!/bin/bash
+
+function calltracer () {
+	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
+		yellow_text "Git status hash:"
+		git rev-parse HEAD
+		red_text 'Error occured in file/line:'
+		caller
+	fi
+}
+
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+	echo "  --max_eval=(INT)                                   Number of max evals for this test"
+	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+
+NUM_GPUS=0
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
+fi
+
+if [[ "$NUM_GPUS" -ne "0" ]]; then
+	NUM_GPUS=1
+fi
+
+debug=0
+max_eval=30
+num_parallel_jobs=20
+
+args=("$@")
+k=0
+while [ $k -lt ${#args[@]} ]; do
+	i="${args[k]}"
+
+	case $i in
+		--max_eval=*)
+			old_max_eval=$max_eval
+			max_eval="${i#*=}"
+			if ! [[ $max_eval =~ $int_re ]] ; then
+				red_text "error: --max_eval not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_parallel_jobs)
+			old_num_parallel_jobs=$max_eval
+
+			shift
+			k=$((k+1))
+
+			num_parallel_jobs="${args[k]}"
+			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
+				red_text "error: --num_parallel_jobs not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--help*)
+			help 1
+			;;
+		--debug)
+			debug=1
+			;;
+
+		*)
+			red_text "Unknown parameter $i"
+			exit 2
+			;;
+	esac
+	k=$((k+1))
+done
+
+if [[ "$num_parallel_jobs" -lt "1" ]]; then
+	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs"
+	exit 1
+fi
+
+if [[ "$max_eval" -lt "1" ]]; then
+	red_text "Max_eval must be 1 or more, is $max_eval"
+	exit 1
+fi
+
+if [[ "$debug" -eq "1" ]]; then
+	set -x
+fi
+
+
+PARTITION="alpha"
+GPUS=0
+TESTNAME=__main__tests__
+
+if [[ "$PARTITION" == "alpha" ]]; then
+	GPUS=1
+fi
+
+./omniopt \
+	--partition=$PARTITION \
+	--experiment_name=$TESTNAME \
+	--mem_gb=5 \
+	--time=60 \
+	--worker_timeout=5 \
+	--max_eval=$max_eval \
+	--num_parallel_jobs=$num_parallel_jobs \
+	--gpus=$GPUS \
+	--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+	--parameter int_param range -10 10 int \
+	--parameter float_param range -10 10 float \
+	--parameter choice_param choice 1,2,4,8,16,hallo \
+	--parameter int_param_two range -10 10 int \
+	--follow \
+	--hide_ascii_plots
+
+exit_code=$?
+
+exit $exit_code

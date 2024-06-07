@@ -1350,12 +1350,12 @@ def display_failed_jobs_table():
         print_debug("Failed jobs {failed_jobs_folder} folder does not exist.")
         return
 
-    if os.path.isfile(header_file):
-        print_debug("Header file does not exist.")
+    if not os.path.isfile(header_file):
+        print_debug(f"Failed jobs Header file ({header_file}) does not exist.")
         return
  
-    if os.path.isfile(parameters_file):
-        print_debug("Parameters file does not exist.")
+    if not os.path.isfile(parameters_file):
+        print_debug(f"Failed jobs Parameters file ({parameters_file}) does not exist.")
         return
 
     try:
@@ -1370,7 +1370,7 @@ def display_failed_jobs_table():
             print_debug(f"Parameters: {parameters}")
             
         # Create the table
-        table = Table(show_header=True, header_style="bold", title="Failed Jobs:")
+        table = Table(show_header=True, header_style="bold", title="Failed Jobs parameters:")
         
         for header in headers:
             table.add_column(header)
@@ -1381,17 +1381,6 @@ def display_failed_jobs_table():
         
         # Print the table to the console
         console.print(table)
-        
-        # Capture the table as a string
-        with console.capture() as capture:
-            console.print(table)
-            table_str = capture.get()
-        
-        # Write the table string to a file
-        output_file_path = os.path.join(current_run_folder, 'failed_jobs_result.txt')
-        with open(output_file_path, "w") as text_file:
-            text_file.write(table_str)
-        
     except Exception as e:
         print_color("red", f"Error: {str(e)}")
         raise

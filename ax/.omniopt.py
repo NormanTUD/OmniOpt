@@ -1088,6 +1088,57 @@ def find_file_paths_and_print_infos(_text, program_code):
 
     return string
 
+def write_data_and_headers(data_dict, error_description):
+    assert isinstance(data_dict, dict), "The parameter must be a dictionary."
+    assert isinstance(error_description, str), "The error_description must be a string."
+
+    headers = list(data_dict.keys())
+    data = [list(data_dict.values())]
+
+    if error_description:
+        headers.append('error_description')
+        for row in data:
+            row.append(error_description)
+
+    global current_run_folder
+
+    failed_logs_dir = os.path.join(current_run_folder, 'failed_logs')
+
+    data_file_path = os.path.join(failed_logs_dir, 'parameters.csv')
+    header_file_path = os.path.join(failed_logs_dir, 'headers.csv')
+
+    try:
+        # Create directories if they do not exist
+        if not os.path.exists(failed_logs_dir):
+            os.makedirs(failed_logs_dir)
+            print_debug(f"Directory created: {failed_logs_dir}")
+        else:
+            print_color("red", f"Directory already exists: {failed_logs_dir}")
+
+        # Write headers if the file does not exist
+        if not os.path.exists(header_file_path):
+            try:
+                with open(header_file_path, mode='w', newline='') as header_file:
+                    writer = csv.writer(header_file)
+                    writer.writerow(headers)
+                    print_debug(f"Header file created with headers: {headers}")
+            except Exception as e:
+                warn(f"Failed to write header file: {e}")
+        else:
+            print_debug("Header file already exists, skipping header writing.")
+
+        # Append data to the data file
+        try:
+            with open(data_file_path, mode='a', newline='') as data_file:
+                writer = csv.writer(data_file)
+                writer.writerows(data)
+                print_debug(f"Data appended to file: {data_file_path}")
+        except Exception as e:
+            print_color("red", f"Failed to append data to file: {e}")
+
+    except Exception as e:
+        warn(f"Unexpected error: {e}")
+
 def evaluate(parameters):
     global global_vars
     global is_in_evaluate
@@ -1164,17 +1215,21 @@ def evaluate(parameters):
             return {"result": float(result)}
         else:
             is_in_evaluate = False
+            write_data_and_headers(parameters, "No Result")
             return return_in_case_of_error
     except signalUSR:
         print("\n:warning: USR1-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
+        write_data_and_headers(parameters, "USR1-signal")
         return return_in_case_of_error
     except signalCONT:
         print("\n:warning: CONT-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
+        write_data_and_headers(parameters, "CONT-signal")
         return return_in_case_of_error
     except signalINT:
         print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
+        write_data_and_headers(parameters, "INT-signal")
         is_in_evaluate = False
         return return_in_case_of_error
 

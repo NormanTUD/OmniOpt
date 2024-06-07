@@ -170,9 +170,12 @@ function _test {
 		exit 19
 	fi
 
-	$COMMAND
+	set +e
 
+	$COMMAND
 	exit_code=$?
+
+	set -e
 
 	if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]]; then
 		ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"

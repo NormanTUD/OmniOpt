@@ -5,6 +5,8 @@
 class searchSpaceExhausted (Exception):
     pass
 
+changed_grid_search_params = {}
+
 search_space_exhausted = False
 SUPPORTED_MODELS = [
     "SOBOL",
@@ -865,12 +867,17 @@ def parse_experiment_parameters(args):
 
                 
                 if args.gridsearch:
+                    global changed_grid_search_params
+
                     print_color("yellow", f":warning: --gridsearch converts range parameter '{name}' into choice parameter.")
 
                     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
                     if value_type == "int":
                         values = [int(value) for value in values]
+                        changed_grid_search_params[name] = f"Gridsearch from {lower_bound} to {upper_bound} ({args.max_eval} steps, int)"
+                    else:
+                        changed_grid_search_params[name] = f"Gridsearch from {lower_bound} to {upper_bound} ({args.max_eval} steps)"
 
                     values = sorted(set(values))
                     values = [str(to_int_when_possible(value)) for value in values]
@@ -1995,11 +2002,25 @@ def print_overview_tables(experiment_parameters, experiment_args):
             my_exit(15)
 
     table = Table(header_style="bold", title="Experiment parameters:")
-    columns = ["Name", "Type", "Lower bound", "Upper bound", "Value(s)", "Value-Type"]
+    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Value-Type"]
+
+    _param_name = ""
+
     for column in columns:
         table.add_column(column)
+
+    k = 0
+
     for row in rows:
+        _param_name = row[0]
+
+        if _param_name in changed_grid_search_params:
+            changed_text = changed_grid_search_params[_param_name]
+            row[4] = changed_text
+
         table.add_row(*row, style='bright_green')
+
+        k += 1
     console.print(table)
 
     with console.capture() as capture:

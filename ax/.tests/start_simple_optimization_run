@@ -34,6 +34,7 @@ function help () {
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
+	echo "  --gridsearch                                       Do gridsearch"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -48,6 +49,7 @@ if [[ "$NUM_GPUS" -ne "0" ]]; then
 	NUM_GPUS=1
 fi
 
+export gridsearch=0
 debug=0
 max_eval=30
 num_parallel_jobs=20
@@ -72,6 +74,10 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			;;
+                --gridsearch)
+                        gridsearch=1
+                        shift
+                        ;;
 		--max_eval)
 			old_max_eval=$max_eval
 
@@ -164,45 +170,90 @@ if [[ "$PARTITION" == "alpha" ]]; then
 	GPUS=1
 fi
 
-if [[ "$allow_failure" -eq "0" ]]; then
-	./omniopt \
-		--partition=$PARTITION \
-		--experiment_name=$TESTNAME \
-		--mem_gb=5 \
-		--time=60 \
-		--worker_timeout=5 \
-		--max_eval=$max_eval \
-		--num_parallel_jobs=$num_parallel_jobs \
-		--gpus=$GPUS \
-		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-		--parameter int_param range -10 10 int \
-		--parameter float_param range -10 10 float \
-		--parameter choice_param choice 1,2,4,8,16,hallo \
-		--parameter int_param_two range -10 10 int \
-		--follow \
-		--num_random_steps=$num_random_steps \
-		--hide_ascii_plots
+if [[ "$gridsearch" -eq "1" ]]; then
+	if [[ "$allow_failure" -eq "0" ]]; then
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=60 \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+			--parameter int_param range -10 10 int \
+			--parameter float_param range -10 10 float \
+			--parameter choice_param choice 1,2,4,8,16,hallo \
+			--parameter int_param_two range -10 10 int \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--gridsearch \
+			--hide_ascii_plots
+		exit_code=$?
+	else
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=60 \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--parameter int_param range -10 10 int \
+			--parameter float_param range -10 10 float \
+			--parameter choice_param choice 1,2,4,8,16,hallo \
+			--parameter int_param_two range -10 10 int \
+			--parameter fail_or_not choice "0,1" \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--gridsearch \
+			--hide_ascii_plots
+		exit_code=$?
+	fi
 else
-	./omniopt \
-		--partition=$PARTITION \
-		--experiment_name=$TESTNAME \
-		--mem_gb=5 \
-		--time=60 \
-		--worker_timeout=5 \
-		--max_eval=$max_eval \
-		--num_parallel_jobs=$num_parallel_jobs \
-		--gpus=$GPUS \
-		--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
-		--parameter int_param range -10 10 int \
-		--parameter float_param range -10 10 float \
-		--parameter choice_param choice 1,2,4,8,16,hallo \
-		--parameter int_param_two range -10 10 int \
-		--parameter fail_or_not choice "0,1" \
-		--follow \
-		--num_random_steps=$num_random_steps \
-		--hide_ascii_plots
+	if [[ "$allow_failure" -eq "0" ]]; then
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=60 \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+			--parameter int_param range -10 10 int \
+			--parameter float_param range -10 10 float \
+			--parameter choice_param choice 1,2,4,8,16,hallo \
+			--parameter int_param_two range -10 10 int \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--hide_ascii_plots
+		exit_code=$?
+	else
+		./omniopt \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=60 \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--parameter int_param range -10 10 int \
+			--parameter float_param range -10 10 float \
+			--parameter choice_param choice 1,2,4,8,16,hallo \
+			--parameter int_param_two range -10 10 int \
+			--parameter fail_or_not choice "0,1" \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--hide_ascii_plots
+		exit_code=$?
+	fi
 fi
-
-exit_code=$?
 
 exit $exit_code

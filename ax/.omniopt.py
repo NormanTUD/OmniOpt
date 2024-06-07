@@ -4013,27 +4013,24 @@ def find_promising_bubbles(pd_csv):
 
 if __name__ == "__main__":
     with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+
         if args.tests:
             #dier(get_best_params("runs/test_wronggoing_stuff/2/results.csv", "result"))
 
             run_tests()
         else:
-            warnings.simplefilter("ignore")
+            try:
+                main()
+            except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
+                print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
+                is_in_evaluate = False
 
-            #dier(find_promising_bubbles(f"runs/custom_run/8/{pd_csv_filename}"))
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                try:
-                    main()
-                except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-                    print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
-                    is_in_evaluate = False
-
+                end_program(result_csv_file, "result", 1)
+            except searchSpaceExhausted:
+                _get_perc = int((submitted_jobs() / max_eval) * 100)
+                if _get_perc != 100:
+                    original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
+                    end_program(result_csv_file, "result", 1, 87)
+                else:
                     end_program(result_csv_file, "result", 1)
-                except searchSpaceExhausted:
-                    _get_perc = int((submitted_jobs() / max_eval) * 100)
-                    if _get_perc != 100:
-                        original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
-                        end_program(result_csv_file, "result", 1, 87)
-                    else:
-                        end_program(result_csv_file, "result", 1)

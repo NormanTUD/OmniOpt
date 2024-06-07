@@ -14,9 +14,9 @@ function ppip {
 		fi
 
 		pip3 install $1 || {
-			red "Failed to install $1. Deleting $VENV_DIR..."
+			red_text "Failed to install $1. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
-				red "Failed to delete $VENV_DIR"
+				red_text "Failed to delete $VENV_DIR"
 				exit 4
 			}
 
@@ -65,7 +65,7 @@ else
 fi
 
 source $VENV_DIR/bin/activate || {
-	red "Failed to activate $VENV_DIR"
+	red_text "Failed to activate $VENV_DIR"
 	exit 2
 }
 

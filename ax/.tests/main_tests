@@ -172,7 +172,9 @@ function _test {
 	exit_code=$?
 
 	if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]]; then
-		errors+=("$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND")
+		ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
+		red_text "$ERRORMSG"
+		errors+=($ERRORMSG)
 	fi
 }
 

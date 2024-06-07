@@ -869,7 +869,7 @@ def parse_experiment_parameters(args):
 
                     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
-                    if param_type == "int":
+                    if value_type == "int":
                         values = [int(value) for value in values]
 
                     values = [str(to_int_when_possible(value)) for value in values]
@@ -909,7 +909,7 @@ def parse_experiment_parameters(args):
                 params.append(param)
 
                 j += 3
-            elif value_type == "choice":
+            elif param_type == "choice":
                 if len(this_args) != 3:
                     print_color("red", f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
                     my_exit(11)
@@ -931,7 +931,7 @@ def parse_experiment_parameters(args):
 
                 j += 3
             else:
-                print_color("red", f":warning: Parameter type {param_type} not yet implemented.");
+                print_color("red", f":warning: Parameter type '{param_type}' not yet implemented.");
                 my_exit(14)
         i += 1
 

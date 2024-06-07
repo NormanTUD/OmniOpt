@@ -3291,8 +3291,6 @@ def main():
 
     executor = get_executor(args)
 
-    # Run until all the jobs have finished and our budget is used up.
-
     global searching_for
     searching_for = "minimum" if not args.maximize else "maximum"
 

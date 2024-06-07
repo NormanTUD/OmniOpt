@@ -171,7 +171,7 @@ for projectname in "${test_projects[@]}"; do
 					errors+=("Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str")
 				fi
 			else
-				echo "save to file is not possible for $possible_plot_type"
+				red_text "Plot-type: $possible_plot_type: --save_to_file is not possible"
 			fi
 		done
 	fi

@@ -192,7 +192,7 @@ fi
 
 yellow_text 'Trying to continue previous job'
 
-./omniopt --continue runs/__main__tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5
+./omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5
 
 exit_code=$?
 
@@ -204,7 +204,7 @@ fi
 
 yellow_text 'Trying to continue already continued previous job'
 
-./omniopt --continue runs/__main__tests__/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5
+./omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus=$NUM_GPUS --hide_ascii_plots --mem_gb 5
 
 exit_code=$?
 
@@ -213,7 +213,6 @@ yellow_text 'Continued continuation program ended...'
 if [[ "$exit_code" -ne "0" ]]; then
 	errors+=("Continued continuation script failed.")
 fi
-
 
 yellow_text "Trying to continue non-existing job"
 
@@ -233,7 +232,7 @@ fi
 
 yellow_text "Trying to check if the program properly fails when no random steps are set..."
 
-./omniopt --partition=alpha --experiment_name=__main__tests__ --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus=1 --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0
+./omniopt --partition=alpha --experiment_name=$TESTNAME --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus=1 --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0
 exit_code=$?
 
 yellow_text "Properly failing for num_random_steps=0 ended..."

@@ -1421,6 +1421,7 @@ def print_best_result(csv_file_path, result_column):
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             table_str = "Best result could not be determined"
             print_color("red", table_str)
+            return 87
         else:
             table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
@@ -1446,6 +1447,8 @@ def print_best_result(csv_file_path, result_column):
         shown_end_table = True
     except Exception as e:
         print(f"[print_best_result] Error during print_best_result: {e}")
+
+    return None
 
 def show_end_table_and_save_end_files(csv_file_path, result_column):
     print_debug("show_end_table_and_save_end_files")
@@ -1473,7 +1476,10 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     display_failed_jobs_table()
 
-    print_best_result(csv_file_path, result_column)
+    best_result_exit = print_best_result(csv_file_path, result_column)
+
+    if best_result_exit:
+        _exit = best_result_exit
 
     if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:
         already_shown_worker_usage_over_time = True

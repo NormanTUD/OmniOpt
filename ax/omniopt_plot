@@ -397,7 +397,9 @@ if [[ "$exit_code" -ne "0" ]]; then
 		if [[ -z $NO_WHIPTAIL ]]; then
 			error_message "$OUTPUT"
 		else
-			echo_red "$OUTPUT"
+			if [[ ! -z "$OUTPUT" ]]; then
+				echo_red "$OUTPUT"
+			fi
 		fi
 	else
 		echo_red "$OUTPUT"

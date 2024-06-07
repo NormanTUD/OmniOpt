@@ -185,6 +185,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--parameter conv_filters range 1 32 int \
 			--hide_ascii_plots \
 			--num_random_steps=$num_random_steps \
+			--gridsearch \
 			--follow
 		exit_code=$?
 	else
@@ -209,6 +210,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--parameter conv_filters range 1 32 int \
 			--hide_ascii_plots \
 			--num_random_steps=$num_random_steps \
+			--gridsearch \
 			--parameter epochs range 1 $max_epochs int
 		exit_code=$?
 	fi

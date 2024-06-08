@@ -238,8 +238,6 @@ if [[ "$plot_type" == "menu" ]]; then
 		exit 1
 	fi
 
-	eval `resize`
-
 	for possible_plot_type in "${expected_plot_types[@]}"; do
 		if [[ "$possible_plot_type" == "menu" ]]; then
 			continue
@@ -306,6 +304,7 @@ if [[ "$plot_type" == "menu" ]]; then
 		minmaxstring=" (min: $min, max: $max)"
 	fi
 
+	eval `resize`
 	WHATTODO=$(whiptail \
 		--title "Available options for $run_dir" \
 		--menu \

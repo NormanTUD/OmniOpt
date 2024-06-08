@@ -3228,9 +3228,7 @@ def finish_previous_jobs_random(args):
         finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
         _sleep(args, 1)
 
-def main():
-    print_debug("main")
-
+def print_logo():
     try:
         print("")
         if random.uniform(0, 1) < 0.99:
@@ -3250,6 +3248,11 @@ def main():
 """)
     except Exception as e:
         print_color("green", "OmniOpt")
+
+def main():
+    print_debug("main")
+
+    print_logo()
 
     _debug_worker_creation("time, nr_workers, got, requested, phase")
     global args

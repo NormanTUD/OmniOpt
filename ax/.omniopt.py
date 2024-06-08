@@ -3268,6 +3268,7 @@ def main():
     global search_space_exhausted
     global random_steps
     global second_step_steps
+    global searching_for
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
 
@@ -3323,7 +3324,16 @@ def main():
 
     experiment = None
 
-    ax_client, experiment_parameters, experiment_args = get_experiment_parameters(ax_client, args.continue_previous_job, args.seed, args.experiment_constraints, args.parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize)
+    ax_client, experiment_parameters, experiment_args = get_experiment_parameters(
+        ax_client, 
+        args.continue_previous_job, 
+        args.seed, 
+        args.experiment_constraints, 
+        args.parameter, 
+        cli_params_experiment_parameters, 
+        experiment_parameters, 
+        minimize_or_maximize
+    )
 
     with open(checkpoint_parameters_filepath, "w") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
@@ -3334,8 +3344,6 @@ def main():
     print_overview_tables(experiment_parameters, experiment_args)
 
     executor = get_executor(args)
-
-    global searching_for
     searching_for = "minimum" if not args.maximize else "maximum"
 
     if args.auto_execute_suggestions and args.experimental and not current_run_folder.endswith("/0") and args.auto_execute_counter == 0:

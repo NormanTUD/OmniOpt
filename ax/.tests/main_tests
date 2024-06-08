@@ -166,6 +166,8 @@ function _test {
 	COMMAND=$2
 	WANTED_EXIT_CODE=$3
 
+	START_TIME=$(date +%s)
+
 	yellow_text "$NAME..."
 
 	if [[ -z $NAME ]]; then
@@ -195,6 +197,11 @@ function _test {
 		red_text "$ERRORMSG"
 		errors+=($(echo "$ERRORMSG" | base64))
 	fi
+	END_TIME=$(date +%s)
+
+	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
+
+	echo "Test took $TEST_RUN_TIME seconds"
 }
 
 PARTITION="alpha"

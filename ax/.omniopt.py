@@ -7,6 +7,7 @@ class searchSpaceExhausted (Exception):
     pass
 
 changed_grid_search_params = {}
+duplicate_value_filter = []
 
 search_space_exhausted = False
 SUPPORTED_MODELS = [
@@ -483,9 +484,9 @@ def print_debug(msg):
 
     _debug(msg)
 
-def print_debug_get_next_trials(got, requested, _line):
+def print_debug_get_next_trials(got, requested, _line, removed_duplicates):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}, {got}, {requested}"
+    msg = f"{time_str}, {got}, {requested}, {removed_duplicates}"
 
     _debug_get_next_trials(msg)
 
@@ -2767,6 +2768,21 @@ def _get_next_trials(ax_client):
         trial_index_to_param, _ = ax_client.get_next_trials(
             max_trials=real_num_parallel_jobs
         )
+
+        cleaned_trial_index_to_param = {}
+
+        removed_duplicates = 0
+
+        for index in trial_index_to_param.keys():
+            value = trial_index_to_param[index]
+            value_dump = json.dumps(value)
+            if not value_dump in duplicate_value_filter:
+                cleaned_trial_index_to_param[index] = value
+                duplicate_value_filter.append(value_dump)
+            else:
+                print_debug(f"Removed already existing trial {value_dump} from trial_index_to_param")
+                removed_duplicates += 1
+        trial_index_to_param = cleaned_trial_index_to_param
     except np.linalg.LinAlgError as e:
         if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
             print_color("red", f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
@@ -2774,7 +2790,7 @@ def _get_next_trials(ax_client):
             print_color("red", f"Error: {e}")
         sys.exit(142)
 
-    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
+    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno, removed_duplicates)
 
     get_next_trials_time_end = time.time()
 

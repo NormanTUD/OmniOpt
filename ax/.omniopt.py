@@ -484,7 +484,7 @@ def print_debug(msg):
 
     _debug(msg)
 
-def print_debug_get_next_trials(got, requested, _line, removed_duplicates):
+def print_debug_get_next_trials(got, requested, _line, removed_duplicates=0):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}, {got}, {requested}, {removed_duplicates}"
 

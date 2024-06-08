@@ -2769,10 +2769,9 @@ def _get_next_trials(ax_client):
             max_trials=real_num_parallel_jobs
         )
 
+        removed_duplicates = 0
         """
         cleaned_trial_index_to_param = {}
-
-        removed_duplicates = 0
 
         for index in trial_index_to_param.keys():
             value = trial_index_to_param[index]

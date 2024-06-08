@@ -553,11 +553,38 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
     my_exit(0)
 
-def print_color(color, text):
-    print(f"[{color}]{text}[/{color}]")
+class bcolors:
+    header = '\033[95m'
+    blue = '\033[94m'
+    cyan = '\033[96m'
+    green = '\033[92m'
+    warning = '\033[93m'
+    red = '\033[91m'
+    endc = '\033[0m'
+    bold = '\033[1m'
+    underline = '\033[4m'
+    yellow = '\033[33m'
 
-def print_orange(text):
-    print_color("orange", text)
+def print_color(color, text):
+    color_codes = {
+        "header": bcolors.header,
+        "blue": bcolors.blue,
+        "cyan": bcolors.cyan,
+        "green": bcolors.green,
+        "warning": bcolors.warning,
+        "red": bcolors.red,
+        "bold": bcolors.bold,
+        "underline": bcolors.underline,
+        "yellow": bcolors.yellow,
+    }
+    end_color = bcolors.endc
+
+    try:
+        assert color in color_codes, f"Color '{color}' is not supported."
+        original_print(f"{color_codes[color]}{text}{end_color}")
+    except AssertionError as e:
+        print(f"Error: {e}")
+        original_print(text)
 
 def print_red(text):
     print_color("red", text)
@@ -1864,10 +1891,10 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                         new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
                         _replaced = True
 
-                        print_orange(compare_parameters(old_param_json, new_param_json))
+                        print_yellow(compare_parameters(old_param_json, new_param_json))
 
                 if not _replaced:
-                    print_orange(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
+                    print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
@@ -2664,7 +2691,7 @@ def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.10.4", "3.11.2", "3.11.9", "3.9.2"]
     if not python_version in supported_versions:
-        print_orange(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
+        print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
@@ -4078,6 +4105,10 @@ if __name__ == "__main__":
 
         if args.tests:
             #dier(get_best_params("runs/test_wronggoing_stuff/2/results.csv", "result"))
+
+            print_red("This should be red")
+            print_yellow("This should be yellow")
+            print_green("This should be green")
 
             run_tests()
         else:

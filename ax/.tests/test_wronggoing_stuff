@@ -36,7 +36,6 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
-        echo "  --use-ram-tests                                    Run test that allocates more and more memory"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
         echo "  --nosuccess                                        Don't run successful tests"
         echo "  --help                                             this help"
@@ -52,7 +51,6 @@ function join_by {
 }
 
 export num_random_steps=20
-export useramtests=0
 export nosuccess=0
 
 for i in $@; do
@@ -78,10 +76,6 @@ for i in $@; do
 			;;
                 --nosuccess)
                         nosuccess=1
-                        shift
-                        ;;
-                --use-ram-tests)
-                        useramtests=1
                         shift
                         ;;
                 -h|--help)
@@ -125,10 +119,6 @@ if [[ "$nosuccess" -eq "0" ]]; then
 
 	#which_programs+=("takes_forever")
 	#which_programs+=("takes_forever_but_has_result")
-fi
-
-if [[ "$useramtests" -eq "1" ]]; then
-	which_programs+=("allocate_ram_forever")
 fi
 
 which_programs_string=$(join_by , "${which_programs[@]}")

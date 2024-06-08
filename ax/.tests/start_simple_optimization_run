@@ -34,6 +34,7 @@ function help () {
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
+	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
@@ -55,6 +56,7 @@ max_eval=30
 num_parallel_jobs=20
 allow_failure=0
 num_random_steps=$num_parallel_jobs
+model=BOTORCH_MODULAR
 
 args=("$@")
 k=0
@@ -92,7 +94,15 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 
+		--model=*)
+			model="${i#*=}"
+			;;
+		--model)
+			shift
+			k=$((k+1))
 
+			model="${args[k]}"
+			;;
 
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"

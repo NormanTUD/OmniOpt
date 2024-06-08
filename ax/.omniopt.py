@@ -2769,6 +2769,7 @@ def _get_next_trials(ax_client):
             max_trials=real_num_parallel_jobs
         )
 
+        """
         cleaned_trial_index_to_param = {}
 
         removed_duplicates = 0
@@ -2783,6 +2784,7 @@ def _get_next_trials(ax_client):
                 print_debug(f"Removed already existing trial {value_dump} from trial_index_to_param")
                 removed_duplicates += 1
         trial_index_to_param = cleaned_trial_index_to_param
+        """
     except np.linalg.LinAlgError as e:
         if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
             print_color("red", f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")

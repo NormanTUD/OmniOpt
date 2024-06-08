@@ -222,22 +222,8 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 	exit 99
 fi
 
-if [[ "$plot_type" == "menu" ]]; then
-	if [[ "$run_dir" == "" ]]; then
-		echo "--run_dir is missing"
-		exit 1
-	fi
-
-	if [[ -f "$run_dir" ]]; then
-		echo "--run_dir is a file"
-		exit 1
-	fi
-
-	if [[ ! -d "$run_dir" ]]; then
-		echo "--run_dir is not a directory"
-		exit 1
-	fi
-
+function menu {
+	whiptail_args=()
 	for possible_plot_type in "${expected_plot_types[@]}"; do
 		if [[ "$possible_plot_type" == "menu" ]]; then
 			continue
@@ -361,6 +347,25 @@ if [[ "$plot_type" == "menu" ]]; then
 			exit 0
 		fi
 	fi
+}
+
+if [[ "$plot_type" == "menu" ]]; then
+	if [[ "$run_dir" == "" ]]; then
+		echo "--run_dir is missing"
+		exit 1
+	fi
+
+	if [[ -f "$run_dir" ]]; then
+		echo "--run_dir is a file"
+		exit 1
+	fi
+
+	if [[ ! -d "$run_dir" ]]; then
+		echo "--run_dir is not a directory"
+		exit 1
+	fi
+
+	menu
 fi
 
 cd $ORIGINAL_PWD
@@ -413,4 +418,4 @@ if [[ -z $NO_RUNTIME ]]; then
 	echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
 fi
 
-exit $exit_code
+menu

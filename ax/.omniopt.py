@@ -193,7 +193,7 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
             original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
     except FileNotFoundError:
-        print_color("red", "It seems like the run's folder was deleted during the run. Cannot continue.")
+        print_red"It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print(f"Error trying to write log file: {e}")
@@ -230,7 +230,7 @@ def _debug(msg, _lvl=0, ee=None):
         with open(logfile, 'a') as f:
             original_print(msg, file=f)
     except FileNotFoundError:
-        print_color("red", f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        print_redf"It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_debug: Error trying to write log file: " + str(e))
@@ -335,7 +335,7 @@ def decode_if_base64(input_str):
 def get_file_as_string(f):
     datafile = ""
     if not os.path.exists(f):
-        print_color("red", f"{f} not found!")
+        print_redf"{f} not found!")
     else:
         with open(f) as f:
             datafile = f.readlines()
@@ -388,7 +388,7 @@ if not args.tests:
         my_exit(43)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
-            print_color("red", f"The previous job folder {args.continue_previous_job} could not be found!")
+            print_redf"The previous job folder {args.continue_previous_job} could not be found!")
             my_exit(21)
 
         if not global_vars["experiment_name"]:
@@ -473,7 +473,7 @@ if not args.tests:
         max_eval = args.max_eval
 
     if max_eval <= 0:
-        print_color("red", "--max_eval must be larger than 0")
+        print_red"--max_eval must be larger than 0")
         my_exit(39)
 
 def print_debug(msg):
@@ -556,6 +556,15 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
 def print_color(color, text):
     print(f"[{color}]{text}[/{color}]")
 
+def print_red(text):
+    print_color("red", text)
+
+def print_green(text):
+    print_color("green", text)
+
+def print_yellow(text):
+    print_color("yellow", text)
+
 def is_executable_in_path(executable_name):
     print_debug("is_executable_in_path")
     for path in os.environ.get('PATH', '').split(':'):
@@ -581,9 +590,9 @@ def check_slurm_job_id():
     if system_has_sbatch:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
-            print_color("red", "Not a valid SLURM_JOB_ID.")
+            print_red"Not a valid SLURM_JOB_ID.")
         elif slurm_job_id is None:
-            print_color("red", "You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. " +
+            print_red"You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. " +
                 "This may cause the system to slow down for all other users. It is recommended uou run the main script in a Slurm job."
             )
 
@@ -666,12 +675,12 @@ def get_max_column_value(pd_csv, column, _default):
     try:
         df = pd.read_csv(pd_csv)
         if not column in df.columns:
-            print_color("red", f"Cannot load data from {pd_csv}: column {column} does not exist")
+            print_redf"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
         max_value = df[column].max()
         return max_value
     except Exception as e:
-        print_color("red", f"Error while getting max value from column {column}: {str(e)}")
+        print_redf"Error while getting max value from column {column}: {str(e)}")
         raise
 
 def get_min_column_value(pd_csv, column, _default):
@@ -691,12 +700,12 @@ def get_min_column_value(pd_csv, column, _default):
     try:
         df = pd.read_csv(pd_csv)
         if not column in df.columns:
-            print_color("red", f"Cannot load data from {pd_csv}: column {column} does not exist")
+            print_redf"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
         min_value = df[column].min()
         return min_value
     except Exception as e:
-        print_color("red", f"Error while getting min value from column {column}: {str(e)}")
+        print_redf"Error while getting min value from column {column}: {str(e)}")
         raise
 
 def flatten_extend(matrix):
@@ -729,7 +738,7 @@ def get_bound_if_prev_data(_type, _column, _default):
                         found_in_file = True
                     ret_val = max(ret_val, _default, _old_max_col) * strictly_larger
             else:
-                print_color("red", f"{pd_csv} was not found")
+                print_redf"{pd_csv} was not found")
 
     if args.continue_previous_job:
         pd_csv = f"{args.continue_previous_job}/{pd_csv_filename}"
@@ -745,7 +754,7 @@ def get_bound_if_prev_data(_type, _column, _default):
                     found_in_file = True
                 ret_val = max(ret_val, _default, _old_max_col) * strictly_larger
         else:
-            print_color("red", f"{pd_csv} was not found")
+            print_redf"{pd_csv} was not found")
 
     return round(ret_val, 4), found_in_file
 
@@ -753,7 +762,7 @@ def parse_experiment_parameters(args):
     print_debug("parse_experiment_parameters")
 
     #if args.continue_previous_job and len(args.parameter):
-    #    print_color("red", "Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
+    #    print_red"Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
     #    my_exit(53)
 
     params = []
@@ -773,11 +782,11 @@ def parse_experiment_parameters(args):
             invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
 
             if name in invalid_names:
-                print_color("red", f"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
+                print_redf"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
                 my_exit(18)
 
             if name in param_names:
-                print_color("red", f"\n:warning: Parameter name '{name}' is not unique. Names for parameters must be unique!")
+                print_redf"\n:warning: Parameter name '{name}' is not unique. Names for parameters must be unique!")
                 my_exit(1)
 
             param_names.append(name)
@@ -788,39 +797,39 @@ def parse_experiment_parameters(args):
 
             if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)
-                print_color("red", f"\n:warning: Invalid type {param_type}, valid types are: {valid_types_string}")
+                print_redf"\n:warning: Invalid type {param_type}, valid types are: {valid_types_string}")
                 my_exit(3)
 
             if param_type == "range":
                 if args.model and args.model == "FACTORIAL":
-                    print_color("red", f"\n:warning: --model FACTORIAL cannot be used with range parameter")
+                    print_redf"\n:warning: --model FACTORIAL cannot be used with range parameter")
                     my_exit(191)
 
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_color("red", f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    print_redf"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
                     my_exit(9)
 
                 try:
                     lower_bound = float(this_args[j + 2])
                 except:
-                    print_color("red", f"\n:warning: {this_args[j + 2]} is not a number")
+                    print_redf"\n:warning: {this_args[j + 2]} is not a number")
                     my_exit(4)
 
                 try:
                     upper_bound = float(this_args[j + 3])
                 except:
-                    print_color("red", f"\n:warning: {this_args[j + 3]} is not a number")
+                    print_redf"\n:warning: {this_args[j + 3]} is not a number")
                     my_exit(5)
 
                 if upper_bound == lower_bound:
                     if lower_bound == 0:
-                        print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
+                        print_redf":warning: Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
                         sys.exit(13)
-                    print_color("red", f":warning: Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+                    print_redf":warning: Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
                     lower_bound = -upper_bound
 
                 if lower_bound > upper_bound:
-                    print_color("yellow", f":warning: Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+                    print_yellow(f":warning: Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
                     tmp = upper_bound
                     upper_bound = lower_bound
                     lower_bound = tmp
@@ -837,16 +846,16 @@ def parse_experiment_parameters(args):
 
                 if value_type not in valid_value_types:
                     valid_value_types_string = ", ".join(valid_value_types)
-                    print_color("red", f":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+                    print_redf":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     my_exit(8)
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
-                        print_color("yellow", f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
+                        print_yellow(f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
                         lower_bound = math.floor(lower_bound)
 
                     if not looks_like_int(upper_bound):
-                        print_color("yellow", f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
+                        print_yellow(f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
                         upper_bound = math.ceil(upper_bound)
 
                 old_lower_bound = lower_bound
@@ -860,11 +869,11 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if old_lower_bound != lower_bound:
-                    print_color("yellow", f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                    print_yellow(f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
                     search_space_reduction_warning = True
 
                 if old_upper_bound != upper_bound:
-                    print_color("yellow", f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    print_yellow(f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                     search_space_reduction_warning = True
 
                 
@@ -901,7 +910,7 @@ def parse_experiment_parameters(args):
                 j += skip
             elif param_type == "fixed":
                 if len(this_args) != 3:
-                    print_color("red", f":warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
+                    print_redf":warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
                     my_exit(11)
 
                 value = this_args[j + 2]
@@ -919,7 +928,7 @@ def parse_experiment_parameters(args):
                 j += 3
             elif param_type == "choice":
                 if len(this_args) != 3:
-                    print_color("red", f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
+                    print_redf":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
                     my_exit(11)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
@@ -939,12 +948,12 @@ def parse_experiment_parameters(args):
 
                 j += 3
             else:
-                print_color("red", f":warning: Parameter type '{param_type}' not yet implemented.");
+                print_redf":warning: Parameter type '{param_type}' not yet implemented.");
                 my_exit(14)
         i += 1
 
     if search_space_reduction_warning:
-        print_color("red", f":warning: Search space reduction is not currently supported on continued runs or runs that have previous data.")
+        print_redf":warning: Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
 
@@ -960,7 +969,7 @@ def replace_parameters_in_string(parameters, input_string):
 
         return input_string
     except Exception as e:
-        print_color("red", f"\n:warning: Error: {e}")
+        print_redf"\n:warning: Error: {e}")
         return None
 
 def execute_bash_code(code):
@@ -1145,7 +1154,7 @@ def write_data_and_headers(data_dict, error_description=""):
             os.makedirs(failed_logs_dir)
             print_debug(f"Directory created: {failed_logs_dir}")
         else:
-            print_color("red", f"Directory already exists: {failed_logs_dir}")
+            print_redf"Directory already exists: {failed_logs_dir}")
 
         # Write headers if the file does not exist
         if not os.path.exists(header_file_path):
@@ -1166,7 +1175,7 @@ def write_data_and_headers(data_dict, error_description=""):
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
         except Exception as e:
-            print_color("red", f"Failed to append data to file: {e}")
+            print_redf"Failed to append data to file: {e}")
 
     except Exception as e:
         warn(f"Unexpected error: {e}")
@@ -1280,20 +1289,20 @@ try:
                 from ax.storage.json_store.load import load_experiment
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
-                print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+                print_red"\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(33)
             except KeyboardInterrupt:
-                print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+                print_red"\n:warning: You pressed CTRL+C. Program execution halted.")
                 my_exit(34)
 
         with console.status("[bold green]Importing botorch...") as status:
             try:
                 import botorch
             except ModuleNotFoundError as e:
-                print_color("red", "\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+                print_red"\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(35)
             except KeyboardInterrupt:
-                print_color("red", "\n:warning: You pressed CTRL+C. Program execution halted.")
+                print_red"\n:warning: You pressed CTRL+C. Program execution halted.")
                 my_exit(36)
 
         with console.status("[bold green]Importing submitit...") as status:
@@ -1301,7 +1310,7 @@ try:
                 import submitit
                 from submitit import AutoExecutor, LocalJob, DebugJob
             except:
-                print_color("red", "\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
+                print_red"\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(7)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
@@ -1409,7 +1418,7 @@ def display_failed_jobs_table():
         # Print the table to the console
         console.print(table)
     except Exception as e:
-        print_color("red", f"Error: {str(e)}")
+        print_redf"Error: {str(e)}")
 
 def print_best_result(csv_file_path, result_column):
     global current_run_folder
@@ -1421,7 +1430,7 @@ def print_best_result(csv_file_path, result_column):
 
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             table_str = "Best result could not be determined"
-            print_color("red", table_str)
+            print_redtable_str)
             return 87
         else:
             table = Table(show_header=True, header_style="bold", title="Best parameter:")
@@ -1608,11 +1617,11 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
 
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-        print_color("red", "\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
+        print_red"\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
     except TypeError as e:
-        print_color("red", f"\n:warning: The program has been halted without attaining any results. Error: {e}")
+        print_redf"\n:warning: The program has been halted without attaining any results. Error: {e}")
 
     for job, trial_index in global_vars["jobs"][:]:
         if job:
@@ -1708,7 +1717,7 @@ def save_pd_csv():
     except signalINT as e:
         raise signalINT(str(e))
     except Exception as e:
-        print_color("red", f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+        print_redf"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
 def get_tmp_file_from_json(experiment_args):
     k = 0
@@ -1784,7 +1793,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         checkpoint_parameters_filepath = continue_previous_job + "/checkpoint.json.parameters.json"
 
         if not os.path.exists(checkpoint_file):
-            print_color("red", f"{checkpoint_file} not found")
+            print_redf"{checkpoint_file} not found")
             my_exit(47)
 
         ax_client = None
@@ -1801,33 +1810,33 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             cuda_is_available = torch.cuda.is_available()
 
             if not cuda_is_available or cuda_is_available == 0:
-                print_color("red", "No suitable CUDA devices found")
+                print_red"No suitable CUDA devices found")
             else:
                 if torch.cuda.device_count() >= 1:
                     torch_device = torch.cuda.current_device()
                     if "choose_generation_strategy_kwargs" not in experiment_parameters:
                         experiment_parameters["choose_generation_strategy_kwargs"] = {}
                     experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
-                    print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
+                    print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
                     if args.verbose:
-                        print_color("red", "No CUDA devices found")
+                        print_red"No CUDA devices found")
         except ModuleNotFoundError:
-            print_color("red", "Cannot load torch and thus, cannot use gpu")
+            print_red"Cannot load torch and thus, cannot use gpu")
             experiment_parameters = None
 
         except json.decoder.JSONDecodeError as e:
-            print_color("red", f"Error parsing checkpoint_file {checkpoint_file}")
+            print_redf"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(157)
 
         if not os.path.exists(checkpoint_parameters_filepath):
-            print_color("red", f"Cannot find {checkpoint_parameters_filepath}")
+            print_redf"Cannot find {checkpoint_parameters_filepath}")
             my_exit(49)
 
         done_jobs_file = f"{continue_previous_job}/submitted_jobs"
         done_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
         if not os.path.exists(done_jobs_file):
-            print_color("red", f"Cannot find {done_jobs_file}")
+            print_redf"Cannot find {done_jobs_file}")
             my_exit(95)
 
         if not os.path.exists(done_jobs_file_dest):
@@ -1836,7 +1845,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         submitted_jobs_file = f"{continue_previous_job}/submitted_jobs"
         submitted_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
         if not os.path.exists(submitted_jobs_file):
-            print_color("red", f"Cannot find {submitted_jobs_file}")
+            print_redf"Cannot find {submitted_jobs_file}")
             my_exit(96)
 
         if not os.path.exists(submitted_jobs_file_dest):
@@ -1868,7 +1877,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             json.dump(experiment_parameters, outfile)
 
         if not os.path.exists(checkpoint_filepath):
-            print_color("red", f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
+            print_redf"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
             my_exit(22)
 
         with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
@@ -1901,12 +1910,12 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if torch.cuda.device_count() >= 1:
                     torch_device = torch.cuda.current_device()
                     experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
-                    print_color("yellow", f"Using CUDA device {torch.cuda.get_device_name(0)}")
+                    print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
                     if args.verbose:
-                        print_color("red", "No CUDA devices found")
+                        print_red"No CUDA devices found")
         except ModuleNotFoundError:
-            print_color("red", "Cannot load torch and thus, cannot use gpus")
+            print_red"Cannot load torch and thus, cannot use gpus")
 
         if experiment_constraints and len(experiment_constraints):
             experiment_args["parameter_constraints"] = []
@@ -1920,15 +1929,15 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if equation:
                     experiment_args["parameter_constraints"].append(constraints_string)
                 else:
-                    print_color("red", f"Experiment constraint '{constraints_string}' is invalid and will be ignored.")
+                    print_redf"Experiment constraint '{constraints_string}' is invalid and will be ignored.")
 
         try:
             experiment = ax_client.create_experiment(**experiment_args)
         except ValueError as error:
-            print_color("red", f"An error has occured while creating the experiment: {error}")
+            print_redf"An error has occured while creating the experiment: {error}")
             my_exit(29)
         except TypeError as error:
-            print_color("red", f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
+            print_redf"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             my_exit(50)
 
     return ax_client, experiment_parameters, experiment_args
@@ -1944,14 +1953,14 @@ def get_type_short(typename):
 
 def print_overview_tables(experiment_parameters, experiment_args):
     if not experiment_parameters:
-        print_color("red", "Cannot determine experiment_parameters. No parameter table will be shown.")
+        print_red"Cannot determine experiment_parameters. No parameter table will be shown.")
         return
 
     print_debug("print_overview_tables")
     global args
 
     if not experiment_parameters:
-        print_color("red", "Experiment parameters could not be determined for display")
+        print_red"Experiment parameters could not be determined for display")
 
     min_or_max = "minimize"
     if args.maximize:
@@ -2004,7 +2013,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
             rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), ""])
         else:
-            print_color("red", f"Type {_type} is not yet implemented in the overview table.");
+            print_redf"Type {_type} is not yet implemented in the overview table.");
             my_exit(15)
 
     table = Table(header_style="bold", title="Experiment parameters:")
@@ -2120,7 +2129,7 @@ def check_equation(variables, equation):
                 "value": item
             })
         else:
-            print_color("red", f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
+            print_redf"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
             return False
 
     parsed_order_string = ";".join(parsed_order)
@@ -2180,7 +2189,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     assert_condition(isinstance(params, dict), "params must be a dictionary")
     
     if not os.path.exists(file_path):
-        print_color("red", f"{file_path} for getting old CSV results cannot be found")
+        print_redf"{file_path} for getting old CSV results cannot be found")
         return None
     
     try:
@@ -2189,7 +2198,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
     
     if not 'result' in df.columns:
-        print_color("red", f"Error: Could not get old result for {params} in {file_path}")
+        print_redf"Error: Could not get old result for {params} in {file_path}")
         return None
     
     try:
@@ -2207,10 +2216,10 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         result_value = matching_rows['result'].values[0]
         return result_value
     except AssertionError as ae:
-        print_color("red", f"Assertion error: {str(ae)}")
+        print_redf"Assertion error: {str(ae)}")
         raise
     except Exception as e:
-        print_color("red", f"Error during filtering or extracting result: {str(e)}")
+        print_redf"Error during filtering or extracting result: {str(e)}")
         raise
 
 def load_existing_job_data_into_ax_client(args):
@@ -2271,7 +2280,7 @@ def load_data_from_existing_run_folders(args, _paths):
         this_path_json = str(this_path) + "/ax_client.experiment.json"
 
         if not os.path.exists(this_path_json):
-            print_color("red", f"{this_path_json} does not exist, cannot load data from it")
+            print_redf"{this_path_json} does not exist, cannot load data from it")
             return
 
         old_experiments = load_experiment(this_path_json)
@@ -2311,13 +2320,13 @@ def load_data_from_existing_run_folders(args, _paths):
                             parsed_error = parse_parameter_type_error(e)
 
                             if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
-                                print_color("yellow", f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                print_yellow(f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                                 old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
                             elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
-                                print_color("yellow", f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                print_yellow(f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
                             #elif parsed_error["expected_type"] == "str" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "str":
-                            #    print_color("yellow", f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                            #    print_yellow(f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                             #    old_arm_parameter[parsed_error["parameter_name"]] = str(old_arm_parameter[parsed_error["parameter_name"]])
                 else:
                     print_debug("Prevented inserting a double entry")
@@ -2412,7 +2421,7 @@ def finish_previous_jobs(args, new_msgs):
 
                 global_vars["jobs"].remove((job, trial_index))
             except FileNotFoundError as error:
-                print_color("red", str(error))
+                print_redstr(error))
 
                 if job:
                     try:
@@ -2429,7 +2438,7 @@ def finish_previous_jobs(args, new_msgs):
 
                 global_vars["jobs"].remove((job, trial_index))
             except submitit.core.utils.UncompletedJobError as error:
-                print_color("red", str(error))
+                print_redstr(error))
 
                 if job:
                     try:
@@ -2447,9 +2456,9 @@ def finish_previous_jobs(args, new_msgs):
                 global_vars["jobs"].remove((job, trial_index))
             except ax.exceptions.core.UserInputError as error:
                 if "None for metric" in str(error):
-                    print_color("red", f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                    print_redf"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                 else:
-                    print_color("red", f"\n:warning: {error}")
+                    print_redf"\n:warning: {error}")
 
                 if job:
                     try:
@@ -2687,9 +2696,9 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
-            print_color("red", f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+            print_redf"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
         else:
-            print_color("red", f"\n:warning: FAILED: {error}")
+            print_redf"\n:warning: FAILED: {error}")
 
         try:
             print_debug("Trying to cancel job that failed")
@@ -2710,15 +2719,15 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             save_pd_csv()
             trial_counter += 1
         except Exception as e:
-            print_color("red", f"\n:warning: Cancelling failed job FAILED: {e}")
+            print_redf"\n:warning: Cancelling failed job FAILED: {e}")
     except (signalUSR, signalINT, signalCONT) as e:
-        print_color("red", f"\n:warning: Detected signal. Will exit.")
+        print_redf"\n:warning: Detected signal. Will exit.")
         is_in_evaluate = False
         end_program(result_csv_file, "result", 1)
     except Exception as e:
         tb = traceback.format_exc()
         print(tb)
-        print_color("red", f"\n:warning: Starting job failed with error: {e}")
+        print_redf"\n:warning: Starting job failed with error: {e}")
 
     finish_previous_jobs(args, ["finishing jobs"])
 
@@ -2786,9 +2795,9 @@ def _get_next_trials(ax_client):
         """
     except np.linalg.LinAlgError as e:
         if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
-            print_color("red", f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
+            print_redf"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
         else:
-            print_color("red", f"Error: {e}")
+            print_redf"Error: {e}")
         sys.exit(142)
 
     print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
@@ -2896,11 +2905,11 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     if args.model:
         if str(args.model).upper() in available_models:
-            print_color("yellow", f"Using model {str(args.model).upper()}")
+            print_yellow(f"Using model {str(args.model).upper()}")
             chosen_non_random_model = Models.__members__[str(args.model).upper()]
             # todo
         else:
-            print_color("red", f":warning: Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+            print_redf":warning: Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
@@ -2976,14 +2985,14 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
                 execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                 i += 1
         except botorch.exceptions.errors.InputDataError as e:
-            print_color("red", f"Error 1: {e}")
+            print_redf"Error 1: {e}")
             return 0
         except ax.exceptions.core.DataRequiredError as e:
             if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-                print_color("red", f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
+                print_redf"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
                 sys.exit(233)
             else:
-                print_color("red", f"Error 2: {e}")
+                print_redf"Error 2: {e}")
                 return 0
 
         random_steps_left = done_jobs() - random_steps
@@ -2991,14 +3000,14 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         if random_steps_left <= 0 and done_jobs() <= random_steps:
             return len(trial_index_to_param.keys())
     except RuntimeError as e:
-        print_color("red", "\n:warning: " + str(e))
+        print_red"\n:warning: " + str(e))
     except (
         botorch.exceptions.errors.ModelFittingError,
         ax.exceptions.core.SearchSpaceExhausted,
         ax.exceptions.core.DataRequiredError,
         botorch.exceptions.errors.InputDataError
     ) as e:
-        print_color("red", "\n:warning: " + str(e))
+        print_red"\n:warning: " + str(e))
         end_program(result_csv_file, "result", 1)
 
     num_new_keys = 0
@@ -3028,7 +3037,7 @@ def get_number_of_steps(args, max_eval):
     random_steps = random_steps - already_done_random_steps
 
     if random_steps > max_eval:
-        print_color("red", f"You have less --max_eval than --num_random_steps.")
+        print_redf"You have less --max_eval than --num_random_steps.")
 
     if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps
@@ -3215,9 +3224,9 @@ def run_random_jobs(random_steps, ax_client, executor):
 
             #progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
         except botorch.exceptions.errors.InputDataError as e:
-            print_color("red", f"Error 3: {e}")
+            print_redf"Error 3: {e}")
         except ax.exceptions.core.DataRequiredError as e:
-            print_color("red", f"Error 4: {e}")
+            print_redf"Error 4: {e}")
 
         _sleep(args, 0.1)
 
@@ -3247,7 +3256,7 @@ def print_logo():
                   (|)""
 """)
     except Exception as e:
-        print_color("green", "OmniOpt")
+        print_green("OmniOpt")
 
 def main():
     print_debug("main")
@@ -3347,7 +3356,7 @@ def main():
     searching_for = "minimum" if not args.maximize else "maximum"
 
     if args.auto_execute_suggestions and args.experimental and not current_run_folder.endswith("/0") and args.auto_execute_counter == 0:
-        print_color("red", f"When you do a automatic parameter search space expansion, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
+        print_redf"When you do a automatic parameter search space expansion, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
 
     load_existing_job_data_into_ax_client(args)
 
@@ -3445,55 +3454,55 @@ def is_not_equal(n, i, o):
 def _is_not_equal(name, input, output):
     if type(input) == str or type(input) == int or type(input) == float:
         if input == output:
-            print_color("red", f"Failed test: {name}")
+            print_redf"Failed test: {name}")
             return 1
     elif type(input) == bool:
         if input == output:
-            print_color("red", f"Failed test: {name}")
+            print_redf"Failed test: {name}")
             return 1
     elif output is None or input is None:
         if input == output:
-            print_color("red", f"Failed test: {name}")
+            print_redf"Failed test: {name}")
             return 1
     else:
-        print_color("red", f"Unknown data type for test {name}")
+        print_redf"Unknown data type for test {name}")
         my_exit(193)
 
-    print_color("green", f"Test OK: {name}")
+    print_green(f"Test OK: {name}")
     return 0
 
 def _is_equal(name, input, output):
     if type(input) != type(output):
-        print_color("red", f"Failed test: {name}")
+        print_redf"Failed test: {name}")
         return 1
     elif type(input) == str or type(input) == int or type(input) == float:
         if input != output:
-            print_color("red", f"Failed test: {name}")
+            print_redf"Failed test: {name}")
             return 1
     elif type(input) == bool:
         if input != output:
-            print_color("red", f"Failed test: {name}")
+            print_redf"Failed test: {name}")
             return 1
     elif output is None or input is None:
         if input != output:
-            print_color("red", f"Failed test: {name}")
+            print_redf"Failed test: {name}")
             return 1
     else:
-        print_color("red", f"Unknown data type for test {name}")
+        print_redf"Unknown data type for test {name}")
         my_exit(192)
 
-    print_color("green", f"Test OK: {name}")
+    print_green(f"Test OK: {name}")
     return 0
 
 def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
-    print_color("yellow", f"Test suite: {_program_name}")
+    print_yellow(f"Test suite: {_program_name}")
 
     nr_errors = 0
 
     program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
 
     if not os.path.exists(program_path):
-        print_color("red", f"Program path {program_path} not found!")
+        print_redf"Program path {program_path} not found!")
         my_exit(99)
 
     program_path_with_program = f"{program_path}"
@@ -3790,7 +3799,7 @@ def analyze_out_files(rootdir, print_to_stdout=True):
                 j = j + 1
 
         if print_to_stdout:
-            print_color("red", "\n".join(errors))
+            print_red"\n".join(errors))
 
         return "\n".join(_strs)
     except Exception as e:
@@ -3814,7 +3823,7 @@ def log_nr_of_workers():
             with open(logfile_nr_workers, 'a+') as f:
                 f.write(str(nr_of_workers) + "\n")
         except FileNotFoundError:
-            print_color("red", f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
+            print_redf"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
             sys.exit(93)
 
 def get_best_params(csv_file_path, result_column):
@@ -4048,7 +4057,7 @@ def find_promising_bubbles(pd_csv):
 
         if args.experimental and args.auto_execute_suggestions:
             if system_has_sbatch:
-                print_color("red", "Warning: Auto-executing on systems with sbatch may not work as expected. The main worker may get killed with all subjobs")
+                print_red"Warning: Auto-executing on systems with sbatch may not work as expected. The main worker may get killed with all subjobs")
             print("Auto-executing is not recommended")
 
             if args.auto_execute_counter is not None and args.max_auto_execute is not None and args.auto_execute_counter >= args.max_auto_execute:
@@ -4072,7 +4081,7 @@ if __name__ == "__main__":
             try:
                 main()
             except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-                print_color("red", "\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
+                print_red"\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
                 is_in_evaluate = False
 
                 end_program(result_csv_file, "result", 1)

@@ -3697,7 +3697,7 @@ def get_errors_from_outfile(i):
                 if err in file_as_string:
                     errors.append(f"{err} detected")
             else:
-                print_color(f"Wrong type, should be list or string, is {type(err)}")
+                print_red(f"Wrong type, should be list or string, is {type(err)}")
                 my_exit(41)
 
         if "Can't locate" in file_as_string and "@INC" in file_as_string:

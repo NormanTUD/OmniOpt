@@ -484,9 +484,9 @@ def print_debug(msg):
 
     _debug(msg)
 
-def print_debug_get_next_trials(got, requested, _line, removed_duplicates=0):
+def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}, {got}, {requested}, {removed_duplicates}"
+    msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
@@ -2791,7 +2791,7 @@ def _get_next_trials(ax_client):
             print_color("red", f"Error: {e}")
         sys.exit(142)
 
-    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno, removed_duplicates)
+    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
 
     get_next_trials_time_end = time.time()
 

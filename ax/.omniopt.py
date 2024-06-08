@@ -2580,7 +2580,7 @@ def get_desc_progress_text(new_msgs=[]):
     in_brackets = []
 
     if failed_jobs():
-        in_brackets.append(f"failed: {failed_jobs()}")
+        in_brackets.append(f"{bcolors.red}failed: {failed_jobs()}{bcolors.endc}")
 
     if random_steps and random_steps > submitted_jobs():
         in_brackets.append(f"random phase ({abs(done_jobs() - random_steps)} left)")

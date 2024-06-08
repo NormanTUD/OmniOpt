@@ -51,6 +51,7 @@ function join_by {
 	fi
 }
 
+export num_random_steps=20
 export useramtests=0
 export nosuccess=0
 

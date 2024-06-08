@@ -1396,14 +1396,14 @@ def display_failed_jobs_table():
             print_debug(f"Parameters: {parameters}")
             
         # Create the table
-        table = Table(show_header=True, header_style="bold", title="Failed Jobs parameters:")
+        table = Table(show_header=True, header_style="bold red", title="Failed Jobs parameters:")
         
         for header in headers:
             table.add_column(header)
         
         for parameter_set in parameters:
             row = [str(to_int_when_possible(value)) for value in parameter_set]
-            table.add_row(*row)
+            table.add_row(*row, style='red')
         
         # Print the table to the console
         console.print(table)

@@ -556,6 +556,9 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
 def print_color(color, text):
     print(f"[{color}]{text}[/{color}]")
 
+def print_orange(text):
+    print_color("orange", text)
+
 def print_red(text):
     print_color("red", text)
 
@@ -1861,10 +1864,10 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                         new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
                         _replaced = True
 
-                        print_color("orange", compare_parameters(old_param_json, new_param_json))
+                        print_orange(compare_parameters(old_param_json, new_param_json))
 
                 if not _replaced:
-                    print_color("orange", f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
+                    print_orange(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
@@ -2661,7 +2664,7 @@ def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.10.4", "3.11.2", "3.11.9", "3.9.2"]
     if not python_version in supported_versions:
-        print_color("orange", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
+        print_orange(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars

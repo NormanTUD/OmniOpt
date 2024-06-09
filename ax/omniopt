@@ -678,16 +678,16 @@ else
 						fi
 					fi
 
+					print_line="Waiting for file $LOG_PATH to exist$estimated_start_time... "
+					print_line_length=$(echo "$print_line" | wc -c)
+
+					backspaces=""
+
+					for k in $(seq 0 $(($print_line_length + 10))); do
+						backspaces="$backspaces\r"
+					done
+
 					for i in "${spin[@]}"; do
-						print_line="Waiting for file $LOG_PATH to exist$estimated_start_time... "
-						print_line_length=$(echo "$print_line" | wc -c)
-
-						backspaces=""
-
-						for k in $(seq 0 $(($print_line_length + 10))); do
-							backspaces="$backspaces\r"
-						done
-
 						print_line="$print_line$i"
 
 						echo -ne "$backspaces"

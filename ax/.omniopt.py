@@ -1434,7 +1434,7 @@ def display_failed_jobs_table():
     
     # Assert the existence of the folder and files
     if not os.path.exists(failed_jobs_folder):
-        print_debug("Failed jobs {failed_jobs_folder} folder does not exist.")
+        print_debug(f"Failed jobs {failed_jobs_folder} folder does not exist.")
         return
 
     if not os.path.isfile(header_file):
@@ -1509,7 +1509,7 @@ def print_best_result(csv_file_path, result_column):
 
             if os.path.exists(_pd_csv):
                 _tmp = ".tmp/"
-                _width = 1300
+                _width = 1400
 
                 if not os.path.exists(_tmp):
                     os.makedirs(_tmp)

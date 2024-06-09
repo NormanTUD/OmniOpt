@@ -78,7 +78,6 @@ function remaining_time {
 	years=$(( difference_minutes / 525600 ))
 
 	# Construct the output string
-	result="in about"
 
 	if [ $years -gt 0 ]; then
 		year_str="year"
@@ -121,7 +120,10 @@ function remaining_time {
 		result="$result $minutes $minute_str"
 	fi
 
-	echo "$result"
+	if [[ ! -z $result ]]; then
+		result="in about $result"
+		echo "$result"
+	fi
 }
 
 

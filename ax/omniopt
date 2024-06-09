@@ -748,6 +748,7 @@ else
 				estimated_start_time_original=""
 				in_about_time=""
 				_remaining_time=""
+				last_print_line_length=0
 
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)
@@ -777,17 +778,25 @@ else
 						print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
 						print_line_length=$(echo "$print_line" | wc -c)
 
-						backspaces=""
+						#backspaces=""
 
-						for k in $(seq 0 $(($print_line_length + 1000))); do
-							backspaces="$backspaces\r"
-						done
+						#for k in $(seq 0 $(($print_line_length + 1000))); do
+						#	backspaces="$backspaces\r"
+						#done
 
 						print_line="$print_line$i"
 
-						echo -ne "$backspaces"
+						tput cr
+						for k in $(seq 0 $(($print_line_length + 1000))); do
+							echo -ne " "
+						done
+						tput cr
+
+						#echo -ne "$backspaces"
 						echo -ne "$print_line"
 						sleep 0.1
+
+						last_print_line_length=$print_line_length
 					done
 				done
 

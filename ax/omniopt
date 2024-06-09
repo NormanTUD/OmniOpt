@@ -673,7 +673,7 @@ else
 						estimated_start_time_original=$(whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
 
 						last_why_pending_time=$current_time
-						if [[ ! -z $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != "Unknown" ]]; then
+						if [[ ! -z $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
 							estimated_start_time=". Estimated start time: $estimated_start_time_original"
 						fi
 					fi
@@ -681,6 +681,7 @@ else
 					for i in "${spin[@]}"; do
 						print_line="Waiting until the path $LOG_PATH exists$estimated_start_time... "
 						print_line_length=$(echo "$print_line" | wc -c)
+						echo "print_line_length: $print_line_length"
 
 						backspaces=""
 

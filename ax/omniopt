@@ -685,7 +685,7 @@ else
 						backspaces=""
 
 						for k in $(seq 0 $(($print_line_length + 10))); do
-							backspaces="$backspaces\b"
+							backspaces="$backspaces\r"
 						done
 
 						print_line="$print_line$i"

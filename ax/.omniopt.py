@@ -1592,11 +1592,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     show_progress_plot()
 
-    #print("Printing stats")
-    #if args.experimental:
-    #    os.system(f'bash {script_dir}/omniopt_plot --run_dir {current_run_folder} --save_to_file "x.jpg" --print_to_command_line --bubblesize 5000 && rm x.jpg')
-    #print("Done printing stats")
-
     return _exit
 
 def write_worker_usage():

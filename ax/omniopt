@@ -660,21 +660,36 @@ else
 
 				set +x
 
-				estimated_start_time=""
-
-				if command -v whypending 2>/dev/null /dev/null; then
-					estimated_start_time=$(whypending $started_job_nr 2>&1  | grep "Estimated" | sed -e 's#.*time:\s*###')
-
-					if [[ ! -z $estimated_start_time ]] && [[ "$estimated_start_time" != "Unknown" ]]; then
-						estimated_start_time=". Estimated start time: $estimated_start_time"
-					fi
-				fi
-
-				echo -n "Waiting until the path $LOG_PATH exists$estimated_start_time... "
+				last_why_pending_time=$(date +%s)
 
 				while ! [[ -e $LOG_PATH ]]; do
+					estimated_start_time=""
+					current_time=$(date +%s)
+
+					time_diff=$(($current_time - $last_why_pending_time))
+
+					if command -v whypending 2>/dev/null /dev/null && [[ $time_diff -gt 10 ]]; then
+						estimated_start_time=$(whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
+
+						last_why_pending_time=$current_time
+						if [[ ! -z $estimated_start_time ]] && [[ "$estimated_start_time" != "Unknown" ]]; then
+							estimated_start_time=". Estimated start time: $estimated_start_time"
+						fi
+					fi
+
 					for i in "${spin[@]}"; do
-						echo -ne "\b$i"
+						print_line="Waiting until the path $LOG_PATH exists$estimated_start_time... "
+						print_line_length=$(echo "$print_line" | wc -c)
+
+						backspaces=""
+
+						for k in $(seq 0 $print_line_length); do
+							backspaces="$backspaces\b"
+						done
+
+						print_line="$backspaces$print_line"
+
+						echo -ne "$i"
 						sleep 0.1
 					done
 				done

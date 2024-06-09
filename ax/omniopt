@@ -749,6 +749,7 @@ else
 
 					time_diff=$(($current_time - $last_why_pending_time))
 
+					set +e
 					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff -gt 10 ]]; then
 						estimated_start_time_original=$(timeout 5 whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
 
@@ -765,6 +766,7 @@ else
 							fi
 						fi
 					fi
+					set -e
 
 					for i in "${spin[@]}"; do
 						print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "

@@ -1508,7 +1508,10 @@ def print_best_result(csv_file_path, result_column):
             _pd_csv = f"{current_run_folder}/pd.csv"
 
             if os.path.exists(_pd_csv):
-                plot_types = ["scatter", "general"]
+                plot_types = [
+                    #"scatter",
+                    "general"
+                ]
                 for plot_type in plot_types:
                     _tmp = ".tmp/"
                     _width = 1200

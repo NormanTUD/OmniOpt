@@ -56,6 +56,7 @@ max_eval=30
 num_parallel_jobs=20
 allow_failure=0
 num_random_steps=$num_parallel_jobs
+time=20
 model=BOTORCH_MODULAR
 
 args=("$@")
@@ -67,6 +68,31 @@ while [ $k -lt ${#args[@]} ]; do
 		--allow_failure)
 			allow_failure=1
 			;;
+                --gridsearch)
+                        gridsearch=1
+                        shift
+                        ;;
+
+		--time=*)
+			old_time=$time
+			time="${i#*=}"
+			if ! [[ $time =~ $int_re ]] ; then
+				red_text "error: --time not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+		--time)
+			old_time=$time
+
+			shift
+			k=$((k+1))
+
+			time="${args[k]}"
+			if ! [[ $time =~ $int_re ]] ; then
+				red_text "error: --time not a INT: $i" >&2
+				exit 100
+			fi
+			;;
 		--max_eval=*)
 			old_max_eval=$max_eval
 			max_eval="${i#*=}"
@@ -74,12 +100,7 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --max_eval not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
-                --gridsearch)
-                        gridsearch=1
-                        shift
-                        ;;
 		--max_eval)
 			old_max_eval=$max_eval
 
@@ -187,7 +208,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
-			--time=60 \
+			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
@@ -207,7 +228,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
-			--time=60 \
+			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
@@ -230,7 +251,7 @@ else
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
-			--time=60 \
+			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
@@ -249,7 +270,7 @@ else
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
-			--time=60 \
+			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \

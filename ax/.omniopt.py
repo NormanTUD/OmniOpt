@@ -1511,7 +1511,7 @@ def print_best_result(csv_file_path, result_column):
                 plot_types = ["scatter", "general"]
                 for plot_type in plot_types:
                     _tmp = ".tmp/"
-                    _width = 1400
+                    _width = 1200
 
                     if not os.path.exists(_tmp):
                         os.makedirs(_tmp)

@@ -52,6 +52,7 @@ function displaytime {
 
 function remaining_time {
 	target_date="$1"
+	target_date=$(echo "$target_date" | sed -E 's/\x1b\[[0-9;]*m//g')
 
 	# Convert target date to seconds since the epoch
 	target_epoch=$(date -d "$target_date" +%s)

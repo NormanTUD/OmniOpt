@@ -153,7 +153,7 @@ def print_image_to_cli(image_path, width):
         # Schreiben der Ausgabe in sys.stdout
         sixel_converter.write(sys.stdout)
     except Exception as e:
-        print_debug(f"Error converting and resizing image: {str(e)}")
+        print_debug(f"Error converting and resizing image: {str(e)}, width: {width}, image_path: {image_path}")
 
 def datetime_from_string(input_string):
     return datetime.datetime.fromtimestamp(input_string)

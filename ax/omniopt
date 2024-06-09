@@ -754,6 +754,7 @@ else
 						if [[ ! -z $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
 							estimated_start_time=". Estimated start:$estimated_start_time_original"
 							if [[ ! -z $estimated_start_time_original ]]; then
+								_remaining_time=""
 								_remaining_time=$(remaining_time "$estimated_start_time_original")
 
 								if [[ ! -z $_remaining_time ]]; then

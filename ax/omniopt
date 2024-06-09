@@ -662,8 +662,9 @@ else
 
 				last_why_pending_time=$(date +%s)
 
+				estimated_start_time=""
+
 				while ! [[ -e $LOG_PATH ]]; do
-					estimated_start_time=""
 					current_time=$(date +%s)
 
 					time_diff=$(($current_time - $last_why_pending_time))

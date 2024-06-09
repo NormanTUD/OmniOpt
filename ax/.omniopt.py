@@ -1508,31 +1508,33 @@ def print_best_result(csv_file_path, result_column):
             _pd_csv = f"{current_run_folder}/pd.csv"
 
             if os.path.exists(_pd_csv):
-                _tmp = ".tmp/"
-                _width = 1400
+                plot_types = ["scatter", "general"]
+                for plot_type in plot_types:
+                    _tmp = ".tmp/"
+                    _width = 1400
 
-                if not os.path.exists(_tmp):
-                    os.makedirs(_tmp)
+                    if not os.path.exists(_tmp):
+                        os.makedirs(_tmp)
 
-                j = 0
-                tmp_file = f"{_tmp}/{j}.png"
-
-                while os.path.exists(tmp_file):
-                    j += 1
+                    j = 0
                     tmp_file = f"{_tmp}/{j}.png"
 
-                _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type=scatter --width={_width}"
-                print_debug(f"command: {_command}")
+                    while os.path.exists(tmp_file):
+                        j += 1
+                        tmp_file = f"{_tmp}/{j}.png"
 
-                process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
-                output, error = process.communicate()
+                    _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type={plot_type}"
+                    print_debug(f"command: {_command}")
 
-                if os.path.exists(tmp_file):
-                    print_image_to_cli(tmp_file, _width)
+                    process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
+                    output, error = process.communicate()
 
-                    os.unlink(tmp_file)
-                else:
-                    print_debug(f"{tmp_file} not found")
+                    if os.path.exists(tmp_file):
+                        print_image_to_cli(tmp_file, _width)
+
+                        os.unlink(tmp_file)
+                    else:
+                        print_debug(f"{tmp_file} not found")
             else:
                 print_debug(f"{_pd_csv} not found")
 

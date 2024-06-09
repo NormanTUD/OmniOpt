@@ -1507,7 +1507,7 @@ def print_best_result(csv_file_path, result_column):
 
             _pd_csv = f"{current_run_folder}/pd.csv"
 
-            if os.path.exists(_pd_csv):
+            if os.path.exists(_pd_csv) and done_jobs() > 0:
                 plot_types = [
                     #"scatter",
                     #"scatter_hex",

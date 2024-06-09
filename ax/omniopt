@@ -779,7 +779,7 @@ else
 
 						backspaces=""
 
-						for k in $(seq 0 $(($print_line_length + 100))); do
+						for k in $(seq 0 $(($print_line_length + 1000))); do
 							backspaces="$backspaces\r"
 						done
 

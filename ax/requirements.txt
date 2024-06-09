@@ -16,3 +16,4 @@ seaborn
 art
 pyvista
 catsay
+sixel

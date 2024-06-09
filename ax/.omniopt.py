@@ -1510,7 +1510,7 @@ def print_best_result(csv_file_path, result_column):
             if os.path.exists(_pd_csv):
                 plot_types = [
                     #"scatter",
-                    "scatter_hex",
+                    #"scatter_hex",
                     "general"
                 ]
                 for plot_type in plot_types:

@@ -3660,6 +3660,8 @@ def test_find_paths(program_code):
     return nr_errors
 
 def run_tests():
+    print_image_to_cli(".tools/slimer.png", 300)
+
     nr_errors = 0
 
     nr_errors += is_not_equal("nr equal string", 1, "1")

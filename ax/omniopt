@@ -679,7 +679,7 @@ else
 					fi
 
 					for i in "${spin[@]}"; do
-						print_line="Waiting until the path $LOG_PATH exists$estimated_start_time... "
+						print_line="Waiting for file $LOG_PATH to exist$estimated_start_time... "
 						print_line_length=$(echo "$print_line" | wc -c)
 
 						backspaces=""

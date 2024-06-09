@@ -1509,6 +1509,7 @@ def print_best_result(csv_file_path, result_column):
 
             if os.path.exists(_pd_csv):
                 _tmp = ".tmp/"
+                _width = 1300
 
                 if not os.path.exists(_tmp):
                     os.makedirs(_tmp)
@@ -1520,14 +1521,14 @@ def print_best_result(csv_file_path, result_column):
                     j += 1
                     tmp_file = f"{_tmp}/{j}.png"
 
-                _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type=scatter"
+                _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type=scatter --width={_width}"
                 print_debug(f"command: {_command}")
 
                 process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
                 output, error = process.communicate()
 
                 if os.path.exists(tmp_file):
-                    print_image_to_cli(tmp_file, 1300)
+                    print_image_to_cli(tmp_file, _width)
 
                     os.unlink(tmp_file)
                 else:

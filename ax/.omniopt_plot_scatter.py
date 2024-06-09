@@ -570,6 +570,7 @@ def main():
     num_rows = math.ceil(num_subplots / num_cols)
 
     global fig
+
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
     plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)

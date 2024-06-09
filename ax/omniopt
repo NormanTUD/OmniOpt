@@ -668,7 +668,7 @@ else
 
 					time_diff=$(($current_time - $last_why_pending_time))
 
-					if command -v whypending 2>/dev/null /dev/null && [[ $time_diff -gt 10 ]]; then
+					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff -gt 10 ]]; then
 						estimated_start_time=$(whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
 
 						last_why_pending_time=$current_time

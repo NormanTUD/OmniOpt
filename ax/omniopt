@@ -665,7 +665,7 @@ else
 				if command -v whypending 2>/dev/null /dev/null; then
 					estimated_start_time=$(whypending $started_job_nr 2>&1  | grep "Estimated" | sed -e 's#.*time:\s*###')
 
-					if [[ ! -z $estimated_start_time ]]; then
+					if [[ ! -z $estimated_start_time ]] && [[ "$estimated_start_time" != "Unknown" ]]; then
 						estimated_start_time=". Estimated start time: $estimated_start_time"
 					fi
 				fi

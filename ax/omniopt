@@ -689,7 +689,7 @@ else
 
 						print_line="$backspaces$print_line$i"
 
-						echo -ne "$print_line"
+						echo -e "$print_line"
 						sleep 0.1
 					done
 				done

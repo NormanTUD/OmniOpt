@@ -50,6 +50,80 @@ function displaytime {
 		printf '%d seconds\n' $S
 }
 
+function remaining_time {
+	target_date="$1"
+
+	# Convert target date to seconds since the epoch
+	target_epoch=$(date -d "$target_date" +%s)
+
+	# Get the current time in seconds since the epoch
+	current_epoch=$(date +%s)
+
+	# Calculate the difference in seconds
+	difference=$(( target_epoch - current_epoch ))
+
+	# If the difference is negative, the target date is in the past
+	if [ $difference -lt 0 ]; then
+		return
+	fi
+
+	# Calculate the difference in minutes, rounded up to the next 5 minutes
+	difference_minutes=$(( (difference + 299) / 300 * 5 ))
+
+	# Calculate years, days, hours, and minutes
+	minutes=$(( difference_minutes % 60 ))
+	hours=$(( (difference_minutes / 60) % 24 ))
+	days=$(( (difference_minutes / 1440) % 365 ))
+	years=$(( difference_minutes / 525600 ))
+
+	# Construct the output string
+	result="in about"
+
+	if [ $years -gt 0 ]; then
+		year_str="year"
+		if [ $years -gt 1 ]; then
+			year_str="years"
+		fi
+		result="$result $years $year_str"
+	fi
+
+	if [ $days -gt 0 ]; then
+		day_str="day"
+		if [ $days -gt 1 ]; then
+			day_str="days"
+		fi
+		if [ $years -gt 0 ]; then
+			result="$result and"
+		fi
+		result="$result $days $day_str"
+	fi
+
+	if [ $hours -gt 0 ]; then
+		hour_str="hour"
+		if [ $hours -gt 1 ]; then
+			hour_str="hours"
+		fi
+		if [ $days -gt 0 ] || [ $years -gt 0 ]; then
+			result="$result and"
+		fi
+		result="$result $hours $hour_str"
+	fi
+
+	if [ $minutes -gt 0 ]; then
+		minute_str="minute"
+		if [ $minutes -gt 1 ]; then
+			minute_str="minutes"
+		fi
+		if [ $hours -gt 0 ] || [ $days -gt 0 ] || [ $years -gt 0 ]; then
+			result="$result and"
+		fi
+		result="$result $minutes $minute_str"
+	fi
+
+	echo "$result"
+}
+
+
 #SBATCH --signal=B:USR1@200
 
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
@@ -663,6 +737,9 @@ else
 				last_why_pending_time=$(date +%s)
 
 				estimated_start_time=""
+				estimated_start_time_original=""
+				in_about_time=""
+				_remaining_time=""
 
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)
@@ -675,6 +752,14 @@ else
 						last_why_pending_time=$current_time
 						if [[ ! -z $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
 							estimated_start_time=". Estimated start:$estimated_start_time_original"
+						fi
+					fi
+
+					if [[ ! -z $estimated_start_time_original ]]; then
+						_remaining_time=$(remaining_time "$estimated_start_time_original")
+
+						if [[ ! -z $_remaining_time ]]; then
+							estimated_start_time="$estimated_start_time ($_remaining_time)"
 						fi
 					fi
 

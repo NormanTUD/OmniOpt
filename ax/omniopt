@@ -784,7 +784,7 @@ else
 						#	backspaces="$backspaces\r"
 						#done
 
-						print_line="$print_line$i             "
+						print_line="$print_line$i     "
 
 						tput cr
 						for k in $(seq 0 $(($print_line_length + 10))); do

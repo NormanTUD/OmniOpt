@@ -139,6 +139,7 @@ from sixel import converter
 from PIL import Image
 
 def print_image_to_cli(image_path, width):
+    print("")
     try:
         # Einlesen des Bildes um die Dimensionen zu erhalten
         image = Image.open(image_path)

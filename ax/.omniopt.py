@@ -127,12 +127,33 @@ try:
     import time
     from pprint import pformat
     import plotext
+    import sixel
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
     my_exit(31)
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     my_exit(32)
+
+from sixel import converter
+from PIL import Image
+
+def print_image_to_cli(image_path, width):
+    try:
+        # Einlesen des Bildes um die Dimensionen zu erhalten
+        image = Image.open(image_path)
+        original_width, original_height = image.size
+
+        # Berechnen der proportionalen Höhe
+        height = int((original_height / original_width) * width)
+
+        # Erstellen des SixelConverters mit den neuen Dimensionen
+        sixel_converter = converter.SixelConverter(image_path, w=width, h=height)
+
+        # Schreiben der Ausgabe in sys.stdout
+        sixel_converter.write(sys.stdout)
+    except Exception as e:
+        print_debug(f"Error converting and resizing image: {str(e)}")
 
 def datetime_from_string(input_string):
     return datetime.datetime.fromtimestamp(input_string)
@@ -1483,6 +1504,36 @@ def print_best_result(csv_file_path, result_column):
 
             with open(f'{current_run_folder}/best_result.txt', "w") as text_file:
                 text_file.write(table_str)
+
+            _pd_csv = f"{current_run_folder}/pd.csv"
+
+            if os.path.exists(_pd_csv):
+                _tmp = ".tmp/"
+
+                if not os.path.exists(_tmp):
+                    os.makedirs(_tmp)
+
+                j = 0
+                tmp_file = f"{_tmp}/{j}.png"
+
+                while os.path.exists(tmp_file):
+                    j += 1
+                    tmp_file = f"{_tmp}/{j}.png"
+
+                _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type=scatter"
+                print_debug(f"command: {_command}")
+
+                process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
+                output, error = process.communicate()
+
+                if os.path.exists(tmp_file):
+                    print_image_to_cli(tmp_file, 1300)
+
+                    os.unlink(tmp_file)
+                else:
+                    print_debug(f"{tmp_file} not found")
+            else:
+                print_debug(f"{_pd_csv} not found")
 
         shown_end_table = True
     except Exception as e:

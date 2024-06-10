@@ -570,8 +570,8 @@ if [[ "$continue_previous_job" != "" ]]; then
 	fi
 
 	if [[ -z "$mem_gb" ]]; then
-		if [[ -e "$continue_previous_job/mem_gb" ]]; then
-			mem_gb=$(cat "$continue_previous_job/mem_gb")
+		if [[ -e "$continue_previous_job/state_files/mem_gb" ]]; then
+			mem_gb=$(cat "$continue_previous_job/state_files/mem_gb")
 		else
 			echo "mem_gb could not be determined from previous run or --mem_gb"
 			exit 105
@@ -579,8 +579,8 @@ if [[ "$continue_previous_job" != "" ]]; then
 	fi
 
 	if [[ -z "$gpus" ]]; then
-		if [[ -e "$continue_previous_job/gpus" ]]; then
-			gpus=$(cat "$continue_previous_job/gpus")
+		if [[ -e "$continue_previous_job/state_files/gpus" ]]; then
+			gpus=$(cat "$continue_previous_job/state_files/gpus")
 		else
 			echo "gpus could not be determined from previous run or --gpus"
 			exit 105
@@ -588,8 +588,8 @@ if [[ "$continue_previous_job" != "" ]]; then
 	fi
 
 	if [[ -z "$time" ]]; then
-		if [[ -e "$continue_previous_job/time" ]]; then
-			time=$(cat "$continue_previous_job/time")
+		if [[ -e "$continue_previous_job/state_files/time" ]]; then
+			time=$(cat "$continue_previous_job/state_files/time")
 		else
 			echo "Time could not be determined from previous run or --time"
 			exit 105

@@ -2721,30 +2721,37 @@ def _sleep(args, t):
         time.sleep(t)
 
 def save_state_files(args, _time):
-    with open(f'{current_run_folder}/joined_run_program', 'w') as f:
+    global current_run_folder
+
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    with open(f'{state_files_folder}/joined_run_program', 'w') as f:
         print(global_vars["joined_run_program"], file=f)
 
-    with open(f'{current_run_folder}/experiment_name', 'w') as f:
+    with open(f'{state_files_folder}/experiment_name', 'w') as f:
         print(global_vars["experiment_name"], file=f)
 
-    with open(f'{current_run_folder}/mem_gb', 'w') as f:
+    with open(f'{state_files_folder}/mem_gb', 'w') as f:
         print(global_vars["mem_gb"], file=f)
 
-    with open(f'{current_run_folder}/max_eval', 'w') as f:
+    with open(f'{state_files_folder}/max_eval', 'w') as f:
         print(max_eval, file=f)
 
-    with open(f'{current_run_folder}/gpus', 'w') as f:
+    with open(f'{state_files_folder}/gpus', 'w') as f:
         print(args.gpus, file=f)
 
-    with open(f'{current_run_folder}/time', 'w') as f:
+    with open(f'{state_files_folder}/time', 'w') as f:
         print(_time, file=f)
 
-    with open(f'{current_run_folder}/env', 'a') as f:
+    with open(f'{state_files_folder}/env', 'a') as f:
         env = dict(os.environ)
         for key in env:
             print(str(key) + " = " + str(env[key]), file=f)
 
-    with open(f'{current_run_folder}/run.sh', 'w') as f:
+    with open(f'{state_files_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
 def check_python_version():

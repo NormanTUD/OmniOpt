@@ -618,6 +618,10 @@ def print_color(color, text):
 def print_red(text):
     print_color("red", text)
 
+    if current_run_folder:
+        with open(f"{current_run_folder}/oo_errors.txt", "a") as myfile:
+            myfile.write(text)
+
 def print_green(text):
     print_color("green", text)
 
@@ -2524,10 +2528,10 @@ def print_outfile_analyzed(job):
 
     if len(_strs):
         try:
-            with open(f'{current_run_folder}/errors.log', "a+") as error_file:
+            with open(f'{current_run_folder}/evaluation_errors.log', "a+") as error_file:
                 error_file.write(out_files_string)
         except Exception as e:
-            print_debug(f"Error occurred while writing to errors.log: {e}")
+            print_debug(f"Error occurred while writing to evaluation_errors.log: {e}")
 
         print_red(out_files_string)
 

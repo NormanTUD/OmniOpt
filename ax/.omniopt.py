@@ -1528,9 +1528,9 @@ def print_best_result(csv_file_path, result_column):
                 plot_types = [
                     #"scatter",
                     #"scatter_hex",
-                    "trial_index_result",
-                    "scatter_hex",
-                    "general"
+                    #"trial_index_result",
+                    "scatter",
+                    #"general"
                 ]
                 for plot_type in plot_types:
                     try:
@@ -1558,7 +1558,7 @@ def print_best_result(csv_file_path, result_column):
 
                             os.unlink(tmp_file)
                         else:
-                            print_debug(f"{tmp_file} not found")
+                            print_debug(f"{tmp_file} not found, error: {error}")
                     except Exception as e:
                         print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
             else:

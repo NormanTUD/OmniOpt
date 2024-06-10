@@ -785,12 +785,8 @@ else
 						#done
 
 						print_line="$print_line$i"
-
-						tput cr
-						for k in $(seq 0 $(($last_print_line_length + 10))); do
-							echo -ne " "
-						done
-						tput cr
+						tput cr   # Move cursor to beginning of line
+						tput el   # Delete line from start to finish
 
 						#echo -ne "$backspaces"
 						echo -ne "$print_line"

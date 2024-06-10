@@ -83,6 +83,7 @@ fi
 debug=0
 max_eval=30
 num_parallel_jobs=20
+num_random_steps=$num_parallel_jobs
 quick=0
 
 args=("$@")
@@ -187,8 +188,6 @@ fi
 if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
-
-num_random_steps=$num_parallel_jobs
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"
 function _test {

@@ -1488,8 +1488,7 @@ def print_best_result(csv_file_path, result_column):
             best_result = NO_RESULT
 
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
-            table_str = "Best result could not be determined"
-            print_red(table_str)
+            print_red("Best result could not be determined")
             return 87
         else:
             table = Table(show_header=True, header_style="bold", title="Best parameter:")
@@ -1515,7 +1514,7 @@ def print_best_result(csv_file_path, result_column):
 
             _pd_csv = f"{current_run_folder}/{pd_csv_filename}"
 
-            if os.path.exists(_pd_csv) and done_jobs() > 1:
+            if os.path.exists(_pd_csv) and done_jobs() >= 1:
                 plot_types = [
                     #"scatter",
                     #"scatter_hex",

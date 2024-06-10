@@ -353,12 +353,12 @@
 							}
 
 							if(value < _min) {
-								$(input).parent().find("[id$='_error']").html(`Value is smaller than the minimal value ${_min}`);
+								$(input).val(_min);
 							}
 						} else if (_max !== null && value > _max) {
 							//$(input).css("background-color", red)
 
-							$(input).parent().find("[id$='_error']").html(`Value is larger than the maximal value ${_max}`);
+							$(input).val(_max);
 						} else {
 							//$(input).css("background-color", "rgb(255, 255, 255)")
 

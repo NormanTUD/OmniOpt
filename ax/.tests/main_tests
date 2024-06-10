@@ -63,6 +63,7 @@ trap 'calltracer' ERR
 function help () {
         echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
+	echo "  --num_random_steps=(INT)                           Number of random steps for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
         echo "  --help                                             This help"
         echo "  --quick                                            Only run quick tests"
@@ -90,6 +91,28 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--num_random_steps=*)
+			old_num_random_steps=$num_random_steps
+			num_random_steps="${i#*=}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_random_steps)
+			old_num_random_steps=$num_random_steps
+
+			shift
+			k=$((k+1))
+
+			num_random_steps="${args[k]}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
 		--max_eval=*)
 			old_max_eval=$max_eval
 			max_eval="${i#*=}"

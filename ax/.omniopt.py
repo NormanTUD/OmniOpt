@@ -1529,6 +1529,7 @@ def print_best_result(csv_file_path, result_column):
                     #"scatter",
                     #"scatter_hex",
                     "trial_index_result",
+                    "scatter_hex",
                     "general"
                 ]
                 for plot_type in plot_types:

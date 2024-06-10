@@ -1993,8 +1993,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_red(f"Cannot find {checkpoint_parameters_filepath}")
             my_exit(49)
 
-        done_jobs_file = f"{continue_previous_job}/submitted_jobs"
-        done_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
+        done_jobs_file = f"{continue_previous_job}/state_files/submitted_jobs"
+        done_jobs_file_dest = f'{current_run_folder}/state_files/submitted_jobs'
         if not os.path.exists(done_jobs_file):
             print_red(f"Cannot find {done_jobs_file}")
             my_exit(95)
@@ -2002,8 +2002,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         if not os.path.exists(done_jobs_file_dest):
             shutil.copy(done_jobs_file, done_jobs_file_dest)
 
-        submitted_jobs_file = f"{continue_previous_job}/submitted_jobs"
-        submitted_jobs_file_dest = f'{current_run_folder}/submitted_jobs'
+        submitted_jobs_file = f"{continue_previous_job}/state_files/submitted_jobs"
+        submitted_jobs_file_dest = f'{current_run_folder}/state_files/submitted_jobs'
         if not os.path.exists(submitted_jobs_file):
             print_red(f"Cannot find {submitted_jobs_file}")
             my_exit(96)

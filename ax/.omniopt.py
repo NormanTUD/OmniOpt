@@ -2658,20 +2658,21 @@ def get_desc_progress_text(new_msgs=[]):
 
     if done_jobs():
         best_params = get_best_params(result_csv_file, "result")
-        best_result = best_params["result"]
-        if type(best_result) == float or type(best_result) == int or looks_like_float(best_result):
-            best_result_int_if_possible = to_int_when_possible(float(best_result))
+        if best_params and "result" in best_params:
+            best_result = best_params["result"]
+            if type(best_result) == float or type(best_result) == int or looks_like_float(best_result):
+                best_result_int_if_possible = to_int_when_possible(float(best_result))
 
-            if str(best_result) != NO_RESULT and best_result is not None:
-                in_brackets.append(f"best result: {best_result_int_if_possible}")
+                if str(best_result) != NO_RESULT and best_result is not None:
+                    in_brackets.append(f"best result: {best_result_int_if_possible}")
 
-            this_progress_values = {
-                "best_result": str(best_result_int_if_possible),
-                "time": this_time
-            }
+                this_progress_values = {
+                    "best_result": str(best_result_int_if_possible),
+                    "time": this_time
+                }
 
-            if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_values["best_result"]:
-                progress_plot.append(this_progress_values)
+                if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_values["best_result"]:
+                    progress_plot.append(this_progress_values)
 
         nr_current_workers = len(global_vars["jobs"])
         percentage = round((nr_current_workers/num_parallel_jobs) * 100)

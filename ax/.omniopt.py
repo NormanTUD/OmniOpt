@@ -1890,8 +1890,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 
-        checkpoint_file = continue_previous_job + "/checkpoint.json"
-        checkpoint_parameters_filepath = continue_previous_job + "/checkpoint.json.parameters.json"
+        checkpoint_file = continue_previous_job + "/state_files/checkpoint.json"
+        checkpoint_parameters_filepath = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
 
         if not os.path.exists(checkpoint_file):
             print_red(f"{checkpoint_file} not found")
@@ -1974,6 +1974,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         os.unlink(tmp_file_path)
 
         state_files_folder = f"{current_run_folder}/state_files"
+
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         if not os.path.exists(state_files_folder):
             os.makedirs(state_files_folder)

@@ -1,5 +1,5 @@
 # DESCRIPTION: Plot general job info
-# EXPECTED FILES: pd.csv
+# EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: generation_method
 
 import os
@@ -66,7 +66,7 @@ def plot_graph(dataframe, save_to_file=None):
 
 def update_graph():
     try:
-        dataframe = pd.read_csv(args.run_dir + "/pd.csv")
+        dataframe = pd.read_csv(args.run_dir + "/results.csv")
 
         if args.min is not None or args.max is not None:
             dataframe = filter_data(dataframe, args.min, args.max)
@@ -79,7 +79,7 @@ def update_graph():
         plot_graph(dataframe, args.save_to_file)
 
     except FileNotFoundError:
-        logging.error("File not found: %s", args.run_dir + "/pd.csv")
+        logging.error("File not found: %s", args.run_dir + "/results.csv")
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 

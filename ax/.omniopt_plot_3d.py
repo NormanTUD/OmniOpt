@@ -1,5 +1,5 @@
 # DESCRIPTION: 3d plot
-# EXPECTED FILES: pd.csv
+# EXPECTED FILES: results.csv
 
 import sys
 from pprint import pprint
@@ -16,7 +16,7 @@ def main():
     parser.add_argument('--run_dir', type=str, required=True, help='Directory containing the CSV file')
     args = parser.parse_args()
 
-    csv_file_path = f"{args.run_dir}/pd.csv"
+    csv_file_path = f"{args.run_dir}/results.csv"
     try:
         dataframe = pd.read_csv(csv_file_path)
 
@@ -33,7 +33,7 @@ def main():
         try:
             plotter = pv.Plotter(shape=plotter_shape)
         except ValueError as e:
-            print(f"Error: {e} This may happen when your pd.csv has no result column or you don't have at least 3 numeric columns.")
+            print(f"Error: {e} This may happen when your results.csv has no result column or you don't have at least 3 numeric columns.")
             sys.exit(12)
 
         plotted = 0
@@ -67,7 +67,7 @@ def main():
             print(f"Did not plot anything")
             sys.exit(42)
     except FileNotFoundError:
-        print(f"pd.csv cannot be found under {args.run_dir}")
+        print(f"results.csv cannot be found under {args.run_dir}")
         sys.exit(45)
 
 if __name__ == "__main__":

@@ -95,7 +95,7 @@ def main():
     global args
     args = get_args()
 
-    csv_file_path = os.path.join(args.run_dir, "pd.csv")
+    csv_file_path = os.path.join(args.run_dir, "results.csv")
     df = get_data(csv_file_path, args.result_column, args.min, args.max)
     if df is None:
         sys.exit(1)

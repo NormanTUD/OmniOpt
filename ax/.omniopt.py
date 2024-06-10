@@ -53,7 +53,9 @@ global_vars["_time"] = None
 global_vars["mem_gb"] = None
 global_vars["num_parallel_jobs"] = None
 
-pd_csv_filename = "pd.csv"
+# max_eval usw. in unterordner
+# grid ausblenden
+pd_csv_filename = "results.csv"
 worker_percentage_usage = []
 is_in_evaluate = False
 end_program_ran = False
@@ -1506,7 +1508,7 @@ def print_best_result(csv_file_path, result_column):
             with open(f'{current_run_folder}/best_result.txt', "w") as text_file:
                 text_file.write(table_str)
 
-            _pd_csv = f"{current_run_folder}/pd.csv"
+            _pd_csv = f"{current_run_folder}/{pd_csv_filename}"
 
             if os.path.exists(_pd_csv) and done_jobs() > 1:
                 plot_types = [

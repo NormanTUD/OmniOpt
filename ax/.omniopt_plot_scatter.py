@@ -1,5 +1,5 @@
 # DESCRIPTION: Scatter plot
-# EXPECTED FILES: pd.csv
+# EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Number of evaluations shown
 # TEST_OUTPUT_MUST_CONTAIN: mean result
 # TEST_OUTPUT_MUST_CONTAIN: result
@@ -418,7 +418,7 @@ def get_args ():
 def get_csv_file_path():
     global args
     print_debug("get_csv_file_path")
-    pd_csv = "pd.csv"
+    pd_csv = "results.csv"
     csv_file_path = os.path.join(args.run_dir, pd_csv)
     check_dir_and_csv(csv_file_path)
 
@@ -549,7 +549,7 @@ def main():
 
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
-            prev_run_csv_path = prev_run[0] + "/pd.csv"
+            prev_run_csv_path = prev_run[0] + "/results.csv"
             prev_run_df = get_data(prev_run_csv_path, result_column, args.min, args.max, old_headers_string)
             if prev_run_df is not None:
                 print(f"Loading {prev_run_csv_path} into the dataset")
@@ -671,7 +671,7 @@ def update_graph(event=None, _min=None, _max=None):
         # Redo previous run merges if needed
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
-                prev_run_csv_path = prev_run[0] + "/pd.csv"
+                prev_run_csv_path = prev_run[0] + "/results.csv"
                 prev_run_df = get_data(prev_run_csv_path, result_column, _min, _max, old_headers_string)
                 if prev_run_df:
                     df = df.merge(prev_run_df, how='outer')

@@ -221,7 +221,7 @@ def create_scatter_plots(df):
 
 
 def main(run_dir, _min, _max):
-    csv_file_path = f"{run_dir}/pd.csv"
+    csv_file_path = f"{run_dir}/results.csv"
 
     try:
         df = get_data(csv_file_path, _min, _max)

@@ -1,5 +1,5 @@
 # DESCRIPTION: Kernel-Density estimation plot
-# EXPECTED FILES: pd.csv
+# EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Histogram for
 # TEST_OUTPUT_MUST_CONTAIN: Count
 
@@ -124,7 +124,7 @@ def plot_histograms(dataframe, save_to_file=None):
         plt.show()
 
 def update_graph():
-    pd_csv = args.run_dir + "/pd.csv"
+    pd_csv = args.run_dir + "/results.csv"
     try:
         dataframe = pd.read_csv(pd_csv)
         plot_histograms(dataframe, args.save_to_file)

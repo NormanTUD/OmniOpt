@@ -174,7 +174,7 @@ function list_option_for_job {
 	eval `resize`
 
 	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
-	THISPDCSV="$THISPROJECTDIR/$NUMBER/pd.csv"
+	THISPDCSV="$THISPROJECTDIR/$NUMBER/results.csv"
 	THISMAINCSV="$THISPROJECTDIR/$NUMBER/0.csv"
 
 	args=()
@@ -307,19 +307,19 @@ close $fh;
 			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "plot)" ]]; then
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
 				bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
 			else
 				eval `resize`
-				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/pd.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
+				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/results.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 			list_option_for_job $PROJECT $NUMBER
 
 		elif [[ "$WHATTODO" =~ "P)" ]]; then
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/pd.csv" ]]; then
+			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
 				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
 				maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
 
@@ -658,7 +658,7 @@ function chose_project_number {
 }
 
 function list_projects {
-	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/pd.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/pd.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
+	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/results.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/results.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
 
 	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
 		echo_red "No projects found (list_projects)"

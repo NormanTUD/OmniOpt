@@ -1488,7 +1488,7 @@ def print_best_result(csv_file_path, result_column):
 
         best_result = None
 
-        if best_result and "result" in best_result:
+        if best_params and "result" in best_params:
             best_result = best_params["result"]
         else:
             best_result = NO_RESULT

@@ -1491,7 +1491,6 @@ def display_failed_jobs_table():
         print_red(f"Error: {str(e)}")
 
 def plot_command(_command, tmp_file, _width=1300):
-    original_print(_command)
     print_debug(f"command: {_command}")
 
     process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)

@@ -873,5 +873,5 @@ if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
 	exit $exit_code
 else
 	echo "Invalid exit-code $exit_code detected!"
-	exit 1
+	exit 0
 fi

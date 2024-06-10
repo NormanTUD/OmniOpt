@@ -31,6 +31,7 @@ import threading
 import shutil
 import math
 import json
+from itertools import combinations
 from inspect import currentframe, getframeinfo
 
 class NpEncoder(json.JSONEncoder):
@@ -52,6 +53,7 @@ global_vars["jobs"] = []
 global_vars["_time"] = None
 global_vars["mem_gb"] = None
 global_vars["num_parallel_jobs"] = None
+global_vars["parameter_names"] = []
 
 # max_eval usw. in unterordner
 # grid ausblenden
@@ -820,6 +822,7 @@ def get_bound_if_prev_data(_type, _column, _default):
     return round(ret_val, 4), found_in_file
 
 def parse_experiment_parameters(args):
+    global global_vars
     print_debug("parse_experiment_parameters")
 
     #if args.continue_previous_job and len(args.parameter):
@@ -966,6 +969,8 @@ def parse_experiment_parameters(args):
                         "value_type": value_type
                     }
 
+                global_vars["parameter_names"].append(name)
+
                 params.append(param)
 
                 j += skip
@@ -983,6 +988,8 @@ def parse_experiment_parameters(args):
                     "type": "fixed",
                     "value": value
                 }
+
+                global_vars["parameter_names"].append(name)
 
                 params.append(param)
 
@@ -1004,6 +1011,8 @@ def parse_experiment_parameters(args):
                     "is_ordered": True,
                     "values": values
                 }
+
+                global_vars["parameter_names"].append(name)
 
                 params.append(param)
 
@@ -1481,6 +1490,34 @@ def display_failed_jobs_table():
     except Exception as e:
         print_red(f"Error: {str(e)}")
 
+def plot_command(_command, tmp_file, _width=1300):
+    original_print(_command)
+    print_debug(f"command: {_command}")
+
+    process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate()
+
+    if os.path.exists(tmp_file):
+        print_image_to_cli(tmp_file, _width)
+
+        os.unlink(tmp_file)
+    else:
+        print_debug(f"{tmp_file} not found, error: {error}")
+
+def replace_string_with_params(input_string, params):
+    try:
+        assert isinstance(input_string, str), "Input string must be a string"
+        replaced_string = input_string
+        i = 0
+        for param in params:
+            replaced_string = replaced_string.replace(f"%{i}", param)
+            i += 1
+        return replaced_string
+    except AssertionError as e:
+        error_text = f"Error in replace_string_with_params: {e}"
+        print(error_text)
+        raise
+
 def print_best_result(csv_file_path, result_column):
     global current_run_folder
 
@@ -1524,18 +1561,27 @@ def print_best_result(csv_file_path, result_column):
 
             _pd_csv = f"{current_run_folder}/{pd_csv_filename}"
 
+            global global_vars
+
+            x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
+
             if os.path.exists(_pd_csv) and done_jobs() >= 1:
                 plot_types = [
-                    #"scatter",
-                    #"scatter_hex",
-                    #"trial_index_result",
-                    "scatter",
-                    #"general"
+                    {"type": "trial_index_result"},
+                    {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": x_y_combinations, "dpi": 72},
+                    {"type": "general"}
                 ]
-                for plot_type in plot_types:
+
+                for plot in plot_types:
+                    plot_type = plot["type"]
+                    print(f"Trying {plot_type}")
+
                     try:
                         _tmp = ".tmp/"
                         _width = 1200
+
+                        if "width" in plot:
+                            _width = plot["width"]
 
                         if not os.path.exists(_tmp):
                             os.makedirs(_tmp)
@@ -1548,18 +1594,20 @@ def print_best_result(csv_file_path, result_column):
                             tmp_file = f"{_tmp}/{j}.png"
 
                         _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type={plot_type}"
-                        print_debug(f"command: {_command}")
+                        if "dpi" in plot:
+                            _command += " --dpi=" + str(plot["dpi"])
 
-                        process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
-                        output, error = process.communicate()
-
-                        if os.path.exists(tmp_file):
-                            print_image_to_cli(tmp_file, _width)
-
-                            os.unlink(tmp_file)
+                        if "params" in plot.keys():
+                            if "iterate_through" in plot.keys():
+                                iterate_through = plot["iterate_through"]
+                                for j in range(0, len(plot.keys())):
+                                    this_iteration = iterate_through[j]
+                                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], this_iteration)
+                                    plot_command(_iterated_command, tmp_file, _width)
                         else:
-                            print_debug(f"{tmp_file} not found, error: {error}")
+                            plot_command(_command, tmp_file, _width)
                     except Exception as e:
+                        print_red(f"Error trying to print {plot_type} to to CLI: {e}")
                         print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
             else:
                 print_debug(f"{_pd_csv} not found")

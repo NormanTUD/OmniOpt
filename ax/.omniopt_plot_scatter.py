@@ -406,6 +406,7 @@ def get_args ():
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
+    parser.add_argument('--dpi', type=int, help='Set DPI', default=300)
 
     args = parser.parse_args()
 
@@ -533,20 +534,6 @@ def get_result_column_values(df):
 
     return result_column_values
 
-def plot_image_to_command_line(title, path):
-    print_debug("plot_image_to_command_line")
-    path = os.path.abspath(path)
-    if not os.path.exists(path):
-        dier(f"Cannot continue: {path} does not exist")
-    try:
-        import plotext as plt
-
-        plt.image_plot(path)
-        plt.title(title)
-        plt.show()
-    except ModuleNotFoundError:
-        dier("Cannot plot without plotext being installed")
-
 def create_new_figure_from_axes(ax):
     # Extrahiere Daten aus dem vorhandenen Axes-Element
     lines = ax.get_lines()
@@ -573,7 +560,6 @@ def create_new_figure_from_axes(ax):
 
 def main():
     global args
-    #plot_image_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
     use_matplotlib()
 
     csv_file_path = get_csv_file_path()
@@ -620,7 +606,7 @@ def main():
     if args.save_to_file:
         fig.set_size_inches(15.5, 9.5)
 
-        plt.savefig(args.save_to_file)
+        plt.savefig(args.save_to_file, dpi=args.dpi)
     else:
         create_widgets()
 

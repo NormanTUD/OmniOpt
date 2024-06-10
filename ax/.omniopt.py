@@ -1795,7 +1795,12 @@ def save_pd_csv():
     global ax_client
 
     pd_csv = f'{current_run_folder}/{pd_csv_filename}'
-    pd_json = f'{current_run_folder}/pd.json'
+    pd_json = f'{current_run_folder}/state_files/pd.json'
+
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
 
     try:
         pd_frame = ax_client.get_trials_data_frame()

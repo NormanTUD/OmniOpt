@@ -1482,7 +1482,10 @@ def print_best_result(csv_file_path, result_column):
     try:
         best_params = get_best_params(csv_file_path, result_column)
 
-        best_result = best_params["result"]
+        if "result" in best_result:
+            best_result = best_params["result"]
+        else:
+            best_result = NO_RESULT
 
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             table_str = "Best result could not be determined"

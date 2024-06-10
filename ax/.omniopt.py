@@ -1571,7 +1571,6 @@ def print_best_result(csv_file_path, result_column):
 
                 for plot in plot_types:
                     plot_type = plot["type"]
-                    print(f"Trying {plot_type}")
 
                     try:
                         _tmp = f"{current_run_folder}/plots/"

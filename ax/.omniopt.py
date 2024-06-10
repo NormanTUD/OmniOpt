@@ -267,7 +267,7 @@ def add_to_phase_counter(phase, nr=0, run_folder=""):
 
     if run_folder == "":
         run_folder = current_run_folder
-    return append_and_read(f'{run_folder}/phase_{phase}_steps', nr)
+    return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
 
 class REMatcher(object):
@@ -440,7 +440,7 @@ if not args.tests:
         if not args.continue_previous_job:
             print(f"--time needs to be set")
         else:
-            time_file = args.continue_previous_job + "/time"
+            time_file = args.continue_previous_job + "/state_files/time"
             if os.path.exists(time_file):
                 time_file_contents = get_file_as_string(time_file).strip()
                 if time_file_contents.isdigit():
@@ -458,7 +458,7 @@ if not args.tests:
         if not args.continue_previous_job:
             print(f"--mem_gb needs to be set")
         else:
-            mem_gb_file = args.continue_previous_job + "/mem_gb"
+            mem_gb_file = args.continue_previous_job + "/state_files/mem_gb"
             if os.path.exists(mem_gb_file):
                 mem_gb_file_contents = get_file_as_string(mem_gb_file).strip()
                 if mem_gb_file_contents.isdigit():
@@ -473,7 +473,7 @@ if not args.tests:
         mem_gb = int(args.mem_gb)
 
     if args.continue_previous_job and not args.gpus:
-        gpus_file = args.continue_previous_job + "/gpus"
+        gpus_file = args.continue_previous_job + "/state_files/gpus"
         if os.path.exists(gpus_file):
             gpus_file_contents = get_file_as_string(gpus_file).strip()
             if gpus_file_contents.isdigit():
@@ -491,7 +491,7 @@ if not args.tests:
         if not args.continue_previous_job:
             print(f"--max_eval needs to be set")
         else:
-            max_eval_file = args.continue_previous_job + "/max_eval"
+            max_eval_file = args.continue_previous_job + "/state_files/max_eval"
             if os.path.exists(max_eval_file):
                 max_eval_file_contents = get_file_as_string(max_eval_file).strip()
                 if max_eval_file_contents.isdigit():
@@ -3121,7 +3121,7 @@ def get_random_steps_from_prev_job(args):
     if not args.continue_previous_job:
         return 0
 
-    prev_step_file = args.continue_previous_job + "/phase_random_steps"
+    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
 
     if not os.path.exists(prev_step_file):
         return 0

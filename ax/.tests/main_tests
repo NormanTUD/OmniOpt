@@ -294,7 +294,6 @@ else
 	red_text "=> ERRORS => ERRORS => ERRORS =>"
 	for i in "${errors[@]}"; do
 		red_text "$(echo $i | base64 --decode)"
-		red_text "=========================="
 	done
 
 	exit ${#errors[@]}

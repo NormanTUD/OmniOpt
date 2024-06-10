@@ -1759,7 +1759,12 @@ def save_checkpoint(trial_nr=0, ee=None):
         print_debug("save_checkpoint")
         global ax_client
 
-        checkpoint_filepath = f'{current_run_folder}/checkpoint.json'
+        state_files_folder = f"{current_run_folder}/state_files/"
+
+        if not os.path.exists(state_files_folder):
+            os.makedirs(state_files_folder)
+
+        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
 
         print_debug("Checkpoint saved")

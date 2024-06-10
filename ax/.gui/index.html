@@ -592,12 +592,12 @@
 							var is_ok = true;
 
 							if(isNaN(minValue)) {
-								warn_msg.push("minValue for parameter " + parameterName + " is not a number.");
+								warn_msg.push("<i>minValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
 								is_ok = false;
 							}
 
 							if(isNaN(maxValue)) {
-								warn_msg.push("maxValue for parameter " + parameterName + " is not a number.");
+								warn_msg.push("<i>maxValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
 								is_ok = false;
 							}
 
@@ -650,9 +650,9 @@
 							}
 
 							if(fixedValue === undefined) {
-								warn_msg.push("Value is missing.");
+								warn_msg.push("<i>Value</i> is missing.");
 							} else if(!fixedValue.match(/./)) {
-								warn_msg.push("Value is missing.");
+								warn_msg.push("<i>Value</i> is missing.");
 
 								$($(".parameterRow")[i]).css("background-color", "orange")
 							} else if(!fixedValue.match(/^[a-zA-Z0-9,_]+$/)) {
@@ -681,7 +681,7 @@
 
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					} else {
-						warn_msg.push("Name is missing.");
+						warn_msg.push("<i>Name</i> is missing.");
 
 						$($(".parameterRow")[i]).css("background-color", "orange")
 					}

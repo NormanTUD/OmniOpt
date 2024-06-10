@@ -3340,11 +3340,13 @@ def print_logo():
                   (|)""
 """)
 
+        """
         if random.uniform(0, 1) > 0.99:
             if random.uniform(0, 1) > 0.5:
                 print_image_to_cli(".tools/slimer2.png", 300)
             else:
                 print_image_to_cli(".tools/slimer.png", 300)
+        """
     except Exception as e:
         print_green("OmniOpt")
 

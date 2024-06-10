@@ -2076,7 +2076,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     if args.maximize:
         min_or_max = "maximize"
 
-    with open(f"{current_run_folder}/{min_or_max}", 'w') as f:
+    with open(f"{current_run_folder}/state_files/{min_or_max}", 'w') as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
     rows = []

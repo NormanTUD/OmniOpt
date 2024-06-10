@@ -133,15 +133,15 @@ def check_if_results_are_empty(result_column_values):
 def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
     _mean = result_column_values.mean()
     print_debug("set_title")
-    #extreme_index = result_column_values.idxmax() if args.run_dir + "/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
+    #extreme_index = result_column_values.idxmax() if args.run_dir + "/state_files/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
     extreme_index = result_column_values.idxmin()
-    if os.path.exists(args.run_dir + "/maximize"):
+    if os.path.exists(args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
 
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 
     title = "Minimum"
-    if os.path.exists(args.run_dir + "/maximize"):
+    if os.path.exists(args.run_dir + "/state_files/maximize"):
         title = "Maximum"
 
     extreme_values_items = extreme_values.items()
@@ -408,7 +408,7 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     print_debug("plot_graphs")
     colors = get_colors(df, result_column)
 
-    if os.path.exists(args.run_dir + "/maximize"):
+    if os.path.exists(args.run_dir + "/state_files/maximize"):
         colors = -colors  # Negate colors for maximum result
 
     norm = None

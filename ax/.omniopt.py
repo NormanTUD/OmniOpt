@@ -329,7 +329,7 @@ optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='st
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
-optional.add_argument('--show_parameter_suggestions', help='Show suggestions for possible parameter space changes.', action='store_true', default=False)
+optional.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)

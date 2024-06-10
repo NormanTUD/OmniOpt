@@ -399,6 +399,7 @@ def get_args ():
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 
+    parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
     parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
@@ -425,7 +426,13 @@ def get_csv_file_path():
 
     return csv_file_path
 
-def get_df_filtered(df):
+def flatten_extend(matrix):
+    flat_list = []
+    for row in matrix:
+        flat_list.extend(row)
+    return flat_list
+
+def get_df_filtered(args, df):
     print_debug("get_df_filtered")
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
@@ -434,6 +441,11 @@ def get_df_filtered(df):
     for col in existing_columns:
         if col in all_columns_to_remove:
             columns_to_remove.append(col)
+
+    if len(args.allow_axes):
+        for col in existing_columns:
+            if col != "result" and col not in flatten_extend(args.allow_axes):
+                columns_to_remove.append(col)
 
     df_filtered = df.drop(columns=columns_to_remove)
 
@@ -579,7 +591,7 @@ def main():
                 df = df.merge(prev_run_df, how='outer')
 
     nr_of_items_before_filtering = len(df)
-    df_filtered = get_df_filtered(df)
+    df_filtered = get_df_filtered(args, df)
 
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
@@ -692,7 +704,7 @@ def update_graph(event=None, _min=None, _max=None):
                     df = df.merge(prev_run_df, how='outer')
 
         nr_of_items_before_filtering = len(df)
-        df_filtered = get_df_filtered(df)
+        df_filtered = get_df_filtered(args, df)
 
         check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 

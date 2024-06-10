@@ -186,7 +186,7 @@
 					{ "text": "FACTORIAL", "value":  "FACTORIAL" },
 					{ "text": "SAASBO", "value":  "SAASBO" },
 					{ "text": "FULLYBAYESIAN", "value":  "FULLYBAYESIAN" },
-					{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
+					//{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
 					{ "text": "UNIFORM", "value":  "UNIFORM" },
 					{ "text": "BO_MIXED", "value":  "BO_MIXED" }
 				], "required": true, info: `
@@ -197,7 +197,7 @@
 						<li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
 						<li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
 						<li>FULLYBAYESIAN: ???</li>
-						<li>LEGACY_BOTORCH: ???</li>
+						<!--<li>LEGACY_BOTORCH: ???</li>-->
 						<li>UNIFORM: ???</li>
 						<li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
 					</ul>

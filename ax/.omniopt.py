@@ -1482,7 +1482,9 @@ def print_best_result(csv_file_path, result_column):
     try:
         best_params = get_best_params(csv_file_path, result_column)
 
-        if "result" in best_result:
+        best_result = None
+
+        if best_result and "result" in best_result:
             best_result = best_params["result"]
         else:
             best_result = NO_RESULT
@@ -1555,7 +1557,8 @@ def print_best_result(csv_file_path, result_column):
 
         shown_end_table = True
     except Exception as e:
-        print(f"[print_best_result] Error during print_best_result: {e}")
+        tb = traceback.format_exc()
+        print_red(f"[print_best_result] Error during print_best_result: {e}, tb: {tb}")
 
     return None
 
@@ -3951,7 +3954,7 @@ def get_best_params(csv_file_path, result_column):
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
         df.dropna(subset=[result_column], inplace=True)
-    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError):
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
         return results
 
     cols = df.columns.tolist()

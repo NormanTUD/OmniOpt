@@ -1808,7 +1808,7 @@ def save_pd_csv():
         with open(pd_json, 'w') as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
-        save_experiment(ax_client.experiment, f"{current_run_folder}/ax_client.experiment.json")
+        save_experiment(ax_client.experiment, f"{current_run_folder}/state_files/ax_client.experiment.json")
 
         print_debug("pd.{csv,json} saved")
     except signalUSR as e:
@@ -2382,7 +2382,7 @@ def parse_parameter_type_error(error_message):
 def load_data_from_existing_run_folders(args, _paths):
     #dier(help(ax_client.experiment.search_space))
     for this_path in _paths:
-        this_path_json = str(this_path) + "/ax_client.experiment.json"
+        this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
         if not os.path.exists(this_path_json):
             print_red(f"{this_path_json} does not exist, cannot load data from it")
@@ -3222,16 +3222,36 @@ def append_and_read(file, zahl=0):
     return 0
 
 def failed_jobs(nr=0):
-    return append_and_read(f'{current_run_folder}/failed_jobs', nr)
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f'{current_run_folder}/state_files/failed_jobs', nr)
 
 def get_steps_from_prev_job(prev_job, nr=0):
-    return append_and_read(f"{prev_job}/submitted_jobs", nr)
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
 
 def submitted_jobs(nr=0):
-    return append_and_read(f'{current_run_folder}/submitted_jobs', nr)
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f'{current_run_folder}/state_files/submitted_jobs', nr)
 
 def done_jobs(nr=0):
-    return append_and_read(f'{current_run_folder}/done_jobs', nr)
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f'{current_run_folder}/state_files/done_jobs', nr)
 
 def execute_nvidia_smi():
     if not is_executable_in_path("nvidia-smi"):

@@ -1500,13 +1500,16 @@ def print_best_result(csv_file_path, result_column):
         else:
             table = Table(show_header=True, header_style="bold", title="Best parameter:")
 
+            k = 0
             for key in best_params["parameters"].keys():
-                table.add_column(key)
+                if k > 2:
+                    table.add_column(key)
+                k += 1
 
             table.add_column("result")
 
             row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()];
-            row = [*row_without_result, str(best_result)]
+            row = [*row_without_result, str(best_result)][3:]
 
             table.add_row(*row)
 

@@ -405,7 +405,7 @@ def load_global_vars(_file):
 
 if not args.tests:
     if args.continue_previous_job:
-        load_global_vars(f"{args.continue_previous_job}/global_vars.json")
+        load_global_vars(f"{args.continue_previous_job}/state_files/global_vars.json")
 
     if args.parameter is None and args.continue_previous_job is None:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
@@ -638,7 +638,11 @@ if not system_has_sbatch:
     num_parallel_jobs = 1
 
 def save_global_vars():
-    with open(f'{current_run_folder}/global_vars.json', "w") as f:
+    state_files_folder = f"{current_run_folder}/state_files"
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+    
+    with open(f'{state_files_folder}/global_vars.json', "w") as f:
         json.dump(global_vars, f)
 
 def check_slurm_job_id():
@@ -1969,7 +1973,10 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         os.unlink(tmp_file_path)
 
-        checkpoint_filepath = f'{current_run_folder}/checkpoint.json'
+        state_files_folder = f"{current_run_folder}/state_files"
+        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
+        if not os.path.exists(state_files_folder):
+            os.makedirs(state_files_folder)
         with open(checkpoint_filepath, "w") as outfile:
             json.dump(experiment_parameters, outfile)
 
@@ -3418,7 +3425,7 @@ def main():
 
     experiment_parameters = None
     cli_params_experiment_parameters = None
-    checkpoint_parameters_filepath = f"{current_run_folder}/checkpoint.json.parameters.json"
+    checkpoint_parameters_filepath = f"{current_run_folder}/state_files/checkpoint.json.parameters.json"
 
     if args.parameter:
         experiment_parameters = parse_experiment_parameters(args)

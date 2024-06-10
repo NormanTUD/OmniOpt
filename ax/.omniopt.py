@@ -238,6 +238,7 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
 
     try:
         with open(logfile, 'a') as f:
+            #original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
     except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")

@@ -1565,7 +1565,7 @@ def print_best_result(csv_file_path, result_column):
             if os.path.exists(_pd_csv) and done_jobs() >= 1:
                 plot_types = [
                     {"type": "trial_index_result"},
-                    {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": x_y_combinations, "dpi": 72},
+                    {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": x_y_combinations, "dpi": 76},
                     {"type": "general"}
                 ]
 
@@ -4285,6 +4285,8 @@ if __name__ == "__main__":
             print_yellow("This should be yellow")
             print_green("This should be green")
 
+            #plot_command("bash omniopt_plot --run_dir runs/__main__tests__/0 --save_to_file=2.png --plot_type=scatter --dpi=76 --bubblesize=50 --allow_axes float_param --allow_axes int_param_two", "2.png", 1200)
+            #sys.exit(1)
             run_tests()
         else:
             try:

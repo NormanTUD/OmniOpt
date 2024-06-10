@@ -1216,7 +1216,7 @@ def write_data_and_headers(data_dict, error_description=""):
                     writer.writerow(headers)
                     print_debug(f"Header file created with headers: {headers}")
             except Exception as e:
-                print_debug(f"Failed to write header file: {e}")
+                print_red(f"Failed to write header file: {e}")
         else:
             print_debug("Header file already exists, skipping header writing.")
 
@@ -1230,7 +1230,7 @@ def write_data_and_headers(data_dict, error_description=""):
             print_red(f"Failed to append data to file: {e}")
 
     except Exception as e:
-        print_debug(f"Unexpected error: {e}")
+        print_red(f"Unexpected error: {e}")
 
 def evaluate(parameters):
     global global_vars

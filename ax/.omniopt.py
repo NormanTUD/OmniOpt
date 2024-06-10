@@ -80,6 +80,30 @@ import traceback
 
 run_uuid = uuid.uuid4()
 
+def _debug(msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        original_print(f"Cannot write _debug, error: {ee}")
+        return
+
+    try:
+        with open(logfile, 'a') as f:
+            original_print(msg, file=f)
+    except FileNotFoundError:
+        print_red(f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
+    except Exception as e:
+        original_print("_debug: Error trying to write log file: " + str(e))
+
+        _debug(msg, _lvl + 1, e)
+
+def print_debug(msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
+    if args.debug:
+        print(msg)
+
+    _debug(msg)
+
 def my_exit(_code=0):
     tb = traceback.format_exc()
     print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
@@ -245,21 +269,6 @@ def add_to_phase_counter(phase, nr=0, run_folder=""):
         run_folder = current_run_folder
     return append_and_read(f'{run_folder}/phase_{phase}_steps', nr)
 
-def _debug(msg, _lvl=0, ee=None):
-    if _lvl > 3:
-        original_print(f"Cannot write _debug, error: {ee}")
-        return
-
-    try:
-        with open(logfile, 'a') as f:
-            original_print(msg, file=f)
-    except FileNotFoundError:
-        print_red(f"It seems like the run's folder was deleted during the run. Cannot continue.")
-        sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
-        original_print("_debug: Error trying to write log file: " + str(e))
-
-        _debug(msg, _lvl + 1, e)
 
 class REMatcher(object):
     def __init__(self, matchstring):
@@ -373,7 +382,7 @@ if not args.continue_previous_job:
         global_vars["joined_run_program"] = decode_if_base64(global_vars["joined_run_program"])
 else:
     prev_job_folder = args.continue_previous_job
-    prev_job_file = prev_job_folder + "/joined_run_program"
+    prev_job_file = prev_job_folder + "/state_files/joined_run_program"
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
     else:
@@ -500,13 +509,6 @@ if not args.tests:
         print_red("--max_eval must be larger than 0")
         my_exit(39)
 
-def print_debug(msg):
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}: {msg}"
-    if args.debug:
-        print(msg)
-
-    _debug(msg)
 
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

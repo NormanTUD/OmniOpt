@@ -111,6 +111,8 @@ def to_int_when_possible(val):
 def set_margins (fig):
     print_debug("set_margins()")
     left  = 0.04
+    if args.save_to_file and len(args.allow_axes):
+        left  = 0.1
     right = 0.864
     bottom = 0.171
     top = 0.9

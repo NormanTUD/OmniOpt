@@ -3275,6 +3275,9 @@ def append_and_read(file, zahl=0):
         print(f"File not found: {e}")
     except (signalUSR, signalINT, signalCONT) as e:
         append_and_read(file, zahl)
+    except OSError as e:
+        print_red(f"OSError: {e}. This may happen on unstable file systems.")
+        sys.exit(59)
     except Exception as e:
         print(f"Error editing the file: {e}")
 

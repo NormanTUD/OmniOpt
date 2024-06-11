@@ -1,0 +1,283 @@
+#!/bin/bash
+
+int_re='^[+-]?[0-9]+$'
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+
+function calltracer () {
+	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
+		yellow_text "Git status hash:"
+		git rev-parse HEAD
+		red_text 'Error occured in file/line:'
+		caller
+	fi
+}
+
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+	echo "  --max_eval=(INT)                                   Number of max evals for this test"
+	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
+	echo "  --num_random_steps=(INT)                           Number of random steps"
+	echo "  --model=STR                                        Model name"
+	echo "  --gridsearch                                       Do gridsearch"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+
+NUM_GPUS=0
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
+fi
+
+if [[ "$NUM_GPUS" -ne "0" ]]; then
+	NUM_GPUS=1
+fi
+
+export gridsearch=0
+debug=0
+max_eval=30
+num_parallel_jobs=20
+allow_failure=0
+num_random_steps=$num_parallel_jobs
+time=20
+model=BOTORCH_MODULAR
+
+args=("$@")
+k=0
+while [ $k -lt ${#args[@]} ]; do
+	i="${args[k]}"
+
+	case $i in
+		--allow_failure)
+			allow_failure=1
+			;;
+                --gridsearch)
+                        gridsearch=1
+                        shift
+                        ;;
+
+		--time=*)
+			old_time=$time
+			time="${i#*=}"
+			if ! [[ $time =~ $int_re ]] ; then
+				red_text "error: --time not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+		--time)
+			old_time=$time
+
+			shift
+			k=$((k+1))
+
+			time="${args[k]}"
+			if ! [[ $time =~ $int_re ]] ; then
+				red_text "error: --time not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+		--max_eval=*)
+			old_max_eval=$max_eval
+			max_eval="${i#*=}"
+			if ! [[ $max_eval =~ $int_re ]] ; then
+				red_text "error: --max_eval not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+		--max_eval)
+			old_max_eval=$max_eval
+
+			shift
+			k=$((k+1))
+
+			max_eval="${args[k]}"
+			if ! [[ $max_eval =~ $int_re ]] ; then
+				red_text "error: --max_eval not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+
+		--model=*)
+			model="${i#*=}"
+			;;
+		--model)
+			shift
+			k=$((k+1))
+
+			model="${args[k]}"
+			;;
+
+		--num_random_steps=*)
+			num_random_steps="${i#*=}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_random_steps)
+			shift
+			k=$((k+1))
+
+			num_random_steps="${args[k]}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_parallel_jobs=*)
+			num_parallel_jobs="${i#*=}"
+			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
+				red_text "error: --num_parallel_jobs not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_parallel_jobs)
+			shift
+			k=$((k+1))
+
+			num_parallel_jobs="${args[k]}"
+			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
+				red_text "error: --num_parallel_jobs not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--help*)
+			help 1
+			;;
+		--debug)
+			debug=1
+			;;
+
+		*)
+			red_text "Unknown parameter $i"
+			exit 2
+			;;
+	esac
+	k=$((k+1))
+done
+
+if [[ "$num_parallel_jobs" -lt "1" ]]; then
+	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs"
+	exit 1
+fi
+
+if [[ "$max_eval" -lt "1" ]]; then
+	red_text "Max_eval must be 1 or more, is $max_eval"
+	exit 1
+fi
+
+if [[ "$debug" -eq "1" ]]; then
+	set -x
+fi
+
+
+PARTITION="alpha"
+GPUS=0
+TESTNAME=__main__tests__one_param
+
+if [[ "$PARTITION" == "alpha" ]]; then
+	GPUS=1
+fi
+
+if [[ "$gridsearch" -eq "1" ]]; then
+	TESTNAME="${TESTNAME}_gridsearch"
+	if [[ "$allow_failure" -eq "0" ]]; then
+		./omniopt \
+			--show_sixel_graphics \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=$time \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
+			--parameter int_param range -100 10 int \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--gridsearch \
+			--hide_ascii_plots
+		exit_code=$?
+	else
+		./omniopt \
+			--show_sixel_graphics \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=$time \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--parameter int_param range -100 10 int \
+			--parameter fail_or_not choice "0,1" \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--gridsearch \
+			--hide_ascii_plots
+		exit_code=$?
+	fi
+else
+	if [[ "$allow_failure" -eq "0" ]]; then
+		./omniopt \
+			--show_sixel_graphics \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=$time \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
+			--parameter int_param range -100 10 int \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--hide_ascii_plots
+		exit_code=$?
+	else
+		./omniopt \
+			--show_sixel_graphics \
+			--partition=$PARTITION \
+			--experiment_name=$TESTNAME \
+			--mem_gb=5 \
+			--time=$time \
+			--worker_timeout=5 \
+			--max_eval=$max_eval \
+			--num_parallel_jobs=$num_parallel_jobs \
+			--gpus=$GPUS \
+			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--parameter int_param range -100 10 int \
+			--parameter fail_or_not choice "0,1" \
+			--follow \
+			--num_random_steps=$num_random_steps \
+			--hide_ascii_plots
+		exit_code=$?
+	fi
+fi
+
+exit $exit_code

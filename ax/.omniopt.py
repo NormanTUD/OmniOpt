@@ -1616,30 +1616,31 @@ def print_best_result(csv_file_path, result_column):
                         if "params" in plot.keys():
                             if "iterate_through" in plot.keys():
                                 iterate_through = plot["iterate_through"]
-                                for j in range(0, len(plot.keys())):
-                                    this_iteration = iterate_through[j]
-                                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+                                if len(iterate_through):
+                                    for j in range(0, len(plot.keys())):
+                                        this_iteration = iterate_through[j]
+                                        _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
 
-                                    j = 0
-                                    tmp_file = f"{_tmp}/{plot_type}.png"
-                                    _fn = ""
-                                    _p = []
-                                    if "filename" in plot:
-                                        _fn = plot['filename']
-                                        if len(this_iteration):
-                                            _p = [plot_type, this_iteration[0], this_iteration[1]]
-                                            if len(_p):
-                                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
+                                        j = 0
+                                        tmp_file = f"{_tmp}/{plot_type}.png"
+                                        _fn = ""
+                                        _p = []
+                                        if "filename" in plot:
+                                            _fn = plot['filename']
+                                            if len(this_iteration):
+                                                _p = [plot_type, this_iteration[0], this_iteration[1]]
+                                                if len(_p):
+                                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
 
-                                            while os.path.exists(tmp_file):
-                                                j += 1
-                                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
-                                                if "filename" in plot and len(_p):
-                                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
+                                                while os.path.exists(tmp_file):
+                                                    j += 1
+                                                    tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                                                    if "filename" in plot and len(_p):
+                                                        tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
-                                    _iterated_command += f" --save_to_file={tmp_file} "
-                                    #original_print(f"iterated_command: >>{_iterated_command}<<")
-                                    plot_command(_iterated_command, tmp_file, _width)
+                                        _iterated_command += f" --save_to_file={tmp_file} "
+                                        #original_print(f"iterated_command: >>{_iterated_command}<<")
+                                        plot_command(_iterated_command, tmp_file, _width)
                         else:
                             _command += f" --save_to_file={tmp_file} "
                             plot_command(_command, tmp_file, _width)

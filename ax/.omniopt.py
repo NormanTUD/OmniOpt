@@ -1609,7 +1609,7 @@ def print_best_result(csv_file_path, result_column):
                             j += 1
                             tmp_file = f"{_tmp}/{plot_type}_{j}.png"
 
-                        _command = f"bash omniopt_plot --run_dir {current_run_folder} --save_to_file={tmp_file} --plot_type={plot_type}"
+                        _command = f"bash omniopt_plot --run_dir {current_run_folder} --plot_type={plot_type}"
                         if "dpi" in plot:
                             _command += " --dpi=" + str(plot["dpi"])
 
@@ -1637,9 +1637,11 @@ def print_best_result(csv_file_path, result_column):
                                                 if "filename" in plot and len(_p):
                                                     tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
+                                    _command += f" --save_to_file={tmp_file} "
                                     print(_iterated_command)
                                     plot_command(_iterated_command, tmp_file, _width)
                         else:
+                            _command += f" --save_to_file={tmp_file} "
                             plot_command(_command, tmp_file, _width)
                     except Exception as e:
                         tb = traceback.format_exc()

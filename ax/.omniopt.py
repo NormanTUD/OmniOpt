@@ -1617,7 +1617,7 @@ def print_best_result(csv_file_path, result_column):
                             if "iterate_through" in plot.keys():
                                 iterate_through = plot["iterate_through"]
                                 if len(iterate_through):
-                                    for j in range(0, len(plot.keys())):
+                                    for j in range(0, len(iterate_through)):
                                         this_iteration = iterate_through[j]
                                         _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
 

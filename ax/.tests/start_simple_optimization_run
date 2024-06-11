@@ -214,10 +214,10 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--num_parallel_jobs=$num_parallel_jobs \
 			--gpus=$GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -10 10 int \
-			--parameter float_param range -10 10 float \
+			--parameter int_param range -100 10 int \
+			--parameter float_param range -100 10 float \
 			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -10 10 int \
+			--parameter int_param_two range -100 10 int \
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--gridsearch \
@@ -234,10 +234,10 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--num_parallel_jobs=$num_parallel_jobs \
 			--gpus=$GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
-			--parameter int_param range -10 10 int \
-			--parameter float_param range -10 10 float \
+			--parameter int_param range -100 10 int \
+			--parameter float_param range -100 10 float \
 			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -10 10 int \
+			--parameter int_param_two range -100 10 int \
 			--parameter fail_or_not choice "0,1" \
 			--follow \
 			--num_random_steps=$num_random_steps \
@@ -257,10 +257,10 @@ else
 			--num_parallel_jobs=$num_parallel_jobs \
 			--gpus=$GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -10 10 int \
-			--parameter float_param range -10 10 float \
+			--parameter int_param range -100 10 int \
+			--parameter float_param range -100 10 float \
 			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -10 10 int \
+			--parameter int_param_two range -100 10 int \
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--hide_ascii_plots
@@ -276,10 +276,10 @@ else
 			--num_parallel_jobs=$num_parallel_jobs \
 			--gpus=$GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
-			--parameter int_param range -10 10 int \
-			--parameter float_param range -10 10 float \
+			--parameter int_param range -100 10 int \
+			--parameter float_param range -100 10 float \
 			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -10 10 int \
+			--parameter int_param_two range -100 10 int \
 			--parameter fail_or_not choice "0,1" \
 			--follow \
 			--num_random_steps=$num_random_steps \

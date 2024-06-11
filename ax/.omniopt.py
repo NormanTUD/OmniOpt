@@ -332,6 +332,7 @@ optional.add_argument('--use_custom_generation_strategy', help='Use custom gener
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
 optional.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)
+optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
 
 bash.add_argument('--time', help='Time for the main job', default="", type=str)
 bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
@@ -1511,6 +1512,7 @@ def replace_string_with_params(input_string, params):
         replaced_string = input_string
         i = 0
         for param in params:
+            #print(f"param: {param}, type: {type(param)}")
             replaced_string = replaced_string.replace(f"%{i}", param)
             i += 1
         return replaced_string
@@ -1566,11 +1568,21 @@ def print_best_result(csv_file_path, result_column):
 
             x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if os.path.exists(_pd_csv) and done_jobs() >= 1:
+            if os.path.exists(_pd_csv) and done_jobs() >= 1 and args.show_sixel_graphics: 
                 plot_types = [
-                    {"type": "trial_index_result"},
-                    {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": x_y_combinations, "dpi": 76},
-                    {"type": "general"}
+                    {
+                        "type": "trial_index_result"
+                    },
+                    {
+                        "type": "scatter",
+                        "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
+                        "iterate_through": x_y_combinations, 
+                        "dpi": 76,
+                        "filename": "plot_%0_%1_%2.png"
+                    },
+                    {
+                        "type": "general"
+                    }
                 ]
 
                 for plot in plot_types:
@@ -1588,6 +1600,10 @@ def print_best_result(csv_file_path, result_column):
 
                         j = 0
                         tmp_file = f"{_tmp}/{plot_type}.png"
+                        _fn = ""
+                        _p = []
+                        if "filename" in plot:
+                            _fn = plot['filename']
 
                         while os.path.exists(tmp_file):
                             j += 1
@@ -1602,12 +1618,32 @@ def print_best_result(csv_file_path, result_column):
                                 iterate_through = plot["iterate_through"]
                                 for j in range(0, len(plot.keys())):
                                     this_iteration = iterate_through[j]
-                                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], this_iteration)
+                                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+
+                                    j = 0
+                                    tmp_file = f"{_tmp}/{plot_type}.png"
+                                    _fn = ""
+                                    _p = []
+                                    if "filename" in plot:
+                                        _fn = plot['filename']
+                                        if len(this_iteration):
+                                            _p = [plot_type, this_iteration[0], this_iteration[1]]
+                                            if len(_p):
+                                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
+
+                                            while os.path.exists(tmp_file):
+                                                j += 1
+                                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                                                if "filename" in plot and len(_p):
+                                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
+
+                                    print(_iterated_command)
                                     plot_command(_iterated_command, tmp_file, _width)
                         else:
                             plot_command(_command, tmp_file, _width)
                     except Exception as e:
-                        print_red(f"Error trying to print {plot_type} to to CLI: {e}")
+                        tb = traceback.format_exc()
+                        print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
                         print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
             else:
                 print_debug(f"{_pd_csv} not found")

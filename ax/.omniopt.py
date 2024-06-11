@@ -1570,19 +1570,19 @@ def print_best_result(csv_file_path, result_column):
 
             if os.path.exists(_pd_csv) and done_jobs() >= 1 and args.show_sixel_graphics: 
                 plot_types = [
-                    {
-                        "type": "trial_index_result"
-                    },
+                    #{
+                    #    "type": "trial_index_result"
+                    #},
                     {
                         "type": "scatter",
                         "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
                         "iterate_through": x_y_combinations, 
                         "dpi": 76,
-                        "filename": "plot_%0_%1_%2.png"
+                        "filename": "plot_%0_%1_%2" # omit file ending
                     },
-                    {
-                        "type": "general"
-                    }
+                    #{
+                    #    "type": "general"
+                    #}
                 ]
 
                 for plot in plot_types:
@@ -1637,8 +1637,8 @@ def print_best_result(csv_file_path, result_column):
                                                 if "filename" in plot and len(_p):
                                                     tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
-                                    _command += f" --save_to_file={tmp_file} "
-                                    print(_iterated_command)
+                                    _iterated_command += f" --save_to_file={tmp_file} "
+                                    #original_print(f"iterated_command: >>{_iterated_command}<<")
                                     plot_command(_iterated_command, tmp_file, _width)
                         else:
                             _command += f" --save_to_file={tmp_file} "

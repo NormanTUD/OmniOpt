@@ -99,7 +99,13 @@ def plot_graph(dataframe, save_to_file=None):
 
 def update_graph():
     try:
-        dataframe = pd.read_csv(args.run_dir + "/results.csv")
+        dataframe = None
+
+        try:
+            dataframe = pd.read_csv(args.run_dir + "/results.csv")
+        except pd.errors.EmptyDataError:
+            print(f"{args.run_dir}/results.csv seems to be empty.")
+            sys.exit(19)
 
         if args.min is not None or args.max is not None:
             dataframe = filter_data(dataframe, args.min, args.max)

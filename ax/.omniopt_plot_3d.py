@@ -14,7 +14,12 @@ import pyvista as pv
 def main():
     parser = argparse.ArgumentParser(description='3D Scatter Plot from CSV')
     parser.add_argument('--run_dir', type=str, required=True, help='Directory containing the CSV file')
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
+
+    if args.no_plt_show:
+        print("Cannot use 3d plot without showing plots. Exiting")
+        sys.exit(0)
 
     csv_file_path = f"{args.run_dir}/results.csv"
     try:

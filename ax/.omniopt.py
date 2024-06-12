@@ -625,6 +625,7 @@ def print_red(text):
                 myfile.write(text)
         except FileNotFoundError as e:
             print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
+            sys.exit(99)
 
 def print_green(text):
     print_color("green", text)

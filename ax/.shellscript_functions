@@ -117,6 +117,8 @@ function install_required_modules {
 	ppip pyvista
 	ppip catsay
 	ppip sixel
+	ppip pytz
+	ppip tzlocal
 
 	#if ! declare -f ml 2>/dev/null >/dev/null; then
 	#	ppip tkinter

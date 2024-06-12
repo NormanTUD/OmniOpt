@@ -17,3 +17,5 @@ art
 pyvista
 catsay
 sixel
+pytz
+tzlocal

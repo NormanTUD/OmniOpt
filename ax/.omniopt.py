@@ -1322,6 +1322,8 @@ def evaluate(parameters):
         headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"];
         values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, _signal, socket.gethostname()];
 
+        original_print(f"EXIT_CODE: {exit_code}")
+
         headline = ['None' if element is None else element for element in headline]
         values = ['None' if element is None else element for element in values]
 

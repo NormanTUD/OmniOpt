@@ -117,7 +117,7 @@ def plot_histograms(dataframe, save_to_file=None):
 
     plt.tight_layout()
 
-    if save_to_file:
+    if args.save_to_file:
         _path = os.path.dirname(args.save_to_file)
         if _path:
             os.makedirs(_path, exist_ok=True)

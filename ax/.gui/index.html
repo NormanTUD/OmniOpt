@@ -215,10 +215,10 @@
 
 				var $div = $(`<div class='time_picker_container'>
 					<input type='number' min=0 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> hours, 
-					<input type='number' min=0 max=60 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
+					<input type='number' min=0 max=60 step=5 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
 				</div>`)
 
-				$parent.append($div);
+				$parent.prepend($div);
 
 				$input.hide()
 			}

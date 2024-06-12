@@ -119,7 +119,10 @@ def update_graph():
                 print(f"No applicable values could be found in {csv_file_path}.")
             return
 
-        os.makedirs(os.path.dirname(args.save_to_file), exist_ok=True)
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
+
         plot_graph(dataframe, args.save_to_file)
 
     except FileNotFoundError:

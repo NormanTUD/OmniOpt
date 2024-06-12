@@ -13,6 +13,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 from pprint import pprint
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def dier(msg):
     pprint(msg)
@@ -54,10 +56,10 @@ def main():
 
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
-    axes[0, 0].hist(df['run_time'], bins=30)
+    axes[0, 0].hist(df['run_time'], bins=args.bins)
     axes[0, 0].set_title('Distribution of Run Time')
     axes[0, 0].set_xlabel('Run Time')
-    axes[0, 0].set_ylabel('Frequency')
+    axes[0, 0].set_ylabel(f'Number of jobs in this runtime ({args.bins} bins)')
 
     df['start_time'] = pd.to_datetime(df['start_time'], unit='s')
     df['end_time'] = pd.to_datetime(df['end_time'], unit='s')

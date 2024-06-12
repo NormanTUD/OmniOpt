@@ -238,15 +238,9 @@
 						_hours = 0
 						_minutes = 5;
 					}
-					
-					$time_picker_hours.val(_hours)
-					$time_picker_minutes.val(_minutes)
 				} else if (_minutes >= 60) {
 					_hours = _hours + 1;
 					_minutes = 0
-					
-					$time_picker_hours.val(_hours)
-					$time_picker_minutes.val(_minutes)				
 				}
 				
 				if (_hours == -1) {
@@ -255,8 +249,10 @@
 					} else {
 						_hours = 0;
 					}
-					$time_picker_hours.val(_hours)
 				}
+
+				$time_picker_hours.val(_hours)
+				$time_picker_minutes.val(_minutes)
 
 				var new_val = (parseInt(_hours) * 60) + parseInt(_minutes);
 				

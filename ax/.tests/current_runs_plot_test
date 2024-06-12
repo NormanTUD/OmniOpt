@@ -2,6 +2,11 @@
 
 export NO_WHIPTAIL=1
 
+if [[ ! -d "runs/" ]]; then
+	echo "runs is not a directory. Cannot continue"
+	exit 1
+fi
+
 for plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.omniopt_plot_##' | sed -e 's#\.py##'); do
 	for project in $(ls runs); do
 		for project_nr in $(ls runs/$project); do

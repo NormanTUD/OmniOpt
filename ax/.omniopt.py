@@ -3979,7 +3979,6 @@ def get_errors_from_outfile(i):
 
         for r in range(1, 255):
             special_exit_codes = {
-                "2": "Misuse of Shell Builtins - Command was used incorrectly",
                 "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
                 "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
                 "127": "Command Not Found - Usually this is returned when the file you tried to call was not found",

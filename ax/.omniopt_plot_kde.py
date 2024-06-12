@@ -126,7 +126,14 @@ def plot_histograms(dataframe, save_to_file=None):
 def update_graph():
     pd_csv = args.run_dir + "/results.csv"
     try:
-        dataframe = pd.read_csv(pd_csv)
+        dataframe = None
+
+        try:
+            dataframe = pd.read_csv(pd_csv)
+        except pd.errors.EmptyDataError:
+            print(f"{pd_csv} seems to be empty.")
+            sys.exit(19)
+
         plot_histograms(dataframe, args.save_to_file)
     except FileNotFoundError:
         logging.error("File not found: %s", pd_csv)

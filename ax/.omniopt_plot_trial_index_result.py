@@ -25,6 +25,7 @@ def parse_arguments():
     parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
 def filter_data(dataframe, min_value=None, max_value=None):

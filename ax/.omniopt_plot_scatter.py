@@ -409,6 +409,7 @@ def get_args ():
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
     parser.add_argument('--dpi', type=int, help='Set DPI', default=300)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -618,7 +619,8 @@ def main():
     else:
         create_widgets()
 
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
         update_graph(args.min, args.max)
 

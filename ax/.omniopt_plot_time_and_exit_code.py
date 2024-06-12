@@ -66,6 +66,7 @@ def main():
     parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
     _job_infos_csv = f'{args.run_dir}/job_infos.csv'
@@ -112,7 +113,8 @@ def main():
     else:
         window_title = f'Times and exit codes for {args.run_dir}'
         fig.canvas.manager.set_window_title(window_title)
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
 if __name__ == "__main__":
     main()

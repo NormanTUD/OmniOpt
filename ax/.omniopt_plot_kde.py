@@ -44,6 +44,7 @@ def parse_arguments():
     parser.add_argument('--min', type=float, help='Minimum value for result filtering (useless here)')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering (useless here)')
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
 def plot_histograms(dataframe, save_to_file=None):
@@ -121,7 +122,8 @@ def plot_histograms(dataframe, save_to_file=None):
         plt.savefig(save_to_file)
     else:
         fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
 def update_graph():
     pd_csv = args.run_dir + "/results.csv"

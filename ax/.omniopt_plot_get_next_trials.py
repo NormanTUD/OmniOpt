@@ -120,7 +120,8 @@ def plot_trial_usage(args, log_file_path):
         if args.save_to_file:
             plt.savefig(args.save_to_file)
         else:
-            plt.show()
+            if not args.no_plt_show:
+                plt.show()
     except Exception as e:
         log_error(f"An error occurred while plotting: {e}")
         raise
@@ -131,6 +132,7 @@ def main():
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')
 
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
     if args.debug:

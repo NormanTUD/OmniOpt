@@ -102,7 +102,8 @@ def plot_gpu_usage(run_dir):
         plt.savefig(args.save_to_file)  # Save the plot to the specified file
     else:
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -123,6 +124,7 @@ if __name__ == "__main__":
     parser.add_argument('--darkmode', help='Enable darktheme (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 
     args = parser.parse_args()
 

@@ -461,6 +461,7 @@ def get_args ():
     parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)
 
     parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=5)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -610,7 +611,8 @@ def plot_image_to_command_line(title, path):
 
         plt.image_plot(path)
         plt.title(title)
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
     except ModuleNotFoundError:
         dier("Cannot plot without plotext being installed")
 
@@ -676,7 +678,8 @@ def main():
     else:
         create_widgets()
 
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
         update_graph(args.min, args.max)
 

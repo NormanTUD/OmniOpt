@@ -93,7 +93,8 @@ def plot_worker_usage(args, pd_csv):
         if args.save_to_file:
             plt.savefig(args.save_to_file)
         else:
-            plt.show()
+            if not args.no_plt_show:
+                plt.show()
     except FileNotFoundError:
         log_error(f"File '{pd_csv}' not found.")
     except AssertionError as e:
@@ -123,6 +124,7 @@ def main():
     parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
     if args.debug:

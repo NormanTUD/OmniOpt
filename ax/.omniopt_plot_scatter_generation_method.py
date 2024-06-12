@@ -42,6 +42,7 @@ def parse_arguments():
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
+    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
 def filter_data(dataframe, min_value=None, max_value=None):
@@ -62,7 +63,8 @@ def plot_graph(dataframe, save_to_file=None):
     if save_to_file:
         pair_plot.savefig(save_to_file)
     else:
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
 def update_graph():
     try:

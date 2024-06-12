@@ -17,6 +17,7 @@ function green_text {
 }
 
 export NO_WHIPTAIL=1
+export NO_RUNTIME=1
 
 if [[ ! -d "runs/" ]]; then
 	echo "runs is not a directory. Cannot continue"

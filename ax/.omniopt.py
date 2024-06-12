@@ -3269,7 +3269,7 @@ def get_number_of_steps(args, max_eval):
     random_steps = random_steps - already_done_random_steps
 
     if random_steps > max_eval:
-        print_red(f"You have less --max_eval than --num_random_steps.")
+        print_yellow(f"You have less --max_eval than --num_random_steps.")
 
     if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
         old_random_steps = random_steps

@@ -1572,10 +1572,11 @@ def print_best_result(csv_file_path, result_column):
 
             x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if os.path.exists(_pd_csv) and done_jobs() >= 1 and args.show_sixel_graphics: 
+            if os.path.exists(_pd_csv) and args.show_sixel_graphics: 
                 plot_types = [
                     {
-                        "type": "trial_index_result"
+                        "type": "trial_index_result",
+                        "min_done_jobs": 2
                     },
                     {
                         "type": "scatter",
@@ -1591,6 +1592,14 @@ def print_best_result(csv_file_path, result_column):
 
                 for plot in plot_types:
                     plot_type = plot["type"]
+                    min_done_jobs = 1
+
+                    if "min_done_jobs":
+                        min_done_jobs = plot["min_done_jobs"]
+
+                    if done_jobs() < min_done_jobs:
+                        print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {done_jobs()} jobs done")
+                        continue
 
                     try:
                         _tmp = f"{current_run_folder}/plots/"
@@ -4332,8 +4341,6 @@ if __name__ == "__main__":
             print_yellow("This should be yellow")
             print_green("This should be green")
 
-            #plot_command("bash omniopt_plot --run_dir runs/__main__tests__/0 --save_to_file=2.png --plot_type=scatter --dpi=76 --bubblesize=50 --allow_axes float_param --allow_axes int_param_two", "2.png", 1200)
-            #sys.exit(1)
             run_tests()
         else:
             try:

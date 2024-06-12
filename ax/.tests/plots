@@ -80,7 +80,7 @@ done
 
 test_projects=()
 
-projectdir=".tests/plot_example_runs"
+projectdir=".tests/_plot_example_runs"
 projectnumber=0
 
 for folder in $(ls -1 $projectdir); do

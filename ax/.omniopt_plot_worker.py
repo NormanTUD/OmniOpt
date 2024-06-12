@@ -138,6 +138,7 @@ def main():
                 sys.exit(3)
         else:
             log_error(f"File '{worker_usage_csv}' does not exist.")
+            sys.exit(19)
 
 if __name__ == "__main__":
     main()

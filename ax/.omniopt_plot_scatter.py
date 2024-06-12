@@ -397,7 +397,7 @@ def get_args ():
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
     parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
-    parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
+    parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=15)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 

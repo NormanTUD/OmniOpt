@@ -18,7 +18,13 @@ def main():
 
     csv_file_path = f"{args.run_dir}/results.csv"
     try:
-        dataframe = pd.read_csv(csv_file_path)
+        dataframe = None
+
+        try:
+            dataframe = pd.read_csv(args.run_dir + "/results.csv")
+        except pd.errors.EmptyDataError:
+            print(f"{args.run_dir}/results.csv seems to be empty.")
+            sys.exit(19)
 
         # Columns to ignore
         ignore_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']

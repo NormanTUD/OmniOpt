@@ -3978,9 +3978,16 @@ def get_errors_from_outfile(i):
             errors.append(f"No files could be found in your program string: {program_code}")
 
         for r in range(1, 255):
+            special_exit_codes = {
+                    "137": "Usually this is done by the SIGKILL signal. May mean that the job has run out of memory",
+                    "139": "Usually this is done by the SIGSEV signal. May mean that the job had a segmentation fault"
+            }
             search_for_exit_code = "Exit-Code: " + str(r) + ","
             if search_for_exit_code in file_as_string:
-                errors.append("Non-zero exit-code detected: " + str(r))
+                _error = "Non-zero exit-code detected: " + str(r)
+                if str(r) in special_exit_codes:
+                    _error += " (" + special_exit_codes[str(r)] + ", unless you used that signal yourself)"
+                errors.append(_error)
 
         synerr = "Python syntax error detected. Check log file."
 

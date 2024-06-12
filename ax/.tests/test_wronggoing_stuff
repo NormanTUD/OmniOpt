@@ -98,6 +98,7 @@ which_programs=(
 if [[ "$nosuccess" -eq "0" ]]; then
 	which_programs+=("simple_ok")
 	which_programs+=("perl")
+	which_programs+=("exit_code_137")
 	which_programs+=("result_but_exit_code_stdout_stderr")
 	which_programs+=("exit_code_stdout")
 	which_programs+=("signal_but_has_output")

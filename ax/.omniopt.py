@@ -1594,7 +1594,7 @@ def print_best_result(csv_file_path, result_column):
                     plot_type = plot["type"]
                     min_done_jobs = 1
 
-                    if "min_done_jobs":
+                    if "min_done_jobs" in plot:
                         min_done_jobs = plot["min_done_jobs"]
 
                     if done_jobs() < min_done_jobs:

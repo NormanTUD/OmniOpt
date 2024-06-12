@@ -4076,7 +4076,7 @@ def log_nr_of_workers():
                 f.write(str(nr_of_workers) + "\n")
         except FileNotFoundError:
             print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
-            sys.exit(93)
+            sys.exit(99)
 
 def get_best_params(csv_file_path, result_column):
     results = {

@@ -19,7 +19,7 @@ def main():
 
     if args.no_plt_show:
         print("Cannot use 3d plot without showing plots. Exiting")
-        sys.exit(0)
+        sys.exit(1)
 
     csv_file_path = f"{args.run_dir}/results.csv"
     try:

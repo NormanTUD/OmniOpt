@@ -20,6 +20,29 @@ def dier(msg):
     pprint(msg)
     sys.exit(1)
 
+def looks_like_number(x):
+    return looks_like_float(x) or looks_like_int(x)
+
+def looks_like_float(x):
+    if isinstance(x, (int, float)):
+        return True
+    elif isinstance(x, str):
+        try:
+            float(x)
+            return True
+        except ValueError:
+            return False
+    return False
+
+def looks_like_int(x):
+    if isinstance(x, int):
+        return True
+    elif isinstance(x, float):
+        return x.is_integer()
+    elif isinstance(x, str):
+        return bool(re.match(r'^\d+$', x))
+    return False
+
 def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
     parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
@@ -63,6 +86,9 @@ def main():
 
     df['start_time'] = pd.to_datetime(df['start_time'], unit='s')
     df['end_time'] = pd.to_datetime(df['end_time'], unit='s')
+
+    df['start_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
+
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes[0, 1])
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes[0, 1])
     axes[0, 1].legend()

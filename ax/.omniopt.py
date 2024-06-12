@@ -1325,7 +1325,7 @@ def evaluate(parameters):
         headline = ['None' if element is None else element for element in headline]
         values = ['None' if element is None else element for element in values]
 
-        add_to_csv(result_csv_file, headline, values)
+        add_to_csv(f"{current_run_folder}/job_infos.csv", headline, values)
 
         if type(result) == int:
             is_in_evaluate = False

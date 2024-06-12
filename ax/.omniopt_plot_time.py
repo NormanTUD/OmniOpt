@@ -1,5 +1,9 @@
 # DESCRIPTION: Plot time infos
 # EXPECTED FILES: job_infos.csv
+# TEST_OUTPUT_MUST_CONTAIN: Run Time Distribution
+# TEST_OUTPUT_MUST_CONTAIN: Run Time by Hostname
+# TEST_OUTPUT_MUST_CONTAIN: Distribution of Run Time
+# TEST_OUTPUT_MUST_CONTAIN: Result over Time
 
 import pandas as pd
 import argparse
@@ -70,7 +74,10 @@ def main():
     sns.boxplot(data=df, x='hostname', y='run_time', ax=axes[1, 1])
     axes[1, 1].set_title('Run Time by Hostname')
 
-    plt.show()
+    if args.save_to_file:
+        plt.savefig(args.save_to_file)
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     main()

@@ -94,7 +94,6 @@ def main():
     df['start_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
     df['end_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
 
-
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes[0, 1])
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes[0, 1])
     axes[0, 1].legend()

@@ -378,7 +378,6 @@ def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, param
 
     cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
 
-    print(type(non_empty_graphs[0]))
     if num_subplots == 1 and (type(non_empty_graphs[0]) == str or len(non_empty_graphs[0]) == 1):
         plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs)
     else:

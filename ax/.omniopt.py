@@ -3979,8 +3979,42 @@ def get_errors_from_outfile(i):
 
         for r in range(1, 255):
             special_exit_codes = {
-                    "137": "Usually this is done by the SIGKILL signal. May mean that the job has run out of memory",
-                    "139": "Usually this is done by the SIGSEV signal. May mean that the job had a segmentation fault"
+                "2": "Misuse of Shell Builtins - Command was used incorrectly",
+                "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
+                "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
+                "127": "Command Not Found - Usually this is returned when the file you tried to call was not found",
+                "128": "Invalid Exit Argument - Exit status out of range",
+                "129": "Hangup - Termination by the SIGHUP signal",
+                "130": "Script Terminated by Control-C - Termination by Ctrl+C",
+                "131": "Quit - Termination by the SIGQUIT signal",
+                "132": "Illegal Instruction - Termination by the SIGILL signal",
+                "133": "Trace/Breakpoint Trap - Termination by the SIGTRAP signal",
+                "134": "Aborted - Termination by the SIGABRT signal",
+                "135": "Bus Error - Termination by the SIGBUS signal",
+                "136": "Floating Point Exception - Termination by the SIGFPE signal",
+                "137": "Out of Memory - Usually this is done by the SIGKILL signal. May mean that the job has run out of memory",
+                "138": "Killed by SIGUSR1 - Termination by the SIGUSR1 signal",
+                "139": "Segmentation Fault - Usually this is done by the SIGSEGV signal. May mean that the job had a segmentation fault",
+                "140": "Killed by SIGUSR2 - Termination by the SIGUSR2 signal",
+                "141": "Pipe Error - Termination by the SIGPIPE signal",
+                "142": "Alarm - Termination by the SIGALRM signal",
+                "143": "Terminated by SIGTERM - Termination by the SIGTERM signal",
+                "144": "Terminated by SIGSTKFLT - Termination by the SIGSTKFLT signal",
+                "145": "Terminated by SIGCHLD - Termination by the SIGCHLD signal",
+                "146": "Terminated by SIGCONT - Termination by the SIGCONT signal",
+                "147": "Terminated by SIGSTOP - Termination by the SIGSTOP signal",
+                "148": "Terminated by SIGTSTP - Termination by the SIGTSTP signal",
+                "149": "Terminated by SIGTTIN - Termination by the SIGTTIN signal",
+                "150": "Terminated by SIGTTOU - Termination by the SIGTTOU signal",
+                "151": "Terminated by SIGURG - Termination by the SIGURG signal",
+                "152": "Terminated by SIGXCPU - Termination by the SIGXCPU signal",
+                "153": "Terminated by SIGXFSZ - Termination by the SIGXFSZ signal",
+                "154": "Terminated by SIGVTALRM - Termination by the SIGVTALRM signal",
+                "155": "Terminated by SIGPROF - Termination by the SIGPROF signal",
+                "156": "Terminated by SIGWINCH - Termination by the SIGWINCH signal",
+                "157": "Terminated by SIGIO - Termination by the SIGIO signal",
+                "158": "Terminated by SIGPWR - Termination by the SIGPWR signal",
+                "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
             }
             search_for_exit_code = "Exit-Code: " + str(r) + ","
             if search_for_exit_code in file_as_string:

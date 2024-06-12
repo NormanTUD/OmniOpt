@@ -111,6 +111,7 @@ def main():
     if args.save_to_file:
         plt.savefig(args.save_to_file)
     else:
+        window_title = f'Times and exit codes for {args.run_dir}'
         plt.show()
 
 if __name__ == "__main__":

@@ -544,7 +544,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     print_debug("get_non_empty_graphs")
     non_empty_graphs = []
 
-    if len(parameter_combinations[0]) == 1:
+    if len(parameter_combinations) == 1:
         param = parameter_combinations[0][0]
         if param in df_filtered and df_filtered[param].notna().any():
             non_empty_graphs = [(param,)]

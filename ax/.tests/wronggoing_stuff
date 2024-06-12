@@ -1,0 +1,156 @@
+#!/bin/bash
+
+EXPECTED_TO_FAIL=0
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd test_wronggoing_stuff.bin
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+set -e
+set -o pipefail
+
+function calltracer () {
+	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
+		yellow_text "Git status hash:"
+		git rev-parse HEAD
+		red_text 'Error occured in file/line:'
+		caller
+	fi
+}
+
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+	echo "  --num_random_steps=(INT)                           Number of random steps"
+        echo "  --nosuccess                                        Don't run successful tests"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+export num_random_steps=20
+export nosuccess=0
+
+for i in $@; do
+        case $i in
+		--num_random_steps=*)
+			num_random_steps="${i#*=}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_random_steps)
+			shift
+			k=$((k+1))
+
+			num_random_steps="${args[k]}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+                --nosuccess)
+                        nosuccess=1
+                        shift
+                        ;;
+                -h|--help)
+                        help 0
+                        ;;
+                --debug)
+                        set -x
+                        ;;
+                *)
+                        red_text "Unknown parameter $i" >&2
+                        help 1
+                        ;;
+        esac
+done
+
+which_programs=(
+	"divide_by_0"
+)
+
+if [[ "$nosuccess" -eq "0" ]]; then
+	which_programs+=("simple_ok")
+	which_programs+=("perl")
+	which_programs+=("exit_code_137")
+	which_programs+=("result_but_exit_code_stdout_stderr")
+	which_programs+=("exit_code_stdout")
+	which_programs+=("signal_but_has_output")
+	which_programs+=("exit_code_no_output")
+	which_programs+=("exit_code_stdout_stderr")
+	which_programs+=("module_not_found")
+	which_programs+=("signal")
+	which_programs+=("empty")
+	which_programs+=("file_does_not_exist")
+	which_programs+=("sleep_10_and_result_exit_252")
+	which_programs+=("no_chmod_x")
+	which_programs+=("no_shebang")
+	which_programs+=("perl_module_fail")
+	which_programs+=("segfault")
+	which_programs+=("wrong_arch")
+	which_programs+=("python_name_error")
+	which_programs+=("syntax_error")
+	which_programs+=("tensorflow_syntax_error")
+	which_programs+=("force_keyboard_interrupt")
+
+	#which_programs+=("takes_forever")
+	#which_programs+=("takes_forever_but_has_result")
+fi
+
+which_programs_string=$(join_by , "${which_programs[@]}")
+
+PARTITION="alpha"
+GPUS=0
+
+if [[ "$PARTITION" == "alpha" ]]; then
+	GPUS=1
+fi
+
+NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
+
+cd ..
+cd ..
+# run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
+EXPECTED_TO_FAIL=1
+./omniopt \
+	--partition=$PARTITION \
+	--experiment_name=test_wronggoing_stuff \
+	--mem_gb=1 \
+	--time=20 \
+	--worker_timeout=1 \
+	--max_eval=$NUMBER_OF_EVALS \
+	--num_parallel_jobs=10 \
+	--gpus=$GPUS \
+	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
+	--parameter program choice $which_programs_string \
+	--hide_ascii_plots \
+	--num_random_steps=$num_random_steps \
+	--follow
+
+exit $?

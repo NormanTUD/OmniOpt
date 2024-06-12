@@ -1,0 +1,190 @@
+#!/bin/bash
+
+export PRINT_SEPERATOR=""
+export NO_RUNTIME=1
+export NO_NO_RESULT_ERROR=1
+
+help=0
+
+args=("$@")
+k=0
+keep_tmp=0
+
+while [ $k -lt ${#args[@]} ]; do
+    arg="${args[k]}"
+
+    case $arg in
+        --keep_tmp)
+            keep_tmp=1
+            shift
+            ;;
+
+        --help|-h)
+            help=1
+            shift
+            ;;
+
+        --debug)
+            set -x
+            shift
+            ;;
+    esac
+    k=$((k+1))
+done
+
+if [[ "$help" -eq "1" ]]; then
+	echo ".tests/plots:"
+	echo "--keep_tmp                            Keep tmp files"
+	exit 0
+fi
+
+export NO_WHIPTAIL=1
+
+errors=()
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+
+expected_plot_types=()
+
+for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
+	expected_plot_types+=("$possible_plot_type")
+done
+
+test_projects=()
+
+projectdir=".tests/plot_example_runs"
+projectnumber=0
+
+for folder in $(ls -1 $projectdir); do
+	test_projects+=("$folder")
+done
+
+for projectname in "${test_projects[@]}"; do
+	run_dir="$projectdir/$projectname/$projectnumber"
+
+	if [[ ! -d "$run_dir" ]]; then
+		red_text "$run_dir could not be found"
+		errors+=("$run_dir could not be found")
+	else
+		for possible_plot_type in "${expected_plot_types[@]}"; do
+			if grep add_argument .omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
+				expected_files=()
+				for expected_file in $(cat .omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
+					expected_files+=("$expected_file")
+				done
+
+				ALL_FILES_THERE=1
+				accepts_min_max_string=""
+				missing_files=()
+
+				for expected_file in "${expected_files[@]}"; do
+					if [[ $(ls $run_dir | grep "$expected_file" | wc -l 2>/dev/null) -lt 1 ]]; then
+						ALL_FILES_THERE=0
+						missing_files+=("$run_dir/$expected_file")
+					fi
+				done
+
+				if [[ $ALL_FILES_THERE -eq 1 ]]; then
+					trap '' ERR
+					num_not_disabled_min_param=$(grep args.min .omniopt_plot_${possible_plot_type}.py | wc -l)
+
+					if [[ "$num_not_disabled_min_param" -ne "0" ]]; then
+						accepts_min_max_string=", honours min/max"
+					fi
+				fi
+
+				this_img="${projectname}_${projectnumber}_image_${possible_plot_type}.svg"
+
+				if [[ $ALL_FILES_THERE -ne 0 ]]; then
+					_command="bash omniopt_plot --run_dir=$run_dir --save_to_file=$this_img --plot_type=$possible_plot_type"
+					$_command
+
+					_exit_code=$?
+
+					if [[ -e "$this_img" ]]; then
+						if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
+							red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code"
+							errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code")
+						else
+							MISSING_OUTPUTS=()
+
+							saved_IFS=$IFS
+							IFS=$'\n'
+							for needed_output in $(cat .omniopt_plot_${possible_plot_type}.py | grep "TEST_OUTPUT_MUST_CONTAIN" | sed -e 's#.*TEST_OUTPUT_MUST_CONTAIN:\s##g'); do
+								if ! grep "$needed_output" "$this_img" 2>/dev/null >/dev/null; then
+									MISSING_OUTPUTS+=("$needed_output")
+								fi
+							done
+
+							if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
+								green_text "OK: $_command"
+								if [[ "$keep_tmp" -eq 0 ]]; then
+									rm "$this_img"
+								fi
+							else
+								if [[ "$projectname" == "no_result" ]]; then
+									missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
+									red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
+									errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
+								fi
+							fi
+							IFS=$saved_IFS
+						fi
+					else
+						if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]]; then
+							green_text "OK: $_command"
+						else
+							red_text "$_command: $this_img does not exist"
+							errors+=("$_command: $this_img does not exist")
+						fi
+					fi
+				else
+					missing_files_str=$(join_by "," $missing_files)
+					yellow_text "Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str"
+				fi
+			else
+				yellow_text "Plot-type: $possible_plot_type: --save_to_file is not possible"
+			fi
+		done
+	fi
+done
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No plot errors"
+	exit 0
+else
+	red_text "=> PLOT-ERRORS => PLOT-ERRORS => PLOT-ERRORS =>"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi

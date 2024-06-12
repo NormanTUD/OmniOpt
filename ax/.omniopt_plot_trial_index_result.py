@@ -54,7 +54,8 @@ def plot_graph(dataframe, save_to_file=None):
     if save_to_file:
         plt.savefig(save_to_file)
     else:
-        plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
 def update_graph():
     try:

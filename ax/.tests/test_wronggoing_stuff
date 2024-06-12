@@ -107,6 +107,7 @@ if [[ "$nosuccess" -eq "0" ]]; then
 	which_programs+=("signal")
 	which_programs+=("empty")
 	which_programs+=("file_does_not_exist")
+	which_programs+=("sleep_10_and_result_exit_252")
 	which_programs+=("no_chmod_x")
 	which_programs+=("no_shebang")
 	which_programs+=("perl_module_fail")

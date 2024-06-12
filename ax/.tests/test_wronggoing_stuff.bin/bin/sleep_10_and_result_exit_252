@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sleep 10
+echo "RESULT: 1234"
+
+exit 252

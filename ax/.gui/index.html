@@ -213,8 +213,8 @@
 				}
 
 				var $div = $(`<div class='time_picker_container'>
-					<input type='number' min=0 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> hours, 
-					<input type='number' min=0 max=59 step=5 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
+					<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> hours, 
+					<input type='number' min=-1 max=65 step=5 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
 				</div>`)
 
 				$parent.prepend($div);
@@ -224,11 +224,46 @@
 
 			function update_original_time_element (original_element_id, new_element) {
 				var $parent = $(new_element).parent();
+				var $time_picker_minutes = $parent.find(".time_picker_minutes")
+				var $time_picker_hours = $parent.find(".time_picker_hours");
 
-				var _minutes = $parent.find(".time_picker_minutes").val()
-				var _hours = $parent.find(".time_picker_hours").val()
+				var _minutes = parseInt($time_picker_minutes.val())
+				var _hours = parseInt($time_picker_hours.val())
+				
+				if (_minutes == -1) {
+					if (_hours > 0) {
+						_hours = _hours - 1;
+						_minutes = 55
+						
+						$time_picker_hours.val(_hours)
+						$time_picker_minutes.val(_minutes)
+					} else {
+						log(`_hours: ${_hours}`);
+						$time_picker_hours.val(0)
+						$time_picker_minutes.val(5)
+					}
+				} else if (_minutes >= 60) {
+					_hours = _hours + 1;
+					_minutes = 0
+					
+					$time_picker_hours.val(_hours)
+					$time_picker_minutes.val(_minutes)				
+				}
+				
+				if (_hours == -1) {
+					if (_hours > 1) {
+						_hours = _hours - 1;
+					} else {
+						_hours = 0;
+					}
+					$time_picker_hours.val(_hours)
+				}
 
 				var new_val = (parseInt(_hours) * 60) + parseInt(_minutes);
+				
+				if (new_val < 5) {
+					
+				}
 
 				$("#" + original_element_id).val(new_val).trigger("change");
 			}

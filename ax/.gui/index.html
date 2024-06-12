@@ -878,86 +878,90 @@
 				}
 			}
 
+			function create_table_row (table, tbody, item) {
+				var row = $("<tr>");
+				var labelCell = $("<td>").text(item.label);
+				var valueCell = $("<td>").attr("colspan", "2");
+
+				if (item.type === "select") {
+					var $select = $("<select>").attr("id", item.id);
+
+					$.each(item.options, function(index, option) {
+						var $option = $("<option></option>")
+							.attr("value", option.value)
+							.text(option.text);
+
+						if (index == 0) {
+							$option.prop("selected", "selected");
+						}
+
+						$select.append($option);
+					});
+
+					$select.change(update_command);
+
+					if (Object.keys(item).includes("onchange")) {
+						$select.change(item.onchange);
+					}
+
+					valueCell.append($select);
+				} else if (item.type === "textarea") {
+					var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
+					$(input).css({"width": "95%", "height": "95%"});
+
+					if (item.type === "checkbox") {
+						input.prop("checked", item.value);
+					}
+
+					input.on({
+						change: update_command,
+						keyup: update_command,
+						click: update_command
+					});
+
+					valueCell.append(input);
+
+					if (Object.keys(item).includes("onchange")) {
+						$(input).change(item.onchange);
+					}
+				} else {
+					var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
+
+					if (item.type === "checkbox") {
+						input.prop("checked", item.value);
+					}
+
+					input.on({
+						change: update_command,
+						keyup: update_command,
+						click: update_command
+					});
+
+					valueCell.append(input);
+
+					if (Object.keys(item).includes("onchange")) {
+						$(input).change(item.onchange);
+					}
+				}
+
+				if (item.id !== "partition") {
+					valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
+				}
+
+				if (item.info) {
+					valueCell.append($(`<div class='info_element' id="${item.id}_info">${item.info}</div>`));
+				}
+
+				row.append(labelCell, valueCell);
+				tbody.append(row);
+			}
+
 			function create_table() {
 				var table = $("#config_table");
 				var tbody = table.find("tbody");
 
 				tableData.forEach(function(item) {
-					var row = $("<tr>");
-					var labelCell = $("<td>").text(item.label);
-					var valueCell = $("<td>").attr("colspan", "2");
-
-					if (item.type === "select") {
-						var $select = $("<select>").attr("id", item.id);
-
-						$.each(item.options, function(index, option) {
-							var $option = $("<option></option>")
-								.attr("value", option.value)
-								.text(option.text);
-
-							if (index == 0) {
-								$option.prop("selected", "selected");
-							}
-
-							$select.append($option);
-						});
-
-						$select.change(update_command);
-
-						if (Object.keys(item).includes("onchange")) {
-							$select.change(item.onchange);
-						}
-
-						valueCell.append($select);
-					} else if (item.type === "textarea") {
-						var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
-						$(input).css({"width": "95%", "height": "95%"});
-
-						if (item.type === "checkbox") {
-							input.prop("checked", item.value);
-						}
-
-						input.on({
-							change: update_command,
-							keyup: update_command,
-							click: update_command
-						});
-
-						valueCell.append(input);
-
-						if (Object.keys(item).includes("onchange")) {
-							$(input).change(item.onchange);
-						}
-					} else {
-						var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
-
-						if (item.type === "checkbox") {
-							input.prop("checked", item.value);
-						}
-
-						input.on({
-							change: update_command,
-							keyup: update_command,
-							click: update_command
-						});
-
-						valueCell.append(input);
-
-						if (Object.keys(item).includes("onchange")) {
-							$(input).change(item.onchange);
-						}
-					}
-
-					if (item.id !== "partition") {
-						valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
-					}
-
-					if (item.info) {
-						valueCell.append($(`<div class='info_element' id="${item.id}_info">${item.info}</div>`));
-					}
-
-					row.append(labelCell, valueCell);
-					tbody.append(row);
+					create_table_row(table, tbody, item)
 				});
 
 				tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td><td colspan='2'></td></tr>");

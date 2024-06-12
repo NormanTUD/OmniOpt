@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export NO_WHIPTAIL=1
+
 for plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.omniopt_plot_##' | sed -e 's#\.py##'); do
 	for project in $(ls runs); do
 		for project_nr in $(ls runs/$project); do

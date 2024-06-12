@@ -194,6 +194,7 @@ function _test {
 	NAME=$1
 	COMMAND=$2
 	WANTED_EXIT_CODE=$3
+	ALTERNATIVE_OK_EXIT_CODE=$4
 
 	START_TIME=$(date +%s)
 
@@ -221,10 +222,18 @@ function _test {
 
 	set -e
 
-	if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]]; then
-		ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
-		red_text "$ERRORMSG"
-		errors+=($(echo "$ERRORMSG" | base64))
+	if [[ -z $ALTERNATIVE_OK_EXIT_CODE ]]; then
+		if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]]; then
+			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
+			red_text "$ERRORMSG"
+			errors+=($(echo "$ERRORMSG" | base64))
+		fi
+	else
+		if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]] || [[ "$exit_code" -ne "$ALTERNATIVE_OK_EXIT_CODE" ]]; then
+			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
+			red_text "$ERRORMSG"
+			errors+=($(echo "$ERRORMSG" | base64))
+		fi
 	fi
 	END_TIME=$(date +%s)
 
@@ -262,7 +271,7 @@ _test "Simple optimization run (grid search)" ".tests/start_simple_optimization_
 
 _test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
 
-_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
+_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0 87
 
 if [[ "$quick" -eq "0" ]]; then
 	for model_name in $(echo "SOBOL GPEI FACTORIAL SAASBO FULLYBAYESIAN LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do

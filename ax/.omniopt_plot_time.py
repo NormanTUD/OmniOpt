@@ -44,6 +44,7 @@ def main():
         sys.exit(1)
 
     df = pd.read_csv(_job_infos_csv)
+    df = df.sort_values(by='exit_code')
 
     fig, axes = plt.subplots(2, 2, figsize=(20, 30))
 

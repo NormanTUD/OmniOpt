@@ -378,7 +378,8 @@ def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, param
 
     cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
 
-    if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
+    print(type(non_empty_graphs[0]))
+    if num_subplots == 1 and (type(non_empty_graphs[0]) == str or len(non_empty_graphs[0]) == 1):
         plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs)
     else:
         plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows)
@@ -485,7 +486,13 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
         if param in df_filtered and df_filtered[param].notna().any():
             non_empty_graphs = [(param,)]
     else:
-        non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
+        if len(parameter_combinations) > 1:
+            non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
+        elif len(parameter_combinations) == 1:
+            non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb].notna().any()]
+        else:
+            print("Error: No non-empty parameter combinations")
+            sys.exit(75)
 
     if not non_empty_graphs:
         print('No non-empty graphs to display.')

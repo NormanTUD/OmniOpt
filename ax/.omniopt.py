@@ -3980,7 +3980,7 @@ def get_errors_from_outfile(i):
         for r in range(1, 255):
             special_exit_codes = {
                 "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
-                "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
+                "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable or it was compiled for a different platform",
                 "127": "Command Not Found - Usually this is returned when the file you tried to call was not found",
                 "128": "Invalid Exit Argument - Exit status out of range",
                 "129": "Hangup - Termination by the SIGHUP signal",

@@ -620,8 +620,11 @@ def print_red(text):
     print_color("red", text)
 
     if current_run_folder:
-        with open(f"{current_run_folder}/oo_errors.txt", "a") as myfile:
-            myfile.write(text)
+        try:
+            with open(f"{current_run_folder}/oo_errors.txt", "a") as myfile:
+                myfile.write(text)
+        except FileNotFoundError as e:
+            print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
 
 def print_green(text):
     print_color("green", text)

@@ -1119,6 +1119,8 @@ def add_to_csv(file_path, heading, data_line):
     print_debug("add_to_csv")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
+    data_line = [to_int_when_possible(x) for x in data_line]
+
     with open(file_path, 'a+', newline='') as file:
         csv_writer = csv.writer(file)
 

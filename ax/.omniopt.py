@@ -4019,7 +4019,7 @@ def get_errors_from_outfile(i):
             if search_for_exit_code in file_as_string:
                 _error = "Non-zero exit-code detected: " + str(r)
                 if str(r) in special_exit_codes:
-                    _error += " (" + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
+                    _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
                 errors.append(_error)
 
         synerr = "Python syntax error detected. Check log file."

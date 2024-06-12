@@ -1,4 +1,4 @@
-# DESCRIPTION: Plot time infos
+# DESCRIPTION: Plot time and exit code infos
 # EXPECTED FILES: job_infos.csv
 # TEST_OUTPUT_MUST_CONTAIN: Run Time Distribution
 # TEST_OUTPUT_MUST_CONTAIN: Run Time by Hostname

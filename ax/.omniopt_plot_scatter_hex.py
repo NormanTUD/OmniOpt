@@ -243,6 +243,9 @@ def get_data (csv_file_path, result_column, _min, _max, old_headers_string=None)
 
         columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
         df = df.drop(columns=columns_with_strings)
+        if len(df.columns.tolist()) <= 1 and len(columns_with_strings) >= 1:
+            print(f"It seems like all available columns had strings instead of numbers. String columns cannot currently be plotted with scatter_hex.")
+            sys.exit(19)
     except pd.errors.EmptyDataError:
         print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)

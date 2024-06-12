@@ -349,7 +349,7 @@ def show_legend(_scatter, axs, result_column):
     print_debug("show_legend")
     global args, fig
 
-    if not args.print_to_command_line and not args.no_legend:
+    if not args.no_legend:
         try:
             cbar = fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
             cbar.set_label(result_column, rotation=270, labelpad=15)
@@ -446,7 +446,6 @@ def get_args ():
     parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
-    parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
@@ -658,7 +657,7 @@ def main():
 
     plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
 
-    if not args.print_to_command_line:
+    if not args.no_legend:
         set_title(fig, df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
         set_margins(fig)
@@ -668,13 +667,11 @@ def main():
     if args.save_to_file:
         fig.set_size_inches(15.5, 9.5)
 
-        plt.savefig(args.save_to_file)
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
 
-        if args.print_to_command_line:
-            if ".jpg" in args.save_to_file or ".png" in args.save_to_file:
-                plot_image_to_command_line("plot", args.save_to_file)
-            else:
-                print("only jpg and png are currently supported")
+        plt.savefig(args.save_to_file)
     else:
         create_widgets()
 

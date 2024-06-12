@@ -36,7 +36,6 @@ def parse_arguments():
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--delete_temp', help='Delete temp files', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
-    parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
@@ -94,6 +93,9 @@ def plot_graph(dataframe, save_to_file=None):
     plt.tight_layout()
 
     if save_to_file:
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
         plt.savefig(save_to_file)
     else:
         if not args.no_plt_show:
@@ -117,6 +119,7 @@ def update_graph():
                 print(f"No applicable values could be found in {csv_file_path}.")
             return
 
+        os.makedirs(os.path.dirname(args.save_to_file), exist_ok=True)
         plot_graph(dataframe, args.save_to_file)
 
     except FileNotFoundError:

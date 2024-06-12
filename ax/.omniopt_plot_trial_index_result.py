@@ -52,6 +52,9 @@ def plot_graph(dataframe, save_to_file=None):
     plt.ylabel('Result')
 
     if save_to_file:
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
         plt.savefig(save_to_file)
     else:
         if not args.no_plt_show:

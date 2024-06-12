@@ -40,7 +40,6 @@ def parse_arguments():
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with (useless here)", default=[])
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
-    parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--min', type=float, help='Minimum value for result filtering (useless here)')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering (useless here)')
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
@@ -119,6 +118,9 @@ def plot_histograms(dataframe, save_to_file=None):
     plt.tight_layout()
 
     if save_to_file:
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
         plt.savefig(save_to_file)
     else:
         fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))

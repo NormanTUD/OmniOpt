@@ -99,6 +99,9 @@ def plot_gpu_usage(run_dir):
 
     plt.subplots_adjust(bottom=0.086, hspace=0.35)
     if args.save_to_file:
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
         plt.savefig(args.save_to_file)  # Save the plot to the specified file
     else:
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
@@ -120,7 +123,6 @@ if __name__ == "__main__":
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with (useless here)", default=[])
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
-    parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)

@@ -118,6 +118,9 @@ def plot_trial_usage(args, log_file_path):
 
         plt.tight_layout()
         if args.save_to_file:
+            _path = os.path.dirname(args.save_to_file)
+            if _path:
+                os.makedirs(_path, exist_ok=True)
             plt.savefig(args.save_to_file)
         else:
             if not args.no_plt_show:

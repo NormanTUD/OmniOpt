@@ -91,6 +91,10 @@ def plot_worker_usage(args, pd_csv):
 
         plt.tight_layout()
         if args.save_to_file:
+            _path = os.path.dirname(args.save_to_file)
+            if _path:
+                os.makedirs(_path, exist_ok=True)
+
             plt.savefig(args.save_to_file)
         else:
             if not args.no_plt_show:
@@ -121,7 +125,6 @@ def main():
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles (useless here)', default=7)
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with (useless here)", default=[])
-    parser.add_argument('--print_to_command_line', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored (useless here)", default=[])
     parser.add_argument('--single', help='Print plot to command line (useless here)', action='store_true', default=False)
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)

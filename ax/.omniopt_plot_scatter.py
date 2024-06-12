@@ -303,7 +303,7 @@ def show_legend(_scatter, axs):
     print_debug("show_legend")
     global args, fig
 
-    if not args.print_to_command_line and not args.no_legend:
+    if not args.no_legend:
         try:
             cbar = fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
             cbar.set_label("result", rotation=270, labelpad=15)
@@ -395,7 +395,6 @@ def get_args ():
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
-    parser.add_argument('--print_to_command_line', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
     parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=15)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
@@ -615,6 +614,9 @@ def main():
     if args.save_to_file:
         fig.set_size_inches(15.5, 9.5)
 
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
         plt.savefig(args.save_to_file, dpi=args.dpi)
     else:
         create_widgets()

@@ -54,6 +54,8 @@ def main():
     axes[0, 0].set_xlabel('Run Time')
     axes[0, 0].set_ylabel('Frequency')
 
+    df['start_time'] = pd.to_datetime(df['start_time'], unit='s')
+    df['end_time'] = pd.to_datetime(df['end_time'], unit='s')
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes[0, 1])
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes[0, 1])
     axes[0, 1].legend()

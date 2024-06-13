@@ -174,7 +174,7 @@ function calltracer () {
 		red_text "Error occured in file/line: $LINE_AND_FUNCTION"
 	fi
 
-	echo "Runtime: $(displaytime $SECONDS)"
+	echo "Runtime (calltracer): $(displaytime $SECONDS)"
 	tput bel
 }
 
@@ -198,7 +198,7 @@ kill_python_if_started () {
 		fi
 	fi
 
-	echo "Runtime: $(displaytime $SECONDS)"
+	echo "Runtime (kill_python_if_started): $(displaytime $SECONDS)"
 	tput bel
 }
 
@@ -863,7 +863,7 @@ else
 
 fi
 
-echo "Runtime: $(displaytime $SECONDS)"
+echo "Runtime (end): $(displaytime $SECONDS)"
 
 if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
 	exit $exit_code

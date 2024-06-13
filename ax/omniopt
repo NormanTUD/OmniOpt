@@ -548,12 +548,12 @@ if [[ $tests -eq 0 ]]; then
 		if [[ "$continue_previous_job" == "" ]]; then
 			if [[ -z "$mem_gb" ]]; then
 				red_text "Parameter --mem_gb is missing or empty";
-				exit 101
+				exit 104
 			fi
 
 			if [[ -z "$time" ]]; then
 				red_text "Parameter --time is missing or empty";
-				exit 102
+				exit 104
 			fi
 
 			if [[ -z $experiment_name ]]; then

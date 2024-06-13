@@ -85,35 +85,31 @@ python3 /absolute/path/to_script.py $@
 
     <pre><code class="language-python">import sys
 
-def main():
-    try:
-        epochs = int(sys.argv[1])
-        learning_rate = float(sys.argv[2])
-        model_name = sys.argv[3]
+try:
+	epochs = int(sys.argv[1])
+	learning_rate = float(sys.argv[2])
+	model_name = sys.argv[3]
 
-        if epochs <= 0:
-            print("Error: Number of epochs must be positive")
-            return
-        if not 0 < learning_rate < 1:
-            print("Error: Learning rate must be between 0 and 1")
-            return
+	if epochs <= 0:
+	    print("Error: Number of epochs must be positive")
+	    return
+	if not 0 < learning_rate < 1:
+	    print("Error: Learning rate must be between 0 and 1")
+	    return
 
-        print(f"Running with epochs={epochs}, learning_rate={learning_rate}, model_name={model_name}")
-	
+	print(f"Running with epochs={epochs}, learning_rate={learning_rate}, model_name={model_name}")
+
 	# Your code here
 
 	# loss = model.fit(...)
-	
-	print(f"RESULT: {loss}")
-    except IndexError:
-        print("Error: Not enough arguments provided.")
-        print("Usage: python3 script.py <epochs> <learning_rate> <model_name>")
-    except ValueError:
-        print("Error: Invalid type for arguments.")
-        print("Usage: python3 script.py <epochs> <learning_rate> <model_name>")
 
-if __name__ == "__main__":
-    main()
+	print(f"RESULT: {loss}")
+except IndexError:
+	print("Error: Not enough arguments provided.")
+	print("Usage: python3 script.py <epochs> <learning_rate> <model_name>")
+except ValueError:
+	print("Error: Invalid type for arguments.")
+	print("Usage: python3 script.py <epochs> <learning_rate> <model_name>")
 </code></pre>
 
     <p>Example call:</p>
@@ -123,31 +119,29 @@ if __name__ == "__main__":
     <p>The following Python program demonstrates how to parse command line arguments using <tt>argparse</tt>:</p>
 
     <pre><code class="language-python">import argparse
+import sys
 
-def main():
-    parser = argparse.ArgumentParser(description="Run a training script with specified parameters.")
-    parser.add_argument("epochs", type=int, help="Number of epochs")
-    parser.add_argument("learning_rate", type=float, help="Learning rate")
-    parser.add_argument("model_name", type=str, help="Name of the model")
+parser = argparse.ArgumentParser(description="Run a training script with specified parameters.")
+parser.add_argument("epochs", type=int, help="Number of epochs")
+parser.add_argument("learning_rate", type=float, help="Learning rate")
+parser.add_argument("model_name", type=str, help="Name of the model")
 
-    args = parser.parse_args()
+args = parser.parse_args()
 
-    if args.epochs <= 0:
-        print("Error: Number of epochs must be positive")
-        return
-    if not 0 < args.learning_rate < 1:
-        print("Error: Learning rate must be between 0 and 1")
-        return
+if args.epochs <= 0:
+	print("Error: Number of epochs must be positive")
+	sys.exit(1)
+if not 0 < args.learning_rate < 1:
+	print("Error: Learning rate must be between 0 and 1")
+	sys.exit(2)
 
-    print(f"Running with epochs={args.epochs}, learning_rate={args.learning_rate}, model_name={args.model_name}")
+print(f"Running with epochs={args.epochs}, learning_rate={args.learning_rate}, model_name={args.model_name}")
 
-    # Your code here
+# Your code here
 
-    # loss = model.fit(...)
+# loss = model.fit(...)
 
-    print(f"RESULT: {loss}")
-if __name__ == "__main__":
-    main()
+print(f"RESULT: {loss}")
 </code></pre>
 
     <p>Example call:</p>

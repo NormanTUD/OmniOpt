@@ -3342,7 +3342,7 @@ def append_and_read(file, zahl=0):
         append_and_read(file, zahl)
     except OSError as e:
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
-        sys.exit(59)
+        sys.exit(199)
     except Exception as e:
         print(f"Error editing the file: {e}")
 
@@ -3672,7 +3672,11 @@ def main():
 
         run_random_jobs(random_steps, ax_client, executor)
 
-        finish_previous_jobs_random(args)
+        try:
+            finish_previous_jobs_random(args)
+        except EOFError as e:
+            print_red(f"Error {e}: This may mean that you are running on an unstable file system. Cannot continue.")
+            sys.exit(199)
 
         if max_eval - random_steps <= 0:
             raise searchSpaceExhausted("Search space exhausted")

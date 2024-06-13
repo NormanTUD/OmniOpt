@@ -109,7 +109,6 @@ function install_required_modules {
 	ppip Pyarrow
 	ppip textual
 	ppip tqdm
-	ppip plotext
 	ppip plotille
 	ppip watchdog
 	ppip seaborn

@@ -154,7 +154,6 @@ try:
     import argparse
     import time
     from pprint import pformat
-    import plotext
     import sixel
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
@@ -196,16 +195,6 @@ def get_timezone_offset_seconds():
     offset = local_time.utcoffset().total_seconds()
 
     return offset
-
-def datetime_to_plotext_format(dt):
-    if isinstance(dt, (int, float)):
-        try:
-            readable_format = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(dt))
-            return readable_format
-        except Exception as e:
-            dt = datetime_from_string(dt)
-            print(f"B: {dt}")
-            return dt.strftime("%d/%m/%Y %H:%M:%S")
 
 log_dir = ".logs"
 try:
@@ -1724,10 +1713,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     write_worker_usage()
 
-    show_worker_plot()
-
-    show_progress_plot()
-
     return _exit
 
 def write_worker_usage():
@@ -1742,58 +1727,6 @@ def write_worker_usage():
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
-
-def show_worker_plot():
-    if len(worker_percentage_usage) and not args.hide_ascii_plots:
-        tz_offset = get_timezone_offset_seconds()
-        try:
-            plotext.theme('pro')
-
-            ideal_situation = [entry["num_parallel_jobs"] for entry in worker_percentage_usage]
-            times = [datetime_to_plotext_format(entry["time"] - tz_offset) for entry in worker_percentage_usage]
-            num_workers = [entry["nr_current_workers"] for entry in worker_percentage_usage]
-
-            plotext.date_form("d/m/Y H:M:S")
-
-            plotext.plot(times, ideal_situation, label="Desired", marker="hd")
-            plotext.scatter(times, num_workers, label="Num workers (total)", marker="hd")
-
-            plotext.xlabel("Time")
-            plotext.ylabel("Number workers")
-            plotext.title("Worker Usage Over Time")
-
-            plotext.show()
-
-            plotext.clf()
-        except ModuleNotFoundError:
-            print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
-
-def show_progress_plot():
-    if len(progress_plot) > 1 and not args.hide_ascii_plots:
-        tz_offset = get_timezone_offset_seconds()
-        try:
-            plotext.theme('pro')
-
-            best_results_over_time = [float(entry["best_result"]) for entry in progress_plot]
-
-            min_val = min(best_results_over_time)
-            max_val = max(best_results_over_time)
-
-            best_results_over_time = (lambda br: [(x - min(br)) / (max(br) - min(br)) * 100 if max(br) != min(br) else 100.0 for x in br])(best_results_over_time)
-            times = [datetime_to_plotext_format(entry["time"] - tz_offset) for entry in progress_plot]
-
-            plotext.date_form("d/m/Y H:M:S")
-
-            plotext.scatter(times, best_results_over_time, label=f"Best results over time (100% = {max_val}, 0% = {min_val})", marker="hd")
-            plotext.xlabel("Time")
-            plotext.ylabel("Best result")
-            plotext.title("Best Results Over Time")
-
-            plotext.show()
-
-            plotext.clf()
-        except ModuleNotFoundError:
-            print("Cannot plot without plotext being installed. Load venv manually and install it with 'pip3 install plotext'")
 
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars

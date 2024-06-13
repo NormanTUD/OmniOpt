@@ -3525,7 +3525,21 @@ def print_logo():
     except Exception as e:
         print_green("OmniOpt")
 
-def show_auto_execute_message (args):
+def show_strategy_message (random_steps, second_step_steps):
+    second_step_steps_string = ""
+    if second_step_steps:
+        second_step_steps_string = f", followed by {second_step_steps} systematic steps"
+
+    if random_steps and random_steps > submitted_jobs():
+        print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
+
+def show_messages(args, random_steps, second_step_steps):
+    global current_run_folder
+    show_strategy_message(random_steps, second_step_steps)
+
+    if args.auto_execute_suggestions and args.experimental and not current_run_folder.endswith("/0") and args.auto_execute_counter == 0:
+        print_red(f"When you do a automatic parameter search space expansion, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
+
     if args.auto_execute_counter:
         if args.max_auto_execute:
             print(f"Auto-Executing step {args.auto_execute_counter}/max. {args.max_auto_execute}")
@@ -3629,9 +3643,6 @@ def main():
     executor = get_executor(args)
     searching_for = "minimum" if not args.maximize else "maximum"
 
-    if args.auto_execute_suggestions and args.experimental and not current_run_folder.endswith("/0") and args.auto_execute_counter == 0:
-        print_red(f"When you do a automatic parameter search space expansion, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
-
     load_existing_job_data_into_ax_client(args)
 
     initial_text = get_desc_progress_text()
@@ -3639,14 +3650,7 @@ def main():
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
-    second_step_steps_string = ""
-    if second_step_steps:
-        second_step_steps_string = f", followed by {second_step_steps} systematic steps"
-
-    if random_steps and random_steps > submitted_jobs():
-        print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
-
-    show_auto_execute_message(args)
+    show_messages(args, random_steps, second_step_steps)
 
     max_nr_steps = second_step_steps
     if submitted_jobs() < random_steps:

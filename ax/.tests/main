@@ -222,18 +222,14 @@ function _test {
 
 	set -e
 
-	if [[ -z $ALTERNATIVE_OK_EXIT_CODE ]]; then
-		if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]]; then
+	if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]] || [[ "$exit_code" -ne "$ALTERNATIVE_OK_EXIT_CODE" ]]; then
+		if [[ -z $ALTERNATIVE_OK_EXIT_CODE ]]; then
 			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
-			red_text "$ERRORMSG"
-			errors+=($(echo "$ERRORMSG" | base64))
+		else
+			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE or $ALTERNATIVE_OK_EXIT_CODE). Command: $COMMAND"
 		fi
-	else
-		if [[ "$exit_code" -ne "$WANTED_EXIT_CODE" ]] || [[ "$exit_code" -ne "$ALTERNATIVE_OK_EXIT_CODE" ]]; then
-			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
-			red_text "$ERRORMSG"
-			errors+=($(echo "$ERRORMSG" | base64))
-		fi
+		red_text "$ERRORMSG"
+		errors+=($(echo "$ERRORMSG" | base64))
 	fi
 	END_TIME=$(date +%s)
 

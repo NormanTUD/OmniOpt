@@ -560,7 +560,7 @@
 					var numValue = parseFloat(value);
 
 					if (worker_timeout_larger_than_global_timeout) {
-						new_errors.push("Worker timeout is larger than global time");
+						new_errors.push("Worker timeout is larger than global time. Increase global time or decrease worker time.");
 					} else if (isNaN(numValue) && ((Object.keys(item).includes("required") && item.required) || !Object.keys(item).includes("required"))) {
 						new_errors.push("Invalid value for '" + item.label + "'. Must be a number.");
 					} else if (item.min && item.max && (numValue < item.min || numValue > item.max)) {

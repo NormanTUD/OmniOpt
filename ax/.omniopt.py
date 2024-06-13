@@ -1494,9 +1494,14 @@ def display_failed_jobs_table():
         for header in headers:
             table.add_column(header)
         
+        added_rows = set()
+
         for parameter_set in parameters:
             row = [str(to_int_when_possible(value)) for value in parameter_set]
-            table.add_row(*row, style='red')
+            row_tuple = tuple(row)  # Convert to tuple for set operations
+            if row_tuple not in added_rows:
+                table.add_row(*row, style='red')
+                added_rows.add(row_tuple)
         
         # Print the table to the console
         console.print(table)

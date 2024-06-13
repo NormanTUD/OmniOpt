@@ -790,7 +790,7 @@ else
 							if [[ "$job_still_in_squeue" -eq "0" ]]; then
 								red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
 
-								exit 1
+								exit 243
 							fi
 						fi
 					fi

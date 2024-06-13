@@ -3551,7 +3551,6 @@ def main():
 
     print_logo()
 
-    _debug_worker_creation("time, nr_workers, got, requested, phase")
     global args
     global result_csv_file
     global ax_client
@@ -3566,6 +3565,8 @@ def main():
     global random_steps
     global second_step_steps
     global searching_for
+
+    _debug_worker_creation("time, nr_workers, got, requested, phase")
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
 

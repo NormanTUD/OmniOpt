@@ -2528,15 +2528,16 @@ def load_data_from_existing_run_folders(args, _paths):
 
     headers, rows = extract_headers_and_rows(already_inserted_param_data)
 
-    table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
+    if headers and rows:
+        table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
 
-    for header in headers:
-        table.add_column(header)
+        for header in headers:
+            table.add_column(header)
 
-    for row in rows:
-        table.add_row(*row)
+        for row in rows:
+            table.add_row(*row)
 
-    console.print(table)
+        console.print(table)
 
 def print_outfile_analyzed(job):
     stdout_path = str(job.paths.stdout.resolve())

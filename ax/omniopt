@@ -777,7 +777,7 @@ else
 						fi
 					fi
 					
-					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_sq -gt 20 ]]; then
+					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_sq -gt 60 ]]; then
 						current_time=$(date +%s)
 						last_sq_time=$current_time
 

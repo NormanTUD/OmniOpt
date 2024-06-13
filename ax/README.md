@@ -37,12 +37,14 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 
 # Exit-Codes
 
-| Exit Code | Error group description                                                     |
-|-----------|-----------------------------------------------------------------------------|
-| 99        | It seems like the run folder was deleted during the run.                    |
-| 100       | --mem_gb or --gpus, which must be int, has received a value that is not int |
-| 103       | --time is not in minutes or HH:MM:SS format                                 |
-| 104       | One of the parameters --mem_gb, --time, or --experiment_name is missing     |
-| 105       | Continued job error: previous job has missing state files                   |
-| 199       | This happens on unstable file systems when trying to write a file.          |
-| 243       | Job was not found in squeue anymore, it may got cancelled before it ran     |
+| Exit Code | Error group description                                                      |
+|-----------|------------------------------------------------------------------------------|
+| 99        | It seems like the run folder was deleted during the run.                     |
+| 100       | --mem_gb or --gpus, which must be int, has received a value that is not int. |
+| 103       | --time is not in minutes or HH:MM:SS format                                  |
+| 104       | One of the parameters --mem_gb, --time, or --experiment_name is missing.     |
+| 105       | Continued job error: previous job has missing state files.                   |
+| 142       | Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.     |
+| 199       | This happens on unstable file systems when trying to write a file.           |
+| 233       | No random steps set.                                                         |
+| 243       | Job was not found in squeue anymore, it may got cancelled before it ran.     |

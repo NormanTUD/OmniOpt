@@ -39,6 +39,10 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 
 | Exit Code | Error group description                                                      |
 |-----------|------------------------------------------------------------------------------|
+| 10        | Usually only returned by dier (for debugging).                               |
+| 19        | Something was wrong with your parameters. See output for details.            |
+| 31        | Basic modules could not be loaded or you cancelled loading them.             |
+| 44        | Continuation of previous job failed.                                         |
 | 99        | It seems like the run folder was deleted during the run.                     |
 | 100       | --mem_gb or --gpus, which must be int, has received a value that is not int. |
 | 103       | --time is not in minutes or HH:MM:SS format                                  |
@@ -46,5 +50,6 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 | 105       | Continued job error: previous job has missing state files.                   |
 | 142       | Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.     |
 | 199       | This happens on unstable file systems when trying to write a file.           |
+| 203       | Unsupported --model.                                                         |
 | 233       | No random steps set.                                                         |
 | 243       | Job was not found in squeue anymore, it may got cancelled before it ran.     |

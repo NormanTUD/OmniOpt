@@ -160,7 +160,7 @@ except ModuleNotFoundError as e:
     my_exit(31)
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
-    my_exit(32)
+    my_exit(31)
 
 from sixel import converter
 from PIL import Image
@@ -387,14 +387,14 @@ global_vars["experiment_name"] = args.experiment_name
 def load_global_vars(_file):
     if not os.path.exists(_file):
         print(f"You've tried to continue a non-existing job: {_file}")
-        sys.exit(109)
+        sys.exit(44)
     try:
         global global_vars
         with open(_file) as f:
             global_vars = json.load(f)
     except Exception as e:
         print("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
-        my_exit(94)
+        my_exit(44)
 
 if not args.tests:
     if args.continue_previous_job:
@@ -403,19 +403,16 @@ if not args.tests:
     if args.parameter is None and args.continue_previous_job is None:
         print("Either --parameter or --continue_previous_job is required. Both were not found.")
         my_exit(19)
-    #elif args.parameter is not None and args.continue_previous_job is not None:
-    #    print("You cannot use --parameter and --continue_previous_job. You have to decide for one.")
-    #    my_exit(20)
     elif not args.run_program and not args.continue_previous_job:
         print("--run_program needs to be defined when --continue_previous_job is not set")
-        my_exit(42)
+        my_exit(19)
     elif not global_vars["experiment_name"] and not args.continue_previous_job:
         print("--experiment_name needs to be defined when --continue_previous_job is not set")
-        my_exit(43)
+        my_exit(19)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
             print_red(f"The previous job folder {args.continue_previous_job} could not be found!")
-            my_exit(21)
+            my_exit(19)
 
         if not global_vars["experiment_name"]:
             exp_name_file = f"{args.continue_previous_job}/experiment_name"
@@ -423,11 +420,11 @@ if not args.tests:
                 global_vars["experiment_name"] = get_file_as_string(exp_name_file).strip()
             else:
                 print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
-                my_exit(46)
+                my_exit(19)
 
     if not args.mem_gb:
         print(f"--mem_gb needs to be set")
-        my_exit(48)
+        my_exit(19)
 
     if not args.time:
         if not args.continue_previous_job:
@@ -443,7 +440,7 @@ if not args.tests:
                     print(f"Time-setting: The contents of {time_file} do not contain a single number")
             else:
                 print(f"neither --time nor file {time_file} found")
-                my_exit(1)
+                my_exit(19)
     else:
         _time = args.time
 
@@ -461,7 +458,7 @@ if not args.tests:
                     print(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
             else:
                 print(f"neither --mem_gb nor file {mem_gb_file} found")
-                my_exit(1)
+                my_exit(19)
     else:
         mem_gb = int(args.mem_gb)
 
@@ -476,7 +473,7 @@ if not args.tests:
                 print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
         else:
             print(f"neither --gpus nor file {gpus_file} found")
-            my_exit(1)
+            my_exit(19)
     else:
         max_eval = args.max_eval
 
@@ -494,13 +491,13 @@ if not args.tests:
                     print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
             else:
                 print(f"neither --max_eval nor file {max_eval_file} found")
-                my_exit(1)
+                my_exit(19)
     else:
         max_eval = args.max_eval
 
     if max_eval <= 0:
         print_red("--max_eval must be larger than 0")
-        my_exit(39)
+        my_exit(19)
 
 
 def print_debug_get_next_trials(got, requested, _line):
@@ -3953,7 +3950,6 @@ def get_errors_from_outfile(i):
                     errors.append(f"{err} detected")
             else:
                 print_red(f"Wrong type, should be list or string, is {type(err)}")
-                my_exit(41)
 
         if "Can't locate" in file_as_string and "@INC" in file_as_string:
             errors.append("Perl module not found")

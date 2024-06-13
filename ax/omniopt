@@ -733,14 +733,13 @@ else
 	if [[ $exit_code -eq 0 ]]; then
 		if [[ $follow -eq 1 ]]; then
 			if command -v sbatch 2>/dev/null >/dev/null; then
+				set +e
 				LOG_PATH=$(slurmlogpath $started_job_nr)
 	
 				spin[0]="-"
 				spin[1]="\\" # "
 				spin[2]="|"
 				spin[3]="/"
-
-				set +x
 
 				last_why_pending_time=$(date +%s)
 
@@ -755,7 +754,6 @@ else
 
 					time_diff=$(($current_time - $last_why_pending_time))
 
-					set +e
 					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff -gt 10 ]]; then
 						estimated_start_time_original=$(timeout 5 whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
 
@@ -772,7 +770,6 @@ else
 							fi
 						fi
 					fi
-					set -e
 
 					for i in "${spin[@]}"; do
 						print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
@@ -795,6 +792,7 @@ else
 						last_print_line_length=$print_line_length
 					done
 				done
+				set -e
 
 				if [[ "$debug" -eq 1 ]]; then
 					set -x

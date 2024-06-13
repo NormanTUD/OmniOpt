@@ -102,7 +102,12 @@ def plot_gpu_usage(run_dir):
         _path = os.path.dirname(args.save_to_file)
         if _path:
             os.makedirs(_path, exist_ok=True)
-        plt.savefig(args.save_to_file)  # Save the plot to the specified file
+        try:
+            plt.savefig(args.save_to_file)
+        except OSError as e:
+            print(f"Error: {e}. This may happen on unstable file systems.")
+            sys.exit(199)
+
     else:
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
         if not args.no_plt_show:

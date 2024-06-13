@@ -112,7 +112,12 @@ def main():
         if _path:
             os.makedirs(_path, exist_ok=True)
 
-        plt.savefig(args.save_to_file)
+        try:
+            plt.savefig(args.save_to_file)
+        except OSError as e:
+            print(f"Error: {e}. This may happen on unstable file systems.")
+            sys.exit(199)
+
     else:
         window_title = f'Times and exit codes for {args.run_dir}'
         fig.canvas.manager.set_window_title(window_title)

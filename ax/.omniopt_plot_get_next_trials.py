@@ -121,7 +121,11 @@ def plot_trial_usage(args, log_file_path):
             _path = os.path.dirname(args.save_to_file)
             if _path:
                 os.makedirs(_path, exist_ok=True)
-            plt.savefig(args.save_to_file)
+            try:
+                plt.savefig(args.save_to_file)
+            except OSError as e:
+                print(f"Error: {e}. This may happen on unstable file systems.")
+                sys.exit(199)
         else:
             if not args.no_plt_show:
                 plt.show()

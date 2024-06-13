@@ -3121,6 +3121,9 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         else:
             print_red(f":warning: Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
+        if args.model != "FACTORIAL" and args.gridsearch:
+            print_red(f"Gridsearch only really works when you chose the FACTORIAL model.")
+
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
     _steps.append(

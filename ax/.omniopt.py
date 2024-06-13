@@ -516,7 +516,7 @@ try:
     from tqdm import tqdm
 except ModuleNotFoundError as e:
     print(f"Error loading module: {e}")
-    my_exit(24)
+    my_exit(31)
 
 class signalUSR (Exception):
     pass
@@ -564,7 +564,7 @@ try:
         logging.basicConfig(level=logging.ERROR)
 except ModuleNotFoundError as e:
     print(f"Error: {e}")
-    my_exit(20)
+    my_exit(31)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
     my_exit(0)
@@ -842,11 +842,11 @@ def parse_experiment_parameters(args):
 
             if name in invalid_names:
                 print_red(f"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
-                my_exit(18)
+                my_exit(181)
 
             if name in param_names:
                 print_red(f"\n:warning: Parameter name '{name}' is not unique. Names for parameters must be unique!")
-                my_exit(1)
+                my_exit(181)
 
             param_names.append(name)
 
@@ -857,33 +857,33 @@ def parse_experiment_parameters(args):
             if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)
                 print_red(f"\n:warning: Invalid type {param_type}, valid types are: {valid_types_string}")
-                my_exit(3)
+                my_exit(181)
 
             if param_type == "range":
                 if args.model and args.model == "FACTORIAL":
                     print_red(f"\n:warning: --model FACTORIAL cannot be used with range parameter")
-                    my_exit(191)
+                    my_exit(181)
 
                 if len(this_args) != 5 and len(this_args) != 4:
                     print_red(f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
-                    my_exit(9)
+                    my_exit(181)
 
                 try:
                     lower_bound = float(this_args[j + 2])
                 except:
                     print_red(f"\n:warning: {this_args[j + 2]} is not a number")
-                    my_exit(4)
+                    my_exit(181)
 
                 try:
                     upper_bound = float(this_args[j + 3])
                 except:
                     print_red(f"\n:warning: {this_args[j + 3]} is not a number")
-                    my_exit(5)
+                    my_exit(181)
 
                 if upper_bound == lower_bound:
                     if lower_bound == 0:
                         print_red(f":warning: Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-                        sys.exit(13)
+                        sys.exit(181)
                     print_red(f":warning: Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
                     lower_bound = -upper_bound
 
@@ -906,7 +906,7 @@ def parse_experiment_parameters(args):
                 if value_type not in valid_value_types:
                     valid_value_types_string = ", ".join(valid_value_types)
                     print_red(f":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-                    my_exit(8)
+                    my_exit(181)
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
@@ -972,7 +972,7 @@ def parse_experiment_parameters(args):
             elif param_type == "fixed":
                 if len(this_args) != 3:
                     print_red(f":warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
-                    my_exit(11)
+                    my_exit(181)
 
                 value = this_args[j + 2]
 
@@ -992,7 +992,7 @@ def parse_experiment_parameters(args):
             elif param_type == "choice":
                 if len(this_args) != 3:
                     print_red(f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
-                    my_exit(11)
+                    my_exit(181)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
@@ -1014,7 +1014,7 @@ def parse_experiment_parameters(args):
                 j += 3
             else:
                 print_red(f":warning: Parameter type '{param_type}' not yet implemented.");
-                my_exit(14)
+                my_exit(181)
         i += 1
 
     if search_space_reduction_warning:
@@ -1359,20 +1359,20 @@ try:
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
                 print_red("\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-                my_exit(33)
+                my_exit(31)
             except KeyboardInterrupt:
                 print_red("\n:warning: You pressed CTRL+C. Program execution halted.")
-                my_exit(34)
+                my_exit(31)
 
         with console.status("[bold green]Importing botorch...") as status:
             try:
                 import botorch
             except ModuleNotFoundError as e:
                 print_red("\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
-                my_exit(35)
+                my_exit(31)
             except KeyboardInterrupt:
                 print_red("\n:warning: You pressed CTRL+C. Program execution halted.")
-                my_exit(36)
+                my_exit(31)
 
         with console.status("[bold green]Importing submitit...") as status:
             try:
@@ -1380,10 +1380,10 @@ try:
                 from submitit import AutoExecutor, LocalJob, DebugJob
             except:
                 print_red("\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
-                my_exit(7)
+                my_exit(31)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
-    my_exit(242)
+    my_exit(31)
 
 def disable_logging():
     print_debug("disable_logging")
@@ -1982,17 +1982,17 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         except json.decoder.JSONDecodeError as e:
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
-            my_exit(157)
+            my_exit(47)
 
         if not os.path.exists(checkpoint_parameters_filepath):
             print_red(f"Cannot find {checkpoint_parameters_filepath}")
-            my_exit(49)
+            my_exit(47)
 
         done_jobs_file = f"{continue_previous_job}/state_files/submitted_jobs"
         done_jobs_file_dest = f'{current_run_folder}/state_files/submitted_jobs'
         if not os.path.exists(done_jobs_file):
             print_red(f"Cannot find {done_jobs_file}")
-            my_exit(95)
+            my_exit(47)
 
         if not os.path.exists(done_jobs_file_dest):
             shutil.copy(done_jobs_file, done_jobs_file_dest)
@@ -2001,7 +2001,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         submitted_jobs_file_dest = f'{current_run_folder}/state_files/submitted_jobs'
         if not os.path.exists(submitted_jobs_file):
             print_red(f"Cannot find {submitted_jobs_file}")
-            my_exit(96)
+            my_exit(47)
 
         if not os.path.exists(submitted_jobs_file_dest):
             shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
@@ -2037,7 +2037,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         if not os.path.exists(checkpoint_filepath):
             print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
-            my_exit(22)
+            my_exit(47)
 
         with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
             print(f"Continuation from checkpoint {continue_previous_job}", file=f)
@@ -2094,10 +2094,10 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             experiment = ax_client.create_experiment(**experiment_args)
         except ValueError as error:
             print_red(f"An error has occured while creating the experiment: {error}")
-            my_exit(29)
+            my_exit(49)
         except TypeError as error:
             print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
-            my_exit(50)
+            my_exit(49)
 
     return ax_client, experiment_parameters, experiment_args
 
@@ -3755,7 +3755,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
 
     if not os.path.exists(program_path):
         print_red(f"Program path {program_path} not found!")
-        my_exit(99)
+        my_exit(18)
 
     program_path_with_program = f"{program_path}"
 

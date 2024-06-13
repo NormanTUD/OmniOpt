@@ -3525,6 +3525,13 @@ def print_logo():
     except Exception as e:
         print_green("OmniOpt")
 
+def show_auto_execute_message (args):
+    if args.auto_execute_counter:
+        if args.max_auto_execute:
+            print(f"Auto-Executing step {args.auto_execute_counter}/max. {args.max_auto_execute}")
+        else:
+            print(f"Auto-Executing step {args.auto_execute_counter}")
+
 def main():
     print_debug("main")
 
@@ -3639,11 +3646,7 @@ def main():
     if random_steps and random_steps > submitted_jobs():
         print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
 
-    if args.auto_execute_counter:
-        if args.max_auto_execute:
-            print(f"Auto-Executing step {args.auto_execute_counter}/max. {args.max_auto_execute}")
-        else:
-            print(f"Auto-Executing step {args.auto_execute_counter}")
+    show_auto_execute_message(args)
 
     max_nr_steps = second_step_steps
     if submitted_jobs() < random_steps:

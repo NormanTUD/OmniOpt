@@ -743,6 +743,7 @@ else
 				spin[3]="/"
 
 				last_why_pending_time=$(date +%s)
+				last_sq_time=$(date +%s)
 
 				estimated_start_time=""
 				estimated_start_time_original=""
@@ -753,13 +754,15 @@ else
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)
 
-					time_diff=$(($current_time - $last_why_pending_time))
+					time_diff_whypending=$(($current_time - $last_why_pending_time))
+					time_diff_sq=$(($current_time - $last_sq_time))
 
-					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff -gt 10 ]]; then
+					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_whypending -gt 10 ]]; then
 						trap - ERR
 						estimated_start_time_original=$(timeout 5 whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
 						trap 'calltracer' ERR
 
+						current_time=$(date +%s)
 						last_why_pending_time=$current_time
 						if [[ ! -z $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
 							estimated_start_time=". Estimated start:$estimated_start_time_original"
@@ -770,6 +773,26 @@ else
 								if [[ ! -z $_remaining_time ]]; then
 									estimated_start_time="$estimated_start_time ($_remaining_time)"
 								fi
+							fi
+						fi
+					fi
+					
+					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_sq -gt 10 ]]; then
+						current_time=$(date +%s)
+						last_sq_time=$current_time
+
+						squeue_me_output=$(squeue --me)
+						squeue_exit_code=$?
+
+						if [[ $squeue_exit_code -eq "0" ]]; then
+							job_still_in_squeue=$(echo "$squeue_me_output" | grep "$started_job_nr" | wc -l)
+
+							if [[ "$job_still_in_squeue" -eq "0" ]]; then
+								scancel $started_job_nr
+
+								red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
+
+								exit 1
 							fi
 						fi
 					fi

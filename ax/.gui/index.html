@@ -7,6 +7,7 @@
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<style>
 			.time_picker_container {
+				font-variant: small-caps;
 				width: 100%;
 			}
 
@@ -217,8 +218,8 @@
 				}
 
 				var $div = $(`<div class='time_picker_container'>
-					<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> hours, 
-					<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
+					<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours, 
+					<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
 				</div>`)
 
 				$parent.prepend($div);

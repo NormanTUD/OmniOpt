@@ -788,8 +788,6 @@ else
 							job_still_in_squeue=$(echo "$squeue_me_output" | grep "$started_job_nr" | wc -l)
 
 							if [[ "$job_still_in_squeue" -eq "0" ]]; then
-								scancel $started_job_nr
-
 								red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
 
 								exit 1

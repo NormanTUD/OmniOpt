@@ -2436,7 +2436,7 @@ def parse_parameter_type_error(error_message):
 def extract_headers_and_rows(data_list):
     try:
         if not data_list:
-            return
+            return None, None
 
         # Extract headers from the first dictionary
         first_entry = data_list[0]

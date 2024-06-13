@@ -218,7 +218,7 @@
 
 				var $div = $(`<div class='time_picker_container'>
 					<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> hours, 
-					<input type='number' min=-1 max=65 step=5 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
+					<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> minutes
 				</div>`)
 
 				$parent.prepend($div);
@@ -254,12 +254,6 @@
 						_hours = 0;
 					}
 				}
-
-				/*
-				if (_minutes % 5 > 1) {
-					_minutes = _minutes - (_minutes % 5) + 5	
-				}
-				*/
 
 				$time_picker_hours.val(_hours)
 				$time_picker_minutes.val(_minutes)

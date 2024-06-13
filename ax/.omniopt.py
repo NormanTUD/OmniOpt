@@ -665,7 +665,7 @@ def check_slurm_job_id():
             print_red("Not a valid SLURM_JOB_ID.")
         elif slurm_job_id is None:
             print_red("You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. " +
-                "This may cause the system to slow down for all other users. It is recommended uou run the main script in a Slurm job."
+                "This may cause the system to slow down for all other users. It is recommended you run the main script in a Slurm job."
             )
 
 def create_folder_and_file(folder):

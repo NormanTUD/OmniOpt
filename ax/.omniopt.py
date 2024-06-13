@@ -2436,6 +2436,28 @@ def parse_parameter_type_error(error_message):
         # Logging the error
         return None
 
+def extract_headers_and_rows(data_list):
+    try:
+        if not data_list:
+            raise ValueError("data_list is empty")
+
+        # Extract headers from the first dictionary
+        first_entry = data_list[0]
+        headers = list(first_entry.keys())
+
+        # Initialize rows list
+        rows = []
+
+        # Extract rows based on headers order
+        for entry in data_list:
+            row = [str(entry.get(header, None)) for header in headers]
+            rows.append(row)
+
+        return headers, rows
+    except Exception as e:
+        print(f"An error occured: {e}")
+        return None, None
+
 def load_data_from_existing_run_folders(args, _paths):
     #dier(help(ax_client.experiment.search_space))
     for this_path in _paths:
@@ -2460,6 +2482,8 @@ def load_data_from_existing_run_folders(args, _paths):
             hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
 
             global already_inserted_param_hashes
+
+            already_inserted_param_data = []
 
             if looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 if hashed_params_result not in already_inserted_param_hashes.keys():
@@ -2493,8 +2517,26 @@ def load_data_from_existing_run_folders(args, _paths):
                 else:
                     print_debug("Prevented inserting a double entry")
                     already_inserted_param_hashes[hashed_params_result] += 1
+
+                    old_arm_parameter_with_result = old_arm_parameter
+                    old_arm_parameter_with_result["result"] = old_result_simple
+                    already_inserted_param_data.append(old_arm_parameter_with_result)
             else:
-                original_print(f"Old result for {old_arm_parameter} could not be found in {this_path}/{pd_csv_filename}.")
+                old_arm_parameter_with_result = old_arm_parameter
+                old_arm_parameter_with_result["result"] = old_result_simple
+                already_inserted_param_data.append(old_arm_parameter_with_result)
+
+    headers, rows = extract_headers_and_rows(already_inserted_param_data)
+
+    table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
+
+    for header in headers:
+        table.add_column(header)
+
+    for row in rows:
+        table.add_row(*row)
+
+    console.print(table)
 
 def print_outfile_analyzed(job):
     stdout_path = str(job.paths.stdout.resolve())

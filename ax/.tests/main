@@ -215,7 +215,7 @@ function _test {
 		exit 19
 	fi
 
-	if [[ "$WANTED_EXIT_CODE" -eq "$ALTERNATIVE_OK_EXIT_CODE" ]]; then
+	if [[ "$WANTED_EXIT_CODE" == "$ALTERNATIVE_OK_EXIT_CODE" ]]; then
 		echo "_test: WANTED_EXIT_CODE = ALTERNATIVE_OK_EXIT_CODE. If specified, must be different."
 		exit 19
 	fi

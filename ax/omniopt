@@ -1,7 +1,5 @@
 #!/bin/bash
 
-touch xyz
-
 # Idea for how this works and is implemented technically:
 # This main script that is supposed to be called is a bash script.
 # Step 1:
@@ -791,6 +789,12 @@ else
 
 							if [[ "$job_still_in_squeue" -eq "0" ]]; then
 								red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
+
+								SCONTROL_STATUS=$(scontrol show job $started_job_nr | grep JobState | sed -e 's#^\s*[^=]*=#SLURM-Job-State: #')
+
+								if [[ "$SCONTROL_STATUS" == *"FAILED"* ]]; then
+									red_text "$SCONTROL_STATUS"
+								fi
 
 								exit 243
 							fi

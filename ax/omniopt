@@ -1,5 +1,7 @@
 #!/bin/bash
 
+touch xyz
+
 # Idea for how this works and is implemented technically:
 # This main script that is supposed to be called is a bash script.
 # Step 1:

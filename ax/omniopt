@@ -794,6 +794,8 @@ else
 
 								if [[ "$SCONTROL_STATUS" == *"FAILED"* ]]; then
 									red_text "$SCONTROL_STATUS"
+									red_text "Mount-Info:"
+									findmnt -T $SCRIPT_DIR
 								fi
 
 								exit 243

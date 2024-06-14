@@ -176,7 +176,7 @@ function calltracer () {
 
 	echo ""
 	caller
-	echo "Runtime (calltracer): $(displaytime $SECONDS)"
+	echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
 	tput bel
 }
 
@@ -200,7 +200,7 @@ kill_python_if_started () {
 		fi
 	fi
 
-	echo "Runtime (kill_python_if_started): $(displaytime $SECONDS)"
+	echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
 	tput bel
 }
 
@@ -896,7 +896,7 @@ else
 
 fi
 
-echo "Runtime (end): $(displaytime $SECONDS)"
+echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
 
 if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
 	exit $exit_code

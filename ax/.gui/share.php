@@ -452,7 +452,7 @@ results_csv_json.forEach(function(row, index) {
 });
 
 // Parallel Plot
-var dimensions = paramKeys.map(function(key) {
+var dimensions = ['result', ...paramKeys].map(function(key) {
     return {
         range: [Math.min(...results_csv_json.map(row => parseFloat(row[key]))), Math.max(...results_csv_json.map(row => parseFloat(row[key])))],
         label: key,

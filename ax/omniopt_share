@@ -59,4 +59,4 @@ else
 fi
 
 set -e
-curl ${curl_params} "http://localhost/oo2_gui/share.php?user_id=$user_id&experiment_name=$experiment_name"
+curl ${curl_params} "https://imageseg.scads.de/omniax/share.php?user_id=$user_id&experiment_name=$experiment_name"

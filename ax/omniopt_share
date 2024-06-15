@@ -47,5 +47,16 @@ for available_file in $(ls $RUN_DIR); do
 	fi
 done
 
+eval `resize`
+user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+	true
+else
+    yellow_text "You cancelled sharing."
+    exit 0
+fi
+
 set -e
-curl ${curl_params} "http://localhost/oo2_gui/share.php?user_id=$USER&experiment_name=$experiment_name"
+curl ${curl_params} "http://localhost/oo2_gui/share.php?user_id=$user_id&experiment_name=$experiment_name"

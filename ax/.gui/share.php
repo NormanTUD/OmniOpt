@@ -114,7 +114,7 @@
 
 
 		if ($added_files) {
-			echo "Job was successfully shared. See localhost/oo2_gui/share.php?usre=$user_id&experiment=$experiment_name&run_id=$run_id\n";
+			echo "Job was successfully shared. See localhost/oo2_gui/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 			exit(0);
 		} else {
 			echo "Error sharing the job. No Files were found";
@@ -169,7 +169,9 @@
 		}
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
 		print("show_run_selection 2:<br>");
-		show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
+		$user = $_GET["user"];
+		$experiment_name = $_GET["experiment"];
+		show_run_selection($sharesPath, $user, $experiment_name);
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
 		$user = $_GET["user"];
 		$experiment_name = $_GET["experiment"];

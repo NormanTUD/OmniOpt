@@ -102,19 +102,10 @@
 			return false;
 		}
 
-		if (!mb_check_encoding($content, 'UTF-8') && !mb_check_encoding($content, 'ASCII')) {
-			log_error("199 CSV file encoding is not valid UTF-8 or ASCII.");
-			return false;
-		}
-
 		try {
 			$file = fopen($filepath, 'r');
 			$content = fread($file, filesize($filepath));
 			fclose($file);
-			if (!mb_check_encoding($content, 'UTF-8') && !mb_check_encoding($content, 'ASCII')) {
-				log_error("CSV file encoding is not valid UTF-8 or ASCII.");
-				return false;
-			}
 		} catch (Exception $e) {
 			log_error("Failed to read CSV file: " . $e->getMessage());
 			return false;

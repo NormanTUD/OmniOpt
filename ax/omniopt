@@ -28,11 +28,45 @@
 # and the program looks basically the same on every device.
 # This logic is defined in .shellscript_functions
 
+int_re='^[+-]?[0-9]+$'
+
 if [[ ! -z $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""
 	echo "========================================================================"
 	echo ""
 fi
+
+SEND_USAGE_STATS=0
+
+function myexit {
+	CODE=$1
+
+	if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
+		CODE=0
+	fi
+
+	send_status_report $CODE
+
+	exit $CODE
+}
+
+function send_status_report {
+	exit_code=$1
+
+	if [[ $SEND_USAGE_STATS -eq "1" ]]; then
+		anon_user_id=$(echo "user=$USER|hostname=$(hostname)|machine-id=$(cat /etc/machine-id)" | md5sum | sed -e 's#\s.*##')
+		has_sbatch=0
+		run_uuid=$(uuidgen)
+
+		echo "anon_user=$anon_user_id&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$(git rev-parse HEAD)&exit_code=$exit_code"
+	fi
+}
+
+if command -v sbatch 2>/dev/null >/dev/null; then
+	has_sbatch=1
+fi
+
+
 
 export NO_WHIPTAIL=1
 
@@ -242,11 +276,9 @@ minutes_to_hh_mm_ss() {
 	else
 		red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS"
 
-		exit 103
+		myexit 103
 	fi
 }
-
-int_re='^[+-]?[0-9]+$'
 
 continue_previous_job=""
 mem_gb=
@@ -339,7 +371,7 @@ while [ $k -lt ${#args[@]} ]; do
 			mem_gb="${i#*=}"
 			if ! [[ $mem_gb =~ $int_re ]] ; then
 				red_text "error: --mem_gb not a INT: $i" >&2
-				exit 100
+				myexit 100
 			fi
 
 			if [[ ! -z $old_mem_gb ]]; then
@@ -359,7 +391,7 @@ while [ $k -lt ${#args[@]} ]; do
 			mem_gb="${args[k]}"
 			if ! [[ $mem_gb =~ $int_re ]] ; then
 				red_text "error: --mem_gb not a INT: $i" >&2
-				exit 100
+				myexit 100
 			fi
 
 			if [[ ! -z $old_mem_gb ]]; then
@@ -376,7 +408,7 @@ while [ $k -lt ${#args[@]} ]; do
 			gpus="${i#*=}"
 			if ! [[ $gpus =~ $int_re ]] ; then
 				red_text "error: --gpus not a INT: $i" >&2
-				exit 100
+				myexit 100
 			fi
 
 			if [[ ! -z $old_gpus ]]; then
@@ -396,7 +428,7 @@ while [ $k -lt ${#args[@]} ]; do
 			gpus="${args[k]}"
 			if ! [[ $gpus =~ $int_re ]] ; then
 				red_text "error: --gpus not a INT: $i" >&2
-				exit 100
+				myexit 100
 			fi
 
 			if [[ ! -z $old_gpus ]]; then
@@ -470,6 +502,9 @@ while [ $k -lt ${#args[@]} ]; do
 			tests=1
 			;;
 
+		--send_anonymized_usage_stats)
+			SEND_USAGE_STATS=1
+			;;
 		--follow)
 			follow=1
 			;;
@@ -549,17 +584,17 @@ if [[ $tests -eq 0 ]]; then
 		if [[ "$continue_previous_job" == "" ]]; then
 			if [[ -z "$mem_gb" ]]; then
 				red_text "Parameter --mem_gb is missing or empty";
-				exit 104
+				myexit 104
 			fi
 
 			if [[ -z "$time" ]]; then
 				red_text "Parameter --time is missing or empty";
-				exit 104
+				myexit 104
 			fi
 
 			if [[ -z $experiment_name ]]; then
 				red_text "Parameter --experiment_name is missing or empty"
-				exit 104
+				myexit 104
 			fi
 		fi
 	fi
@@ -568,7 +603,7 @@ fi
 if [[ "$continue_previous_job" != "" ]]; then
 	if [[ ! -d "$continue_previous_job" ]]; then
 		echo "The folder $continue_previous_job was not found"
-		exit 105
+		myexit 105
 	fi
 
 	if [[ -z "$mem_gb" ]]; then
@@ -576,7 +611,7 @@ if [[ "$continue_previous_job" != "" ]]; then
 			mem_gb=$(cat "$continue_previous_job/state_files/mem_gb")
 		else
 			echo "mem_gb could not be determined from previous run or --mem_gb"
-			exit 105
+			myexit 105
 		fi
 	fi
 
@@ -585,7 +620,7 @@ if [[ "$continue_previous_job" != "" ]]; then
 			gpus=$(cat "$continue_previous_job/state_files/gpus")
 		else
 			echo "gpus could not be determined from previous run or --gpus"
-			exit 105
+			myexit 105
 		fi
 	fi
 
@@ -594,7 +629,7 @@ if [[ "$continue_previous_job" != "" ]]; then
 			time=$(cat "$continue_previous_job/state_files/time")
 		else
 			echo "Time could not be determined from previous run or --time"
-			exit 105
+			myexit 105
 		fi
 	fi
 fi
@@ -713,7 +748,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	tput bel
 
-	exit $EXIT_CODE
+	myexit $EXIT_CODE
 else
 	IFS=$' '
 
@@ -804,7 +839,7 @@ else
 									fi
 								fi
 
-								exit 243
+								myexit 243
 							fi
 						fi
 					fi
@@ -894,7 +929,7 @@ else
 	else
 		red_text "Failed to start sbatch job. Exit-Code: $exit_code"
 
-		exit $exit_code
+		myexit $exit_code
 	fi
 
 fi
@@ -902,8 +937,8 @@ fi
 echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
 
 if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
-	exit $exit_code
+	myexit $exit_code
 else
 	echo "Invalid exit-code $exit_code detected!"
-	exit 0
+	myexit 0
 fi

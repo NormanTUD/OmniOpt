@@ -315,6 +315,7 @@ optional.add_argument('--model', help=f'Use special models for nonrandom steps. 
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
 optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
 optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
+optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)

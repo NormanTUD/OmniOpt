@@ -167,7 +167,7 @@
 
 		function parsePathAndGenerateLink(path) {
 			// Define the regular expression to capture the different parts of the path
-			var regex = /^\.\/([^\/]+)\/?([^\/]*)\/?(\d+)?\/?$/;
+			var regex = /\/([^\/]+)\/?([^\/]*)\/?(\d+)?\/?$/;
 			var match = path.match(regex);
 
 			// Check if the path matches the expected format
@@ -214,13 +214,24 @@
 					link.classList.add("box-shadow");
 					link.textContent = decodeURI(folderName);
 
-					currentPath += `/{folderName}`;
+					var parsedPath = "";
 
-					eval(`$(link).on("click", async function () {
-						var parsedPath = parsePathAndGenerateLink(currentPath)
-						log(parsedPath);
-						window.location.href = parsedPath;
-				});`);
+					if (folderName == "Start") {
+						eval(`$(link).on("click", async function () {
+								window.location.href = "share.php";
+							});
+						`);
+					} else {
+						parsedPath = parsePathAndGenerateLink(currentPath)
+						currentPath += `/${folderName}`;
+						log(currentPath);
+
+						eval(`$(link).on("click", async function () {
+								log(parsedPath);
+								window.location.href = parsedPath;
+							});
+						`);
+					}
 
 				breadcrumb.appendChild(link);
 

@@ -285,7 +285,6 @@ parser = argparse.ArgumentParser(
 required = parser.add_argument_group('Required arguments', "These options have to be set")
 required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
 optional = parser.add_argument_group('Optional', "These options are optional")
-bash = parser.add_argument_group('Bash', "These options are for the main worker bash script, not the python script itself")
 experimental = parser.add_argument_group('Experimental', "Experimental parameters")
 slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")

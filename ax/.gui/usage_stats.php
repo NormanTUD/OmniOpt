@@ -152,7 +152,6 @@
 
 		echo "<div id='$element_id-exit-codes' style='height: 400px;'></div>";
 		echo "<div id='$element_id-runs' style='height: 400px;'></div>";
-		echo "<div id='$element_id-violins' style='height: 400px;'></div>";
 		echo "<div id='$element_id-runtimes' style='height: 400px;'></div>";
 		echo "<div id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
 
@@ -181,15 +180,6 @@
 				name: 'Runs per User'
 			};
 
-			var violinPlot = {
-				y: exit_codes_$element_id,
-				x: anon_users_$element_id,
-				type: 'violin',
-				points: 'all',
-				jitter: 0.3,
-				name: 'Exit Codes per User'
-			};
-
 			var runtimePlot = {
 				x: runtimes_$element_id,
 				type: 'histogram',
@@ -209,7 +199,6 @@
 
 			Plotly.newPlot('$element_id-exit-codes', [exitCodePlot], {title: '$title - Exit Codes'});
 			Plotly.newPlot('$element_id-runs', [userPlot], {title: '$title - Runs per User'});
-			Plotly.newPlot('$element_id-violins', [violinPlot], {title: '$title - Exit Codes per User'});
 			Plotly.newPlot('$element_id-runtimes', [runtimePlot], {title: '$title - Runtimes'});
 			Plotly.newPlot('$element_id-runtime-vs-exit-code', [runtimeVsExitCodePlot], {title: '$title - Runtime vs Exit Code'});
 

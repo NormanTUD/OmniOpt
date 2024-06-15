@@ -106,14 +106,66 @@
 		// usw.
 	}
 
-	// Liste aller Unterordner anzeigen
-	$subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
-	foreach ($subfolders as $folder) {
-		// Sicherheitsüberprüfung für den Ordnerlink
-		$relativePath = ltrim(str_replace($sharesPath, '', $folder), '/');
-		$safeLink = htmlspecialchars($relativePath);
+	function show_run($folder) {
+		print("show_run: $folder");
+	}
 
-		echo "<a href=\"share.php?folder=$safeLink\">$safeLink</a><br>";
+	function show_run_selection ($sharesPath, $user, $experiment_name) {
+		$experiment_name = preg_replace("/.*\//", "", $experiment_name);
+		$folder_glob = "$sharesPath/$user/$experiment_name/*";
+		$experiment_subfolders = glob($folder_glob, GLOB_ONLYDIR);
+		if (count($experiment_subfolders) == 0) {
+			echo "No runs found in $folder_glob";
+			exit(1);
+		} else if (count($experiment_subfolders) == 1) {
+			show_run($experiment_subfolders[0]);
+			exit(0);
+		}
+
+		foreach ($experiment_subfolders as $run_nr) {
+			$run_nr = preg_replace("/.*\//", "", $run_nr);
+			echo "<a href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr\">$user/$experiment_name/$run_nr</a><br>";
+		}
+	}
+
+	// Liste aller Unterordner anzeigen
+	if (isset($_GET["user"]) && !isset($_GET["experiment"])) {
+		$user = $_GET["user"];
+		if(preg_match("/\.\./", $user)) {
+			print("Invalid user path");
+			exit(1);
+		}
+
+
+		$user = preg_replace("/.*\//", "", $user);
+
+		$experiment_subfolders = glob("$sharesPath/$user/*", GLOB_ONLYDIR);
+		if (count($experiment_subfolders) == 0) {
+			print("Did not find any experiments for $sharesPath/$user/*");
+			exit(0);
+		} else if (count($experiment_subfolders) == 1) {
+			print("show_run_selection:<br>");
+			show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
+		} else {
+			foreach ($experiment_subfolders as $experiment) {
+				echo "<a href=\"share.php?user=$user&experiment=$experiment\">$user</a><br>";
+			}
+		}
+	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
+		print("show_run_selection 2:<br>");
+		show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
+	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
+		$user = $_GET["user"];
+		$experiment_name = $_GET["experiment"];
+		$run_nr = $_GET["run_nr"];
+
+		$experiment_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
+		print("EXPERIMENT: Folder $experiment_folder");
+	} else {
+		$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
+		foreach ($user_subfolders as $user) {
+			echo "<a href=\"share.php?user=$user\">$user</a><br>";
+		}
 	}
 
 	// Beispiel für den CURL-Befehl zum Hochladen von Dateien

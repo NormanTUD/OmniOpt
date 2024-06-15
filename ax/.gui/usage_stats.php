@@ -97,7 +97,7 @@
 			if (!$file_exists) {
 				fputcsv($file, $headers);
 			}
-			array_unshift($params, time());
+			$params["time"] = time();
 			fputcsv($file, $params);
 			fclose($file);
 		} catch (Exception $e) {
@@ -130,9 +130,9 @@
 		$regular_data = [];
 
 		foreach ($data as $row) {
-			if ($row[0] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
+			if ($row[1] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
 				$developer_ids[] = $row;
-			} elseif ($row[0] == 'affed00faffed00faffed00faffed00f') {
+			} elseif ($row[1] == 'affed00faffed00faffed00faffed00f') {
 				$test_ids[] = $row;
 			} else {
 				$regular_data[] = $row;

@@ -1,3 +1,10 @@
+ <script
+			  src="https://code.jquery.com/jquery-3.7.1.min.js"
+			  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+			  crossorigin="anonymous"></script>
+<script>
+	var log = console.log;
+</script>
 <?php
 	error_reporting(E_ALL);
 	set_error_handler(function ($severity, $message, $file, $line) {
@@ -184,7 +191,6 @@
 				$jsonData = loadCsvToJson($file);
 				echo "
 					<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
-					<div id='scatter-plot' style='width:600px;height:400px;'></div>
 					<div id='scatter-3d-plot' style='width:600px;height:400px;'></div>
 
 					<script>
@@ -192,7 +198,8 @@
 
 
 		// Extract parameter names
-		const paramKeys = Object.keys(results_csv_json[0]).filter(key => key.endsWith('_param'));
+		const paramKeys = Object.keys(results_csv_json[0]).filter(key => !['trial_index', 'arm_name', 'trial_status', 'generation_method'].includes(key));
+log(paramKeys)
 
 		// 2D Scatter Plot
 		for (let i = 0; i < paramKeys.length; i++) {
@@ -213,7 +220,10 @@
 			    yaxis: { title: paramKeys[j] }
 			};
 
-			Plotly.newPlot('scatter-plot', [trace2d], layout2d);
+			var new_plot_div = $(`<div id='scatter-plot-\${i}_\${j}' style='width:600px;height:400px;'></div>`);
+			log(new_plot_div)
+			$('body').append(new_plot_div)
+			Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
 		    }
 		}
 
@@ -243,7 +253,11 @@
 				    }
 				};
 
-				Plotly.newPlot('scatter-3d-plot', [trace3d], layout3d);
+
+				var new_plot_div = $(`<div id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:600px;height:400px;'></div>`);
+				log(new_plot_div)
+				$('body').append(new_plot_div)
+				Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);
 			    }
 			}
 		    }

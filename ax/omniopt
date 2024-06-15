@@ -69,6 +69,9 @@ function send_status_report {
 		url="https://imageseg.scads.de/omniax/usage_stats.php?$stats_params"
 
 		curl -s $url 2>/dev/null >/dev/null
+
+		mkdir -p $ORIGINAL_PWD/.logs
+		echo "Curling $url" >> $ORIGINAL_PWD/.logs/user_stat_curls
 	fi
 }
 

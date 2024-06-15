@@ -1,5 +1,23 @@
 #!/bin/bash
 
+debug=0
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
 # Idea for how this works and is implemented technically:
 # This main script that is supposed to be called is a bash script.
 # Step 1:
@@ -69,6 +87,10 @@ function send_status_report {
 		url="https://imageseg.scads.de/omniax/usage_stats.php?$stats_params"
 
 		curl -s $url 2>/dev/null >/dev/null
+
+		if [[ "$debug" -eq "1" ]]; then
+			yellow_text "Curling $url"
+		fi
 
 		mkdir -p $ORIGINAL_PWD/.logs
 		echo "Curling $url" >> $ORIGINAL_PWD/.logs/user_stat_curls
@@ -200,22 +222,6 @@ slurmlogpath () {
 	fi
 }
 
-function echoerr() {
-        echo "$@" 1>&2
-}
-
-function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
-}
-
-function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
-
 function calltracer () {
 	LINE_AND_FUNCTION=$(caller)
 	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]];  then
@@ -301,7 +307,6 @@ time=
 experiment_name=
 help=0
 follow=0
-debug=0
 wait_until_ended=0
 tests=0
 

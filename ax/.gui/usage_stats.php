@@ -246,6 +246,7 @@
 		if (is_writable($stats_dir)) {
 			append_to_csv($params, $csv_path);
 			echo "<p>Data successfully written to CSV.</p>";
+			exit(0);
 		} else {
 			log_error("Stats directory is not writable.");
 		}

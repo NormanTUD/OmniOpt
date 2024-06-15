@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export OO_MAIN_TESTS=1
+
 function echoerr() {
         echo "$@" 1>&2
 }
@@ -165,6 +167,7 @@ exit_code=0
 if [[ "$gridsearch" -eq "1" ]]; then
 	if [[ "$follow" -eq "1" ]]; then
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network_gridsearch \
 			--mem_gb=$mem_gb \
@@ -191,6 +194,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	else
 
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network_gridsearch \
 			--mem_gb=$mem_gb \
@@ -219,6 +223,7 @@ else
 
 	if [[ "$follow" -eq "1" ]]; then
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network \
 			--mem_gb=$mem_gb \
@@ -244,6 +249,7 @@ else
 	else
 
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network \
 			--mem_gb=$mem_gb \

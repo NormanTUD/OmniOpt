@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export OO_MAIN_TESTS=1
+
 int_re='^[+-]?[0-9]+$'
 function echoerr() {
         echo "$@" 1>&2
@@ -205,6 +207,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
@@ -226,6 +229,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 		exit_code=$?
 	else
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
@@ -250,6 +254,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 else
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
@@ -270,6 +275,7 @@ else
 		exit_code=$?
 	else
 		./omniopt \
+			--send_anonymized_usage_stats \
 			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \

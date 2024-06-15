@@ -180,3 +180,4 @@ output.gif
 old_runs
 *.png
 *.jpg
+.gui/stats/

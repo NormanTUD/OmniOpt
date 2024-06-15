@@ -1,9 +1,11 @@
 <?php
-	function exception_error_handler($errno, $errstr, $errfile, $errline ) {
-		throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
-	}
+	error_reporting(E_ALL);
+	set_error_handler(function ($severity, $message, $file, $line) {
+		throw new \ErrorException($message, $severity, $severity, $file, $line);
+	});
 
-	set_error_handler("exception_error_handler");
+	ini_set('display_errors', 1);
+
 
 	function dier($msg) {
 		print("<pre>".print_r($msg, true)."</pre>");

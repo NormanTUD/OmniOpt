@@ -155,6 +155,7 @@
 		}
 	} else {
 ?>
+<!DOCTYPE html>
 	<script
 				  src="https://code.jquery.com/jquery-3.7.1.min.js"
 				  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
@@ -164,6 +165,32 @@
 
 		var current_folder = ""
 
+		function parsePathAndGenerateLink(path) {
+			// Define the regular expression to capture the different parts of the path
+			var regex = /^\.\/([^\/]+)\/?([^\/]*)\/?(\d+)?\/?$/;
+			var match = path.match(regex);
+
+			// Check if the path matches the expected format
+			if (match) {
+				var user = match[1] || '';
+				var experiment = match[2] || '';
+				var runNr = match[3] || '';
+
+				// Construct the query string
+				var queryString = 'share.php?user=' + encodeURIComponent(user);
+				if (experiment) {
+					queryString += '&experiment=' + encodeURIComponent(experiment);
+				}
+				if (runNr) {
+					queryString += '&run_nr=' + encodeURIComponent(runNr);
+				}
+
+				log(queryString);
+				return queryString;
+			} else {
+				console.error('Invalid path format:', path);
+			}
+		}
 
 		function createBreadcrumb(currentFolderPath) {
 			var breadcrumb = document.getElementById('breadcrumb');
@@ -171,6 +198,8 @@
 
 			var pathArray = currentFolderPath.split('/');
 			var fullPath = '';
+
+			var currentPath = "."
 
 			pathArray.forEach(function(folderName, index) {
 				if (folderName !== '') {
@@ -185,8 +214,12 @@
 					link.classList.add("box-shadow");
 					link.textContent = decodeURI(folderName);
 
+					currentPath += `/{folderName}`;
+
 					eval(`$(link).on("click", async function () {
-						await load_folder("${fullPath}")
+						var parsedPath = parsePathAndGenerateLink(currentPath)
+						log(parsedPath);
+						window.location.href = parsedPath;
 				});`);
 
 				breadcrumb.appendChild(link);

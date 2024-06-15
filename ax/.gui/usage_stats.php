@@ -290,6 +290,7 @@
 				44 => "Continuation of previous job failed.",
 				47 => "Missing checkpoint or defective file or state files (check output).",
 				49 => "Something went wrong while creating the experiment.",
+				87 => "Search space exhausted or search cancelled.",
 				99 => "It seems like the run folder was deleted during the run.",
 				100 => "--mem_gb or --gpus, which must be int, has received a value that is not int.",
 				103 => "--time is not in minutes or HH:MM format.",

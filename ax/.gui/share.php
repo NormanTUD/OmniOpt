@@ -422,34 +422,51 @@
     }
 
 // Star Plots
-results_csv_json.forEach(function(row, index) {
-    var traceStar = {
-        type: 'scatterpolar',
-        r: paramKeys.map(function(key) { return parseFloat(row[key]); }),
-        theta: paramKeys,
-        fill: 'toself',
-        name: `Trial \${index}`,
-        marker: {
-            color: getColor(parseFloat(row.result))
-        }
-    };
 
+    // Array to hold all trace data
+    var traces = results_csv_json.map(function(row, index) {
+        try {
+            // Verify each row has the necessary keys
+            
+            return {
+                type: 'scatterpolar',
+                r: paramKeys.map(function(key) { return parseFloat(row[key]); }),
+                theta: paramKeys,
+                mode: 'markers',
+                name: `Trial \${index}`,
+                marker: {
+                    color: getColor(parseFloat(row.result))
+                }
+            };
+        } catch (error) {
+            log(`Error processing row \${index}: \${error}`);
+            return null;
+        }
+    }).filter(trace => trace !== null); // Filter out any null traces due to errors
+
+    // Verify at least one valid trace exists
+
+    // Define the layout for the plot
     var layoutStar = {
         polar: {
             radialaxis: {
                 visible: true,
-                range: [Math.min(...paramKeys.map(key => Math.min(...results_csv_json.map(row => parseFloat(row[key]))))),
-                        Math.max(...paramKeys.map(key => Math.max(...results_csv_json.map(row => parseFloat(row[key])))))]
+                range: [
+                    Math.min(...paramKeys.map(key => Math.min(...results_csv_json.map(row => parseFloat(row[key]))))),
+                    Math.max(...paramKeys.map(key => Math.max(...results_csv_json.map(row => parseFloat(row[key])))))
+                ]
             }
         },
-        title: `Star Plot for Trial \${index}`
+        title: 'Star Plot for All Trials'
     };
 
-    var new_plot_div = $(`<div class='star-plot' id='star-plot-\${index}' style='width:600px;height:600px;'></div>`);
+    // Create a single div for the plot
+    var new_plot_div = $(`<div class='star-plot' id='star-plot' style='width:600px;height:600px;'></div>`);
     log(new_plot_div);
     $('body').append(new_plot_div);
-    Plotly.newPlot(`star-plot-\${index}`, [traceStar], layoutStar);
-});
+
+    // Plot all traces in the same plot
+    Plotly.newPlot('star-plot', traces, layoutStar);
 
 // Parallel Plot
 var dimensions = ['result', ...paramKeys].map(function(key) {

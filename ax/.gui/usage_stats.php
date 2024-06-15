@@ -225,100 +225,100 @@
         </script>";
     }
 
-    function generate_html_table($data, $headers) {
-        echo "<table>";
-        echo "<tr>";
-        foreach ($headers as $header) {
-            echo "<th>$header</th>";
-        }
-        echo "</tr>";
+	function generate_html_table($data, $headers) {
+		echo "<table>";
+		echo "<tr>";
+		foreach ($headers as $header) {
+			echo "<th>$header</th>";
+		}
+		echo "</tr>";
 
-        foreach ($data as $row) {
-            echo "<tr>";
-            foreach ($row as $cell) {
-                echo "<td>$cell</td>";
-            }
-            echo "</tr>";
-        }
+		foreach ($data as $row) {
+			echo "<tr>";
+				foreach ($row as $cell) {
+					echo "<td>$cell</td>";
+				}
+				echo "</tr>";
+			}
 
-        echo "</table>";
-    }
+		echo "</table>";
+	}
 
-    $params = $_GET;
-    $stats_dir = 'stats';
-    $csv_path = $stats_dir . '/usage_statistics.csv';
+	$params = $_GET;
+	$stats_dir = 'stats';
+	$csv_path = $stats_dir . '/usage_statistics.csv';
 
-    if (validate_parameters($params)) {
-        if (!file_exists($stats_dir)) {
-            mkdir($stats_dir, 0777, true);
-        }
+	if (validate_parameters($params)) {
+		if (!file_exists($stats_dir)) {
+			mkdir($stats_dir, 0777, true);
+		}
 
-        if (is_writable($stats_dir)) {
-            append_to_csv($params, $csv_path);
-            echo "<p>Data successfully written to CSV.</p>";
-        } else {
-            log_error("Stats directory is not writable.");
-        }
-    }
+		if (is_writable($stats_dir)) {
+			append_to_csv($params, $csv_path);
+			echo "<p>Data successfully written to CSV.</p>";
+		} else {
+			log_error("Stats directory is not writable.");
+		}
+	}
 
-    if (validate_csv($csv_path)) {
-        $data = array_map('str_getcsv', file($csv_path));
-        $headers = array_shift($data);
+	if (validate_csv($csv_path)) {
+		$data = array_map('str_getcsv', file($csv_path));
+		$headers = array_shift($data);
 
-        [$developer_ids, $test_ids, $regular_data] = filter_data($data);
+		[$developer_ids, $test_ids, $regular_data] = filter_data($data);
 
-        echo "<h2>Regular Users</h2>";
-        generate_html_table($regular_data, $headers);
-        display_plots($regular_data, "Regular Users Statistics", "regular_plots");
+		echo "<h2>Regular Users</h2>";
+		generate_html_table($regular_data, $headers);
+		display_plots($regular_data, "Regular Users Statistics", "regular_plots");
 
-        echo "<h2>Developer Machines</h2>";
-        generate_html_table($developer_ids, $headers);
-        display_plots($developer_ids, "Developer Machines Statistics", "developer_plots");
+		echo "<h2>Developer Machines</h2>";
+		generate_html_table($developer_ids, $headers);
+		display_plots($developer_ids, "Developer Machines Statistics", "developer_plots");
 
-        echo "<h2>Automated Tests</h2>";
-        generate_html_table($test_ids, $headers);
-        display_plots($test_ids, "Automated Tests Statistics", "test_plots");
-    } else {
-        log_error("No valid data available to display.");
-    }
-    ?>
-    <h2>Exit Code Information</h2>
-    <table>
-        <tr>
-            <th>Exit Code</th>
-            <th>Error Group Description</th>
-        </tr>
-        <?php
-        $exit_code_info = [
-            10 => "Usually only returned by dier (for debugging).",
-            15 => "Unimplemented error.",
-            18 => "test_wronggoing_stuff program not found (only --tests).",
-            19 => "Something was wrong with your parameters. See output for details.",
-            31 => "Basic modules could not be loaded or you cancelled loading them.",
-            44 => "Continuation of previous job failed.",
-            47 => "Missing checkpoint or defective file or state files (check output).",
-            49 => "Something went wrong while creating the experiment.",
-            99 => "It seems like the run folder was deleted during the run.",
-            100 => "--mem_gb or --gpus, which must be int, has received a value that is not int.",
-            103 => "--time is not in minutes or HH:MM format.",
-            104 => "One of the parameters --mem_gb, --time, or --experiment_name is missing.",
-            105 => "Continued job error: previous job has missing state files.",
-            142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.",
-            181 => "Error parsing --parameter. Check output for more details.",
-            192 => "Unknown data type (--tests).",
-            199 => "This happens on unstable file systems when trying to write a file.",
-            203 => "Unsupported --model.",
-            233 => "No random steps set.",
-            243 => "Job was not found in squeue anymore, it may got cancelled before it ran."
-        ];
+		echo "<h2>Automated Tests</h2>";
+		generate_html_table($test_ids, $headers);
+		display_plots($test_ids, "Automated Tests Statistics", "test_plots");
+	} else {
+		log_error("No valid data available to display.");
+	}
+?>
+	<h2>Exit Code Information</h2>
+		<table>
+		<tr>
+			<th>Exit Code</th>
+			<th>Error Group Description</th>
+		</tr>
+		<?php
+			$exit_code_info = [
+				10 => "Usually only returned by dier (for debugging).",
+				15 => "Unimplemented error.",
+				18 => "test_wronggoing_stuff program not found (only --tests).",
+				19 => "Something was wrong with your parameters. See output for details.",
+				31 => "Basic modules could not be loaded or you cancelled loading them.",
+				44 => "Continuation of previous job failed.",
+				47 => "Missing checkpoint or defective file or state files (check output).",
+				49 => "Something went wrong while creating the experiment.",
+				99 => "It seems like the run folder was deleted during the run.",
+				100 => "--mem_gb or --gpus, which must be int, has received a value that is not int.",
+				103 => "--time is not in minutes or HH:MM format.",
+				104 => "One of the parameters --mem_gb, --time, or --experiment_name is missing.",
+				105 => "Continued job error: previous job has missing state files.",
+				142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.",
+				181 => "Error parsing --parameter. Check output for more details.",
+				192 => "Unknown data type (--tests).",
+				199 => "This happens on unstable file systems when trying to write a file.",
+				203 => "Unsupported --model.",
+				233 => "No random steps set.",
+				243 => "Job was not found in squeue anymore, it may got cancelled before it ran."
+			];
 
-        foreach ($exit_code_info as $code => $description) {
-            echo "<tr>";
-            echo "<td>$code</td>";
-            echo "<td>$description</td>";
-            echo "</tr>";
-        }
-        ?>
-    </table>
-</body>
+			foreach ($exit_code_info as $code => $description) {
+			    echo "<tr>";
+			    echo "<td>$code</td>";
+			    echo "<td>$description</td>";
+			    echo "</tr>";
+			}
+		?>
+		</table>
+	</body>
 </html>

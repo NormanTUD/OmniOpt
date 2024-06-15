@@ -469,12 +469,14 @@
 			show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
 			$this_experiment_name = "$experiment_subfolders[0]";
 			$this_experiment_name = preg_replace("/.*\//", "", $this_experiment_name);
+			print("<!-- $user/$experiment_name/$this_experiment_name -->");
 			print_script_and_folder("$user/$experiment_name/$this_experiment_name");
 		} else {
 			foreach ($experiment_subfolders as $experiment) {
 				$experiment = preg_replace("/.*\//", "", $experiment);
 				echo "<a href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>";
 			}
+			print("<!-- $user/$experiment_name/ -->");
 			print_script_and_folder("$user/$experiment_name/");
 		}
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
@@ -482,6 +484,7 @@
 		$user = $_GET["user"];
 		$experiment_name = $_GET["experiment"];
 		show_run_selection($sharesPath, $user, $experiment_name);
+		print("<!-- $user/$experiment_name/ -->");
 		print_script_and_folder("$user/$experiment_name/");
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
 		$user = $_GET["user"];
@@ -489,6 +492,7 @@
 		$run_nr = $_GET["run_nr"];
 
 		$run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
+		print("<!-- $user/$experiment_name/$run_nr -->");
 		print_script_and_folder("$user/$experiment_name/$run_nr");
 		show_run($run_folder);
 	} else {
@@ -497,7 +501,8 @@
 			$user = preg_replace("/.*\//", "", $user);
 			echo "<a href=\"share.php?user=$user\">$user</a><br>";
 		}
-		print_script_and_folder("$user");
+		print("<!-- user only -->");
+		print_script_and_folder("");
 	}
 
 	// Beispiel für den CURL-Befehl zum Hochladen von Dateien

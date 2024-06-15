@@ -134,15 +134,22 @@
 		foreach ($run_files as $file) {
 			if (preg_match("/best_result.txt/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
 			} else if (preg_match("/parameters.txt/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				print "<pre>$content</pre>";
+			} else if (preg_match("/job_infos.csv/", $file)) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
 			} else if (preg_match("/results.csv/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
 			} else {
-				dier("Unknown file type $file");
+				print "<h2 class='error'>Unknown file type $file</h2>";
 			}
 		}
 	}
@@ -181,11 +188,11 @@
 			print("Did not find any experiments for $sharesPath/$user/*");
 			exit(0);
 		} else if (count($experiment_subfolders) == 1) {
-			print("show_run_selection:<br>");
 			show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
 		} else {
 			foreach ($experiment_subfolders as $experiment) {
-				echo "<a href=\"share.php?user=$user&experiment=$experiment\">$user</a><br>";
+				$experiment = preg_replace("/.*\//", "", $experiment);
+				echo "<a href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>";
 			}
 		}
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {

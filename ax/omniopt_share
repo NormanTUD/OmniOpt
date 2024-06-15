@@ -45,6 +45,5 @@ for available_file in $(ls $RUN_DIR); do
 	curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
 done
 
-echo "curl $curl_params http://localhost/oo2_gui/share.php?user_id=$USER&experiment_name=$experiment_name"
-eval "curl $curl_params http://localhost/oo2_gui/share.php?user_id=$USER&experiment_name=$experiment_name"
-#curl -F "best_result=@../runs/__main__tests__/12/parameters.txt" 
+set -e
+curl ${curl_params} "http://localhost/oo2_gui/share.php?user_id=$USER&experiment_name=$experiment_name"

@@ -325,6 +325,13 @@
 			width: 1200,
 			height: 800,
 			autosize: false,
+  margin: {
+    l: 50,
+    r: 50,
+    b: 100,
+    t: 100,
+    pad: 4
+  },
                         scene: {
                             xaxis: { title: paramKeys[i] },
                             yaxis: { title: paramKeys[j] },

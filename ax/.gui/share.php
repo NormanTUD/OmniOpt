@@ -394,7 +394,9 @@
 			exit(0);
 		} else if (count($experiment_subfolders) == 1) {
 			show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
-			print_script_and_folder("$user/$experiment_name/$experiment_subfolders[0]");
+			$this_experiment_name = "$experiment_subfolders[0]";
+			$this_experiment_name = preg_replace("/.*\//", "", $this_experiment_name);
+			print_script_and_folder("$user/$experiment_name/$this_experiment_name");
 		} else {
 			foreach ($experiment_subfolders as $experiment) {
 				$experiment = preg_replace("/.*\//", "", $experiment);

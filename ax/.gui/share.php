@@ -146,7 +146,7 @@
 		}
 
 		if ($added_files) {
-			echo "Job was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
+			echo "Run was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.";
 			exit(0);
 		} else {
 			echo "Error sharing the job. No Files were found";

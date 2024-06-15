@@ -53,7 +53,7 @@ function myexit {
 function send_status_report {
 	exit_code=$1
 
-	if [[ $SEND_USAGE_STATS -eq "1" ]]; then
+	if [[ $SEND_USAGE_STATS -eq "1" ]] && [[ -z $SLURM_JOB_ID ]]; then
 		anon_user_id=$(echo "user=$USER|hostname=$(hostname)|machine-id=$(cat /etc/machine-id)" | md5sum | sed -e 's#\s.*##')
 		if ! [[ -z $ITWORKSONMYMACHINE ]]; then
 			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"

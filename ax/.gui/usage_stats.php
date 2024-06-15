@@ -150,6 +150,8 @@
         echo "<div id='$element_id-runs' style='height: 400px;'></div>";
         echo "<div id='$element_id-violins' style='height: 400px;'></div>";
         echo "<div id='$element_id-runtimes' style='height: 400px;'></div>";
+        echo "<div id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
+
         if ($show_sbatch_plot) {
             echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
         }

@@ -5,6 +5,11 @@
 <script>
 	var log = console.log;
 </script>
+<style>
+	.scatter-plot {
+			width: 80%;
+	}
+</style>
 <?php
 	error_reporting(E_ALL);
 	set_error_handler(function ($severity, $message, $file, $line) {
@@ -237,7 +242,7 @@
                 yaxis: { title: paramKeys[j] }
             };
 
-            var new_plot_div = $(`<div id='scatter-plot-\${i}_\${j}' style='width:600px;height:400px;'></div>`);
+            var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:600px;height:400px;'></div>`);
             log(new_plot_div);
             $('body').append(new_plot_div);
             Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
@@ -274,7 +279,7 @@
                         }
                     };
 
-                    var new_plot_div = $(`<div id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:600px;height:400px;'></div>`);
+                    var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:600px;height:400px;'></div>`);
                     log(new_plot_div);
                     $('body').append(new_plot_div);
                     Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);

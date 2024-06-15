@@ -36,6 +36,8 @@
 
     // Validate input parameters
     function validate_parameters($params) {
+        assert(is_array($params), "Parameters should be an array");
+
         $required_params = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code'];
         $patterns = [
             'anon_user' => '/^[a-f0-9]{32}$/',  // MD5 hash
@@ -47,6 +49,7 @@
 
         foreach ($required_params as $param) {
             if (!isset($params[$param])) {
+                log_error("Missing required parameter: $param");
                 return false;
             }
             if (!preg_match($patterns[$param], $params[$param])) {
@@ -66,22 +69,37 @@
 
     // Append data to CSV file
     function append_to_csv($params, $filepath) {
-        $headers = array('anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code');
+        assert(is_array($params), "Parameters should be an array");
+        assert(is_string($filepath), "Filepath should be a string");
+
+        $headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code'];
         $file_exists = file_exists($filepath);
 
-        $file = fopen($filepath, 'a');
-        if (!$file_exists) {
-            fputcsv($file, $headers);
+        try {
+            $file = fopen($filepath, 'a');
+            if (!$file_exists) {
+                fputcsv($file, $headers);
+            }
+            fputcsv($file, $params);
+            fclose($file);
+        } catch (Exception $e) {
+            log_error("Failed to write to CSV: " . $e->getMessage());
         }
-        fputcsv($file, $params);
-        fclose($file);
     }
 
     // Create plots using Plotly.js
     function display_plots($filepath) {
+        assert(is_string($filepath), "Filepath should be a string");
+
         echo '<div id="plotly-chart"></div>';
 
-        $data = array_map('str_getcsv', file($filepath));
+        try {
+            $data = array_map('str_getcsv', file($filepath));
+        } catch (Exception $e) {
+            log_error("Failed to read CSV file: " . $e->getMessage());
+            return;
+        }
+
         $headers = array_shift($data);
 
         $anon_users = array_column($data, 0);

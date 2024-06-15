@@ -292,7 +292,7 @@
                 yaxis: { title: paramKeys[j] }
             };
 
-            var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:1200px;height:800px;'></div>`);
+            var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:1200px;height:800px;'><img src='loading.gif' /></div>`);
             log(new_plot_div);
             $('body').append(new_plot_div);
             Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
@@ -339,7 +339,7 @@
                         }
                     };
 
-                    var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:1200px;height:800px;'></div>`);
+                    var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:1200px;height:800px;'><img src='loading.gif' /></div>`);
                     log(new_plot_div);
                     $('body').append(new_plot_div);
                     Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);

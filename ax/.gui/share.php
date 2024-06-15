@@ -300,7 +300,7 @@
     }
 
     // 3D Scatter Plot
-    if (paramKeys.length >= 3) {
+    if (paramKeys.length >= 3 and paramKeys.length <= 6) {
         for (var i = 0; i < paramKeys.length; i++) {
             for (var j = i + 1; j < paramKeys.length; j++) {
                 for (var k = j + 1; k < paramKeys.length; k++) {

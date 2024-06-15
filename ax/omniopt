@@ -65,7 +65,7 @@ function send_status_report {
 		has_sbatch=0
 		run_uuid=$(uuidgen)
 
-		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$(git rev-parse HEAD)&exit_code=$exit_code"
+		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$(git rev-parse HEAD)&exit_code=$exit_code&runtime=$SECONDS"
 		url="https://imageseg.scads.de/omniax/usage_stats.php?$stats_params"
 
 		curl -s $url 2>/dev/null >/dev/null

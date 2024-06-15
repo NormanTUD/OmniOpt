@@ -80,6 +80,19 @@
 	$experiment_name = $_GET['experiment_name'] ?? null;
 
 	// Parameter per POST entgegennehmen
+	$acceptable_files = ["best_result", "job_infos", "parameters", "results"];
+	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv"];
+
+	$offered_files = [];
+	$i = 0;
+	foreach ($acceptable_files as $acceptable_file) {
+		$offered_files[$acceptable_file] = array(
+			"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
+			"filename" => $acceptable_file_names[$i]
+		);
+		$i++;
+	}
+
 	$best_result = $_FILES['best_result']['tmp_name'] ?? null;
 	$job_infos = $_FILES['job_infos']['tmp_name'] ?? null;
 	$parameters = $_FILES['parameters']['tmp_name'] ?? null;
@@ -92,26 +105,14 @@
 
 		$added_files = 0;
 
-		// Hier können die Dateien in den neuen Ordner verschoben oder gespeichert werden
-		// Beispiel:
-		if ($best_result) {
-			move_uploaded_file($best_result, "$userFolder/best_result.txt");
-			$added_files++;
+		foreach ($offered_files as $offered_file) {
+			$file = $offered_file["file"];
+			$filename = $offered_file["filename"];
+			if ($file) {
+				move_uploaded_file($best_result, "$userFolder/$filename");
+				$added_files++;
+			}
 		}
-		if ($results) {
-			move_uploaded_file($results, "$userFolder/results.csv");
-			$added_files++;
-		}
-		if ($parameters) {
-			move_uploaded_file($parameters, "$userFolder/parameters.txt");
-			$added_files++;
-		}
-		if ($job_infos) {
-			move_uploaded_file($job_infos, "$userFolder/job_infos.csv");
-			$added_files++;
-		}
-		// usw.
-
 
 		if ($added_files) {
 			echo "Job was successfully shared. See localhost/oo2_gui/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";

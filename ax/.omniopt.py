@@ -317,7 +317,7 @@ optional.add_argument('--experimental', help='Do some stuff not well tested yet.
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
-optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy.', action='store_true', default=False)
+optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy (not implemented yet).', action='store_true', default=False)
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
 optional.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)

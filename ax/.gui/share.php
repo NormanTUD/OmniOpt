@@ -199,7 +199,8 @@
 	</script>
 	<style>
 		.scatter-plot {
-			width: 80%;
+			width: 1200px;
+			width: 800px;
 		}
 
 		.box-shadow {
@@ -291,7 +292,7 @@
                 yaxis: { title: paramKeys[j] }
             };
 
-            var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:600px;height:400px;'></div>`);
+            var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:1200px;height:800px;'></div>`);
             log(new_plot_div);
             $('body').append(new_plot_div);
             Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
@@ -321,6 +322,9 @@
 
                     var layout3d = {
                         title: `3D Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]} vs \${paramKeys[k]}`,
+			width: 1200,
+			height: 800,
+			autosize: false,
                         scene: {
                             xaxis: { title: paramKeys[i] },
                             yaxis: { title: paramKeys[j] },
@@ -328,7 +332,7 @@
                         }
                     };
 
-                    var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:600px;height:400px;'></div>`);
+                    var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:1200px;height:800px;'></div>`);
                     log(new_plot_div);
                     $('body').append(new_plot_div);
                     Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);

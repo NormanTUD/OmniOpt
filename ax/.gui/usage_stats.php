@@ -83,33 +83,109 @@
 
         $data = array_map('str_getcsv', file($filepath));
         $headers = array_shift($data);
-        $data_json = json_encode($data);
+
+        $anon_users = array_column($data, 0);
+        $has_sbatch = array_column($data, 1);
+        $run_uuids = array_column($data, 2);
+        $git_hashes = array_column($data, 3);
+        $exit_codes = array_map('intval', array_column($data, 4));
+
+        $non_zero_exit_codes = array_filter($exit_codes, function($code) { return $code != 0; });
 
         echo "<script>
-            const headers = " . json_encode($headers) . ";
-            const data = $data_json;
+            const anon_users = " . json_encode($anon_users) . ";
+            const has_sbatch = " . json_encode($has_sbatch) . ";
+            const git_hashes = " . json_encode($git_hashes) . ";
+            const exit_codes = " . json_encode($exit_codes) . ";
+            const non_zero_exit_codes = " . json_encode($non_zero_exit_codes) . ";
 
-            const users = data.map(row => row[0]);
-            const exitCodes = data.map(row => parseInt(row[4]));
+            // Histogram of Exit Codes
+            const exitCodePlot = {
+                x: exit_codes,
+                type: 'histogram',
+                marker: {
+                    color: exit_codes.map(code => code == 0 ? 'blue' : 'red')
+                },
+                name: 'Exit Codes'
+            };
 
+            // Histogram of Runs per User
             const userPlot = {
-                x: users,
+                x: anon_users,
                 type: 'histogram',
                 name: 'Runs per User'
             };
 
-            const exitCodePlot = {
-                y: exitCodes,
+            // Violin Plot of Exit Codes per User
+            const violinPlot = {
+                y: exit_codes,
+                x: anon_users,
                 type: 'violin',
-                name: 'Exit Codes'
+                points: 'all',
+                jitter: 0.3,
+                name: 'Exit Codes per User'
+            };
+
+            // Scatter Plot for Exit Codes and Git Hashes
+            const scatterPlot = {
+                x: git_hashes,
+                y: exit_codes,
+                mode: 'markers',
+                marker: {
+                    color: exit_codes.map(code => code == 0 ? 'blue' : 'red')
+                },
+                name: 'Exit Code vs Git Hash'
+            };
+
+            // Bar Chart for SBatch Usage
+            const sbatchPlot = {
+                x: has_sbatch,
+                type: 'bar',
+                name: 'SBatch Usage'
             };
 
             const layout = {
                 title: 'Usage Statistics',
-                grid: {rows: 1, columns: 2, pattern: 'independent'}
+                grid: {rows: 3, columns: 2, pattern: 'independent'},
+                annotations: [{
+                    text: 'Exit Codes',
+                    x: 0.25,
+                    xref: 'paper',
+                    y: 1.05,
+                    yref: 'paper',
+                    showarrow: false
+                }, {
+                    text: 'Runs per User',
+                    x: 0.75,
+                    xref: 'paper',
+                    y: 1.05,
+                    yref: 'paper',
+                    showarrow: false
+                }, {
+                    text: 'Exit Codes per User',
+                    x: 0.25,
+                    xref: 'paper',
+                    y: 0.65,
+                    yref: 'paper',
+                    showarrow: false
+                }, {
+                    text: 'Exit Code vs Git Hash',
+                    x: 0.75,
+                    xref: 'paper',
+                    y: 0.65,
+                    yref: 'paper',
+                    showarrow: false
+                }, {
+                    text: 'SBatch Usage',
+                    x: 0.25,
+                    xref: 'paper',
+                    y: 0.25,
+                    yref: 'paper',
+                    showarrow: false
+                }]
             };
 
-            Plotly.newPlot('plotly-chart', [userPlot, exitCodePlot], layout);
+            Plotly.newPlot('plotly-chart', [exitCodePlot, userPlot, violinPlot, scatterPlot, sbatchPlot], layout);
         </script>";
 
         // Generate HTML table

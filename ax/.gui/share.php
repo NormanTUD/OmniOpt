@@ -161,12 +161,58 @@
 				  crossorigin="anonymous"></script>
 	<script>
 		var log = console.log;
+
+		var current_folder = ""
+
+
+		function createBreadcrumb(currentFolderPath) {
+			var breadcrumb = document.getElementById('breadcrumb');
+			breadcrumb.innerHTML = '';
+
+			var pathArray = currentFolderPath.split('/');
+			var fullPath = '';
+
+			pathArray.forEach(function(folderName, index) {
+				if (folderName !== '') {
+					var originalFolderName = folderName;
+					if(folderName == '.') {
+						folderName = "Start";
+					}
+					fullPath += originalFolderName + '/';
+
+					var link = document.createElement('a');
+					link.classList.add("breadcrumb_nav");
+					link.classList.add("box-shadow");
+					link.textContent = decodeURI(folderName);
+
+					eval(`$(link).on("click", async function () {
+						await load_folder("${fullPath}")
+				});`);
+
+				breadcrumb.appendChild(link);
+
+				// Füge ein Trennzeichen hinzu, außer beim letzten Element
+				breadcrumb.appendChild(document.createTextNode(' / '));
+				}
+			});
+		}
 	</script>
 	<style>
 		.scatter-plot {
-				width: 80%;
+			width: 80%;
+		}
+
+		.box-shadow {
+			box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+			transition: 0.3s;
+		}
+
+		.box-shadow:hover {
+			box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 		}
 	</style>
+
+	<div id="breadcrumb"></div>
 <?php
 	}
 
@@ -176,7 +222,6 @@
 	}
 
 	function show_run($folder) {
-		print("show_run: $folder");
 		$run_files = glob("$folder/*");
 		
 		foreach ($run_files as $file) {
@@ -317,6 +362,10 @@
 		}
 	}
 
+	function print_script_and_folder ($folder) {
+		print "<script>createBreadcrumb('$folder');</script>";
+	}
+
 	// Liste aller Unterordner anzeigen
 	if (isset($_GET["user"]) && !isset($_GET["experiment"])) {
 		$user = $_GET["user"];
@@ -334,31 +383,43 @@
 			exit(0);
 		} else if (count($experiment_subfolders) == 1) {
 			show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
+			print_script_and_folder("$user/$experiment_name/$experiment_subfolders[0]");
 		} else {
 			foreach ($experiment_subfolders as $experiment) {
 				$experiment = preg_replace("/.*\//", "", $experiment);
 				echo "<a href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>";
 			}
+			print_script_and_folder("$user/$experiment_name/");
 		}
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
 		print("show_run_selection 2:<br>");
 		$user = $_GET["user"];
 		$experiment_name = $_GET["experiment"];
 		show_run_selection($sharesPath, $user, $experiment_name);
+		print_script_and_folder("$user/$experiment_name/");
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
 		$user = $_GET["user"];
 		$experiment_name = $_GET["experiment"];
 		$run_nr = $_GET["run_nr"];
 
 		$run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
+		print_script_and_folder("$user/$experiment_name/$run_nr");
 		show_run($run_folder);
 	} else {
 		$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
 		foreach ($user_subfolders as $user) {
+			$user = preg_replace("/.*\//", "", $user);
 			echo "<a href=\"share.php?user=$user\">$user</a><br>";
 		}
+		print_script_and_folder("$user");
 	}
 
 	// Beispiel für den CURL-Befehl zum Hochladen von Dateien
 	// curl -F "best_result=@../runs/__main__tests__/12/parameters.txt" http://example.com/upload.php
 ?>
+<script>
+	if(current_folder) {
+		log(`Creating breadcrumb from current_folder: ${current_folder}`);
+		createBreadcrumb(current_folder);
+	}
+</script>

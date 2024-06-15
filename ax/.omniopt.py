@@ -286,6 +286,8 @@ required = parser.add_argument_group('Required arguments', "These options have t
 required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
 optional = parser.add_argument_group('Optional', "These options are optional")
 bash = parser.add_argument_group('Bash', "These options are for the main worker bash script, not the python script itself")
+experimental = parser.add_argument_group('Experimental', "Experimental parameters")
+slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
@@ -296,44 +298,44 @@ required.add_argument('--run_program', action='append', nargs='+', help='A progr
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 required.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 0.5), calculation is point [+-] maximizer * abs(point)', type=float, default=2)
-debug.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
-debug.add_argument('--auto_execute_counter', help='(Will automatically be set)', type=int, default=0)
-debug.add_argument('--max_auto_execute', help='How many nested jobs should be done', type=int, default=3)
 
 required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
-required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint", type=str, default=None)
+required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
-optional.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
-optional.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-optional.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
 optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
 optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
 optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-optional.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
-optional.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy (not implemented yet).', action='store_true', default=False)
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
-optional.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)
 optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
+optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
 
-bash.add_argument('--time', help='Time for the main job', default="", type=str)
-bash.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
-bash.add_argument('--partition', help='Partition to be run on', default="", type=str)
-bash.add_argument('--reservation', help='Reservation', default="", type=str)
+experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
+experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
+experimental.add_argument('--auto_execute_counter', help='(Will automatically be set)', type=int, default=0)
+experimental.add_argument('--max_auto_execute', help='How many nested jobs should be done', type=int, default=3)
+experimental.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)
+
+slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
+slurm.add_argument('--time', help='Time for the main job', default="", type=str)
+slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
+slurm.add_argument('--reservation', help='Reservation', default="", type=str)
+slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
+slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
+slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
+slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
-debug.add_argument('--wait_until_ended', help='Wait until the program has ended', action='store_true', default=False)
 debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
-debug.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
-debug.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
@@ -346,9 +348,6 @@ if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
 
 if args.num_parallel_jobs:
     num_parallel_jobs = args.num_parallel_jobs
-
-if args.follow and args.wait_until_ended:
-    print("--follow and --wait_until_ended at the same time. May not be what you want.")
 
 def decode_if_base64(input_str):
     try:

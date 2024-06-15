@@ -431,6 +431,6 @@
 <script>
 	if(current_folder) {
 		log(`Creating breadcrumb from current_folder: ${current_folder}`);
-		createBreadcrumb(current_folder);
+		//createBreadcrumb(current_folder);
 	}
 </script>

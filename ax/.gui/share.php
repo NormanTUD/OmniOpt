@@ -420,6 +420,68 @@
             }
         }
     }
+
+// Star Plots
+results_csv_json.forEach(function(row, index) {
+    var traceStar = {
+        type: 'scatterpolar',
+        r: paramKeys.map(function(key) { return parseFloat(row[key]); }),
+        theta: paramKeys,
+        fill: 'toself',
+        name: `Trial \${index}`,
+        marker: {
+            color: getColor(parseFloat(row.result))
+        }
+    };
+
+    var layoutStar = {
+        polar: {
+            radialaxis: {
+                visible: true,
+                range: [Math.min(...paramKeys.map(key => Math.min(...results_csv_json.map(row => parseFloat(row[key]))))),
+                        Math.max(...paramKeys.map(key => Math.max(...results_csv_json.map(row => parseFloat(row[key])))))]
+            }
+        },
+        title: `Star Plot for Trial \${index}`
+    };
+
+    var new_plot_div = $(`<div class='star-plot' id='star-plot-\${index}' style='width:600px;height:600px;'></div>`);
+    log(new_plot_div);
+    $('body').append(new_plot_div);
+    Plotly.newPlot(`star-plot-\${index}`, [traceStar], layoutStar);
+});
+
+// Parallel Plot
+var dimensions = paramKeys.map(function(key) {
+    return {
+        range: [Math.min(...results_csv_json.map(row => parseFloat(row[key]))), Math.max(...results_csv_json.map(row => parseFloat(row[key])))],
+        label: key,
+        values: results_csv_json.map(function(row) { return parseFloat(row[key]); })
+    };
+});
+
+var traceParallel = {
+    type: 'parcoords',
+    line: {
+        color: resultValues,
+        colorscale: 'Jet',
+        showscale: true,
+        cmin: minResult,
+        cmax: maxResult
+    },
+    dimensions: dimensions
+};
+
+var layoutParallel = {
+    title: 'Parallel Coordinates Plot',
+    width: 1200,
+    height: 800
+};
+
+var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
+log(new_plot_div);
+$('body').append(new_plot_div);
+Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 					</script>
 				";
 			} else {

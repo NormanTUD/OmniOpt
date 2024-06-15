@@ -447,7 +447,7 @@
 	}
 
 	function print_script_and_folder ($folder) {
-		print "<script>createBreadcrumb('./$folder');</script>";
+		print "<script>createBreadcrumb('./$folder');</script>\n";
 	}
 
 	// Liste aller Unterordner anzeigen

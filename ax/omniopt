@@ -60,10 +60,10 @@ function myexit {
 	CODE=$1
 
 	if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
-		CODE=-1
+		send_status_report -1
+	else
+		send_status_report $CODE
 	fi
-
-	send_status_report $CODE
 
 	exit $CODE
 }

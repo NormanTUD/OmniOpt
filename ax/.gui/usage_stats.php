@@ -89,7 +89,7 @@
 		assert(is_array($params), "Parameters should be an array");
 		assert(is_string($filepath), "Filepath should be a string");
 
-		$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
+		$headers = ['time', 'anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
 		$file_exists = file_exists($filepath);
 
 		try {
@@ -97,6 +97,7 @@
 			if (!$file_exists) {
 				fputcsv($file, $headers);
 			}
+			array_unshift($params, time());
 			fputcsv($file, $params);
 			fclose($file);
 		} catch (Exception $e) {

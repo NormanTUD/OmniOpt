@@ -42,7 +42,9 @@ curl_params=""
 
 for available_file in $(ls $RUN_DIR); do 
 	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-	curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
+	if echo "$available_file" | egrep -i "\.(csv|txt)" 2>/dev/null; then
+		curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
+	fi
 done
 
 set -e

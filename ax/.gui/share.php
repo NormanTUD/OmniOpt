@@ -109,7 +109,7 @@
 			$file = $offered_file["file"];
 			$filename = $offered_file["filename"];
 			if ($file) {
-				move_uploaded_file($best_result, "$userFolder/$filename");
+				move_uploaded_file($file, "$userFolder/$filename");
 				$added_files++;
 			}
 		}

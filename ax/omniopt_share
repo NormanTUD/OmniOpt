@@ -1,0 +1,62 @@
+#!/bin/bash
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+RUN_DIR=$1
+
+function echoerr {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+if [[ -z $RUN_DIR ]]; then
+	red_text "Parameter for RUN_DIR is not set"
+	exit 1
+fi
+
+if [[ ! -d "$RUN_DIR" ]]; then
+	red_text "$RUN_DIR does not exist"
+	exit 1
+fi
+
+run_nr=$(echo "$RUN_DIR" | sed -e 's#.*/##')
+experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*$##g' -e 's#.*/##')
+
+curl_params=""
+
+for available_file in $(ls $RUN_DIR); do 
+	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+	if echo "$available_file" | egrep -i "\.(csv|txt)" 2>/dev/null; then
+		curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
+	fi
+done
+
+eval `resize`
+user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+	true
+else
+    yellow_text "You cancelled sharing."
+    exit 0
+fi
+
+set -e
+curl ${curl_params} "http://localhost/oo2_gui/share.php?user_id=$user_id&experiment_name=$experiment_name"

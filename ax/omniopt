@@ -2,7 +2,7 @@
 
 debug=0
 
-function echoerr() {
+function echoerr {
         echo "$@" 1>&2
 }
 
@@ -210,7 +210,7 @@ export ORIGINAL_PWD=$(pwd)
 set -e
 set -o pipefail
 
-function mycd () {
+function mycd {
 	#echo "cd $1"
 	cd $1
 }
@@ -222,7 +222,7 @@ slurmlogpath () {
 	fi
 }
 
-function calltracer () {
+function calltracer {
 	LINE_AND_FUNCTION=$(caller)
 	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]];  then
 		red_text "Error occured in file/line: $LINE_AND_FUNCTION"

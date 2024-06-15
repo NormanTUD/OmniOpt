@@ -122,8 +122,29 @@
 		}
 	}
 
+	function remove_ansi_colors ($contents) {
+		$contents = preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $contents);
+		return $contents;
+	}
+
 	function show_run($folder) {
 		print("show_run: $folder");
+		$run_files = glob("$folder/*");
+		
+		foreach ($run_files as $file) {
+			if (preg_match("/best_result.txt/", $file)) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				print "<pre>$content</pre>";
+			} else if (preg_match("/parameters.txt/", $file)) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				print "<pre>$content</pre>";
+			} else if (preg_match("/results.csv/", $file)) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				print "<pre>$content</pre>";
+			} else {
+				dier("Unknown file type $file");
+			}
+		}
 	}
 
 	function show_run_selection ($sharesPath, $user, $experiment_name) {
@@ -177,8 +198,8 @@
 		$experiment_name = $_GET["experiment"];
 		$run_nr = $_GET["run_nr"];
 
-		$experiment_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
-		print("EXPERIMENT: Folder $experiment_folder");
+		$run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
+		show_run($run_folder);
 	} else {
 		$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
 		foreach ($user_subfolders as $user) {

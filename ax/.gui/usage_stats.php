@@ -289,7 +289,7 @@
 			<th>Error Group Description</th>
 		</tr>
 		<?php
-			$exit_code_info = {
+			$exit_code_info = [
 				"-1" => "Exit code could not be returned",
 				0 => "Seems to have worked properly",
 				10 => "Usually only returned by dier (for debugging).",

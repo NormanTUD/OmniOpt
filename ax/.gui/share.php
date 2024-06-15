@@ -1,15 +1,3 @@
- <script
-			  src="https://code.jquery.com/jquery-3.7.1.min.js"
-			  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-			  crossorigin="anonymous"></script>
-<script>
-	var log = console.log;
-</script>
-<style>
-	.scatter-plot {
-			width: 80%;
-	}
-</style>
 <?php
 	error_reporting(E_ALL);
 	set_error_handler(function ($severity, $message, $file, $line) {
@@ -164,6 +152,21 @@
 			echo "Error sharing the job. No Files were found";
 			exit(1);
 		}
+	} else {
+?>
+	<script
+				  src="https://code.jquery.com/jquery-3.7.1.min.js"
+				  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+				  crossorigin="anonymous"></script>
+	<script>
+		var log = console.log;
+	</script>
+	<style>
+		.scatter-plot {
+				width: 80%;
+		}
+	</style>
+<?php
 	}
 
 	function remove_ansi_colors ($contents) {

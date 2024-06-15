@@ -89,15 +89,15 @@
 		assert(is_array($params), "Parameters should be an array");
 		assert(is_string($filepath), "Filepath should be a string");
 
-		$headers = ['time', 'anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
+		$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];
 		$file_exists = file_exists($filepath);
+		$params["time"] = time();
 
 		try {
 			$file = fopen($filepath, 'a');
 			if (!$file_exists) {
 				fputcsv($file, $headers);
 			}
-			$params["time"] = time();
 			fputcsv($file, $params);
 			fclose($file);
 		} catch (Exception $e) {
@@ -130,9 +130,9 @@
 		$regular_data = [];
 
 		foreach ($data as $row) {
-			if ($row[1] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
+			if ($row[0] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
 				$developer_ids[] = $row;
-			} elseif ($row[1] == 'affed00faffed00faffed00faffed00f') {
+			} elseif ($row[0] == 'affed00faffed00faffed00faffed00f') {
 				$test_ids[] = $row;
 			} else {
 				$regular_data[] = $row;
@@ -214,12 +214,7 @@
 		</script>";
 	}
 
-	function generate_html_table_and_plots($headline, $data, $headers, $data_two, $title, $element_id) {
-		if (count($data) == 0) {
-			return;
-		}
-
-		echo "<h2>$headline</h2>";
+	function generate_html_table($data, $headers) {
 		echo "<table>";
 		echo "<tr>";
 		foreach ($headers as $header) {
@@ -236,8 +231,6 @@
 			}
 
 		echo "</table>";
-
-		display_plots($data_two, $title, $element_id);
 	}
 
 	$params = $_GET;
@@ -264,9 +257,17 @@
 
 		[$developer_ids, $test_ids, $regular_data] = filter_data($data);
 
-		generate_html_table_and_plots("Regular Users", $regular_data, $headers, $regular_data, "Regular Users Statistics", "regular_plots");
-		generate_html_table_and_plots("Developer Machines", $developer_ids, $headers, $developer_ids, "Developer Machines Statistics", "developer_plots");
-		generate_html_table_and_plots("Automated Tests", $test_ids, $headers, $test_ids, "Automated Tests Statistics", "test_plots");
+		echo "<h2>Regular Users</h2>";
+		generate_html_table($regular_data, $headers);
+		display_plots($regular_data, "Regular Users Statistics", "regular_plots");
+
+		echo "<h2>Developer Machines</h2>";
+		generate_html_table($developer_ids, $headers);
+		display_plots($developer_ids, "Developer Machines Statistics", "developer_plots");
+
+		echo "<h2>Automated Tests</h2>";
+		generate_html_table($test_ids, $headers);
+		display_plots($test_ids, "Automated Tests Statistics", "test_plots");
 	} else {
 		log_error("No valid data available to display.");
 	}

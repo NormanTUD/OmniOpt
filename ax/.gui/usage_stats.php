@@ -1,4 +1,10 @@
 <?php
+	function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+		throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+	}
+
+	set_error_handler("exception_error_handler");
+
 	function dier($msg) {
 		print("<pre>".print_r($msg, true)."</pre>");
 		exit(1);
@@ -93,6 +99,7 @@
 			fclose($file);
 		} catch (Exception $e) {
 			log_error("Failed to write to CSV: " . $e->getMessage());
+			exit(1);
 		}
 	}
 

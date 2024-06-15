@@ -88,22 +88,38 @@
 	// Erstelle neuen Ordner basierend auf den Parametern
 	if ($user_id !== null && $experiment_name !== null) {
 		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
+		$run_id = preg_replace("/.*\//", "", $userFolder);
+
+		$added_files = 0;
 
 		// Hier können die Dateien in den neuen Ordner verschoben oder gespeichert werden
 		// Beispiel:
 		if ($best_result) {
 			move_uploaded_file($best_result, "$userFolder/best_result.txt");
+			$added_files++;
 		}
 		if ($results) {
 			move_uploaded_file($results, "$userFolder/results.csv");
+			$added_files++;
 		}
 		if ($parameters) {
 			move_uploaded_file($parameters, "$userFolder/parameters.txt");
+			$added_files++;
 		}
 		if ($job_infos) {
 			move_uploaded_file($job_infos, "$userFolder/job_infos.csv");
+			$added_files++;
 		}
 		// usw.
+
+
+		if ($added_files) {
+			echo "Job was successfully shared. See localhost/oo2_gui/share.php?usre=$user_id&experiment=$experiment_name&run_id=$run_id\n";
+			exit(0);
+		} else {
+			echo "Error sharing the job. No Files were found";
+			exit(1);
+		}
 	}
 
 	function show_run($folder) {

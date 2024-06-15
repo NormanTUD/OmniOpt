@@ -100,7 +100,7 @@
 			fputcsv($file, $params);
 			fclose($file);
 		} catch (Exception $e) {
-			log_error("Failed to write to CSV: " . $e->getMessage());
+			log_error("Failed to write to CSV: " . $e->getMessage(). ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
 			exit(1);
 		}
 	}

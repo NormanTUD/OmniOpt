@@ -6,6 +6,37 @@
 
 	ini_set('display_errors', 1);
 
+	function loadCsvToJson($file) {
+		assert(file_exists($file), "CSV file does not exist.");
+
+		$csvData = [];
+		try {
+			$fileHandle = fopen($file, "r");
+			assert($fileHandle !== false, "Failed to open the file.");
+
+			$headers = fgetcsv($fileHandle);
+			assert($headers !== false, "Failed to read the headers.");
+
+			while (($row = fgetcsv($fileHandle)) !== false) {
+				$csvData[] = array_combine($headers, $row);
+			}
+
+			fclose($fileHandle);
+		} catch (Exception $e) {
+			log("Error reading CSV: " . $e->getMessage());
+			warn("Ensure the CSV file is correctly formatted.");
+			throw $e;
+		}
+
+		$jsonData = json_encode($csvData);
+		assert($jsonData !== false, "Failed to encode JSON.");
+
+		return $jsonData;
+	}
+
+	function warn($message) {
+		echo "Warning: " . $message . "\n";
+	}
 
 	function dier($msg) {
 		print("<pre>".print_r($msg, true)."</pre>");
@@ -149,6 +180,76 @@
 				$content = remove_ansi_colors(file_get_contents($file));
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
+
+				$jsonData = loadCsvToJson($file);
+				echo "
+					<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+					<div id='scatter-plot' style='width:600px;height:400px;'></div>
+					<div id='scatter-3d-plot' style='width:600px;height:400px;'></div>
+
+					<script>
+						var results_csv_json = $jsonData;
+
+
+		// Extract parameter names
+		const paramKeys = Object.keys(results_csv_json[0]).filter(key => key.endsWith('_param'));
+
+		// 2D Scatter Plot
+		for (let i = 0; i < paramKeys.length; i++) {
+		    for (let j = i + 1; j < paramKeys.length; j++) {
+			const xValues = results_csv_json.map(row => parseFloat(row[paramKeys[i]]));
+			const yValues = results_csv_json.map(row => parseFloat(row[paramKeys[j]]));
+
+			const trace2d = {
+			    x: xValues,
+			    y: yValues,
+			    mode: 'markers',
+			    type: 'scatter'
+			};
+
+			const layout2d = {
+			    title: `Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]}`,
+			    xaxis: { title: paramKeys[i] },
+			    yaxis: { title: paramKeys[j] }
+			};
+
+			Plotly.newPlot('scatter-plot', [trace2d], layout2d);
+		    }
+		}
+
+		// 3D Scatter Plot
+		if (paramKeys.length >= 3) {
+		    for (let i = 0; i < paramKeys.length; i++) {
+			for (let j = i + 1; j < paramKeys.length; j++) {
+			    for (let k = j + 1; k < paramKeys.length; k++) {
+				const xValues = results_csv_json.map(row => parseFloat(row[paramKeys[i]]));
+				const yValues = results_csv_json.map(row => parseFloat(row[paramKeys[j]]));
+				const zValues = results_csv_json.map(row => parseFloat(row[paramKeys[k]]));
+
+				const trace3d = {
+				    x: xValues,
+				    y: yValues,
+				    z: zValues,
+				    mode: 'markers',
+				    type: 'scatter3d'
+				};
+
+				const layout3d = {
+				    title: `3D Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]} vs \${paramKeys[k]}`,
+				    scene: {
+					xaxis: { title: paramKeys[i] },
+					yaxis: { title: paramKeys[j] },
+					zaxis: { title: paramKeys[k] }
+				    }
+				};
+
+				Plotly.newPlot('scatter-3d-plot', [trace3d], layout3d);
+			    }
+			}
+		    }
+		}
+					</script>
+				";
 			} else {
 				print "<h2 class='error'>Unknown file type $file</h2>";
 			}

@@ -407,50 +407,6 @@
 							}
 						}
 
-						// Star Plots
-						// Array to hold all trace data
-						var traces = results_csv_json.map(function(row, index) {
-							try {
-								return {
-									type: 'scatterpolar',
-									r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
-									theta: ['result', ...paramKeys],
-									mode: 'lines',
-									type: 'scatterpolar',
-									fill: 'toself',
-									name: `Trial \${index}`,
-									marker: {
-										color: getColor(parseFloat(row.result))
-									}
-								};
-							} catch (error) {
-								log(`Error processing row \${index}: \${error}`);
-								return null;
-							}
-						}).filter(trace => trace !== null); // Filter out any null traces due to errors
-
-						// Define the layout for the plot
-						var layoutStar = {
-							polar: {
-								radialaxis: {
-									visible: true,
-									range: [
-										Math.min(...paramKeys.map(key => Math.min(...results_csv_json.map(row => parseFloat(row[key]))))),
-										Math.max(...paramKeys.map(key => Math.max(...results_csv_json.map(row => parseFloat(row[key])))))
-									]
-								}
-							},
-							title: 'Star Plot for All Trials'
-						};
-
-						// Create a single div for the plot
-						var new_plot_div = $(`<div class='star-plot' id='star-plot' style='width:600px;height:600px;'></div>`);
-						log(new_plot_div);
-						$('body').append(new_plot_div);
-
-						// Plot all traces in the same plot
-						Plotly.newPlot('star-plot', traces, layoutStar);
-
 						// Parallel Plot
 						var dimensions = ['result', ...paramKeys].map(function(key) {
 							return {

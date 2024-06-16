@@ -61,10 +61,13 @@ fi
 set -e
 url="https://imageseg.scads.de/omniax/share.php?user_id=$user_id&experiment_name=$experiment_name"
 CURL_OUTPUT=$(curl -s ${curl_params} $url)
+exit_code=$?
 
-if [[ $? -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." 2>&1 > /dev/null; then
+if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." 2>&1 > /dev/null; then
 	red_text "$CURL_OUTPUT"
-	echo "Curling $url failed"
+	if [[ $exit_code -ne 0 ]]; then
+		echo "Curling $url failed"
+	fi
 else
 	green_text "$CURL_OUTPUT"
 fi

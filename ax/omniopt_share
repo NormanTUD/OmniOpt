@@ -67,6 +67,7 @@ if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job."
 	red_text "$CURL_OUTPUT"
 	if [[ $exit_code -ne 0 ]]; then
 		echo "Curling $url failed"
+		exit $exit_code
 	fi
 else
 	green_text "$CURL_OUTPUT"

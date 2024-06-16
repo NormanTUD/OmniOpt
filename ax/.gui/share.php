@@ -430,7 +430,7 @@
             
             return {
                 type: 'scatterpolar',
-                r: paramKeys.map(function(key) { return parseFloat(row[key]); }),
+                r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
                 theta: paramKeys,
                 mode: 'markers',
                 name: `Trial \${index}`,

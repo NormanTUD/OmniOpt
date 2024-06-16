@@ -523,7 +523,7 @@
 
 		foreach ($experiment_subfolders as $run_nr) {
 			$run_nr = preg_replace("/.*\//", "", $run_nr);
-			echo "<a href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr\">$user/$experiment_name/$run_nr</a><br>";
+			echo "<a href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr\">$run_nr</a><br>";
 		}
 	}
 
@@ -561,7 +561,6 @@
 			print_script_and_folder("$user/$experiment_name/");
 		}
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
-		print("show_run_selection 2:<br>");
 		$user = $_GET["user"];
 		$experiment_name = $_GET["experiment"];
 		show_run_selection($sharesPath, $user, $experiment_name);

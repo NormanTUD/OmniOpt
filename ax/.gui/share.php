@@ -498,6 +498,20 @@
 						Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 					</script>
 				";
+			} else if (
+				preg_match("/evaluation_errors.log/", $file) || 
+				preg_match("/oo_errors.txt/", $file) ||
+				preg_match("/get_next_trials/", $file)
+			) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				print "<pre>$content</pre>";
+			} else if (
+				preg_match("/state_files/", $file) ||
+				preg_match("/failed_logs/", $file) ||
+				preg_match("/single_runs/", $file)
+			) {
+				// do nothing
 			} else {
 				print "<h2 class='error'>Unknown file type $file</h2>";
 			}

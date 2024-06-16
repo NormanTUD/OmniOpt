@@ -309,6 +309,14 @@
 					<script>
 						var results_csv_json = $jsonData;
 
+						function isNumeric(value) {
+							return !isNaN(value) && isFinite(value);
+						}
+
+						// Function to get the unique values for string columns
+						function getUniqueValues(arr) {
+							return [...new Set(arr)];
+						}
 
 						// Extract parameter names
 						var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
@@ -407,14 +415,30 @@
 							}
 						}
 
-						// Parallel Plot
 						var dimensions = ['result', ...paramKeys].map(function(key) {
-							return {
-								range: [Math.min(...results_csv_json.map(row => parseFloat(row[key]))), Math.max(...results_csv_json.map(row => parseFloat(row[key])))],
-								label: key,
-								values: results_csv_json.map(function(row) { return parseFloat(row[key]); })
-							};
+							var values = results_csv_json.map(function(row) { return row[key]; });
+							var numericValues = values.map(function(value) { return parseFloat(value); });
+
+							if (numericValues.every(isNumeric)) {
+								return {
+									range: [Math.min(...numericValues), Math.max(...numericValues)],
+									label: key,
+									values: numericValues
+								};
+							} else {
+								var uniqueValues = getUniqueValues(values);
+								var valueIndices = values.map(function(value) { return uniqueValues.indexOf(value); });
+								return {
+									range: [0, uniqueValues.length - 1],
+									label: key,
+									tickvals: valueIndices,
+									ticktext: uniqueValues,
+									values: valueIndices
+								};
+							}
 						});
+
+    log(dimensions);
 
 						var traceParallel = {
 							type: 'parcoords',

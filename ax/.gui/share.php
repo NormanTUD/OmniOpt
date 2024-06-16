@@ -298,6 +298,9 @@
 		foreach ($run_files as $file) {
 			if (preg_match("/results.csv/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
+				if(mb_detect_encoding($content) != "ASCII") {
+					continue;
+				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
 
@@ -469,6 +472,9 @@
 				preg_match("/get_next_trials/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
+				if(mb_detect_encoding($content) != "ASCII") {
+					continue;
+				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
 			} else if (

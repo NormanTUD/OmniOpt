@@ -511,6 +511,9 @@
 					warnings = cew[2]
 				});
 
+				var ui_url = btoa(window.location.toString())
+				command += " --ui_url " + ui_url;
+
 				var parameters = [];
 
 				var i = 0;
@@ -691,6 +694,7 @@
 						base_url = base_url.replace(/^file:\//, "/")
 						base_url = base_url.replace(/^\/\//, "/")
 					}
+					base_url = base_url.replace(/\/index.php/, "")
 
 					var curl_command = "";
 

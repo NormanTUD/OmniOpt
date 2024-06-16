@@ -299,19 +299,7 @@
 		$run_files = glob("$folder/*");
 		
 		foreach ($run_files as $file) {
-			if (preg_match("/best_result.txt/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<pre>$content</pre>";
-			} else if (preg_match("/parameters.txt/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<pre>$content</pre>";
-			} else if (preg_match("/job_infos.csv/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<pre>$content</pre>";
-			} else if (preg_match("/results.csv/", $file)) {
+			if (preg_match("/results.csv/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
@@ -509,7 +497,10 @@
 			} else if (
 				preg_match("/state_files/", $file) ||
 				preg_match("/failed_logs/", $file) ||
-				preg_match("/single_runs/", $file)
+				preg_match("/single_runs/", $file) ||
+				preg_match("/best_result.txt/", $file) ||
+				preg_match("/parameters.txt/", $file) ||
+				preg_match("/job_infos.csv/", $file)
 			) {
 				// do nothing
 			} else {

@@ -467,7 +467,8 @@
 			} else if (
 				preg_match("/evaluation_errors.log/", $file) || 
 				preg_match("/oo_errors.txt/", $file) ||
-				preg_match("/get_next_trials/", $file)
+				preg_match("/get_next_trials/", $file) ||
+				preg_match("/ui_url/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				if(mb_detect_encoding($content) != "ASCII") {

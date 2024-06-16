@@ -429,7 +429,8 @@
 									type: 'scatterpolar',
 									r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
 									theta: ['result', ...paramKeys],
-									mode: 'markers',
+									mode: 'lines',
+									type: 'scatterpolar',
 									name: `Trial \${index}`,
 									marker: {
 										color: getColor(parseFloat(row.result))

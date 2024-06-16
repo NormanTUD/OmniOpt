@@ -427,13 +427,13 @@
 							try {
 								return {
 									type: 'scatterpolar',
-										r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
-										theta: ['result', ...paramKeys],
-										mode: 'markers',
-										name: `Trial \${index}`,
-										marker: {
-											color: getColor(parseFloat(row.result))
-										}
+									r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
+									theta: ['result', ...paramKeys],
+									mode: 'markers',
+									name: `Trial \${index}`,
+									marker: {
+										color: getColor(parseFloat(row.result))
+									}
 								};
 							} catch (error) {
 								log(`Error processing row \${index}: \${error}`);

@@ -478,7 +478,9 @@
 				preg_match("/single_runs/", $file) ||
 				preg_match("/best_result.txt/", $file) ||
 				preg_match("/parameters.txt/", $file) ||
-				preg_match("/job_infos.csv/", $file)
+				preg_match("/job_infos.csv/", $file) ||
+				preg_match("/worker_usage.csv/", $file) ||
+				preg_match("/gpu_usage/", $file)
 			) {
 				// do nothing
 			} else {

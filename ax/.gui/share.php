@@ -169,15 +169,12 @@
 			// Define the regular expression to capture the different parts of the path
 			var regex = /\/([^\/]+)\/?([^\/]*)\/?(\d+)?\/?$/;
 			var match = path.match(regex);
-			log("match:", match, path);
 
 			// Check if the path matches the expected format
 			if (match) {
 				var user = match[1] || '';
 				var experiment = match[2] || '';
 				var runNr = match[3] || '';
-
-				log(`parsePathAndGenerateLink(${path}): user/experiment/runNr:`, user, experiment, runNr); 
 
 
 				// Construct the query string
@@ -189,7 +186,6 @@
 					queryString += '&run_nr=' + encodeURIComponent(runNr);
 				}
 
-				log(queryString);
 				return queryString;
 			} else {
 				console.error(`Invalid path format: ${path}, regex: {regex}`);
@@ -221,7 +217,6 @@
 					var parsedPath = "";
 
 					if (folderName == "Start") {
-						log("share.php")
 						eval(`$(link).on("click", async function () {
 								window.location.href = "share.php";
 							});
@@ -231,7 +226,6 @@
 						parsedPath = parsePathAndGenerateLink(currentPath)
 
 						eval(`$(link).on("click", async function () {
-								log(parsedPath);
 								window.location.href = parsedPath;
 							});
 						`);

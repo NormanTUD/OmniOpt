@@ -324,181 +324,176 @@
 						var results_csv_json = $jsonData;
 
 
-    // Extract parameter names
-    var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
-        return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
-    });
-    log(paramKeys);
+						// Extract parameter names
+						var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
+							return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
+						});
+						log(paramKeys);
 
-    // Get result values for color mapping
-    var resultValues = results_csv_json.map(function(row) { return parseFloat(row.result); });
-    var minResult = Math.min.apply(null, resultValues);
-    var maxResult = Math.max.apply(null, resultValues);
+						// Get result values for color mapping
+						var resultValues = results_csv_json.map(function(row) { return parseFloat(row.result); });
+						var minResult = Math.min.apply(null, resultValues);
+						var maxResult = Math.max.apply(null, resultValues);
 
-    function getColor(value) {
-        var normalized = (value - minResult) / (maxResult - minResult);
-        var red = Math.floor(normalized * 255);
-        var green = Math.floor((1 - normalized) * 255);
-        return `rgb(\${red},\${green},0)`;
-    }
+						function getColor(value) {
+							var normalized = (value - minResult) / (maxResult - minResult);
+							var red = Math.floor(normalized * 255);
+							var green = Math.floor((1 - normalized) * 255);
+							return `rgb(\${red},\${green},0)`;
+						}
 
-    // 2D Scatter Plot
-    for (var i = 0; i < paramKeys.length; i++) {
-        for (var j = i + 1; j < paramKeys.length; j++) {
-            var xValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[i]]); });
-            var yValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[j]]); });
-            var colors = resultValues.map(getColor);
+						// 2D Scatter Plot
+						for (var i = 0; i < paramKeys.length; i++) {
+							for (var j = i + 1; j < paramKeys.length; j++) {
+								var xValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[i]]); });
+								var yValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[j]]); });
+								var colors = resultValues.map(getColor);
 
-            var trace2d = {
-                x: xValues,
-                y: yValues,
-                mode: 'markers',
-                type: 'scatter',
-                marker: {
-                    color: colors
-                }
-            };
+								var trace2d = {
+									x: xValues,
+									y: yValues,
+									mode: 'markers',
+									type: 'scatter',
+									marker: {
+										color: colors
+									}
+								};
 
-            var layout2d = {
-                title: `Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]}`,
-                xaxis: { title: paramKeys[i] },
-                yaxis: { title: paramKeys[j] }
-            };
+								var layout2d = {
+									title: `Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]}`,
+									xaxis: { title: paramKeys[i] },
+									yaxis: { title: paramKeys[j] }
+								};
 
-            var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:1200px;height:800px;'></div>`);
-            log(new_plot_div);
-            $('body').append(new_plot_div);
-            Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
-        }
-    }
+								var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:1200px;height:800px;'></div>`);
+								log(new_plot_div);
+								$('body').append(new_plot_div);
+								Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
+							}
+						}
 
-    // 3D Scatter Plot
-    if (paramKeys.length >= 3 && paramKeys.length <= 6) {
-        for (var i = 0; i < paramKeys.length; i++) {
-            for (var j = i + 1; j < paramKeys.length; j++) {
-                for (var k = j + 1; k < paramKeys.length; k++) {
-                    var xValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[i]]); });
-                    var yValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[j]]); });
-                    var zValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[k]]); });
-                    var colors = resultValues.map(getColor);
+						// 3D Scatter Plot
+						if (paramKeys.length >= 3 && paramKeys.length <= 6) {
+							for (var i = 0; i < paramKeys.length; i++) {
+								for (var j = i + 1; j < paramKeys.length; j++) {
+									for (var k = j + 1; k < paramKeys.length; k++) {
+										var xValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[i]]); });
+										var yValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[j]]); });
+										var zValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[k]]); });
+										var colors = resultValues.map(getColor);
 
-                    var trace3d = {
-                        x: xValues,
-                        y: yValues,
-                        z: zValues,
-                        mode: 'markers',
-                        type: 'scatter3d',
-                        marker: {
-                            color: colors
-                        }
-                    };
+										var trace3d = {
+											x: xValues,
+											y: yValues,
+											z: zValues,
+											mode: 'markers',
+											type: 'scatter3d',
+											marker: {
+												color: colors
+											}
+										};
 
-                    var layout3d = {
-                        title: `3D Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]} vs \${paramKeys[k]}`,
-			width: 1200,
-			height: 800,
-			autosize: false,
-  margin: {
-    l: 50,
-    r: 50,
-    b: 100,
-    t: 100,
-    pad: 4
-  },
-                        scene: {
-                            xaxis: { title: paramKeys[i] },
-                            yaxis: { title: paramKeys[j] },
-                            zaxis: { title: paramKeys[k] }
-                        }
-                    };
+										var layout3d = {
+											title: `3D Scatter Plot: \${paramKeys[i]} vs \${paramKeys[j]} vs \${paramKeys[k]}`,
+											width: 1200,
+											height: 800,
+											autosize: false,
+											margin: {
+												l: 50,
+												r: 50,
+												b: 100,
+												t: 100,
+												pad: 4
+											},
+											scene: {
+												xaxis: { title: paramKeys[i] },
+												yaxis: { title: paramKeys[j] },
+												zaxis: { title: paramKeys[k] }
+											}
+										};
 
-                    var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:1200px;height:800px;'></div>`);
-                    log(new_plot_div);
-                    $('body').append(new_plot_div);
-                    Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);
-                }
-            }
-        }
-    }
+										var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:1200px;height:800px;'></div>`);
+										log(new_plot_div);
+										$('body').append(new_plot_div);
+										Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);
+									}
+								}
+							}
+						}
 
-// Star Plots
+						// Star Plots
+						// Array to hold all trace data
+						var traces = results_csv_json.map(function(row, index) {
+							try {
+								return {
+									type: 'scatterpolar',
+										r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
+										theta: ['result', ...paramKeys],
+										mode: 'markers',
+										name: `Trial \${index}`,
+										marker: {
+											color: getColor(parseFloat(row.result))
+										}
+								};
+							} catch (error) {
+								log(`Error processing row \${index}: \${error}`);
+								return null;
+							}
+						}).filter(trace => trace !== null); // Filter out any null traces due to errors
 
-    // Array to hold all trace data
-    var traces = results_csv_json.map(function(row, index) {
-        try {
-            // Verify each row has the necessary keys
-            
-            return {
-                type: 'scatterpolar',
-                r: ['result', ...paramKeys].map(function(key) { return parseFloat(row[key]); }),
-                theta: paramKeys,
-                mode: 'markers',
-                name: `Trial \${index}`,
-                marker: {
-                    color: getColor(parseFloat(row.result))
-                }
-            };
-        } catch (error) {
-            log(`Error processing row \${index}: \${error}`);
-            return null;
-        }
-    }).filter(trace => trace !== null); // Filter out any null traces due to errors
+						// Define the layout for the plot
+						var layoutStar = {
+							polar: {
+								radialaxis: {
+									visible: true,
+									range: [
+										Math.min(...paramKeys.map(key => Math.min(...results_csv_json.map(row => parseFloat(row[key]))))),
+										Math.max(...paramKeys.map(key => Math.max(...results_csv_json.map(row => parseFloat(row[key])))))
+									]
+								}
+							},
+							title: 'Star Plot for All Trials'
+						};
 
-    // Verify at least one valid trace exists
+						// Create a single div for the plot
+						var new_plot_div = $(`<div class='star-plot' id='star-plot' style='width:600px;height:600px;'></div>`);
+						log(new_plot_div);
+						$('body').append(new_plot_div);
 
-    // Define the layout for the plot
-    var layoutStar = {
-        polar: {
-            radialaxis: {
-                visible: true,
-                range: [
-                    Math.min(...paramKeys.map(key => Math.min(...results_csv_json.map(row => parseFloat(row[key]))))),
-                    Math.max(...paramKeys.map(key => Math.max(...results_csv_json.map(row => parseFloat(row[key])))))
-                ]
-            }
-        },
-        title: 'Star Plot for All Trials'
-    };
+						// Plot all traces in the same plot
+						Plotly.newPlot('star-plot', traces, layoutStar);
 
-    // Create a single div for the plot
-    var new_plot_div = $(`<div class='star-plot' id='star-plot' style='width:600px;height:600px;'></div>`);
-    log(new_plot_div);
-    $('body').append(new_plot_div);
+						// Parallel Plot
+						var dimensions = ['result', ...paramKeys].map(function(key) {
+							return {
+								range: [Math.min(...results_csv_json.map(row => parseFloat(row[key]))), Math.max(...results_csv_json.map(row => parseFloat(row[key])))],
+								label: key,
+								values: results_csv_json.map(function(row) { return parseFloat(row[key]); })
+							};
+						});
 
-    // Plot all traces in the same plot
-    Plotly.newPlot('star-plot', traces, layoutStar);
+						var traceParallel = {
+							type: 'parcoords',
+							line: {
+								color: resultValues,
+								colorscale: 'Jet',
+								showscale: true,
+								cmin: minResult,
+								cmax: maxResult
+							},
+							dimensions: dimensions
+						};
 
-// Parallel Plot
-var dimensions = ['result', ...paramKeys].map(function(key) {
-    return {
-        range: [Math.min(...results_csv_json.map(row => parseFloat(row[key]))), Math.max(...results_csv_json.map(row => parseFloat(row[key])))],
-        label: key,
-        values: results_csv_json.map(function(row) { return parseFloat(row[key]); })
-    };
-});
+						var layoutParallel = {
+							title: 'Parallel Coordinates Plot',
+							width: 1200,
+							height: 800
+						};
 
-var traceParallel = {
-    type: 'parcoords',
-    line: {
-        color: resultValues,
-        colorscale: 'Jet',
-        showscale: true,
-        cmin: minResult,
-        cmax: maxResult
-    },
-    dimensions: dimensions
-};
-
-var layoutParallel = {
-    title: 'Parallel Coordinates Plot',
-    width: 1200,
-    height: 800
-};
-
-var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
-log(new_plot_div);
-$('body').append(new_plot_div);
-Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
+						var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
+						log(new_plot_div);
+						$('body').append(new_plot_div);
+						Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 					</script>
 				";
 			} else {

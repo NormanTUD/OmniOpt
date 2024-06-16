@@ -511,9 +511,6 @@
 					warnings = cew[2]
 				});
 
-				var ui_url = btoa(window.location.toString())
-				command += " --ui_url " + ui_url;
-
 				var parameters = [];
 
 				var i = 0;
@@ -678,6 +675,9 @@
 					base_url = base_url.replace(/^https:\//, "https://")
 					base_url = base_url.replace(/^file:\//, "file://")
 
+					var ui_url = btoa(window.location.toString())
+					command += " --ui_url " + ui_url;
+
 					var base_64_string = btoa(command);
 
 					var curl_or_cat = "curl";
@@ -687,12 +687,12 @@
 
 						var filename = location.pathname.substring(location.pathname.lastIndexOf('/')+1)
 
-						var _re_ = new RegExp(`${filename}/?$`);
+							var _re_ = new RegExp(`${filename}/?$`);
 
 						base_url = base_url.replace(_re_, "");
 
 						base_url = base_url.replace(/^file:\//, "/")
-						base_url = base_url.replace(/^\/\//, "/")
+							base_url = base_url.replace(/^\/\//, "/")
 					}
 					base_url = base_url.replace(/\/index.php/, "")
 

@@ -316,6 +316,7 @@ optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_t
 optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
 optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
 optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
+optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
@@ -3565,6 +3566,11 @@ def main():
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
 
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
+
+
+    if args.ui_url:
+        with open(f"{current_run_folder}/ui_url.txt", "a") as myfile:
+            myfile.write(decode_if_base64(args.ui_url))
 
     logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'
 

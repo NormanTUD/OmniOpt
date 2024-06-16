@@ -431,6 +431,7 @@
 									theta: ['result', ...paramKeys],
 									mode: 'lines',
 									type: 'scatterpolar',
+									fill: 'toself',
 									name: `Trial \${index}`,
 									marker: {
 										color: getColor(parseFloat(row.result))

@@ -471,6 +471,9 @@
 			echo "No runs found in $folder_glob";
 			exit(1);
 		} else if (count($experiment_subfolders) == 1) {
+			$user_dir = preg_replace("/^\.\//", "", preg_replace("/\/\/*/", "/", preg_replace("/\.\/shares\//", "./", $experiment_subfolders[0])));
+
+			print_script_and_folder($user_dir);
 			show_run($experiment_subfolders[0]);
 			exit(0);
 		}

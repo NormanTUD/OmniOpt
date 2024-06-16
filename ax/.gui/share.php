@@ -441,30 +441,32 @@
 							}
 						});
 
-    log(dimensions);
+						log(dimensions);
 
-						var traceParallel = {
-							type: 'parcoords',
-							line: {
-								color: resultValues,
-								colorscale: 'Jet',
-								showscale: true,
-								cmin: minResult,
-								cmax: maxResult
-							},
-							dimensions: dimensions
-						};
+						if (dimensions[0]['ticktext'][0] !== undefined) {
+							var traceParallel = {
+								type: 'parcoords',
+								line: {
+									color: resultValues,
+									colorscale: 'Jet',
+									showscale: true,
+									cmin: minResult,
+									cmax: maxResult
+								},
+								dimensions: dimensions
+							};
 
-						var layoutParallel = {
-							title: 'Parallel Coordinates Plot',
-							width: 1200,
-							height: 800
-						};
+							var layoutParallel = {
+								title: 'Parallel Coordinates Plot',
+								width: 1200,
+								height: 800
+							};
 
-						var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
-						log(new_plot_div);
-						$('body').append(new_plot_div);
-						Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
+							var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
+							log(new_plot_div);
+							$('body').append(new_plot_div);
+							Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
+						}
 					</script>
 				";
 				$shown_data += 1;

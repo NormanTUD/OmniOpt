@@ -295,6 +295,7 @@
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 		
+		$shown_data = 0;
 		foreach ($run_files as $file) {
 			if (preg_match("/results.csv/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
@@ -466,6 +467,7 @@
 						Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 					</script>
 				";
+				$shown_data += 1;
 			} else if (
 				preg_match("/evaluation_errors.log/", $file) || 
 				preg_match("/oo_errors.txt/", $file) ||
@@ -477,6 +479,7 @@
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<pre>$content</pre>";
+				$shown_data += 1;
 			} else if (
 				preg_match("/state_files/", $file) ||
 				preg_match("/failed_logs/", $file) ||
@@ -491,6 +494,10 @@
 			} else {
 				print "<h2 class='error'>Unknown file type $file</h2>";
 			}
+		}
+
+		if($shown_data == 0) {
+			print "<h2>No visualizable data could be found</h2>";
 		}
 	}
 

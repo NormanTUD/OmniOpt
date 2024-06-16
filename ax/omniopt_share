@@ -60,8 +60,11 @@ fi
 
 set -e
 url="https://imageseg.scads.de/omniax/share.php?user_id=$user_id&experiment_name=$experiment_name"
-curl ${curl_params} $url
+CURL_OUTPUT=$(curl -s ${curl_params} $url)
 
 if [[ $? -ne 0 ]]; then
+	red_text "$CURL_OUTPUT"
 	echo "Curling $url failed"
+else
+	green_text "$CURL_OUTPUT"
 fi

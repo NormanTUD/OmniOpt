@@ -199,13 +199,41 @@
 				padding: 0;
 			}
 
-			.inactive_tab {
-				background-color: red;
-			}
+/* Allgemeine Stile für alle Tabs */
+.tab {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
 
-			.active_tab {
-				background-color: green;
-			}
+/* Inaktiver Tab */
+.inactive_tab {
+    background-color: #f0f0f0;
+    color: #555;
+    border: 2px solid #ddd;
+}
+
+.inactive_tab:hover {
+    background-color: #e0e0e0;
+    color: #444;
+}
+
+/* Aktiver Tab */
+.active_tab {
+    background-color: #4CAF50;
+    color: white;
+    border: 2px solid #4CAF50;
+}
+
+.active_tab:hover {
+    background-color: #45a049;
+}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script src="prism.js"></script>
@@ -224,7 +252,7 @@
 				$tab_is_active = preg_match("/$fn.php/", $_SERVER["PHP_SELF"]);
 				$tab_class = ($tab_is_active == 0 ? 'in' : '')."active_tab";
 ?>
-				<a href="<?php print $fn; ?>.php" class="<?php print $tab_class; ?>">
+				<a href="<?php print $fn; ?>.php" class="tab <?php print $tab_class; ?>">
 					OmniOpt <?php print $n; ?>
 				</a>
 <?php

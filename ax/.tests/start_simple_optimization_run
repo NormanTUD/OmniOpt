@@ -208,6 +208,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
 			--send_anonymized_usage_stats \
+			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
@@ -229,6 +230,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	else
 		./omniopt \
 			--send_anonymized_usage_stats \
+			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
@@ -253,6 +255,7 @@ else
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
 			--send_anonymized_usage_stats \
+			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \
@@ -273,6 +276,7 @@ else
 	else
 		./omniopt \
 			--send_anonymized_usage_stats \
+			--show_sixel_graphics \
 			--partition=$PARTITION \
 			--experiment_name=$TESTNAME \
 			--mem_gb=5 \

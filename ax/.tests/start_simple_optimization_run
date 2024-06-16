@@ -38,6 +38,7 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
+        echo "  --allow_failure                                    Adds a param to randomly fail"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1

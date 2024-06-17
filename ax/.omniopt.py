@@ -495,9 +495,9 @@ if not args.tests:
     else:
         max_eval = args.max_eval
 
-    if max_eval <= 0:
-        print_red("--max_eval must be larger than 0")
-        my_exit(19)
+        if max_eval <= 0:
+            print_red("--max_eval must be larger than 0")
+            my_exit(19)
 
 
 def print_debug_get_next_trials(got, requested, _line):

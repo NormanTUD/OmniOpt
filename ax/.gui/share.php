@@ -246,7 +246,7 @@
 	<style>
 		.textarea_csv {
 			width: 80%;
-			height: 100px;
+			height: 150px;
 		}
 		.scatter-plot {
 			width: 1200px;

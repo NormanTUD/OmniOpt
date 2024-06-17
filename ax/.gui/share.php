@@ -430,7 +430,7 @@
 							}
 						}
 
-						var dimensions = ['result', ...paramKeys].map(function(key) {
+						var dimensions = [...paramKeys, 'result'].map(function(key) {
 							var values = results_csv_json.map(function(row) { return row[key]; });
 							var numericValues = values.map(function(value) { return parseFloat(value); });
 

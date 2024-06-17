@@ -47,6 +47,13 @@ for available_file in $(ls $RUN_DIR); do
 	fi
 done
 
+for available_file in $(ls $RUN_DIR/state_files); do 
+	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+	if echo "$available_file" | egrep -i "\.(csv|txt)" 2>/dev/null > /dev/null; then
+		curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
+	fi
+done
+
 eval `resize`
 user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
 

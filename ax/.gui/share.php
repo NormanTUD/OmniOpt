@@ -147,9 +147,12 @@
 		foreach ($offered_files as $offered_file) {
 			$file = $offered_file["file"];
 			$filename = $offered_file["filename"];
-			if ($file) {
-				move_uploaded_file($file, "$userFolder/$filename");
-				$added_files++;
+			if ($file && file_exists($file)) {
+				$content = file_get_contents($file);
+				if(mb_detect_encoding($content) != "ASCII") {
+					move_uploaded_file($file, "$userFolder/$filename");
+					$added_files++;
+				}
 			}
 		}
 

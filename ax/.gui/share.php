@@ -506,7 +506,7 @@
 				}
 
 				if (preg_match("/^https?:\/\//", $content)) {
-					print "<a href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
+					print "<a target='_blank' href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
 
 					$shown_data += 1;
 				}

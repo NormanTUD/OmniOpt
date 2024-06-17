@@ -389,6 +389,7 @@
 				} else if (item.id == "max_eval") {
 					var parallel_evaluations = parseInt($("#num_parallel_jobs").val());
 					var max_eval = parseInt($("#max_eval").val());
+					var num_random_steps = parseInt($("#num_random_steps").val());
 
 					if (parallel_evaluations <= 0) {
 						$("#num_parallel_jobs").val(1);
@@ -397,6 +398,14 @@
 
 					if (max_eval < parallel_evaluations) {
 						$("#num_parallel_jobs").val(max_eval);
+					}
+
+					if (max_eval < num_random_steps) {
+						$("#num_random_steps").val(max_eval);
+					}
+
+					if (num_random_steps <= 0) {
+						$("#num_random_steps").val(1);
 					}
 				} else if (item.id == "worker_timeout") {
 					var worker_timeout_larger_than_global_timeout = parseInt($("#worker_timeout").val()) > parseInt($("#time").val());

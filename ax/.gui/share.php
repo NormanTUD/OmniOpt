@@ -17,8 +17,12 @@
 			$headers = fgetcsv($fileHandle);
 			assert($headers !== false, "Failed to read the headers.");
 
+			$result_column_id = array_search("result", $headers);
+
 			while (($row = fgetcsv($fileHandle)) !== false) {
-				$csvData[] = array_combine($headers, $row);
+				if($row[$result_column_id]) {
+					$csvData[] = array_combine($headers, $row);
+				}
 			}
 
 			fclose($fileHandle);
@@ -302,6 +306,7 @@
 				print "<pre>$content</pre>";
 
 				$jsonData = loadCsvToJson($file);
+
 				echo "
 					<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 
@@ -321,7 +326,6 @@
 						var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
 							return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
 						});
-						log(paramKeys);
 
 						// Get result values for color mapping
 						var resultValues = results_csv_json.map(function(row) { return parseFloat(row.result); });
@@ -359,7 +363,6 @@
 								};
 
 								var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-\${i}_\${j}' style='width:1200px;height:800px;'></div>`);
-								log(new_plot_div);
 								$('body').append(new_plot_div);
 								Plotly.newPlot(`scatter-plot-\${i}_\${j}`, [trace2d], layout2d);
 							}

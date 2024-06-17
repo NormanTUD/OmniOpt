@@ -386,6 +386,18 @@
 						$("#time_error").html("").hide();
 						command += " --" + item.id + "=" + value;
 					}
+				} else if (item.id == "max_eval") {
+					var parallel_evaluations = parseInt($("#num_parallel_jobs").val());
+					var max_eval = parseInt($("#max_eval").val());
+
+					if (parallel_evaluations <= 0) {
+						$("#num_parallel_jobs").val(1);
+					}
+
+
+					if (max_eval < parallel_evaluations) {
+						$("#num_parallel_jobs").val(max_eval);
+					}
 				} else if (item.id == "worker_timeout") {
 					var worker_timeout_larger_than_global_timeout = parseInt($("#worker_timeout").val()) > parseInt($("#time").val());
 					var new_errors = [];

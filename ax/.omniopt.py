@@ -3589,6 +3589,9 @@ def main():
     if not args.verbose:
         disable_logging()
 
+    max_eval = args.max_eval
+
+
     random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 
     if args.parameter and len(args.parameter) and args.continue_previous_job and random_steps <= 0:

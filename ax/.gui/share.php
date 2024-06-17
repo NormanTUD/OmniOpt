@@ -409,7 +409,6 @@
 										};
 
 										var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-\${i}_\${j}_\${k}' style='width:1200px;height:800px;'></div>`);
-										log(new_plot_div);
 										$('body').append(new_plot_div);
 										Plotly.newPlot(`scatter-plot-3d-\${i}_\${j}_\${k}`, [trace3d], layout3d);
 									}
@@ -440,8 +439,6 @@
 							}
 						});
 
-						log(dimensions);
-
 						var traceParallel = {
 							type: 'parcoords',
 							line: {
@@ -461,7 +458,6 @@
 						};
 
 						var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
-						log(new_plot_div);
 						$('body').append(new_plot_div);
 						Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 					</script>

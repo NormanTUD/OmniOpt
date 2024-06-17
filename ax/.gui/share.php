@@ -320,7 +320,7 @@
 				}
 
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 
 
 				echo "
@@ -494,7 +494,7 @@
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
 				preg_match("/ui_url/", $file)

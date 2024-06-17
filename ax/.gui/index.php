@@ -283,7 +283,7 @@
 						if (_min !== null && (isNaN(value) || value < _min)) {
 							//$(input).css("background-color", red)
 							if(isNaN(value)) {
-								$(input).parent().find("[id$='_error']").html("Value is empty");
+								$(input).parent().find("[id$='_error']").html("Value is empty or invalid");
 							}
 
 							if(value < _min) {

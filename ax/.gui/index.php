@@ -100,6 +100,7 @@
 				{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker", min: 1 },
 				{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000 },
 				{ label: "Number of maximum parallel evaluations", id: "num_parallel_jobs", type: "number", value: 20, placeholder: "Maximum number of parallel evaluations", 'min': 1, 'max': 100000000 },
+				{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1 },
 				{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10 },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<code>tail -f</code> the <code>.out</code>-file automatically, so you can see the output as soon as it appears." },
 				{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 1, "info": "May not be supported on all terminals." },
@@ -107,7 +108,6 @@
 			];
 
 			var hiddenTableData = [
-				{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1 },
 				{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.", required: false },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0 },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0 },

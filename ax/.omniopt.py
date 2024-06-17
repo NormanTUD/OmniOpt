@@ -3591,6 +3591,9 @@ def main():
 
     max_eval = args.max_eval
 
+    if not max_eval:
+        print_red("--max_eval needs to be set!")
+        sys.exit(19)
 
     random_steps, second_step_steps = get_number_of_steps(args, max_eval)
 

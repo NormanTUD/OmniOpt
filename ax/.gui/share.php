@@ -149,9 +149,12 @@
 			$filename = $offered_file["filename"];
 			if ($file && file_exists($file)) {
 				$content = file_get_contents($file);
-				if(mb_detect_encoding($content) != "ASCII") {
+				$content_encoding = mb_detect_encoding($content);
+				if($content_encoding != "ASCII") {
 					move_uploaded_file($file, "$userFolder/$filename");
 					$added_files++;
+				} else {
+					dier("$filename: \$content was not ASCII, but $content_encoding");
 				}
 			}
 		}

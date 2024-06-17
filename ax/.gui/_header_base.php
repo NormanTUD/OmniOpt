@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>OmniOpt2 GUI</title>
+		<title>OmniOpt2</title>
 		<link href="prism.css" rel="stylesheet" />
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<style>

@@ -150,7 +150,7 @@
 			if ($file && file_exists($file)) {
 				$content = file_get_contents($file);
 				$content_encoding = mb_detect_encoding($content);
-				if($content_encoding == "ASCII") {
+				if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
 					move_uploaded_file($file, "$userFolder/$filename");
 					$added_files++;
 				} else {

@@ -313,7 +313,7 @@
 
 				$jsonData = loadCsvToJson($file);
 
-				if($jsonData !== "") {
+				if($jsonData == "[]") {
 					continue;
 				}
 

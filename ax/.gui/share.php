@@ -17,6 +17,10 @@
 			$headers = fgetcsv($fileHandle);
 			assert($headers !== false, "Failed to read the headers.");
 
+			if (!$headers) {
+				return json_encode($csvData);
+			}
+
 			$result_column_id = array_search("result", $headers);
 
 			while (($row = fgetcsv($fileHandle)) !== false) {
@@ -27,7 +31,7 @@
 
 			fclose($fileHandle);
 		} catch (Exception $e) {
-			log("Error reading CSV: " . $e->getMessage());
+			print("Error reading CSV: " . $e->getMessage());
 			warn("Ensure the CSV file is correctly formatted.");
 			throw $e;
 		}
@@ -306,13 +310,19 @@
 				if(mb_detect_encoding($content) != "ASCII") {
 					continue;
 				}
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 
 				$jsonData = loadCsvToJson($file);
 
+				if($jsonData !== "") {
+					continue;
+				}
+
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+
+
 				echo "
-					<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+					<script src='plotly-latest.min.js'></script>
 
 					<script>
 						var results_csv_json = $jsonData;

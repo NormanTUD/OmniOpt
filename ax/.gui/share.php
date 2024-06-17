@@ -132,11 +132,6 @@
 		$i++;
 	}
 
-	$best_result = $_FILES['best_result']['tmp_name'] ?? null;
-	$job_infos = $_FILES['job_infos']['tmp_name'] ?? null;
-	$parameters = $_FILES['parameters']['tmp_name'] ?? null;
-	$results = $_FILES['results']['tmp_name'] ?? null;
-
 	// Erstelle neuen Ordner basierend auf den Parametern
 	if ($user_id !== null && $experiment_name !== null) {
 		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);

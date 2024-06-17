@@ -500,6 +500,7 @@
 				preg_match("/ui_url/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
+				$content = htmlentities($content);
 				$content_encoding = mb_detect_encoding($content);
 				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
 					continue;

@@ -230,15 +230,19 @@
 						`);
 					}
 
-				breadcrumb.appendChild(link);
+					breadcrumb.appendChild(link);
 
-				// Füge ein Trennzeichen hinzu, außer beim letzten Element
-				breadcrumb.appendChild(document.createTextNode(' / '));
+					// Füge ein Trennzeichen hinzu, außer beim letzten Element
+					breadcrumb.appendChild(document.createTextNode(' / '));
 				}
 			});
 		}
 	</script>
 	<style>
+		.textarea_csv {
+			width: 80%;
+			height: 100px;
+		}
 		.scatter-plot {
 			width: 1200px;
 			width: 800px;
@@ -303,7 +307,7 @@
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<pre>$content</pre>";
+				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 
 				$jsonData = loadCsvToJson($file);
 
@@ -474,7 +478,7 @@
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<pre>$content</pre>";
+				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
 				preg_match("/state_files/", $file) ||

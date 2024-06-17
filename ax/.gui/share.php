@@ -119,8 +119,8 @@
 	$experiment_name = $_GET['experiment_name'] ?? null;
 
 	// Parameter per POST entgegennehmen
-	$acceptable_files = ["best_result", "job_infos", "parameters", "results"];
-	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv"];
+	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url"];
+	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt"];
 
 	$offered_files = [];
 	$i = 0;

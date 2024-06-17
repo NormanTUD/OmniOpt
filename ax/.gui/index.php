@@ -407,6 +407,8 @@
 					if (num_random_steps <= 0) {
 						$("#num_random_steps").val(1);
 					}
+
+					command += " --" + item.id + "=" + value;
 				} else if (item.id == "worker_timeout") {
 					var worker_timeout_larger_than_global_timeout = parseInt($("#worker_timeout").val()) > parseInt($("#time").val());
 					var new_errors = [];

@@ -313,7 +313,8 @@
 		foreach ($run_files as $file) {
 			if (preg_match("/results.csv/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
-				if(mb_detect_encoding($content) != "ASCII") {
+				$content_encoding = mb_detect_encoding($content);
+				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
 					continue;
 				}
 
@@ -490,7 +491,8 @@
 				preg_match("/ui_url/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
-				if(mb_detect_encoding($content) != "ASCII") {
+				$content_encoding = mb_detect_encoding($content);
+				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";

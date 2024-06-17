@@ -488,7 +488,6 @@
 				preg_match("/evaluation_errors.log/", $file) || 
 				preg_match("/oo_errors.txt/", $file) ||
 				preg_match("/get_next_trials/", $file) ||
-				preg_match("/ui_url/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -498,6 +497,20 @@
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				print "<textarea class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
+			} else if (
+				preg_match("/ui_url/", $file)
+			) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				$content_encoding = mb_detect_encoding($content);
+				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+					continue;
+				}
+
+				if (preg_match("/^https?:\/\//", $content)) {
+					print "<a href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
+
+					$shown_data += 1;
+				}
 			} else if (
 				preg_match("/state_files/", $file) ||
 				preg_match("/failed_logs/", $file) ||

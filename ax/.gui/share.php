@@ -348,7 +348,6 @@
 					var minResult = Math.min.apply(null, resultValues);
 					var maxResult = Math.max.apply(null, resultValues);
 
-
 					scatter(paramKeys, results_csv_json);
 					scatter_3d(paramKeys, results_csv_json);
 					parallel_plot(paramKeys, results_csv_json);

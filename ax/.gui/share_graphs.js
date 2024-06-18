@@ -121,7 +121,12 @@ function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultVal
 		for (var j = i + 1; j < _paramKeys.length; j++) {
 			var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
 			var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
-			var colors = resultValues.map(getColor, minResult, maxResult);
+
+			function color_curried (value) {
+				return getColor(value, minResult, maxResult)
+			}
+
+			var colors = resultValues.map(color_curried);
 
 			var trace2d = {
 				x: xValues,

@@ -3100,7 +3100,8 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     if max_eval is None:
         max_eval = max(1, random_steps)
 
-    if random_steps: # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
+    if random_steps: 
+        # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)
         _steps.append(

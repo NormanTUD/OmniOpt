@@ -122,16 +122,6 @@
 	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url"];
 	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt"];
 
-	$offered_files = [];
-	$i = 0;
-	foreach ($acceptable_files as $acceptable_file) {
-		$offered_files[$acceptable_file] = array(
-			"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
-			"filename" => $acceptable_file_names[$i]
-		);
-		$i++;
-	}
-
 	function searchForHashFile($directory, $new_upload_md5, $userFolder) {
 		$files = glob($directory);
 
@@ -189,6 +179,19 @@
 
 		$num_offered_files = 0;
 		$new_upload_md5_string = "";
+
+		$offered_files = [];
+		$i = 0;
+		foreach ($acceptable_files as $acceptable_file) {
+			$offered_files[$acceptable_file] = array(
+				"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
+				"filename" => $acceptable_file_names[$i]
+			);
+			$i++;
+		}
+
+
+
 		foreach ($offered_files as $offered_file) {
 			$filename = $offered_file["filename"];
 			$file = $offered_file["file"];

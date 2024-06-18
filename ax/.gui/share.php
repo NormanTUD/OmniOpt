@@ -444,7 +444,8 @@
 				preg_match("/state_files/", $file) ||
 				preg_match("/failed_logs/", $file) ||
 				preg_match("/single_runs/", $file) ||
-				preg_match("/gpu_usage/", $file)
+				preg_match("/gpu_usage/", $file) ||
+				preg_match("/hash\.md5$/", $file)
 			) {
 				// do nothing
 			} else {

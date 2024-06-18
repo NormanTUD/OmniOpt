@@ -434,7 +434,7 @@ if not args.tests:
             if os.path.exists(time_file):
                 time_file_contents = get_file_as_string(time_file).strip()
                 if time_file_contents.isdigit():
-                    _time = int(time_file_contents)
+                    global_vars["_time"] = int(time_file_contents)
                     print(f"Using old run's --time: {_time}")
                 else:
                     print(f"Time-setting: The contents of {time_file} do not contain a single number")
@@ -442,7 +442,11 @@ if not args.tests:
                 print(f"neither --time nor file {time_file} found")
                 my_exit(19)
     else:
-        _time = args.time
+        global_vars["_time"] = args.time
+
+    if not global_vars["_time"]:
+        print("Missing --time parameter. Cannot continue.")
+        sys.exit(19)
 
     if not args.mem_gb:
         if not args.continue_previous_job:
@@ -2835,8 +2839,9 @@ def _sleep(args, t):
         print_debug(f"Sleeping {t} second(s) before continuation")
         time.sleep(t)
 
-def save_state_files(args, _time):
+def save_state_files(args):
     global current_run_folder
+    global global_vars
 
     state_files_folder = f"{current_run_folder}/state_files/"
 
@@ -2859,7 +2864,7 @@ def save_state_files(args, _time):
         print(args.gpus, file=f)
 
     with open(f'{state_files_folder}/time', 'w') as f:
-        print(_time, file=f)
+        print(global_vars["_time"], file=f)
 
     with open(f'{state_files_folder}/env', 'a') as f:
         env = dict(os.environ)
@@ -3559,7 +3564,7 @@ def main():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}")
 
-    save_state_files(args, _time)
+    save_state_files(args)
 
     print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
     if args.continue_previous_job:

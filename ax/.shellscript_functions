@@ -118,12 +118,7 @@ function install_required_modules {
 	ppip sixel
 	ppip pytz
 	ppip tzlocal
-
-	#if ! declare -f ml 2>/dev/null >/dev/null; then
-	#	ppip tkinter
-	#else
-	#	echo "Not installing tkinter, because it (hopefully) has already been loaded with ml"
-	#fi
+	ppip rich-argparse
 }
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then

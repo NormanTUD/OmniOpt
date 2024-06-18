@@ -400,6 +400,104 @@
 		return 0;
 	}
 
+	function removeMatchingLines(array $lines, string $pattern): array {
+		// Überprüfen, ob das Pattern ein gültiges Regex ist
+		if (@preg_match($pattern, null) === false) {
+			throw new InvalidArgumentException("Ungültiges Regex-Muster: $pattern");
+		}
+
+		$filteredLines = [];
+
+		foreach ($lines as $line) {
+			// Wenn die Zeile nicht mit dem Regex übereinstimmt, fügen wir sie zum Ergebnis hinzu
+			if (!preg_match($pattern, $line)) {
+				$filteredLines[] = $line;
+			}
+		}
+
+		return $filteredLines;
+	}
+
+	function convertStringToHtmlTable($inputString) {
+		// Convert the input string into an array of lines
+		$lines = explode("\n", trim($inputString));
+		array_shift($lines); # Remove headline line above the table
+		$lines = removeMatchingLines($lines, "/[┡┏└][━─]+[┓┩┘]/");
+
+		// Initialize an empty array to hold table rows
+		$tableData = [];
+
+		// Loop through each line and extract data
+		foreach ($lines as $line) {
+			// Trim whitespace and split the line by the box-drawing characters
+			$columns = array_map('trim', preg_split('/[│┃]+/', $line));
+
+			// Filter out empty columns
+			$columns = array_filter($columns, fn($column) => $column !== '');
+
+			// If the line contains valid data, add it to the table data array
+			if (!empty($columns)) {
+				$tableData[] = $columns;
+			}
+		}
+
+		#dier($tableData);
+
+		$skip_next_row = false;
+
+		$newTableData = [];
+
+		foreach ($tableData as $rowIndex => $row) {
+			$thisRow = $tableData[$rowIndex];
+			if($rowIndex > 0) {
+				if(!$skip_next_row && isset($tableData[$rowIndex + 1])) {
+					$nextRow = $tableData[$rowIndex + 1];
+					if(count($thisRow) > count($nextRow)) {
+						$next_row_keys = array_keys($nextRow);
+
+						foreach ($next_row_keys as $nrk) {
+							$thisRow[$nrk] .= " ".$nextRow[$nrk];
+						}
+
+						$skip_next_row = true;
+
+						$newTableData[] = $thisRow;
+					} else {
+						$newTableData[] = $thisRow;
+					}
+				} else {
+					$skip_next_row = true;
+				}
+			} else {
+				$newTableData[] = $thisRow;
+			}
+		}
+
+		#dier($newTableData);
+
+		// Start building the HTML table
+		$html = '<table border="1">';
+
+		// Loop through the table data and generate HTML rows
+		foreach ($newTableData as $rowIndex => $row) {
+			$html .= '<tr>';
+
+			// Use th for the header row and td for the rest
+			$tag = $rowIndex === 0 ? 'th' : 'td';
+
+			// Loop through the row columns and generate HTML cells
+			foreach ($row as $column) {
+				$html .= "<$tag>" . htmlentities($column) . "</$tag>";
+			}
+
+			$html .= '</tr>';
+		}
+
+		$html .= '</table>';
+
+		return $html;
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 		
@@ -443,10 +541,21 @@
 <?php
 				$shown_data += 1;
 			} else if (
+				preg_match("/parameters\.txt$/", $file)
+			) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				$content_encoding = mb_detect_encoding($content);
+				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+					continue;
+				}
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				dier(convertStringToHtmlTable($content));
+				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				$shown_data += 1;
+			} else if (
 				preg_match("/evaluation_errors\.log$/", $file) || 
 				preg_match("/oo_errors\.txt$/", $file) ||
 				preg_match("/best_result\.txt$/", $file) ||
-				preg_match("/parameters\.txt$/", $file) ||
 				preg_match("/get_next_trials/", $file) ||
 				preg_match("/job_infos\.csv$/", $file) ||
 				preg_match("/worker_usage\.csv$/", $file)
@@ -585,9 +694,6 @@
 		print("<!-- user only -->");
 		print_script_and_folder("");
 	}
-
-	// Beispiel für den CURL-Befehl zum Hochladen von Dateien
-	// curl -F "best_result=@../runs/__main__tests__/12/parameters.txt" http://example.com/upload.php
 ?>
 <script>
 	if(current_folder) {

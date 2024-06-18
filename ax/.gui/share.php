@@ -144,6 +144,7 @@
 			$filename = $offered_file["filename"];
 			$file = $offered_file["file"];
 			$content = file_get_contents($file);
+			dier($content);
 			$new_upload_md5_string = $new_upload_md5_string + hash('md5', "$file=$content");
 		}
 

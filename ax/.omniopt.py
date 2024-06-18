@@ -3123,7 +3123,6 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         if str(args.model).upper() in available_models:
             print_yellow(f"Using model {str(args.model).upper()}")
             chosen_non_random_model = Models.__members__[str(args.model).upper()]
-            # todo
         else:
             print_red(f":warning: Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 

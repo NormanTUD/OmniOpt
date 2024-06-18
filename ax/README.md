@@ -53,10 +53,10 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 | 103       | --time is not in minutes or HH:MM:SS format                                  |
 | 104       | One of the parameters --mem_gb, --time, or --experiment_name is missing.     |
 | 105       | Continued job error: previous job has missing state files.                   |
-| 142       | Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.     |
 | 181       | Error parsing --parameter. Check output for more details.                    |
 | 192       | Unknown data type (--tests).                                                 |
 | 199       | This happens on unstable file systems when trying to write a file.           |
 | 203       | Unsupported --model.                                                         |
 | 233       | No random steps set.                                                         |
+| 242       | Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.     |
 | 243       | Job was not found in squeue anymore, it may got cancelled before it ran.     |

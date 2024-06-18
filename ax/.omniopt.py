@@ -3016,7 +3016,7 @@ def _get_next_trials(ax_client):
             print_red(f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
         else:
             print_red(f"Error: {e}")
-        sys.exit(142)
+        sys.exit(242)
 
     print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
 

@@ -307,7 +307,7 @@ optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for 
 optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
 optional.add_argument('--seed', help='Seed for random number generator', type=int)
 optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages (TODO: by default true yet, in final, do default = False)', action='store_false', default=False)
+optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy (not implemented yet).', action='store_true', default=False)

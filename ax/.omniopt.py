@@ -310,7 +310,6 @@ optional.add_argument('--enforce_sequential_optimization', help='Enforce sequent
 optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
 optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
-optional.add_argument('--use_custom_generation_strategy', help='Use custom generation strategy (not implemented yet).', action='store_true', default=False)
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
 optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
@@ -3149,37 +3148,6 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     gs = GenerationStrategy(
         steps=_steps
     )
-
-    if args.use_custom_generation_strategy:
-        """
-        from ax.storage.botorch_modular_registry import MODEL_REGISTRY
-        from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
-
-        MODEL_REGISTRY.update({SimpleCustomGP:"SimpleCustomGP"})
-        REVERSE_MODEL_REGISTRY.update({"SimpleCustomGP":SimpleCustomGP})
-
-        gs = GenerationStrategy(
-            steps=[
-                # Quasi-random initialization step
-                GenerationStep(
-                    model=Models.SOBOL,
-                    num_trials=random_steps,  # How many trials should be produced from this generation step
-                ),
-                # Bayesian optimization step using the custom acquisition function
-                GenerationStep(
-                    model=Models.BOTORCH_MODULAR,
-                    num_trials=-1,  # No limitation on how many trials should be produced from this step
-                    # For `BOTORCH_MODULAR`, we pass in kwargs to specify what surrogate or acquisition function to use.
-                    model_kwargs={
-                        "surrogate": Surrogate(SimpleCustomGP),
-                    },
-                ),
-            ]
-        )
-
-        return gs
-        """
-        print("--use_custom_generation_strategy is not yet implemented")
 
     return gs
 

@@ -140,8 +140,7 @@
 				$file_content = file_get_contents($file);
 
 				if ($file_content === $new_upload_md5) {
-					print("Hash match found in file: $file, $userFolder\n");
-					return True;
+					return [True, dirname($file)];
 				}
 			} catch (AssertionError $e) {
 				print($e->getMessage());
@@ -154,14 +153,32 @@
 
 			$write_success = file_put_contents($destinationPath, $new_upload_md5);
 			assert($write_success !== false, "Failed to write to file: $destinationPath");
-
-			print("Hash value written to: $destinationPath");
 		} catch (AssertionError $e) {
 			print($e->getMessage());
 		}
 
-		return False;
+		return [False, null];
 	}
+
+	function extractPathComponents($found_hash_file_dir) {
+		$pattern = '#^shares/([^/]+)/([^/]+)/(\d+)$#';
+
+		if (preg_match($pattern, $found_hash_file_dir, $matches)) {
+			assert(isset($matches[1]), "Failed to extract user from path: $found_hash_file_dir");
+			assert(isset($matches[2]), "Failed to extract experiment name from path: $found_hash_file_dir");
+			assert(isset($matches[3]), "Failed to extract run ID from path: $found_hash_file_dir");
+
+			$user = $matches[1];
+			$experiment_name = $matches[2];
+			$run_dir = $matches[3];
+
+			return [$user, $experiment_name, $run_dir];
+		} else {
+			warn("The provided path does not match the expected pattern: $found_hash_file_dir");
+			return [null, null, null];
+		}
+	}
+
 
 	// Erstelle neuen Ordner basierend auf den Parametern
 	if ($user_id !== null && $experiment_name !== null) {
@@ -176,13 +193,18 @@
 			$file = $offered_file["file"];
 			if($file) {
 				$content = file_get_contents($file);
-				$new_upload_md5_string = $new_upload_md5_string . hash('md5', "$file=$content");
+				$new_upload_md5_string = $new_upload_md5_string . "$filename=$content";
 			}
 		}
 
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		if(searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder)) {
+		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
+
+		$found_hash_file = $found_hash_file_data[0];
+		$found_hash_file_dir = $found_hash_file_data[1];
+
+		if(!$found_hash_file) {
 			foreach ($offered_files as $offered_file) {
 				$file = $offered_file["file"];
 				$filename = $offered_file["filename"];
@@ -202,11 +224,12 @@
 				echo "Run was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
 				exit(0);
 			} else {
-				echo "Error sharing the job. No Files were found.\n";
+				echo "Error sharing the job. No Files were found. \n";
 				exit(1);
 			}
 		} else {
-			echo "This project already seems to have been uploaded.";
+			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
+			echo "This project already seems to have been uploaded. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 			exit(0);
 		}
 	} else {

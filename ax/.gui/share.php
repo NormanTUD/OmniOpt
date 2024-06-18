@@ -331,6 +331,8 @@
 			});
 		}
 	</script>
+	<script src='plotly-latest.min.js'></script>
+	<script src='share_graphs.js'></script>
 	<style>
 		.textarea_csv {
 			width: 80%;
@@ -531,8 +533,6 @@
 
 				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 ?>
-				<script src='plotly-latest.min.js'></script>
-				<script src='share_graphs.js'></script>
 				<script>
 					var results_csv_json = <?php print $jsonData ?>;
 

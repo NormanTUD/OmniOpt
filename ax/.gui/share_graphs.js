@@ -207,7 +207,7 @@ function plotLineChart(data) {
 		x: readableTime,
 		y: plannedWorkers,
 		mode: 'lines',
-		name: 'Geplante Worker'
+		name: 'Planned Worker'
 	};
 
 	// Erstelle den Trace für tatsächliche Worker
@@ -215,17 +215,17 @@ function plotLineChart(data) {
 		x: readableTime,
 		y: actualWorkers,
 		mode: 'lines',
-		name: 'Tatsächliche Worker'
+		name: 'Real Worker'
 	};
 
 	// Layout des Diagramms
 	var layout = {
-		title: 'Geplante vs Tatsächliche Worker über die Zeit',
+		title: 'Planned vs. real worker over time',
 		xaxis: {
-			title: 'Unix-Zeit'
+			title: 'Date'
 		},
 		yaxis: {
-			title: 'Anzahl der Worker'
+			title: 'Nr. Worker'
 		},
 		width: 1200,
 		height: 800

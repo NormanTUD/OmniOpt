@@ -549,7 +549,7 @@
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				echo(convertStringToHtmlTable($content));
+				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
 				preg_match("/evaluation_errors\.log$/", $file) || 

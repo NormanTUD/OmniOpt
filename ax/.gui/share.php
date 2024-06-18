@@ -132,6 +132,37 @@
 		$i++;
 	}
 
+	function searchForHashFile($directory, $new_upload_md5, $userFolder) {
+		$files = glob($directory);
+
+		foreach ($files as $file) {
+			try {
+				$file_content = file_get_contents($file);
+
+				if ($file_content === $new_upload_md5) {
+					print("Hash match found in file: $file");
+					return True;
+				}
+			} catch (AssertionError $e) {
+				print($e->getMessage());
+			}
+		}
+
+		try {
+			$destinationPath = "$userFolder/hash.md5";
+			assert(is_writable(dirname($destinationPath)), "Directory is not writable: " . dirname($destinationPath));
+
+			$write_success = file_put_contents($destinationPath, $new_upload_md5);
+			assert($write_success !== false, "Failed to write to file: $destinationPath");
+
+			print("Hash value written to: $destinationPath");
+		} catch (AssertionError $e) {
+			print($e->getMessage());
+		}
+
+		return False;
+	}
+
 	// Erstelle neuen Ordner basierend auf den Parametern
 	if ($user_id !== null && $experiment_name !== null) {
 		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
@@ -149,29 +180,34 @@
 			}
 		}
 
-		dier($new_upload_md5_string);
+		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		foreach ($offered_files as $offered_file) {
-			$file = $offered_file["file"];
-			$filename = $offered_file["filename"];
-			if ($file && file_exists($file)) {
-				$content = file_get_contents($file);
-				$content_encoding = mb_detect_encoding($content);
-				if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-					move_uploaded_file($file, "$userFolder/$filename");
-					$added_files++;
-				} else {
-					dier("$filename: \$content was not ASCII, but $content_encoding");
+		if(searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder)) {
+			foreach ($offered_files as $offered_file) {
+				$file = $offered_file["file"];
+				$filename = $offered_file["filename"];
+				if ($file && file_exists($file)) {
+					$content = file_get_contents($file);
+					$content_encoding = mb_detect_encoding($content);
+					if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+						move_uploaded_file($file, "$userFolder/$filename");
+						$added_files++;
+					} else {
+						dier("$filename: \$content was not ASCII, but $content_encoding");
+					}
 				}
 			}
-		}
 
-		if ($added_files) {
-			echo "Run was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
-			exit(0);
+			if ($added_files) {
+				echo "Run was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+				exit(0);
+			} else {
+				echo "Error sharing the job. No Files were found.\n";
+				exit(1);
+			}
 		} else {
-			echo "Error sharing the job. No Files were found.\n";
-			exit(1);
+			echo "This project already seems to have been uploaded.";
+			exit(0);
 		}
 	} else {
 		include("_header_base.php");

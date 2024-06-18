@@ -187,6 +187,7 @@
 
 		$added_files = 0;
 
+		$num_offered_files = 0;
 		$new_upload_md5_string = "";
 		foreach ($offered_files as $offered_file) {
 			$filename = $offered_file["filename"];
@@ -194,7 +195,13 @@
 			if($file) {
 				$content = file_get_contents($file);
 				$new_upload_md5_string = $new_upload_md5_string . "$filename=$content";
+				$num_offered_files++;
 			}
+		}
+
+		if ($num_offered_files == 0) {
+			print("Error sharing job. No offered files could be found");
+			exit(1);
 		}
 
 		$project_md5 = hash('md5', $new_upload_md5_string);
@@ -204,7 +211,11 @@
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
 
-		if(!$found_hash_file) {
+		if($found_hash_file) {
+			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
+			echo "This project already seems to have been uploaded. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
+			exit(0);
+		} else {
 			foreach ($offered_files as $offered_file) {
 				$file = $offered_file["file"];
 				$filename = $offered_file["filename"];
@@ -227,10 +238,6 @@
 				echo "Error sharing the job. No Files were found. \n";
 				exit(1);
 			}
-		} else {
-			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
-			echo "This project already seems to have been uploaded. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
-			exit(0);
 		}
 	} else {
 		include("_header_base.php");

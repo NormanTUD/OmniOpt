@@ -174,6 +174,80 @@ function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultVal
 	}
 }
 
+function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+    // Hexbin Scatter Plot
+    if (_paramKeys.length >= 2) {
+        for (var i = 0; i < _paramKeys.length; i++) {
+            for (var j = i + 1; j < _paramKeys.length; j++) {
+                try {
+                    var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
+                    var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
+
+                    //assert(xValues.length === yValues.length, "xValues and yValues must have the same length");
+
+                    var traceHexbin = {
+                        x: xValues,
+                        y: yValues,
+                        type: 'histogram2dcontour',
+                        colorscale: 'Jet',
+                        showscale: true,
+                        colorbar: {
+                            title: 'Avg Result',
+                            titleside: 'right'
+                        },
+                        contours: {
+                            coloring: 'heatmap'
+                        }
+                    };
+
+                    var layoutHexbin = {
+                        title: `Hexbin Scatter Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
+                        xaxis: { title: _paramKeys[i] },
+                        yaxis: { title: _paramKeys[j] },
+                        width: 1200,
+                        height: 800
+                    };
+
+                    var new_plot_div = $(`<div class='hexbin-plot' id='hexbin-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
+                    $('body').append(new_plot_div);
+                    Plotly.newPlot(`hexbin-plot-${i}_${j}`, [traceHexbin], layoutHexbin);
+                } catch (error) {
+                    log(error, `Error in hex_scatter function for parameters: ${_paramKeys[i]}, ${_paramKeys[j]}`);
+                }
+            }
+        }
+    }
+}
+
+function createHexbinData(data, minResult, maxResult) {
+    var hexbin = d3.hexbin()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .radius(20);
+
+    var hexbinPoints = hexbin(data);
+
+    var x = [];
+    var y = [];
+    var avgResults = [];
+    var colors = [];
+
+    hexbinPoints.forEach(function(bin) {
+        var avgResult = d3.mean(bin, function(d) { return d.result; });
+        x.push(d3.mean(bin, function(d) { return d.x; }));
+        y.push(d3.mean(bin, function(d) { return d.y; }));
+        avgResults.push(avgResult);
+        colors.push(getColor(avgResult, minResult, maxResult));
+    });
+
+    return {
+        x: x,
+        y: y,
+        avgResults: avgResults,
+        colors: colors
+    };
+}
+
 function plot_all_possible (_results_csv_json) {
 	// Extract parameter names
 	var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
@@ -188,6 +262,7 @@ function plot_all_possible (_results_csv_json) {
 	scatter(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 	scatter_3d(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 	parallel_plot(paramKeys, results_csv_json, minResult, maxResult, resultValues);
+	hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 }
 
 function convertUnixTimeToReadable(unixTime) {

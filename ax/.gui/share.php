@@ -338,19 +338,7 @@
 				<script>
 					var results_csv_json = <?php print $jsonData ?>;
 
-					// Extract parameter names
-					var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
-						return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
-					});
-
-					// Get result values for color mapping
-					var resultValues = results_csv_json.map(function(row) { return parseFloat(row.result); });
-					var minResult = Math.min.apply(null, resultValues);
-					var maxResult = Math.max.apply(null, resultValues);
-
-					scatter(paramKeys, results_csv_json);
-					scatter_3d(paramKeys, results_csv_json);
-					parallel_plot(paramKeys, results_csv_json);
+					plot_all_possible(results_csv_json);
 				</script>
 <?php
 				$shown_data += 1;

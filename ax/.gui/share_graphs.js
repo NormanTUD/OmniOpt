@@ -1,4 +1,4 @@
-function getColor(value) {
+function getColor(value, minResult, maxResult) {
 	var normalized = (value - minResult) / (maxResult - minResult);
 	var red = Math.floor(normalized * 255);
 	var green = Math.floor((1 - normalized) * 255);
@@ -13,7 +13,7 @@ function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
 
-function parallel_plot(_paramKeys, _results_csv_json) {
+function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	var dimensions = [..._paramKeys, 'result'].map(function(key) {
 		var values = _results_csv_json.map(function(row) { return row[key]; });
 		var numericValues = values.map(function(value) { return parseFloat(value); });
@@ -60,7 +60,7 @@ function parallel_plot(_paramKeys, _results_csv_json) {
 	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 }
 
-function scatter_3d (_paramKeys, _results_csv_json) {
+function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	// 3D Scatter Plot
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		for (var i = 0; i < _paramKeys.length; i++) {
@@ -69,7 +69,12 @@ function scatter_3d (_paramKeys, _results_csv_json) {
 					var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
 					var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
 					var zValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[k]]); });
-					var colors = resultValues.map(getColor);
+
+					function color_curried (value) {
+						return getColor(value, minResult, maxResult)
+					}
+
+					var colors = resultValues.map(color_curried);
 
 					var trace3d = {
 						x: xValues,
@@ -110,13 +115,13 @@ function scatter_3d (_paramKeys, _results_csv_json) {
 	}
 }
 
-function scatter (_paramKeys, _results_csv_json) {
+function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	// 2D Scatter Plot
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
 			var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
 			var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
-			var colors = resultValues.map(getColor);
+			var colors = resultValues.map(getColor, minResult, maxResult);
 
 			var trace2d = {
 				x: xValues,
@@ -139,4 +144,20 @@ function scatter (_paramKeys, _results_csv_json) {
 			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d], layout2d);
 		}
 	}
+}
+
+function plot_all_possible (_results_csv_json) {
+	// Extract parameter names
+	var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
+		return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
+	});
+
+	// Get result values for color mapping
+	var resultValues = _results_csv_json.map(function(row) { return parseFloat(row.result); });
+	var minResult = Math.min.apply(null, resultValues);
+	var maxResult = Math.max.apply(null, resultValues);
+
+	scatter(paramKeys, results_csv_json, minResult, maxResult, resultValues);
+	scatter_3d(paramKeys, results_csv_json, minResult, maxResult, resultValues);
+	parallel_plot(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 }

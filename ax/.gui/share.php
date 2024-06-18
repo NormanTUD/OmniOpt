@@ -348,83 +348,9 @@
 					var minResult = Math.min.apply(null, resultValues);
 					var maxResult = Math.max.apply(null, resultValues);
 
-					// 2D Scatter Plot
-					for (var i = 0; i < paramKeys.length; i++) {
-						for (var j = i + 1; j < paramKeys.length; j++) {
-							var xValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[i]]); });
-							var yValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[j]]); });
-							var colors = resultValues.map(getColor);
 
-							var trace2d = {
-								x: xValues,
-								y: yValues,
-								mode: 'markers',
-								type: 'scatter',
-								marker: {
-									color: colors
-								}
-							};
-
-							var layout2d = {
-								title: `Scatter Plot: ${paramKeys[i]} vs ${paramKeys[j]}`,
-								xaxis: { title: paramKeys[i] },
-								yaxis: { title: paramKeys[j] }
-							};
-
-							var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
-							$('body').append(new_plot_div);
-							Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d], layout2d);
-						}
-					}
-
-					// 3D Scatter Plot
-					if (paramKeys.length >= 3 && paramKeys.length <= 6) {
-						for (var i = 0; i < paramKeys.length; i++) {
-							for (var j = i + 1; j < paramKeys.length; j++) {
-								for (var k = j + 1; k < paramKeys.length; k++) {
-									var xValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[i]]); });
-									var yValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[j]]); });
-									var zValues = results_csv_json.map(function(row) { return parseFloat(row[paramKeys[k]]); });
-									var colors = resultValues.map(getColor);
-
-									var trace3d = {
-										x: xValues,
-										y: yValues,
-										z: zValues,
-										mode: 'markers',
-										type: 'scatter3d',
-										marker: {
-											color: colors
-										}
-									};
-
-									var layout3d = {
-										title: `3D Scatter Plot: ${paramKeys[i]} vs ${paramKeys[j]} vs ${paramKeys[k]}`,
-										width: 1200,
-										height: 800,
-										autosize: false,
-										margin: {
-											l: 50,
-											r: 50,
-											b: 100,
-											t: 100,
-											pad: 4
-										},
-										scene: {
-											xaxis: { title: paramKeys[i] },
-											yaxis: { title: paramKeys[j] },
-											zaxis: { title: paramKeys[k] }
-										}
-									};
-
-									var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:1200px;height:800px;'></div>`);
-									$('body').append(new_plot_div);
-									Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
-								}
-							}
-						}
-					}
-
+					scatter(paramKeys, results_csv_json);
+					scatter_3d(paramKeys, results_csv_json);
 					parallel_plot(paramKeys, results_csv_json);
 				</script>
 <?php

@@ -226,8 +226,12 @@
 					$content = file_get_contents($file);
 					$content_encoding = mb_detect_encoding($content);
 					if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-						move_uploaded_file($file, "$userFolder/$filename");
-						$added_files++;
+						if(filesize($file)) {
+							move_uploaded_file($file, "$userFolder/$filename");
+							$added_files++;
+						} else {
+							$empty_files[] = $filename;
+						}
 					} else {
 						dier("$filename: \$content was not ASCII, but $content_encoding");
 					}
@@ -238,7 +242,12 @@
 				echo "Run was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
 				exit(0);
 			} else {
-				echo "Error sharing the job. No Files were found. \n";
+				if (count($empty_files)) {
+					implode(", ", $empty_files);
+					echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
+				} else {
+					echo "Error sharing the job. No Files were found. \n";
+				}
 				exit(1);
 			}
 		}

@@ -190,8 +190,6 @@
 			$i++;
 		}
 
-
-
 		foreach ($offered_files as $offered_file) {
 			$filename = $offered_file["filename"];
 			$file = $offered_file["file"];

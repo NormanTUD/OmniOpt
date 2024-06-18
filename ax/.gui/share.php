@@ -6,7 +6,7 @@
 
 	ini_set('display_errors', 1);
 
-	function loadCsvToJson($file) {
+	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
 		$csvData = [];
@@ -27,6 +27,32 @@
 				if($row[$result_column_id]) {
 					$csvData[] = array_combine($headers, $row);
 				}
+			}
+
+			fclose($fileHandle);
+		} catch (Exception $e) {
+			print("Error reading CSV: " . $e->getMessage());
+			warn("Ensure the CSV file is correctly formatted.");
+			throw $e;
+		}
+
+		$jsonData = json_encode($csvData);
+		assert($jsonData !== false, "Failed to encode JSON.");
+
+		return $jsonData;
+	}
+
+
+	function loadCsvToJson($file) {
+		assert(file_exists($file), "CSV file does not exist.");
+
+		$csvData = [];
+		try {
+			$fileHandle = fopen($file, "r");
+			assert($fileHandle !== false, "Failed to open the file.");
+
+			while (($row = fgetcsv($fileHandle)) !== false) {
+				$csvData[] = $row;
 			}
 
 			fclose($fileHandle);
@@ -523,7 +549,7 @@
 					continue;
 				}
 
-				$jsonData = loadCsvToJson($file);
+				$jsonData = loadCsvToJsonByResult($file);
 
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				if($jsonData == "[]") {
@@ -552,11 +578,32 @@
 				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
+				preg_match("/worker_usage\.csv$/", $file)
+			) {
+				$jsonData = loadCsvToJson($file);
+				$content = remove_ansi_colors(file_get_contents($file));
+
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				if($jsonData == "[]") {
+					echo "Data is empty";
+					continue;
+				}
+
+				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+?>
+				<script>
+					var worker_usage_csv = convertToIntAndFilter(<?php print $jsonData ?>.map(Object.values));
+
+					log(worker_usage_csv);
+
+					//plot_all_possible(results_csv_json);
+				</script>
+<?php
+			} else if (
 				preg_match("/evaluation_errors\.log$/", $file) || 
 				preg_match("/oo_errors\.txt$/", $file) ||
 				preg_match("/best_result\.txt$/", $file) ||
 				preg_match("/get_next_trials/", $file) ||
-				preg_match("/worker_usage\.csv$/", $file) ||
 				preg_match("/job_infos\.csv$/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));

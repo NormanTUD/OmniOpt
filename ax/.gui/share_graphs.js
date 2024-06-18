@@ -1,3 +1,26 @@
+function isIntegerOrFloat(value) {
+	return /^\d+(\.\d*)?$/.test(value);
+}
+
+function convertToIntAndFilter(array) {
+	var result = [];
+
+	for (var i = 0; i < array.length; i++) {
+		var obj = array[i];
+		var values = Object.values(obj);
+		var isConvertible = values.every(isIntegerOrFloat);
+
+		if (isConvertible) {
+			var intValues = values.map(Number);
+			result.push(intValues);
+		} else {
+			console.warn('Skipping non-convertible row:', obj);
+		}
+	}
+
+	return result;
+}
+
 function getColor(value, minResult, maxResult) {
 	var normalized = (value - minResult) / (maxResult - minResult);
 	var red = Math.floor(normalized * 255);

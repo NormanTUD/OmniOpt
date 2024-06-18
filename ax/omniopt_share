@@ -41,19 +41,19 @@ fi
 run_nr=$(echo "$RUN_DIR" | sed -e 's#.*/##')
 experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*$##g' -e 's#.*/##')
 
-curl_params=""
+curl_options=()
 
 for available_file in $(ls $RUN_DIR); do 
 	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
 	if echo "$available_file" | egrep -i "\.(csv|txt)" 2>/dev/null > /dev/null; then
-		curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
+		curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
 	fi
 done
 
 for available_file in $(ls $RUN_DIR/state_files); do 
 	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
 	if echo "$available_file" | egrep -i "\.(csv|txt)" 2>/dev/null > /dev/null; then
-		curl_params="$curl_params -F $available_file_param_name=@$RUN_DIR/$available_file "
+		curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
 	fi
 done
 
@@ -70,7 +70,7 @@ fi
 
 set -e
 url="https://imageseg.scads.de/omniax/share.php?user_id=$user_id&experiment_name=$experiment_name"
-CURL_OUTPUT=$(curl -s ${curl_params} $url)
+CURL_OUTPUT=$(curl -s "${curl_options[@]}" $url)
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." 2>&1 > /dev/null; then

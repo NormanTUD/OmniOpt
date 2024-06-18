@@ -690,7 +690,7 @@
 			$user = preg_replace("/.*\//", "", $user);
 			echo "<a href=\"share.php?user=$user\">$user</a><br>";
 		}
-		print("<!-- user only -->");
+		print("<!-- startpage -->");
 		print_script_and_folder("");
 	}
 ?>

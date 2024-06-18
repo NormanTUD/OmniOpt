@@ -140,7 +140,7 @@
 				$file_content = file_get_contents($file);
 
 				if ($file_content === $new_upload_md5) {
-					print("Hash match found in file: $file");
+					print("Hash match found in file: $file, $userFolder\n");
 					return True;
 				}
 			} catch (AssertionError $e) {

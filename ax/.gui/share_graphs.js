@@ -189,3 +189,54 @@ function plot_all_possible (_results_csv_json) {
 	scatter_3d(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 	parallel_plot(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 }
+
+function convertUnixTimeToReadable(unixTime) {
+	var date = new Date(unixTime * 1000); // Unix-Zeit ist in Sekunden, daher * 1000 um Millisekunden zu erhalten
+	return date.toLocaleString(); // Konvertiere zu einem lesbaren Datum und Uhrzeit
+}
+
+function plotLineChart(data) {
+	// Extrahiere die Unix-Zeit, die geplanten Worker und die tatsächlichen Worker
+	var unixTime = data.map(row => row[0]);
+	var readableTime = unixTime.map(convertUnixTimeToReadable); // Konvertiere Unix-Zeit in menschenlesbares Format
+	var plannedWorkers = data.map(row => row[1]);
+	var actualWorkers = data.map(row => row[2]);
+
+	// Erstelle den Trace für geplante Worker
+	var tracePlanned = {
+		x: readableTime,
+		y: plannedWorkers,
+		mode: 'lines',
+		name: 'Geplante Worker'
+	};
+
+	// Erstelle den Trace für tatsächliche Worker
+	var traceActual = {
+		x: readableTime,
+		y: actualWorkers,
+		mode: 'lines',
+		name: 'Tatsächliche Worker'
+	};
+
+	// Layout des Diagramms
+	var layout = {
+		title: 'Geplante vs Tatsächliche Worker über die Zeit',
+		xaxis: {
+			title: 'Unix-Zeit'
+		},
+		yaxis: {
+			title: 'Anzahl der Worker'
+		},
+		width: 1200,
+		height: 800
+	};
+
+	var new_plot_div = document.createElement('div');
+	new_plot_div.id = 'line-plot';
+	new_plot_div.style.width = '1200px';
+	new_plot_div.style.height = '800px';
+	document.body.appendChild(new_plot_div);
+	
+	// Erstelle das Diagramm
+	Plotly.newPlot('line-plot', [tracePlanned, traceActual], layout);
+}

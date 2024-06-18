@@ -594,9 +594,7 @@
 				<script>
 					var worker_usage_csv = convertToIntAndFilter(<?php print $jsonData ?>.map(Object.values));
 
-					log(worker_usage_csv);
-
-					//plot_all_possible(results_csv_json);
+					plotLineChart(worker_usage_csv);
 				</script>
 <?php
 			} else if (

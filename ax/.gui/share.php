@@ -334,17 +334,9 @@
 				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 ?>
 				<script src='plotly-latest.min.js'></script>
+				<script src='share_graphs.js'></script>
 				<script>
 					var results_csv_json = <?php print $jsonData ?>;
-
-					function isNumeric(value) {
-						return !isNaN(value) && isFinite(value);
-					}
-
-					// Function to get the unique values for string columns
-					function getUniqueValues(arr) {
-						return [...new Set(arr)];
-					}
 
 					// Extract parameter names
 					var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
@@ -355,13 +347,6 @@
 					var resultValues = results_csv_json.map(function(row) { return parseFloat(row.result); });
 					var minResult = Math.min.apply(null, resultValues);
 					var maxResult = Math.max.apply(null, resultValues);
-
-					function getColor(value) {
-						var normalized = (value - minResult) / (maxResult - minResult);
-						var red = Math.floor(normalized * 255);
-						var green = Math.floor((1 - normalized) * 255);
-						return `rgb(${red},${green},0)`;
-					}
 
 					// 2D Scatter Plot
 					for (var i = 0; i < paramKeys.length; i++) {
@@ -440,50 +425,7 @@
 						}
 					}
 
-					var dimensions = [...paramKeys, 'result'].map(function(key) {
-						var values = results_csv_json.map(function(row) { return row[key]; });
-						var numericValues = values.map(function(value) { return parseFloat(value); });
-
-						if (numericValues.every(isNumeric)) {
-							return {
-								range: [Math.min(...numericValues), Math.max(...numericValues)],
-								label: key,
-								values: numericValues
-							};
-						} else {
-							var uniqueValues = getUniqueValues(values);
-							var valueIndices = values.map(function(value) { return uniqueValues.indexOf(value); });
-							return {
-								range: [0, uniqueValues.length - 1],
-								label: key,
-								tickvals: valueIndices,
-								ticktext: uniqueValues,
-								values: valueIndices
-							};
-						}
-					});
-
-					var traceParallel = {
-						type: 'parcoords',
-						line: {
-							color: resultValues,
-							colorscale: 'Jet',
-							showscale: true,
-							cmin: minResult,
-							cmax: maxResult
-						},
-						dimensions: dimensions
-					};
-
-					var layoutParallel = {
-						title: 'Parallel Coordinates Plot',
-						width: 1200,
-						height: 800
-					};
-
-					var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
-					$('body').append(new_plot_div);
-					Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
+					parallel_plot(paramKeys, results_csv_json);
 				</script>
 <?php
 				$shown_data += 1;

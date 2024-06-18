@@ -317,7 +317,7 @@
 		
 		$shown_data = 0;
 		foreach ($run_files as $file) {
-			if (preg_match("/results.csv/", $file)) {
+			if (preg_match("/results\.csv$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
 				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
@@ -343,13 +343,13 @@
 <?php
 				$shown_data += 1;
 			} else if (
-				preg_match("/evaluation_errors.log/", $file) || 
-				preg_match("/oo_errors.txt/", $file) ||
-				preg_match("/best_result.txt/", $file) ||
-				preg_match("/parameters.txt/", $file) ||
+				preg_match("/evaluation_errors\.log$/", $file) || 
+				preg_match("/oo_errors\.txt$/", $file) ||
+				preg_match("/best_result\.txt$/", $file) ||
+				preg_match("/parameters\.txt$/", $file) ||
 				preg_match("/get_next_trials/", $file) ||
-				preg_match("/job_infos.csv/", $file) ||
-				preg_match("/worker_usage.csv/", $file)
+				preg_match("/job_infos\.csv$/", $file) ||
+				preg_match("/worker_usage\.csv$/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -360,7 +360,7 @@
 				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
-				preg_match("/ui_url/", $file)
+				preg_match("/ui_url\.txt$/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);

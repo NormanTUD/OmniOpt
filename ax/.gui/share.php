@@ -468,10 +468,37 @@
 		}
 	}
 
+	function custom_sort($a, $b) {
+		// Extrahiere numerische und alphabetische Teile
+		$a_numeric = preg_replace('/[^0-9]/', '', $a);
+		$b_numeric = preg_replace('/[^0-9]/', '', $b);
+
+		// Falls beide numerisch sind, sortiere numerisch
+		if (is_numeric($a_numeric) && is_numeric($b_numeric)) {
+			if ((int)$a_numeric == (int)$b_numeric) {
+				return strcmp($a, $b); // Wenn numerisch gleich, alphabetisch sortieren
+			}
+			return (int)$a_numeric - (int)$b_numeric;
+		}
+
+		// Falls nur einer numerisch ist, numerische Sortierung bevorzugen
+		if (is_numeric($a_numeric)) {
+			return -1;
+		}
+
+		if (is_numeric($b_numeric)) {
+			return 1;
+		}
+
+		// Falls keine numerisch sind, alphabetisch sortieren
+		return strcmp($a, $b);
+	}
+
 	function show_run_selection ($sharesPath, $user, $experiment_name) {
 		$experiment_name = preg_replace("/.*\//", "", $experiment_name);
 		$folder_glob = "$sharesPath/$user/$experiment_name/*";
 		$experiment_subfolders = glob($folder_glob, GLOB_ONLYDIR);
+
 		if (count($experiment_subfolders) == 0) {
 			echo "No runs found in $folder_glob";
 			exit(1);
@@ -482,6 +509,8 @@
 			show_run($experiment_subfolders[0]);
 			exit(0);
 		}
+
+		usort($experiment_subfolders, 'custom_sort');
 
 		foreach ($experiment_subfolders as $run_nr) {
 			$run_nr = preg_replace("/.*\//", "", $run_nr);

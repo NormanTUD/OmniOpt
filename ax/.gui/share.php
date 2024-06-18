@@ -301,6 +301,17 @@
 		return $contents;
 	}
 
+	function print_url($content) {
+		$content = htmlentities($content);
+		if (preg_match("/^https?:\/\//", $content)) {
+			print "<a target='_blank' href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
+
+			return 1;
+		}
+
+		return 0;
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 		
@@ -497,17 +508,12 @@
 				preg_match("/ui_url/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
-				$content = htmlentities($content);
 				$content_encoding = mb_detect_encoding($content);
 				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
 					continue;
 				}
 
-				if (preg_match("/^https?:\/\//", $content)) {
-					print "<a target='_blank' href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
-
-					$shown_data += 1;
-				}
+				$shown_data += print_url($content);
 			} else if (
 				preg_match("/state_files/", $file) ||
 				preg_match("/failed_logs/", $file) ||

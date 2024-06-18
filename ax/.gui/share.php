@@ -139,6 +139,15 @@
 
 		$added_files = 0;
 
+		$new_upload_md5_string = "";
+		foreach ($offered_files as $offered_file) {
+			$filename = $offered_file["filename"];
+			$content = file_get_contents($filename);
+			$new_upload_md5_string += md5($content);
+		}
+
+		dier($new_upload_md5_string);
+
 		foreach ($offered_files as $offered_file) {
 			$file = $offered_file["file"];
 			$filename = $offered_file["filename"];

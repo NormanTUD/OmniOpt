@@ -143,8 +143,10 @@
 		foreach ($offered_files as $offered_file) {
 			$filename = $offered_file["filename"];
 			$file = $offered_file["file"];
-			$content = file_get_contents($file);
-			$new_upload_md5_string = $new_upload_md5_string . hash('md5', "$file=$content");
+			if($file) {
+				$content = file_get_contents($file);
+				$new_upload_md5_string = $new_upload_md5_string . hash('md5', "$file=$content");
+			}
 		}
 
 		dier($new_upload_md5_string);

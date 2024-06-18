@@ -436,7 +436,7 @@ if not args.tests:
                 time_file_contents = get_file_as_string(time_file).strip()
                 if time_file_contents.isdigit():
                     global_vars["_time"] = int(time_file_contents)
-                    print(f"Using old run's --time: {_time}")
+                    print(f"Using old run's --time: {global_vars['_time']}")
                 else:
                     print(f"Time-setting: The contents of {time_file} do not contain a single number")
             else:

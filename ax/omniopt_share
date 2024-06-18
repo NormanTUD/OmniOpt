@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/.shellscript_functions
+
 function join_by {
 	local d=${1-} f=${2-}
 	if shift 2; then

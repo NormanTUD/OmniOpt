@@ -3038,59 +3038,8 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
 
     return requested
 
-    """
-    total_number_of_jobs_left = max_eval - submitted_jobs()
-
-    needed_number_of_trials = max(1, min(num_parallel_jobs, total_number_of_jobs_left))
-
-    current_number_of_workers = len(global_vars["jobs"])
-
-    if total_number_of_jobs_left > num_parallel_jobs:
-        total_number_of_jobs_left = num_parallel_jobs
-    needed_number_of_trials = num_parallel_jobs - current_number_of_workers
-
-    new_nr_jobs = max(1, needed_number_of_trials)
-
-    rest_jobs = max_eval - submitted_jobs()
-    if rest_jobs > 0 and rest_jobs < num_parallel_jobs:
-        new_nr_jobs = rest_jobs
-
-    return new_nr_jobs
-    """
-
 def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     global random_steps
-
-    """
-
-    Valid models?
-
-    "Sobol"
-    "GPEI"
-    "GPKG"
-    "GPMES"
-    "Factorial"
-    "SAASBO"
-    "FullyBayesian"
-    "FullyBayesianMOO"
-    "SAAS_MTGP"
-    "FullyBayesian_MTGP"
-    "FullyBayesianMOO_MTGP"
-    "Thompson"
-    "GPEI"
-    "BoTorch"
-    "EB"
-    "Uniform"
-    "MOO"
-    "ST_MTGP_LEGACY"
-    "ST_MTGP"
-    "ALEBO"
-    "BO_MIXED"
-    "ST_MTGP_NEHVI"
-    "ALEBO_Initializer"
-    "Contextual_SACBO"
-
-    """
 
     _steps = []
 

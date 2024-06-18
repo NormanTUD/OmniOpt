@@ -404,6 +404,17 @@
 		$run_files = glob("$folder/*");
 		
 		$shown_data = 0;
+
+		$file = "";
+
+		if(file_exists("$folder/ui_url.txt")) {
+			$content = remove_ansi_colors(file_get_contents("$folder/ui_url.txt"));
+			$content_encoding = mb_detect_encoding($content);
+			if(($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+				$shown_data += print_url($content);
+			}
+		}
+
 		foreach ($run_files as $file) {
 			if (preg_match("/results\.csv$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
@@ -449,21 +460,12 @@
 				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
-				preg_match("/ui_url\.txt$/", $file)
-			) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$shown_data += print_url($content);
-			} else if (
 				preg_match("/state_files/", $file) ||
 				preg_match("/failed_logs/", $file) ||
 				preg_match("/single_runs/", $file) ||
 				preg_match("/gpu_usage/", $file) ||
-				preg_match("/hash\.md5$/", $file)
+				preg_match("/hash\.md5$/", $file) ||
+				preg_match("/ui_url\.txt$/", $file)
 			) {
 				// do nothing
 			} else {

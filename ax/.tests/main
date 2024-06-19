@@ -67,6 +67,7 @@ function help () {
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
+	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --help                                             This help"
         echo "  --quick                                            Only run quick tests"
         echo "  --debug                                            Enables debug mode (set -x)"

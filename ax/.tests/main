@@ -286,7 +286,7 @@ cd ..
 
 bash .tests/example_network/install.sh
 
-_test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots" 0
+_test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus=$NUM_GPUS" 0
 
 if [[ -d "runs/$TESTNAME" ]]; then
 	yellow_text "Deleting old runs/$TESTNAME..."

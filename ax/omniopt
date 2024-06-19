@@ -76,7 +76,7 @@ function send_status_report {
 
 		if [[ -e "$HOME/.oo_base_url" ]]; then
 			BASEURL=$(cat $HOME/.oo_base_url)
-			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
+			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
 		fi
 
 

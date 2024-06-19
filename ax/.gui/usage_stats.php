@@ -11,36 +11,30 @@
 		print("<pre>".print_r($msg, true)."</pre>");
 		exit(1);
 	}
+
+	include("_header_base.php");
 ?>
-<!DOCTYPE html>
-<html lang="de">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Usage Statistics</title>
-		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-		<style>
-			table {
-				width: 100%;
-				border-collapse: collapse;
-			}
-			th, td {
-				border: 1px solid #ddd;
-				padding: 8px;
-			}
-			th {
-				padding-top: 12px;
-				padding-bottom: 12px;
-				text-align: left;
-				background-color: #4CAF50;
-				color: white;
-			}
-			tr:nth-child(even) {
-				background-color: #f2f2f2;
-			}
-		</style>
-	</head>
-<body>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<style>
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+		}
+		th {
+			padding-top: 12px;
+			padding-bottom: 12px;
+			text-align: left;
+			background-color: #4CAF50;
+			color: white;
+		}
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+	</style>
 <?php
 	function log_error($error_message) {
 		error_log($error_message);

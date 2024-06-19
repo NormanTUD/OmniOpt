@@ -6,6 +6,8 @@
 
 	ini_set('display_errors', 1);
 
+	$BASEURL = "https://imageseg.scads.de/omniax";
+
 	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
@@ -240,7 +242,7 @@
 
 		if($found_hash_file) {
 			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
-			echo "This project already seems to have been uploaded. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
+			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 			exit(0);
 		} else {
 			foreach ($offered_files as $offered_file) {
@@ -263,7 +265,7 @@
 			}
 
 			if ($added_files) {
-				echo "Run was successfully shared. See https://imageseg.scads.de/omniax/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+				echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
 				exit(0);
 			} else {
 				if (count($empty_files)) {

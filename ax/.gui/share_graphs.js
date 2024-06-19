@@ -201,7 +201,7 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 					};
 
 					var layoutHexbin = {
-						title: `Map Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
+						title: `Contour Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
 						xaxis: { title: _paramKeys[i] },
 						yaxis: { title: _paramKeys[j] },
 						width: 1200,

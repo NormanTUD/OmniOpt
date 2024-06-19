@@ -244,7 +244,8 @@
 <?php
 			$files = array(
 				"index" => "GUI",
-				"share" => "Share"
+				"share" => "Share",
+				"usage_stats" => "Usage statistics"
 			);
 
 			foreach ($files as $fn => $n) {

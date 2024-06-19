@@ -138,6 +138,25 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			;;
+		--gpus=*)
+			gpus="${i#*=}"
+			if ! [[ $gpus =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--gpus)
+			shift
+			k=$((k+1))
+
+			gpus="${args[k]}"
+			if ! [[ $gpus =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+
 		--num_parallel_jobs=*)
 			num_parallel_jobs="${i#*=}"
 			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then

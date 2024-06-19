@@ -233,7 +233,16 @@
 
 	if (validate_parameters($params)) {
 		if (!file_exists($stats_dir)) {
-			mkdir($stats_dir, 0777, true);
+			try {
+				mkdir($stats_dir, 0777, true);
+			} catch (\Throwable $e) {
+				if(preg_match("/permission denied/i", $e->getMessage())) {
+					print("Error. Permission for stats is denied. Try <pre>chown \$USER:www-data stats</pre> and <pre>chmod g+w stats</pre>");
+					exit(1);
+				} else {
+					dier($e->getMessage());
+				}
+			}
 		}
 
 		if (is_writable($stats_dir)) {

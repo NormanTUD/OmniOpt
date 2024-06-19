@@ -139,8 +139,8 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 		--gpus=*)
-			gpus="${i#*=}"
-			if ! [[ $gpus =~ $int_re ]] ; then
+			NUM_GPUS="${i#*=}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
 				red_text "error: --gpus not a INT: $i" >&2
 				exit 100
 			fi
@@ -150,8 +150,8 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			k=$((k+1))
 
-			gpus="${args[k]}"
-			if ! [[ $gpus =~ $int_re ]] ; then
+			NUM_GPUS="${args[k]}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
 				red_text "error: --gpus not a INT: $i" >&2
 				exit 100
 			fi
@@ -279,12 +279,7 @@ function _test {
 }
 
 PARTITION="alpha"
-GPUS=0
 TESTNAME=__main__tests__
-
-if [[ "$PARTITION" == "alpha" ]]; then
-	GPUS=1
-fi
 
 cd ..
 

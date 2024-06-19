@@ -72,7 +72,7 @@ BASEURL="https://imageseg.scads.de/omniax"
 
 if [[ -e "$HOME/.oo_base_url" ]]; then
 	BASEURL=$(cat $HOME/.oo_base_url)
-	yellow_text "Using base-url $BASEURL"
+	yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
 fi
 
 

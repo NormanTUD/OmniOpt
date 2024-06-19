@@ -72,6 +72,14 @@ function send_status_report {
 	exit_code=$1
 
 	if [[ $SEND_USAGE_STATS -eq "1" ]] && [[ -z $SLURM_JOB_ID ]]; then
+		BASEURL="https://imageseg.scads.de/omniax"
+
+		if [[ -e "$HOME/.oo_base_url" ]]; then
+			yellow_text "Using base-url $BASEURL"
+			BASEURL=$(cat $HOME/.oo_base_url)
+		fi
+
+
 		anon_user=$(echo "user=$USER|hostname=$(hostname)|machine-id=$(cat /etc/machine-id)" | md5sum | sed -e 's#\s.*##')
 		if ! [[ -z $ITWORKSONMYMACHINE ]]; then
 			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
@@ -84,7 +92,7 @@ function send_status_report {
 		run_uuid=$(uuidgen)
 
 		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$(git rev-parse HEAD)&exit_code=$exit_code&runtime=$SECONDS"
-		url="https://imageseg.scads.de/omniax/usage_stats.php?$stats_params"
+		url="$BASEURL/usage_stats.php?$stats_params"
 
 		curl -s $url 2>/dev/null >/dev/null
 

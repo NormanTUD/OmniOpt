@@ -6,7 +6,7 @@
 
 	ini_set('display_errors', 1);
 
-	$BASEURL = dirname($_SERVER["HTTP_REFERER"]);
+	$BASEURL = dirname($_SERVER["REQUEST_SCHEME"]."://".$_SERVER["SCRIPT_NAME"]);
 
 	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");

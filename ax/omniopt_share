@@ -68,8 +68,17 @@ else
     exit 0
 fi
 
+BASEURL="https://imageseg.scads.de/omniax"
+
+if [[ -e "$HOME/.oo_base_url" ]]; then
+	BASEURL=$(cat $HOME/.oo_base_url)
+	yellow_text "Using base-url $BASEURL"
+fi
+
+
+
 set -e
-url="https://imageseg.scads.de/omniax/share.php?user_id=$user_id&experiment_name=$experiment_name"
+url="$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name"
 CURL_OUTPUT=$(curl -s "${curl_options[@]}" $url)
 exit_code=$?
 

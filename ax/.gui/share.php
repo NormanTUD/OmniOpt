@@ -6,7 +6,7 @@
 
 	ini_set('display_errors', 1);
 
-	$BASEURL = "https://imageseg.scads.de/omniax";
+	$BASEURL = dirname($_SERVER["HTTP_REFERER"]);
 
 	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");

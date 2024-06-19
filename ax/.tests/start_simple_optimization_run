@@ -38,13 +38,13 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
+	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --allow_failure                                    Adds a param to randomly fail"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }
 
-NUM_GPUS=0
 if command -v nvidia-smi 2>/dev/null >/dev/null; then
 	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
 fi
@@ -60,6 +60,7 @@ num_parallel_jobs=20
 allow_failure=0
 num_random_steps=$num_parallel_jobs
 time=20
+NUM_GPUS=0
 model=BOTORCH_MODULAR
 
 args=("$@")
@@ -166,6 +167,25 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			;;
+		--gpus=*)
+			NUM_GPUS="${i#*=}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--gpus)
+			shift
+			k=$((k+1))
+
+			NUM_GPUS="${args[k]}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+
 		--help*)
 			help 1
 			;;
@@ -197,12 +217,8 @@ fi
 
 
 PARTITION="alpha"
-GPUS=0
 TESTNAME=__main__tests__
 
-if [[ "$PARTITION" == "alpha" ]]; then
-	GPUS=1
-fi
 
 if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"
@@ -217,7 +233,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter float_param range -100 10 float \
@@ -239,7 +255,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter float_param range -100 10 float \
@@ -264,7 +280,7 @@ else
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter float_param range -100 10 float \
@@ -285,7 +301,7 @@ else
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter float_param range -100 10 float \

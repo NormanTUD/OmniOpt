@@ -182,14 +182,25 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 				try {
 					var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
 					var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
+					var resultValues = _results_csv_json.map(function(row) { return parseFloat(row["result"]); });
 
-					//assert(xValues.length === yValues.length, "xValues and yValues must have the same length");
+					// Create a custom colorscale based on resultValues
+					var colorscale = [];
+					var steps = 10; // Number of color steps
+					for (var k = 0; k <= steps; k++) {
+						var value = minResult + (maxResult - minResult) * (k / steps);
+						colorscale.push([
+							k / steps,
+							`rgb(${255 * k / steps}, ${255 * (1 - k / steps)}, 0)`
+						]);
+					}
 
 					var traceHexbin = {
 						x: xValues,
 						y: yValues,
+						z: resultValues,
 						type: 'histogram2dcontour',
-						colorscale: 'Jet',
+						colorscale: colorscale,
 						showscale: true,
 						colorbar: {
 							title: 'Avg Result',
@@ -218,6 +229,7 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 		}
 	}
 }
+
 
 function createHexbinData(data, minResult, maxResult) {
 	var hexbin = d3.hexbin()

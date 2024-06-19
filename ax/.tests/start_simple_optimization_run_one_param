@@ -38,6 +38,7 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
+	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
@@ -67,6 +68,25 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--gpus=*)
+			NUM_GPUS="${i#*=}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--gpus)
+			shift
+			k=$((k+1))
+
+			NUM_GPUS="${args[k]}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+
 		--allow_failure)
 			allow_failure=1
 			;;
@@ -196,12 +216,7 @@ fi
 
 
 PARTITION="alpha"
-GPUS=0
 TESTNAME=__main__tests__one_param
-
-if [[ "$PARTITION" == "alpha" ]]; then
-	GPUS=1
-fi
 
 if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"
@@ -216,7 +231,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--follow \
@@ -235,7 +250,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter fail_or_not choice "0,1" \
@@ -257,7 +272,7 @@ else
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--follow \
@@ -275,7 +290,7 @@ else
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
 			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$GPUS \
+			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter fail_or_not choice "0,1" \

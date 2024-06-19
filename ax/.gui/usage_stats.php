@@ -65,7 +65,7 @@
 		}
 
 		$exit_code = intval($params['exit_code']);
-			if ($exit_code < 0 || $exit_code > 255) {
+			if ($exit_code < -1 || $exit_code > 255) {
 			log_error("Invalid exit_code value: $exit_code");
 			return false;
 		}

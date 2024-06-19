@@ -230,7 +230,6 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 	}
 }
 
-
 function createHexbinData(data, minResult, maxResult) {
 	var hexbin = d3.hexbin()
 		.x(function(d) { return d.x; })

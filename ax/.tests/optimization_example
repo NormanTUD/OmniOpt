@@ -98,7 +98,6 @@ fi
 
 perl -e 'use strict;
 use warnings;
-use autodie;
 use Data::Dumper;
 
 sub shekel {

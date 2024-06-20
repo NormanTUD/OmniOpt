@@ -4,16 +4,6 @@ export PRINT_SEPERATOR=""
 export NO_RUNTIME=1
 export NO_NO_RESULT_ERROR=1
 
-VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
-VENV_DIR=$HOME/$VENV_DIR_NAME
-
-source $VENV_DIR/bin/activate || {
-	red "Failed to activate $VENV_DIR"
-	exit 2
-}
-
-export NO_PIP_AT_LOAD=1
-
 help=0
 
 args=("$@")

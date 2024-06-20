@@ -161,7 +161,5 @@ source $VENV_DIR/bin/activate || {
 	exit 2
 }
 
-if [[ -z $NO_PIP_AT_LOAD ]]; then
-	FROZEN=$(pip3 freeze)
-	install_required_modules
-fi
+FROZEN=$(pip3 freeze)
+install_required_modules

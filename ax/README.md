@@ -39,6 +39,7 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 
 | Exit Code | Error group description                                                      |
 |-----------|------------------------------------------------------------------------------|
+| 2         | Loading of environment failed                                                |
 | 10        | Usually only returned by dier (for debugging).                               |
 | 15        | Unimplemented error.                                                         |
 | 18        | test_wronggoing_stuff program not found (only --tests).                      |

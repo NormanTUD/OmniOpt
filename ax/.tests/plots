@@ -21,25 +21,25 @@ k=0
 keep_tmp=0
 
 while [ $k -lt ${#args[@]} ]; do
-    arg="${args[k]}"
+	arg="${args[k]}"
 
-    case $arg in
-        --keep_tmp)
-            keep_tmp=1
-            shift
-            ;;
+	case $arg in
+		--keep_tmp)
+			keep_tmp=1
+			shift
+			;;
 
-        --help|-h)
-            help=1
-            shift
-            ;;
+		--help|-h)
+			help=1
+			shift
+			;;
 
-        --debug)
-            set -x
-            shift
-            ;;
-    esac
-    k=$((k+1))
+		--debug)
+			set -x
+			shift
+			;;
+	esac
+	k=$((k+1))
 done
 
 if [[ "$help" -eq "1" ]]; then

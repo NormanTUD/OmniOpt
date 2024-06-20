@@ -285,6 +285,7 @@
 			$exit_code_info = [
 				"-1" => "No proper Exit code found",
 				"2" => "Loading of Environment failed",
+				"3" => "Invalid exit code detected",
 				0 => "Seems to have worked properly",
 				10 => "Usually only returned by dier (for debugging).",
 				15 => "Unimplemented error.",

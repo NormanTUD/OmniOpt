@@ -39,10 +39,20 @@ function help () {
         echo "Possible options:"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
         echo "  --nosuccess                                        Don't run successful tests"
+	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }
+
+NUM_GPUS=0
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
+fi
+
+if [[ "$NUM_GPUS" -ne "0" ]]; then
+	NUM_GPUS=1
+fi
 
 function join_by {
 	local d=${1-} f=${2-}
@@ -75,16 +85,34 @@ for i in $@; do
 			fi
 
 			;;
-                --nosuccess)
-                        nosuccess=1
-                        shift
-                        ;;
-                -h|--help)
-                        help 0
-                        ;;
-                --debug)
-                        set -x
-                        ;;
+		--nosuccess)
+			nosuccess=1
+			shift
+			;;
+		-h|--help)
+			help 0
+			;;
+		--debug)
+			set -x
+			;;
+		--gpus=*)
+			NUM_GPUS="${i#*=}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--gpus)
+			shift
+			k=$((k+1))
+
+			NUM_GPUS="${args[k]}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+			;;
                 *)
                         red_text "Unknown parameter $i" >&2
                         help 1
@@ -127,11 +155,6 @@ fi
 which_programs_string=$(join_by , "${which_programs[@]}")
 
 PARTITION="alpha"
-GPUS=0
-
-if [[ "$PARTITION" == "alpha" ]]; then
-	GPUS=1
-fi
 
 NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
 
@@ -142,13 +165,13 @@ EXPECTED_TO_FAIL=1
 ./omniopt \
 	--send_anonymized_usage_stats \
 	--partition=$PARTITION \
+	--gpus=$NUM_GPUS \
 	--experiment_name=test_wronggoing_stuff \
 	--mem_gb=1 \
 	--time=20 \
 	--worker_timeout=1 \
 	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=10 \
-	--gpus=$GPUS \
 	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \
 	--hide_ascii_plots \

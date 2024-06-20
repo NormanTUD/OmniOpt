@@ -45,6 +45,7 @@ function help () {
         exit $1
 }
 
+NUM_GPUS=0
 if command -v nvidia-smi 2>/dev/null >/dev/null; then
 	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
 fi
@@ -60,7 +61,6 @@ num_parallel_jobs=20
 allow_failure=0
 num_random_steps=$num_parallel_jobs
 time=20
-NUM_GPUS=0
 model=BOTORCH_MODULAR
 
 args=("$@")

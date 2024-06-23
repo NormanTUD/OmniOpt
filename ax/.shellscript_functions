@@ -88,21 +88,23 @@ function ppip {
 			k=0
 
 			for i in $(pip3 install --dry-run $MODULE | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
-				if [[ $k -eq 0 ]]; then
-					green "\n➤Installing requirements for $MODULE"
-				fi
-				ppip $i $MODULE || {
-					tput cr; tput el
-					red "❌Failed to install $i. Deleting $VENV_DIR..."
-					rm -rf $VENV_DIR || {
-						red "❌Failed to delete $VENV_DIR"
-						exit 4
+				if [[ "$i" != $MODULE ]]; then
+					if [[ $k -eq 0 ]]; then
+						green "\n➤Installing requirements for $MODULE"
+					fi
+					ppip $i $MODULE || {
+						tput cr; tput el
+						red "❌Failed to install $i. Deleting $VENV_DIR..."
+						rm -rf $VENV_DIR || {
+							red "❌Failed to delete $VENV_DIR"
+							exit 4
+						}
+
+						exit 3
 					}
 
-					exit 3
-				}
-
-				k=$((k+1))
+					k=$((k+1))
+				fi
 			done
 
 			if [[ $k -gt 0 ]]; then

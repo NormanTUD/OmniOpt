@@ -219,12 +219,15 @@ get_nr_of_already_installed_modules () {
 }
 
 function install_required_modules {
+	green_reset_line "Checking if everything is installed..."
 	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	for key in "${!install_those[@]}"; do
 		install_this=${install_those[$key]}
+		green_reset_line "Checking if $install_this is installed..."
 		ppip $install_this "-" ${#install_those[@]}
 	done
 
+	tput cr; tput el
 	if [[ "$NUMBER_OF_INSTALLED_MODULES" -gt 0 ]]; then
 		echo -ne "\n"
 	fi

@@ -75,7 +75,7 @@ function ppip {
 	MODULE=$1
 	AS_REQUIREMENT_OF=$2
 	set +e
-	echo "$FROZEN" | grep -i "$MODULE" 2>/dev/null >/dev/null
+	echo "$FROZEN" | grep -i "$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')" 2>/dev/null >/dev/null
 	_exit_code=$?
 
 	if [[ "$_exit_code" != "0" ]]; then

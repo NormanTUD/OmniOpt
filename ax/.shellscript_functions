@@ -82,11 +82,47 @@ VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 VENV_DIR=$HOME/$VENV_DIR_NAME
 
 UPGRADED_PIP=0
+NUMBER_OF_INSTALLED_MODULES=0
+PROGRESSBAR=""
+
+generate_progress_bar() {
+	local current_progress=$1
+	local total_progress=$2
+
+	# Überprüfen, ob die Eingaben gültige positive Ganzzahlen sind
+	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
+		echo "Fehler: Beide Parameter müssen positive Ganzzahlen sein."
+		return 1
+	fi
+
+	# Überprüfen, ob der aktuelle Fortschritt den Gesamtfortschritt nicht überschreitet
+	if [ "$current_progress" -gt "$total_progress" ]; then
+		echo "Fehler: Der aktuelle Fortschritt darf den Gesamtfortschritt nicht überschreiten."
+		return 1
+	fi
+
+	local bar_length=30
+	local filled_length=$((bar_length * current_progress / total_progress))
+	local empty_length=$((bar_length - filled_length))
+
+	local bar=""
+	for ((i = 0; i < filled_length; i++)); do
+		bar="${bar}#"
+	done
+	for ((i = 0; i < empty_length; i++)); do
+		bar="${bar} "
+	done
+
+	echo "[${bar}]"
+}
 
 function ppip {
 	MODULE=$1
 	AS_REQUIREMENT_OF=$2
+	NUMBER_OF_MAIN_MODULES=$3
 	set +e
+
+	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
 
 	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
 
@@ -99,15 +135,15 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
-		if [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]]; then
+		if [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]] && [[ "$AS_REQUIREMENT_OF" != "-" ]]; then
 			k=0
 
 			for i in $(pip3 install --dry-run $MODULE | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
 				if [[ "$i" != $MODULE ]]; then
 					if [[ $k -eq 0 ]]; then
-						green_reset_line "➤Installing requirements for $MODULE"
+						green_reset_line "➤${PROGRESSBAR}Installing requirements for $MODULE"
 					fi
-					ppip $i $MODULE || {
+					ppip $i $MODULE $NUMBER_OF_MAIN_MODULES || {
 						red_reset_line "❌Failed to install $i. Deleting $VENV_DIR..."
 						rm -rf $VENV_DIR || {
 							red_reset_line "❌Failed to delete $VENV_DIR"
@@ -122,7 +158,7 @@ function ppip {
 			done
 
 			if [[ $k -gt 0 ]]; then
-				green_reset_line "➤Installed all requirements for $MODULE, now installing the package itself..."
+				green_reset_line "➤${PROGRESSBAR}Installed all requirements for $MODULE, now installing the package itself..."
 			fi
 		fi
 
@@ -136,6 +172,9 @@ function ppip {
 			exit 3
 		}
 
+		NUMBER_OF_INSTALLED_MODULES=$(($NUMBER_OF_INSTALLED_MODULES+1))
+		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
+
 		green_reset_line "✅$MODULE installed successfully"
 
 		FROZEN=$(pip3 freeze)
@@ -144,25 +183,33 @@ function ppip {
 }
 
 function install_required_modules {
-	ppip Rich
-	ppip scikit-learn
-	ppip submitit
-	ppip ax
-	ppip ax-platform
-	ppip matplotlib
-	ppip Pyarrow
-	ppip textual
-	ppip tqdm
-	ppip plotille
-	ppip watchdog
-	ppip seaborn
-	ppip art
-	ppip pyvista
-	ppip catsay
-	ppip sixel
-	ppip pytz
-	ppip tzlocal
-	ppip rich-argparse
+
+
+	install_those=(
+		Rich
+		scikit-learn
+		submitit
+		ax
+		ax-platform
+		matplotlib
+		Pyarrow
+		textual
+		tqdm
+		plotille
+		watchdog
+		seaborn
+		art
+		pyvista
+		catsay
+		sixel
+		pytz
+		tzlocal
+		rich-argparse
+	)
+
+	for install_this in $(echo "${#install_those[@]}"); do
+		ppip $install_this "-" ${#install_those[@]}
+	done
 }
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
@@ -182,7 +229,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 			exit 5
 		fi
 
-		green_reset_line "➤Environment $VENV_DIR was not found. Creating it..."
+		green_reset_line "➤${PROGRESSBAR}Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
 			red "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1

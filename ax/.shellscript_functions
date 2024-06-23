@@ -212,7 +212,6 @@ get_nr_of_already_installed_modules () {
 		if echo "$FROZEN" | grep "${install_those[$key]}" 2>/dev/null >/dev/null; then
 			nr=$(($nr+1))
 		fi
-	done
 
 	echo "$nr"
 }

@@ -82,7 +82,7 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
-		green "➤Installing $1"
+		green "\n➤Installing $1"
 
 		pip3 install -q $1 || {
 			tput cr; tput el

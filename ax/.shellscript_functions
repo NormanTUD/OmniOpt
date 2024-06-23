@@ -72,8 +72,10 @@ VENV_DIR=$HOME/$VENV_DIR_NAME
 UPGRADED_PIP=0
 
 function ppip {
+	MODULE=$1
+	AS_REQUIREMENT_OF=$2
 	set +e
-	echo "$FROZEN" | grep -i "$1" 2>/dev/null >/dev/null
+	echo "$FROZEN" | grep -i "$MODULE" 2>/dev/null >/dev/null
 	_exit_code=$?
 
 	if [[ "$_exit_code" != "0" ]]; then
@@ -82,33 +84,35 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
-		k=0
+		if [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]]; then
+			k=0
 
-		for i in $(pip3 install --dry-run $1 | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$1$"); do
-			if [[ $k -eq 0 ]]; then
-				green "\n➤Installing requirements for $1"
-			fi
-			ppip $i || {
-				tput cr; tput el
-				red "❌Failed to install $1. Deleting $VENV_DIR..."
-				rm -rf $VENV_DIR || {
-					red "❌Failed to delete $VENV_DIR"
-					exit 4
+			for i in $(pip3 install --dry-run $MODULE | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
+				if [[ $k -eq 0 ]]; then
+					green "\n➤Installing requirements for $MODULE"
+				fi
+				ppip $i $MODULE || {
+					tput cr; tput el
+					red "❌Failed to install $i. Deleting $VENV_DIR..."
+					rm -rf $VENV_DIR || {
+						red "❌Failed to delete $VENV_DIR"
+						exit 4
+					}
+
+					exit 3
 				}
 
-				exit 3
-			}
+				k=$((k+1))
+			done
 
-			k=$((k+1))
-		done
-
-		if [[ $k -gt 0 ]]; then
-			green "\n➤Installed all requirements for $1, now installing the package itself..."
+			if [[ $k -gt 0 ]]; then
+				green "\n➤Installed all requirements for $MODULE, now installing the package itself..."
+			fi
 		fi
 
-		pip3 install -q $1 || {
+		pip3 install -q $MODULE || {
 			tput cr; tput el
-			red "❌Failed to install $1. Deleting $VENV_DIR..."
+			red "❌Failed to install $MODULE. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
 				red "❌Failed to delete $VENV_DIR"
 				exit 4
@@ -118,7 +122,7 @@ function ppip {
 		}
 
 		tput cr; tput el
-		green "✅$1 installed successfully"
+		green "✅$MODULE installed successfully"
 
 		FROZEN=$(pip3 freeze)
 	fi

@@ -146,6 +146,7 @@ function ppip {
 
 	set +e
 
+	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
 
 	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
@@ -218,6 +219,7 @@ get_nr_of_already_installed_modules () {
 }
 
 function install_required_modules {
+	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	for key in "${!install_those[@]}"; do
 		install_this=${install_those[$key]}
 		ppip $install_this "-" ${#install_those[@]}

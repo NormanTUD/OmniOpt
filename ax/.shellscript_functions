@@ -82,17 +82,19 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
+		green "➤Installing $1"
+
 		pip3 install $1 || {
-			red "Failed to install $1. Deleting $VENV_DIR..."
+			red "❌Failed to install $1. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
-				red "Failed to delete $VENV_DIR"
+				red "❌Failed to delete $VENV_DIR"
 				exit 4
 			}
 
 			exit 3
 		}
 
-		green "$1 installed successfully"
+		green "➤$1 installed successfully"
 
 		FROZEN=$(pip3 freeze)
 	fi
@@ -124,40 +126,40 @@ function install_required_modules {
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 	if [[ ! -d "$VENV_DIR" ]]; then
 		if ! command -v gcc >/dev/null 2>/dev/null; then
-			red "GCC not found. Try installing with, for example, with 'sudo apt-get install gcc' (depending on your distro)"
+			red "❌GCC not found. Try installing with, for example, with 'sudo apt-get install gcc' (depending on your distro)"
 			exit 3
 		fi
 
 		if ! command -v resize >/dev/null 2>/dev/null; then
-			red "resize not found. Try installing xterm with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
+			red "❌resize not found. Try installing xterm with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
 			exit 4
 		fi
 
 		if ! python3 -c 'from distutils.sysconfig import get_makefile_filename as m; from os.path import isfile; import sys ; sys.exit(not isfile(m()))' >/dev/null 2>/dev/null; then
-			red "python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)"
+			red "❌python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)"
 			exit 5
 		fi
 
-		green "Environment $VENV_DIR was not found. Creating it..."
+		green "➤Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
-			red "Failed to create Virtual Environment in $VENV_DIR"
+			red "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1
 		}
 
-		green "Virtual Environment $VENV_DIR created. Activating it..."
+		green "➤Virtual Environment $VENV_DIR created. Activating it..."
 
 		source $VENV_DIR/bin/activate || {
-			red "Failed to activate $VENV_DIR"
+			red "❌Failed to activate $VENV_DIR"
 			exit 2
 		}
 
-		green "Virtual Environment activated. Now installing software. This may take some time."
+		green "➤Virtual Environment activated. Now installing software. This may take some time."
 
 	fi
 fi
 
 source $VENV_DIR/bin/activate || {
-	red "Failed to activate $VENV_DIR"
+	red "❌Failed to activate $VENV_DIR"
 	exit 2
 }
 

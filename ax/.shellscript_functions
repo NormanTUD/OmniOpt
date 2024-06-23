@@ -85,6 +85,7 @@ function ppip {
 		green "➤Installing $1"
 
 		pip3 install -q $1 || {
+			tput cr; tput el
 			red "❌Failed to install $1. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
 				red "❌Failed to delete $VENV_DIR"
@@ -94,6 +95,7 @@ function ppip {
 			exit 3
 		}
 
+		tput cr; tput el
 		green "✅$1 installed successfully"
 
 		FROZEN=$(pip3 freeze)
@@ -142,6 +144,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 
 		green "➤Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
+			tput cr; tput el
 			red "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1
 		}
@@ -149,16 +152,19 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		green "✅Virtual Environment $VENV_DIR created. Activating it..."
 
 		source $VENV_DIR/bin/activate || {
+			tput cr; tput el
 			red "❌Failed to activate $VENV_DIR"
 			exit 2
 		}
 
+		tput cr; tput el
 		green "✅Virtual Environment activated. Now installing software. This may take some time."
 
 	fi
 fi
 
 source $VENV_DIR/bin/activate || {
+	tput cr; tput el
 	red "❌Failed to activate $VENV_DIR"
 	exit 2
 }

@@ -42,7 +42,7 @@ def warn_versions():
         try:
             _real_version = version(key)
             if _real_version not in _supported_versions:
-                wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported {', '.join(_supported_versions)}")
+                wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported version(s): {', '.join(_supported_versions)}")
         except Exception as e:
             pass
 

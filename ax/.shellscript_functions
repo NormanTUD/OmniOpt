@@ -106,7 +106,7 @@ function ppip {
 			green "\n➤Installed all requirements for $1, now installing the package itself..."
 		fi
 
-		pip3 install -qq $1 || {
+		pip3 install -q $1 || {
 			tput cr; tput el
 			red "❌Failed to install $1. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {

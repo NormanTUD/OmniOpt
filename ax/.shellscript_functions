@@ -188,6 +188,8 @@ function install_required_modules {
 
 
 	install_those=(
+		ax
+		ax-platform
 		art
 		catsay
 		tzlocal
@@ -197,8 +199,6 @@ function install_required_modules {
 		scikit-learn
 		submitit
 		plotext
-		ax
-		ax-platform
 		matplotlib
 		Pyarrow
 		textual

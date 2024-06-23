@@ -113,7 +113,7 @@ generate_progress_bar() {
 		bar="${bar} "
 	done
 
-	echo "[${bar}]"
+	echo "[${bar}] "
 }
 
 function ppip {
@@ -176,7 +176,7 @@ function ppip {
 		NUMBER_OF_INSTALLED_MODULES=$(($NUMBER_OF_INSTALLED_MODULES+1))
 		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
 
-		green_reset_line "✅$MODULE installed successfully"
+		green_reset_line "✅${PROGRESSBAR}$MODULE installed successfully"
 
 		FROZEN=$(pip3 freeze)
 	fi

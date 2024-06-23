@@ -41,11 +41,11 @@ Color_Off='\033[0m'
 Red='\033[0;31m'
 
 function red {
-	echo -e "${Red}$1${Color_Off}"
+	echo -ne "${Red}$1${Color_Off}"
 }
 
 function green {
-	echo -e "${Green}$1${Color_Off}"
+	echo -ne "${Green}$1${Color_Off}"
 }
 
 set -e
@@ -142,6 +142,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 			exit 5
 		fi
 
+		tput cr; tput el
 		green "➤Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
 			tput cr; tput el
@@ -149,6 +150,7 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 			exit 1
 		}
 
+		tput cr; tput el
 		green "✅Virtual Environment $VENV_DIR created. Activating it..."
 
 		source $VENV_DIR/bin/activate || {

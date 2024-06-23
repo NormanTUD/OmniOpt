@@ -163,6 +163,7 @@ function ppip {
 			fi
 		fi
 
+		green_reset_line "➤${PROGRESSBAR}Installing $MODULE..."
 		pip3 install -q $MODULE || {
 			red_reset_line "❌Failed to install $MODULE. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {

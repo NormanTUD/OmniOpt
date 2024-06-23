@@ -94,7 +94,7 @@ function ppip {
 			exit 3
 		}
 
-		green "➤$1 installed successfully"
+		green "✅$1 installed successfully"
 
 		FROZEN=$(pip3 freeze)
 	fi
@@ -146,14 +146,14 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 			exit 1
 		}
 
-		green "➤Virtual Environment $VENV_DIR created. Activating it..."
+		green "✅Virtual Environment $VENV_DIR created. Activating it..."
 
 		source $VENV_DIR/bin/activate || {
 			red "❌Failed to activate $VENV_DIR"
 			exit 2
 		}
 
-		green "➤Virtual Environment activated. Now installing software. This may take some time."
+		green "✅Virtual Environment activated. Now installing software. This may take some time."
 
 	fi
 fi

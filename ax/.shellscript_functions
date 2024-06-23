@@ -136,7 +136,7 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
-		if [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]] && [[ "$AS_REQUIREMENT_OF" != "-" ]]; then
+		if false && [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]] && [[ "$AS_REQUIREMENT_OF" != "-" ]]; then
 			k=0
 
 			for i in $(pip3 install --dry-run $MODULE | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do

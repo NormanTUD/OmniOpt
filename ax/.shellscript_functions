@@ -82,7 +82,20 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
-		green "\n➤Installing $1"
+		green "\n➤Installing requirements for $1"
+
+		for i in $(pip3 install --dry-run $1 | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$1$"); do
+			ppip $i || {
+				tput cr; tput el
+				red "❌Failed to install $1. Deleting $VENV_DIR..."
+				rm -rf $VENV_DIR || {
+					red "❌Failed to delete $VENV_DIR"
+					exit 4
+				}
+
+				exit 3
+			}
+		done
 
 		pip3 install -q $1 || {
 			tput cr; tput el

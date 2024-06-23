@@ -196,6 +196,7 @@ function install_required_modules {
 		Rich
 		scikit-learn
 		submitit
+		plotext
 		ax
 		ax-platform
 		matplotlib

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
@@ -48,6 +50,16 @@ function green {
 	echo -ne "${Green}$1${Color_Off}"
 }
 
+function green_reset_line {
+	tput cr; tput el
+	green "$1"
+}
+
+function red_reset_line {
+	tput cr; tput el
+	red "$1"
+}
+
 set -e
 
 LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
@@ -75,7 +87,10 @@ function ppip {
 	MODULE=$1
 	AS_REQUIREMENT_OF=$2
 	set +e
-	echo "$FROZEN" | grep -i "$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')" 2>/dev/null >/dev/null
+
+	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
+
+	echo "$FROZEN" | grep -i "$MODULES_WITHOUT_VERSIONS" 2>/dev/null >/dev/null
 	_exit_code=$?
 
 	if [[ "$_exit_code" != "0" ]]; then
@@ -90,13 +105,12 @@ function ppip {
 			for i in $(pip3 install --dry-run $MODULE | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
 				if [[ "$i" != $MODULE ]]; then
 					if [[ $k -eq 0 ]]; then
-						green "\n➤Installing requirements for $MODULE"
+						green_reset_line "➤Installing requirements for $MODULE"
 					fi
 					ppip $i $MODULE || {
-						tput cr; tput el
-						red "❌Failed to install $i. Deleting $VENV_DIR..."
+						red_reset_line "❌Failed to install $i. Deleting $VENV_DIR..."
 						rm -rf $VENV_DIR || {
-							red "❌Failed to delete $VENV_DIR"
+							red_reset_line "❌Failed to delete $VENV_DIR"
 							exit 4
 						}
 
@@ -108,23 +122,21 @@ function ppip {
 			done
 
 			if [[ $k -gt 0 ]]; then
-				green "\n➤Installed all requirements for $MODULE, now installing the package itself..."
+				green_reset_line "➤Installed all requirements for $MODULE, now installing the package itself..."
 			fi
 		fi
 
 		pip3 install -q $MODULE || {
-			tput cr; tput el
-			red "❌Failed to install $MODULE. Deleting $VENV_DIR..."
+			red_reset_line "❌Failed to install $MODULE. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
-				red "❌Failed to delete $VENV_DIR"
+				red_reset_line "❌Failed to delete $VENV_DIR"
 				exit 4
 			}
 
 			exit 3
 		}
 
-		tput cr; tput el
-		green "✅$MODULE installed successfully"
+		green_reset_line "✅$MODULE installed successfully"
 
 		FROZEN=$(pip3 freeze)
 	fi
@@ -170,32 +182,26 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 			exit 5
 		fi
 
-		tput cr; tput el
-		green "➤Environment $VENV_DIR was not found. Creating it..."
+		green_reset_line "➤Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
-			tput cr; tput el
 			red "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1
 		}
 
-		tput cr; tput el
-		green "✅Virtual Environment $VENV_DIR created. Activating it..."
+		green_reset_line "✅Virtual Environment $VENV_DIR created. Activating it..."
 
 		source $VENV_DIR/bin/activate || {
-			tput cr; tput el
 			red "❌Failed to activate $VENV_DIR"
 			exit 2
 		}
 
-		tput cr; tput el
-		green "✅Virtual Environment activated. Now installing software. This may take some time."
+		green_reset_line "✅Virtual Environment activated. Now installing software. This may take some time."
 
 	fi
 fi
 
 source $VENV_DIR/bin/activate || {
-	tput cr; tput el
-	red "❌Failed to activate $VENV_DIR"
+	red_reset_line "❌Failed to activate $VENV_DIR"
 	exit 2
 }
 

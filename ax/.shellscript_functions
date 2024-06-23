@@ -120,6 +120,7 @@ function ppip {
 	MODULE=$1
 	AS_REQUIREMENT_OF=$2
 	NUMBER_OF_MAIN_MODULES=$3
+
 	set +e
 
 	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
@@ -207,7 +208,8 @@ function install_required_modules {
 		rich-argparse
 	)
 
-	for install_this in $(echo "${#install_those[@]}"); do
+	for key in "${!install_those[@]}"; do
+		install_this=${install_those[$key]}
 		ppip $install_this "-" ${#install_those[@]}
 	done
 }

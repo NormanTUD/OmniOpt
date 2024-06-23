@@ -84,7 +84,7 @@ function ppip {
 
 		green "➤Installing $1"
 
-		pip3 install $1 || {
+		pip3 install -q $1 || {
 			red "❌Failed to install $1. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
 				red "❌Failed to delete $VENV_DIR"

@@ -188,6 +188,11 @@ function install_required_modules {
 
 
 	install_those=(
+		art
+		catsay
+		tzlocal
+		rich-argparse
+		sixel
 		Rich
 		scikit-learn
 		submitit
@@ -200,13 +205,8 @@ function install_required_modules {
 		plotille
 		watchdog
 		seaborn
-		art
 		pyvista
-		catsay
-		sixel
 		pytz
-		tzlocal
-		rich-argparse
 	)
 
 	for key in "${!install_those[@]}"; do

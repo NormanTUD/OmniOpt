@@ -82,9 +82,12 @@ function ppip {
 		#	UPGRADED_PIP=1
 		#fi
 
-		green "\n➤Installing requirements for $1"
+		k=0
 
 		for i in $(pip3 install --dry-run $1 | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$1$"); do
+			if [[ $k -eq 0 ]]; then
+				green "\n➤Installing requirements for $1"
+			fi
 			ppip $i || {
 				tput cr; tput el
 				red "❌Failed to install $1. Deleting $VENV_DIR..."
@@ -95,7 +98,13 @@ function ppip {
 
 				exit 3
 			}
+
+			k=$((k+1))
 		done
+
+		if [[ $k -gt 0 ]]; then
+			green "\n➤Installed all requirements forfor $1, now installing the package itself..."
+		fi
 
 		pip3 install -q $1 || {
 			tput cr; tput el

@@ -214,6 +214,10 @@ function install_required_modules {
 		install_this=${install_those[$key]}
 		ppip $install_this "-" ${#install_those[@]}
 	done
+
+	if [[ "$NUMBER_OF_INSTALLED_MODULES" -gt 0 ]]; then
+		echo -ne "\n"
+	fi
 }
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then

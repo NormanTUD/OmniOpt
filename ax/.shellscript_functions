@@ -103,7 +103,7 @@ function ppip {
 		done
 
 		if [[ $k -gt 0 ]]; then
-			green "\n➤Installed all requirements forfor $1, now installing the package itself..."
+			green "\n➤Installed all requirements for $1, now installing the package itself..."
 		fi
 
 		pip3 install -q $1 || {

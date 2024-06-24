@@ -59,9 +59,7 @@
 
 	Then, <tt>cd</tt> into your OmniOpt2 directory. Assuming you have already ran an OmniOpt-run and the results are in <tt>runs/my_experiment/0</tt>, run this:
 
-	<pre><code class="language-bash">#!/bin/bash -l
-./omniopt_plot --run_dir runs/my_experiment/0
-</code></pre>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0</code></pre>
 
 	You will be presented by a menu like this:<br>
 
@@ -71,15 +69,11 @@
 
 	<h3 id="plot-overview">Plot directly</h3>
 	If you know what plot you want, you can directly plot it by using:
-	<pre><code class="language-bash">#!/bin/bash -l
-./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter # change plot_type accordingly
-</code></pre>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter # change plot_type accordingly</code></pre>
 
 	<h3 id="plot_to_file">Plot to file</h3>
 	All, except the 3d scatter, support to export your plot to a file.
-	<pre><code class="language-bash">#!/bin/bash -l
-./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.
-</code></pre>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.</code></pre>
 
 	<h2 id="plot-types">Plot types</h2>
 	TODO

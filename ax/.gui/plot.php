@@ -78,12 +78,16 @@
 	<h2 id="plot-types">Plot types</h2>
 	TODO
 	<h3 id="trial_index_result">Plot trial index/result</h3>
+	<img src="results_to_trial_index.png" /><br>
 	TODO
 	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
+	<img src="exit_code_and_times.png" /><br>
 	TODO
 	<h3 id="scatter">Scatter</h3>
+	<img src="scatter.png" /><br>
 	TODO
 	<h3 id="hex_scatter">Hex-Scatter</h3>
+	<img src="scatter_hex.png" /><br>
 	TODO
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
 	TODO

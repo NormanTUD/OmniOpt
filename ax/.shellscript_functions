@@ -210,7 +210,6 @@ function ppip {
 }
 
 get_nr_of_already_installed_modules () {
-	FROZEN=$(pip3 freeze)
 	nr=0
 	for key in "${!install_those[@]}"; do
 		noversion=$(echo "${install_those[$key]}" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')

@@ -275,15 +275,16 @@
 			<a target="_blank" href="https://scads.ai/"><img src="scads_logo.svg" /></a>
 			<?php
 			$files = array(
-				"index" => "GUI",
-				"share" => "Share",
 				"tutorials" => array(
 					"name" => "Tutorials",
 					"entries" => array(
 						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
-						"folder_structure" => "Folder Structure of OmniOpt runs"
+						"folder_structure" => "Folder Structure of OmniOpt runs",
+						"plot" => "Plot your results"
 					)
 				),
+				"index" => "GUI",
+				"share" => "Share",
 				"usage_stats" => "Usage statistics"
 			);
 

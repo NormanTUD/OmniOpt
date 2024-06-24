@@ -129,7 +129,7 @@ for projectname in "${test_projects[@]}"; do
 					START_TIME=$SECONDS
 					$_command
 					END_TIME=$SECONDS
-					RUN_TIME=$(($START_TIME-$END_TIME))
+					RUN_TIME=$(($END_TIME-$START_TIME))
 
 					_exit_code=$?
 

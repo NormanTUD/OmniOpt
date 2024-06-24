@@ -1,5 +1,6 @@
 #!/bin/bash
 
+{
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
@@ -111,12 +112,12 @@ PROGRESSBAR=""
 
 generate_progress_bar() {
 	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
-	local current_progress=$1
-	local total_progress=$2
+	local current_progress=$NUMBER_OF_INSTALLED_MODULES
+	local total_progress=$1
 
 	# Überprüfen, ob die Eingaben gültige positive Ganzzahlen sind
 	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
-		echo "Fehler: Beide Parameter müssen positive Ganzzahlen sein."
+		echo "Fehler: Beide Parameter müssen positive Ganzzahlen sein, sind $current_progress/$total_progress."
 		return 1
 	fi
 
@@ -148,7 +149,7 @@ function ppip {
 
 	set +e
 
-	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
+	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
 
 	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
 
@@ -201,7 +202,7 @@ function ppip {
 
 		FROZEN=$(pip3 freeze)
 
-		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
+		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
 
 		green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
 	fi
@@ -209,9 +210,11 @@ function ppip {
 }
 
 get_nr_of_already_installed_modules () {
+	FROZEN=$(pip3 freeze)
 	nr=0
 	for key in "${!install_those[@]}"; do
-		if echo "$FROZEN" | grep "${install_those[$key]}" 2>/dev/null >/dev/null; then
+		noversion=$(echo "${install_those[$key]}" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
+		if echo "$FROZEN" | grep "$noversion" 2>/dev/null >/dev/null; then
 			nr=$(($nr+1))
 		fi
 	done
@@ -223,9 +226,12 @@ function install_required_modules {
 	green_reset_line "➤Checking environment..."
 	for key in "${!install_those[@]}"; do
 		install_this=${install_those[$key]}
-		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES ${#install_those[@]})
+		set +e
+		CURRENT="${#install_those[@]}"
+		PROGRESSBAR=$(generate_progress_bar $CURRENT)
+		set -e
 		green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
-		ppip $install_this "-" ${#install_those[@]}
+		ppip $install_this "-" $CURRENT
 	done
 
 	tput cr; tput el
@@ -280,3 +286,4 @@ if [[ -z $DONT_INSTALL_MODULES ]]; then
 		install_required_modules
 	fi
 fi
+}

@@ -116,13 +116,13 @@ generate_progress_bar() {
 
 	# Überprüfen, ob die Eingaben gültige positive Ganzzahlen sind
 	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
-		echo "Fehler: Beide Parameter müssen positive Ganzzahlen sein, sind $current_progress/$total_progress."
+		echo "Fehler: Beide Parameter müssen positive Ganzzahlen sein, sind $current_progress/$total_progress." >&2
 		return 1
 	fi
 
 	# Überprüfen, ob der aktuelle Fortschritt den Gesamtfortschritt nicht überschreitet
 	if [ "$current_progress" -gt "$total_progress" ]; then
-		echo "Fehler: Der aktuelle Fortschritt darf den Gesamtfortschritt nicht überschreiten."
+		echo "Fehler: Der aktuelle Fortschritt darf den Gesamtfortschritt nicht überschreiten ($current_progress/$total_progress)." >&2
 		return 1
 	fi
 
@@ -215,9 +215,6 @@ get_nr_of_already_installed_modules () {
 		noversion=$(echo "${install_those[$key]}" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
 		if echo "$FROZEN" | grep -i "$noversion" 2>/dev/null >/dev/null; then
 			nr=$(($nr+1))
-		else
-			echo "not found: $noversion in"
-			echo "$FROZEN"
 		fi
 	done
 
@@ -236,9 +233,10 @@ function install_required_modules {
 			green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
 			ppip $install_this "-" $MAX_NR
 		done
+
+		tput cr; tput el
 	fi
 
-	tput cr; tput el
 	if [[ "$NUMBER_OF_INSTALLED_MODULES" -gt 0 ]]; then
 		echo -ne "\n"
 	fi

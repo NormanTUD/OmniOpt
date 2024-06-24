@@ -26,7 +26,7 @@
     </style>
     <link href="prism.css" rel="stylesheet" />
 
-    <h1>Run Script for OmniOpt on HPC Systems</h1>
+    <h1>Create <tt>run.sh</tt>-file &amp; modify your program</h1>
     
     <div class="toc">
         <h2>Table of Contents</h2>

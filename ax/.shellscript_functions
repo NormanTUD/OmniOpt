@@ -278,8 +278,21 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 fi
 
 source $VENV_DIR/bin/activate || {
-	red_reset_line "❌Failed to activate $VENV_DIR"
-	exit 2
+	red_reset_line "❌Failed to activate $VENV_DIR. Deleting venv and creating it again..."
+	rm -rf $VENV_DIR
+
+	python3 -mvenv $VENV_DIR/ || {
+		red "❌Failed to create Virtual Environment in $VENV_DIR"
+		exit 1
+	}
+
+	source $VENV_DIR/bin/activate || {
+		red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
+		rm -rf $VENV_DIR
+		exit 1
+	}
+
+	install_required_modules
 }
 
 if [[ -z $DONT_INSTALL_MODULES ]]; then

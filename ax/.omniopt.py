@@ -3407,12 +3407,12 @@ def print_logo():
     try:
         if random.uniform(0, 1) < 0.99:
             from art import text2art
-            original_print(text2art("OmniOpt", font="random"))
+            original_print(text2art("OmniOpt2", font="random"))
         else:
             original_print("""
-           --------
-          (OmniOpt!)
-           --------
+           ---------
+          (OmniOpt2!)
+           ---------
                    \/     
                  /\_/\\
                 ( o.o )
@@ -3427,7 +3427,7 @@ def print_logo():
             else:
                 print_image_to_cli(".tools/slimer.png", 300)
     except Exception as e:
-        print_green("OmniOpt")
+        print_green("OmniOpt2")
 
 def show_strategy_message (random_steps, second_step_steps):
     second_step_steps_string = ""

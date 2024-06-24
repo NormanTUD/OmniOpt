@@ -89,6 +89,7 @@
 	<h3 id="hex_scatter">Hex-Scatter</h3>
 	<img src="scatter_hex.png" /><br>
 	TODO
+
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
 	TODO
 	<h3 id="kde">KDE</h3>

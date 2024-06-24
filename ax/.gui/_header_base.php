@@ -285,7 +285,7 @@
 				),
 				"index" => "GUI",
 				"share" => "Share",
-				"usage_stats" => "Usage statistics"
+				"usage_stats" => "Statistics"
 			);
 
 			foreach ($files as $fn => $n) {

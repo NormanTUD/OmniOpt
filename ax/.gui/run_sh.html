@@ -85,32 +85,26 @@ python3 /absolute/path/to_script.py $@
     <p>The following Python program demonstrates how to parse command line arguments using <tt>sys.argv</tt>:</p>
 
     <pre><code class="language-python">import sys
+epochs = int(sys.argv[1])
+learning_rate = float(sys.argv[2])
+model_name = sys.argv[3]
 
-try:
-	epochs = int(sys.argv[1])
-	learning_rate = float(sys.argv[2])
-	model_name = sys.argv[3]
+if epochs <= 0:
+    print("Error: Number of epochs must be positive")
+    return
+if not 0 < learning_rate < 1:
+    print("Error: Learning rate must be between 0 and 1")
+    return
 
-	if epochs <= 0:
-	    print("Error: Number of epochs must be positive")
-	    return
-	if not 0 < learning_rate < 1:
-	    print("Error: Learning rate must be between 0 and 1")
-	    return
+print(f"Running with epochs={epochs}, learning_rate={learning_rate}, model_name={model_name}")
 
-	print(f"Running with epochs={epochs}, learning_rate={learning_rate}, model_name={model_name}")
+# Your code here
 
-	# Your code here
+# loss = model.fit(...)
 
-	# loss = model.fit(...)
+loss = epochs + learning_rate
 
-	print(f"RESULT: {loss}")
-except IndexError:
-	print("Error: Not enough arguments provided.")
-	print("Usage: python3 script.py <epochs> <learning_rate> <model_name>")
-except ValueError:
-	print("Error: Invalid type for arguments.")
-	print("Usage: python3 script.py <epochs> <learning_rate> <model_name>")
+print(f"RESULT: {loss}")
 </code></pre>
 
     <p>Example call:</p>
@@ -143,6 +137,8 @@ print(f"Running with epochs={args.epochs}, learning_rate={args.learning_rate}, m
 # Your code here
 
 # loss = model.fit(...)
+
+loss = args.epochs + args.learning_rate
 
 print(f"RESULT: {loss}")
 </code></pre>

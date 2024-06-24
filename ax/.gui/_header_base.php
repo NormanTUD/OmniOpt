@@ -280,7 +280,8 @@
 					"entries" => array(
 						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
 						"folder_structure" => "Folder Structure of OmniOpt runs",
-						"plot" => "Plot your results"
+						"plot" => "Plot your results",
+						"continue_job" => "Continue jobs"
 					)
 				),
 				"index" => "GUI",

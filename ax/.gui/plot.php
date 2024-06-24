@@ -34,6 +34,7 @@
 			<li><a href="#plot-over-x11">Plot over X11</a></li>
 			<ul>
 				<li><a href="#plot-overview">Plot from overview</a></li>
+				<li><a href="#plot_to_file">Plot to file</a></li>
 			</ul>
 			<li><a href="#plot-types">Plot over X11</a></li>
 			<ul>
@@ -67,6 +68,9 @@
 	<img src="plot_overview.png" /><br>
 
 	Use your arrow keys to navigate to the plot type you like, and then press enter.
+
+	<h3 id="plot_to_file">Plot to file</h3>
+	TODO
 
 	<h2 id="plot-types">Plot types</h2>
 	TODO

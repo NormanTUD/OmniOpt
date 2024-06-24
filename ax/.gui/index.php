@@ -104,7 +104,7 @@
 				{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1 },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<code>tail -f</code> the <code>.out</code>-file automatically, so you can see the output as soon as it appears." },
 				{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 1, "info": "May not be supported on all terminals." },
-				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.html">this tutorial</a> to learn about the <code>run.sh</code>-file' }
+				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.php">this tutorial</a> to learn about the <code>run.sh</code>-file' }
 			];
 
 			var hiddenTableData = [

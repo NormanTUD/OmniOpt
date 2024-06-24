@@ -224,7 +224,8 @@ function install_required_modules {
 	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	for key in "${!install_those[@]}"; do
 		install_this=${install_those[$key]}
-		green_reset_line "Checking if $install_this is installed..."
+		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES ${#install_those[@]})
+		green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
 		ppip $install_this "-" ${#install_those[@]}
 	done
 

@@ -278,7 +278,7 @@
 				"index" => "GUI",
 				"share" => "Share",
 				"tutorials" => array(
-					"name" => "OmniOpt Tutorials",
+					"name" => "Tutorials",
 					"entries" => array(
 						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program"
 					)

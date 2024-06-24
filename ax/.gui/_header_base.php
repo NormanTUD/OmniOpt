@@ -245,7 +245,7 @@
 			$files = array(
 				"index" => "GUI",
 				"share" => "Share",
-				"run_sh" => "Tutorial: Create <tt>run.sh</tt>-file",
+				"run_sh" => "Tutorial: Create <tt>run.sh</tt>-file and needed modifications in your program",
 				"usage_stats" => "Usage statistics"
 			);
 

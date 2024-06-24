@@ -151,7 +151,7 @@ function ppip {
 
 	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
 
-	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
+	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 
 	echo "$FROZEN" | grep -i "$MODULES_WITHOUT_VERSIONS" 2>/dev/null >/dev/null
 	_exit_code=$?
@@ -212,7 +212,7 @@ function ppip {
 get_nr_of_already_installed_modules () {
 	nr=0
 	for key in "${!install_those[@]}"; do
-		noversion=$(echo "${install_those[$key]}" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
+		noversion=$(echo "${install_those[$key]}" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 		if echo "$FROZEN" | grep -i "$noversion" 2>/dev/null >/dev/null; then
 			nr=$(($nr+1))
 		fi

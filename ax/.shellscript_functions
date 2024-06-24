@@ -12,9 +12,9 @@ install_those=(
 	art
 	catsay
 	tzlocal
+	Rich
 	rich-argparse
 	sixel
-	Rich
 	scikit-learn
 	submitit
 	plotext

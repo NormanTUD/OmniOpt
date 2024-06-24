@@ -193,4 +193,6 @@ else
 	exit ${#errors[@]}
 fi
 
-echo "Plot-tests took $SECONDS seconds"
+osecs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'Plot test took: %02d:%02d:%02d\n' $hrs $mins $secs

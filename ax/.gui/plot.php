@@ -35,6 +35,17 @@
 			<ul>
 				<li><a href="#plot-overview">Plot from overview</a></li>
 			</ul>
+			<li><a href="#plot-types">Plot over X11</a></li>
+			<ul>
+				<li><a href="trial_index_result">Plot trial index/result</a></li>
+				<li><a href="time_and_exit_code">Plot time and exit code infos</a></li>
+				<li><a href="scatter">Scatter</a></li>
+				<li><a href="hex_scatter">Hex-Scatter</a></li>
+				<li><a href="scatter_generation_method">Scatter-Generation-Method</a></li>
+				<li><a href="kde">KDE</a></li>
+				<li><a href="get_next_trials">get_next_trials got/requested</a></li>
+				<li><a href="general">General job infos</a></li>
+			</ul>
 		</ul>
 	</div>
 
@@ -56,6 +67,25 @@
 	<img src="plot_overview.png" /><br>
 
 	Use your arrow keys to navigate to the plot type you like, and then press enter.
+
+	<h2 id="plot-types">Plot types</h2>
+	TODO
+	<h3 id="trial_index_result">Plot trial index/result</h3>
+	TODO
+	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
+	TODO
+	<h3 id="scatter">Scatter</h3>
+	TODO
+	<h3 id="hex_scatter">Hex-Scatter</h3>
+	TODO
+	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
+	TODO
+	<h3 id="kde">KDE</h3>
+	TODO
+	<h3 id="get_next_trials">get_next_trials got/requested</h3>
+	TODO
+	<h3 id="general">General job infos</h3>
+	TODO
 
 	<script src="prism.js"></script>
 	<script>

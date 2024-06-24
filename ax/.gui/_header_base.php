@@ -280,7 +280,8 @@
 				"tutorials" => array(
 					"name" => "Tutorials",
 					"entries" => array(
-						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program"
+						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
+						"folder_structure" => "Folder Structure of OmniOpt runs"
 					)
 				),
 				"usage_stats" => "Usage statistics"

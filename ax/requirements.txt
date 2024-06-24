@@ -12,7 +12,6 @@ matplotlib
 Pyarrow
 textual
 tqdm
-watchdog
 seaborn
 art
 pyvista

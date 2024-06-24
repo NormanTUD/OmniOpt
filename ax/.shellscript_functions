@@ -22,7 +22,6 @@ install_those=(
 	textual
 	tqdm
 	plotille
-	watchdog
 	seaborn
 	pyvista
 	pytz

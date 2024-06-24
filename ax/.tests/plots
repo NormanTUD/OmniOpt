@@ -192,3 +192,5 @@ else
 
 	exit ${#errors[@]}
 fi
+
+echo "Plot-tests took $SECONDS seconds"

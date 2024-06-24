@@ -213,8 +213,11 @@ get_nr_of_already_installed_modules () {
 	nr=0
 	for key in "${!install_those[@]}"; do
 		noversion=$(echo "${install_those[$key]}" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
-		if echo "$FROZEN" | grep "$noversion" 2>/dev/null >/dev/null; then
+		if echo "$FROZEN" | grep -i "$noversion" 2>/dev/null >/dev/null; then
 			nr=$(($nr+1))
+		else
+			echo "not found: $noversion in"
+			echo "$FROZEN"
 		fi
 	done
 
@@ -223,15 +226,17 @@ get_nr_of_already_installed_modules () {
 
 function install_required_modules {
 	green_reset_line "➤Checking environment..."
-	for key in "${!install_those[@]}"; do
-		install_this=${install_those[$key]}
-		set +e
-		CURRENT="${#install_those[@]}"
-		PROGRESSBAR=$(generate_progress_bar $CURRENT)
-		set -e
-		green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
-		ppip $install_this "-" $CURRENT
-	done
+	MAX_NR="${#install_those[@]}"
+	PROGRESSBAR=$(generate_progress_bar $MAX_NR)
+
+	if [[ "$MAX_NR" -ne "$NUMBER_OF_INSTALLED_MODULES" ]]; then
+		for key in "${!install_those[@]}"; do
+			install_this=${install_those[$key]}
+			PROGRESSBAR=$(generate_progress_bar $MAX_NR)
+			green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
+			ppip $install_this "-" $MAX_NR
+		done
+	fi
 
 	tput cr; tput el
 	if [[ "$NUMBER_OF_INSTALLED_MODULES" -gt 0 ]]; then

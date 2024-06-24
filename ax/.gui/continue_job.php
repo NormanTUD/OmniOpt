@@ -20,7 +20,7 @@
 			text-decoration: none;
 			color: #007bff;
 		}
-			.toc a:hover {
+		.toc a:hover {
 			text-decoration: underline;
 		}
 	</style>

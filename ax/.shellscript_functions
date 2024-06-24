@@ -110,6 +110,7 @@ NUMBER_OF_INSTALLED_MODULES=0
 PROGRESSBAR=""
 
 generate_progress_bar() {
+	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	local current_progress=$1
 	local total_progress=$2
 
@@ -147,7 +148,6 @@ function ppip {
 
 	set +e
 
-	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
 
 	MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#>=?.*##' -e 's#<=?.*##' -e 's#~.*##' -e 's#==.*##')
@@ -199,7 +199,8 @@ function ppip {
 			exit 3
 		}
 
-		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
+		FROZEN=$(pip3 freeze)
+
 		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES $NUMBER_OF_MAIN_MODULES)
 
 		green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
@@ -208,7 +209,9 @@ function ppip {
 }
 
 get_nr_of_already_installed_modules () {
-	FROZEN=$(pip3 freeze)
+	if [[ "$FROZEN" == "" ]]; then
+		FROZEN=$(pip3 freeze)
+	fi
 	nr=0
 	for key in "${!install_those[@]}"; do
 		if echo "$FROZEN" | grep "${install_those[$key]}" 2>/dev/null >/dev/null; then
@@ -221,7 +224,6 @@ get_nr_of_already_installed_modules () {
 
 function install_required_modules {
 	green_reset_line "➤Checking environment..."
-	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 	for key in "${!install_those[@]}"; do
 		install_this=${install_those[$key]}
 		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_INSTALLED_MODULES ${#install_those[@]})

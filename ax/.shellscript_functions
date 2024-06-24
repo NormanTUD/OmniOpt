@@ -209,9 +209,6 @@ function ppip {
 }
 
 get_nr_of_already_installed_modules () {
-	if [[ "$FROZEN" == "" ]]; then
-		FROZEN=$(pip3 freeze)
-	fi
 	nr=0
 	for key in "${!install_those[@]}"; do
 		if echo "$FROZEN" | grep "${install_those[$key]}" 2>/dev/null >/dev/null; then

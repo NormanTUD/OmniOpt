@@ -38,14 +38,14 @@
 			</ul>
 			<li><a href="#plot-types">Plot over X11</a></li>
 			<ul>
-				<li><a href="trial_index_result">Plot trial index/result</a></li>
-				<li><a href="time_and_exit_code">Plot time and exit code infos</a></li>
-				<li><a href="scatter">Scatter</a></li>
-				<li><a href="hex_scatter">Hex-Scatter</a></li>
-				<li><a href="scatter_generation_method">Scatter-Generation-Method</a></li>
-				<li><a href="kde">KDE</a></li>
-				<li><a href="get_next_trials">get_next_trials got/requested</a></li>
-				<li><a href="general">General job infos</a></li>
+				<li><a href="#trial_index_result">Plot trial index/result</a></li>
+				<li><a href="#time_and_exit_code">Plot time and exit code infos</a></li>
+				<li><a href="#scatter">Scatter</a></li>
+				<li><a href="#hex_scatter">Hex-Scatter</a></li>
+				<li><a href="#scatter_generation_method">Scatter-Generation-Method</a></li>
+				<li><a href="#kde">KDE</a></li>
+				<li><a href="#get_next_trials">get_next_trials got/requested</a></li>
+				<li><a href="#general">General job infos</a></li>
 			</ul>
 		</ul>
 	</div>

@@ -43,7 +43,7 @@
 			.code_bg {
 				background-color: #C0C0C0;
 			}
-	
+
 			#commands {
 				line-break: anywhere;
 			}
@@ -134,13 +134,13 @@
 				color: #FFFFFF;
 				cursor: pointer;
 				display: block;
-				font-family: -apple-system,".SFNSDisplay-Regular","Helvetica Neue",Helvetica,Arial,sans-serif;
+				font-family: -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
 				font-size: 17px;
 				line-height: 100%;
 				outline: 0;
 				padding: 11px 15px 12px;
 				text-align: center;
-				transition: box-shadow .05s ease-in-out,opacity .05s ease-in-out;
+				transition: box-shadow .05s ease-in-out, opacity .05s ease-in-out;
 				user-select: none;
 				-webkit-user-select: none;
 				touch-action: manipulation;
@@ -172,7 +172,7 @@
 			select {
 				width: 98%;
 			}
-			
+
 			input {
 				width: 95%;
 			}
@@ -199,41 +199,73 @@
 				padding: 0;
 			}
 
-/* Allgemeine Stile für alle Tabs */
-.tab {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    border-radius: 25px;
-    text-decoration: none;
-    transition: background-color 0.3s, color 0.3s;
-}
+			/* Allgemeine Stile für alle Tabs */
+			.tab {
+				display: inline-block;
+				padding: 10px 20px;
+				margin: 5px;
+				font-size: 16px;
+				font-weight: bold;
+				text-align: center;
+				border-radius: 25px;
+				text-decoration: none;
+				transition: background-color 0.3s, color 0.3s;
+			}
 
-/* Inaktiver Tab */
-.inactive_tab {
-    background-color: #f0f0f0;
-    color: #555;
-    border: 2px solid #ddd;
-}
+			/* Inaktiver Tab */
+			.inactive_tab {
+				background-color: #f0f0f0;
+				color: #555;
+				border: 2px solid #ddd;
+			}
 
-.inactive_tab:hover {
-    background-color: #e0e0e0;
-    color: #444;
-}
+			.inactive_tab:hover {
+				background-color: #e0e0e0;
+				color: #444;
+			}
 
-/* Aktiver Tab */
-.active_tab {
-    background-color: #4CAF50;
-    color: white;
-    border: 2px solid #4CAF50;
-}
+			/* Aktiver Tab */
+			.active_tab {
+				background-color: #4CAF50;
+				color: white;
+				border: 2px solid #4CAF50;
+			}
 
-.active_tab:hover {
-    background-color: #45a049;
-}
+			.active_tab:hover {
+				background-color: #45a049;
+			}
+
+			.dropdown {
+				display: inline-grid;
+			}
+
+			.dropdown-content {
+				display: none;
+				position: absolute;
+				background-color: #f9f9f9;
+				min-width: 160px;
+				box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+				z-index: 1;
+			}
+
+			.dropdown-content a {
+				color: black;
+				padding: 12px 16px;
+				text-decoration: none;
+				display: block;
+			}
+
+			.dropdown-content a:hover {
+				background-color: #f1f1f1;
+			}
+
+			.dropdown:hover .dropdown-content {
+				display: block;
+			}
+
+			.dropdown:hover .dropbtn {
+				background-color: #3e8e41;
+			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script src="prism.js"></script>
@@ -241,23 +273,37 @@
 	<body>
 		<div id="scads_bar">
 			<a target="_blank" href="https://scads.ai/"><img src="scads_logo.svg" /></a>
-<?php
+			<?php
 			$files = array(
 				"index" => "GUI",
 				"share" => "Share",
-				"run_sh" => "Tutorial: Create <tt>run.sh</tt>-file &amp; modify your program",
+				"tutorials" => array(
+					"name" => "OmniOpt Tutorials",
+					"entries" => array(
+						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program"
+					)
+				),
 				"usage_stats" => "Usage statistics"
 			);
 
 			foreach ($files as $fn => $n) {
-				$tab_is_active = 0;
-				$tab_is_active = preg_match("/$fn.php/", $_SERVER["PHP_SELF"]);
-				$tab_class = ($tab_is_active == 0 ? 'in' : '')."active_tab";
-?>
-				<a href="<?php print $fn; ?>.php" class="tab <?php print $tab_class; ?>">
-					OmniOpt <?php print $n; ?>
-				</a>
-<?php
+				if (is_array($n)) {
+					echo '<div class="dropdown">';
+					echo '<button class="tab inactive_tab dropbtn">OmniOpt ' . $n["name"] . '</button>';
+					echo '<div class="dropdown-content">';
+					foreach ($n["entries"] as $sub_fn => $sub_n) {
+						echo '<a href="' . $sub_fn . '.php">' . $sub_n . '</a>';
+					}
+					echo '</div>';
+					echo '</div>';
+				} else {
+					$tab_is_active = 0;
+					$tab_is_active = preg_match("/$fn.php/", $_SERVER["PHP_SELF"]);
+					$tab_class = ($tab_is_active == 0 ? 'in' : '') . "active_tab";
+					echo '<a href="' . $fn . '.php" class="tab ' . $tab_class . '">OmniOpt ' . $n . '</a>';
+				}
 			}
-?>
+			?>
 		</div>
+	</body>
+</html>

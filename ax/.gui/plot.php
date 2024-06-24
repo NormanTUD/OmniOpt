@@ -51,7 +51,7 @@
 ./omniopt_plot --run_dir runs/my_experiment/0
 </code></pre>
 
-	You will be presented by a menu like this:
+	You will be presented by a menu like this:<br>
 
 	<img src="plot_overview.png" /><br>
 

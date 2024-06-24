@@ -275,7 +275,9 @@ source $VENV_DIR/bin/activate || {
 	exit 2
 }
 
-if [[ -z $SLURM_JOB_ID ]]; then
-	FROZEN=$(pip3 freeze)
-	install_required_modules
+if [[ -z $DONT_INSTALL_MODULES ]]; then
+	if [[ -z $SLURM_JOB_ID ]]; then
+		FROZEN=$(pip3 freeze)
+		install_required_modules
+	fi
 fi

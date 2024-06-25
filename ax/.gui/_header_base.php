@@ -127,7 +127,6 @@
 			button {
 				margin: 5px;
 				background-color: #36A9AE;
-				background-image: linear-gradient(#37ADB2, #329CA0);
 				border: 1px solid #2A8387;
 				border-radius: 4px;
 				box-shadow: rgba(0, 0, 0, 0.12) 0 1px 1px;

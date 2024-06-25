@@ -51,12 +51,11 @@
 	<img src="imgs/scatter.png" /><br>
 	<p>The scatter plot shows you all 2d combinations of the hyperparameter space and, for each evaluation, a dot is printed. The color of the dot depends on the result value of this specific run. The lower, the greener, and the higher, the more red they are. Thus, you can see how many results were attained and how they were, and where they have been searched.</p>
 
-	<p></p>
-
 	<h3 id="hex_scatter">Hex-Scatter</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_hex</code></pre>
 	<img src="imgs/scatter_hex.png" /><br>
-	TODO
+
+	<p>Similiar to scatter plot, but here many runs are grouped into hexagonal subspaces of the parameter combinations, and the groups are coloured by their average result, and as such you can see an approximation of the function space. This allows you to quickly grasp 'good' areas of your hyperparameter space.</p>
 
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_generation_method</code></pre>

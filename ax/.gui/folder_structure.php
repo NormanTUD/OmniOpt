@@ -158,6 +158,7 @@ single_runs  state_files</code></pre>
 		<li><i>run.sh</i>: A bash-file that allows you to re-run this program</li>
 		<li><i>submitted_jobs</i>: The number of submitted jobs</li>
 		<li><i>time</i>: The time this job-sbatch has allocated</li>
+		<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
 	</ul>
 
 	<h3 id="single_runs">single_runs</h3>

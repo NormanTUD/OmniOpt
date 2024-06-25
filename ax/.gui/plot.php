@@ -1,8 +1,8 @@
 <?php
 	include("_header_base.php");
 ?>
-	<link href="jquery-ui.css" rel="stylesheet">
 	<link href="tutorial.css" rel="stylesheet" />
+	<link href="jquery-ui.css" rel="stylesheet">
 	<link href="prism.css" rel="stylesheet" />
 
 	<h1>Plot your results</h1>

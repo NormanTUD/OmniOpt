@@ -119,7 +119,8 @@
 	<h3 id="worker">Worker usage</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=worker</code></pre>
 	<img src="imgs/worker_usage.png" /><br>
-	TODO
+
+	Shows the amount of requested workers, and the amount of real workers over time.
 
 	<script src="prism.js"></script>
 	<script>

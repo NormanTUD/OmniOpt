@@ -49,7 +49,9 @@
 	<h3 id="scatter">Scatter</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter</code></pre>
 	<img src="imgs/scatter.png" /><br>
-	TODO
+	<p>The scatter plot shows you all 2d combinations of the hyperparameter space and, for each evaluation, a dot is printed. The color of the dot depends on the result value of this specific run. The lower, the greener, and the higher, the more red they are. Thus, you can see how many results were attained and how they were, and where they have been searched.</p>
+
+	<p></p>
 
 	<h3 id="hex_scatter">Hex-Scatter</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_hex</code></pre>

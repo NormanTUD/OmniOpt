@@ -22,7 +22,7 @@
 
 	You will be presented by a menu like this:<br>
 
-	<img src="plot_overview.png" /><br>
+	<img src="imgs/plot_overview.png" /><br>
 
 	Use your arrow keys to navigate to the plot type you like, and then press enter.
 
@@ -37,16 +37,16 @@
 	<h2 id="plot-types">Plot types</h2>
 	TODO
 	<h3 id="trial_index_result">Plot trial index/result</h3>
-	<img src="results_to_trial_index.png" /><br>
+	<img src="imgs/results_to_trial_index.png" /><br>
 	TODO
 	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
-	<img src="exit_code_and_times.png" /><br>
+	<img src="imgs/exit_code_and_times.png" /><br>
 	TODO
 	<h3 id="scatter">Scatter</h3>
-	<img src="scatter.png" /><br>
+	<img src="imgs/scatter.png" /><br>
 	TODO
 	<h3 id="hex_scatter">Hex-Scatter</h3>
-	<img src="scatter_hex.png" /><br>
+	<img src="imgs/scatter_hex.png" /><br>
 	TODO
 
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>

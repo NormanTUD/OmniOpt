@@ -36,7 +36,7 @@ function search_text_with_context($text_lines, $search_term) {
     $results = [];
     foreach ($text_lines as $line_number => $line) {
         $clean_line = strip_tags($line);
-        if (strpos($clean_line, $search_term) !== false) {
+        if (stripos($clean_line, $search_term) !== false) {
             $context = find_nearest_heading($text_lines, $line_number);
             $results[] = [
                 'line' => trim($clean_line),
@@ -69,7 +69,7 @@ function log_error($message) {
 
 // Hauptprogramm
 $file_path = 'folder_structure.php'; // Pfad zu Ihrer PHP-Datei im selben Ordner
-$search_term = '_jobs'; // Der zu suchende Text
+$search_term = 'this'; // Der zu suchende Text
 
 $file_content = read_file_content($file_path);
 if ($file_content !== false) {

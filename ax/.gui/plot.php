@@ -35,7 +35,7 @@
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.</code></pre>
 
 	<h2 id="plot-types">Plot types</h2>
-	TODO
+	<p>There are many different plot types, some of which can only be shown on jobs that ran on Taurus, or jobs with more than a specific number of results or parameters. If you run the <tt>omniopt_plot</tt>-script, it will automatically show you plots that are readily available.</p>
 
 	<h3 id="trial_index_result">Plot trial index/result</h3>
 	<img src="imgs/trial_index_result.png" /><br>

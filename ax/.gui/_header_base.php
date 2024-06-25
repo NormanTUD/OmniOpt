@@ -291,19 +291,19 @@
 
 			foreach ($files as $fn => $n) {
 				if (is_array($n)) {
-					echo '<div class="dropdown">';
-					echo '<button class="tab inactive_tab dropbtn">OmniOpt ' . $n["name"] . '</button>';
-					echo '<div class="dropdown-content">';
+					echo "<div class='dropdown'>\n";
+					echo "\t<button class='tab inactive_tab dropbtn'>OmniOpt " . $n["name"] . "</button>";
+					echo "\t<div class='dropdown-content'>\n";
 					foreach ($n["entries"] as $sub_fn => $sub_n) {
-						echo '<a href="' . $sub_fn . '.php">' . $sub_n . '</a>';
+						echo "\t\t<a href='" . $sub_fn . ".php'>" . $sub_n . "</a>\n";
 					}
-					echo '</div>';
-					echo '</div>';
+					echo "\t</div>\n";
+					echo "</div>\n";
 				} else {
 					$tab_is_active = 0;
 					$tab_is_active = preg_match("/$fn.php/", $_SERVER["PHP_SELF"]);
 					$tab_class = ($tab_is_active == 0 ? 'in' : '') . "active_tab";
-					echo '<a href="' . $fn . '.php" class="tab ' . $tab_class . '">OmniOpt ' . $n . '</a>';
+					echo "\t<a href='$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
 				}
 			}
 			?>

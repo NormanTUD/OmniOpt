@@ -2,28 +2,7 @@
 	include("_header_base.php");
 ?>
 	<link href="jquery-ui.css" rel="stylesheet">
-	<style>
-		body {
-			font-family: Verdana, sans-serif;
-		}
-		.toc {
-			margin-bottom: 20px;
-		}
-		.toc ul {
-			list-style-type: none;
-			padding: 0;
-		}
-		.toc li {
-			margin-bottom: 5px;
-		}
-		.toc a {
-			text-decoration: none;
-			color: #007bff;
-		}
-		.toc a:hover {
-			text-decoration: underline;
-		}
-	</style>
+	<link href="tutorial.css" rel="stylesheet" />
 	<link href="prism.css" rel="stylesheet" />
 
 	<h1>Continue jobs</h1>

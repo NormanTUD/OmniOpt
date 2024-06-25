@@ -44,7 +44,16 @@
 	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=time_and_exit_code</code></pre>
 	<img src="imgs/time_and_exit_code.png" /><br>
-	TODO
+
+	<p>This graph has 4 subgraphs that show different information regarding the job runtime, it's results and it's exit codes.</p>
+
+
+	<ul>
+		<li><i>Distribution of Run Time</i>: This shouws you how many jobs had which runtime. The <i>y</i>-Axis shows you the number of jobs in one specific time-bin, while the <i>x</i>-axis shows you the number of seconds that the jobs in those bins ran.</li>
+		<li><i>Result over Time</i>: This shows you a distribution of results and when they were started and the results attained, so you can find out how long jobs took and how well their results were. </li>
+		<li></li>
+		<li></li>
+	</ul>
 
 	<h3 id="scatter">Scatter</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter</code></pre>

@@ -38,6 +38,11 @@
 
 	<p>All parameters that are not specified here are taken out of the old run, and thus stay in the same borders.</p>
 
+	<h2 id="Folder">In which folder will a run continue in?</h2>
+	<p>It will create a new folder. Imagine there are already the subfolders <tt>0</tt>, <tt>1</tt> and <tt>2</tt> for your
+	experiment. If you continue the job <tt>0</tt>, it's job data will be in the subfolder <tt>3</tt> then, since it is the first
+	non-existing folder for that project..</p>
+
 	<script src="prism.js"></script>
 	<script>
 		Prism.highlightAll();

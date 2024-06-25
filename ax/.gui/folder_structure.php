@@ -9,7 +9,12 @@
     
 	<div id="toc"></div>
 
-	<h2 id="script-example">Script Example</h2>
+	<h2 id="runs_folder"><tt>runs</tt>-folder</h2>
+
+	<p>For every experiment you do, there will be a new folder created inside the <tt>runs</tt>-folder in your OmniOpt2-installation.</p>
+
+	<p>Each of these has a subfolder for each run that the experiment with that name was run. For example, if you run the experiment <tt>my_experiment</tt>
+	twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt> exist.
 
 	<pre><code class="language-bash">#!/bin/bash -l
 This is currently in work

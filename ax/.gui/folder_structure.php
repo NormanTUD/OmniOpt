@@ -141,7 +141,7 @@ single_runs  state_files</code></pre>
 		<li><i>checkpoint.json.parameters.json</i>: TODO</li>
 		<li><i>done_jobs</i>: The number of done jobs</li>
 		<li><i>env</i>: A dump of the environment, OmniOpt2 works in (useful for debugging)</li>
-		<li><i>experiment_name</i>: TODO</li>
+		<li><i>experiment_name</i>: The name of this experiment</li>
 		<li><i>failed_jobs</i>: The number of failed jobs</li>
 		<li><i>global_vars.json</i>: A variable that contains several global states that continued runs need to continue</li>
 		<li><i>gpus</i>: The number of GPUs this run has allocated per worker</li>

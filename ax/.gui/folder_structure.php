@@ -33,6 +33,17 @@ best_result.txt  get_next_trials.csv  gpu_usage__i8033.csv  gpu_usage__i8037.csv
 └──────────────────┴──────────────────┴───────────────┴────────┴──────────┘
 </pre>
 	
+	<h4 id="get_next_trials"><tt>get_next_trials.csv</tt></h4>
+
+	<p>A CSV file that contains the current time, the number of jobs <tt>ax_client.get_next_trials()</tt> got and the number it requested to get.</p>
+
+	<pre>2024-06-25 08:55:46,1,20
+2024-06-25 08:56:41,2,20
+2024-06-25 08:57:14,5,20
+2024-06-25 08:57:33,7,20
+2024-06-25 08:59:54,15,20
+...</pre>
+
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>
 </body>

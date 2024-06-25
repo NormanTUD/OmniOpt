@@ -13,9 +13,7 @@
 	<p>Continueing an old job with the same options as previously, but with awareness of the hyperparameter-constellations
 	that have already been tested, is as simple as this, assuming your job is in <tt>runs/my_experiment/0</tt>:
 
-	<pre><code class="language-bash">#!/bin/bash -l
-./omniopt --continue runs/my_experiment/0
-</code></pre>
+	<pre><code class="language-bash">./omniopt --continue runs/my_experiment/0</code></pre>
 
 	<p>This will start a new run with the same settings as the old one, but load all already tried out data points, and 
 	continue the search from there.</p>
@@ -24,9 +22,7 @@
 
 	<p>In continued runs, some options can be changed. For example,</p>
 
-	<pre><code class="language-bash">#!/bin/bash -l
-./omniopt --continue runs/my_experiment/0 --time=360
-</code></pre>
+	<pre><code class="language-bash">./omniopt --continue runs/my_experiment/0 --time=360</code></pre>
 
 	<p>Will run the continuation for 6 hours ( = 360 minutes), independent of how long the old job ran.</p>
 
@@ -38,9 +34,7 @@
 	the <tt>epochs</tt> parameter that was previously defined and could have been, for example, between 0 and 10. In
 	this new run, all old values will be considered, but new values of epochs can be between 0 and 1000.</p>
 
-	<pre><code class="language-bash">#!/bin/bash -l
-./omniopt --continue runs/my_experiment/0 --parameter epochs range 0 1000 int
-</code></pre>
+	<pre><code class="language-bash">./omniopt --continue runs/my_experiment/0 --parameter epochs range 0 1000 int</code></pre>
 
 	<p>All parameters that are not specified here are taken out of the old run, and thus stay in the same borders.</p>
 

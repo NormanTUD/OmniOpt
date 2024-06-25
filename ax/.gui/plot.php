@@ -85,7 +85,7 @@
 	<h3 id="get_next_trials">get_next_trials got/requested</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=get_next_trials</code></pre>
 	<img src="imgs/get_next_trials.png" /><br>
-	TODO
+	<p>Each time the <tt>ax_client.get_next_trials()</tt>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt for debugging, but still, I included it here.</p>
 
 	<h3 id="general">General job infos</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=general</code></pre>

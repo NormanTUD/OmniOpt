@@ -85,8 +85,8 @@
 			<li><i>MANUAL</i>: That means the job has been imported from a previous run</li>
 			<li><i>FAILED</i>: That means the job has started but it failed and gained no result</li>
 		</ul>
-		<li></li>
-		<li></li>
+		<li><i>Correlation Matrix</i>: Shows you how each of the parameters correlates with each other and the final result. The higher the values, the more likely there's a correlation</li>
+		<li><i>Distribution of Results by Generation Method</i>: This puts different results into so-called bins, i.e. groups of results in a certain range, and plots colored bar charts that tell you where how many results have been found by which method.</li>
 	</ul>
 
 	<h3 id="3d">3d</h3>

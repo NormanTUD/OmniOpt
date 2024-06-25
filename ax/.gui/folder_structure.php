@@ -138,8 +138,8 @@ single_runs  state_files</code></pre>
 	These files store some states used mainly to continue jobs. Not all of these files may be present.
 
 	<ul>
-		<li><i>ax_client.experiment.json</i>: TODO</li>
-		<li><i>checkpoint.json</i>: TODO</li>
+		<li><i>ax_client.experiment.json</i>: A JSON file containing all data needed to restore the experiment</li>
+		<li><i>checkpoint.json</i>: A JSON file containing all data needed to restore the experiment</li>
 		<li><i>checkpoint.json.parameters.json</i>: TODO</li>
 		<li><i>done_jobs</i>: The number of done jobs</li>
 		<li><i>env</i>: A dump of the environment, OmniOpt2 works in (useful for debugging)</li>

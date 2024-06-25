@@ -134,4 +134,3 @@ print(f"RESULT: {loss}")
 	<script src="footer.js"></script>
 </body>
 </html>
-

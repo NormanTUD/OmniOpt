@@ -47,4 +47,3 @@
 	<script src="footer.js"></script>
 </body>
 </html>
-

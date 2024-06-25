@@ -114,10 +114,11 @@
 	<h3 id="gpu_usage">GPU usage</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=gpu_usage</code></pre>
 	<img src="imgs/gpu_usage.png" /><br>
-	TODO
+	<p>Shows the workload of different GPUs on all nodes that jobs of an evaluation has run on over time.</p>
 
 	<h3 id="worker">Worker usage</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=worker</code></pre>
+	<img src="imgs/worker_usage.png" /><br>
 	TODO
 
 	<script src="prism.js"></script>

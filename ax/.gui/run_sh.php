@@ -15,7 +15,7 @@
 
 	<ul>
 		<li>Your program needs to be able to run on Linux, and especially on the HPC System, i.e. you need to use default dependencies or install the dependencies of your program into a virtual environment (or similiar)</li>
-		<li>Your program needs to accept it's hyperparameters via the command like, so you can call it like this: <code class="language-python"><tt>python3 my_experiment.py --epochs=10 --learning_rate=0.05</tt></code></li>
+		<li>Your program needs to accept it's hyperparameters via the command like, so you can call it like this: <code class="language-python"><tt>python3 my_experiment.py --epochs=10 --learning_rate=0.05</tt></code> (or similiar)</li>
 		<li>Your program needs to print it's result (i.e. e.g. it's loss) in a standardized form. This can be achieved in python by doing: <code class="language-python"><tt>print(f"RESULT: {loss}")</tt></code></li>
 	</ul>
 

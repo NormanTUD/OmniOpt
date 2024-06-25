@@ -135,7 +135,27 @@ single_runs  state_files</code></pre>
 
 	<h3 id="state_files">State files</h3>
 
-	TODO
+	<ul>
+		<li><i>ax_client.experiment.json</i>: TODO</li>
+		<li><i>checkpoint.json</i>: TODO</li>
+		<li><i>checkpoint.json.parameters.json</i>: TODO</li>
+		<li><i>done_jobs</i>: TODO</li>
+		<li><i>env</i>: TODO</li>
+		<li><i>experiment_name</i>: TODO</li>
+		<li><i>failed_jobs</i>: TODO</li>
+		<li><i>global_vars.json</i>: TODO</li>
+		<li><i>gpus</i>: TODO</li>
+		<li><i>joined_run_program</i>: TODO</li>
+		<li><i>max_eval</i>: TODO</li>
+		<li><i>mem_gb </i>: TODO</li>
+		<li><i>minimize </i>: TODO</li>
+		<li><i>pd.json</i>: TODO</li>
+		<li><i>phase_random_steps</i>: TODO</li>
+		<li><i>phase_systematic_steps</i>: TODO</li>
+		<li><i>run.sh</i>: TODO</li>
+		<li><i>submitted_jobs</i>: TODO</li>
+		<li><i>time</i>: TODO</li>
+	</ul>
 
 	<h3 id="single_runs">single_runs</h3>
 

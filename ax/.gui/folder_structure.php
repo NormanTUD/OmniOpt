@@ -18,7 +18,7 @@
 
 	<h3 id="runs_folder">Single files</h3>
 	<pre><code class="language-bash">ls
-oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usage.csv</code></pre>
+single_runs  state_files  worker_usage.csv</code></pre>
 
 	<h4 id="best_result"><tt>best_result.txt</tt></h4>
 
@@ -33,6 +33,22 @@ oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usa
 └──────────────────┴──────────────────┴───────────────┴────────┴──────────┘
 </pre>
 	
+	<h4 id="results_csv"><tt>results.csv</tt></h4>
+
+	<p>This file contains infos about every evaluation in this run, that is, it's number, the algorithm that craeted that point, its parameters, and it's result.</p>
+
+	<pre>trial_index,arm_name,trial_status,generation_method,result,width_and_height,validation_split,learning_rate,epochs
+0,0_0,COMPLETED,Sobol,1.690072,71,0.021625286340713503,0.20240612381696702,7
+1,1_0,COMPLETED,Sobol,1.638602,65,0.02604435756802559,0.2448390863677487,6
+2,2_0,COMPLETED,Sobol,1.718751,78,0.23111544810235501,0.38468948143068704,2
+3,3_0,COMPLETED,Sobol,1.636012,93,0.0857066310942173,0.23433385196421297,15
+4,4_0,COMPLETED,Sobol,1.624952,60,0.04056024849414826,0.11660899678524585,6
+5,5_0,COMPLETED,Sobol,1.64169,76,0.1567445032298565,0.21590755908098072,10
+6,6_0,COMPLETED,Sobol,1.639097,72,0.07228925675153733,0.1230122183514759,6
+7,7_0,COMPLETED,Sobol,1.6279,74,0.04752136580646038,0.08336016669869424,3
+8,8_0,COMPLETED,Sobol,1.618417,87,0.0058464851230382925,0.016544286970980468,7
+9,9_0,COMPLETED,Sobol,1.627581,76,0.0673203308135271,0.08200951679609716,5</pre>
+
 	<h4 id="get_next_trials"><tt>get_next_trials.csv</tt></h4>
 
 	<p>A CSV file that contains the current time, the number of jobs <tt>ax_client.get_next_trials()</tt> got and the number it requested to get.</p>

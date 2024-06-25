@@ -17,8 +17,6 @@
 	twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt> exist.
 
 	<h3 id="runs_folder">Single files</h3>
-	<pre><code class="language-bash">ls
-single_runs  state_files</code></pre>
 
 	<h4 id="best_result"><tt>best_result.txt</tt></h4>
 
@@ -133,7 +131,7 @@ single_runs  state_files</code></pre>
 └──────────────────┴───────┴─────────────┴─────────────┴────────┴────────────┘
 </pre>
 
-	<h3 id="state_files">State files</h3>
+	<h3 id="state_files"><tt>state_files</tt></h3>
 
 	These files store some states used mainly to continue jobs. Not all of these files may be present.
 
@@ -161,7 +159,7 @@ single_runs  state_files</code></pre>
 		<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
 	</ul>
 
-	<h3 id="single_runs">single_runs</h3>
+	<h3 id="single_runs"><tt>single_runs</tt></h3>
 
 	<p>This contains one folder for each subjob (i.e. single evaluation) that ran. Locally, it starts at a random number. On systems with SLURM, the folder names are the SLURM IDs.</p>
 

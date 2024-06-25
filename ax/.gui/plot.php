@@ -52,7 +52,7 @@
 		<li><i>Distribution of Run Time</i>: This shouws you how many jobs had which runtime. The <i>y</i>-Axis shows you the number of jobs in one specific time-bin, while the <i>x</i>-axis shows you the number of seconds that the jobs in those bins ran.</li>
 		<li><i>Result over Time</i>: This shows you a distribution of results and when they were started and the results attained, so you can find out how long jobs took and how well their results were. </li>
 		<li><i>Run Time Distribution by Exit Code</i>: Every job as an exit code and a run time, and this shows you a violin plot of the runtimes and exit-code distribution of a job. It may be helpful when larger jobs fail to find out how long they need until they fail.</li>
-		<li><i>Run Time by Hostname</i>: Shows a boxplot of runtime by each hostname where it ran on. Useful to detect nodes that may execute code slower than other codes or to find out where larger models were scheduled to.</li>
+		<li><i>Run Time by Hostname</i>: Shows a boxplot of runtime by each hostname where it ran on. Useful to detect nodes that may execute code slower than other codes or to find out which nodes larger models were scheduled to.</li>
 	</ul>
 
 	<h3 id="scatter">Scatter</h3>

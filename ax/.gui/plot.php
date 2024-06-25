@@ -59,6 +59,7 @@
 	<img src="imgs/get_next_trials.png" /><br>
 	TODO
 	<h3 id="general">General job infos</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=general</code></pre>
 	<img src="imgs/general.png" /><br>
 	TODO
 

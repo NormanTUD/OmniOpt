@@ -7,19 +7,7 @@
 
 	<h1>Create <tt>run.sh</tt>-file &amp; modify your program</h1>
     
-	<div class="toc">
-		<h2>Table of Contents</h2>
-		<ul>
-			<li><a href="#script-example">Script Example</a></li>
-			<li><a href="#argument-parsing">Parse Arguments from the Command Line</a>
-			<ul>
-				<li><a href="#sys-argv">Using sys.argv</a></li>
-					<li><a href="#argparse">Using argparse</a></li>
-				</ul>
-			</li>
-			<li><a href="#complex-example">Complex Example</a></li>
-		</ul>
-	</div>
+	<div id="toc"></div>
 
     <h2 id="script-example">Script Example</h2>
     <p>To make your script robust enough for the environment of OmniOpt on HPC-Systems,
@@ -615,10 +603,11 @@ python3 $SCRIPT_DIR/train.py --cfg "$model" --multi-scale --batch $batchsize --d
 </code></pre>
     
 
-    <script src="prism.js"></script>
-    <script>
-        Prism.highlightAll();
-    </script>
+	<script src="prism.js"></script>
+	<script>
+		Prism.highlightAll();
+	</script>
+	<script src="footer.js"></script>
 </body>
 </html>
 

@@ -7,12 +7,7 @@
 
 	<h1>Continue jobs</h1>
     
-	<div class="toc">
-		<h2>Table of Contents</h2>
-		<ul>
-			<li><a href="#script-example">Script Example</a></li>
-		</ul>
-	</div>
+	<div id="toc"></div>
 
 	<h2 id="script-example">Script Example</h2>
 	TODO
@@ -21,6 +16,7 @@
 	<script>
 		Prism.highlightAll();
 	</script>
+	<script src="footer.js"></script>
 </body>
 </html>
 

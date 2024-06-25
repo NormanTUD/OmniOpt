@@ -69,7 +69,8 @@
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_generation_method</code></pre>
 	<img src="imgs/scatter_generation_method.png" /><br>
-	TODO
+
+	<p>This is similiar to the scatter plot, but also shows you which generation method (i.e. SOBOL, BoTorch, ...) is responsible for creating that point, and how the generation methods are scattered over each axis of the hyperparameter optimization problem. Thus, you can see how many runs have been tried and where exactly.</p>
 
 	<h3 id="kde">KDE</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=kde</code></pre>

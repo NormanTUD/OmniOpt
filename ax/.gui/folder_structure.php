@@ -18,7 +18,7 @@
 
 	<h3 id="runs_folder">Single files</h3>
 	<pre><code class="language-bash">ls
-job_infos.csv  oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usage.csv</code></pre>
+oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usage.csv</code></pre>
 
 	<h4 id="best_result"><tt>best_result.txt</tt></h4>
 
@@ -75,6 +75,10 @@ job_infos.csv  oo_errors.txt  parameters.txt  results.csv  single_runs  state_fi
 1719298823,1719298881,58,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.21590755908098072 --epochs=10 --validation_split=0.1567445032298565 --width=76 --height=76 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,76,0.1567445032298565,0.21590755908098072,10,1.64169,0,None,arbeitsrechner
 1719298882,1719298920,38,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.1230122183514759 --epochs=6 --validation_split=0.07228925675153733 --width=72 --height=72 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,72,0.07228925675153733,0.1230122183514759,6,1.639097,0,None,arbeitsrechner
 1719298921,1719298947,26,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.08336016669869424 --epochs=3 --validation_split=0.04752136580646038 --width=74 --height=74 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,74,0.04752136580646038,0.08336016669869424,3,1.6279,0,None,arbeitsrechner</pre>
+
+	<h4 id="oo_errors"><tt>oo_errors.txt</tt></h4>
+
+	This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or non-existant.
 
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>

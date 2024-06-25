@@ -163,7 +163,7 @@ single_runs  state_files</code></pre>
 
 	<h3 id="single_runs">single_runs</h3>
 
-	<p>This contains one folder for each subjob (i.e. single evaluation) that ran. Locally, it starts at a random number. On systems with SLURM, the folder names are the SLURM IDs.</p>.
+	<p>This contains one folder for each subjob (i.e. single evaluation) that ran. Locally, it starts at a random number. On systems with SLURM, the folder names are the SLURM IDs.</p>
 
 	<p>Inside each folder there are 4 files:</p>
 

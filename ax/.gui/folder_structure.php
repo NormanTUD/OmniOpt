@@ -152,7 +152,7 @@ single_runs  state_files</code></pre>
 		<li><i>mem_gb </i>: The amount of Memory allocated per worker (in GB)</li>
 		<li><i>minimize </i>: If it exists, it means, the job was about to minimize</li>
 		<li><i>maximize </i>: If it exists, it means, the job was about to maximize</li>
-		<li><i>pd.json</i>: TODO</li>
+		<li><i>pd.json</i>: Contains data to restore the <tt>ax_client</tt></li>
 		<li><i>phase_random_steps</i>: How many random steps have been generated</li>
 		<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>
 		<li><i>run.sh</i>: A bash-file that allows you to re-run this program</li>

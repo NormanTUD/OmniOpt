@@ -18,6 +18,20 @@
 
 	<h3 id="runs_folder">Single files</h3>
 	<pre><code class="language-bash">best_result.txt  get_next_trials.csv  gpu_usage__i8033.csv  gpu_usage__i8037.csv  job_infos.csv  oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usage.csv</code></pre>
+
+	<h4 id="best_result"><tt>best_result.txt</tt></h4>
+
+	<p>This file contains an ANSI-table that shows you the best result and the parameters resulted in that result.</p>
+
+	<pre>
+			      Best parameter:                              
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┓
+┃ width_and_height ┃ validation_split ┃ learning_rate ┃ epochs ┃ result   ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━┩
+│ 72               │ 0.184052         │ 0.001         │ 14     │ 1.612789 │
+└──────────────────┴──────────────────┴───────────────┴────────┴──────────┘
+</pre>
+	
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>
 </body>

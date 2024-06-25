@@ -139,21 +139,21 @@ single_runs  state_files</code></pre>
 		<li><i>ax_client.experiment.json</i>: TODO</li>
 		<li><i>checkpoint.json</i>: TODO</li>
 		<li><i>checkpoint.json.parameters.json</i>: TODO</li>
-		<li><i>done_jobs</i>: TODO</li>
-		<li><i>env</i>: TODO</li>
+		<li><i>done_jobs</i>: The number of done jobs</li>
+		<li><i>env</i>: A dump of the environment, OmniOpt2 works in (useful for debugging)</li>
 		<li><i>experiment_name</i>: TODO</li>
-		<li><i>failed_jobs</i>: TODO</li>
-		<li><i>global_vars.json</i>: TODO</li>
-		<li><i>gpus</i>: TODO</li>
+		<li><i>failed_jobs</i>: The number of failed jobs</li>
+		<li><i>global_vars.json</i>: A variable that contains several global states that continued runs need to continue</li>
+		<li><i>gpus</i>: The number of GPUs this run has allocated per worker</li>
 		<li><i>joined_run_program</i>: TODO</li>
-		<li><i>max_eval</i>: TODO</li>
-		<li><i>mem_gb </i>: TODO</li>
-		<li><i>minimize </i>: TODO</li>
+		<li><i>max_eval</i>: The max evals of this run</li>
+		<li><i>mem_gb </i>: The amount of Memory allocated per worker (in GB)</li>
+		<li><i>minimize </i>: If it exists, it means, the job was about to minimize</li>
 		<li><i>pd.json</i>: TODO</li>
-		<li><i>phase_random_steps</i>: TODO</li>
-		<li><i>phase_systematic_steps</i>: TODO</li>
+		<li><i>phase_random_steps</i>: How many random steps have been generated</li>
+		<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>
 		<li><i>run.sh</i>: TODO</li>
-		<li><i>submitted_jobs</i>: TODO</li>
+		<li><i>submitted_jobs</i>: The number of submitted jobs</li>
 		<li><i>time</i>: TODO</li>
 	</ul>
 

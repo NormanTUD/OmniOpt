@@ -18,7 +18,7 @@
 
 	<h3 id="runs_folder">Single files</h3>
 	<pre><code class="language-bash">ls
-single_runs  state_files  worker_usage.csv</code></pre>
+single_runs  state_files  </code></pre>
 
 	<h4 id="best_result"><tt>best_result.txt</tt></h4>
 
@@ -59,6 +59,28 @@ single_runs  state_files  worker_usage.csv</code></pre>
 2024-06-25 08:57:33,7,20
 2024-06-25 08:59:54,15,20
 ...</pre>
+
+	<h4 id="worker_usage"><tt>worker_usage.csv</tt></h4>
+
+	<p>This contains the unix-timestamp, the number of workers requested, the number of workers got and the percentage of numbers got in respective to the number requested.</p>
+
+	<pre>1717234020.5216107,20,20,100
+1717234020.701352,20,19,95
+1717234022.9286764,20,18,90
+1717234023.9625003,20,18,90
+1717234024.123422,20,17,85
+1717234029.7775924,20,15,75
+1717234032.9025316,20,15,75
+1717234034.1040723,20,14,70
+1717234034.2609978,20,13,65
+1717234036.3286648,20,13,65
+1717234036.4710507,20,12,60
+1717234039.5589206,20,12,60
+1717234039.7017379,20,11,55
+1717234043.816519,20,11,55
+1717234043.9860802,20,10,50
+1717234044.1203723,20,9,45
+1717234046.1940708,20,9,45</pre>
 
 	<h4 id="gpu_usage">GPU-usage-files (<tt>gpu_usage_*.csv</tt>)</h4>
 

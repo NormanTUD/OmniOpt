@@ -74,7 +74,20 @@
 	<h3 id="general">General job infos</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=general</code></pre>
 	<img src="imgs/general.png" /><br>
-	TODO
+	<p>The <tt>general</tt>-plot shows you general info about your job. It consists of four subgraphs:</p>
+
+	<ul>
+		<li><i>Results by Generation Method</i>: This shows the different generation methods, SOBOL meaning random step, and BoTorch being the model that is executed after the first random steps. The <i>y</i>-value is the Result. Most values are inside the blue box, little dots outside are considered outliars. Usually, you can see that the nonrandom model has far better results than the first random evaluations.</li>
+		<li><i>Distribution of job status</i>: How many jobs were run and in which status they were. Different status include:</li>
+		<ul>
+			<li><i>COMPLETED</i>: That means the job has completed and has a result</li>
+			<li><i>ABANDONED</i>: That means the job has been started, but, for example, due to timeout errors, the job was not able to finish with results</li>
+			<li><i>MANUAL</i>: That means the job has been imported from a previous run</li>
+			<li><i>FAILED</i>: That means the job has started but it failed and gained no result</li>
+		</ul>
+		<li></li>
+		<li></li>
+	</ul>
 
 	<h3 id="3d">3d</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>

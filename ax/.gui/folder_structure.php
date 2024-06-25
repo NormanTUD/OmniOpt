@@ -135,6 +135,8 @@ single_runs  state_files</code></pre>
 
 	<h3 id="state_files">State files</h3>
 
+	These files store some states used mainly to continue jobs. Not all of these files may be present.
+
 	<ul>
 		<li><i>ax_client.experiment.json</i>: TODO</li>
 		<li><i>checkpoint.json</i>: TODO</li>
@@ -149,6 +151,7 @@ single_runs  state_files</code></pre>
 		<li><i>max_eval</i>: The max evals of this run</li>
 		<li><i>mem_gb </i>: The amount of Memory allocated per worker (in GB)</li>
 		<li><i>minimize </i>: If it exists, it means, the job was about to minimize</li>
+		<li><i>maximize </i>: If it exists, it means, the job was about to maximize</li>
 		<li><i>pd.json</i>: TODO</li>
 		<li><i>phase_random_steps</i>: How many random steps have been generated</li>
 		<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>

@@ -145,14 +145,14 @@ single_runs  state_files</code></pre>
 		<li><i>failed_jobs</i>: The number of failed jobs</li>
 		<li><i>global_vars.json</i>: A variable that contains several global states that continued runs need to continue</li>
 		<li><i>gpus</i>: The number of GPUs this run has allocated per worker</li>
-		<li><i>joined_run_program</i>: TODO</li>
+		<li><i>joined_run_program</i>: The program string including parameters</li>
 		<li><i>max_eval</i>: The max evals of this run</li>
 		<li><i>mem_gb </i>: The amount of Memory allocated per worker (in GB)</li>
 		<li><i>minimize </i>: If it exists, it means, the job was about to minimize</li>
 		<li><i>pd.json</i>: TODO</li>
 		<li><i>phase_random_steps</i>: How many random steps have been generated</li>
 		<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>
-		<li><i>run.sh</i>: TODO</li>
+		<li><i>run.sh</i>: A bash-file that allows you to re-run this program</li>
 		<li><i>submitted_jobs</i>: The number of submitted jobs</li>
 		<li><i>time</i>: The time this job-sbatch has allocated</li>
 	</ul>

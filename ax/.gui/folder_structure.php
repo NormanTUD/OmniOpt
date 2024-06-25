@@ -16,13 +16,9 @@
 	<p>Each of these has a subfolder for each run that the experiment with that name was run. For example, if you run the experiment <tt>my_experiment</tt>
 	twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt> exist.
 
-	<pre><code class="language-bash">#!/bin/bash -l
-This is currently in work
-</code></pre>
+	<h3 id="runs_folder">Single files</h3>
+	<pre><code class="language-bash">best_result.txt  get_next_trials.csv  gpu_usage__i8033.csv  gpu_usage__i8037.csv  job_infos.csv  oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usage.csv</code></pre>
 	<script src="prism.js"></script>
-	<script>
-		Prism.highlightAll();
-	</script>
 	<script src="footer.js"></script>
 </body>
 </html>

@@ -123,9 +123,6 @@
 	Shows the amount of requested workers, and the amount of real workers over time.
 
 	<script src="prism.js"></script>
-	<script>
-		Prism.highlightAll();
-	</script>
 	<script src="footer.js"></script>
 </body>
 </html>

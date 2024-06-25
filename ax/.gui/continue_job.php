@@ -44,9 +44,6 @@
 	non-existing folder for that project..</p>
 
 	<script src="prism.js"></script>
-	<script>
-		Prism.highlightAll();
-	</script>
 	<script src="footer.js"></script>
 </body>
 </html>

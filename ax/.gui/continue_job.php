@@ -28,7 +28,7 @@
 ./omniopt --continue runs/my_experiment/0 --time=360
 </code></pre>
 
-	<p>Will run the continuation for 6 hours ( = 360 minutes), indepenent of how long the old job ran.</p>
+	<p>Will run the continuation for 6 hours ( = 360 minutes), independent of how long the old job ran.</p>
 
 	<p>It is also possible to change parameter borders, though narrowing is not currently supported, i.e.
 	the parameters need to be equal or wider than in the previous run. You cannot remove parameters here or add

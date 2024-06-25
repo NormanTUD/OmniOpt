@@ -292,7 +292,7 @@
 			foreach ($files as $fn => $n) {
 				if (is_array($n)) {
 					echo "<div class='dropdown'>\n";
-					echo "\t<button class='tab inactive_tab dropbtn'>OmniOpt " . $n["name"] . "</button>";
+					echo "\t<button class='tab inactive_tab dropbtn'>OmniOpt " . $n["name"] . "</button>\n";
 					echo "\t<div class='dropdown-content'>\n";
 					foreach ($n["entries"] as $sub_fn => $sub_n) {
 						echo "\t\t<a href='" . $sub_fn . ".php'>" . $sub_n . "</a>\n";

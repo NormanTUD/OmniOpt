@@ -107,7 +107,9 @@
 
 	<h3 id="3d">3d</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>
-	TODO
+	<img src="imgs/3d.png" /><br>
+
+	<p>Very similiar to the 2d-scatter plot, but in 3d.</p>
 
 	<h3 id="gpu_usage">GPU usage</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=gpu_usage</code></pre>

@@ -42,6 +42,7 @@
 	TODO
 
 	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=time_and_exit_code</code></pre>
 	<img src="imgs/time_and_exit_code.png" /><br>
 	TODO
 
@@ -51,24 +52,36 @@
 	TODO
 
 	<h3 id="hex_scatter">Hex-Scatter</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_hex</code></pre>
 	<img src="imgs/scatter_hex.png" /><br>
 	TODO
 
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_generation_method</code></pre>
 	<img src="imgs/scatter_generation_method.png" /><br>
 	TODO
 
 	<h3 id="kde">KDE</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=kde</code></pre>
 	<img src="imgs/kde.png" /><br>
 	TODO
 
 	<h3 id="get_next_trials">get_next_trials got/requested</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=get_next_trials</code></pre>
 	<img src="imgs/get_next_trials.png" /><br>
 	TODO
 
 	<h3 id="general">General job infos</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=general</code></pre>
 	<img src="imgs/general.png" /><br>
+	TODO
+
+	<h3 id="3d">3d</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>
+	TODO
+
+	<h3 id="gpu_usage">GPU usage</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=gpu_usage</code></pre>
 	TODO
 
 	<script src="prism.js"></script>

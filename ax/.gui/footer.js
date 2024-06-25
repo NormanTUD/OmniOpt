@@ -14,7 +14,7 @@ function generateTOC() {
 	$tocContainer.append($tocList);
 
 	// Get all h1, h2, h3, etc. elements
-	var headers = $('h1, h2, h3, h4, h5, h6');
+	var headers = $('h2, h3, h4, h5, h6');
 	var tocItems = [];
 
 	headers.each(function() {

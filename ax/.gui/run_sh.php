@@ -9,6 +9,16 @@
     
 	<div id="toc"></div>
 
+	<h2 id="overview_what_needs_to_be_done">Overview: what needs to be done</h2>
+
+	<p>There are basically three steps you need to do to optimize your program with OmniOpt2:</p>
+
+	<ul>
+		<li>Your program needs to be able to run on Linux, and especially on the HPC System, i.e. you need to use default dependencies or install the dependencies of your program into a virtual environment (or similiar)</li>
+		<li>Your program needs to accept it's hyperparameters via the command like, so you can call it like this: <code class="language-python"><tt>python3 my_experiment.py --epochs=10 --learning_rate=0.05</tt></code></li>
+		<li>Your program needs to print it's result (i.e. e.g. it's loss) in a standardized form. This can be achieved in python by doing: <code class="language-python"><tt>print(f"RESULT: {loss}")</tt></code></li>
+	</ul>
+
 	<h2 id="script-example">Script Example</h2>
 	<p>To make your script robust enough for the environment of OmniOpt on HPC-Systems,
 	it is recommended that you do not run your script directly in the objective program

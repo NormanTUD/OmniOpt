@@ -154,7 +154,7 @@ single_runs  state_files</code></pre>
 		<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>
 		<li><i>run.sh</i>: TODO</li>
 		<li><i>submitted_jobs</i>: The number of submitted jobs</li>
-		<li><i>time</i>: TODO</li>
+		<li><i>time</i>: The time this job-sbatch has allocated</li>
 	</ul>
 
 	<h3 id="single_runs">single_runs</h3>

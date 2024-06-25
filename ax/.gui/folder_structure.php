@@ -49,7 +49,9 @@ best_result.txt  get_next_trials.csv  gpu_usage__i8033.csv  gpu_usage__i8037.csv
 	<p>GPU usage files. They are the output of <tt>nvidia-smi</tt> and are periodically taken, when you run on a system with SLURM that allows you to connect to
 	nodes that have running jobs on it with ssh.</tt>
 
-	<p>Header line is omitted, but is: <tt>timestamp, name, pci.bus_id, driver_version, pstate, pcie.link.gen.max, pcie.link.gen.current, temperature.gpu, utilization.gpu [%], utilization.memory [%], memory.total [MiB], memory.free [MiB], memory.used [MiB]</tt>.</pre>
+	<p>Header line is omitted, but is: <tt>timestamp, name, pci.bus_id, driver_version, pstate, pcie.link.gen.max, pcie.link.gen.current, temperature.gpu, utilization.gpu [%], utilization.memory [%], memory.total [MiB], memory.free [MiB], memory.used [MiB]</tt>.</p>
+
+	<p>It may looks something like this:</p>
 
 	<pre>2024/06/01 11:27:05.177, NVIDIA A100-SXM4-40GB, 00000000:3B:00.0, 545.23.08, P0, 4, 4, 44, 0 %, 0 %, 40960 MiB, 40333 MiB, 4 MiB
 2024/06/01 11:27:05.188, NVIDIA A100-SXM4-40GB, 00000000:8B:00.0, 545.23.08, P0, 4, 4, 42, 0 %, 0 %, 40960 MiB, 40333 MiB, 4 MiB

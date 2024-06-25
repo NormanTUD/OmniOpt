@@ -103,6 +103,10 @@
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=gpu_usage</code></pre>
 	TODO
 
+	<h3 id="worker">Worker usage</h3>
+	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=worker</code></pre>
+	TODO
+
 	<script src="prism.js"></script>
 	<script>
 		Prism.highlightAll();

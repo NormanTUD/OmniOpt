@@ -1,4 +1,6 @@
 <?php
+header('Content-Type: application/json');
+
 // Funktion zum Lesen des Inhalts einer Datei
 function read_file_content($file_path) {
     try {
@@ -33,11 +35,11 @@ function strip_html_tags($html_content) {
 function search_text_with_context($text_lines, $search_term) {
     $results = [];
     foreach ($text_lines as $line_number => $line) {
-        if (strpos($line, $search_term) !== false) {
+        $clean_line = strip_tags($line);
+        if (strpos($clean_line, $search_term) !== false) {
             $context = find_nearest_heading($text_lines, $line_number);
             $results[] = [
-                'line_number' => $line_number + 1, // 1-basierte Zeilennummerierung
-                'line' => $line,
+                'line' => trim($clean_line),
                 'context' => $context
             ];
         }
@@ -51,8 +53,7 @@ function find_nearest_heading($text_lines, $current_line) {
         if (preg_match('/<(h[1-6])\s+[^>]*id=["\']([^"\']+)["\']/', $text_lines[$i], $matches)) {
             return [
                 'tag' => $matches[1],
-                'id' => $matches[2],
-                'line_number' => $i + 1 // 1-basierte Zeilennummerierung
+                'id' => $matches[2]
             ];
         }
     }
@@ -62,36 +63,34 @@ function find_nearest_heading($text_lines, $current_line) {
 // Funktion zum Loggen von Fehlern
 function log_error($message) {
     error_log($message);
-    echo "Fehler: $message\n";
+    echo json_encode(["error" => $message]);
+    exit;
 }
 
 // Hauptprogramm
-$file_path = 'folder_structure.php'; // Pfad zu Ihrer PHP-Datei
+$file_path = 'folder_structure.php'; // Pfad zu Ihrer PHP-Datei im selben Ordner
 $search_term = '_jobs'; // Der zu suchende Text
 
-print "<pre>";
 $file_content = read_file_content($file_path);
 if ($file_content !== false) {
     $html_content = extract_html_from_php($file_content);
-    $plain_text = strip_html_tags($html_content);
-    $text_lines = explode("\n", $plain_text);
+    $text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
 
     $search_results = search_text_with_context($text_lines, $search_term);
+    $output = [];
     if (!empty($search_results)) {
         foreach ($search_results as $result) {
-            echo "Gefundener Begriff in Datei: $file_path\n";
-            echo "Zeilennummer: " . $result['line_number'] . "\n";
-            echo "Zeileninhalt: " . $result['line'] . "\n";
+            $entry = [
+                'content' => $result['line']
+            ];
             if ($result['context']) {
-                echo "Gefundenes Heading: <" . $result['context']['tag'] . "> mit ID '" . $result['context']['id'] . "'\n";
-                echo "Link zur Heading: #" . $result['context']['id'] . "\n";
-                echo "Heading Zeilennummer: " . $result['context']['line_number'] . "\n";
+                $entry['link'] = '#' . $result['context']['id'];
             }
-            echo "--------------------------------------------------\n";
+            $output[] = $entry;
         }
-    } else {
-        echo "Der Begriff '$search_term' wurde nicht gefunden.\n";
     }
+
+    echo json_encode($output);
 }
 ?>
-</pre>
+

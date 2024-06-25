@@ -44,6 +44,22 @@ best_result.txt  get_next_trials.csv  gpu_usage__i8033.csv  gpu_usage__i8037.csv
 2024-06-25 08:59:54,15,20
 ...</pre>
 
+	<h4 id="gpu_usage">GPU-usage-files</h4>
+
+	<p>GPU usage files. They are the output of <tt>nvidia-smi</tt> and are periodically taken, when you run on a system with SLURM that allows you to connect to
+	nodes that have running jobs on it with ssh.</tt>
+
+	<p>Header line is omitted, but is: <tt>timestamp, name, pci.bus_id, driver_version, pstate, pcie.link.gen.max, pcie.link.gen.current, temperature.gpu, utilization.gpu [%], utilization.memory [%], memory.total [MiB], memory.free [MiB], memory.used [MiB]</tt>.</pre>
+
+	<pre>2024/06/01 11:27:05.177, NVIDIA A100-SXM4-40GB, 00000000:3B:00.0, 545.23.08, P0, 4, 4, 44, 0 %, 0 %, 40960 MiB, 40333 MiB, 4 MiB
+2024/06/01 11:27:05.188, NVIDIA A100-SXM4-40GB, 00000000:8B:00.0, 545.23.08, P0, 4, 4, 42, 0 %, 0 %, 40960 MiB, 40333 MiB, 4 MiB
+2024/06/01 11:27:05.192, NVIDIA A100-SXM4-40GB, 00000000:0B:00.0, 545.23.08, P0, 4, 4, 43, 0 %, 0 %, 40960 MiB, 40333 MiB, 4 MiB
+2024/06/01 11:27:15.309, NVIDIA A100-SXM4-40GB, 00000000:8B:00.0, 545.23.08, P0, 4, 4, 42, 3 %, 0 %, 40960 MiB, 1534 MiB, 38803 MiB
+2024/06/01 11:27:15.311, NVIDIA A100-SXM4-40GB, 00000000:0B:00.0, 545.23.08, P0, 4, 4, 43, 3 %, 0 %, 40960 MiB, 1534 MiB, 38803 MiB
+2024/06/01 11:27:15.311, NVIDIA A100-SXM4-40GB, 00000000:3B:00.0, 545.23.08, P0, 4, 4, 44, 3 %, 0 %, 40960 MiB, 1534 MiB, 38803 MiB
+2024/06/01 11:27:25.361, NVIDIA A100-SXM4-40GB, 00000000:8B:00.0, 545.23.08, P0, 4, 4, 43, 3 %, 0 %, 40960 MiB, 666 MiB, 39671 MiB
+2024/06/01 11:27:25.376, NVIDIA A100-SXM4-40GB, 00000000:3B:00.0, 545.23.08, P0, 4, 4, 44, 1 %, 0 %, 40960 MiB, 910 MiB, 39427 MiB</pre>
+
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>
 </body>

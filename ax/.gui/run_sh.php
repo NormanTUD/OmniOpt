@@ -9,15 +9,15 @@
     
 	<div id="toc"></div>
 
-    <h2 id="script-example">Script Example</h2>
-    <p>To make your script robust enough for the environment of OmniOpt on HPC-Systems,
-    it is recommended that you do not run your script directly in the objective program
-    string. Rather, it is recommended that you create a <tt>run.sh</tt>-file from which
-    your program gets run.</p>
+	<h2 id="script-example">Script Example</h2>
+	<p>To make your script robust enough for the environment of OmniOpt on HPC-Systems,
+	it is recommended that you do not run your script directly in the objective program
+	string. Rather, it is recommended that you create a <tt>run.sh</tt>-file from which
+	your program gets run.</p>
 
-    <p>It may look like this:</p>
+	<p>It may look like this:</p>
 
-    <pre><code class="language-bash">#!/bin/bash -l
+	<pre><code class="language-bash">#!/bin/bash -l
 # ^ Shebang-Line, so that it is known that this is a bash file
 # -l means 'load this as login shell', so that /etc/profile gets loaded and you can use 'module load' or 'ml' as usual
 
@@ -35,21 +35,21 @@ source /path/to/environment/bin/activate
 python3 /absolute/path/to_script.py $@
 </code></pre>
 
-    <p>Even though <tt>sbatch</tt> may inherit shell variables like loaded modules, 
-    it is not recommended to rely on that heavily, because, especially when
-    copying the <tt>curl</tt>-command from this website, you may forget loading
-    the correct modules. This makes your script much more robust to changes.</p>
+	<p>Even though <tt>sbatch</tt> may inherit shell variables like loaded modules, 
+	it is not recommended to rely on that heavily, because, especially when
+	copying the <tt>curl</tt>-command from this website, you may forget loading
+	the correct modules. This makes your script much more robust to changes.</p>
 
-    <p>Also, always load specific module-versions and never let <tt>lmod</tt> guess
-    the versions you want. Once these change, you'll almost certainly have problems
-    otherwise.</p>
+	<p>Also, always load specific module-versions and never let <tt>lmod</tt> guess
+	the versions you want. Once these change, you'll almost certainly have problems
+	otherwise.</p>
 
-    <h2 id="argument-parsing">Parse Arguments from the Command Line</h2>
+	<h2 id="argument-parsing">Parse Arguments from the Command Line</h2>
 
-    <h3 id="sys-argv">Using sys.argv</h3>
-    <p>The following Python program demonstrates how to parse command line arguments using <tt>sys.argv</tt>:</p>
+	<h3 id="sys-argv">Using sys.argv</h3>
+	<p>The following Python program demonstrates how to parse command line arguments using <tt>sys.argv</tt>:</p>
 
-    <pre><code class="language-python">import sys
+	<pre><code class="language-python">import sys
 epochs = int(sys.argv[1])
 learning_rate = float(sys.argv[2])
 model_name = sys.argv[3]
@@ -71,15 +71,15 @@ loss = epochs + learning_rate
 print(f"RESULT: {loss}")
 </code></pre>
 
-    <p>Example call:</p>
-    <pre><code class="language-bash">python3 script.py 10 0.01 MyModel</code></pre>
-    <p>Example OmniOpt-call:</p>
-    <pre><code class="language-bash">python3 script.py %(epochs) %(learning_rate) %(model_name)</code></pre>
+	<p>Example call:</p>
+	<pre><code class="language-bash">python3 script.py 10 0.01 MyModel</code></pre>
+	<p>Example OmniOpt-call:</p>
+	<pre><code class="language-bash">python3 script.py %(epochs) %(learning_rate) %(model_name)</code></pre>
 
-    <h3 id="argparse">Using argparse</h3>
-    <p>The following Python program demonstrates how to parse command line arguments using <tt>argparse</tt>:</p>
+	<h3 id="argparse">Using argparse</h3>
+	<p>The following Python program demonstrates how to parse command line arguments using <tt>argparse</tt>:</p>
 
-    <pre><code class="language-python">import argparse
+	<pre><code class="language-python">import argparse
 import sys
 
 parser = argparse.ArgumentParser(description="Run a training script with specified parameters.")
@@ -107,24 +107,24 @@ loss = args.epochs + args.learning_rate
 print(f"RESULT: {loss}")
 </code></pre>
 
-    <p>Example call:</p>
-    <pre><code class="language-bash">python3 script.py --epochs 10 --learning_rate 0.01 --model_name MyModel</code></pre>
-    <p>Example OmniOpt-call:</p>
-    <pre><code class="language-bash">python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)</code></pre>
+	<p>Example call:</p>
+	<pre><code class="language-bash">python3 script.py --epochs 10 --learning_rate 0.01 --model_name MyModel</code></pre>
+	<p>Example OmniOpt-call:</p>
+	<pre><code class="language-bash">python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)</code></pre>
 
-    <p><strong>Advantages of using <tt>argparse</tt>:</strong></p>
-    <ul>
-        <li>Order of arguments does not matter; they are matched by name.</li>
-        <li>Type checking is automatically handled based on the type specified in <tt>add_argument</tt>.</li>
-        <li>Generates helpful usage messages if the arguments are incorrect or missing.</li>
-        <li>Supports optional arguments and more complex argument parsing needs.</li>
-    </ul>
+	<p><strong>Advantages of using <tt>argparse</tt>:</strong></p>
+	<ul>
+	<li>Order of arguments does not matter; they are matched by name.</li>
+	<li>Type checking is automatically handled based on the type specified in <tt>add_argument</tt>.</li>
+	<li>Generates helpful usage messages if the arguments are incorrect or missing.</li>
+	<li>Supports optional arguments and more complex argument parsing needs.</li>
+	</ul>
 
-    <h2 id="complex-example">Complex example</h2>
+	<h2 id="complex-example">Complex example</h2>
 
-    <p>The following program passes hyperparameters to YOLOv5 and  parses it's output for the last loss, which is the printed with the required RESULT-string:</p>
+	<p>The following program passes hyperparameters to YOLOv5 and  parses it's output for the last loss, which is the printed with the required RESULT-string:</p>
 
-    <pre><code class="language-bash">
+	<pre><code class="language-bash">
 #!/bin/bash -l
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -602,7 +602,6 @@ python3 $SCRIPT_DIR/train.py --cfg "$model" --multi-scale --batch $batchsize --d
 
 </code></pre>
     
-
 	<script src="prism.js"></script>
 	<script>
 		Prism.highlightAll();

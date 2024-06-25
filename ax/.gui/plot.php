@@ -39,7 +39,7 @@
 
 	<h3 id="trial_index_result">Plot trial index/result</h3>
 	<img src="imgs/trial_index_result.png" /><br>
-	TODO
+	<p>The trial-index is a continous number that, for each run that is completed, is increased. Using it as <i>x</i>-axis allows you to trace how the results developed over time. Usually, the result should go down (at minimization runs) over time, though it may spike out a bit.</p>
 
 	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=time_and_exit_code</code></pre>

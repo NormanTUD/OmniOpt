@@ -100,11 +100,10 @@ foreach ($files as $file_path) {
         if (!empty($search_results)) {
             foreach ($search_results as $result) {
                 $entry = [
-                    'Datei' => $file_path,
-                    'Zeileninhalt' => $result['line']
+                    'content' => $result['line']
                 ];
                 if ($result['context']) {
-                    $entry['Link zur Heading'] = '#' . $result['context']['id'];
+                    $entry['link'] = $file_path . '#' . $result['context']['id'];
                 }
                 $output[] = $entry;
             }

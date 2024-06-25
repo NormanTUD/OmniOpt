@@ -64,7 +64,12 @@
 	<h3 id="kde">KDE</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=kde</code></pre>
 	<img src="imgs/kde.png" /><br>
-	TODO
+
+	<p>Kernel-Density-Estimation-Plots, short <i>KDE</i>-Plots, group different runs into so-called bins by their result range and parameter range.</p>
+
+	<p>Each grouped result gets a color, green means lower, red means higher, and is plotted as overlaying bar charts.</p>
+
+	<p>These graphs thus show you, which parameter range yields which results, and how many of them have been tried, and how 'good' they were, i.e. closer to the minimum (green).</p>
 
 	<h3 id="get_next_trials">get_next_trials got/requested</h3>
 	<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=get_next_trials</code></pre>

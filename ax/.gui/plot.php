@@ -37,10 +37,10 @@
 	<h2 id="plot-types">Plot types</h2>
 	TODO
 	<h3 id="trial_index_result">Plot trial index/result</h3>
-	<img src="imgs/results_to_trial_index.png" /><br>
+	<img src="imgs/trial_index_result.png" /><br>
 	TODO
 	<h3 id="time_and_exit_code">Plot time and exit code infos</h3>
-	<img src="imgs/exit_code_and_times.png" /><br>
+	<img src="imgs/time_and_exit_code.png" /><br>
 	TODO
 	<h3 id="scatter">Scatter</h3>
 	<img src="imgs/scatter.png" /><br>
@@ -50,12 +50,16 @@
 	TODO
 
 	<h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
+	<img src="imgs/scatter_generation_method.png" /><br>
 	TODO
 	<h3 id="kde">KDE</h3>
+	<img src="imgs/kde.png" /><br>
 	TODO
 	<h3 id="get_next_trials">get_next_trials got/requested</h3>
+	<img src="imgs/get_next_trials.png" /><br>
 	TODO
 	<h3 id="general">General job infos</h3>
+	<img src="imgs/general.png" /><br>
 	TODO
 
 	<script src="prism.js"></script>

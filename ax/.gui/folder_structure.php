@@ -78,7 +78,22 @@ oo_errors.txt  parameters.txt  results.csv  single_runs  state_files  worker_usa
 
 	<h4 id="oo_errors"><tt>oo_errors.txt</tt></h4>
 
-	This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or non-existant.
+	<p>This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or non-existant.</p>
+
+	<h4 id="parameters"><tt>parameters.txt</tt></h4>
+
+	<p>This file contains the parameter search space definition in a simple table. Example:
+
+	<pre>                            Experiment parameters:                            
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name             ┃ Type  ┃ Lower bound ┃ Upper bound ┃ Values ┃ Value-Type ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩
+│ width_and_height │ range │ 60          │ 100         │        │ int        │
+│ validation_split │ range │ 0           │ 0.4         │        │ float      │
+│ learning_rate    │ range │ 0.001       │ 0.4         │        │ float      │
+│ epochs           │ range │ 1           │ 15          │        │ int        │
+└──────────────────┴───────┴─────────────┴─────────────┴────────┴────────────┘
+</pre>
 
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>

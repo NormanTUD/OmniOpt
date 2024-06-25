@@ -32,11 +32,11 @@ function strip_html_tags($html_content) {
 }
 
 // Funktion zum Durchsuchen des Textes und Finden der Positionen
-function search_text_with_context($text_lines, $search_term) {
+function search_text_with_context($text_lines, $regex) {
     $results = [];
     foreach ($text_lines as $line_number => $line) {
         $clean_line = strip_tags($line);
-        if (stripos($clean_line, $search_term) !== false) {
+        if (preg_match($regex, $clean_line)) {
             $context = find_nearest_heading($text_lines, $line_number);
             $results[] = [
                 'line' => trim($clean_line),
@@ -68,29 +68,49 @@ function log_error($message) {
 }
 
 // Hauptprogramm
-$file_path = 'folder_structure.php'; // Pfad zu Ihrer PHP-Datei im selben Ordner
-$search_term = 'this'; // Der zu suchende Text
+$files = ['folder_structure.php', 'plot.php']; // Liste der zu durchsuchenden Dateien
+$default_search_term = 'done_jobs'; // Der Standardsuchbegriff
 
-$file_content = read_file_content($file_path);
-if ($file_content !== false) {
-    $html_content = extract_html_from_php($file_content);
-    $text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
+// Überprüfen und Validieren des regulären Ausdrucks
+if (isset($_GET['regex'])) {
+    $regex = $_GET['regex'];
+    // Hinzufügen von "/" Begrenzer, wenn nicht vorhanden
+    if (substr($regex, 0, 1) !== '/') {
+        $regex = '/' . $regex;
+    }
+    if (substr($regex, -1) !== '/') {
+        $regex = $regex . '/i';
+    }
+    if (@preg_match($regex, '') === false) {
+        log_error("Ungültiger regulärer Ausdruck: $regex");
+    }
+} else {
+    $regex = '/' . preg_quote($default_search_term, '/') . '/i'; // Fallback auf Standardsuchbegriff
+}
 
-    $search_results = search_text_with_context($text_lines, $search_term);
-    $output = [];
-    if (!empty($search_results)) {
-        foreach ($search_results as $result) {
-            $entry = [
-                'content' => $result['line']
-            ];
-            if ($result['context']) {
-                $entry['link'] = '#' . $result['context']['id'];
+$output = [];
+
+foreach ($files as $file_path) {
+    $file_content = read_file_content($file_path);
+    if ($file_content !== false) {
+        $html_content = extract_html_from_php($file_content);
+        $text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
+
+        $search_results = search_text_with_context($text_lines, $regex);
+        if (!empty($search_results)) {
+            foreach ($search_results as $result) {
+                $entry = [
+                    'Datei' => $file_path,
+                    'Zeileninhalt' => $result['line']
+                ];
+                if ($result['context']) {
+                    $entry['Link zur Heading'] = '#' . $result['context']['id'];
+                }
+                $output[] = $entry;
             }
-            $output[] = $entry;
         }
     }
-
-    echo json_encode($output);
 }
-?>
 
+echo json_encode($output);
+?>

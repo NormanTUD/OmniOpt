@@ -1,37 +1,37 @@
 #!/bin/bash
 
 {
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd $SCRIPT_DIR
+	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+	cd $SCRIPT_DIR
 
-install_those=(
-	"numpy==1.26.4"
-	"python-dateutil<=2.8.1"
-	ax
-	ax-platform
-	art
-	catsay
-	tzlocal
-	Rich
-	rich-argparse
-	sixel
-	scikit-learn
-	submitit
-	plotext
-	matplotlib
-	Pyarrow
-	textual
-	tqdm
-	plotille
-	seaborn
-	pyvista
-	pytz
-)
+	install_those=(
+		"numpy==1.26.4"
+		"python-dateutil<=2.8.1"
+		ax
+		ax-platform
+		art
+		catsay
+		tzlocal
+		Rich
+		rich-argparse
+		sixel
+		scikit-learn
+		submitit
+		plotext
+		matplotlib
+		Pyarrow
+		textual
+		tqdm
+		plotille
+		seaborn
+		pyvista
+		pytz
+	)
 
-FROZEN=""
+	FROZEN=""
 
-function displaytime {
-	local T=$1
+	function displaytime {
+		local T=$1
 		local D=$((T/60/60/24))
 		local H=$((T/60/60%24))
 		local M=$((T/60%60))
@@ -41,116 +41,115 @@ function displaytime {
 		(( $M > 0 )) && printf '%d minutes ' $M
 		(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
 		printf '%d seconds\n' $S
-}
+	}
 
-function error_message {
-	eval `resize`
-	MSG=$1
-	echo_red "$MSG"
-	export NEWT_COLORS='
-window=,red
-border=white,red
-textbox=white,red
-button=black,white
-'
-    whiptail --title "Error Message" --scrolltext --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
-	export NEWT_COLORS=""
-}
+	function error_message {
+		eval `resize`
+		MSG=$1
+		echo_red "$MSG"
+		export NEWT_COLORS='
+		window=,red
+		border=white,red
+		textbox=white,red
+		button=black,white
+		'
+		whiptail --title "Error Message" --scrolltext --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
+		export NEWT_COLORS=""
+	}
 
-export RUN_VIA_RUNSH=1
+	export RUN_VIA_RUNSH=1
 
-export PYTHONDONTWRITEBYTECODE=1
+	export PYTHONDONTWRITEBYTECODE=1
 
-IFS=$'\n'
+	IFS=$'\n'
 
-Green='\033[0;32m'
-Color_Off='\033[0m'
-Red='\033[0;31m'
+	Green='\033[0;32m'
+	Color_Off='\033[0m'
+	Red='\033[0;31m'
 
-function red_text {
-	echo -ne "${Red}$1${Color_Off}"
-}
+	function red_text {
+		echo -ne "${Red}$1${Color_Off}"
+	}
 
-function green {
-	echo -ne "${Green}$1${Color_Off}"
-}
+	function green {
+		echo -ne "${Green}$1${Color_Off}"
+	}
 
-function green_reset_line {
-	_tput cr
-	_tput el
-	green "$1"
-}
+	function green_reset_line {
+		_tput cr
+		_tput el
+		green "$1"
+	}
 
-function red_reset_line {
-	_tput cr
-	_tput el
-	red_text "$1"
-}
+	function red_reset_line {
+		_tput cr
+		_tput el
+		red_text "$1"
+	}
 
-function _tput {
-	set +e
-	CHAR=$1
-
-	if ! command -v tput 2>/dev/null >/dev/null; then
-		red_text "tput not installed" >&2
+	function _tput {
 		set +e
-		return 0
-	fi
+		CHAR=$1
 
-	if [[ -z $CHAR ]]; then
-		red_text "No character given" >&2
+		if ! command -v tput 2>/dev/null >/dev/null; then
+			red_text "tput not installed" >&2
+			set +e
+			return 0
+		fi
+
+		if [[ -z $CHAR ]]; then
+			red_text "No character given" >&2
+			set +e
+			return 0
+		fi
+
+		if ! tty 2>/dev/null >/dev/null; then
+			echo ""
+			set +e
+			return 0
+		fi
+
+		tput $CHAR
 		set +e
-		return 0
+	}
+
+
+
+	set -e
+
+	LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
+
+	myml () {
+		if [[ -e $LMOD_DIR/ml_cmd ]]; then
+			eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
+		fi
+	}
+
+	if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
+		myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4
+
+		if [[ $(uname -m) == "ppc64le" ]]; then
+			myml GCC/12.2.0 OpenBLAS/0.3.21
+		fi
 	fi
 
-	if ! tty 2>/dev/null >/dev/null; then
-		red_text "No terminal" >&2
-		echo ""
-		set +e
-		return 0
+	_cluster=""
+
+	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+		_cluster="_$(env | grep CLUSTERHOST | sed -e 's#.*\.##')"
 	fi
 
-	tput $CHAR
-	set +e
-}
+	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+	VENV_DIR=$HOME/$VENV_DIR_NAME
 
+	UPGRADED_PIP=0
+	NUMBER_OF_INSTALLED_MODULES=0
+	PROGRESSBAR=""
 
-
-set -e
-
-LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
-
-myml () {
-	if [[ -e $LMOD_DIR/ml_cmd ]]; then
-		eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
-	fi
-}
-
-if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-	myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4
-
-	if [[ $(uname -m) == "ppc64le" ]]; then
-		myml GCC/12.2.0 OpenBLAS/0.3.21
-	fi
-fi
-
-_cluster=""
-
-if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
-	_cluster="_$(env | grep CLUSTERHOST | sed -e 's#.*\.##')"
-fi
-
-VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
-VENV_DIR=$HOME/$VENV_DIR_NAME
-
-UPGRADED_PIP=0
-NUMBER_OF_INSTALLED_MODULES=0
-PROGRESSBAR=""
-
-generate_progress_bar() {
-	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
-	local current_progress=$NUMBER_OF_INSTALLED_MODULES
-	local total_progress=$1
+	generate_progress_bar() {
+		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
+		local current_progress=$NUMBER_OF_INSTALLED_MODULES
+		local total_progress=$1
 
 	# Überprüfen, ob die Eingaben gültige positive Ganzzahlen sind
 	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
@@ -209,15 +208,15 @@ function ppip {
 					fi
 					ppip $i $MODULE $NUMBER_OF_MAIN_MODULES || {
 						red_reset_line "❌Failed to install $i. Deleting $VENV_DIR..."
-						rm -rf $VENV_DIR || {
-							red_reset_line "❌Failed to delete $VENV_DIR"
-							exit 4
-						}
+											rm -rf $VENV_DIR || {
+												red_reset_line "❌Failed to delete $VENV_DIR"
+																							exit 4
+																						}
 
-						exit 3
-					}
+																						exit 3
+																					}
 
-					k=$((k+1))
+																					k=$((k+1))
 				fi
 			done
 
@@ -229,19 +228,19 @@ function ppip {
 		green_reset_line "${PROGRESSBAR}➤Installing $MODULE..."
 		pip3 --disable-pip-version-check install -q $MODULE || {
 			red_reset_line "❌Failed to install $MODULE. Deleting $VENV_DIR..."
-			rm -rf $VENV_DIR || {
-				red_reset_line "❌Failed to delete $VENV_DIR"
-				exit 4
-			}
+					rm -rf $VENV_DIR || {
+						red_reset_line "❌Failed to delete $VENV_DIR"
+											exit 4
+										}
 
-			exit 3
-		}
+										exit 3
+									}
 
-		FROZEN=$(pip3 freeze)
+									FROZEN=$(pip3 freeze)
 
-		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
+									PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
 
-		green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
+									green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
 	fi
 	set -e
 }

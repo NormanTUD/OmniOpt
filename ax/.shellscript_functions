@@ -238,13 +238,8 @@ function install_required_modules {
 
 		tput cr; tput el
 	fi
-
-	if [[ "$NUMBER_OF_INSTALLED_MODULES" -gt 0 ]]; then
-		green_reset_line "✅Environment checking done! $NUMBER_OF_INSTALLED_MODULES new modules were installed."
-		echo -ne "\n"
-	else
-		green_reset_line "✅No new modules needed to be installed"
-	fi
+	green_reset_line "✅Environment checking done!"
+	tput cr; tput el
 }
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then

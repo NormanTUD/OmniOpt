@@ -102,6 +102,7 @@ function _tput {
 
 	if ! tty 2>/dev/null >/dev/null; then
 		red_text "No terminal" >&2
+		return 3
 	fi
 
 	tput $CHAR

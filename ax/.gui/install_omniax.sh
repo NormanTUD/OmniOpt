@@ -30,7 +30,7 @@ trap 'calltracer' ERR
 
 INTERACTIVE=1
 
-if [[ ! -e /dev/tty ]]; then
+if ! tty 2>/dev/null >/dev/null; then
 	INTERACTIVE=0
 fi
 

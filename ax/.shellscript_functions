@@ -103,7 +103,13 @@ if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
 	fi
 fi
 
-VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	_cluster="_$(env | grep CLUSTERHOST | sed -e 's#.*\.##')"
+fi
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$cluster"
 VENV_DIR=$HOME/$VENV_DIR_NAME
 
 UPGRADED_PIP=0

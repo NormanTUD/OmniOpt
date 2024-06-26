@@ -105,8 +105,6 @@ fi
 
 VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 VENV_DIR=$HOME/$VENV_DIR_NAME
-echo $VENV_DIR
-exit
 
 UPGRADED_PIP=0
 NUMBER_OF_INSTALLED_MODULES=0

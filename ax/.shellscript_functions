@@ -94,20 +94,20 @@ function _tput {
 	if ! command -v tput 2>/dev/null >/dev/null; then
 		red_text "tput not installed" >&2
 		set +e
-		return 1
+		return 0
 	fi
 
 	if [[ -z $CHAR ]]; then
 		red_text "No character given" >&2
 		set +e
-		return 2
+		return 0
 	fi
 
 	if ! tty 2>/dev/null >/dev/null; then
 		red_text "No terminal" >&2
 		echo ""
 		set +e
-		return 3
+		return 0
 	fi
 
 	tput $CHAR

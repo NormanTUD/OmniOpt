@@ -109,7 +109,7 @@ if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
 	_cluster="_$(env | grep CLUSTERHOST | sed -e 's#.*\.##')"
 fi
 
-VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$cluster"
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
 VENV_DIR=$HOME/$VENV_DIR_NAME
 
 UPGRADED_PIP=0
@@ -228,7 +228,7 @@ get_nr_of_already_installed_modules () {
 }
 
 function install_required_modules {
-	green_reset_line "➤Checking environment..."
+	green_reset_line "➤Checking environment $VENV_DIR..."
 	MAX_NR="${#install_those[@]}"
 	NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 

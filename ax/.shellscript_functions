@@ -88,24 +88,29 @@ function red_reset_line {
 }
 
 function _tput {
+	set +e
 	CHAR=$1
 
 	if ! command -v tput 2>/dev/null >/dev/null; then
 		red_text "tput not installed" >&2
+		set +e
 		return 1
 	fi
 
 	if [[ -z $CHAR ]]; then
 		red_text "No character given" >&2
+		set +e
 		return 2
 	fi
 
 	if ! tty 2>/dev/null >/dev/null; then
 		red_text "No terminal" >&2
+		set +e
 		return 3
 	fi
 
 	tput $CHAR
+	set +e
 }
 
 

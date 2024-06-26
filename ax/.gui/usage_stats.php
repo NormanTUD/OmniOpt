@@ -288,6 +288,7 @@
 				"3" => "Invalid exit code detected",
 				0 => "Seems to have worked properly",
 				10 => "Usually only returned by dier (for debugging).",
+				12 => "Error with pip, check logs.",
 				15 => "Unimplemented error.",
 				18 => "test_wronggoing_stuff program not found (only --tests).",
 				19 => "Something was wrong with your parameters. See output for details.",

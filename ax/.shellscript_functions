@@ -306,6 +306,7 @@ if [[ -z $DONT_INSTALL_MODULES ]]; then
 
 		if [[ "$exit_code_pip" -ne "0" ]]; then
 			echo "pip3 freeze exited with exit code $exit_code_pip"
+			exit 12
 		fi
 
 		install_required_modules

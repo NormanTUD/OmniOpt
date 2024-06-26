@@ -103,9 +103,10 @@ if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
 	fi
 fi
 
-cpu_flags_hash=$(cat /proc/cpuinfo | grep flags | head -n1 | sed -e 's#.*:\s*##' | md5sum | sed -e 's# -\s*##')
-VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')_cpu_flags_hash_$cpu_flags_hash
+VENV_DIR_NAME=.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 VENV_DIR=$HOME/$VENV_DIR_NAME
+echo $VENV_DIR
+exit
 
 UPGRADED_PIP=0
 NUMBER_OF_INSTALLED_MODULES=0

@@ -273,17 +273,40 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 
 		green_reset_line "✅Virtual Environment $VENV_DIR created. Activating it..."
 
-		source $VENV_DIR/bin/activate || {
+		if [[ -e "$VENV_DIR/bin/activate" ]]; then
+			source $VENV_DIR/bin/activate || {
+				red "❌Failed to activate $VENV_DIR"
+				exit 2
+			}
+		else
 			red "❌Failed to activate $VENV_DIR"
 			exit 2
-		}
+		fi
 
 		green_reset_line "✅Virtual Environment activated. Now installing software. This may take some time."
 
 	fi
 fi
 
-source $VENV_DIR/bin/activate || {
+if [[ -e "$VENV_DIR/bin/activate" ]]; then
+	source $VENV_DIR/bin/activate || {
+		red_reset_line "❌Failed to activate $VENV_DIR. Deleting venv and creating it again..."
+		rm -rf $VENV_DIR
+
+		python3 -mvenv $VENV_DIR/ || {
+			red "❌Failed to create Virtual Environment in $VENV_DIR"
+			exit 1
+		}
+
+		source $VENV_DIR/bin/activate || {
+			red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
+			rm -rf $VENV_DIR
+			exit 1
+		}
+
+		install_required_modules
+	}
+else
 	red_reset_line "❌Failed to activate $VENV_DIR. Deleting venv and creating it again..."
 	rm -rf $VENV_DIR
 
@@ -292,14 +315,21 @@ source $VENV_DIR/bin/activate || {
 		exit 1
 	}
 
-	source $VENV_DIR/bin/activate || {
+	if [[ -e "$VENV_DIR/bin/activate" ]]; then
+		source $VENV_DIR/bin/activate || {
+			red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
+			rm -rf $VENV_DIR
+			exit 1
+		}
+	else
 		red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
 		rm -rf $VENV_DIR
 		exit 1
-	}
+	fi
 
 	install_required_modules
-}
+
+fi
 
 if [[ -z $DONT_INSTALL_MODULES ]]; then
 	if [[ -z $SLURM_JOB_ID ]]; then

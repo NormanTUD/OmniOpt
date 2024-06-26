@@ -19,25 +19,31 @@ function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
 
-
 function _tput {
+	set +e
 	CHAR=$1
 
 	if ! command -v tput 2>/dev/null >/dev/null; then
 		red_text "tput not installed" >&2
+		set +e
 		return 1
 	fi
 
-	if -z $CHAR; then
+	if [[ -z $CHAR ]]; then
 		red_text "No character given" >&2
+		set +e
 		return 2
 	fi
 
 	if ! tty 2>/dev/null >/dev/null; then
 		red_text "No terminal" >&2
+		echo ""
+		set +e
+		return 3
 	fi
 
 	tput $CHAR
+	set +e
 }
 
 # Idea for how this works and is implemented technically:

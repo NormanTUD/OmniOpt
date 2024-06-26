@@ -105,6 +105,7 @@ function _tput {
 
 	if ! tty 2>/dev/null >/dev/null; then
 		red_text "No terminal" >&2
+		echo ""
 		set +e
 		return 3
 	fi

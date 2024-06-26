@@ -299,7 +299,15 @@ source $VENV_DIR/bin/activate || {
 
 if [[ -z $DONT_INSTALL_MODULES ]]; then
 	if [[ -z $SLURM_JOB_ID ]]; then
+		set +e
 		FROZEN=$(pip3 freeze)
+		exit_code_pip=$?
+		set -e
+
+		if [[ "$exit_code_pip" -ne "0" ]]; then
+			echo "pip3 freeze exited with exit code $exit_code_pip"
+		fi
+
 		install_required_modules
 	fi
 fi

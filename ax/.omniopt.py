@@ -1502,6 +1502,10 @@ def display_failed_jobs_table():
 def plot_command(_command, tmp_file, _width=1300):
     if not args.show_sixel_graphics:
         return
+
+    if os.getenv("DISABLE_SIXEL_GRAPHICS"):
+        return
+
     print_debug(f"command: {_command}")
 
     process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
@@ -1574,7 +1578,7 @@ def print_best_result(csv_file_path, result_column):
 
             x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if os.path.exists(_pd_csv) and args.show_sixel_graphics: 
+            if os.path.exists(_pd_csv) and args.show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"): 
                 plot_types = [
                     {
                         "type": "trial_index_result",

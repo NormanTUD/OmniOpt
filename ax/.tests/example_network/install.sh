@@ -65,7 +65,9 @@ else
 fi
 
 source $VENV_DIR/bin/activate || {
-	red_text "Failed to activate $VENV_DIR"
+	red_text "Failed to activate $VENV_DIR. Trying to delete it and try again..."
+	rm -rf $VENV_DIR
+        python3 -m venv $VENV_DIR
 
 	source $VENV_DIR/bin/activate || {
 		red_text "Failed to activate $VENV_DIR"

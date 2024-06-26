@@ -527,13 +527,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 
 		--root_venv_dir=*)
-			old_root_venv_dir=$root_venv_dir
 			root_venv_dir="${i#*=}"
-
-			if [[ ! -z $old_root_venv_dir ]]; then
-				red_text "--root_venv_dir was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--root_venv_dir=[0-9a-zA-Z_]*\s\s*# #')
-			fi
 
 			args_string+=" --root_venv_dir=$root_venv_dir "
 
@@ -541,17 +535,10 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 		--root_venv_dir)
-			old_root_venv_dir=$root_venv_dir
-
 			shift
 
 			k=$((k+1))
 			root_venv_dir="${args[k]}"
-
-			if [[ ! -z $old_root_venv_dir ]]; then
-				red_text "--root_venv_dir was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--root_venv_dir=[0-9a-zA-Z_]*\s\s*# #')
-			fi
 
 			args_string+=" --root_venv_dir=$root_venv_dir "
 

@@ -2,6 +2,7 @@
 
 debug=0
 
+
 function echoerr {
         echo "$@" 1>&2
 }
@@ -16,6 +17,27 @@ function green_text {
 
 function red_text {
 	echoerr -e "\e[31m$1\e[0m"
+}
+
+
+function _tput {
+	CHAR=$1
+
+	if ! command -v tput 2>/dev/null >/dev/null; then
+		red_text "tput not installed" >&2
+		return 1
+	fi
+
+	if -z $CHAR; then
+		red_text "No character given" >&2
+		return 2
+	fi
+
+	if ! tty 2>/dev/null >/dev/null; then
+		red_text "No terminal" >&2
+	fi
+
+	tput $CHAR
 }
 
 # Idea for how this works and is implemented technically:
@@ -239,7 +261,7 @@ function calltracer {
 	echo ""
 	caller
 	echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
-	tput bel
+	_tput bel
 }
 
 already_sent_signal=
@@ -263,7 +285,7 @@ kill_python_if_started () {
 	fi
 
 	echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
-	tput bel
+	_tput bel
 }
 
 trap 'calltracer' ERR
@@ -772,7 +794,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	set -e
 
-	tput bel
+	_tput bel
 
 	myexit $EXIT_CODE
 else
@@ -881,8 +903,8 @@ else
 						#done
 
 						print_line="$print_line$i"
-						tput cr   # Move cursor to beginning of line
-						tput el   # Delete line from start to finish
+						_tput cr   # Move cursor to beginning of line
+						_tput el   # Delete line from start to finish
 
 						#echo -ne "$backspaces"
 						echo -ne "$print_line"
@@ -899,7 +921,7 @@ else
 
 				printf "\r"
 
-				tput el
+				_tput el
 
 				if [[ -e "$LOG_PATH" ]]; then
 					set +x

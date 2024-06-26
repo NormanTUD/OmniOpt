@@ -67,7 +67,7 @@ Green='\033[0;32m'
 Color_Off='\033[0m'
 Red='\033[0;31m'
 
-function red {
+function red_text {
 	echo -ne "${Red}$1${Color_Off}"
 }
 
@@ -76,14 +76,38 @@ function green {
 }
 
 function green_reset_line {
-	tput cr; tput el
+	_tput cr
+	_tput el
 	green "$1"
 }
 
 function red_reset_line {
-	tput cr; tput el
-	red "$1"
+	_tput cr
+	_tput el
+	red_text "$1"
 }
+
+function _tput {
+	CHAR=$1
+
+	if ! command -v tput 2>/dev/null >/dev/null; then
+		red_text "tput not installed" >&2
+		return 1
+	fi
+
+	if -z $CHAR; then
+		red_text "No character given" >&2
+		return 2
+	fi
+
+	if ! tty 2>/dev/null >/dev/null; then
+		red_text "No terminal" >&2
+	fi
+
+	tput $CHAR
+}
+
+
 
 set -e
 
@@ -242,32 +266,34 @@ function install_required_modules {
 			ppip $install_this "-" $MAX_NR
 		done
 
-		tput cr; tput el
+		_tput cr
+		_tput el
 	fi
 	green_reset_line "✅Environment checking done!"
-	tput cr; tput el
+	_tput cr
+	_tput el
 }
 
 if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 	if [[ ! -d "$VENV_DIR" ]]; then
 		if ! command -v gcc >/dev/null 2>/dev/null; then
-			red "❌GCC not found. Try installing with, for example, with 'sudo apt-get install gcc' (depending on your distro)"
+			red_text "❌GCC not found. Try installing with, for example, with 'sudo apt-get install gcc' (depending on your distro)"
 			exit 3
 		fi
 
 		if ! command -v resize >/dev/null 2>/dev/null; then
-			red "❌resize not found. Try installing xterm with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
+			red_text "❌resize not found. Try installing xterm with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
 			exit 4
 		fi
 
 		if ! python3 -c 'from distutils.sysconfig import get_makefile_filename as m; from os.path import isfile; import sys ; sys.exit(not isfile(m()))' >/dev/null 2>/dev/null; then
-			red "❌python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)"
+			red_text "❌python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)"
 			exit 5
 		fi
 
 		green_reset_line "${PROGRESSBAR}➤Environment $VENV_DIR was not found. Creating it..."
 		python3 -mvenv $VENV_DIR/ || {
-			red "❌Failed to create Virtual Environment in $VENV_DIR"
+			red_text "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1
 		}
 
@@ -275,11 +301,11 @@ if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 
 		if [[ -e "$VENV_DIR/bin/activate" ]]; then
 			source $VENV_DIR/bin/activate || {
-				red "❌Failed to activate $VENV_DIR"
+				red_text "❌Failed to activate $VENV_DIR"
 				exit 2
 			}
 		else
-			red "❌Failed to activate $VENV_DIR"
+			red_text "❌Failed to activate $VENV_DIR"
 			exit 2
 		fi
 
@@ -294,7 +320,7 @@ if [[ -e "$VENV_DIR/bin/activate" ]]; then
 		rm -rf $VENV_DIR
 
 		python3 -mvenv $VENV_DIR/ || {
-			red "❌Failed to create Virtual Environment in $VENV_DIR"
+			red_text "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1
 		}
 
@@ -311,7 +337,7 @@ else
 	rm -rf $VENV_DIR
 
 	python3 -mvenv $VENV_DIR/ || {
-		red "❌Failed to create Virtual Environment in $VENV_DIR"
+		red_text "❌Failed to create Virtual Environment in $VENV_DIR"
 		exit 1
 	}
 

@@ -66,7 +66,11 @@ fi
 
 source $VENV_DIR/bin/activate || {
 	red_text "Failed to activate $VENV_DIR"
-	exit 2
+
+	source $VENV_DIR/bin/activate || {
+		red_text "Failed to activate $VENV_DIR"
+		exit 2
+	}
 }
 
 FROZEN=$(pip3 freeze)

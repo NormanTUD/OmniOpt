@@ -30,6 +30,10 @@ trap 'calltracer' ERR
 
 INTERACTIVE=1
 
+if [[ ! -e /dev/tty ]]; then
+	INTERACTIVE=0
+fi
+
 export LC_ALL=en_US.UTF-8
 
 function echo_green {

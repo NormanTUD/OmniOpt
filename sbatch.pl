@@ -2074,6 +2074,7 @@ sub program_installed {
                 $exists = 1;
         } else {
                 warning "$program does not seem to be installed. Please install it!";
+		exit(1);
         }
         $indentation--;
 

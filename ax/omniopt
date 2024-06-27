@@ -758,17 +758,18 @@ fi
 
 set +x
 if [[ -e $SCRIPT_DIR/.shellscript_functions ]]; then
-	echo "source $SCRIPT_DIR/.shellscript_functions"
+	#echo "source $SCRIPT_DIR/.shellscript_functions"
 	source $SCRIPT_DIR/.shellscript_functions
 else
 	red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
 	exit 2
 fi
 
-mycd "$ORIGINAL_PWD"
 if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
+
+mycd "$ORIGINAL_PWD"
 
 if [[ "$help" -eq "1" ]]; then
 	python3 $SCRIPT_DIR/.omniopt.py --help

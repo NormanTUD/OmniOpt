@@ -552,7 +552,7 @@ sub run_lsof_periodically  {
                                 foreach my $this_server (@server) {
                                         my $command = qq#bash $script_paths{lsof_checker} $options{logpathdate}#;
                                         my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
-                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $sshcommand = "ssh -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR $ssh_debug $this_server '$command'";
                                         my $return_code = debug_system($sshcommand);
                                         if($return_code) {
                                                 warning "$sshcommand seems to have failed! Exit-Code: $return_code";
@@ -603,7 +603,7 @@ sub run_top_periodically {
                                         my $processchecklogpath = "$options{logpathdate}/process-check-$this_server/";
                                         my $command = qq#bash $script_paths{top} $options{logpathdate}#;
                                         my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
-                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $sshcommand = "ssh -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR $ssh_debug $this_server '$command'";
                                         my $return_code = debug_system($sshcommand);
                                         if($return_code) {
                                                 warning "$sshcommand seems to have failed! Exit-Code: $return_code";
@@ -661,7 +661,7 @@ sub run_process_limit_check_periodically {
 
                                         my $command = qq#bash $script_paths{check_process_limits} $processchecklogfile >> $processchecklogfile#;
                                         my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
-                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $sshcommand = "ssh -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR $ssh_debug $this_server '$command'";
                                         my $return_code = debug_system($sshcommand);
                                         if($return_code) {
                                                 warning "$sshcommand seems to have failed! Exit-Code: $return_code";
@@ -745,7 +745,7 @@ sub run_hook_periodically {
                                 foreach my $this_server (@server) {
                                         my $command = qq#bash #.$options{run_hook};
                                         my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
-                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $sshcommand = "ssh -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR $ssh_debug $this_server '$command'";
                                         my $return_code = debug_system($sshcommand);
                                         if($return_code) {
                                                 warning "$sshcommand seems to have failed! Exit-Code: $return_code";
@@ -815,7 +815,7 @@ sub run_nvidia_smi_periodically {
                                         my $ipfiles_dir = $options{projectdir}.'/'.$options{project}.'/ipfiles/';
                                         my $command = qq#bash $script_paths{loggpu} "$nvidialogfile" "$ipfiles_dir" #.$ENV{SLURM_JOB_ID};
                                         my $ssh_debug = $options{debug} ? " -vvvvvvvvvvvvvvvvvv " : "";
-                                        my $sshcommand = "ssh -o LogLevel=ERROR $ssh_debug $this_server '$command'";
+                                        my $sshcommand = "ssh -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR $ssh_debug $this_server '$command'";
                                         my $return_code = debug_system($sshcommand);
                                         if($return_code) {
                                                 warning "$sshcommand seems to have failed! Exit-Code: $return_code";

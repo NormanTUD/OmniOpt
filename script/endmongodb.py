@@ -16,6 +16,10 @@ projectname = None
 if "project" in params:
     projectname = params["project"]
     myconf = set_myconf(projectname)
-data = get_data(projectname, params)
+try:
+    data = get_data(projectname, params)
 
-mongostuff.shut_down_mongodb(projectname)
+    mongostuff.shut_down_mongodb(projectname)
+except Exception as e:
+    print(str(e))
+    sys.exit(1)

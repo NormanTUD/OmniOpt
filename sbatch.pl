@@ -322,6 +322,7 @@ sub log_env {
 
 sub main {
         debug_sub 'main()';
+	#print("================================\n"); die(program_installed("scontrol"));
 
 	modify_system(q"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/");
 
@@ -2063,7 +2064,9 @@ sub program_installed {
         debug_sub "program_installed($program)";
         $indentation++;
         my $exists = 0;
-        my $ret = modify_system(qq#which $program > /dev/null 2> /dev/null#);
+	my $_command = qq#which $program > /dev/null 2> /dev/null#;
+        my $ret = modify_system($_command);
+	#print "$_command, return-code: $ret\n";
 
         if($ret == 0) {
                 debug "$program is installed";

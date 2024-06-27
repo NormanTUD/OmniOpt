@@ -126,7 +126,7 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
     else:
         default_port = str(os.getenv("mongodbport", 56741))
         if(str(os.getenv("SLURM_JOB_ID")) != "None"):
-            sys.stderr.write("The file `" + mongodbportfile + "` could not be found! Using " + default_port + "instead\n")
+            sys.stderr.write("The file `" + mongodbportfile + "` could not be found! Using " + default_port + " instead\n")
         data["mongodbport"] = default_port
     try:
         data["mongodbmachine"] = myconf.str_get_config('MONGODB', 'machine')

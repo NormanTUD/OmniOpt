@@ -384,5 +384,7 @@ if [[ -z $DONT_INSTALL_MODULES ]]; then
 
 		install_required_modules
 	fi
+else
+	red_text "\$DONT_INSTALL_MODULES is set. Don't install modules."
 fi
 }

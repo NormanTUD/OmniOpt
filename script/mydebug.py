@@ -133,7 +133,7 @@ def get_data(projectname=None, params=None, projectdirdefault=None):
     except: 
         pass
     if not networkstuff.ping(data["mongodbmachine"]):
-        warning("Server `" + data["mongodbmachine"] + "` not reachable via ping!")
+        warning("Server `" + str(data["mongodbmachine"]) + "` not reachable via ping!")
     data["mongodbdir"] = projectname
     data["mongodbdbname"] = projectname
     data["mongodblogpath"] = "mongodb.log"

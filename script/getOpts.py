@@ -19,10 +19,13 @@ class getOpts:
             if not os.path.exists(self.filename):
                 sys.stderr.write("The config-file could not be found (searched for it in the path " + self.filename + ")\n")
                 self.filename = None
-        self.myconfig = self.get_program_config()
+        try:
+            self.myconfig = self.get_program_config()
+        except Exception as e:
+            print(str(e))
 
     def log_file_exists(self, path):
-        if os.path.isfile(path):
+        if path and os.path.isfile(path):
             return True
         else:
             return False
@@ -43,7 +46,11 @@ class getOpts:
         data = None
         if data is None:
             # Cannot output debug-messages here, since at initialization, this function is used to get whether to debug or not in the first place
-            myconfig = self.get_program_config()
+            try:
+                myconfig = self.get_program_config()
+            except Exception as e:
+                print(str(e))
+                return False
             data = int(myconfig.get(category, name))
         if re.match('[yj1]', str(data), flags=re.IGNORECASE):
             data = True
@@ -54,27 +61,43 @@ class getOpts:
     def float_get_config(self, category, name):
         data = None
         if data is None:
-            myconfig = self.get_program_config()
+            try:
+                myconfig = self.get_program_config()
+            except Exception as e:
+                print(str(e))
+                return False
             data = float(myconfig.get(category, name))
         return data
     def int_get_config(self, category, name):
         data = None
         if data is None:
-            myconfig = self.get_program_config()
+            try:
+                myconfig = self.get_program_config()
+            except Exception as e:
+                print(str(e))
+                return False
             data = int(myconfig.get(category, name))
         return data
 
     def str_get_config(self, category, name):
         data = None
         if data is None:
-            myconfig = self.get_program_config()
+            try:
+                myconfig = self.get_program_config()
+            except Exception as e:
+                print(str(e))
+                return False
             data = str(myconfig.get(category, name))
         return data
 
     def get_cli_code(self, category, name):
         data = None
         if data is None:
-            myconfig = self.get_program_config()
+            try:
+                myconfig = self.get_program_config()
+            except Exception as e:
+                print(str(e))
+                return False
             try:
                 data = str(myconfig.get(category, name))
             except Exception as e: 

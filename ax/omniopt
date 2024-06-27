@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 
 debug=0
 
@@ -627,13 +627,17 @@ if [[ -d ".git" ]]; then
 			REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
 
 			if [ ! "$CURRENTHASH" = "$REMOTEHASH" ]; then
-				eval `resize`
+				if command -v resize 2>/dev/null >/dev/null; then
+					eval `resize`
+				fi
 				if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 					git pull
 					eval "./$SCRIPT_DIR/omniopt $args_string"
 					exit
 				else
-					eval `resize`
+					if command -v resize 2>/dev/null >/dev/null; then
+						eval `resize`
+					fi
 					if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 						echo "Asking again next time if you want to upgrade"
 					else
@@ -733,7 +737,10 @@ run_before_end () {
 	fi
 }
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(dirname $(realpath $0))
+
+#echo "\$0: $0, SCRIPT_DIR: $SCRIPT_DIR"
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	set +e
@@ -742,7 +749,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 		SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
 		set -e
 
-		if [[ -d $SLURM_FILE_SCRIPT_DIR ]]; then
+		if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then
 			SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
 		else
 			echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
@@ -754,12 +761,19 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 fi
 
 set +x
-source $SCRIPT_DIR/.shellscript_functions
+if [[ -e $SCRIPT_DIR/.shellscript_functions ]]; then
+	#echo "source $SCRIPT_DIR/.shellscript_functions"
+	source $SCRIPT_DIR/.shellscript_functions
+else
+	red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
+	exit 2
+fi
 
-mycd "$ORIGINAL_PWD"
 if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
+
+mycd "$ORIGINAL_PWD"
 
 if [[ "$help" -eq "1" ]]; then
 	python3 $SCRIPT_DIR/.omniopt.py --help
@@ -863,6 +877,8 @@ else
 				in_about_time=""
 				_remaining_time=""
 				last_print_line_length=0
+
+				set +x
 
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)

@@ -1,5 +1,6 @@
+wheel
 setuptools>=61
-numpy==1.26.4
+numpy<=1.26.4
 graphql-core>=2.0
 packaging<=20.1
 python-dateutil<=2.8.1

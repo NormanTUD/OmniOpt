@@ -56,7 +56,11 @@ def main():
     projectname = None
     if "project" in params:
         projectname = params["project"]
-    data = get_data(projectname, params)
+    try:
+        data = get_data(projectname, params)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
     if "mongodbmachine" in params:
         data["mongodbmachine"] = params["mongodbmachine"]
     if "mongodbport" in params:

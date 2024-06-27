@@ -935,6 +935,8 @@ else
 						fi
 					fi
 
+					set +x
+
 					for i in "${spin[@]}"; do
 						print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
 						print_line_length=$(echo "$print_line" | wc -c)
@@ -955,6 +957,10 @@ else
 
 						last_print_line_length=$print_line_length
 					done
+
+					if [[ "$debug" -eq 1 ]]; then
+						set -x
+					fi
 				done
 				set -e
 

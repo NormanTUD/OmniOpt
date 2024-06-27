@@ -448,7 +448,8 @@ sub mongodb_already_started {
                         }
                 }
         } else {
-                warning "squeue is not installed";
+                warning "squeue is not installed. PATH: $ENV{PATH}";
+		exit(1);
         }
         $indentation--;
         return $ret;
@@ -2074,7 +2075,6 @@ sub program_installed {
                 $exists = 1;
         } else {
                 warning "$program does not seem to be installed. Please install it!";
-		exit(1);
         }
         $indentation--;
 

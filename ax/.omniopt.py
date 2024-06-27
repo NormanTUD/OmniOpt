@@ -574,7 +574,7 @@ except ModuleNotFoundError as e:
     print(f"Error: {e}")
     my_exit(31)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-    print("\n:warning: You pressed CTRL+C or signal was sent. Program execution halted.")
+    print("\n⚠ You pressed CTRL+C or signal was sent. Program execution halted.")
     my_exit(0)
 
 class bcolors:
@@ -849,11 +849,11 @@ def parse_experiment_parameters(args):
             invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
 
             if name in invalid_names:
-                print_red(f"\n:warning: Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
+                print_red(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
                 my_exit(181)
 
             if name in param_names:
-                print_red(f"\n:warning: Parameter name '{name}' is not unique. Names for parameters must be unique!")
+                print_red(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!")
                 my_exit(181)
 
             param_names.append(name)
@@ -864,39 +864,39 @@ def parse_experiment_parameters(args):
 
             if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)
-                print_red(f"\n:warning: Invalid type {param_type}, valid types are: {valid_types_string}")
+                print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
                 my_exit(181)
 
             if param_type == "range":
                 if args.model and args.model == "FACTORIAL":
-                    print_red(f"\n:warning: --model FACTORIAL cannot be used with range parameter")
+                    print_red(f"\n⚠ --model FACTORIAL cannot be used with range parameter")
                     my_exit(181)
 
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_red(f"\n:warning: --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    print_red(f"\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
                     my_exit(181)
 
                 try:
                     lower_bound = float(this_args[j + 2])
                 except:
-                    print_red(f"\n:warning: {this_args[j + 2]} is not a number")
+                    print_red(f"\n⚠ {this_args[j + 2]} is not a number")
                     my_exit(181)
 
                 try:
                     upper_bound = float(this_args[j + 3])
                 except:
-                    print_red(f"\n:warning: {this_args[j + 3]} is not a number")
+                    print_red(f"\n⚠ {this_args[j + 3]} is not a number")
                     my_exit(181)
 
                 if upper_bound == lower_bound:
                     if lower_bound == 0:
-                        print_red(f":warning: Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
+                        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
                         sys.exit(181)
-                    print_red(f":warning: Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+                    print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
                     lower_bound = -upper_bound
 
                 if lower_bound > upper_bound:
-                    print_yellow(f":warning: Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+                    print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
                     tmp = upper_bound
                     upper_bound = lower_bound
                     lower_bound = tmp
@@ -913,16 +913,16 @@ def parse_experiment_parameters(args):
 
                 if value_type not in valid_value_types:
                     valid_value_types_string = ", ".join(valid_value_types)
-                    print_red(f":warning: {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+                    print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
                     my_exit(181)
 
                 if value_type == "int":
                     if not looks_like_int(lower_bound):
-                        print_yellow(f":warning: {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
+                        print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
                         lower_bound = math.floor(lower_bound)
 
                     if not looks_like_int(upper_bound):
-                        print_yellow(f":warning: {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
+                        print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
                         upper_bound = math.ceil(upper_bound)
 
                 old_lower_bound = lower_bound
@@ -936,11 +936,11 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if old_lower_bound != lower_bound:
-                    print_yellow(f":warning: previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                    print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
                     search_space_reduction_warning = True
 
                 if old_upper_bound != upper_bound:
-                    print_yellow(f":warning: previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                    print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                     search_space_reduction_warning = True
 
                 
@@ -979,7 +979,7 @@ def parse_experiment_parameters(args):
                 j += skip
             elif param_type == "fixed":
                 if len(this_args) != 3:
-                    print_red(f":warning: --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
+                    print_red(f"⚠ --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
                     my_exit(181)
 
                 value = this_args[j + 2]
@@ -999,7 +999,7 @@ def parse_experiment_parameters(args):
                 j += 3
             elif param_type == "choice":
                 if len(this_args) != 3:
-                    print_red(f":warning: --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
+                    print_red(f"⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
                     my_exit(181)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
@@ -1021,12 +1021,12 @@ def parse_experiment_parameters(args):
 
                 j += 3
             else:
-                print_red(f":warning: Parameter type '{param_type}' not yet implemented.");
+                print_red(f"⚠ Parameter type '{param_type}' not yet implemented.");
                 my_exit(181)
         i += 1
 
     if search_space_reduction_warning:
-        print_red(f":warning: Search space reduction is not currently supported on continued runs or runs that have previous data.")
+        print_red(f"⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
 
@@ -1042,7 +1042,7 @@ def replace_parameters_in_string(parameters, input_string):
 
         return input_string
     except Exception as e:
-        print_red(f"\n:warning: Error: {e}")
+        print_red(f"\n⚠ Error: {e}")
         return None
 
 def execute_bash_code(code):
@@ -1336,17 +1336,17 @@ def evaluate(parameters):
             write_data_and_headers(parameters, "No Result")
             return return_in_case_of_error
     except signalUSR:
-        print("\n:warning: USR1-Signal was sent. Cancelling evaluation.")
+        print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
         write_data_and_headers(parameters, "USR1-signal")
         return return_in_case_of_error
     except signalCONT:
-        print("\n:warning: CONT-Signal was sent. Cancelling evaluation.")
+        print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
         is_in_evaluate = False
         write_data_and_headers(parameters, "CONT-signal")
         return return_in_case_of_error
     except signalINT:
-        print("\n:warning: INT-Signal was sent. Cancelling evaluation.")
+        print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_data_and_headers(parameters, "INT-signal")
         is_in_evaluate = False
         return return_in_case_of_error
@@ -1366,20 +1366,20 @@ try:
                 from ax.storage.json_store.load import load_experiment
                 from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError as e:
-                print_red("\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+                print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
             except KeyboardInterrupt:
-                print_red("\n:warning: You pressed CTRL+C. Program execution halted.")
+                print_red("\n⚠ You pressed CTRL+C. Program execution halted.")
                 my_exit(31)
 
         with console.status("[bold green]Importing botorch...") as status:
             try:
                 import botorch
             except ModuleNotFoundError as e:
-                print_red("\n:warning: ax could not be loaded. Did you create and load the virtual environment properly?")
+                print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
             except KeyboardInterrupt:
-                print_red("\n:warning: You pressed CTRL+C. Program execution halted.")
+                print_red("\n⚠ You pressed CTRL+C. Program execution halted.")
                 my_exit(31)
 
         with console.status("[bold green]Importing submitit...") as status:
@@ -1387,10 +1387,10 @@ try:
                 import submitit
                 from submitit import AutoExecutor, LocalJob, DebugJob
             except:
-                print_red("\n:warning: submitit could not be loaded. Did you create and load the virtual environment properly?")
+                print_red("\n⚠ submitit could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
 except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-    print("\n:warning: signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
+    print("\n⚠ signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
     my_exit(31)
 
 def disable_logging():
@@ -1776,11 +1776,11 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
 
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
     except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-        print_red("\n:warning: You pressed CTRL+C or a signal was sent. Program execution halted.")
-        print("\n:warning: KeyboardInterrupt signal was sent. Ending program will still run.")
+        print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
+        print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         _exit = show_end_table_and_save_end_files (csv_file_path, result_column)
     except TypeError as e:
-        print_red(f"\n:warning: The program has been halted without attaining any results. Error: {e}")
+        print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
     for job, trial_index in global_vars["jobs"][:]:
         if job:
@@ -2517,13 +2517,13 @@ def load_data_from_existing_run_folders(args, _paths):
                             parsed_error = parse_parameter_type_error(e)
 
                             if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
-                                print_yellow(f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                                 old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
                             elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
-                                print_yellow(f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
                             #elif parsed_error["expected_type"] == "str" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "str":
-                            #    print_yellow(f":warning: converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                            #    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                             #    old_arm_parameter[parsed_error["parameter_name"]] = str(old_arm_parameter[parsed_error["parameter_name"]])
                 else:
                     print_debug("Prevented inserting a double entry")
@@ -2672,9 +2672,9 @@ def finish_previous_jobs(args, new_msgs):
                 global_vars["jobs"].remove((job, trial_index))
             except ax.exceptions.core.UserInputError as error:
                 if "None for metric" in str(error):
-                    print_red(f"\n:warning: It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                 else:
-                    print_red(f"\n:warning: {error}")
+                    print_red(f"\n⚠ {error}")
 
                 if job:
                     try:
@@ -2921,9 +2921,9 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
-            print_red(f"\n:warning: It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+            print_red(f"\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
         else:
-            print_red(f"\n:warning: FAILED: {error}")
+            print_red(f"\n⚠ FAILED: {error}")
 
         try:
             print_debug("Trying to cancel job that failed")
@@ -2944,15 +2944,15 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             save_pd_csv()
             trial_counter += 1
         except Exception as e:
-            print_red(f"\n:warning: Cancelling failed job FAILED: {e}")
+            print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
     except (signalUSR, signalINT, signalCONT) as e:
-        print_red(f"\n:warning: Detected signal. Will exit.")
+        print_red(f"\n⚠ Detected signal. Will exit.")
         is_in_evaluate = False
         end_program(result_csv_file, "result", 1)
     except Exception as e:
         tb = traceback.format_exc()
         print(tb)
-        print_red(f"\n:warning: Starting job failed with error: {e}")
+        print_red(f"\n⚠ Starting job failed with error: {e}")
 
     finish_previous_jobs(args, ["finishing jobs"])
 
@@ -3083,7 +3083,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
             print_yellow(f"Using model {str(args.model).upper()}")
             chosen_non_random_model = Models.__members__[str(args.model).upper()]
         else:
-            print_red(f":warning: Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+            print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
         if args.model.lower() != "FACTORIAL" and args.gridsearch:
             print_red(f"Gridsearch only really works when you chose the FACTORIAL model.")
@@ -3146,14 +3146,14 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         if random_steps_left <= 0 and done_jobs() <= random_steps:
             return len(trial_index_to_param.keys())
     except RuntimeError as e:
-        print_red("\n:warning: " + str(e))
+        print_red("\n⚠ " + str(e))
     except (
         botorch.exceptions.errors.ModelFittingError,
         ax.exceptions.core.SearchSpaceExhausted,
         ax.exceptions.core.DataRequiredError,
         botorch.exceptions.errors.InputDataError
     ) as e:
-        print_red("\n:warning: " + str(e))
+        print_red("\n⚠ " + str(e))
         end_program(result_csv_file, "result", 1)
 
     num_new_keys = 0
@@ -4324,7 +4324,7 @@ if __name__ == "__main__":
             try:
                 main()
             except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-                print_red("\n:warning: You pressed CTRL+C or got a signal. Optimization stopped.")
+                print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
                 is_in_evaluate = False
 
                 end_program(result_csv_file, "result", 1)

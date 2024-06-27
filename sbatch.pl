@@ -897,7 +897,7 @@ sub load_needed_modules {
                 );
         }
 
-	print("modules_load: @modules");
+	print("modules_load: @modules\n");
         modules_load(@modules);
 
         # ml OpenBLAS/0.3.9-GCC-9.3.0 on ml for installing hyperopt

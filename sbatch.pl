@@ -326,7 +326,7 @@ sub main {
 
 	modify_system(q"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lib64/");
 
-	modify_system(q"PATH=$PATH:/opt/slurm/current/bin/")
+	modify_system(q"PATH=$PATH:/opt/slurm/current/bin/");
 
         $indentation++;
 

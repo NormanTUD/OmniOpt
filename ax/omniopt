@@ -1020,7 +1020,7 @@ else
 			fi
 		fi
 	else
-		red_text "Failed to start sbatch job. Exit-Code: $exit_code"
+		red_text "Failed to start sbatch job. Exit-Code: $exit_code\n"
 
 		myexit $exit_code
 	fi

@@ -1016,6 +1016,6 @@ echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
 if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
 	myexit $exit_code
 else
-	echo "Invalid exit-code $exit_code detected!"
+	echo "Invalid exit-code >$exit_code< detected!"
 	myexit 3
 fi

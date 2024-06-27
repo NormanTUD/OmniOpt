@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/bin/bash
 
 {
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -221,15 +221,15 @@ function ppip {
 					fi
 					ppip $i $MODULE $NUMBER_OF_MAIN_MODULES || {
 						red_reset_line "❌Failed to install $i. Deleting $VENV_DIR..."
-											rm -rf $VENV_DIR || {
-												red_reset_line "❌Failed to delete $VENV_DIR"
-																							exit 4
-																						}
+						rm -rf $VENV_DIR || {
+							red_reset_line "❌Failed to delete $VENV_DIR"
+							exit 4
+						}
 
-																						exit 3
-																					}
+						exit 3
+					}
 
-																					k=$((k+1))
+					k=$((k+1))
 				fi
 			done
 
@@ -243,17 +243,17 @@ function ppip {
 			red_reset_line "❌Failed to install $MODULE. Deleting $VENV_DIR..."
 					rm -rf $VENV_DIR || {
 						red_reset_line "❌Failed to delete $VENV_DIR"
-											exit 4
-										}
+						exit 4
+					}
 
-										exit 3
-									}
+					exit 3
+				}
 
-									FROZEN=$(pip3 freeze)
+				FROZEN=$(pip3 freeze)
 
-									PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
+				PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
 
-									green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
+				green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
 	fi
 	set -e
 }

@@ -387,4 +387,7 @@ if [[ -z $DONT_INSTALL_MODULES ]]; then
 else
 	red_text "\$DONT_INSTALL_MODULES is set. Don't install modules."
 fi
+
+echo "PATH: $PATH"
+echo "VIRTUAL_ENV: $VIRTUAL_ENV"
 }

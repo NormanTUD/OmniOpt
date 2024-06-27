@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 
 {
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -136,7 +136,10 @@
 	_cluster=""
 
 	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
-		_cluster="_$(env | grep CLUSTERHOST | sed -e 's#.*\.##')"
+		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+		if [[ ! -z $MYCLUSTER_HOST ]]; then
+			_cluster="_$MYCLUSTER_HOST"
+		fi
 	fi
 
 	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
@@ -384,5 +387,12 @@ if [[ -z $DONT_INSTALL_MODULES ]]; then
 
 		install_required_modules
 	fi
+else
+	red_text "\$DONT_INSTALL_MODULES is set. Don't install modules."
 fi
+
+export PYTHONPATH=$VENV_DIR:$PYTHONPATH
+
+#echo "PATH: $PATH"
+#echo "VIRTUAL_ENV: $VIRTUAL_ENV"
 }

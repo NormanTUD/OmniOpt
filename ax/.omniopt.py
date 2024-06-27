@@ -120,6 +120,8 @@ def getLineInfo():
 
 import sys
 
+#print(f"sys.path: {sys.path}")
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 import importlib.util

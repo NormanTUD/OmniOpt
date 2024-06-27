@@ -754,7 +754,12 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 fi
 
 set +x
-source $SCRIPT_DIR/.shellscript_functions
+if [[ -e $SCRIPT_DIR/.shellscript_functions ]]; then
+	source $SCRIPT_DIR/.shellscript_functions
+else
+	red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
+	exit 2
+fi
 
 mycd "$ORIGINAL_PWD"
 if [[ "$debug" -eq "1" ]]; then

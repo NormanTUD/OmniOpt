@@ -733,7 +733,8 @@ run_before_end () {
 	fi
 }
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(realpath $0)
 
 if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	set +e

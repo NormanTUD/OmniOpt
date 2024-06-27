@@ -627,13 +627,17 @@ if [[ -d ".git" ]]; then
 			REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
 
 			if [ ! "$CURRENTHASH" = "$REMOTEHASH" ]; then
-				eval `resize`
+				if command -v resize 2>/dev/null >/dev/null; then
+					eval `resize`
+				fi
 				if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 					git pull
 					eval "./$SCRIPT_DIR/omniopt $args_string"
 					exit
 				else
-					eval `resize`
+					if command -v resize 2>/dev/null >/dev/null; then
+						eval `resize`
+					fi
 					if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 						echo "Asking again next time if you want to upgrade"
 					else

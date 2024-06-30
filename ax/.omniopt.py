@@ -2884,7 +2884,7 @@ def save_state_files(args):
 
 def check_python_version():
     python_version = platform.python_version()
-    supported_versions = ["3.10.4", "3.11.2", "3.11.9", "3.9.2"]
+    supported_versions = ["3.8.10", "3.10.4", "3.11.2", "3.11.9", "3.9.2"]
     if not python_version in supported_versions:
         print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 

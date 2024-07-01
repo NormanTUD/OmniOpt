@@ -176,10 +176,6 @@
 				width: 95%;
 			}
 
-			.add_parameter {
-				background-color: #90ee90;
-			}
-
 			.remove_parameter {
 				background-color: #f1807e !important;
 				background-image: linear-gradient(#db4a44, #f24f49);

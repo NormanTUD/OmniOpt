@@ -7,7 +7,10 @@ COPY .shellscript_functions /.shellscript_functions
 RUN bash /.shellscript_functions
 RUN rm /.shellscript_functions
 
+COPY .tests/example_network/install.sh /.test_install.sh
+COPY bash /.test_install.sh
+COPY rm /.test_install.sh
+
 COPY . /var/opt/omniopt/
-RUN bash /var/opt/omniopt/.tests/example_network/install.sh
 
 #CMD ["apache2-foreground"]

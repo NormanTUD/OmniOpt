@@ -183,3 +183,4 @@ old_runs
 .gui/stats/
 .gui/shares/
 .pip_logs
+git_hash

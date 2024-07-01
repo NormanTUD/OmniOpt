@@ -1,0 +1,7 @@
+version: '3'
+services:
+  omniopt2:
+    build:
+      context: .
+    ports:
+      - $LOCAL_PORT:80

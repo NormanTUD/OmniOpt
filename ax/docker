@@ -102,7 +102,8 @@ function die {
 
 sudo docker-compose build && sudo docker-compose up -d || echo "Failed to build container"
 
-if [[ ! -z $* ]]; then
+#if [[ ! -z $* ]]; then
 	set -x
+	echo "docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$*"
 	docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$*
-fi
+#fi

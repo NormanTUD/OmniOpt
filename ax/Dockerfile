@@ -3,8 +3,9 @@ FROM debian:bookworm
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip python3-venv xterm git uuid-runtime
 
-RUN python3 -mvenv "~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
-RUN source "~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
+ENV VIRTUAL_ENV="~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip3 install wheel
 RUN pip3 install setuptools>=61
 RUN pip3 install numpy<=1.26.4

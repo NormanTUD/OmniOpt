@@ -74,7 +74,7 @@
 
 	<p>OmniOpt2 is particularly useful in fields such as AI research and simulations, where hyperparameter optimization can significantly impact performance and results.</p>
 
-	<p>For support, error reporting, and contributions, contact: norman.koch@tu-dresden.de.</p>
+	<p>For support, error reporting, and contributions, contact: peter.winkler1@tu-dresden.de, for technical stuff norman.koch@tu-dresden.de.</p>
 
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>

@@ -1,7 +1,7 @@
 FROM debian:bookworm
 
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip python3-venv xterm git uuidgen
+RUN apt-get install -y python3 python3-pip python3-venv xterm git uuid-runtime
 
 RUN python3 -mvenv "~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
 RUN source "~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"

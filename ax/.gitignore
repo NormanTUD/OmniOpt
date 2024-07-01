@@ -182,3 +182,4 @@ old_runs
 *.jpg
 .gui/stats/
 .gui/shares/
+.pip_logs

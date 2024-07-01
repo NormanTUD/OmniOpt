@@ -892,7 +892,7 @@ def parse_experiment_parameters(args):
                 if upper_bound == lower_bound:
                     if lower_bound == 0:
                         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-                        sys.exit(181)
+                        my_exit(181)
                     print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
                     lower_bound = -upper_bound
 
@@ -936,11 +936,11 @@ def parse_experiment_parameters(args):
                     lower_bound = math.floor(lower_bound)
                     upper_bound = math.ceil(upper_bound)
 
-                if old_lower_bound != lower_bound:
+                if old_lower_bound != lower_bound and args.continue_previous_job:
                     print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
                     search_space_reduction_warning = True
 
-                if old_upper_bound != upper_bound:
+                if old_upper_bound != upper_bound and args.continue_previous_job:
                     print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                     search_space_reduction_warning = True
 

@@ -104,6 +104,7 @@ function die {
 
 sudo docker-compose build && sudo docker-compose up -d || echo "Failed to build container"
 
+# Run as "bash docker omniopt --tests"
 #if [[ ! -z $* ]]; then
 	set -x
 	echo "docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS"

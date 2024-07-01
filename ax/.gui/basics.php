@@ -59,7 +59,7 @@
 
 	<h2 id="integration">Integration</h2>
 
-	<p>OmniOpt2 is compatible with any program that can run on Linux, regardless of the programming language (e.g., C, Python). The program must accept parameters via command line and output a result string (e.g., print(f"RESULT: {loss}")).</p>
+	<p>OmniOpt2 is compatible with any program that can run on Linux, regardless of the programming language (e.g., C, Python). The program must accept parameters via command line and output a result string (e.g., <code class="language-bash">print(f"RESULT: {loss}")</code>).</p>
 
 	<h2 id="scalability">Scalability</h2>
 

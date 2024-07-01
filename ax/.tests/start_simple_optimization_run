@@ -60,7 +60,7 @@ max_eval=30
 num_parallel_jobs=20
 allow_failure=0
 num_random_steps=$num_parallel_jobs
-time=20
+time=60
 model=BOTORCH_MODULAR
 
 args=("$@")

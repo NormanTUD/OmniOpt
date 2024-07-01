@@ -1586,7 +1586,7 @@ def print_best_result(csv_file_path, result_column):
 
             x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if os.path.exists(_pd_csv) and args.show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS") and sys.stdout.isatty(): 
+            if os.path.exists(_pd_csv) and args.show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"):
                 plot_types = [
                     {
                         "type": "trial_index_result",

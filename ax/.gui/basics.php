@@ -76,6 +76,9 @@
 
 	<p>For support, error reporting, and contributions, contact: peter.winkler1@tu-dresden.de, for technical stuff norman.koch@tu-dresden.de.</p>
 
+	<h2 id="">Run locally or in Docker</h2>
+	TODO
+
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>
 </body>

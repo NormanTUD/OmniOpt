@@ -234,6 +234,8 @@ function ppip {
 			fi
 		fi
 
+		PYTHONWARNINGS="ignore::DeprecationWarning"
+
 		green_reset_line "${PROGRESSBAR}➤Installing $MODULE..."
 		pip3 --disable-pip-version-check install -q $MODULE || {
 			red_reset_line "❌Failed to install $MODULE."

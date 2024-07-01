@@ -337,6 +337,7 @@ slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they ge
 slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
 slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
@@ -3224,6 +3225,7 @@ def get_executor(args):
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
+        tasks_per_node=args.task_per_node,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,

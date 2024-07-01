@@ -1170,7 +1170,7 @@
 			<h2>Loading...</h2>
 		</div>
 		<div id="site" style="display: none">
-			<h2>OmniOpt 2</h2>
+			<h2>OmniOpt2</h2>
 			<table>
 				<tr>
 					<td class='half_width_td'>

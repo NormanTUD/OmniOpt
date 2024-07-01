@@ -1512,7 +1512,11 @@ def plot_command(_command, tmp_file, _width=1300):
 
     print_debug(f"command: {_command}")
 
-    process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE)
+    my_env = os.environ.copy()
+    my_env["DONT_INSTALL_MODULES"] = "1"
+    my_env["DONT_SHOW_DONT_INSTALL_MESSAGE"] = "1"
+
+    process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE, env=my_env)
     output, error = process.communicate()
 
     if os.path.exists(tmp_file):

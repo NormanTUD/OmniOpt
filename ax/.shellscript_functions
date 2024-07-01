@@ -384,7 +384,9 @@ if [[ -z $DONT_INSTALL_MODULES ]]; then
 		install_required_modules
 	fi
 else
-	red_text "\$DONT_INSTALL_MODULES is set. Don't install modules.\n"
+	if [[ -z $DONT_SHOW_DONT_INSTALL_MESSAGE ]]; then
+		red_text "\$DONT_INSTALL_MODULES is set. Don't install modules.\n"
+	fi
 fi
 
 export PYTHONPATH=$VENV_DIR:$PYTHONPATH

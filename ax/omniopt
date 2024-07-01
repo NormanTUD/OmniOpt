@@ -1048,4 +1048,4 @@ else
 	myexit 3
 fi
 
-docker run -i -t ax_omniopt2 $*
+docker run -i -t ax_omniopt2 /var/opt/omniopt/$*

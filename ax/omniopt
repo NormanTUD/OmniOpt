@@ -614,6 +614,10 @@ if [[ "$debug" -eq "1" ]]; then
 fi
 
 if [[ -z "$SLURM_JOB_ID" ]]; then
+	if ! command -v git 2>/dev/null >/dev/null; then
+		red_text "git not found. Cannot continue."
+		exit 11
+	fi
 	echo "Current git-hash: $(git rev-parse HEAD)"
 fi
 

@@ -76,8 +76,8 @@
 
 	<p>For support, error reporting, and contributions, contact: peter.winkler1@tu-dresden.de, for technical stuff norman.koch@tu-dresden.de.</p>
 
-	<h2 id="">Run locally or in Docker</h2>
-	TODO
+	<h2 id="run_local_or_docker">Run locally or in Docker</h2>
+	<p>You can also run OmniOpt2 locally or inside docker. To build a docker container, simply run <code>./docker</code> in the main folder. Docker is not supported on the HPC System though.</p>
 
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>

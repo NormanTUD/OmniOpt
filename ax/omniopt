@@ -1047,5 +1047,3 @@ else
 	echo "Invalid exit-code >$exit_code< detected!"
 	myexit 3
 fi
-
-docker run -i -t ax_omniopt2 /var/opt/omniopt/$*

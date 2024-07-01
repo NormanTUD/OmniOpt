@@ -102,4 +102,4 @@ function die {
 
 sudo docker-compose build && sudo docker-compose up -d || echo "Failed to build container"
 
-docker run -i -t ax_omniopt2 /var/opt/omniopt/$*
+docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$*

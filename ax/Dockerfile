@@ -3,7 +3,7 @@ FROM debian:bookworm
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip python3-venv xterm git uuid-runtime
 
-COPY /var/opt/omniopt/.shellscript_functions /.shellscript_functions
+COPY .shellscript_functions /.shellscript_functions
 RUN bash /.shellscript_functions
 RUN rm /.shellscript_functions
 

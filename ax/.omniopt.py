@@ -1581,7 +1581,7 @@ def print_best_result(csv_file_path, result_column):
 
             x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if os.path.exists(_pd_csv) and args.show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"): 
+            if os.path.exists(_pd_csv) and args.show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS") and sys.stdout.isatty(): 
                 plot_types = [
                     {
                         "type": "trial_index_result",
@@ -1631,7 +1631,9 @@ def print_best_result(csv_file_path, result_column):
                             j += 1
                             tmp_file = f"{_tmp}/{plot_type}_{j}.png"
 
-                        _command = f"bash omniopt_plot --run_dir {current_run_folder} --plot_type={plot_type}"
+                        maindir = os.path.dirname(os.path.realpath(__file__))
+
+                        _command = f"bash {maindir}/omniopt_plot --run_dir {current_run_folder} --plot_type={plot_type}"
                         if "dpi" in plot:
                             _command += " --dpi=" + str(plot["dpi"])
 

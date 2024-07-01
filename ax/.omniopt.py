@@ -3348,7 +3348,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
-        if submitted_jobs() >= max_eval:
+        if done_jobs() >= max_eval:
             raise searchSpaceExhausted("Search space exhausted")
 
         finish_previous_jobs(args, ["finishing jobs"])
@@ -4342,4 +4342,5 @@ if __name__ == "__main__":
                     original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
                     end_program(result_csv_file, "result", 1, 87)
                 else:
+                    original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
                     end_program(result_csv_file, "result", 1)

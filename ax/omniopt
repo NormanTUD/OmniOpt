@@ -981,7 +981,7 @@ else
 						set -x
 					fi
 
-					exit_code=$(cat $LOG_PATH | grep -i "exit-code" | sed -e 's#Exit-Code:\s*##i')
+					exit_code=$(cat $LOG_PATH | grep -i "exit-code:" | sed -e 's#Exit-Code:\s*##i')
 				else
 					red_text "$LOG_PATH could not be found"
 				fi

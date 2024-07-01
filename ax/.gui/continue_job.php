@@ -43,6 +43,10 @@
 	experiment. If you continue the job <tt>0</tt>, it's job data will be in the subfolder <tt>3</tt> then, since it is the first
 	non-existing folder for that project..</p>
 
+	<h2 id="Caveat">Caveat</h2>
+	<p>It is currently not possible to decrease the search space on a continued run. Attempts to do that will be ignored and the
+	original limits will automatically be restored.</p>
+
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>
 </body>

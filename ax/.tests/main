@@ -278,7 +278,7 @@ function _test {
 
 	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
 
-	echo "Test took $TEST_RUN_TIME seconds"
+	echo "Test took $(displaytime $TEST_RUN_TIME) seconds"
 }
 
 PARTITION="alpha"

@@ -8,7 +8,7 @@ RUN bash /.shellscript_functions
 RUN rm /.shellscript_functions
 
 COPY .tests/example_network/install.sh /.test_install.sh
-COPY bash /.test_install.sh
+RUN bash /.test_install.sh
 COPY rm /.test_install.sh
 
 COPY . /var/opt/omniopt/

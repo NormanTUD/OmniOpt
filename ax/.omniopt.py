@@ -3225,7 +3225,7 @@ def get_executor(args):
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
-        tasks_per_node=args.task_per_node,
+        tasks_per_node=args.tasks_per_node,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,

@@ -264,7 +264,7 @@
 
 			.tooltipster-base {
 				border: 1px solid black;
-				position: fixed;
+				position: absolute;
 				background-color: white;
 			}
 		</style>

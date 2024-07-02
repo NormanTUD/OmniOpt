@@ -102,8 +102,11 @@ function die {
 	exit 1
 }
 
+git rev-parse HEAD > git_hash
+
 sudo docker-compose build && sudo docker-compose up -d || echo "Failed to build container"
 
+rm git_hash
 
 if [ -z "$ORIGINAL_ARGS" ]; then
 	exit 0

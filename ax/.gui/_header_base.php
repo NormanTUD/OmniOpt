@@ -61,7 +61,7 @@
 			}
 
 			#hidden_config_table > tbody > tr:nth-child(even) {
-				background-color: #afafaf;
+				background-color: #ddd;
 			}
 
 			#hidden_config_table {
@@ -95,7 +95,7 @@
 			}
 
 			#config_table > tbody > tr:nth-child(even) {
-				background-color: #afafaf;
+				background-color: #ddd;
 			}
 
 			#config_table {

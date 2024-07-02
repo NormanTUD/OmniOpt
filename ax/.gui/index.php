@@ -24,10 +24,12 @@
 					_minutes = minutes % 60;
 				}
 
-				var $div = $(`<div class='time_picker_container'>
-					<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours, 
-					<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
-				</div>`)
+				var $div = $(`
+					<div class='time_picker_container'>
+						<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours, 
+						<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
+					</div>
+				`);
 
 				$parent.prepend($div);
 
@@ -281,10 +283,9 @@
 
 						let value = parseFloat(input.value);
 
-						let red = "rgb(229, 115, 115)";
+						let red = "#FFE2DE";
 
 						if (_min !== null && (isNaN(value) || value < _min)) {
-							//$(input).css("background-color", red)
 							if(isNaN(value)) {
 								$(input).parent().find("[id$='_error']").html("Value is empty or invalid");
 							}
@@ -293,12 +294,8 @@
 								$(input).val(_min);
 							}
 						} else if (_max !== null && value > _max) {
-							//$(input).css("background-color", red)
-
 							$(input).val(_max);
 						} else {
-							//$(input).css("background-color", "rgb(255, 255, 255)")
-
 							$(input).parent().find("[id$='_error']").html("");
 						}
 					}

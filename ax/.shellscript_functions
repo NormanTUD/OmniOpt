@@ -28,6 +28,7 @@
 		seaborn
 		pyvista
 		pytz
+		pyqt5
 	)
 
 	FROZEN=""

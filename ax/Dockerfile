@@ -11,7 +11,7 @@ COPY .tests/example_network/install.sh /.test_install.sh
 RUN bash /.test_install.sh
 RUN rm /.test_install.sh
 
-RUN apt-get install -y zip
+RUN apt-get install -y zip python3-tk
 
 COPY ./ /var/opt/omniopt/
 COPY ./.tests /var/opt/omniopt/.tests

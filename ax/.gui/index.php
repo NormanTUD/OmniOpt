@@ -868,7 +868,7 @@
 
 					log(escapeQuotes(item.help));
 
-					left_side_content += `<span class='tooltip' title='${escapeQuotes(item.help)}'>&#10067;</span>`;
+					left_side_content += `<a class='tooltip' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
 				}
 
 				var labelCell = $("<td>").html(left_side_content);
@@ -1113,6 +1113,8 @@
 
 				input_to_time_picker("time")
 				input_to_time_picker("worker_timeout")
+
+				$('.tooltip').tooltipster();
 			});
 
 			function copy_to_clipboard(text) {
@@ -1239,10 +1241,5 @@
 				</tr>
 			</table>
 		</div>
-		<script>
-			$(document).ready(function(){
-				$('[data-toggle="tooltip"]').tooltip();
-			});
-		</script>
 	</body>
 </html>

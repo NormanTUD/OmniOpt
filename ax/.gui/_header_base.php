@@ -261,10 +261,17 @@
 			.dropdown:hover .dropbtn {
 				background-color: #3e8e41;
 			}
+
+			.tooltipster-base {
+				border: 1px solid black;
+				position: fixed;
+				background-color: white;
+			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script src="jquery-ui.min.js"></script>
 		<script src="prism.js"></script>
+		<script src="tooltipster.bundle.min.js"></script>
 	</head>
 	<body>
 <div id="scads_bar">

@@ -277,49 +277,48 @@
 		<script src="tooltipster.bundle.min.js"></script>
 	</head>
 	<body>
-	<div id="scads_bar">
-		<a target="_blank" href="https://scads.ai/"><img src="scads_logo.svg" /></a>
-		<?php
-			$files = array(
-				"tutorials" => array(
-					"name" => "Tutorials",
-					"entries" => array(
-						"basics" => "Basic info on OmniOpt2",
-						"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
-						"folder_structure" => "Folder Structure of OmniOpt runs",
-						"plot" => "Plot your results",
-						"continue_job" => "Continue jobs"
-					)
-				),
-				"index" => "GUI",
-				"share" => "Share",
-				"usage_stats" => "Statistics"
-			);
+		<div id="scads_bar">
+			<a target="_blank" href="https://scads.ai/"><img src="scads_logo.svg" /></a>
+			<?php
+				$files = array(
+					"tutorials" => array(
+						"name" => "Tutorials",
+						"entries" => array(
+							"basics" => "Basic info on OmniOpt2",
+							"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
+							"folder_structure" => "Folder Structure of OmniOpt runs",
+							"plot" => "Plot your results",
+							"continue_job" => "Continue jobs"
+						)
+					),
+					"index" => "GUI",
+					"share" => "Share",
+					"usage_stats" => "Statistics"
+				);
 
-			$current_file = basename($_SERVER["PHP_SELF"]);
+				$current_file = basename($_SERVER["PHP_SELF"]);
 
-			foreach ($files as $fn => $n) {
-				if (is_array($n)) {
-					$is_tutorial_active = preg_match("/tutorials\/|run_sh|folder_structure|plot|continue_job/", $current_file);
-					$tab_class = $is_tutorial_active ? 'active_tab' : 'inactive_tab';
-					echo "<div class='dropdown'>\n";
-					echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . "</button>\n";
-					echo "\t<div class='dropdown-content'>\n";
-					foreach ($n["entries"] as $sub_fn => $sub_n) {
-						$is_sub_active = preg_match("/$sub_fn.php/", $current_file);
-						$sub_tab_class = $is_sub_active ? 'active_tab' : 'inactive_tab';
-						echo "\t\t<a href='" . $sub_fn . ".php' class='$sub_tab_class'>" . $sub_n . "</a>\n";
+				foreach ($files as $fn => $n) {
+					if (is_array($n)) {
+						$is_tutorial_active = preg_match("/tutorials\/|run_sh|folder_structure|plot|continue_job/", $current_file);
+						$tab_class = $is_tutorial_active ? 'active_tab' : 'inactive_tab';
+						echo "<div class='dropdown'>\n";
+						echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . "</button>\n";
+						echo "\t<div class='dropdown-content'>\n";
+						foreach ($n["entries"] as $sub_fn => $sub_n) {
+							$is_sub_active = preg_match("/$sub_fn.php/", $current_file);
+							$sub_tab_class = $is_sub_active ? 'active_tab' : 'inactive_tab';
+							echo "\t\t<a href='" . $sub_fn . ".php' class='$sub_tab_class'>" . $sub_n . "</a>\n";
+						}
+						echo "\t</div>\n";
+						echo "</div>\n";
+					} else {
+						$tab_is_active = preg_match("/$fn.php/", $current_file);
+						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
+						echo "\t<a href='$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
 					}
-					echo "\t</div>\n";
-					echo "</div>\n";
-				} else {
-					$tab_is_active = preg_match("/$fn.php/", $current_file);
-					$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-					echo "\t<a href='$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
 				}
-			}
-		?>
-	</div>
-
+			?>
+		</div>
 	</body>
 </html>

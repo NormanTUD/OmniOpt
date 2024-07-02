@@ -1901,8 +1901,11 @@ def get_tmp_file_from_json(experiment_args):
     while os.path.exists(str(k)):
         k = k + 1
 
-    with open(f'{k}', "w") as f:
-        json.dump(experiment_args, f)
+    try:
+        with open(f'{k}', "w") as f:
+            json.dump(experiment_args, f)
+    except PermissionError as e:
+        print_red(f"Error writing {k}: {e}")
 
     return str(k)
 

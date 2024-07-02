@@ -265,7 +265,10 @@
 			.tooltipster-base {
 				border: 1px solid black;
 				position: absolute;
-				background-color: white;
+				border-radius: 8px;
+				padding: 2px;
+				color: white;
+				background-color: #61686f;
 			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>

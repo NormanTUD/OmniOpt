@@ -16,7 +16,7 @@ COPY ./.tests /var/opt/omniopt/.tests
 COPY ./.tools /var/opt/omniopt/.tools
 COPY ./.gui /var/opt/omniopt/.gui
 
-RUN apt-get install zip
+RUN apt-get install -y zip
 
 WORKDIR /var/opt/omniopt
 

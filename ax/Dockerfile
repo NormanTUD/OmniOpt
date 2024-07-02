@@ -12,8 +12,5 @@ RUN bash /.test_install.sh
 RUN rm /.test_install.sh
 
 COPY . /var/opt/omniopt
-COPY .tests /var/opt/omniopt/.tests
-COPY .gui /var/opt/omniopt/.gui
-COPY .tools /var/opt/omniopt/.tools
 
 #CMD ["apache2-foreground"]

@@ -126,19 +126,20 @@
 					//{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
 					{ "text": "UNIFORM", "value":  "UNIFORM" },
 					{ "text": "BO_MIXED", "value":  "BO_MIXED" }
-				], "required": true, info: `
-					<ul>
-						<li>BOTORCH_MODULAR: Default model</li>
-						<li>SOBOL: Random search</li>
-						<li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: ???</li>
-						<li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
-						<li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
-						<li>FULLYBAYESIAN: ???</li>
-						<!--<li>LEGACY_BOTORCH: ???</li>-->
-						<li>UNIFORM: Random (uniformly distributed)</li>
-						<li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
-					</ul>
-				`
+					], "required": true, info: `
+						<ul>
+							<li>BOTORCH_MODULAR: Default model</li>
+							<li>SOBOL: Random search</li>
+							<li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: ???</li>
+							<li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
+							<li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
+							<li>FULLYBAYESIAN: ???</li>
+							<!--<li>LEGACY_BOTORCH: ???</li>-->
+							<li>UNIFORM: Random (uniformly distributed)</li>
+							<li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
+						</ul>
+`,
+					"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 				},
 				{ label: "Constraints", id: "constraints", type: "text", value: "", placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisions: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters." },
 			];

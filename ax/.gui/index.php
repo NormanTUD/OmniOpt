@@ -868,8 +868,8 @@
 					left_side_content += `<a class='tooltip' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
 				}
 
-				var labelCell = $("<td>").html(left_side_content);
-				var valueCell = $("<td>").attr("colspan", "2");
+				var labelCell = $("<td class='left_side'>").html(left_side_content);
+				var valueCell = $("<td class='right_side'>").attr("colspan", "2");
 
 				if (item.type === "select") {
 					var $select = $("<select>").attr("id", item.id);

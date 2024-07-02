@@ -277,6 +277,14 @@
 				padding-top: 3px;
 				padding-bottom: 3px;
 			}
+
+			.left_side {
+				text-align: right;
+			}
+
+			.right_side {
+				text-align: left;
+			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script src="jquery-ui.min.js"></script>

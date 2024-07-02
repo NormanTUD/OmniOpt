@@ -129,7 +129,7 @@ function die {
 
 git rev-parse HEAD > git_hash
 
-sudo docker-compose build && sudo docker-compose up -d || {
+sudo docker-compose build --build-arg GetMyUsername=`whoami` && sudo docker-compose up -d || {
 	echo "Failed to build container"
 	exit 1
 }
@@ -145,12 +145,6 @@ case "$ORIGINAL_ARGS" in
 		if [[ -z $DISPLAY ]]; then
 			docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
-			#docker run --network=host --env DISPLAY=$DISPLAY --privileged --volume="$HOME/.Xauthority:/root/.Xauthority:rw" -v /tmp/.X11-unix:/tmp/.X11-unix -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
-
-			#docker run -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/same-as-dash-u-user/.Xauthority -u root -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
-			
-			#docker run -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/same-as-dash-u-user/.Xauthority -u root -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
-
 			docker run \
 				--user=$(id -u) \
 				--env="DISPLAY" \

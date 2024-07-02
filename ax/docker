@@ -111,7 +111,7 @@ function die {
 
 git rev-parse HEAD > git_hash
 
-sudo docker-compose build && sudo docker-compose up -d || echo "Failed to build container"
+sudo docker-compose build && sudo docker-compose up -d || { echo "Failed to build container"; exit 1 }
 
 rm git_hash
 

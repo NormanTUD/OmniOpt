@@ -269,7 +269,7 @@
 				padding: 2px;
 				color: white;
 				background-color: #61686f;
-				width: 50%;
+				width: 70%;
 				min-width: 200px;
 			}
 		</style>

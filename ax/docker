@@ -104,9 +104,17 @@ function die {
 
 sudo docker-compose build && sudo docker-compose up -d || echo "Failed to build container"
 
-# Run as "bash docker omniopt --tests"
-#if [[ ! -z $* ]]; then
-	set -x
-	echo "docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS"
-	docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
-#fi
+
+if [ -z "$ORIGINAL_ARGS" ]; then
+	exit 0
+fi
+
+case "$ORIGINAL_ARGS" in
+	omniopt*|omniopt_plot*|omniopt_share*|omniopt_evaluate*)
+		docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
+		;;
+	*)
+		echo "Fehler: Das Argument beginnt nicht mit einem der gültigen Präfixe."
+		exit 1
+		;;
+esac

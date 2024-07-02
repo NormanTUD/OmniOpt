@@ -13,7 +13,7 @@ function ppip {
 			UPGRADED_PIP=1
 		fi
 
-		pip3 install $1 || {
+		pip3 install -q $1 || {
 			red_text "Failed to install $1. Deleting $VENV_DIR..."
 			rm -rf $VENV_DIR || {
 				red_text "Failed to delete $VENV_DIR"

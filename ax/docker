@@ -91,6 +91,13 @@ if ! command -v git &>/dev/null; then
 	}
 fi
 
+if ! command -v docker &>/dev/null; then
+	echo "docker not found"
+	exit 5
+fi
+
+
+
 echo "=== Current git hash before auto-pulling ==="
 git rev-parse HEAD
 echo "=== Current git hash before auto-pulling ==="

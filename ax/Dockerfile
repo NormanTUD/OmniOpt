@@ -22,7 +22,7 @@ COPY ./.gui /var/opt/omniopt/.gui
 ARG GetMyUsername
 RUN adduser --disabled-password --gecos '' ${GetMyUsername}
 
-RUN sudo chown -R ${GetMyUsername}:${GetMyUsername} /var/opt/omniopt/
+RUN chown -R ${GetMyUsername}:${GetMyUsername} /var/opt/omniopt/
 
 WORKDIR /var/opt/omniopt
 

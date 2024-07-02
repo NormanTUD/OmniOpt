@@ -148,8 +148,6 @@ case "$ORIGINAL_ARGS" in
 			docker run \
 				--user=$(id -u) \
 				--env="DISPLAY" \
-				--workdir=/app \
-				--volume="$PWD":/app \
 				--volume="/etc/group:/etc/group:ro" \
 				--volume="/etc/passwd:/etc/passwd:ro" \
 				--volume="/etc/shadow:/etc/shadow:ro" \

@@ -90,8 +90,6 @@
 
 	<p><code class="language-bash">./docker omniopt --tests</code> for example, will install docker (on Debian), build the container and run OmniOpt2 with the <code class="language-bash">--tests</code>-parameter.</p>
 
-	<p>You 
-
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>
 </body>

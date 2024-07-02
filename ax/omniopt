@@ -343,7 +343,9 @@ continue_previous_job=""
 mem_gb=
 gpus=
 time=
-root_venv_dir=$HOME
+if [[ -z $root_venv_dir ]]; then
+	root_venv_dir=$HOME
+fi
 experiment_name=
 help=0
 follow=0

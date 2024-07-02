@@ -16,4 +16,6 @@ COPY ./.tests /var/opt/omniopt/.tests
 COPY ./.tools /var/opt/omniopt/.tools
 COPY ./.gui /var/opt/omniopt/.gui
 
+WORKDIR /var/opt/omniopt
+
 #CMD ["apache2-foreground"]

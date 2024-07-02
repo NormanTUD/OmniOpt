@@ -323,7 +323,7 @@
 						$is_tutorial_active = preg_match("/$re_string/", $current_file);
 						$tab_class = $is_tutorial_active ? 'active_tab' : 'inactive_tab';
 						echo "<div class='dropdown'>\n";
-						echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . "</button>\n";
+						echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . " &#8595;</button>\n";
 						echo "\t<div class='dropdown-content'>\n";
 						foreach ($n["entries"] as $sub_fn => $sub_n) {
 							$is_sub_active = preg_match("/$sub_fn.php/", $current_file);

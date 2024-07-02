@@ -7,6 +7,8 @@ COPY .shellscript_functions /.shellscript_functions
 RUN bash /.shellscript_functions
 RUN rm /.shellscript_functions
 
+ENV root_venv_dir=/sourcedir/
+RUN mkdir $root_venv_dir
 COPY .tests/example_network/install.sh /.test_install.sh
 RUN bash /.test_install.sh
 RUN rm /.test_install.sh

@@ -147,8 +147,21 @@ case "$ORIGINAL_ARGS" in
 		else
 			#docker run --network=host --env DISPLAY=$DISPLAY --privileged --volume="$HOME/.Xauthority:/root/.Xauthority:rw" -v /tmp/.X11-unix:/tmp/.X11-unix -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 
-			docker run -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/same-as-dash-u-user/.Xauthority -u root -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
+			#docker run -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/same-as-dash-u-user/.Xauthority -u root -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 			
+			#docker run -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/same-as-dash-u-user/.Xauthority -u root -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
+
+			docker run \
+				--user=$(id -u) \
+				--env="DISPLAY" \
+				--workdir=/app \
+				--volume="$PWD":/app \
+				--volume="/etc/group:/etc/group:ro" \
+				--volume="/etc/passwd:/etc/passwd:ro" \
+				--volume="/etc/shadow:/etc/shadow:ro" \
+				--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
+				--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+				-i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		fi
 		;;
 	*)

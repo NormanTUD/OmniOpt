@@ -141,7 +141,7 @@ if [ -z "$ORIGINAL_ARGS" ]; then
 fi
 
 case "$ORIGINAL_ARGS" in
-	omniopt*|omniopt_plot*|omniopt_share*|omniopt_evaluate*|.tests/*)
+	omniopt*|omniopt_plot*|omniopt_share*|omniopt_evaluate*|./.tests/*)
 		if [[ -z $DISPLAY ]]; then
 			docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else

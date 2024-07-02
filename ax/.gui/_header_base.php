@@ -315,7 +315,7 @@
 
 				foreach ($files as $fn => $n) {
 					if (is_array($n)) {
-						$is_tutorial_active = preg_match("/tutorials\/|run_sh|folder_structure|plot|continue_job/", $current_file);
+						$is_tutorial_active = preg_match("/tutorials|basics|run_sh|folder_structure|plot|continue_job/", $current_file);
 						$tab_class = $is_tutorial_active ? 'active_tab' : 'inactive_tab';
 						echo "<div class='dropdown'>\n";
 						echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . "</button>\n";

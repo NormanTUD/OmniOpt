@@ -124,7 +124,7 @@ fi
 
 case "$ORIGINAL_ARGS" in
 	omniopt*|omniopt_plot*|omniopt_share*|omniopt_evaluate*)
-		docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
+		docker run -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		;;
 	*)
 		echo "Fehler: Das Argument beginnt nicht mit einem der gültigen Präfixe."

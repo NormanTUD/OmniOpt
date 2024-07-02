@@ -269,6 +269,8 @@
 				padding: 2px;
 				color: white;
 				background-color: #61686f;
+				width: 50%;
+				min-width: 200px;
 			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>

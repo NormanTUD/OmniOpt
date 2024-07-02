@@ -867,8 +867,6 @@
 					}
 
 					left_side_content += `<a class='tooltip' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
-
-					log(left_side_content);
 				}
 
 				var labelCell = $("<td>").html(left_side_content);

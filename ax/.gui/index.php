@@ -104,7 +104,7 @@
 				{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1, "help": "At the beginning, some random jobs are started. By default, it is 20. This is needed to 'calibrate' the surrogate model." },
 				{ label: "Follow", id: "follow", type: "checkbox", value: 1, "info": "<code>tail -f</code> the <code>.out</code>-file automatically, so you can see the output as soon as it appears.", "help": "This does not change the results of OmniOpt2, but only the user-experience. This way, you see results as soon as they are available without needing to manually look for the outfile. Due to it using tail -f, you can simply CTRL-c out of it without cancelling the job." },
 				{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 1, "info": "May not be supported on all terminals.", "help": "This will use the module sixel to try to print your the results to the command line. If this doesn't work for you, please disable it. It has no effect on the results of OmniOpt2." },
-				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.php">this tutorial</a> to learn about the <code>run.sh</code>-file' }
+				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.php">this tutorial</a> to learn about the <code>run.sh</code>-file', "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
 			];
 
 			var hiddenTableData = [
@@ -861,7 +861,7 @@
 
 				var left_side_content = item.label;
 
-				if ("help" in item) {
+				if ("help" in item && item.help.length > 0) {
 					function escapeQuotes(str) {
 						return str.replace(/'/g, "&#039;");
 					}

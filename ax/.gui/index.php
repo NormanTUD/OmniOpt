@@ -93,7 +93,7 @@
 
 			var tableData = [
 				{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true },
-				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true, 'regex': '^[a-zA-Z0-9_]+$'},
+				{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true, 'regex': '^[a-zA-Z0-9_]+$', "help": "Name of your experiment. Will be used for example for the foldername it's results will be saved in." },
 				{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$" },
 				{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1, max: 1000 },
 				{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program", min: 1 },
@@ -858,7 +858,20 @@
 
 			function create_table_row (table, tbody, item) {
 				var row = $("<tr>");
-				var labelCell = $("<td>").text(item.label);
+
+				var left_side_content = item.label;
+
+				if ("help" in item) {
+					function escapeQuotes(str) {
+						return str.replace(/"/g, "&quot;");
+					}
+
+					log(escapeQuotes(item.help));
+
+					left_side_content += `<span class='tooltip' title='${escapeQuotes(item.help)}'>&#10067;</span>`;
+				}
+
+				var labelCell = $("<td>").html(left_side_content);
 				var valueCell = $("<td>").attr("colspan", "2");
 
 				if (item.type === "select") {
@@ -1226,5 +1239,10 @@
 				</tr>
 			</table>
 		</div>
+		<script>
+			$(document).ready(function(){
+				$('[data-toggle="tooltip"]').tooltip();
+			});
+		</script>
 	</body>
 </html>

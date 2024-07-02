@@ -263,6 +263,7 @@
 			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
+		<script src="jquery-ui.min.js"></script>
 		<script src="prism.js"></script>
 	</head>
 	<body>

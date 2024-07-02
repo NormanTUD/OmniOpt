@@ -11,6 +11,6 @@ COPY .tests/example_network/install.sh /.test_install.sh
 RUN bash /.test_install.sh
 RUN rm /.test_install.sh
 
-COPY . /var/opt/omniopt
+COPY ./ /var/opt/omniopt
 
 #CMD ["apache2-foreground"]

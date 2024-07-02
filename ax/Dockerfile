@@ -19,6 +19,8 @@ COPY ./.tests /var/opt/omniopt/.tests
 COPY ./.tools /var/opt/omniopt/.tools
 COPY ./.gui /var/opt/omniopt/.gui
 
+RUN adduser --disabled-password --gecos '' s3811141
+
 WORKDIR /var/opt/omniopt
 
 #CMD ["apache2-foreground"]

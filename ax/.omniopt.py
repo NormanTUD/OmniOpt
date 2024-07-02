@@ -1905,7 +1905,7 @@ def get_tmp_file_from_json(experiment_args):
         with open(f'{k}', "w") as f:
             json.dump(experiment_args, f)
     except PermissionError as e:
-        print_red(f"Error writing {k}: {e}")
+        print_red(f"Error writing '{k}' in get_tmp_file_from_json: {e}")
 
     return str(k)
 

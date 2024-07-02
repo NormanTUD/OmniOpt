@@ -23,6 +23,7 @@ ARG GetMyUsername
 RUN adduser --disabled-password --gecos '' ${GetMyUsername}
 
 RUN chown -R ${GetMyUsername}:${GetMyUsername} /var/opt/omniopt/
+RUN chown -R ${GetMyUsername}:${GetMyUsername} /home/${GetMyUsername}
 
 WORKDIR /var/opt/omniopt
 

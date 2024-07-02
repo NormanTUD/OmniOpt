@@ -105,7 +105,7 @@ if ! command -v git &>/dev/null; then
 
 	sudo apt-get install -y git || {
 		echo "sudo apt install -y git failed"
-		exit 4
+		exit 6
 	}
 fi
 

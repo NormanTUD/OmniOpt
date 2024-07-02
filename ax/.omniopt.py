@@ -336,6 +336,7 @@ slurm.add_argument('--force_local_execution', help='Forces local execution even 
 slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
 slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+slurm.add_argument('--account', help='Account to be used', type=str, default=None)
 slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
 
@@ -3231,6 +3232,7 @@ def get_executor(args):
         timeout_min=args.worker_timeout,
         tasks_per_node=args.tasks_per_node,
         slurm_gres=f"gpu:{args.gpus}",
+        account=args.account,
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,
         stderr_to_stdout=args.stderr_to_stdout,

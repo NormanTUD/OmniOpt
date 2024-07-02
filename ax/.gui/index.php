@@ -358,7 +358,7 @@
 					if(item.required) {
 						var this_error = "Field '" + item.label + "' is required.";
 						$("#" + item.id + "_error").html(this_error).show();
-						$("#" + item.id).css("background-color", "#e57373");
+						$("#" + item.id).css("background-color", "#FFCCCC");
 
 						errors.push(this_error);
 					}

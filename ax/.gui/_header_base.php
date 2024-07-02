@@ -272,6 +272,11 @@
 				width: 70%;
 				min-width: 200px;
 			}
+
+			td {
+				padding-top: 3px;
+				padding-bottom: 3px;
+			}
 		</style>
 		<script src="jquery-3.7.1.js"></script>
 		<script src="jquery-ui.min.js"></script>

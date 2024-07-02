@@ -10,7 +10,7 @@
 	<div id="toc"></div>
 
 	<h2 id="continue_with_same_options">Continue an old job with the same options</h2>
-	<p>Continueing an old job with the same options as previously, but with awareness of the hyperparameter-constellations
+	<p>Continuing an old job with the same options as previously, but with awareness of the hyperparameter-constellations
 	that have already been tested, is as simple as this, assuming your job is in <tt>runs/my_experiment/0</tt>:
 
 	<pre><code class="language-bash">./omniopt --continue runs/my_experiment/0</code></pre>

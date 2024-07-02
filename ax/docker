@@ -92,7 +92,7 @@ if ! command -v git &>/dev/null; then
 fi
 
 if ! command -v docker &>/dev/null; then
-	echo "docker not found"
+	echo "docker not found. Cannot continue"
 	exit 5
 fi
 

@@ -606,7 +606,7 @@
 								if(!choiceValues.match(/./)) {
 									warn_msg.push("Values are missing.");
 
-									$($(".parameterRow")[i]).css("background-color", "orange")
+									$($(".parameterRow")[i]).css("background-color", "#ffabab")
 								}
 							} else {
 								warn_msg.push(`choiceValues not defined.`);
@@ -628,11 +628,11 @@
 							} else if(!fixedValue.match(/./)) {
 								warn_msg.push("<i>Value</i> is missing.");
 
-								$($(".parameterRow")[i]).css("background-color", "orange")
+								$($(".parameterRow")[i]).css("background-color", "#ffabab")
 							} else if(!fixedValue.match(/^[a-zA-Z0-9,_]+$/)) {
 								warn_msg.push("Invalid values. Must match Regex /[a-zA-Z0-9,_]/.");
 
-								$($(".parameterRow")[i]).css("background-color", "orange")
+								$($(".parameterRow")[i]).css("background-color", "#ffabab")
 							}
 						}
 
@@ -648,16 +648,16 @@
 								warn_msg.push("No parameter name");
 							}
 
-							$($(".parameterRow")[i]).css("background-color", "orange")
+							$($(".parameterRow")[i]).css("background-color", "#ffabab")
 						}
 					} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
 						warn_msg.push("Name contains invalid characters. Must be all-letters.");
 
-						$($(".parameterRow")[i]).css("background-color", "orange")
+						$($(".parameterRow")[i]).css("background-color", "#ffabab")
 					} else {
 						warn_msg.push("<i>Name</i> is missing.");
 
-						$($(".parameterRow")[i]).css("background-color", "orange")
+						$($(".parameterRow")[i]).css("background-color", "#ffabab")
 					}
 
 					if(warn_msg.length) {

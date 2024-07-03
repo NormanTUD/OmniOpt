@@ -326,7 +326,7 @@
 					}
 				}
 			?>
-			<input onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 150px;" type="text" placeholder="Search..." id="search"></input>
+			<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 150px;" type="text" placeholder="Search..." id="search"></input>
 		</div>
 		<div id="searchResults"></div>
 

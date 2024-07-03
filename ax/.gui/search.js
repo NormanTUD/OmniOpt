@@ -62,24 +62,18 @@ async function displaySearchResults(searchTerm, results) {
 	if (results.length > 0) {
 		$searchResults.append('<h2>Search results:</h2>');
 
+		var result_lis = [];
+
 		results.forEach(function(result) {
 			log("result:", result);
-			var result_line = `- <a href="${result.link}">${result.content}</a><br>`;
-			$searchResults.append(result_line);
+			var result_line = `<li><a href="${result.link}">${result.content}</a></li>`;
+			result_lis.push(result_line);
+
 		});
 
-		// Hintergrundladen und Austauschen der Vorschaubilder
-		$('.loading-thumbnail-search').each(function() {
-			var $thumbnail = $(this);
-			var originalUrl = $thumbnail.attr('data-original-url');
-
-			// Bild im Hintergrund laden
-			var img = new Image();
-			img.onload = function() {
-				$thumbnail.attr('src', originalUrl); // Bild austauschen, wenn geladen
-			};
-			img.src = originalUrl; // Starte das Laden des Bildes im Hintergrund
-		});
+		if(result_lis.length) {
+			$searchResults.append("<ul>\n" + result_lis.join("\n") + "</ul>");
+		}
 	} else {
 		$searchResults.append('<p>No results found.</p>');
 	}

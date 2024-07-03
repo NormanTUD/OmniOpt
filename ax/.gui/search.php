@@ -1,6 +1,4 @@
 <?php
-header('Content-Type: application/json');
-
 // Funktion zum Lesen des Inhalts einer Datei
 function read_file_content($file_path) {
 	try {
@@ -23,19 +21,21 @@ function extract_html_from_php($file_content) {
 	ob_start();
 	eval('?>' . implode("\n", $file_content));
 	$html_content = ob_get_clean();
+	$html_content = preg_replace("/<head>.*<\/head>/is", "", $html_content);
 	return $html_content;
 }
 
 // Funktion zum Entfernen von HTML-Tags
 function strip_html_tags($html_content) {
-	return strip_tags($html_content);
+	$res = strip_tags($html_content);
+	return $res;
 }
 
 // Funktion zum Durchsuchen des Textes und Finden der Positionen
 function search_text_with_context($text_lines, $regex) {
 	$results = [];
 	foreach ($text_lines as $line_number => $line) {
-		$clean_line = strip_tags($line);
+		$clean_line = strip_html_tags($line);
 		if (preg_match($regex, $clean_line)) {
 			$context = find_nearest_heading($text_lines, $line_number);
 			$results[] = [
@@ -63,12 +63,25 @@ function find_nearest_heading($text_lines, $current_line) {
 // Funktion zum Loggen von Fehlern
 function log_error($message) {
 	error_log($message);
+	header('Content-Type: application/json');
 	echo json_encode(["error" => $message]);
 	exit;
 }
 
 // Hauptprogramm
-$files = ['folder_structure.php', 'plot.php']; // Liste der zu durchsuchenden Dateien
+$php_files = []; // Liste der zu durchsuchenden Dateien
+
+include("searchable_php_files.php");
+
+foreach ($files as $fn => $n) {
+	if (is_array($n)) {
+		foreach ($n["entries"] as $sub_fn => $sub_n) {
+			$php_files[] = "$sub_fn.php";
+		}
+	} else {
+		$php_files[] = "$fn.php";
+	}
+}
 
 // Überprüfen und Validieren des regulären Ausdrucks
 if (isset($_GET['regex'])) {
@@ -84,32 +97,36 @@ if (isset($_GET['regex'])) {
 		log_error("Ungültiger regulärer Ausdruck: $regex");
 	}
 } else {
+	header('Content-Type: application/json');
 	print(json_encode(array("error" => "No 'regex' parameter given for search")));
 	exit(0);
 }
 
 $output = [];
 
-foreach ($files as $file_path) {
-	$file_content = read_file_content($file_path);
-	if ($file_content !== false) {
-		$html_content = extract_html_from_php($file_content);
-		$text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
+foreach ($php_files as $file_path) {
+	if($file_path != "share.php" && $file_path != "usage_stats.php") {
+		$file_content = read_file_content($file_path);
+		if ($file_content !== false) {
+			$html_content = extract_html_from_php($file_content);
+			$text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
 
-		$search_results = search_text_with_context($text_lines, $regex);
-		if (!empty($search_results)) {
-			foreach ($search_results as $result) {
-				$entry = [
-					'content' => $result['line']
-				];
-				if ($result['context']) {
-					$entry['link'] = $file_path . '#' . $result['context']['id'];
+			$search_results = search_text_with_context($text_lines, $regex);
+			if (!empty($search_results)) {
+				foreach ($search_results as $result) {
+					$entry = [
+						'content' => $result['line']
+					];
+					if ($result['context']) {
+						$entry['link'] = $file_path . '#' . $result['context']['id'];
+					}
+					$output[] = $entry;
 				}
-				$output[] = $entry;
 			}
 		}
 	}
 }
 
+header('Content-Type: application/json');
 echo json_encode($output);
 ?>

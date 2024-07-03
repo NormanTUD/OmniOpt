@@ -295,22 +295,7 @@
 		<div id="scads_bar">
 			<a target="_blank" href="https://scads.ai/"><img src="scads_logo.svg" /></a>
 			<?php
-				$files = array(
-					"tutorials" => array(
-						"name" => "Tutorials",
-						"entries" => array(
-							"basics" => "Basic info on OmniOpt2",
-							"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
-							"folder_structure" => "Folder Structure of OmniOpt runs",
-							"plot" => "Plot your results",
-							"continue_job" => "Continue jobs",
-							"oo_share" => "OmniOpt-Share"
-						)
-					),
-					"index" => "GUI",
-					"share" => "Share",
-					"usage_stats" => "Statistics"
-				);
+				include("searchable_php_files.php");
 
 				$current_file = basename($_SERVER["PHP_SELF"]);
 

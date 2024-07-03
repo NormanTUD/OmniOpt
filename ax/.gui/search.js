@@ -1,5 +1,4 @@
 const log = console.log;
-const l = log;
 
 var searchTimer; // Globale Variable für den Timer
 var lastSearch = "";

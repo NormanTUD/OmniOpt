@@ -1,5 +1,6 @@
 <?php
 	include_once("_functions.php");
+
 	$files = array(
 		"tutorials" => array(
 			"name" => "Tutorials",

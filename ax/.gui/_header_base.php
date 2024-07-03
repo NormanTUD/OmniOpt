@@ -325,6 +325,5 @@
 					}
 				}
 			?>
+			<input style="width: 150px;" type="text" placeholder="Search..." id="search"></input>
 		</div>
-	</body>
-</html>

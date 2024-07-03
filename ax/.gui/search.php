@@ -105,7 +105,7 @@ if (isset($_GET['regex'])) {
 $output = [];
 
 foreach ($php_files as $file_path) {
-	if($file_path != "share.php" && $file_path != "usage_stats.php") {
+	if($file_path != "share.php" && $file_path != "usage_stats.php" && $file_path != "index.php") {
 		$file_content = read_file_content($file_path);
 		if ($file_content !== false) {
 			$html_content = extract_html_from_php($file_content);

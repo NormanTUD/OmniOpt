@@ -2916,6 +2916,12 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     try:
         progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
 
+        if args.reservation:
+            os.environ['SBATCH_RESERVATION'] = args.reservation
+
+        if args.account:
+            os.environ['SBATCH_ACCOUNT'] = args.account
+
         new_job = executor.submit(evaluate, parameters)
         write_worker_usage()
         submitted_jobs(1)
@@ -3230,11 +3236,6 @@ def get_executor(args):
 
     # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
-    _reservation = args.reservation
-
-    if _reservation:
-        _reservation = "slurm_" + _reservation
-
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
@@ -3246,8 +3247,7 @@ def get_executor(args):
         stderr_to_stdout=args.stderr_to_stdout,
         mem_gb=args.mem_gb,
         slurm_signal_delay_s=args.slurm_signal_delay_s,
-        slurm_use_srun=args.slurm_use_srun,
-        reservation=_reservation
+        slurm_use_srun=args.slurm_use_srun
     )
 
     return executor

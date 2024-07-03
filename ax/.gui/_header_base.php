@@ -289,6 +289,7 @@
 		<script src="jquery-3.7.1.js"></script>
 		<script src="jquery-ui.min.js"></script>
 		<script src="prism.js"></script>
+		<script src="search.js"></script>
 		<script src="tooltipster.bundle.min.js"></script>
 	</head>
 	<body>
@@ -325,5 +326,8 @@
 					}
 				}
 			?>
-			<input style="width: 150px;" type="text" placeholder="Search..." id="search"></input>
+			<input onchange='start_search()' style="width: 150px;" type="text" placeholder="Search..." id="search"></input>
 		</div>
+		<div id="searchResults"></div>
+
+		<div id="mainContent">

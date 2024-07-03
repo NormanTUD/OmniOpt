@@ -331,7 +331,7 @@ experimental.add_argument('--show_parameter_suggestions', help='Show suggestions
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)
 slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
-slurm.add_argument('--reservation', help='Reservation', default="", type=str)
+slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
 slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
 slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.', type=int, default=0)
 slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
@@ -3241,7 +3241,8 @@ def get_executor(args):
         stderr_to_stdout=args.stderr_to_stdout,
         mem_gb=args.mem_gb,
         slurm_signal_delay_s=args.slurm_signal_delay_s,
-        slurm_use_srun=args.slurm_use_srun
+        slurm_use_srun=args.slurm_use_srun,
+        reservation=args.reservation
     )
 
     return executor

@@ -303,7 +303,8 @@
 							"run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",
 							"folder_structure" => "Folder Structure of OmniOpt runs",
 							"plot" => "Plot your results",
-							"continue_job" => "Continue jobs"
+							"continue_job" => "Continue jobs",
+							"oo_share" => "OmniOpt-Share"
 						)
 					),
 					"index" => "GUI",
@@ -320,8 +321,8 @@
 							$keys[] = $sub_fn;
 						}
 						$re_string = implode("|", $keys);
-						$is_tutorial_active = preg_match("/$re_string/", $current_file);
-						$tab_class = $is_tutorial_active ? 'active_tab' : 'inactive_tab';
+						$is_active = preg_match("/$re_string/", $current_file);
+						$tab_class = $is_active ? 'active_tab' : 'inactive_tab';
 						echo "<div class='dropdown'>\n";
 						echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . " &#8595;</button>\n";
 						echo "\t<div class='dropdown-content'>\n";

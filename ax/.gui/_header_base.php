@@ -6,6 +6,10 @@
 		<link href="prism.css" rel="stylesheet" />
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<style>
+			.marked_text {
+				background-color: yellow;
+			}
+
 			.time_picker_container {
 				font-variant: small-caps;
 				width: 100%;

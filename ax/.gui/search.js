@@ -58,6 +58,18 @@ function delete_search () {
 	$("#search").val("").trigger("change");
 }
 
+function mark_search_result_yellow(content, search) {
+	try {
+		// Escape the search term to safely use it in a regular expression
+		var escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		var regex = new RegExp("(" + escapedSearch + ")", 'gi');
+		return content.replace(regex, "<span class='marked_text'>$1</span>");
+	} catch (error) {
+		console.error("Error while marking search results: ", error);
+		return content; // return original content if there's an error
+	}
+}
+
 // Funktion zur Anzeige der Suchergebnisse
 async function displaySearchResults(searchTerm, results) {
 	var $searchResults = $('#searchResults');
@@ -71,7 +83,7 @@ async function displaySearchResults(searchTerm, results) {
 
 		results.forEach(function(result) {
 			log("result:", result);
-			var result_line = `<li><a onclick='delete_search()' href="${result.link}">${result.content}</a></li>`;
+			var result_line = `<li><a onclick='delete_search()' href="${result.link}">${mark_search_result_yellow(result.content, searchTerm)}</a></li>`;
 			result_lis.push(result_line);
 
 		});

@@ -394,6 +394,39 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 
+		--account=*)
+			old_continue=$account
+			account="${i#*=}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--account was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--account=.*\s\s*# #')
+			fi
+
+			args_string+=" --account=$account "
+
+			account=$account
+
+			;;
+
+		--account)
+			old_continue=$account
+
+			shift
+			k=$((k+1))
+
+			account="${args[k]}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--account was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--account.*\s\s*# #')
+			fi
+
+			args_string+=" --account=$account "
+
+			account=$account
+			;;
+
 		--reservation=*)
 			old_continue=$reservation
 			reservation="${i#*=}"
@@ -905,19 +938,41 @@ else
 	exit_code=""
 
 	if [[ $gpus -ne 0 ]]; then
-		if [[ -z $reservation ]]; then
-			sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		if [[ -z $account ]]; then
+			if [[ -z $reservation ]]; then
+				sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			else
+				sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			fi
 		else
-			sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+			if [[ -z $reservation ]]; then
+				sbatch_result=$(sbatch -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			else
+				sbatch_result=$(sbatch -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			fi
 		fi
-		exit_code=$?
 	else
-		if [[ -z $reservation ]]; then
-			sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		if [[ -z $account ]]; then
+			if [[ -z $reservation ]]; then
+				sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			else
+				sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			fi
 		else
-			sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+			if [[ -z $reservation ]]; then
+				sbatch_result=$(sbatch -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			else
+				sbatch_result=$(sbatch -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				exit_code=$?
+			fi
 		fi
-		exit_code=$?
 	fi
 
 	started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')

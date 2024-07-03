@@ -3230,6 +3230,11 @@ def get_executor(args):
 
     # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
+    _reservation = args.reservation
+
+    if _reservation:
+        _reservation = "slurm_" + _reservation
+
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
@@ -3242,7 +3247,7 @@ def get_executor(args):
         mem_gb=args.mem_gb,
         slurm_signal_delay_s=args.slurm_signal_delay_s,
         slurm_use_srun=args.slurm_use_srun,
-        reservation=args.reservation
+        reservation=_reservation
     )
 
     return executor

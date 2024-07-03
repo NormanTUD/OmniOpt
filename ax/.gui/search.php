@@ -119,8 +119,8 @@ foreach ($php_files as $file_path) {
 					];
 					if ($result['context']) {
 						$entry['link'] = $file_path . '#' . $result['context']['id'];
+						$output[] = $entry;
 					}
-					$output[] = $entry;
 				}
 			}
 		}

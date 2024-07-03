@@ -403,7 +403,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string=$(echo "$args_string" | sed -e 's#\s*--reservation=.*\s\s*# #')
 			fi
 
-			args_string+=" --reservation $reservation "
+			args_string+=" --reservation=$reservation "
 
 			reservation=$reservation
 
@@ -422,7 +422,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string=$(echo "$args_string" | sed -e 's#\s*--reservation.*\s\s*# #')
 			fi
 
-			args_string+=" --reservation $reservation "
+			args_string+=" --reservation=$reservation "
 
 			reservation=$reservation
 

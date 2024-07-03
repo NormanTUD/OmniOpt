@@ -334,7 +334,7 @@
 						echo "\t</div>\n";
 						echo "</div>\n";
 					} else {
-						$tab_is_active = preg_match("/$fn.php/", $current_file);
+						$tab_is_active = preg_match("/^$fn.php/", $current_file);
 						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
 						echo "\t<a href='$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
 					}

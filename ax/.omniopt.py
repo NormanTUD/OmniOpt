@@ -3241,7 +3241,6 @@ def get_executor(args):
         timeout_min=args.worker_timeout,
         tasks_per_node=args.tasks_per_node,
         slurm_gres=f"gpu:{args.gpus}",
-        account=args.account,
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,
         stderr_to_stdout=args.stderr_to_stdout,

@@ -393,6 +393,41 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 
+
+		--reservation=*)
+			old_continue=$reservation
+			reservation="${i#*=}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--reservation was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--reservation=.*\s\s*# #')
+			fi
+
+			args_string+=" --reservation $reservation "
+
+			reservation=$reservation
+
+			;;
+
+		--reservation)
+			old_continue=$reservation
+
+			shift
+			k=$((k+1))
+
+			reservation="${args[k]}"
+
+			if [[ ! -z $old_continue ]]; then
+				red_text "--reservation was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--reservation.*\s\s*# #')
+			fi
+
+			args_string+=" --reservation $reservation "
+
+			reservation=$reservation
+
+			;;
+
 		--continue_previous_job=*)
 			old_continue=$continue_previous_job
 			continue_previous_job="${i#*=}"
@@ -870,10 +905,18 @@ else
 	exit_code=""
 
 	if [[ $gpus -ne 0 ]]; then
-		sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		if [[ -z $reservation ]]; then
+			sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		else
+			sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		fi
 		exit_code=$?
 	else
-		sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		if [[ -z $reservation ]]; then
+			sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		else
+			sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+		fi
 		exit_code=$?
 	fi
 

@@ -1269,7 +1269,7 @@ def evaluate(parameters):
         is_in_evaluate = False
         return {"result": float(rand_res)}
 
-    parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+$', str(v)) else v) for k, v in parameters.items()}
+    parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 
     print_debug(f"evaluate with parameters {parameters}")
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)

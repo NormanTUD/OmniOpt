@@ -54,10 +54,15 @@ async function start_search() {
 	searchTimer = setTimeout(performSearch, 10);
 }
 
+function delete_search () {
+	$("#search").val("").trigger("change");
+}
+
 // Funktion zur Anzeige der Suchergebnisse
 async function displaySearchResults(searchTerm, results) {
 	var $searchResults = $('#searchResults');
 	$searchResults.empty();
+
 
 	if (results.length > 0) {
 		$searchResults.append('<h2>Search results:</h2>');
@@ -66,7 +71,7 @@ async function displaySearchResults(searchTerm, results) {
 
 		results.forEach(function(result) {
 			log("result:", result);
-			var result_line = `<li><a href="${result.link}">${result.content}</a></li>`;
+			var result_line = `<li><a onclick='delete_search()' href="${result.link}">${result.content}</a></li>`;
 			result_lis.push(result_line);
 
 		});

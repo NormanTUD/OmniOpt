@@ -273,7 +273,7 @@ function plot_all_possible (_results_csv_json) {
 	scatter(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 	scatter_3d(paramKeys, results_csv_json, minResult, maxResult, resultValues);
 	parallel_plot(paramKeys, results_csv_json, minResult, maxResult, resultValues);
-	hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+	//hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 }
 
 function convertUnixTimeToReadable(unixTime) {

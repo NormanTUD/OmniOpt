@@ -282,7 +282,7 @@ TESTNAME=__main__tests__
 
 cd ..
 
-if [[ "$quick" -eq "1" ]]; then
+if [[ "$quick" -eq "0" ]]; then
 	bash .tests/example_network/install.sh
 fi
 

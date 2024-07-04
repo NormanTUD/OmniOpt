@@ -496,6 +496,7 @@
 					}
 
 					value = btoa(value);
+					log("value:", value)
 
 					command += " --" + item.id + "=" + value;
 					$("#" + item.id).css("background-color", "");

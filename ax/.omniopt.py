@@ -2099,7 +2099,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
                     if args.verbose:
-                        print_yellow("No CUDA devices found")
+                        print_yellow("No suitable CUDA devices found")
         except ModuleNotFoundError:
             print_red("Cannot load torch and thus, cannot use gpus")
 

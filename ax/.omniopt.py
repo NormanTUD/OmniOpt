@@ -378,9 +378,15 @@ class TPE(ExactGP, GPyTorchModel):
         )
         self.to(train_X)  # make sure we're on the right device/dtype
 
+        self.train_X = train_X
+        self.train_Y = train_Y
+
     def forward(self, x):
         print("forward")
-        dier(this.super.train_X)
+        print("train_X:")
+        print(self.train_X)
+        print("train_Y:")
+        print(self.train_Y)
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)

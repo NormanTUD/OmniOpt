@@ -497,7 +497,7 @@
 
 					//value = btoa(value);
 
-					var base_64_encoder = value.replaceAll(/"/, '\\"');
+					var base_64_encoder = value.replaceAll(/"/g, '\\"');
 					log("base_64_encoder:", base_64_encoder);
 
 					value = `$(${base_64_encoder} | base64 -w 0)`;

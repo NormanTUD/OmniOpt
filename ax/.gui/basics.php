@@ -48,7 +48,7 @@
 		<li><code class='language-bash'>--num_random_steps=20</code>: Sets the number of random steps to 20.</li>
 		<li><code class='language-bash'>--follow</code>: Follows the job's progress.</li>
 		<li><code class='language-bash'>--show_sixel_graphics</code>: Displays sixel graphics.</li>
-		<li><code class='language-bash'>--run_program=YmFzaCAvcGF0aC90by9teV9leHBlcmltZW50L3J1bi5zaCAtLWVwb2Nocz0lKGVwb2NocykgLS1sZWFybmluZ19yYXRlPSUobGVhcm5pbmdfcmF0ZSkgLS1sYXllcnM9JShsYXllcnMp</code>: Specifies the base64-encoded command to run the program. In this case this resolves to <code class="language-bash">bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)</code>.</li>
+		<li><code class='language-bash'>--run_program=YmFzaCAvcGF0aC90by9teV9leHBlcmltZW50L3J1bi5zaCAtLWVwb2Nocz0lKGVwb2NocykgLS1sZWFybmluZ19yYXRlPSUobGVhcm5pbmdfcmF0ZSkgLS1sYXllcnM9JShsYXllcnMp</code>: Specifies the <a target='_blank' href="https://en.wikipedia.org/wiki/Base64">base64</a>-encoded command to run the program. In this case this resolves to <code class="language-bash">bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)</code>.</li>
 		<li><code class='language-bash'>--cpus_per_task=1</code>: Allocates 1 CPU per task.</li>
 		<li><code class='language-bash'>--send_anonymized_usage_stats</code>: Sends anonymized usage statistics.</li>
 		<li><code class='language-bash'>--model=BOTORCH_MODULAR</code>: Specifies the optimization model to use.</li>

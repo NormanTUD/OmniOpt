@@ -3146,18 +3146,11 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
     if str(args.model).upper() == "TPE":
-        tpe_model = BoTorchModel(
-            surrogate=Surrogate(
-                # The model class to use
-                botorch_model_class=TPE,
-                # Optional, MLL class with which to optimize model parameters
-                # mll_class=ExactMarginalLogLikelihood,
-                # Optional, dictionary of keyword arguments to model constructor
-                # model_options={}
-            ),
-            # Optional, acquisition function class to use - see custom acquisition tutorial
-            # botorch_acqf_class=qExpectedImprovement,
-        )
+        from ax.storage.botorch_modular_registry import MODEL_REGISTRY
+        from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
+
+        MODEL_REGISTRY.update({TPE:"TPE"})
+        REVERSE_MODEL_REGISTRY.update({"TPE":TPE})
 
         _steps.append(
             GenerationStep(

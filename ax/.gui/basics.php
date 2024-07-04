@@ -57,6 +57,11 @@
 		<li><code class='language-bash'>--parameter layers fixed 10</code>: Sets the layers parameter to a fixed value of 10</li>
 	</ul>
 
+	<h2 id="run_program"><tt>--run_program</tt></h2>
+	<p>The <code class="language-bash">--run_program</code>-parameter needs the program to be executed as a base64-string, because parsing spaces and newline in bash, where it is party evaluated, is very difficult. It is possible to use a human readable string, though it has to be converted to base64 by your shell:<p>
+
+	<code class="language-bash">--run_program=$(echo -n "bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)" | base64 -w 0)</code>
+
 	<h2 id="integration">Integration</h2>
 
 	<p>OmniOpt2 is compatible with any program that can run on Linux, regardless of the programming language (e.g., C, Python). The program must accept parameters via command line and output a result string (e.g., <code class="language-bash">print(f"RESULT: {loss}")</code>).</p>

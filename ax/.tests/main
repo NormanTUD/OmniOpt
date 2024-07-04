@@ -282,7 +282,9 @@ TESTNAME=__main__tests__
 
 cd ..
 
-bash .tests/example_network/install.sh
+if [[ "$quick" -eq "1" ]]; then
+	bash .tests/example_network/install.sh
+fi
 
 _test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
 

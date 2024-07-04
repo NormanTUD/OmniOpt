@@ -495,10 +495,11 @@
 						$("#run_program_error").html("").hide();
 					}
 
-					value = btoa(value);
-					log("value:", value)
+					#value = btoa(value);
 
-					command += " --" + item.id + "=" + value;
+					value = `$(${value.replaceAll(/"/, '\\"')} | base64 -w 0)`;
+
+					command += " --" + item.id + "='" + value + "'";
 					$("#" + item.id).css("background-color", "");
 				} else {
 					if(!errors.length) {

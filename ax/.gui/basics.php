@@ -79,8 +79,6 @@
 
 	<p>OmniOpt2 is particularly useful in fields such as AI research and simulations, where hyperparameter optimization can significantly impact performance and results.</p>
 
-	<p>For support, error reporting, and contributions, contact: peter.winkler1@tu-dresden.de, for technical stuff norman.koch@tu-dresden.de.</p>
-
 	<h2 id="run_local_or_docker">Run locally or in Docker</h2>
 	<p>You can also run OmniOpt2 locally or inside docker.</p>
 
@@ -94,6 +92,9 @@
 	<p>The <code class="language-bash">./docker</code>-command will build the container. You can also run several commands directly from the <code class="language-bash">./docker</code>-command like this:</p>
 
 	<p><code class="language-bash">./docker omniopt --tests</code> for example, will install docker (on Debian), build the container and run OmniOpt2 with the <code class="language-bash">--tests</code>-parameter.</p>
+
+	<h2 id="contact">Contact</h2>
+	<p>Idea: peter.winkler1 at tu-dresden.de, Technical Support: norman.koch at tu-dresden.de.</p>
 
 	<script src="prism.js"></script>
 	<script src="footer.js"></script>

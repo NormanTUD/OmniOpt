@@ -21,3 +21,4 @@ sixel
 pytz
 tzlocal
 rich-argparse
+hyperopt

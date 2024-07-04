@@ -3135,11 +3135,15 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     chosen_non_random_model = Models.BOTORCH_MODULAR
 
     available_models = list(Models.__members__.keys())
+    available_models.append("TPE")
 
     if args.model:
         if str(args.model).upper() in available_models:
             print_yellow(f"Using model {str(args.model).upper()}")
-            chosen_non_random_model = Models.__members__[str(args.model).upper()]
+            if str(args.model).upper() == "TPE":
+                chosen_non_random_model = "TPE"
+            else:
+                chosen_non_random_model = Models.__members__[str(args.model).upper()]
         else:
             print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 

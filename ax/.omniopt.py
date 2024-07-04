@@ -362,6 +362,8 @@ from typing import Optional
 from ax.models.torch.botorch_modular.model import BoTorchModel
 from ax.models.torch.botorch_modular.surrogate import Surrogate
 from ax.modelbridge.registry import Models
+from ax.storage.botorch_modular_registry import MODEL_REGISTRY
+from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
 
 class TPE(ExactGP, GPyTorchModel):
     _num_outputs = 1  # to inform GPyTorchModel API
@@ -377,12 +379,11 @@ class TPE(ExactGP, GPyTorchModel):
         self.to(train_X)  # make sure we're on the right device/dtype
 
     def forward(self, x):
+        print("forward")
+        dier(x)
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)
-
-from ax.storage.botorch_modular_registry import MODEL_REGISTRY
-from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
 
 MODEL_REGISTRY.update({TPE:"TPE"})
 REVERSE_MODEL_REGISTRY.update({"TPE":TPE})

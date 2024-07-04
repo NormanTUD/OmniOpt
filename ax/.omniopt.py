@@ -381,6 +381,13 @@ class TPE(ExactGP, GPyTorchModel):
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)
 
+from ax.storage.botorch_modular_registry import MODEL_REGISTRY
+from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
+
+MODEL_REGISTRY.update({TPE:"TPE"})
+REVERSE_MODEL_REGISTRY.update({"TPE":TPE})
+
+
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
     my_exit(203)
@@ -3128,15 +3135,11 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     chosen_non_random_model = Models.BOTORCH_MODULAR
 
     available_models = list(Models.__members__.keys())
-    available_models.append("TPE")
 
     if args.model:
         if str(args.model).upper() in available_models:
             print_yellow(f"Using model {str(args.model).upper()}")
-            if str(args.model).upper() == "TPE":
-                chosen_non_random_model = "TPE"
-            else:
-                chosen_non_random_model = Models.__members__[str(args.model).upper()]
+            chosen_non_random_model = Models.__members__[str(args.model).upper()]
         else:
             print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
@@ -3146,12 +3149,6 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
     if str(args.model).upper() == "TPE":
-        from ax.storage.botorch_modular_registry import MODEL_REGISTRY
-        from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
-
-        MODEL_REGISTRY.update({TPE:"TPE"})
-        REVERSE_MODEL_REGISTRY.update({"TPE":TPE})
-
         _steps.append(
             GenerationStep(
                 model=Models.BOTORCH_MODULAR,

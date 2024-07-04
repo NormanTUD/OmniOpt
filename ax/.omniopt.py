@@ -368,32 +368,42 @@ from ax.storage.botorch_modular_registry import REVERSE_MODEL_REGISTRY
 class TPE(ExactGP, GPyTorchModel):
     _num_outputs = 1  # to inform GPyTorchModel API
 
-    def __init__(self, train_X, train_Y, train_Yvar: Optional[Tensor] = None):
-        # NOTE: This ignores train_Yvar and uses inferred noise instead.
-        # squeeze output dim before passing train_Y to ExactGP
+    def __init__(self, train_X: Tensor, train_Y: Tensor, train_Yvar: Optional[Tensor] = None):
+        # Initial assertions to ensure the tensors have the correct dimensions and types
+        assert isinstance(train_X, Tensor), "train_X must be a tensor"
+        assert isinstance(train_Y, Tensor), "train_Y must be a tensor"
+        assert train_X.ndimension() == 2, "train_X must be a 2D tensor"
+        assert train_Y.ndimension() == 2, "train_Y must be a 2D tensor"
+        assert train_X.size(0) == train_Y.size(0), "train_X and train_Y must have the same number of rows"
+
+        # Super call to ExactGP with appropriate processing of train_Y
         super().__init__(train_X, train_Y.squeeze(-1), GaussianLikelihood())
+        
         self.mean_module = ConstantMean()
         self.covar_module = ScaleKernel(
             base_kernel=RBFKernel(ard_num_dims=train_X.shape[-1]),
         )
-        self.to(train_X)  # make sure we're on the right device/dtype
-
+        self.to(train_X.device)  # Ensure model is on the correct device
+        
         self.train_X = train_X
         self.train_Y = train_Y
 
-    def forward(self, x):
-        print("forward")
-        print("train_X:")
-        print(self.train_X)
-        print("train_Y:")
-        print(self.train_Y)
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        return MultivariateNormal(mean_x, covar_x)
+    def forward(self, x: Tensor) -> MultivariateNormal:
+        try:
+            mean_x = self.mean_module(x)
+            covar_x = self.covar_module(x)
+
+            # Assert the shapes of the mean and covariance
+            assert mean_x.size(0) == x.size(0), "Mismatch in number of data points in mean_x"
+            assert covar_x.shape[0] == x.size(0), "Mismatch in number of data points in covar_x"
+
+            return MultivariateNormal(mean_x, covar_x)
+        except Exception as e:
+            print_red(f"Error in forward pass: {e}")
+            raise e
 
 MODEL_REGISTRY.update({TPE:"TPE"})
 REVERSE_MODEL_REGISTRY.update({"TPE":TPE})
-
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")

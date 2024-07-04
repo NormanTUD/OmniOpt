@@ -500,7 +500,7 @@
 					var base_64_encoder = value.replaceAll(/"/g, '\\"');
 					log("base_64_encoder:", base_64_encoder);
 
-					value = `$(${base_64_encoder} | base64 -w 0)`;
+					value = `echo "$(${base_64_encoder} | base64 -w 0)"`;
 
 					command += " --" + item.id + "='" + value + "'";
 					$("#" + item.id).css("background-color", "");

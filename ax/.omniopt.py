@@ -19,7 +19,8 @@ SUPPORTED_MODELS = [
     "LEGACY_BOTORCH",
     "BOTORCH_MODULAR",
     "UNIFORM",
-    "BO_MIXED"
+    "BO_MIXED",
+    "TPE"
 ]
 
 original_print = print
@@ -348,6 +349,36 @@ debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 
 args = parser.parse_args()
+
+
+from botorch.models.gpytorch import GPyTorchModel
+from gpytorch.distributions import MultivariateNormal
+from gpytorch.kernels import RBFKernel, ScaleKernel
+from gpytorch.likelihoods import GaussianLikelihood
+from gpytorch.means import ConstantMean
+from gpytorch.models import ExactGP
+from torch import Tensor
+from typing import Optional
+from ax.models.torch.botorch_modular.model import BoTorchModel
+from ax.models.torch.botorch_modular.surrogate import Surrogate
+
+class TPE(ExactGP, GPyTorchModel):
+    _num_outputs = 1  # to inform GPyTorchModel API
+
+    def __init__(self, train_X, train_Y, train_Yvar: Optional[Tensor] = None):
+        # NOTE: This ignores train_Yvar and uses inferred noise instead.
+        # squeeze output dim before passing train_Y to ExactGP
+        super().__init__(train_X, train_Y.squeeze(-1), GaussianLikelihood())
+        self.mean_module = ConstantMean()
+        self.covar_module = ScaleKernel(
+            base_kernel=RBFKernel(ard_num_dims=train_X.shape[-1]),
+        )
+        self.to(train_X)  # make sure we're on the right device/dtype
+
+    def forward(self, x):
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        return MultivariateNormal(mean_x, covar_x)
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
@@ -3096,11 +3127,15 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     chosen_non_random_model = Models.BOTORCH_MODULAR
 
     available_models = list(Models.__members__.keys())
+    available_models.append("TPE")
 
     if args.model:
         if str(args.model).upper() in available_models:
             print_yellow(f"Using model {str(args.model).upper()}")
-            chosen_non_random_model = Models.__members__[str(args.model).upper()]
+            if str(args.model).upper() == "TPE":
+                chosen_non_random_model = "TPE"
+            else:
+                chosen_non_random_model = Models.__members__[str(args.model).upper()]
         else:
             print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
@@ -3109,18 +3144,45 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
-    _steps.append(
-        GenerationStep(
-            model=chosen_non_random_model,
-            num_trials=-1,  # No limitation on how many trials should be produced from this step
-            max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
-            #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
-            enforce_num_trials=True,
-            model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
-            # More on parallelism vs. required samples in BayesOpt:
-            # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+    if str(args.model).upper() == "TPE":
+        tpe_model = BoTorchModel(
+            surrogate=Surrogate(
+                # The model class to use
+                botorch_model_class=TPE,
+                # Optional, MLL class with which to optimize model parameters
+                # mll_class=ExactMarginalLogLikelihood,
+                # Optional, dictionary of keyword arguments to model constructor
+                # model_options={}
+            ),
+            # Optional, acquisition function class to use - see custom acquisition tutorial
+            # botorch_acqf_class=qExpectedImprovement,
         )
-    )
+
+        _steps.append(
+            GenerationStep(
+                model=tpe_model,
+                num_trials=-1,  # No limitation on how many trials should be produced from this step
+                max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
+                #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
+                enforce_num_trials=True,
+                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+                # More on parallelism vs. required samples in BayesOpt:
+                # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+            )
+        )
+    else:
+        _steps.append(
+            GenerationStep(
+                model=chosen_non_random_model,
+                num_trials=-1,  # No limitation on how many trials should be produced from this step
+                max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
+                #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
+                enforce_num_trials=True,
+                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+                # More on parallelism vs. required samples in BayesOpt:
+                # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+            )
+        )
 
     gs = GenerationStrategy(
         steps=_steps

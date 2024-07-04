@@ -495,12 +495,10 @@
 						$("#run_program_error").html("").hide();
 					}
 
-					value = btoa(value)
+					value = btoa(value);
 
-					if (item.id != "constraints") {
-						command += " --" + item.id + "=" + value;
-						$("#" + item.id).css("background-color", "");
-					}
+					command += " --" + item.id + "=" + value;
+					$("#" + item.id).css("background-color", "");
 				} else {
 					if(!errors.length) {
 						if (item.id != "constraints") {

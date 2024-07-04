@@ -380,7 +380,7 @@ class TPE(ExactGP, GPyTorchModel):
 
     def forward(self, x):
         print("forward")
-        dier(x)
+        dier(this.super.train_X)
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)

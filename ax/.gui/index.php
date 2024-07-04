@@ -497,7 +497,10 @@
 
 					#value = btoa(value);
 
-					value = `$(${value.replaceAll(/"/, '\\"')} | base64 -w 0)`;
+					var base_64_encoder = value.replaceAll(/"/, '\\"');
+					log("base_64_encoder:", base_64_encoder);
+
+					value = `$(${base_64_encoder} | base64 -w 0)`;
 
 					command += " --" + item.id + "='" + value + "'";
 					$("#" + item.id).css("background-color", "");

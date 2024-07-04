@@ -1992,7 +1992,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             cuda_is_available = torch.cuda.is_available()
 
             if not cuda_is_available or cuda_is_available == 0:
-                print_red("No suitable CUDA devices found")
+                print_yellow("No suitable CUDA devices found")
             else:
                 if torch.cuda.device_count() >= 1:
                     torch_device = torch.cuda.current_device()
@@ -2091,7 +2091,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             cuda_is_available = torch.cuda.is_available()
 
             if not cuda_is_available or cuda_is_available == 0:
-                print_debug("No suitable CUDA devices found, getting next trials may be slow.")
+                print_yellow("No suitable CUDA devices found")
             else:
                 if torch.cuda.device_count() >= 1:
                     torch_device = torch.cuda.current_device()

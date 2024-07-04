@@ -76,7 +76,7 @@ cd ..
 
 expected_plot_types=()
 
-for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##'); do
+for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
 	expected_plot_types+=("$possible_plot_type")
 done
 

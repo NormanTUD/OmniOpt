@@ -495,7 +495,7 @@
 						$("#run_program_error").html("").hide();
 					}
 
-					#value = btoa(value);
+					//value = btoa(value);
 
 					var base_64_encoder = value.replaceAll(/"/, '\\"');
 					log("base_64_encoder:", base_64_encoder);

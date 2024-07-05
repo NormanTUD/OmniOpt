@@ -89,9 +89,9 @@
 	<h3 id="run_docker">Run in docker</h3>
 	<p>To build a docker container, simply run <code class="language-bash">./docker</code> in the main folder. Docker is not supported on the HPC System though. If you have Debian or systems based on it, it will automatically install docker if it's not installed. For other systems, you need to install docker yourself.</p>
 
-	<p>The <code class="language-bash">./docker</code>-command will build the container. You can also run several commands directly from the <code class="language-bash">./docker</code>-command like this:</p>
+	<p>The <code class="language-bash">./omniopt_docker</code>-command will build the container. You can also run several commands directly from the <code class="language-bash">./docker</code>-command like this:</p>
 
-	<p><code class="language-bash">./docker omniopt --tests</code> for example, will install docker (on Debian), build the container and run OmniOpt2 with the <code class="language-bash">--tests</code>-parameter.</p>
+	<p><code class="language-bash">./omniopt_docker omniopt --tests</code> for example, will install docker (on Debian), build the container and run OmniOpt2 with the <code class="language-bash">--tests</code>-parameter.</p>
 
 	<h2 id="contact">Contact</h2>
 	<p>Idea: peter.winkler1 at tu-dresden.de, Technical Support: norman.koch at tu-dresden.de.</p>

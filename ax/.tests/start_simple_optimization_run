@@ -39,6 +39,7 @@ function help () {
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
+	echo "  --time=(INT)                                       Time each subjob should run"
         echo "  --allow_failure                                    Adds a param to randomly fail"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"

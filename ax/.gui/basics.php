@@ -87,9 +87,9 @@
 	<p>To run OmniOpt2 locally, simply fill the GUI, copy the curl-command and run it locally. OmniOpt2 will be installed into a virtualenv once in the beginning, which may take up to 20 minutes. From then on, it will not install itself again, so you only need to wait once.</p>
 
 	<h3 id="run_docker">Run in docker</h3>
-	<p>To build a docker container, simply run <code class="language-bash">./docker</code> in the main folder. Docker is not supported on the HPC System though. If you have Debian or systems based on it, it will automatically install docker if it's not installed. For other systems, you need to install docker yourself.</p>
+	<p>To build a docker container, simply run <code class="language-bash">./omniopt_docker</code> in the main folder. Docker is not supported on the HPC System though. If you have Debian or systems based on it, it will automatically install docker if it's not installed. For other systems, you need to install docker yourself.</p>
 
-	<p>The <code class="language-bash">./omniopt_docker</code>-command will build the container. You can also run several commands directly from the <code class="language-bash">./docker</code>-command like this:</p>
+	<p>The <code class="language-bash">./omniopt_docker</code>-command will build the container. You can also run several commands directly from the <code class="language-bash">./omniopt_docker</code>-command like this:</p>
 
 	<p><code class="language-bash">./omniopt_docker omniopt --tests</code> for example, will install docker (on Debian), build the container and run OmniOpt2 with the <code class="language-bash">--tests</code>-parameter.</p>
 

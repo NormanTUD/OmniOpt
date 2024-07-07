@@ -10,7 +10,8 @@
 				"folder_structure" => "Folder Structure of OmniOpt runs",
 				"plot" => "Plot your results",
 				"continue_job" => "Continue jobs",
-				"oo_share" => "OmniOpt-Share"
+				"oo_share" => "OmniOpt-Share",
+				"help" => "Parameters"
 			)
 		),
 		"index" => "GUI",

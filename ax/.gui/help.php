@@ -239,7 +239,7 @@
             </tr>
             <tr>
                 <td>--partition PARTITION</td>
-                <td>Partition to be run on. <a href="https://slurm.schedmd.com/partitions.html" target="_blank">Learn more</a></td>
+                <td>Partition to be run on.</td>
                 <td>-</td>
             </tr>
             <tr>
@@ -254,7 +254,7 @@
             </tr>
             <tr>
                 <td>--slurm_signal_delay_s SLURM_SIGNAL_DELAY_S</td>
-                <td>When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1. <a href="https://slurm.schedmd.com/signal.html" target="_blank">Learn more</a></td>
+                <td>When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.</td>
                 <td>0</td>
             </tr>
             <tr>
@@ -264,7 +264,7 @@
             </tr>
             <tr>
                 <td>--cpus_per_task CPUS_PER_TASK</td>
-                <td>CPUs per task. <a href="https://slurm.schedmd.com/cpus_per_task.html" target="_blank">Learn more</a></td>
+                <td>CPUs per task.</td>
                 <td>-</td>
             </tr>
             <tr>

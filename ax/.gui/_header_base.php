@@ -305,8 +305,10 @@
 						e.preventDefault();
 						$("#search").val("");
 						$("#search").val(String.fromCharCode(e.keyCode));
-						$("#search").focus();
+						$("#search").focus().trigger("change");
 					}
+				} else if (keycode === 8) { // Backspace key
+					delete_search();
 				}
 			};
 		</script>
@@ -345,7 +347,10 @@
 					}
 				}
 			?>
-			<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 150px;" type="text" placeholder="Search (allows Regex)..." id="search"></input>
+			<span style="display: inline-flex;">
+				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 180px;" type="text" placeholder="Search (allows Regex)..." id="search"></input>
+				<button id="del_search_button" style="display: none;" onclick="delete_search()">&#10060;</button>
+			</span>
 		</div>
 		<div id="searchResults"></div>
 

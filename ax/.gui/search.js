@@ -52,6 +52,12 @@ async function start_search() {
 
 	// Starten der Suche nach 10 ms Verzögerung
 	searchTimer = setTimeout(performSearch, 10);
+
+	if(searchTerm.length) {
+		$("#del_search_button").show();
+	} else {
+		$("#del_search_button").show();
+	}
 }
 
 function delete_search () {
@@ -77,12 +83,11 @@ async function displaySearchResults(searchTerm, results) {
 
 
 	if (results.length > 0) {
-		$searchResults.append('<h2>Search results:</h2>');
+		$searchResults.append('<h2>Search results:</h2>\n<p>To get back back to the original page, clear the search.</p>');
 
 		var result_lis = [];
 
 		results.forEach(function(result) {
-			log("result:", result);
 			var result_line = `<li><a onclick='delete_search()' href="${result.link}">${mark_search_result_yellow(result.content, searchTerm)}</a></li>`;
 			result_lis.push(result_line);
 

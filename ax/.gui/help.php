@@ -63,7 +63,7 @@
             </tr>
             <tr>
                 <td><tt>--num_random_steps NUM_RANDOM_STEPS</tt></td>
-                <td>Number of urandom steps to start with.</td>
+                <td>Number of random steps to start with.</td>
                 <td>-</td>
             </tr>
             <tr>

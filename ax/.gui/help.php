@@ -58,13 +58,13 @@
             </tr>
             <tr>
                 <td><tt>--num_parallel_jobs NUM_PARALLEL_JOBS</tt></tt>
-                <td>Number of parallel slurm jobs.</td>
-                <td>20</td>
+                <td>Number of parallel slurm jobs (only used when Slurm is installed).</td>
+                <td><tt>20</tt></td>
             </tr>
             <tr>
                 <td><tt>--num_random_steps NUM_RANDOM_STEPS</tt></td>
                 <td>Number of random steps to start with.</td>
-                <td>-</td>
+                <td><tt>20</tt></td>
             </tr>
             <tr>
                 <td><tt>--max_eval MAX_EVAL</tt></td>
@@ -74,7 +74,7 @@
             <tr>
                 <td><tt>--worker_timeout WORKER_TIMEOUT</tt></td>
                 <td>Timeout for slurm jobs (i.e., for each single point to be optimized).</td>
-                <td>-</td>
+                <td><tt>30</tt></td>
             </tr>
             <tr>
                 <td><tt>--run_program RUN_PROGRAM [RUN_PROGRAM ...]</tt></td>
@@ -89,7 +89,7 @@
             <tr>
                 <td><tt>--mem_gb MEM_GB</tt></td>
                 <td>Amount of RAM for each worker in GB.</td>
-                <td>1GB</td>
+                <td><tt>1</tt></td>
             </tr>
             <tr class="section-header">
                 <td colspan="3">Required Arguments That Allow A Choice</td>
@@ -114,7 +114,7 @@
             <tr>
                 <td><tt>--maximize</tt></td>
                 <td>Maximize instead of minimize (which is default).</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--experiment_constraints EXPERIMENT_CONSTRAINTS [EXPERIMENT_CONSTRAINTS ...]</tt></td>
@@ -124,12 +124,12 @@
             <tr>
                 <td><tt>--stderr_to_stdout</tt></td>
                 <td>Redirect stderr to stdout for subjobs.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--run_dir RUN_DIR</tt></td>
                 <td>Directory in which runs should be saved.</td>
-                <td>runs</td>
+                <td><tt>runs</tt></td>
             </tr>
             <tr>
                 <td><tt>--seed SEED</tt></td>
@@ -139,12 +139,12 @@
             <tr>
                 <td><tt>--enforce_sequential_optimization</tt></td>
                 <td>Enforce sequential optimization.</td>
-                <td>false</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--verbose_tqdm</tt></td>
                 <td>Show verbose tqdm messages.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--load_previous_job_data LOAD_PREVIOUS_JOB_DATA [LOAD_PREVIOUS_JOB_DATA ...]</tt></td>
@@ -154,32 +154,32 @@
             <tr>
                 <td><tt>--hide_ascii_plots</tt></td>
                 <td>Hide ASCII-plots.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--model MODEL</tt></td>
                 <td>Use special models for nonrandom steps. Valid models are: SOBOL, GPEI, FACTORIAL, SAASBO, FULLYBAYESIAN, LEGACY_BOTORCH, BOTORCH_MODULAR, UNIFORM, BO_MIXED.</td>
-                <td>-</td>
+                <td><tt>BOTORCH_MODULAR</tt></td>
             </tr>
             <tr>
                 <td><tt>--gridsearch</tt></td>
                 <td>Enable gridsearch.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--show_sixel_graphics</tt></td>
                 <td>Show sixel graphics in the end.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--follow</tt></td>
                 <td>Automatically follow log file of sbatch.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--send_anonymized_usage_stats</tt></td>
                 <td>Send anonymized usage stats.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--ui_url UI_URL</tt></td>
@@ -197,32 +197,32 @@
             <tr>
                 <td><tt>--experimental</tt></td>
                 <td class="warning">Do some stuff not well tested yet.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--auto_execute_suggestions</tt></td>
                 <td class="warning">Automatically run again with suggested parameters (NOT FOR SLURM YET!).</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--auto_execute_counter AUTO_EXECUTE_COUNTER</tt></td>
                 <td class="warning">(Will automatically be set).</td>
-                <td>-</td>
+                <td><tt>0</tt></td>
             </tr>
             <tr>
                 <td><tt>--max_auto_execute MAX_AUTO_EXECUTE</tt></td>
                 <td class="warning">How many nested jobs should be done.</td>
-                <td>-</td>
+                <td><tt>3</tt></td>
             </tr>
             <tr>
                 <td><tt>--show_parameter_suggestions</tt></td>
                 <td class="warning">Show suggestions for possible promising parameter space changes.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--maximizer MAXIMIZER</tt></td>
                 <td class="warning">Value to expand search space for suggestions. Calculation is point [+-] maximizer * abs(point).</td>
-                <td>0.5</td>
+                <td><tt>2</tt></td>
             </tr>
             <tr class="section-header">
                 <td colspan="3">Slurm</td>
@@ -230,7 +230,7 @@
             <tr>
                 <td><tt>--slurm_use_srun</tt></td>
                 <td>Using srun instead of sbatch. <a href="https://slurm.schedmd.com/srun.html" target="_blank">Learn more</a></td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--time TIME</tt></td>
@@ -250,22 +250,22 @@
             <tr>
                 <td><tt>--force_local_execution</tt></td>
                 <td>Forces local execution even when SLURM is available.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--slurm_signal_delay_s SLURM_SIGNAL_DELAY_S</tt></td>
                 <td>When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.</td>
-                <td>0</td>
+                <td><tt>0</tt></td>
             </tr>
             <tr>
                 <td><tt>--nodes_per_job NODES_PER_JOB</tt></td>
                 <td>Number of nodes per job due to the new alpha restriction.</td>
-                <td>-</td>
+                <td><tt>1</tt></td>
             </tr>
             <tr>
                 <td><tt>--cpus_per_task CPUS_PER_TASK</tt></td>
                 <td>CPUs per task.</td>
-                <td>-</td>
+                <td><tt>1</tt></td>
             </tr>
             <tr>
                 <td><tt>--account ACCOUNT</tt></td>
@@ -275,12 +275,12 @@
             <tr>
                 <td><tt>--gpus GPUS</tt></td>
                 <td>Number of GPUs.</td>
-                <td>-</td>
+                <td><tt>0</tt></td>
             </tr>
             <tr>
                 <td><tt>--tasks_per_node TASKS_PER_NODE</tt></td>
                 <td>Number of tasks per node.</td>
-                <td>-</td>
+                <td><tt>1</tt></td>
             </tr>
             <tr class="section-header">
                 <td colspan="3">Debug</td>
@@ -288,32 +288,32 @@
             <tr>
                 <td><tt>--verbose</tt></td>
                 <td>Verbose logging.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--debug</tt></td>
                 <td>Enable debugging.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--no_sleep</tt></td>
                 <td>Disables sleeping for fast job generation (not to be used on HPC).</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--tests</tt></td>
                 <td>Run simple internal tests.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--evaluate_to_random_value</tt></td>
                 <td>Evaluate to random values.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
             <tr>
                 <td><tt>--show_worker_percentage_table_at_end</tt></td>
                 <td>Show a table of percentage of usage of max worker over time.</td>
-                <td>-</td>
+                <td><tt>False</tt></td>
             </tr>
         </tbody>
     </table>

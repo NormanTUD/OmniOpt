@@ -294,7 +294,7 @@ slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-required.add_argument('--num_random_steps', help='Number of urandom steps to start with', type=int, default=20)
+required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
 required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
 required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
 required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
@@ -326,7 +326,7 @@ experimental.add_argument('--auto_execute_suggestions', help='Automatically run 
 experimental.add_argument('--auto_execute_counter', help='(Will automatically be set)', type=int, default=0)
 experimental.add_argument('--max_auto_execute', help='How many nested jobs should be done', type=int, default=3)
 experimental.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)
-experimental.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 0.5), calculation is point [+-] maximizer * abs(point)', type=float, default=2)
+experimental.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 2), calculation is point [+-] maximizer * abs(point)', type=float, default=2)
 
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)

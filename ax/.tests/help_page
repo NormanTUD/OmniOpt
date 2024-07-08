@@ -38,20 +38,36 @@ CLEANED_HELP=$(echo $CURRENT_HELP | sed -e 's#Usage: omniopt\s*##' -e 's#Example
 echo $CLEANED_HELP
 
 for help_param in $CLEANED_HELP; do
-	set -x
 	if ! grep "<tt>$help_param.*</tt>" .gui/help.php 2>&1 >/dev/null; then
 		errmsg="Help parameter $help_param does not appear in .gui/help.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
+	else
+		green_text "Help parameter $help_param does appear in .gui/help.php"
 	fi
 done
+
+GUI_PARAMS=$(cat .gui/help.php | grep "<tt>--" | sed -e 's#.*--#--#' -e 's#\s\w*<.*##' -e 's#<.*##' | sed -e 's#\s.*##')
+echo $GUI_PARAMS
+
+for gui_param in $CLEANED_HELP; do
+	if ! echo "$CLEANED_HELP" | grep -- "$gui_param" 2>&1 >/dev/null; then
+		errmsg="Help parameter $gui_param does appear in .gui/help.php but not in ./omniopt --help"
+		red_text "$errmsg"
+		errors+=("$errmsg")
+	else
+		green_text "Help parameter $gui_param does appear in ./omniopt --help and .gui/help.php"
+	fi
+done
+
+
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
 printf 'help_page test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No plot errors"
+	green_text "No help page errors"
 	exit 0
 else
 	red_text "=> PLOT-ERRORS => PLOT-ERRORS => PLOT-ERRORS =>"

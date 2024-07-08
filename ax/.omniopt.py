@@ -2418,8 +2418,6 @@ def load_existing_job_data_into_ax_client(args):
 
 
     if len(already_inserted_param_hashes.keys()):
-        print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
-
         double_hashes = []
 
         for _hash in already_inserted_param_hashes.keys():
@@ -2429,6 +2427,9 @@ def load_existing_job_data_into_ax_client(args):
 
         if len(double_hashes):
             print(f"Double parameters not inserted: {len(double_hashes)}")
+
+        if len(double_hashes) - len(already_inserted_param_hashes.keys()):
+        print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
 
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)

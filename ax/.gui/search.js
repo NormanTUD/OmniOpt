@@ -56,7 +56,7 @@ async function start_search() {
 	if(searchTerm.length) {
 		$("#del_search_button").show();
 	} else {
-		$("#del_search_button").show();
+		$("#del_search_button").hide();
 	}
 }
 

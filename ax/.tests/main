@@ -334,6 +334,7 @@ if [[ "$quick" -eq "0" ]]; then
 fi
 _test "Plot-Tests" "bash .tests/plots" 0
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
+_test "help page Documentation" "bash .tests/help_page" 0
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"

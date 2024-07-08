@@ -11,7 +11,8 @@
 				"plot" => "Plot your results",
 				"continue_job" => "Continue jobs",
 				"oo_share" => "OmniOpt-Share",
-				"help" => "Parameters"
+				"help" => "Parameters",
+				"debug" => "Debug"
 			)
 		),
 		"index" => "GUI",

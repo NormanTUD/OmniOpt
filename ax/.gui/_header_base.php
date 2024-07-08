@@ -295,6 +295,21 @@
 		<script src="prism.js"></script>
 		<script src="search.js"></script>
 		<script src="tooltipster.bundle.min.js"></script>
+		<script>
+			document.onkeypress = function (e) {
+				e = e || window.event;
+
+				if(document.activeElement == $("body")[0]) {
+					var keycode = e.keyCode;
+					if(keycode >= 97 && keycode <= 122) {
+						e.preventDefault();
+						$("#search").val("");
+						$("#search").val(String.fromCharCode(e.keyCode));
+						$("#search").focus();
+					}
+				}
+			};
+		</script>
 	</head>
 	<body>
 		<div id="scads_bar">

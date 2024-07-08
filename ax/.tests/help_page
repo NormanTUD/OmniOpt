@@ -50,7 +50,7 @@ done
 GUI_PARAMS=$(cat .gui/help.php | grep "<tt>--" | sed -e 's#.*--#--#' -e 's#\s\w*<.*##' -e 's#<.*##' | sed -e 's#\s.*##')
 echo $GUI_PARAMS
 
-for gui_param in $CLEANED_HELP; do
+for gui_param in $GUI_PARAMS; do
 	if ! echo "$CLEANED_HELP" | grep -- "$gui_param" 2>&1 >/dev/null; then
 		errmsg="Help parameter $gui_param does appear in .gui/help.php but not in ./omniopt --help"
 		red_text "$errmsg"

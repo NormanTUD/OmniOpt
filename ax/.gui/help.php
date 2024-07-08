@@ -311,6 +311,11 @@
                 <td><tt>False</tt></td>
             </tr>
             <tr>
+                <td><tt>--ASDF</tt></td>
+                <td>Show a table of percentage of usage of max worker over time.</td>
+                <td><tt>False</tt></td>
+            </tr>
+            <tr>
                 <td><tt>--show_worker_percentage_table_at_end</tt></td>
                 <td>Show a table of percentage of usage of max worker over time.</td>
                 <td><tt>False</tt></td>

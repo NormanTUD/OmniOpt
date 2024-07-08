@@ -333,6 +333,7 @@ if [[ "$quick" -eq "0" ]]; then
 	_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0
 fi
 _test "Plot-Tests" "bash .tests/plots" 0
+_test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"

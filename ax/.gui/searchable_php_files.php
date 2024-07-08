@@ -12,7 +12,8 @@
 				"continue_job" => "Continue jobs",
 				"oo_share" => "OmniOpt-Share",
 				"help" => "Parameters",
-				"debug" => "Debug"
+				"debug" => "Debug",
+				"exit_codes_and_bash_scripting" => "Exit-Codes and Bash-scripting"
 			)
 		),
 		"index" => "GUI",

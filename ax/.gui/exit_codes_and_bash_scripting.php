@@ -4,6 +4,26 @@
 	<link href="tutorial.css" rel="stylesheet" />
 	<link href="jquery-ui.css" rel="stylesheet">
 	<link href="prism.css" rel="stylesheet" />
+	<style>
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+		}
+		th {
+			padding-top: 12px;
+			padding-bottom: 12px;
+			text-align: left;
+			background-color: #4CAF50;
+			color: white;
+		}
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+	</style>
 
 	<h1>Basics</h1>
     

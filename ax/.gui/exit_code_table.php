@@ -7,12 +7,6 @@
 		<?php
 			$exit_code_info = [];
 
-			if(!array_key_exists("HIDE_SUBZERO", $GLOBALS)) {
-				array_unshift($exit_code_info, [
-					"-1" => "No proper Exit code found",
-				]);
-			}
-
 			array_unshift($exit_code_info, [
 				0 => "Seems to have worked properly",
 				"2" => "Loading of Environment failed",
@@ -41,6 +35,12 @@
 				142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.",
 				243 => "Job was not found in squeue anymore, it may got cancelled before it ran."
 			]);
+
+			if(!array_key_exists("HIDE_SUBZERO", $GLOBALS)) {
+				array_unshift($exit_code_info, [
+					"-1" => "No proper Exit code found",
+				]);
+			}
 
 			foreach ($exit_code_info as $code_block_id => $code_block_content) {
 				foreach ($code_block_content as $code => $description) {

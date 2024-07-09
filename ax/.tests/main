@@ -85,6 +85,7 @@ debug=0
 max_eval=30
 num_parallel_jobs=20
 num_random_steps=$num_parallel_jobs
+reallyquick=0
 quick=0
 
 args=("$@")
@@ -178,10 +179,13 @@ while [ $k -lt ${#args[@]} ]; do
 		--help*)
 			help 1
 			;;
+		--reallyquick)
+			reallyquick=1
+			quick=1
+			;;
 		--quick)
 			quick=1
 			;;
-
 
 		--debug)
 			debug=1
@@ -298,39 +302,43 @@ if [[ -d "runs/$TESTNAME" ]]; then
 fi
 
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps" 0 87
-_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
+_test "Testing if there are the right number of jobs in runs/$TESTNAME/0" "./.tools/phases_overview runs/__main__tests__/0/ $num_random_steps $(($max_eval-$num_random_steps))" 0 
 
-_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
+if [[ "$reallyquick" -eq "0" ]]; then
+	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
+	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
+	_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps" 0 87
+	_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
 
-_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0 87
+	_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
 
-if [[ "$quick" -eq "0" ]]; then
-	for model_name in $(echo "SOBOL GPEI FACTORIAL SAASBO FULLYBAYESIAN LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do
-		_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model" 0
-	done
-fi
+	_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0 87
 
-if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
-	yellow_text "Deleting runs/__main__I_DO_NOT_EXIST_tests__/0"
-	rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
-fi
+	if [[ "$quick" -eq "0" ]]; then
+		for model_name in $(echo "SOBOL GPEI FACTORIAL SAASBO FULLYBAYESIAN LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do
+			_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model" 0
+		done
+	fi
 
-_test "Continue non-existing job" "bash omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --mem_gb 1 --time 30 --follow --gpus $NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps --max_eval=$max_eval" 105
-_test "Trying to run 0 random steps (should fail)" "bash omniopt --partition=$PARTITION --experiment_name=$TESTNAME --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus $NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0" 233
+	if [[ -d "runs/__main__I_DO_NOT_EXIST_tests__/0" ]]; then
+		yellow_text "Deleting runs/__main__I_DO_NOT_EXIST_tests__/0"
+		rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
+	fi
 
-yellow_text "Deleting runs/wronggoing_stuff/..."
-if [[ -d runs/wronggoing_stuff/ ]]; then
-	rm -rf runs/wronggoing_stuff/
-fi
+	_test "Continue non-existing job" "bash omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --mem_gb 1 --time 30 --follow --gpus $NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps --max_eval=$max_eval" 105
+	_test "Trying to run 0 random steps (should fail)" "bash omniopt --partition=$PARTITION --experiment_name=$TESTNAME --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus $NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0" 233
 
-_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0
-_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 87
-if [[ "$quick" -eq "0" ]]; then
-	_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps" 0
-	_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0
+	yellow_text "Deleting runs/wronggoing_stuff/..."
+	if [[ -d runs/wronggoing_stuff/ ]]; then
+		rm -rf runs/wronggoing_stuff/
+	fi
+
+	_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0
+	_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 87
+	if [[ "$quick" -eq "0" ]]; then
+		_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps" 0
+		_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0
+	fi
 fi
 _test "Plot-Tests" "bash .tests/plots" 0
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0

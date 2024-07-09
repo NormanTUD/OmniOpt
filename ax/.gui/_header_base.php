@@ -328,6 +328,7 @@
 	<body>
 		<div id="scads_bar">
 			<a target="_blank" href="https://scads.ai/"><img src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
+			<a target="_blank" href="index.php"><img height=73 src="<?php print $dir_path; ?>/logo.svg" /></a>
 			<?php
 				include("searchable_php_files.php");
 

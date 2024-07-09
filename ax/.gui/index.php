@@ -7,7 +7,7 @@
 
 	<p>If the system you run it on has Slurm installed, it will use it to parallelize as you set the settings. If you run it locally without slurm, they will simply run sequentially.</p>
 
-	<p><i>OmniOpt2</i> installs all of it's dependencies automatically to make you focus on your task of hyperparameter-minimization.</p>
+	<p><i>OmniOpt2</i> installs all of it's python-dependencies automatically in a virtual environment once at first run. This may take up to 20 minutes, but has to be done once. This is done to isolate it from other dependencies and to make you focus on your task of hyperparameter-minimization.</p>
 
 	<p>In short: It will try out your program with different hyperparameter settings and tries to find new ones to minimize the result using an algorithm called BoTorch-Modular. TODO: Paper verlinken.</p> 
 

@@ -43,6 +43,8 @@ source /path/to/environment/bin/activate
 
 # Load your script. $@ is all the parameters that are given to this run.sh file.
 python3 /absolute/path/to_script.py $@
+
+exit $? # Exit with exit code of python
 </code></pre>
 
 	<p>Even though <tt>sbatch</tt> may inherit shell variables like loaded modules, 

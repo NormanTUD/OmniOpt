@@ -220,7 +220,7 @@
 							'content' => $result['line']
 						];
 						if ($result['context']) {
-							$entry['link'] = $file_path . '#' . $result['context']['id'];
+							$entry['link'] = "tutorials.php?tutorial=" . preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)) . '#' . $result['context']['id'];
 							$output[] = $entry;
 						}
 					}

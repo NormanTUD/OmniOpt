@@ -347,7 +347,7 @@
 						foreach ($n["entries"] as $sub_fn => $sub_n) {
 							$is_sub_active = preg_match("/$sub_fn.php/", $current_file);
 							$sub_tab_class = $is_sub_active ? 'active_tab' : 'inactive_tab';
-							echo "\t\t<a href='$dir_path/tutorials/" . $sub_fn . ".php' class='$sub_tab_class'>" . $sub_n . "</a>\n";
+							echo "\t\t<a href='tutorials.php?tutorial=" . $sub_fn . "' class='$sub_tab_class'>" . $sub_n . "</a>\n";
 						}
 						echo "\t</div>\n";
 						echo "</div>\n";

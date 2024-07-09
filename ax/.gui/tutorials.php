@@ -11,27 +11,28 @@
 
 		if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("tutorials/$tutorial_file")) {
 			include("tutorials/$tutorial_file");
-			exit(0);
 		} else {
 			echo "Invalid file: $tutorial_file";
 		}
-	}
+	} else {
 ?>
-	<h1>Tutorials</h1>
+		<h1>Tutorials</h1>
 
-	<p>Available tutorials:</p>
+		<p>Available tutorials:</p>
 
-	<ul>
+		<ul>
 <?php
-	$files = scandir('tutorials/');
-	foreach($files as $file) {
-		if($file != ".." && $file != ".") {
-			print "<ul><a href='tutorials.php?tutorial=$file'>$file</a></ul>\n";
+		$files = scandir('tutorials/');
+		foreach($files as $file) {
+			if($file != ".." && $file != ".") {
+				print "<ul><a href='tutorials.php?tutorial=$file'>$file</a></ul>\n";
+			}
 		}
+?>
+		</ul>
+<?php
 	}
 ?>
-	</ul>
-
 	<script src="<?php print $dir_path; ?>/prism.js"></script>
 	<script src="<?php print $dir_path; ?>/footer.js"></script>
 </body>

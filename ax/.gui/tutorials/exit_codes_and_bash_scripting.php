@@ -37,9 +37,5 @@ elif [[ $exit_code -eq 87 ]]; then # 87 = Search space exhausted
 	# OmniOpt call for expanded search space here
 fi
 </code></pre>
-
-
-	<script src="<?php print $dir_path; ?>/prism.js"></script>
-	<script src="<?php print $dir_path; ?>/footer.js"></script>
 </body>
 </html>

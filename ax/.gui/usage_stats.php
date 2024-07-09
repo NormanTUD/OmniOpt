@@ -288,54 +288,74 @@
         </script>";
     }
 
-    function calculate_statistics($data) {
-        $total_jobs = count($data);
-        $failed_jobs = count(array_filter($data, function($row) { return intval($row[4]) != 0; }));
-        $successful_jobs = $total_jobs - $failed_jobs;
-        $failure_rate = $total_jobs > 0 ? ($failed_jobs / $total_jobs) * 100 : 0;
+function calculate_statistics($data) {
+    $total_jobs = count($data);
+    $failed_jobs = count(array_filter($data, function($row) { return intval($row[4]) != 0; }));
+    $successful_jobs = $total_jobs - $failed_jobs;
+    $failure_rate = $total_jobs > 0 ? ($failed_jobs / $total_jobs) * 100 : 0;
 
-        $runtimes = array_map('floatval', array_column($data, 5));
-        $total_runtime = array_sum($runtimes);
-        $average_runtime = $total_jobs > 0 ? $total_runtime / $total_jobs : 0;
+    $runtimes = array_map('floatval', array_column($data, 5));
+    $total_runtime = array_sum($runtimes);
+    $average_runtime = $total_jobs > 0 ? $total_runtime / $total_jobs : 0;
 
-        sort($runtimes);
-        $median_runtime = $total_jobs > 0 ? (count($runtimes) % 2 == 0 ? ($runtimes[count($runtimes)/2 - 1] + $runtimes[count($runtimes)/2]) / 2 : $runtimes[floor(count($runtimes)/2)]) : 0;
+    sort($runtimes);
+    $median_runtime = $total_jobs > 0 ? (count($runtimes) % 2 == 0 ? ($runtimes[count($runtimes) / 2 - 1] + $runtimes[count($runtimes) / 2]) / 2 : $runtimes[floor(count($runtimes) / 2)]) : 0;
 
-	if(count($runtimes)) {
-		return [
-		    'total_jobs' => $total_jobs,
-		    'failed_jobs' => $failed_jobs,
-		    'successful_jobs' => $successful_jobs,
-		    'failure_rate' => $failure_rate,
-		    'average_runtime' => $average_runtime,
-		    'median_runtime' => $median_runtime,
-		    'max_runtime' => max($runtimes),
-		    'min_runtime' => min($runtimes)
-		];
-	} else {
-		return [
-		    'total_jobs' => $total_jobs,
-		    'failed_jobs' => $failed_jobs,
-		    'successful_jobs' => $successful_jobs,
-		    'failure_rate' => $failure_rate
-		];
-	}
+    $successful_runtimes = array_filter($data, function($row) { return intval($row[4]) == 0; });
+    $successful_runtimes = array_map('floatval', array_column($successful_runtimes, 5));
+    $avg_success_runtime = !empty($successful_runtimes) ? array_sum($successful_runtimes) / count($successful_runtimes) : 0;
+    sort($successful_runtimes);
+    $median_success_runtime = !empty($successful_runtimes) ? (count($successful_runtimes) % 2 == 0 ? ($successful_runtimes[count($successful_runtimes) / 2 - 1] + $successful_runtimes[count($successful_runtimes) / 2]) / 2 : $successful_runtimes[floor(count($successful_runtimes) / 2)]) : 0;
+
+    $failed_runtimes = array_filter($data, function($row) { return intval($row[4]) != 0; });
+    $failed_runtimes = array_map('floatval', array_column($failed_runtimes, 5));
+    $avg_failed_runtime = !empty($failed_runtimes) ? array_sum($failed_runtimes) / count($failed_runtimes) : 0;
+    sort($failed_runtimes);
+    $median_failed_runtime = !empty($failed_runtimes) ? (count($failed_runtimes) % 2 == 0 ? ($failed_runtimes[count($failed_runtimes) / 2 - 1] + $failed_runtimes[count($failed_runtimes) / 2]) / 2 : $failed_runtimes[floor(count($failed_runtimes) / 2)]) : 0;
+
+    if (count($runtimes)) {
+        return [
+            'total_jobs' => $total_jobs,
+            'failed_jobs' => $failed_jobs,
+            'successful_jobs' => $successful_jobs,
+            'failure_rate' => $failure_rate,
+            'average_runtime' => $average_runtime,
+            'median_runtime' => $median_runtime,
+            'max_runtime' => max($runtimes),
+            'min_runtime' => min($runtimes),
+            'avg_success_runtime' => $avg_success_runtime,
+            'median_success_runtime' => $median_success_runtime,
+            'avg_failed_runtime' => $avg_failed_runtime,
+            'median_failed_runtime' => $median_failed_runtime
+        ];
+    } else {
+        return [
+            'total_jobs' => $total_jobs,
+            'failed_jobs' => $failed_jobs,
+            'successful_jobs' => $successful_jobs,
+            'failure_rate' => $failure_rate
+        ];
     }
+}
 
-    function display_statistics($stats) {
-        echo "<div class='statistics'>";
-        echo "<h3>Statistics</h3>";
-        echo "<p>Total jobs: " . $stats['total_jobs'] . "</p>";
-        echo "<p>Failed jobs: " . $stats['failed_jobs'] . " (" . number_format($stats['failure_rate'], 2) . "%)</p>";
-        echo "<p>Successful jobs: " . $stats['successful_jobs'] . "</p>";
-	if(isset($stats["average_runtime"])) {
-		echo "<p>Average runtime: " . gmdate("H:i:s", intval($stats['average_runtime'])) . "</p>";
-		echo "<p>Median runtime: " . gmdate("H:i:s", intval($stats['median_runtime'])) . "</p>";
-		echo "<p>Max runtime: " . gmdate("H:i:s", intval($stats['max_runtime'])) . "</p>";
-		echo "<p>Min runtime: " . gmdate("H:i:s", intval($stats['min_runtime'])) . "</p>";
-	}
-        echo "</div>";
+function display_statistics($stats) {
+    echo "<div class='statistics'>";
+    echo "<h3>Statistics</h3>";
+    echo "<p>Total jobs: " . $stats['total_jobs'] . "</p>";
+    echo "<p>Failed jobs: " . $stats['failed_jobs'] . " (" . number_format($stats['failure_rate'], 2) . "%)</p>";
+    echo "<p>Successful jobs: " . $stats['successful_jobs'] . "</p>";
+    if (isset($stats["average_runtime"])) {
+        echo "<p>Average runtime: " . gmdate("H:i:s", intval($stats['average_runtime'])) . "</p>";
+        echo "<p>Median runtime: " . gmdate("H:i:s", intval($stats['median_runtime'])) . "</p>";
+        echo "<p>Max runtime: " . gmdate("H:i:s", intval($stats['max_runtime'])) . "</p>";
+        echo "<p>Min runtime: " . gmdate("H:i:s", intval($stats['min_runtime'])) . "</p>";
+        echo "<p>Average success runtime: " . gmdate("H:i:s", intval($stats['avg_success_runtime'])) . "</p>";
+        echo "<p>Median success runtime: " . gmdate("H:i:s", intval($stats['median_success_runtime'])) . "</p>";
+        echo "<p>Average failed runtime: " . gmdate("H:i:s", intval($stats['avg_failed_runtime'])) . "</p>";
+        echo "<p>Median failed runtime: " . gmdate("H:i:s", intval($stats['median_failed_runtime'])) . "</p>";
     }
+    echo "</div>";
+}
 
     // Main code execution
 

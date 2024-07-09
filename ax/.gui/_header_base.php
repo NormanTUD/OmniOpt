@@ -201,7 +201,7 @@
 
 			#scads_bar {
 				width: 100%;
-				height: 80px;
+				min-height: 80px;
 				margin: 0;
 				padding: 0;
 			}

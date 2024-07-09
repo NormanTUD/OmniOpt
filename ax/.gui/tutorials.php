@@ -53,6 +53,8 @@
 					$name = $heading_content;
 				}
 
+				$file = preg_replace("/\.php$/", "", $file);
+
 				print "<li><a href='tutorials.php?tutorial=$file'>$name</a></li>\n";
 			}
 		}

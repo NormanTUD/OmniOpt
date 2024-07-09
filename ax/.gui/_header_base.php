@@ -346,7 +346,7 @@
 			?>
 			<br>
 			<span style="display: inline-flex;">
-				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 280px;" type="text" placeholder="Search help topics (allows Regex)..." id="search"></input>
+				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 330px;" type="text" placeholder="Search help topics and shares (allows Regex)..." id="search"></input>
 				<button id="del_search_button" style="display: none;" onclick="delete_search()">&#10060;</button>
 			</span>
 		</div>

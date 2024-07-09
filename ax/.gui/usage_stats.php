@@ -356,8 +356,8 @@
 ?>
 	  <div id="regular_data">
 <?php
-		echo "<h2>Regular Data</h2>";
-		display_plots($regular_data, 'Regular Data', 'regular');
+		echo "<h2>Regular Users</h2>";
+		display_plots($regular_data, 'Regular Users', 'regular');
 ?>
 	  </div>
 <?php
@@ -367,8 +367,8 @@
 ?>
 	  <div id="test_ids">
 <?php
-		echo "<h2>Test Data</h2>";
-		display_plots($test_ids, 'Test Data', 'test');
+		echo "<h2>Test Users</h2>";
+		display_plots($test_ids, 'Test Users', 'test');
 ?>
 	  </div>
 <?php
@@ -378,8 +378,8 @@
 ?>
 	  <div id="developer_ids">
 <?php
-		echo "<h2>Developer Data</h2>";
-		display_plots($developer_ids, 'Developer Data', 'developer');
+		echo "<h2>Developer Users</h2>";
+		display_plots($developer_ids, 'Developer Users', 'developer');
 ?>
 	  </div>
 <?php

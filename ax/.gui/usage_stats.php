@@ -204,17 +204,17 @@
                 name: 'Runtime vs Exit Code'
             };
 
-    var exitCodeCounts = {};
-    exit_codes_$element_id.forEach(function(code) {
-        if (!exitCodeCounts[code]) {
-            exitCodeCounts[code] = 0;
-        }
-        exitCodeCounts[code]++;
-    });
+		var exitCodeCounts = {};
+			exit_codes_$element_id.forEach(function(code) {
+			if (!exitCodeCounts[code]) {
+			    exitCodeCounts[code] = 0;
+			}
+			exitCodeCounts[code]++;
+		});
 
             var exitCodePie = {
-        values: Object.values(exitCodeCounts),
-        labels: Object.keys(exitCodeCounts),
+		values: Object.values(exitCodeCounts),
+		labels: Object.keys(exitCodeCounts),
                 type: 'pie',
                 name: 'Exit Code Distribution'
             };
@@ -358,6 +358,7 @@
 <?php
 		}
 ?>
+		<li><a href="#exit_codes">Exit-Codes</a></li>
 	  </ul>
 <?php
 		if(count($regular_data)) {
@@ -393,15 +394,13 @@
 <?php
 		}
 ?>
+	  <div id="exit_codes">
+<?php
+		include("exit_code_table.php");
+?>
 	</div>
 <?php
-
-
-	if(count($developer_ids)) {
-
-	}
     } else {
 	echo "No valid CSV file found";
     }
 ?>
-

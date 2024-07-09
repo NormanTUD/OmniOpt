@@ -1,9 +1,17 @@
+<?php
+	include_once("_functions.php");
+
+	$dir_path = ".";
+	if(preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+		$dir_path = "..";
+	}
+?>
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
 		<title>OmniOpt2</title>
-		<link href="prism.css" rel="stylesheet" />
+		<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<style>
 			.marked_text {
@@ -290,11 +298,11 @@
 				text-align: left;
 			}
 		</style>
-		<script src="jquery-3.7.1.js"></script>
-		<script src="jquery-ui.min.js"></script>
-		<script src="prism.js"></script>
-		<script src="search.js"></script>
-		<script src="tooltipster.bundle.min.js"></script>
+		<script src="<?php print $dir_path; ?>/jquery-3.7.1.js"></script>
+		<script src="<?php print $dir_path; ?>/jquery-ui.min.js"></script>
+		<script src="<?php print $dir_path; ?>/prism.js"></script>
+		<script src="<?php print $dir_path; ?>/search.js"></script>
+		<script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;
@@ -315,7 +323,7 @@
 	</head>
 	<body>
 		<div id="scads_bar">
-			<a target="_blank" href="https://scads.ai/"><img src="scads_logo.svg" /></a>
+			<a target="_blank" href="https://scads.ai/"><img src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
 			<?php
 				include("searchable_php_files.php");
 
@@ -336,14 +344,14 @@
 						foreach ($n["entries"] as $sub_fn => $sub_n) {
 							$is_sub_active = preg_match("/$sub_fn.php/", $current_file);
 							$sub_tab_class = $is_sub_active ? 'active_tab' : 'inactive_tab';
-							echo "\t\t<a href='" . $sub_fn . ".php' class='$sub_tab_class'>" . $sub_n . "</a>\n";
+							echo "\t\t<a href='$dir_path/tutorials/" . $sub_fn . ".php' class='$sub_tab_class'>" . $sub_n . "</a>\n";
 						}
 						echo "\t</div>\n";
 						echo "</div>\n";
 					} else {
 						$tab_is_active = preg_match("/^$fn.php/", $current_file);
 						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-						echo "\t<a href='$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
+						echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
 					}
 				}
 			?>

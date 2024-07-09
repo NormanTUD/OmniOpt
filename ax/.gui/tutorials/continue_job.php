@@ -1,9 +1,9 @@
 <?php
-	include("_header_base.php");
+	include("../_header_base.php");
 ?>
-	<link href="tutorial.css" rel="stylesheet" />
-	<link href="jquery-ui.css" rel="stylesheet">
-	<link href="prism.css" rel="stylesheet" />
+	<link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
+	<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
+	<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
 
 	<h1>Continue jobs</h1>
     
@@ -47,7 +47,7 @@
 	<p>It is currently not possible to decrease the search space on a continued run. Attempts to do that will be ignored and the
 	original limits will automatically be restored.</p>
 
-	<script src="prism.js"></script>
-	<script src="footer.js"></script>
+	<script src="<?php print $dir_path; ?>/prism.js"></script>
+	<script src="<?php print $dir_path; ?>/footer.js"></script>
 </body>
 </html>

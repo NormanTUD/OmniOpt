@@ -1,9 +1,9 @@
 <?php
-	include("_header_base.php");
+	include("../_header_base.php");
 ?>
-	<link href="tutorial.css" rel="stylesheet" />
-	<link href="jquery-ui.css" rel="stylesheet">
-	<link href="prism.css" rel="stylesheet" />
+	<link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
+	<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
+	<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
 
 	<h1>Basics</h1>
     
@@ -96,7 +96,7 @@
 	<h2 id="contact">Contact</h2>
 	<p>Idea: peter.winkler1 at tu-dresden.de, Technical Support: norman.koch at tu-dresden.de.</p>
 
-	<script src="prism.js"></script>
-	<script src="footer.js"></script>
+	<script src="<?php print $dir_path; ?>/prism.js"></script>
+	<script src="<?php print $dir_path; ?>/footer.js"></script>
 </body>
 </html>

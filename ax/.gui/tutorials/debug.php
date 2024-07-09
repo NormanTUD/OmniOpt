@@ -1,5 +1,5 @@
 <?php
-	include("_header_base.php");
+	include("../_header_base.php");
 ?>
 <style>
     table {
@@ -32,9 +32,9 @@
         color: #009879;
     }
 </style>
-	<link href="tutorial.css" rel="stylesheet" />
-	<link href="jquery-ui.css" rel="stylesheet">
-	<link href="prism.css" rel="stylesheet" />
+	<link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
+	<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
+	<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
 
 	<h1>Basics</h1>
     
@@ -212,7 +212,7 @@ submitit INFO (2024-07-08 17:34:57,477) - Exiting after successful completion
 </table>
 
 
-	<script src="prism.js"></script>
-	<script src="footer.js"></script>
+	<script src="<?php print $dir_path; ?>/prism.js"></script>
+	<script src="<?php print $dir_path; ?>/footer.js"></script>
 </body>
 </html>

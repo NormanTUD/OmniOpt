@@ -28,10 +28,9 @@
 		</tr>
 		<?php
 			$exit_code_info = [
-				"-1" => "No proper Exit code found",
+				0 => "Seems to have worked properly",
 				"2" => "Loading of Environment failed",
 				"3" => "Invalid exit code detected",
-				0 => "Seems to have worked properly",
 				10 => "Usually only returned by dier (for debugging).",
 				11 => "Required program not found (check logs)",
 				12 => "Error with pip, check logs.",

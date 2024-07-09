@@ -340,7 +340,7 @@
 
 					$tab_is_active = preg_match("/^$fn.php/", $current_file);
 					$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
+					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
 				}
 			?>
 			<span style="display: inline-flex;">

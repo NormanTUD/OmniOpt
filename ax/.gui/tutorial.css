@@ -22,3 +22,80 @@ body {
 img {
 	max-width: 80%;
 }
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 20px 0;
+	font-size: 1em;
+	font-family: Arial, sans-serif;
+	min-width: 400px;
+}
+table thead tr {
+	background-color: #009879;
+	color: #ffffff;
+	text-align: left;
+}
+table th, table td {
+	padding: 12px 15px;
+}
+table tbody tr {
+	border-bottom: 1px solid #dddddd;
+}
+table tbody tr:nth-of-type(even) {
+	background-color: #f3f3f3;
+}
+table tbody tr:last-of-type {
+	border-bottom: 2px solid #009879;
+}
+table tbody tr.active-row {
+	font-weight: bold;
+	color: #009879;
+}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #009879;
+        }
+        .section-header {
+            background-color: #4CAF50;
+            color: black;
+        }
+        .warning {
+            color: red;
+        }
+

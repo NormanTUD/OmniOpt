@@ -7,39 +7,6 @@
 
 	<h2 id="available_parameters">Available parameters (<tt>--help</tt>)</h2>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .section-header {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .warning {
-            color: red;
-        }
-    </style>
     <table>
         <thead>
             <tr>

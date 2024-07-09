@@ -1,27 +1,6 @@
 <?php
 	include("../_header_base.php");
 ?>
-	<style>
-		table {
-			width: 100%;
-			border-collapse: collapse;
-		}
-		th, td {
-			border: 1px solid #ddd;
-			padding: 8px;
-		}
-		th {
-			padding-top: 12px;
-			padding-bottom: 12px;
-			text-align: left;
-			background-color: #4CAF50;
-			color: white;
-		}
-		tr:nth-child(even) {
-			background-color: #f2f2f2;
-		}
-	</style>
-
 	<h1>Basics</h1>
     
 	<div id="toc"></div>
@@ -39,7 +18,7 @@
 
 	<?php
 		$GLOBALS["HIDE_SUBZERO"] = true; 
-		include("exit_code_table.php");
+		include("../exit_code_table.php");
 	?>
 
 	<h2 id="how_to_script_omniopt">How to script OmniOpt2 with exit codes</h2>

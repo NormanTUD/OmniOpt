@@ -1,37 +1,6 @@
 <?php
 	include("../_header_base.php");
 ?>
-<style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        font-size: 1em;
-        font-family: Arial, sans-serif;
-        min-width: 400px;
-    }
-    table thead tr {
-        background-color: #009879;
-        color: #ffffff;
-        text-align: left;
-    }
-    table th, table td {
-        padding: 12px 15px;
-    }
-    table tbody tr {
-        border-bottom: 1px solid #dddddd;
-    }
-    table tbody tr:nth-of-type(even) {
-        background-color: #f3f3f3;
-    }
-    table tbody tr:last-of-type {
-        border-bottom: 2px solid #009879;
-    }
-    table tbody tr.active-row {
-        font-weight: bold;
-        color: #009879;
-    }
-</style>
 	<h1>Basics</h1>
     
 	<div id="toc"></div>

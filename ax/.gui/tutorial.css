@@ -92,7 +92,7 @@ table tbody tr.active-row {
             background-color: #009879;
         }
         .section-header {
-            background-color: #4CAF50;
+            background-color: #4CAF50 !important;
             color: black;
         }
         .warning {

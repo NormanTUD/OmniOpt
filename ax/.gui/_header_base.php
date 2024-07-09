@@ -303,6 +303,9 @@
 		<script src="<?php print $dir_path; ?>/prism.js"></script>
 		<script src="<?php print $dir_path; ?>/search.js"></script>
 		<script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
+		<link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
+		<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
+		<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;

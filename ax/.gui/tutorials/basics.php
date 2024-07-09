@@ -1,10 +1,6 @@
 <?php
 	include("../_header_base.php");
 ?>
-	<link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
-	<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
-	<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
-
 	<h1>Basics</h1>
     
 	<div id="toc"></div>

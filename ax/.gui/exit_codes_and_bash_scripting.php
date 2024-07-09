@@ -28,6 +28,7 @@
 		</tr>
 		<?php
 			$exit_code_info = [
+				"-1" => "No proper Exit code found",
 				0 => "Seems to have worked properly",
 				"2" => "Loading of Environment failed",
 				"3" => "Invalid exit code detected",

@@ -260,17 +260,23 @@
 
 		[$developer_ids, $test_ids, $regular_data] = filter_data($data);
 
-		echo "<h2>Regular Users</h2>";
-		generate_html_table($regular_data, $headers);
-		display_plots($regular_data, "Regular Users Statistics", "regular_plots");
+		if(count($regular_data)) {
+			echo "<h2>Regular Users</h2>";
+			generate_html_table($regular_data, $headers);
+			display_plots($regular_data, "Regular Users Statistics", "regular_plots");
+		}
 
-		echo "<h2>Developer Machines</h2>";
-		generate_html_table($developer_ids, $headers);
-		display_plots($developer_ids, "Developer Machines Statistics", "developer_plots");
+		if(count($developer_ids)) {
+			echo "<h2>Developer Machines</h2>";
+			generate_html_table($developer_ids, $headers);
+			display_plots($developer_ids, "Developer Machines Statistics", "developer_plots");
+		}
 
-		echo "<h2>Automated Tests</h2>";
-		generate_html_table($test_ids, $headers);
-		display_plots($test_ids, "Automated Tests Statistics", "test_plots");
+		if(count($test_ids)) {
+			echo "<h2>Automated Tests</h2>";
+			generate_html_table($test_ids, $headers);
+			display_plots($test_ids, "Automated Tests Statistics", "test_plots");
+		}
 	} else {
 		log_error("No valid data available to display.");
 	}

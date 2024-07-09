@@ -335,6 +335,7 @@
         list($developer_ids, $test_ids, $regular_data) = filter_data($data);
 
 ?>
+<br>
 	<div id="tabs">
 	  <ul>
 <?php

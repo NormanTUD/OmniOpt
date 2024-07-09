@@ -1,4 +1,106 @@
 <?php
+	function assertCondition($condition, $errorText) {
+		if (!$condition) {
+			throw new Exception($errorText);
+		}
+	}
+
+	function parsePath($path) {
+		try {
+			// Prüfen, ob der Pfad mit "shares/" beginnt
+			assertCondition(strpos($path, "shares/") === 0, "Der Pfad muss mit 'shares/' beginnen");
+
+			// Entfernen des "shares/"-Teils
+			$trimmedPath = substr($path, strlen("shares/"));
+
+			// Aufteilen des Pfades in seine Bestandteile
+			$pathComponents = explode("/", $trimmedPath);
+
+			// Prüfen, ob die Anzahl der Komponenten korrekt ist
+			assertCondition(count($pathComponents) === 3, "Der Pfad muss genau drei Komponenten nach 'shares/' enthalten");
+
+			// Extrahieren der einzelnen Komponenten
+			$user = $pathComponents[0];
+			$directory = $pathComponents[1];
+			$file = $pathComponents[2];
+
+			// Ausgabe der extrahierten Komponenten
+
+			return [
+				'user' => $user,
+				'directory' => $directory,
+				'file' => $file
+			];
+		} catch (Exception $e) {
+			echo("Error: " . $e->getMessage());
+		}
+	}
+
+	function scan_share_directories($output, $root_dir, $regex_pattern) {
+		// Check if the root directory exists
+		if (!is_dir($root_dir)) {
+			throw new Exception("The root directory does not exist: " . $root_dir);
+		}
+
+		// Get the list of directories in the root directory
+		$user_dirs = scandir($root_dir);
+
+		foreach ($user_dirs as $user_dir) {
+			if ($user_dir === '.' || $user_dir === '..') {
+				continue;
+			}
+
+			$user_path = $root_dir . '/' . $user_dir;
+
+			if (!is_dir($user_path)) {
+				continue;
+			}
+
+			// Get the list of experiments for the user
+			$experiment_dirs = scandir($user_path);
+
+			foreach ($experiment_dirs as $experiment_dir) {
+				if ($experiment_dir === '.' || $experiment_dir === '..') {
+					continue;
+				}
+
+				$experiment_path = $user_path . '/' . $experiment_dir;
+
+				if (!is_dir($experiment_path)) {
+					continue;
+				}
+
+				// Get the list of run numbers for the experiment
+				$run_dirs = scandir($experiment_path);
+
+				foreach ($run_dirs as $run_dir) {
+					if ($run_dir === '.' || $run_dir === '..') {
+						continue;
+					}
+
+					$run_path = $experiment_path . '/' . $run_dir;
+
+					if (!is_dir($run_path)) {
+						continue;
+					}
+
+					// Check if the run directory name matches the regex pattern
+					if (preg_match($regex_pattern, $run_path, $matches)) {
+						$parsedPath = parsePath($run_path);
+						$url = "share.php?user=".$parsedPath['user']."&experiment=".$parsedPath['directory']."&run_nr=".$parsedPath['file'];
+						$entry = [
+							'link' => $url,
+							'content' => "OmniOpt-Share: $run_path"
+						];
+						$output[] = $entry;
+					}
+				}
+			}
+		}
+
+		return $output;
+	}
+
 	// Funktion zum Lesen des Inhalts einer Datei
 	function read_file_content($file_path) {
 		try {
@@ -126,6 +228,8 @@
 			}
 		}
 	}
+
+	$output = scan_share_directories($output, "shares", $regex);
 
 	header('Content-Type: application/json');
 	echo json_encode($output);

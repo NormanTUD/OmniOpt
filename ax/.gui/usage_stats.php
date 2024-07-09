@@ -204,9 +204,17 @@
                 name: 'Runtime vs Exit Code'
             };
 
+    var exitCodeCounts = {};
+    exit_codes_$element_id.forEach(function(code) {
+        if (!exitCodeCounts[code]) {
+            exitCodeCounts[code] = 0;
+        }
+        exitCodeCounts[code]++;
+    });
+
             var exitCodePie = {
-                values: [exit_codes_$element_id.filter(x => x == 0).length, exit_codes_$element_id.filter(x => x != 0).length],
-                labels: ['Success', 'Failure'],
+        values: Object.values(exitCodeCounts),
+        labels: Object.keys(exitCodeCounts),
                 type: 'pie',
                 name: 'Exit Code Distribution'
             };

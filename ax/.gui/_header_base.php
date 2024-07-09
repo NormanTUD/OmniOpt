@@ -327,8 +327,8 @@
 	</head>
 	<body>
 		<div id="scads_bar">
-			<a target="_blank" href="https://scads.ai/"><img src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
-			<a target="_blank" href="index.php"><img height=73 src="<?php print $dir_path; ?>/logo.svg" /></a>
+			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
+			<a target="_blank" href="index.php"><img height=73 src="<?php print $dir_path; ?>/oo_logo.png" /></a>
 			<?php
 				include("searchable_php_files.php");
 
@@ -344,8 +344,9 @@
 					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
 				}
 			?>
+			<br>
 			<span style="display: inline-flex;">
-				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 180px;" type="text" placeholder="Search (allows Regex)..." id="search"></input>
+				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 280px;" type="text" placeholder="Search help topics (allows Regex)..." id="search"></input>
 				<button id="del_search_button" style="display: none;" onclick="delete_search()">&#10060;</button>
 			</span>
 		</div>

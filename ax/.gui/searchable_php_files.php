@@ -2,6 +2,7 @@
 	include_once("_functions.php");
 
 	$files = array(
+		"index" => "Welcome",
 		"tutorials" => array(
 			"name" => "Tutorials and Help",
 			"entries" => array(
@@ -16,7 +17,7 @@
 				"exit_codes_and_bash_scripting" => "Exit-Codes and Bash-scripting"
 			)
 		),
-		"index" => "GUI",
+		"gui" => "GUI",
 		"share" => "Share",
 		"usage_stats" => "Statistics"
 	);

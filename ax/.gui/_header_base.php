@@ -253,6 +253,7 @@
 				min-width: 160px;
 				box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 				z-index: 1;
+				top: 100%; /* Ensure the dropdown opens below */
 			}
 
 			.dropdown-content a {
@@ -334,28 +335,12 @@
 
 				foreach ($files as $fn => $n) {
 					if (is_array($n)) {
-						$keys = [];
-						foreach ($n["entries"] as $sub_fn => $sub_n) {
-							$keys[] = $sub_fn;
-						}
-						$re_string = implode("|", $keys);
-						$is_active = preg_match("/$re_string/", $current_file);
-						$tab_class = $is_active ? 'active_tab' : 'inactive_tab';
-						echo "<div class='dropdown'>\n";
-						echo "\t<button class='tab $tab_class dropbtn'>OmniOpt " . $n["name"] . " &#8595;</button>\n";
-						echo "\t<div class='dropdown-content'>\n";
-						foreach ($n["entries"] as $sub_fn => $sub_n) {
-							$is_sub_active = preg_match("/$sub_fn.php/", $current_file);
-							$sub_tab_class = $is_sub_active ? 'active_tab' : 'inactive_tab';
-							echo "\t\t<a href='tutorials.php?tutorial=" . $sub_fn . "' class='$sub_tab_class'>" . $sub_n . "</a>\n";
-						}
-						echo "\t</div>\n";
-						echo "</div>\n";
-					} else {
-						$tab_is_active = preg_match("/^$fn.php/", $current_file);
-						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-						echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
+						$n = $n["name"];
 					}
+
+					$tab_is_active = preg_match("/^$fn.php/", $current_file);
+					$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
+					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>OmniOpt $n</a>\n";
 				}
 			?>
 			<span style="display: inline-flex;">

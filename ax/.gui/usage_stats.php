@@ -1,286 +1,339 @@
 <?php
-	error_reporting(E_ALL);
-	set_error_handler(function ($severity, $message, $file, $line) {
-		throw new \ErrorException($message, $severity, $severity, $file, $line);
-	});
+    error_reporting(E_ALL);
+    set_error_handler(function ($severity, $message, $file, $line) {
+        throw new \ErrorException($message, $severity, $severity, $file, $line);
+    });
 
-	ini_set('display_errors', 1);
+    ini_set('display_errors', 1);
 
+    function dier($msg) {
+        print("<pre>" . print_r($msg, true) . "</pre>");
+        exit(1);
+    }
 
-	function dier($msg) {
-		print("<pre>".print_r($msg, true)."</pre>");
-		exit(1);
-	}
-
-	include("_header_base.php");
+    include("_header_base.php");
 ?>
-	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-	<style>
-		table {
-			width: 100%;
-			border-collapse: collapse;
-		}
-		th, td {
-			border: 1px solid #ddd;
-			padding: 8px;
-		}
-		th {
-			padding-top: 12px;
-			padding-bottom: 12px;
-			text-align: left;
-			background-color: #4CAF50;
-			color: white;
-		}
-		tr:nth-child(even) {
-			background-color: #f2f2f2;
-		}
-	</style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
 <?php
-	function log_error($error_message) {
-		error_log($error_message);
-		echo "<p>Error: $error_message</p>";
-	}
+    function log_error($error_message) {
+        error_log($error_message);
+        echo "<p>Error: $error_message</p>";
+    }
 
-	function validate_parameters($params) {
-		assert(is_array($params), "Parameters should be an array");
+    function validate_parameters($params) {
+        assert(is_array($params), "Parameters should be an array");
 
-		$required_params = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
-		$patterns = [
-			'anon_user' => '/^[a-f0-9]{32}$/',
-			'has_sbatch' => '/^[01]$/',
-			'run_uuid' => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
-			'git_hash' => '/^[0-9a-f]{40}$/',
-			'exit_code' => '/^\d{1,3}$/',
-			'runtime' => '/^\d+(\.\d+)?$/'  // Positive number (integer or decimal)
+        $required_params = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
+        $patterns = [
+            'anon_user' => '/^[a-f0-9]{32}$/',
+            'has_sbatch' => '/^[01]$/',
+            'run_uuid' => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            'git_hash' => '/^[0-9a-f]{40}$/',
+            'exit_code' => '/^\d{1,3}$/',
+            'runtime' => '/^\d+(\.\d+)?$/'
+        ];
+
+        foreach ($required_params as $param) {
+            if (!isset($params[$param])) {
+                return false;
+            }
+            if (!preg_match($patterns[$param], $params[$param])) {
+                log_error("Invalid format for parameter: $param");
+                return false;
+            }
+        }
+
+        $exit_code = intval($params['exit_code']);
+        if ($exit_code < -1 || $exit_code > 255) {
+            log_error("Invalid exit_code value: $exit_code");
+            return false;
+        }
+
+        $runtime = floatval($params['runtime']);
+        if ($runtime < 0) {
+            log_error("Invalid runtime value: $runtime");
+            return false;
+        }
+
+        return true;
+    }
+
+    function append_to_csv($params, $filepath) {
+        assert(is_array($params), "Parameters should be an array");
+        assert(is_string($filepath), "Filepath should be a string");
+
+        $headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];
+        $file_exists = file_exists($filepath);
+        $params["time"] = time();
+
+        try {
+            $file = fopen($filepath, 'a');
+            if (!$file_exists) {
+                fputcsv($file, $headers);
+            }
+            fputcsv($file, $params);
+            fclose($file);
+        } catch (Exception $e) {
+            log_error("Failed to write to CSV: " . $e->getMessage(). ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
+            exit(1);
+        }
+    }
+
+    function validate_csv($filepath) {
+        if (!file_exists($filepath) || !is_readable($filepath)) {
+            log_error("CSV file does not exist or is not readable.");
+            return false;
+        }
+
+        try {
+            $file = fopen($filepath, 'r');
+            $content = fread($file, filesize($filepath));
+            fclose($file);
+        } catch (Exception $e) {
+            log_error("Failed to read CSV file: " . $e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    function filter_data($data) {
+        $developer_ids = [];
+        $test_ids = [];
+        $regular_data = [];
+
+        foreach ($data as $row) {
+            if ($row[0] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
+                $developer_ids[] = $row;
+            } elseif ($row[0] == 'affed00faffed00faffed00faffed00f') {
+                $test_ids[] = $row;
+            } else {
+                $regular_data[] = $row;
+            }
+        }
+
+        return [$developer_ids, $test_ids, $regular_data];
+    }
+
+    function display_plots($data, $title, $element_id) {
+        $statistics = calculate_statistics($data);
+        display_statistics($statistics);
+
+        $anon_users = array_column($data, 0);
+        $has_sbatch = array_column($data, 1);
+        $exit_codes = array_map('intval', array_column($data, 4));
+        $runtimes = array_map('floatval', array_column($data, 5));
+
+        $unique_sbatch = array_unique($has_sbatch);
+        $show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
+
+        echo "<div id='$element_id-exit-codes' style='height: 400px;'></div>";
+        echo "<div id='$element_id-runs' style='height: 400px;'></div>";
+        echo "<div id='$element_id-runtimes' style='height: 400px;'></div>";
+        echo "<div id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
+        echo "<div id='$element_id-exit-code-pie' style='height: 400px;'></div>";
+        echo "<div id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
+        echo "<div id='$element_id-runtime-box' style='height: 400px;'></div>";
+
+        if ($show_sbatch_plot) {
+            echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
+        }
+
+        echo "<script>
+            var anon_users_$element_id = " . json_encode($anon_users) . ";
+            var has_sbatch_$element_id = " . json_encode($has_sbatch) . ";
+            var exit_codes_$element_id = " . json_encode($exit_codes) . ";
+            var runtimes_$element_id = " . json_encode($runtimes) . ";
+
+            var exitCodePlot = {
+                x: exit_codes_$element_id,
+                type: 'histogram',
+                marker: {
+                    color: exit_codes_$element_id.map(function(code) { return code == 0 ? 'blue' : 'red'; })
+                },
+                name: 'Exit Codes'
+            };
+
+            var userPlot = {
+                x: anon_users_$element_id,
+                type: 'histogram',
+                name: 'Runs per User'
+            };
+
+            var runtimePlot = {
+                x: runtimes_$element_id,
+                type: 'histogram',
+                name: 'Runtimes'
+            };
+
+            var runtimeVsExitCodePlot = {
+                x: exit_codes_$element_id,
+                y: runtimes_$element_id,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    color: exit_codes_$element_id.map(function(code) { return code == 0 ? 'blue' : 'red'; })
+                },
+                name: 'Runtime vs Exit Code'
+            };
+
+            var exitCodePie = {
+                values: [exit_codes_$element_id.filter(x => x == 0).length, exit_codes_$element_id.filter(x => x != 0).length],
+                labels: ['Success', 'Failure'],
+                type: 'pie',
+                name: 'Exit Code Distribution'
+            };
+
+            var avgRuntimes = {};
+            var runtimeSum = {};
+            var runtimeCount = {};
+            for (var i = 0; i < exit_codes_$element_id.length; i++) {
+                var code = exit_codes_".$element_id."[i];
+                var runtime = runtimes_".$element_id."[i];
+                if (!(code in runtimeSum)) {
+                    runtimeSum[code] = 0;
+                    runtimeCount[code] = 0;
+                }
+                runtimeSum[code] += runtime;
+                runtimeCount[code] += 1;
+            }
+
+            for (var code in runtimeSum) {
+                avgRuntimes[code] = runtimeSum[code] / runtimeCount[code];
+            }
+
+            var avgRuntimeBar = {
+                x: Object.keys(avgRuntimes),
+                y: Object.values(avgRuntimes),
+                type: 'bar',
+                name: 'Average Runtime per Exit Code'
+            };
+
+            var runtimeBox = {
+                y: runtimes_$element_id,
+                type: 'box',
+                name: 'Runtime Distribution'
+            };
+
+            Plotly.newPlot('$element_id-exit-codes', [exitCodePlot], {title: 'Exit Codes'});
+            Plotly.newPlot('$element_id-runs', [userPlot], {title: 'Runs per User'});
+            Plotly.newPlot('$element_id-runtimes', [runtimePlot], {title: 'Runtimes'});
+            Plotly.newPlot('$element_id-runtime-vs-exit-code', [runtimeVsExitCodePlot], {title: 'Runtime vs Exit Code'});
+            Plotly.newPlot('$element_id-exit-code-pie', [exitCodePie], {title: 'Exit Code Distribution'});
+            Plotly.newPlot('$element_id-avg-runtime-bar', [avgRuntimeBar], {title: 'Average Runtime per Exit Code'});
+            Plotly.newPlot('$element_id-runtime-box', [runtimeBox], {title: 'Runtime Distribution'});
+
+            if ($show_sbatch_plot) {
+                var sbatchPlot = {
+                    x: has_sbatch_$element_id,
+                    type: 'histogram',
+                    name: 'Runs with and without sbatch'
+                };
+                Plotly.newPlot('$element_id-sbatch', [sbatchPlot], {title: 'Runs with and without sbatch'});
+            }
+        </script>";
+    }
+
+    function calculate_statistics($data) {
+        $total_jobs = count($data);
+        $failed_jobs = count(array_filter($data, function($row) { return intval($row[4]) != 0; }));
+        $successful_jobs = $total_jobs - $failed_jobs;
+        $failure_rate = $total_jobs > 0 ? ($failed_jobs / $total_jobs) * 100 : 0;
+
+        $runtimes = array_map('floatval', array_column($data, 5));
+        $total_runtime = array_sum($runtimes);
+        $average_runtime = $total_jobs > 0 ? $total_runtime / $total_jobs : 0;
+
+        sort($runtimes);
+        $median_runtime = $total_jobs > 0 ? (count($runtimes) % 2 == 0 ? ($runtimes[count($runtimes)/2 - 1] + $runtimes[count($runtimes)/2]) / 2 : $runtimes[floor(count($runtimes)/2)]) : 0;
+
+	if(count($runtimes)) {
+		return [
+		    'total_jobs' => $total_jobs,
+		    'failed_jobs' => $failed_jobs,
+		    'successful_jobs' => $successful_jobs,
+		    'failure_rate' => $failure_rate,
+		    'average_runtime' => $average_runtime,
+		    'median_runtime' => $median_runtime,
+		    'max_runtime' => max($runtimes),
+		    'min_runtime' => min($runtimes)
 		];
-
-		foreach ($required_params as $param) {
-			if (!isset($params[$param])) {
-				return false;
-			}
-			if (!preg_match($patterns[$param], $params[$param])) {
-				log_error("Invalid format for parameter: $param");
-				return false;
-			}
-		}
-
-		$exit_code = intval($params['exit_code']);
-			if ($exit_code < -1 || $exit_code > 255) {
-			log_error("Invalid exit_code value: $exit_code");
-			return false;
-		}
-
-		$runtime = floatval($params['runtime']);
-		if ($runtime < 0) {
-			log_error("Invalid runtime value: $runtime");
-			return false;
-		}
-
-		return true;
-	}
-
-	function append_to_csv($params, $filepath) {
-		assert(is_array($params), "Parameters should be an array");
-		assert(is_string($filepath), "Filepath should be a string");
-
-		$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];
-		$file_exists = file_exists($filepath);
-		$params["time"] = time();
-
-		try {
-			$file = fopen($filepath, 'a');
-			if (!$file_exists) {
-				fputcsv($file, $headers);
-			}
-			fputcsv($file, $params);
-			fclose($file);
-		} catch (Exception $e) {
-			log_error("Failed to write to CSV: " . $e->getMessage(). ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
-			exit(1);
-		}
-	}
-
-	function validate_csv($filepath) {
-		if (!file_exists($filepath) || !is_readable($filepath)) {
-			log_error("CSV file does not exist or is not readable.");
-			return false;
-		}
-
-		try {
-			$file = fopen($filepath, 'r');
-			$content = fread($file, filesize($filepath));
-			fclose($file);
-		} catch (Exception $e) {
-			log_error("Failed to read CSV file: " . $e->getMessage());
-			return false;
-		}
-
-		return true;
-	}
-
-	function filter_data($data) {
-		$developer_ids = [];
-		$test_ids = [];
-		$regular_data = [];
-
-		foreach ($data as $row) {
-			if ($row[0] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
-				$developer_ids[] = $row;
-			} elseif ($row[0] == 'affed00faffed00faffed00faffed00f') {
-				$test_ids[] = $row;
-			} else {
-				$regular_data[] = $row;
-			}
-		}
-
-		return [$developer_ids, $test_ids, $regular_data];
-	}
-
-	function display_plots($data, $title, $element_id) {
-		$anon_users = array_column($data, 0);
-		$has_sbatch = array_column($data, 1);
-		$exit_codes = array_map('intval', array_column($data, 4));
-		$runtimes = array_map('floatval', array_column($data, 5));
-
-		$unique_sbatch = array_unique($has_sbatch);
-		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
-
-		echo "<div id='$element_id-exit-codes' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runs' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runtimes' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
-
-		if ($show_sbatch_plot) {
-			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
-		}
-
-		echo "<script>
-			var anon_users_$element_id = " . json_encode($anon_users) . ";
-			var has_sbatch_$element_id = " . json_encode($has_sbatch) . ";
-			var exit_codes_$element_id = " . json_encode($exit_codes) . ";
-			var runtimes_$element_id = " . json_encode($runtimes) . ";
-
-			var exitCodePlot = {
-				x: exit_codes_$element_id,
-				type: 'histogram',
-				marker: {
-					color: exit_codes_$element_id.map(function(code) { return code == 0 ? 'blue' : 'red'; })
-				},
-				name: 'Exit Codes'
-			};
-
-			var userPlot = {
-				x: anon_users_$element_id,
-				type: 'histogram',
-				name: 'Runs per User'
-			};
-
-			var runtimePlot = {
-				x: runtimes_$element_id,
-				type: 'histogram',
-				name: 'Runtimes'
-			};
-
-			var runtimeVsExitCodePlot = {
-				x: exit_codes_$element_id,
-				y: runtimes_$element_id,
-				mode: 'markers',
-				type: 'scatter',
-				marker: {
-					color: exit_codes_$element_id.map(function(code) { return code == 0 ? 'blue' : 'red'; })
-				},
-				name: 'Runtime vs Exit Code'
-			};
-
-			Plotly.newPlot('$element_id-exit-codes', [exitCodePlot], {title: '$title - Exit Codes'});
-			Plotly.newPlot('$element_id-runs', [userPlot], {title: '$title - Runs per User'});
-			Plotly.newPlot('$element_id-runtimes', [runtimePlot], {title: '$title - Runtimes'});
-			Plotly.newPlot('$element_id-runtime-vs-exit-code', [runtimeVsExitCodePlot], {title: '$title - Runtime vs Exit Code'});
-
-			if ($show_sbatch_plot) {
-					var sbatchPlot = {
-						x: has_sbatch_$element_id,
-						type: 'bar',
-						name: 'SBatch Usage'
-					};
-					Plotly.newPlot('$element_id-sbatch', [sbatchPlot], {title: '$title - SBatch Usage'});
-				}
-		</script>";
-	}
-
-	function generate_html_table($data, $headers) {
-		echo "<table>";
-		echo "<tr>";
-		foreach ($headers as $header) {
-			echo "<th>$header</th>";
-		}
-		echo "</tr>";
-
-		foreach ($data as $row) {
-			echo "<tr>";
-				foreach ($row as $cell) {
-					echo "<td>$cell</td>";
-				}
-				echo "</tr>";
-			}
-
-		echo "</table>";
-	}
-
-	$params = $_GET;
-	$stats_dir = 'stats';
-	$csv_path = $stats_dir . '/usage_statistics.csv';
-
-	if (validate_parameters($params)) {
-		if (!file_exists($stats_dir)) {
-			try {
-				mkdir($stats_dir, 0777, true);
-			} catch (\Throwable $e) {
-				if(preg_match("/permission denied/i", $e->getMessage())) {
-					print("Error. Permission for stats is denied. Try <pre>chown \$USER:www-data stats</pre> and <pre>chmod g+w stats</pre>");
-					exit(1);
-				} else {
-					dier($e->getMessage());
-				}
-			}
-		}
-
-		if (is_writable($stats_dir)) {
-			append_to_csv($params, $csv_path);
-			echo "<p>Data successfully written to CSV.</p>";
-			exit(0);
-		} else {
-			log_error("Stats directory is not writable.");
-		}
-	}
-
-	if (validate_csv($csv_path)) {
-		$data = array_map('str_getcsv', file($csv_path));
-		$headers = array_shift($data);
-
-		[$developer_ids, $test_ids, $regular_data] = filter_data($data);
-
-		if(count($regular_data)) {
-			echo "<h2>Regular Users</h2>";
-			generate_html_table($regular_data, $headers);
-			display_plots($regular_data, "Regular Users Statistics", "regular_plots");
-		}
-
-		if(count($developer_ids)) {
-			echo "<h2>Developer Machines</h2>";
-			generate_html_table($developer_ids, $headers);
-			display_plots($developer_ids, "Developer Machines Statistics", "developer_plots");
-		}
-
-		if(count($test_ids)) {
-			echo "<h2>Automated Tests</h2>";
-			generate_html_table($test_ids, $headers);
-			display_plots($test_ids, "Automated Tests Statistics", "test_plots");
-		}
 	} else {
-		log_error("No valid data available to display.");
+		return [
+		    'total_jobs' => $total_jobs,
+		    'failed_jobs' => $failed_jobs,
+		    'successful_jobs' => $successful_jobs,
+		    'failure_rate' => $failure_rate
+		];
 	}
+    }
+
+    function display_statistics($stats) {
+        echo "<div class='statistics'>";
+        echo "<h3>Statistics</h3>";
+        echo "<p>Total jobs: " . $stats['total_jobs'] . "</p>";
+        echo "<p>Failed jobs: " . $stats['failed_jobs'] . " (" . number_format($stats['failure_rate'], 2) . "%)</p>";
+        echo "<p>Successful jobs: " . $stats['successful_jobs'] . "</p>";
+	if(isset($stats["average_runtime"])) {
+		echo "<p>Average runtime: " . gmdate("H:i:s", intval($stats['average_runtime'])) . "</p>";
+		echo "<p>Median runtime: " . gmdate("H:i:s", intval($stats['median_runtime'])) . "</p>";
+		echo "<p>Max runtime: " . gmdate("H:i:s", intval($stats['max_runtime'])) . "</p>";
+		echo "<p>Min runtime: " . gmdate("H:i:s", intval($stats['min_runtime'])) . "</p>";
+	}
+        echo "</div>";
+    }
+
+    // Main code execution
+
+    $data_filepath = 'stats/usage_statistics.csv';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $params = $_POST;
+        if (validate_parameters($params)) {
+            append_to_csv($params, $data_filepath);
+        }
+    }
+
+    if (validate_csv($data_filepath)) {
+        $data = array_map('str_getcsv', file($data_filepath));
+        array_shift($data); // Remove header row
+
+        list($developer_ids, $test_ids, $regular_data) = filter_data($data);
+
+	if(count($developer_ids)) {
+		echo "<h2>Developer Data</h2>";
+		display_plots($developer_ids, 'Developer Data', 'developer');
+	}
+
+	if(count($test_ids)) {
+		echo "<h2>Test Data</h2>";
+		display_plots($test_ids, 'Test Data', 'test');
+	}
+
+	if(count($regular_data)) {
+		echo "<h2>Regular Data</h2>";
+		display_plots($regular_data, 'Regular Data', 'regular');
+	}
+    }
 ?>
-	<?php include("exit_code_table.php"); ?>
-	</body>
-</html>
+

@@ -161,6 +161,7 @@
         echo "<div id='$element_id-exit-code-pie' style='height: 400px;'></div>";
         echo "<div id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
         echo "<div id='$element_id-runtime-box' style='height: 400px;'></div>";
+        echo "<div id='$element_id-top-users' style='height: 400px;'></div>";
 
         if ($show_sbatch_plot) {
             echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
@@ -250,6 +251,23 @@
                 name: 'Runtime Distribution'
             };
 
+    // Top N users by number of jobs
+    var userJobCounts = {};
+    anon_users_$element_id.forEach(function(user) {
+        if (!userJobCounts[user]) {
+            userJobCounts[user] = 0;
+        }
+        userJobCounts[user]++;
+    });
+
+    var topNUsers = Object.entries(userJobCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    var topUserBar = {
+        x: topNUsers.map(item => item[0]),
+        y: topNUsers.map(item => item[1]),
+        type: 'bar',
+        name: 'Top Users by Number of Jobs'
+    };
+
             Plotly.newPlot('$element_id-exit-codes', [exitCodePlot], {title: 'Exit Codes'});
             Plotly.newPlot('$element_id-runs', [userPlot], {title: 'Runs per User'});
             Plotly.newPlot('$element_id-runtimes', [runtimePlot], {title: 'Runtimes'});
@@ -257,6 +275,7 @@
             Plotly.newPlot('$element_id-exit-code-pie', [exitCodePie], {title: 'Exit Code Distribution'});
             Plotly.newPlot('$element_id-avg-runtime-bar', [avgRuntimeBar], {title: 'Average Runtime per Exit Code'});
             Plotly.newPlot('$element_id-runtime-box', [runtimeBox], {title: 'Runtime Distribution'});
+    Plotly.newPlot('$element_id-top-users', [topUserBar], {title: 'Top Users by Number of Jobs'});
 
             if ($show_sbatch_plot) {
                 var sbatchPlot = {

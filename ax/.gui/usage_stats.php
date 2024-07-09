@@ -34,6 +34,13 @@
             background-color: #f2f2f2;
         }
     </style>
+  <link rel="stylesheet" href="jquery-ui.css">
+  <script src="jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $( "#tabs" ).tabs();
+  } );
+  </script>
 <?php
     function log_error($error_message) {
         error_log($error_message);
@@ -313,27 +320,80 @@
             append_to_csv($params, $data_filepath);
         }
     }
-
     if (validate_csv($data_filepath)) {
         $data = array_map('str_getcsv', file($data_filepath));
         array_shift($data); // Remove header row
 
         list($developer_ids, $test_ids, $regular_data) = filter_data($data);
 
-	if(count($developer_ids)) {
-		echo "<h2>Developer Data</h2>";
-		display_plots($developer_ids, 'Developer Data', 'developer');
-	}
-
-	if(count($test_ids)) {
-		echo "<h2>Test Data</h2>";
-		display_plots($test_ids, 'Test Data', 'test');
-	}
-
-	if(count($regular_data)) {
+?>
+	<div id="tabs">
+	  <ul>
+<?php
+		if(count($regular_data)) {
+?>
+			<li><a href="#regular_data">Regular Users</a></li>
+<?php
+		}
+?>
+<?php
+		if(count($test_ids)) {
+?>
+			<li><a href="#test_ids">Tests</a></li>
+<?php
+		}
+?>
+<?php
+		if(count($developer_ids)) {
+?>
+			<li><a href="#developer_ids">Developer</a></li>
+<?php
+		}
+?>
+	  </ul>
+<?php
+		if(count($regular_data)) {
+?>
+	  <div id="regular_data">
+<?php
 		echo "<h2>Regular Data</h2>";
 		display_plots($regular_data, 'Regular Data', 'regular');
+?>
+	  </div>
+<?php
+		}
+
+		if(count($test_ids)) {
+?>
+	  <div id="test_ids">
+<?php
+		echo "<h2>Test Data</h2>";
+		display_plots($test_ids, 'Test Data', 'test');
+?>
+	  </div>
+<?php
+		}
+		if(count($developer_ids)) {
+
+?>
+	  <div id="developer_ids">
+<?php
+		echo "<h2>Developer Data</h2>";
+		display_plots($developer_ids, 'Developer Data', 'developer');
+?>
+	  </div>
+<?php
+		}
+?>
+	</div>
+<?php
+
+
+	if(count($developer_ids)) {
+
 	}
+    } else {
+	echo "No valid CSV file found";
     }
 ?>
 

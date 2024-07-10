@@ -98,7 +98,7 @@ def plot_worker_usage(args, pd_csv):
             try:
                 plt.savefig(args.save_to_file)
             except OSError as e:
-                print(f"Error: {e}. This may happen on unstable file systems.")
+                print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
                 sys.exit(199)
         else:
             if not args.no_plt_show:

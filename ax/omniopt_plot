@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
+
 if [[ ! -z $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""
 	echo "========================================================================"

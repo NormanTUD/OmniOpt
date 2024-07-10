@@ -66,7 +66,7 @@ def plot_graph(dataframe, save_to_file=None):
         try:
             pair_plot.savefig(args.save_to_file)
         except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems.")
+            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
             sys.exit(199)
 
     else:

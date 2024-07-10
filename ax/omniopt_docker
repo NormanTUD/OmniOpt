@@ -142,12 +142,12 @@ mkdir -p .logs
 
 git rev-parse HEAD > git_hash
 
-sudo docker-compose build --build-arg GetMyUsername=`whoami` || {
+docker-compose build --build-arg GetMyUsername=`whoami` || {
 	echo "Failed composing container"
 	exit 1
 }
 
-sudo docker-compose up -d || {
+docker-compose up -d || {
 	echo "Failed to build container"
 	exit 1
 }

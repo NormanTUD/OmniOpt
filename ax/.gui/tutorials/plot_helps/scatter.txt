@@ -1,0 +1,17 @@
+--save_to_file
+--max
+--min
+--delete_temp
+--darkmode
+--single
+--bubblesize
+--merge_with_previous_runs
+--exclude_params
+--allow_axes
+--plot_type
+--debug
+--alpha
+--no_legend
+--bins
+--dpi
+--no_plt_show

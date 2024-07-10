@@ -1,0 +1,15 @@
+--bins
+--plot_type
+--alpha
+--no_legend
+--debug
+--save_to_file
+--darkmode
+--bubblesize
+--merge_with_previous_runs
+--delete_temp
+--single
+--min
+--max
+--exclude_params
+--no_plt_show

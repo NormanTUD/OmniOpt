@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export NO_WHIPTAIL=1
+
 errors=()
 
 function join_by {
@@ -40,6 +42,18 @@ done
 for possible_plot_type in "${expected_plot_types[@]}"; do
 	if ! grep "plot_type=$possible_plot_type" .gui/tutorials/plot.php 2>&1 >/dev/null; then
 		errmsg="Plot type $possible_plot_type does not appear in .gui/tutorials/plot.php"
+		red_text "$errmsg"
+		errors+=("$errmsg")
+	fi
+
+	fn="$possible_plot_type.txt"
+
+	mkdir -p .gui/tutorials/plot_helps/
+	bash omniopt_plot --plot_type $possible_plot_type --help | grep -- "--" | sed -e 's#^\s*##' -e 's#usage.*\.py.##' -e 's#\]##' | grep -v "expected one argument" | sed -e 's#\s#\n#g' | grep "^\[" | sed -e 's#^\[##g' | sed -e 's#\]##g' | grep -- "^--" > .gui/tutorials/plot_helps/$fn
+
+
+	if ! grep "plot_helps/$fn" .gui/tutorials/plot.php 2>&1 >/dev/null; then
+		errmsg="file plot_helps/$fn for $possible_plot_type does not appear in .gui/tutorials/plot.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
 	fi

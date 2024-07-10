@@ -1,0 +1,16 @@
+--run_dir
+--plot_type
+--debug
+--alpha
+--no_legend
+--min
+--max
+--save_to_file
+--single
+--bins
+--merge_with_previous_runs
+--delete_temp
+--darkmode
+--exclude_params
+--bubblesize
+--no_plt_show

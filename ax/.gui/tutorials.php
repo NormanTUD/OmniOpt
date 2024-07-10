@@ -44,7 +44,7 @@
 <?php
 		$files = scandir('tutorials/');
 		foreach($files as $file) {
-			if($file != ".." && $file != "." && $file != "favicon.ico") {
+			if($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
 				$name = $file;
 
 				$heading_content = get_first_heading_content("tutorials/$file");

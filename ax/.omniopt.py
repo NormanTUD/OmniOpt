@@ -203,7 +203,7 @@ log_dir = ".logs"
 try:
     Path(log_dir).mkdir(parents=True, exist_ok=True)
 except Exception as e:
-    original_print("Could not create logs: " + str(e))
+    original_print(f"Could not create logs for {os.path.abspath(log_dir)}: " + str(e))
 
 log_i = 0
 logfile = f'{log_dir}/{log_i}'

@@ -2,7 +2,6 @@
 	include_once("_functions.php");
 
 	$files = array(
-		"index" => "Welcome",
 		"tutorials" => array(
 			"name" => "Tutorials and Help",
 			"entries" => array(

@@ -18,7 +18,7 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 
 <?php
 	$GLOBALS["HIDE_SUBZERO"] = true; 
-	include("../exit_code_table.php");
+	include("exit_code_table.php");
 ?>
 
 <h2 id="how_to_script_omniopt">How to script OmniOpt2 with exit codes</h2>

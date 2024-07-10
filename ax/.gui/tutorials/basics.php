@@ -89,7 +89,7 @@ runs a program with these parameters, and identifies promising areas for further
 
 <p><code class="language-bash">./omniopt_docker omniopt --tests</code> for example, will install docker (on Debian), build the container and run OmniOpt2 with the <code class="language-bash">--tests</code>-parameter.</p>
 
-The current folder where you run the <pre><code class="language_bash">./omniopt_docker</code></pre> from is mounted inside docker as <tt>/var/opt/omniopt/docker_user_dir</tt>. Keep your program there and use this as a base path for your run in the GUI. Only copy the second command from the GUI.
+The current folder where you run the <pre><code class="language-bash">./omniopt_docker</code></pre> from is mounted inside docker as <tt>/var/opt/omniopt/docker_user_dir</tt>. Keep your program there and use this as a base path for your run in the GUI. Only copy the second command from the GUI.
 
 <h2 id="contact">Contact</h2>
 <p>Idea: peter.winkler1 at tu-dresden.de, Technical Support: norman.koch at tu-dresden.de.</p>

@@ -31,11 +31,6 @@ table {
 	font-family: Arial, sans-serif;
 	min-width: 400px;
 }
-table thead tr {
-	background-color: #4eae46;
-	color: #ffffff;
-	text-align: left;
-}
 table th, table td {
 	padding: 12px 15px;
 }
@@ -88,9 +83,11 @@ table tbody tr.active-row {
             padding: 8px;
             text-align: left;
         }
-        th {
-            background-color: #4eae46;
-        }
+	th {
+		background-color: #4eae46;
+		color: white;
+		text-align: left;
+	}
         .section-header {
             background-color: #1d6f9a !important;
             color: white;

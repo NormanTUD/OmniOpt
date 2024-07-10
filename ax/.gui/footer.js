@@ -1,75 +1,64 @@
 function generateTOC() {
-    // Check if the TOC div exists
-    var tocDiv = document.getElementById('toc');
-    if (!tocDiv) {
-        return;
-    }
+	// Check if the TOC div exists
+	var $tocDiv = $('#toc');
+	if ($tocDiv.length === 0) {
+		return;
+	}
 
-    // Create the TOC structure
-    var tocContainer = document.createElement('div');
-    tocContainer.className = 'toc';
-    var tocHeader = document.createElement('h2');
-    tocHeader.innerText = 'Table of Contents';
-    var tocList = document.createElement('ul');
+	// Create the TOC structure
+	var $tocContainer = $('<div class="toc"></div>');
+	var $tocHeader = $('<h2>Table of Contents</h2>');
+	var $tocList = $('<ul></ul>');
 
-    tocContainer.appendChild(tocHeader);
-    tocContainer.appendChild(tocList);
+	$tocContainer.append($tocHeader);
+	$tocContainer.append($tocList);
 
-    // Get all h2, h3, h4, h5, h6 elements
-    var headers = document.querySelectorAll('h2, h3, h4, h5, h6');
-    var tocItems = [];
+	// Get all h1, h2, h3, etc. elements
+	var headers = $('h2, h3, h4, h5, h6');
+	var tocItems = [];
 
-    headers.forEach(function(header) {
-        var headerTag = header.tagName.toLowerCase();
-        var headerText = header.innerText;
-        var headerId = header.id;
+	headers.each(function() {
+		var $header = $(this);
+		var headerTag = $header.prop('tagName').toLowerCase();
+		var headerText = $header.text();
+		var headerId = $header.attr('id');
 
-        if (!headerId) {
-            headerId = headerText.toLowerCase().replace(/\s+/g, '-');
-            header.id = headerId;
-        }
+		if (!headerId) {
+			headerId = headerText.toLowerCase().replace(/\s+/g, '-');
+			$header.attr('id', headerId);
+		}
 
-        tocItems.push({
-            tag: headerTag,
-            text: headerText,
-            id: headerId
-        });
-    });
+		tocItems.push({
+			tag: headerTag,
+			text: headerText,
+			id: headerId
+		});
+	});
 
-    // Generate the nested list for TOC
-    var currentLevel = 2; // starting from h2
-    var currentList = tocList;
-    var parents = [{ level: currentLevel, list: currentList }]; // stack to keep track of parent lists
+	// Generate the nested list for TOC
+	var currentLevel = 1;
+	var $currentList = $tocList;
 
-    tocItems.forEach(function(item) {
-        var level = parseInt(item.tag.replace('h', ''), 10);
-        var li = document.createElement('li');
-        var a = document.createElement('a');
-        a.href = '#' + item.id;
-        a.innerText = item.text;
-        li.appendChild(a);
+	tocItems.forEach(function(item) {
+		var level = parseInt(item.tag.replace('h', ''), 10);
+		var $li = $('<li></li>');
+		var $a = $('<a></a>').attr('href', '#' + item.id).text(item.text);
+		$li.append($a);
 
-        if (level > currentLevel) {
-            var newList = document.createElement('ul');
-            li.appendChild(newList);
-            currentList.appendChild(li);
-            parents.push({ level: currentLevel, list: currentList });
-            currentList = newList;
-        } else {
-            while (level < currentLevel) {
-                var parent = parents.pop();
-                currentLevel = parent.level;
-                currentList = parent.list;
-            }
-            currentList.appendChild(li);
-        }
+		if (level > currentLevel) {
+			var $newList = $('<ul></ul>');
+			$currentList.append($newList);
+			$currentList = $newList;
+		} else if (level < currentLevel) {
+			$currentList = $currentList.parent();
+		}
 
-        currentLevel = level;
-    });
+		$currentList.append($li);
+		currentLevel = level;
+	});
 
-    tocDiv.appendChild(tocContainer);
+	$tocDiv.append($tocContainer);
 }
-
 
 $(document).ready(function() {
 	Prism.highlightAll();

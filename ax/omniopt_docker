@@ -159,7 +159,7 @@ case "$ORIGINAL_ARGS" in
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
 				-v /home/$USER/.config/matplotlib_docker_omniopt:/home/$USER/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
-				-i -t --rm \
+				-t --rm \
 				ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
 			docker run \
@@ -175,7 +175,7 @@ case "$ORIGINAL_ARGS" in
 				--volume="/etc/shadow:/etc/shadow:ro" \
 				--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
 				--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-				-i -t --rm ax_omniopt2 \
+				-t --rm ax_omniopt2 \
 				bash /var/opt/omniopt/$ORIGINAL_ARGS
 		fi
 		;;

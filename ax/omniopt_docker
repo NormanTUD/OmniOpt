@@ -158,7 +158,7 @@ if [ -z "$ORIGINAL_ARGS" ]; then
 	exit 0
 fi
 
-mkdir -p /home/$USER/.config/matplotlib_docker_omniopt
+mkdir -p $HOME/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
 	omniopt*|./.tests/*)

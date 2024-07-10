@@ -12,7 +12,7 @@ COPY .tests/example_network/install.sh /.test_install.sh
 RUN bash /.test_install.sh
 RUN rm /.test_install.sh
 
-RUN apt-get install -y zip python3-tk
+RUN apt-get install -y zip python3-tk curl wget
 
 ARG GetMyUsername
 RUN adduser --disabled-password --gecos '' ${GetMyUsername}

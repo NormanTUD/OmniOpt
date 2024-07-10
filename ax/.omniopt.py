@@ -291,6 +291,7 @@ required_but_choice = parser.add_argument_group('Required arguments that allow a
 optional = parser.add_argument_group('Optional', "These options are optional")
 experimental = parser.add_argument_group('Experimental', "Experimental parameters")
 slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
+installing = parser.add_argument_group('Installing', "Parameters related to installing")
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
 required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
@@ -339,6 +340,8 @@ slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 slurm.add_argument('--account', help='Account to be used', type=str, default=None)
 slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
+
+installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
 debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)

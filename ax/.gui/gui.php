@@ -119,17 +119,19 @@
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
 				{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0, "help": "When set, the job will be maximized instead of minimized. This option may not work with all plots currently (TODO)." },
 				{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: 'Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.', "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
-				{ label: "Model", id: "model", type: "select", value: "", options: [
-					{ "text": "BOTORCH_MODULAR", "value":  "BOTORCH_MODULAR" },
-					{ "text": "SOBOL", "value":  "SOBOL" },
-					{ "text": "GPEI", "value":  "GPEI" },
-					{ "text": "FACTORIAL", "value":  "FACTORIAL" },
-					{ "text": "SAASBO", "value":  "SAASBO" },
-					{ "text": "FULLYBAYESIAN", "value":  "FULLYBAYESIAN" },
-					//{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
-					{ "text": "UNIFORM", "value":  "UNIFORM" },
-					{ "text": "BO_MIXED", "value":  "BO_MIXED" }
-					], "required": true, info: `
+				{ label: "Model", id: "model", type: "select", value: "",
+					options: [
+						{ "text": "BOTORCH_MODULAR", "value":  "BOTORCH_MODULAR" },
+						{ "text": "SOBOL", "value":  "SOBOL" },
+						{ "text": "GPEI", "value":  "GPEI" },
+						{ "text": "FACTORIAL", "value":  "FACTORIAL" },
+						{ "text": "SAASBO", "value":  "SAASBO" },
+						{ "text": "FULLYBAYESIAN", "value":  "FULLYBAYESIAN" },
+						//{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
+						{ "text": "UNIFORM", "value":  "UNIFORM" },
+						{ "text": "BO_MIXED", "value":  "BO_MIXED" }
+					], "required": true, 
+					info: `
 						<ul>
 							<li>BOTORCH_MODULAR: Default model</li>
 							<li>SOBOL: Random search</li>
@@ -144,6 +146,14 @@
 `,
 					"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 				},
+				{ label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
+					{ "text": "Locally or on a HPC system", "value":  "local" },
+					{ "text": "Docker", "value":  "docker" }
+					], "required": true, 
+					info: `Changes the curl-command and how omniopt is installed and executed.`,
+					"help": "If set to docker, it will run in a local docker container."
+				},
+
 				{ label: "Constraints", id: "constraints", type: "text", value: "", placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisions: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters." },
 			];
 
@@ -524,6 +534,10 @@
 				var warnings = [];
 				var command = "./omniopt";
 
+				if ($("#run_mode").val() == "docker") {
+					command = "bash omniopt_docker omniopt";
+				}
+
 				tableData.forEach(function(item) {
 					var cew = update_table_row(item, errors, warnings, command)
 					command = cew[0]
@@ -722,6 +736,7 @@
 							base_url = base_url.replace(/^\/\//, "/")
 					}
 					base_url = base_url.replace(/\/index.php/, "")
+					base_url = base_url.replace(/\/gui.php/, "")
 
 					var curl_command = "";
 

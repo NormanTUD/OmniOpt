@@ -3,5 +3,3 @@ services:
   omniopt2:
     build:
       context: .
-    stdin_open: true
-    tty: true

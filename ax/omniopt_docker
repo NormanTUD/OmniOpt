@@ -167,7 +167,7 @@ case "$ORIGINAL_ARGS" in
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
-				-v /home/$USER/.config/matplotlib_docker_omniopt:/home/$USER/.config/matplotlib:rw \
+				-v /$HOME/.config/matplotlib_docker_omniopt:$HOME/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
 				-t --rm \
 				ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
@@ -176,7 +176,7 @@ case "$ORIGINAL_ARGS" in
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
-				-v /home/$USER/.config/matplotlib_docker_omniopt:/home/$USER/.config/matplotlib:rw \
+				-v $HOME/.config/matplotlib_docker_omniopt:/$HOME/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
 				--user=$(id -u) \
 				--env="DISPLAY" \

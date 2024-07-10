@@ -173,7 +173,7 @@ case "$ORIGINAL_ARGS" in
 		fi
 		;;
 	*)
-		echo "Fehler: Das Argument beginnt nicht mit einem der gültigen Präfixe."
+		echo "Error: The argument does not start with one of the valid prefixes, i.e. 'omniopt*' or './.tests/*'. Argument was: $ORIGINAL_ARGS"
 		exit 1
 		;;
 esac

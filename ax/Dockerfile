@@ -14,13 +14,13 @@ RUN rm /.test_install.sh
 
 RUN apt-get install -y zip python3-tk
 
+ARG GetMyUsername
+RUN adduser --disabled-password --gecos '' ${GetMyUsername}
+
 COPY ./ /var/opt/omniopt/
 COPY ./.tests /var/opt/omniopt/.tests
 COPY ./.tools /var/opt/omniopt/.tools
 COPY ./.gui /var/opt/omniopt/.gui
-
-ARG GetMyUsername
-RUN adduser --disabled-password --gecos '' ${GetMyUsername}
 
 RUN chown -R ${GetMyUsername}:${GetMyUsername} /var/opt/omniopt/
 RUN chown -R ${GetMyUsername}:${GetMyUsername} /home/${GetMyUsername}

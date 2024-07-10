@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "=============== WHO AM I? ================"
+whoami
+
 debug=0
 
 

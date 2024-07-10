@@ -221,7 +221,8 @@
 								'content' => $result['line']
 							];
 							if ($result['context']) {
-								$entry['link'] = "tutorials.php?tutorial=" . preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path))) . '#' . $result['context']['id'];
+								$tutorial_file = preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
+								$entry['link'] = "tutorials.php?tutorial=" . $tutorial_file . '#' . $result['context']['id'];
 								$output[] = $entry;
 							}
 						}

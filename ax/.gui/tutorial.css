@@ -1,21 +1,31 @@
 body {
 	font-family: Verdana, sans-serif;
 }
+
+
+h1 {
+    text-align: center;
+}
+
 .toc {
 	margin-bottom: 20px;
 }
+
 .toc ul {
 	list-style-type: none;
 	padding: 0;
 }
+
 .toc li {
 	margin-bottom: 5px;
 }
+
 .toc a {
 	text-decoration: none;
 	color: #007bff;
 }
-	.toc a:hover {
+
+.toc a:hover {
 	text-decoration: underline;
 }
 
@@ -31,53 +41,34 @@ table {
 	font-family: Arial, sans-serif;
 	min-width: 400px;
 }
-table th, table td {
-	padding: 12px 15px;
-}
-table tbody tr {
+
+tr {
 	border-bottom: 1px solid #dddddd;
 }
-table tbody tr:nth-of-type(even) {
+
+tr:nth-of-type(even) {
 	background-color: #f3f3f3;
 }
-table tbody tr:last-of-type {
+
+tr:last-of-type {
 	border-bottom: 2px solid #4eae46;
 }
-table tbody tr.active-row {
+
+tr.active-row {
 	font-weight: bold;
 	color: #4eae46;
 }
 
-		table {
-			width: 100%;
-			border-collapse: collapse;
-		}
-		th, td {
-			border: 1px solid #ddd;
-			padding: 8px;
-		}
-
-		tr:nth-child(even) {
-			background-color: #f2f2f2;
-		}
-
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-
 th, td {
 	border: 1px solid #ddd;
-	padding: 8px;
+	padding: 12px 15px;
 	text-align: left;
+}
+
+
+.table-container {
+	width: 100%;
+	overflow-x: auto;
 }
 
 th {
@@ -85,11 +76,12 @@ th {
 	color: white;
 	text-align: left;
 }
+
 .section-header {
 	background-color: #1d6f9a !important;
 	color: white;
 }
+
 .warning {
 	color: red;
 }
-

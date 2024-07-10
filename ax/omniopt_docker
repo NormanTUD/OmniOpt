@@ -139,7 +139,6 @@ function die {
 
 mkdir -p runs
 mkdir -p .logs
-mkdir -p docker_user_dir
 
 git rev-parse HEAD > git_hash
 

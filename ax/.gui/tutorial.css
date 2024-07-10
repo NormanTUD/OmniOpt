@@ -73,26 +73,23 @@ table tbody tr.active-row {
             width: 100%;
             overflow-x: auto;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-	th {
-		background-color: #4eae46;
-		color: white;
-		text-align: left;
-	}
-        .section-header {
-            background-color: #1d6f9a !important;
-            color: white;
-        }
-        .warning {
-            color: red;
-        }
+
+th, td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+th {
+	background-color: #4eae46;
+	color: white;
+	text-align: left;
+}
+.section-header {
+	background-color: #1d6f9a !important;
+	color: white;
+}
+.warning {
+	color: red;
+}
 

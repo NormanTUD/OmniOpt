@@ -216,12 +216,14 @@
 				$search_results = search_text_with_context($text_lines, $regex);
 				if (!empty($search_results)) {
 					foreach ($search_results as $result) {
-						$entry = [
-							'content' => $result['line']
-						];
-						if ($result['context']) {
-							$entry['link'] = "tutorials.php?tutorial=" . preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path))) . '#' . $result['context']['id'];
-							$output[] = $entry;
+						if($result["line"]) {
+							$entry = [
+								'content' => $result['line']
+							];
+							if ($result['context']) {
+								$entry['link'] = "tutorials.php?tutorial=" . preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path))) . '#' . $result['context']['id'];
+								$output[] = $entry;
+							}
 						}
 					}
 				}

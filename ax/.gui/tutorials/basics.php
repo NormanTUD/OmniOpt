@@ -1,7 +1,7 @@
 <?php
 	include("../_header_base.php");
 ?>
-<h1>Basics</h1>
+<h1>Basics and Docker</h1>
     
 <div id="toc"></div>
 

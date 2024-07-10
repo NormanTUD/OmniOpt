@@ -1900,16 +1900,17 @@ def save_pd_csv():
 
 def get_tmp_file_from_json(experiment_args):
     k = 0
-    while os.path.exists(str(k)):
+    p = "/tmp/0"
+    while os.path.exists(f"/tmp/{k}"):
         k = k + 1
 
     try:
-        with open(f'{k}', "w") as f:
+        with open(f'/tmp/{k}', "w") as f:
             json.dump(experiment_args, f)
     except PermissionError as e:
         print_red(f"Error writing '{k}' in get_tmp_file_from_json: {e}")
 
-    return str(k)
+    return f"/tmp/{k}"
 
 def compare_parameters(old_param_json, new_param_json):
     try:

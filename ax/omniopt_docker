@@ -154,12 +154,14 @@ case "$ORIGINAL_ARGS" in
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+				--mount type=tmpfs,destination=/tmp \
 				-i -t --rm \
 				ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+				--mount type=tmpfs,destination=/tmp \
 				--user=$(id -u) \
 				--env="DISPLAY" \
 				--volume="/etc/group:/etc/group:ro" \

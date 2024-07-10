@@ -157,7 +157,6 @@ case "$ORIGINAL_ARGS" in
 				-i -t --rm \
 				ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
-			set -x
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \

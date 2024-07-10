@@ -156,6 +156,7 @@ case "$ORIGINAL_ARGS" in
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
 				-v /home/$USER/.config/matplotlib_docker_omniopt:/home/$USER/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
 				-i -t --rm \
@@ -164,6 +165,7 @@ case "$ORIGINAL_ARGS" in
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
 				-v /home/$USER/.config/matplotlib_docker_omniopt:/home/$USER/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
 				--user=$(id -u) \

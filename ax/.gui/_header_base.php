@@ -85,7 +85,7 @@
 			}
 
 			#hidden_config_table thead tr {
-				background-color: #36A9AE;
+				background-color: #4eae46;
 				color: #ffffff;
 				text-align: left;
 			}
@@ -119,13 +119,13 @@
 			}
 
 			#config_table thead tr {
-				background-color: #36A9AE;
+				background-color: #4eae46;
 				color: #ffffff;
 				text-align: left;
 			}
 
 			#config_table tbody tr:last-of-type {
-				border-bottom: 1px solid #36A9AE;
+				border-bottom: 1px solid #4eae46;
 			}
 
 			#config_table tbody tr {
@@ -138,7 +138,7 @@
 
 			button {
 				margin: 5px;
-				background-color: #36A9AE;
+				background-color: #4eae46;
 				border: 1px solid #2A8387;
 				border-radius: 4px;
 				box-shadow: rgba(0, 0, 0, 0.12) 0 1px 1px;

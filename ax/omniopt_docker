@@ -161,7 +161,7 @@ fi
 mkdir -p /home/$USER/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
-	omniopt*|omniopt_plot*|omniopt_share*|omniopt_evaluate*|./.tests/*)
+	omniopt*|./.tests/*)
 		if [[ -z $DISPLAY ]]; then
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \

@@ -36,7 +36,10 @@ if ! command -v docker &>/dev/null && command -v apt >/dev/null; then
 	fi
 	echo "Docker not found. Installing Docker..."
 	echo "Enabling non-free repository..."
-	sed -i 's/main$/main contrib non-free/g' /etc/apt/sources.list
+	sudo sed -i 's/main$/main contrib non-free/g' /etc/apt/sources.list || {
+		echo "Could not edit /etc/apt/sources.list. Exiting."
+		exit 10
+	}
 	echo "Enabled! non-free repository."
 
 	# Update package lists

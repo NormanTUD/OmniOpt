@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
+export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
 
 if [[ ! -z $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""

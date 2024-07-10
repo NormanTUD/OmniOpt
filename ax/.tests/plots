@@ -152,7 +152,7 @@ for projectname in "${test_projects[@]}"; do
 							if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
 								green_text "OK: $_command (${RUN_TIME}s)"
 								if [[ "$keep_tmp" -eq 0 ]]; then
-									rm "$this_img"
+									rm -f "$this_img"
 								fi
 							else
 								if [[ "$projectname" == "no_result" ]]; then

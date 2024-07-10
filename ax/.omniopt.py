@@ -85,7 +85,7 @@ run_uuid = uuid.uuid4()
 def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
-        return
+        sys.exit(193)
 
     try:
         with open(logfile, 'a') as f:

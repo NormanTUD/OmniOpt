@@ -127,6 +127,9 @@ function die {
 	exit 1
 }
 
+mkdir -p runs
+mkdir -p .logs
+
 git rev-parse HEAD > git_hash
 
 sudo docker-compose build --build-arg GetMyUsername=`whoami` && sudo docker-compose up -d || {
@@ -143,9 +146,9 @@ fi
 case "$ORIGINAL_ARGS" in
 	omniopt*|omniopt_plot*|omniopt_share*|omniopt_evaluate*|./.tests/*)
 		if [[ -z $DISPLAY ]]; then
-			docker run -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
+			docker run -v ${pwd}/.logs:/var/opt/omniopt/.logs:rw -v ${pwd}/runs:/var/opt/omniopt/runs:rw -i -t ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
-			docker run \
+			docker run -v ${pwd}/.logs:/var/opt/omniopt/.logs:rw -v ${pwd}/runs:/var/opt/omniopt/runs:rw \
 				--user=$(id -u) \
 				--env="DISPLAY" \
 				--volume="/etc/group:/etc/group:ro" \

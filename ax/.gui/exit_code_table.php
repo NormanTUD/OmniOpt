@@ -30,6 +30,7 @@
 				142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.",
 				181 => "Error parsing --parameter. Check output for more details.",
 				192 => "Unknown data type (--tests).",
+				193 => "Error in printing logs. You may be on a read only file system.",
 				199 => "This happens on unstable file systems when trying to write a file.",
 				203 => "Unsupported --model.",
 				233 => "No random steps set.",

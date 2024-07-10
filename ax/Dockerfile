@@ -22,11 +22,4 @@ COPY ./.tests /var/opt/omniopt/.tests
 COPY ./.tools /var/opt/omniopt/.tools
 COPY ./.gui /var/opt/omniopt/.gui
 
-#RUN chown -R ${GetMyUsername}:${GetMyUsername} /var/opt/omniopt/
-#RUN chown -R ${GetMyUsername}:${GetMyUsername} /home/${GetMyUsername}
-
 WORKDIR /var/opt/omniopt
-
-#RUN whoami
-
-#CMD ["apache2-foreground"]

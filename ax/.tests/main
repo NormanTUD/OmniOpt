@@ -302,7 +302,7 @@ if [[ -d "runs/$TESTNAME" ]]; then
 fi
 
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-_test "Testing if there are the right number of jobs in runs/$TESTNAME/0" "./.tools/phases_overview runs/__main__tests__/0/ $num_random_steps $max_eval $max_eval" 0 
+_test "Testing if there are the right number of jobs in runs/$TESTNAME/0" "./.tools/phases_overview runs/__main__tests__/0/ $num_random_steps $(($max_eval-$num_random_steps)) 0" 0 
 
 _test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 _test "Testing if there are the right number of jobs in runs/$TESTNAME/1" "./.tools/phases_overview runs/__main__tests__/1/ $num_random_steps $max_eval $(($max_eval+$max_eval))" 0 

@@ -3358,7 +3358,6 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
 
     while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
-        #print(f"\ndone_jobs(): {done_jobs()}")
         log_nr_of_workers()
 
         if system_has_sbatch:

@@ -56,22 +56,22 @@
 		</tr>
 		<tr class="section-header">
 			<td colspan="3">Required Arguments That Allow A Choice</td>
-			</tr>
-			<tr>
-		<td><tt>--parameter PARAMETER [PARAMETER ...]</tt></td>
-		<td>Experiment parameters in the formats: <br>
+		</tr>
+		<tr>
+			<td><tt>--parameter PARAMETER [PARAMETER ...]</tt></td>
+			<td>Experiment parameters in the formats: <br>
 				- <NAME> range &lt;NAME&gt; &lt;LOWER BOUND&gt; &lt;UPPER BOUND&gt; (&lt;INT, FLOAT&gt;) <br>
 				- <NAME> fixed &lt;NAME&gt; &lt;VALUE&gt; <br>
 				- <NAME> choice &lt;NAME&gt; &lt;Comma-separated list of values&gt;
-		</td>
-		<td>-</td>
-			</tr>
-			<tr>
+			</td>
+			<td>-</td>
+		</tr>
+		<tr>
 			<td><tt>--continue_previous_job CONTINUE_PREVIOUS_JOB</tt></td>
-		<td>Continue from a previous checkpoint, use run-dir as argument.</td>
-		<td>-</td>
-			</tr>
-			<tr class="section-header">
+			<td>Continue from a previous checkpoint, use run-dir as argument.</td>
+			<td>-</td>
+		</tr>
+		<tr class="section-header">
 			<td colspan="3">Optional</td>
 		</tr>
 		<tr>
@@ -157,90 +157,90 @@
 		<tr class="section-header">
 			<td colspan="3">Experimental</td>
 			</tr>
-			<tr>
-		<td><tt>--experimental</tt></td>
-		<td class="warning">Do some stuff not well tested yet.</td>
+		<tr>
+			<td><tt>--experimental</tt></td>
+			<td class="warning">Do some stuff not well tested yet.</td>
 			<td><tt>False</tt></td>
-			</tr>
-			<tr>
-		<td><tt>--auto_execute_suggestions</tt></td>
-		<td class="warning">Automatically run again with suggested parameters (NOT FOR SLURM YET!).</td>
-			<td><tt>False</tt></td>
-			</tr>
-			<tr>
-		<td><tt>--auto_execute_counter AUTO_EXECUTE_COUNTER</tt></td>
-		<td class="warning">(Will automatically be set).</td>
-			<td><tt>0</tt></td>
-			</tr>
-			<tr>
-		<td><tt>--max_auto_execute MAX_AUTO_EXECUTE</tt></td>
-		<td class="warning">How many nested jobs should be done.</td>
-			<td><tt>3</tt></td>
-			</tr>
-			<tr>
-		<td><tt>--show_parameter_suggestions</tt></td>
-		<td class="warning">Show suggestions for possible promising parameter space changes.</td>
-			<td><tt>False</tt></td>
-			</tr>
-			<tr>
-		<td><tt>--maximizer MAXIMIZER</tt></td>
-		<td class="warning">Value to expand search space for suggestions. Calculation is point [+-] maximizer * abs(point).</td>
-			<td><tt>2</tt></td>
-			</tr>
-			<tr class="section-header">
-		<td colspan="3">Slurm</td>
 		</tr>
-			<tr>
+		<tr>
+			<td><tt>--auto_execute_suggestions</tt></td>
+			<td class="warning">Automatically run again with suggested parameters (NOT FOR SLURM YET!).</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
+			<td><tt>--auto_execute_counter AUTO_EXECUTE_COUNTER</tt></td>
+			<td class="warning">(Will automatically be set).</td>
+			<td><tt>0</tt></td>
+		</tr>
+		<tr>
+			<td><tt>--max_auto_execute MAX_AUTO_EXECUTE</tt></td>
+			<td class="warning">How many nested jobs should be done.</td>
+			<td><tt>3</tt></td>
+		</tr>
+		<tr>
+			<td><tt>--show_parameter_suggestions</tt></td>
+			<td class="warning">Show suggestions for possible promising parameter space changes.</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
+			<td><tt>--maximizer MAXIMIZER</tt></td>
+			<td class="warning">Value to expand search space for suggestions. Calculation is point [+-] maximizer * abs(point).</td>
+			<td><tt>2</tt></td>
+		</tr>
+			<tr class="section-header">
+			<td colspan="3">Slurm</td>
+		</tr>
+		<tr>
 			<td><tt>--slurm_use_srun</tt></td>
 			<td>Using srun instead of sbatch. <a href="https://slurm.schedmd.com/srun.html" target="_blank">Learn more</a></td>
-		<td><tt>False</tt></td>
+			<td><tt>False</tt></td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--time TIME</tt></td>
 			<td>Time for the main job.</td>
-		<td>-</td>
+			<td>-</td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--partition PARTITION</tt></td>
 			<td>Partition to be run on.</td>
-		<td>-</td>
+			<td>-</td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--reservation RESERVATION</tt></td>
 			<td>Reservation. <a href="https://slurm.schedmd.com/reservations.html" target="_blank">Learn more</a></td>
-		<td>-</td>
+			<td>-</td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--force_local_execution</tt></td>
 			<td>Forces local execution even when SLURM is available.</td>
-		<td><tt>False</tt></td>
+			<td><tt>False</tt></td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--slurm_signal_delay_s SLURM_SIGNAL_DELAY_S</tt></td>
 			<td>When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.</td>
-		<td><tt>0</tt></td>
+			<td><tt>0</tt></td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--nodes_per_job NODES_PER_JOB</tt></td>
 			<td>Number of nodes per job due to the new alpha restriction.</td>
-		<td><tt>1</tt></td>
+			<td><tt>1</tt></td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--cpus_per_task CPUS_PER_TASK</tt></td>
 			<td>CPUs per task.</td>
-		<td><tt>1</tt></td>
+			<td><tt>1</tt></td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--account ACCOUNT</tt></td>
 			<td>Account to be used. <a href="https://slurm.schedmd.com/accounting.html" target="_blank">Learn more</a></td>
-		<td>-</td>
+			<td>-</td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--gpus GPUS</tt></td>
 			<td>Number of GPUs.</td>
-		<td><tt>0</tt></td>
+			<td><tt>0</tt></td>
 		</tr>
-			<tr>
+		<tr>
 			<td><tt>--tasks_per_node TASKS_PER_NODE</tt></td>
 			<td>Number of tasks per node.</td>
 			<td><tt>1</tt></td>

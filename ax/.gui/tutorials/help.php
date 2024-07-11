@@ -243,31 +243,41 @@
 			<tr>
 			<td><tt>--tasks_per_node TASKS_PER_NODE</tt></td>
 			<td>Number of tasks per node.</td>
-		<td><tt>1</tt></td>
+			<td><tt>1</tt></td>
 		</tr>
+		<tr>
+			<tr class="section-header">
+			<td colspan="3">Installing</td>
+		</tr>
+		<tr>
+			<td><tt>--run_mode</tt></td>
+			<td>Either <i>local</i> or <i>docker</i>.</td>
+			<td><tt>local</tt></td>
+		</tr>
+		<tr>
 			<tr class="section-header">
 			<td colspan="3">Debug</td>
-			</tr>
+		</tr>
 		<tr>
-		<td><tt>--verbose</tt></td>
+			<td><tt>--verbose</tt></td>
 			<td>Verbose logging.</td>
 			<td><tt>False</tt></td>
-			</tr>
+		</tr>
 		<tr>
-		<td><tt>--debug</tt></td>
+			<td><tt>--debug</tt></td>
 			<td>Enable debugging.</td>
 			<td><tt>False</tt></td>
-			</tr>
+		</tr>
 		<tr>
-		<td><tt>--no_sleep</tt></td>
+			<td><tt>--no_sleep</tt></td>
 			<td>Disables sleeping for fast job generation (not to be used on HPC).</td>
 			<td><tt>False</tt></td>
-			</tr>
+		</tr>
 		<tr>
-		<td><tt>--tests</tt></td>
+			<td><tt>--tests</tt></td>
 			<td>Run simple internal tests.</td>
 			<td><tt>False</tt></td>
-			</tr>
+		</tr>
 		<tr>
 			<td><tt>--evaluate_to_random_value</tt></td>
 			<td>Evaluate to random values.</td>

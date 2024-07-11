@@ -35,9 +35,9 @@ NR_RANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i 
 NR_MANUAL=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i manual | wc -l)
 NR_SYSTEMATIC=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | wc -l)
 
-echo "Random steps   : $NR_RANDOM"
-echo "Manual steps   : $NR_MANUAL"
+echo "Random steps:    $NR_RANDOM"
 echo "Nonrandom steps: $NR_SYSTEMATIC"
+echo "Manual steps:    $NR_MANUAL"
 
 errors=()
 

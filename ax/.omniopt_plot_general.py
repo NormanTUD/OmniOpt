@@ -143,6 +143,7 @@ if __name__ == "__main__":
     setup_logging()
     args = parse_arguments()
 
+    print(f"Testing args.run_dir: {args.run_dir}")
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)

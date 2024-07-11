@@ -122,9 +122,9 @@ while [ $k -lt ${#args[@]} ]; do
 
     case $arg in
         --run_dir=*)
-            run_dir="${arg#*=}"
-            shift
-            ;;
+		run_dir="$(pwd)/${arg#*=}"
+		shift
+		;;
 
         --run_dir)
             k=$((k+1))
@@ -132,7 +132,7 @@ while [ $k -lt ${#args[@]} ]; do
                 echo "Error: --run_dir requires a value"
                 exit 1
             fi
-            run_dir="${args[k]}"
+	    run_dir="$(pwd)/${args[k]}"
             shift
             shift
             ;;

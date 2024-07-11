@@ -55,7 +55,7 @@ if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No plot errors"
 	exit 0
 else
-	red_text "=> PLOT-ERRORS => PLOT-ERRORS => PLOT-ERRORS =>"
+	red_text "=> FOLDER-STRUCTURE-ERRORS => FOLDER-STRUCTURE-ERRORS => FOLDER-STRUCTURE-ERRORS =>"
 	for i in "${errors[@]}"; do
 		red_text "$i"
 	done

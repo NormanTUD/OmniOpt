@@ -58,10 +58,10 @@ fi
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
-printf 'help_page test took: %02d:%02d:%02d\n' $hrs $mins $secs
+printf 'phases_overview test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No help page errors"
+	green_text "No phases-overview errors"
 	exit 0
 else
 	red_text "=> phases-overview-ERRORS => phases-overview-ERRORS => phases-overview-ERRORS =>"

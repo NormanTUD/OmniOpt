@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export ORIGINAL_PWD=$(pwd)
 export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
 export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
 
@@ -77,7 +78,6 @@ function displaytime {
 }
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-export ORIGINAL_PWD=$(pwd)
 
 expected_plot_types=("menu")
 whiptail_args=()
@@ -122,9 +122,9 @@ while [ $k -lt ${#args[@]} ]; do
 
     case $arg in
         --run_dir=*)
-		run_dir="$(pwd)/${arg#*=}"
-		shift
-		;;
+            run_dir="${arg#*=}"
+            shift
+            ;;
 
         --run_dir)
             k=$((k+1))
@@ -132,7 +132,7 @@ while [ $k -lt ${#args[@]} ]; do
                 echo "Error: --run_dir requires a value"
                 exit 1
             fi
-	    run_dir="$(pwd)/${args[k]}"
+            run_dir="${args[k]}"
             shift
             shift
             ;;
@@ -223,6 +223,10 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 
 	echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
 	exit 99
+fi
+
+if ! echo "$run_dir" | grep "^/" 2>/dev/null >/dev/null; then
+	run_dir="$ORIGINAL_PWD/$run_dir"
 fi
 
 function menu {

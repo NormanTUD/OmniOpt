@@ -19,6 +19,7 @@ function green_text {
 run_dir=$1
 random_phase=$2
 systematic_phase=$3
+manual=$4
 
 if [[ ! -d $run_dir ]]; then
 	red_text "$run_dir not found"
@@ -31,10 +32,12 @@ if [[ ! -e "$run_dir/results.csv" ]]; then
 fi
 
 NR_RANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i sobol | wc -l)
-NR_NONRANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | wc -l)
+NR_MANUAL=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i manual | wc -l)
+NR_SYSTEMATIC=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | wc -l)
 
-echo "Random steps: $NR_RANDOM"
-echo "Nonrandom steps: $NR_NONRANDOM"
+echo "Random steps   : $NR_RANDOM"
+echo "Manual steps   : $NR_MANUAL"
+echo "Nonrandom steps: $NR_SYSTEMATIC"
 
 errors=()
 
@@ -47,10 +50,19 @@ if [[ ! -z $random_phase ]]; then
 	fi
 fi
 
+if [[ ! -z $manual ]]; then
+	if [[ $NR_MANUAL -ne $manual ]]; then
+		red_text "Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL"
+		errors+=("Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL")
+	else
+		green_text "Number of systematic steps OK"
+	fi
+fi
+
 if [[ ! -z $systematic_phase ]]; then
-	if [[ $NR_NONRANDOM -ne $systematic_phase ]]; then
-		red_text "Number of random steps is wrong, should be $systematic_phase, is $NR_NONRANDOM"
-		errors+=("Number of random steps is wrong, should be $systematic_phase, is $NR_NONRANDOM")
+	if [[ $NR_SYSTEMATIC -ne $systematic_phase ]]; then
+		red_text "Number of random steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC"
+		errors+=("Number of random steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC")
 	else
 		green_text "Number of systematic steps OK"
 	fi

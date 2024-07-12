@@ -135,11 +135,6 @@ echo "=== Current git hash before auto-pulling ==="
 
 git pull
 
-function die {
-	echo $1
-	exit 1
-}
-
 mkdir -p runs
 mkdir -p .logs
 

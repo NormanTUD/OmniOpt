@@ -14,6 +14,13 @@ help_message() {
 	echo "  --help             Show this help message"
 }
 
+function _mkdir {
+	mkdir -p $* || {
+		echo "mkdir -p $* failed. Exiting."
+		exit 12
+	}
+}
+
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -118,8 +125,8 @@ echo "=== Current git hash before auto-pulling ==="
 
 git pull
 
-mkdir -p runs
-mkdir -p .logs
+_mkdir runs
+_mkdir .logs
 
 git rev-parse HEAD > git_hash
 
@@ -152,7 +159,7 @@ if [ -z "$ORIGINAL_ARGS" ]; then
 	exit 0
 fi
 
-mkdir -p $HOME/.config/matplotlib_docker_omniopt
+_mkdir $HOME/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
 	omniopt*|./.tests/*)

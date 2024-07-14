@@ -1,0 +1,62 @@
+#!/bin/bash
+
+export NO_WHIPTAIL=1
+
+errors=()
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+if command -v php 2>/dev/null >/dev/null; then
+	for existing_php_file in $(ls .gui/**/*.php); do
+		if ! php -l $existing_php_file >/dev/null; then
+			errmsg="PHP file $existing_php_file does have syntax errors"
+			red_text "$errmsg"
+			errors+=("$errmsg")
+		fi
+	done
+else
+	yellow_text "Not running this test, since php is not installed."
+fi
+
+secs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'php_files test took: %02d:%02d:%02d\n' $hrs $mins $secs
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No plot errors"
+	exit 0
+else
+	red_text "=> PHP-FILES-ERRORS => PHP-FILES-ERRORS => PHP-FILES-ERRORS =>"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi

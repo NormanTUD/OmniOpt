@@ -345,6 +345,7 @@ fi
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
 _test "help page Documentation" "bash .tests/help_page" 0
 _test "folder structure Documentation" "bash .tests/folder_structure" 0
+_test "state_files Documentation" "bash ./.tests/state_files" 0
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"

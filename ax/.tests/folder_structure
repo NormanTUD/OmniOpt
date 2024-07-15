@@ -31,13 +31,13 @@ cd $SCRIPT_DIR
 
 cd ..
 
-expected_plot_types=()
+state_files=()
 
 for state_file in $(ls runs/*/*/state_files | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
-	expected_plot_types+=("$state_file")
+	state_files+=("$state_file")
 done
 
-for state_file in "${expected_plot_types[@]}"; do
+for state_file in "${state_files[@]}"; do
 	if ! grep "$state_file" .gui/tutorials/folder_structure.php 2>&1 >/dev/null; then
 		errmsg="State file $state_file does not appear in .gui/tutorials/folder_structure.php"
 		red_text "$errmsg"

@@ -55,7 +55,7 @@
 
 				$file = preg_replace("/\.php$/", "", $file);
 
-				print "<li><a href='tutorials.php?tutorial=$file'>$name</a></li>\n";
+				print "<li class='li_list'><a href='tutorials.php?tutorial=$file'>$name</a></li>\n";
 			}
 		}
 ?>

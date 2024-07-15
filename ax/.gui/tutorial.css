@@ -10,10 +10,6 @@ h1 {
 	margin-bottom: 20px;
 }
 
-.toc ul {
-	list-style-type: none;
-}
-
 .toc li {
 	margin-bottom: 5px;
 }
@@ -82,4 +78,9 @@ th {
 
 .warning {
 	color: red;
+}
+
+.li_list {
+	text-decoration: none;
+	color: #007bff;
 }

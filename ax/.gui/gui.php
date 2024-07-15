@@ -133,7 +133,7 @@
 					], "required": true, 
 					info: `
 						<ul>
-							<li>BOTORCH_MODULAR: Default model</li>
+							<li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
 							<li>SOBOL: Random search</li>
 							<li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: ???</li>
 							<li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>

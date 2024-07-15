@@ -3436,20 +3436,16 @@ def finish_previous_jobs_random(args):
 
 def print_logo():
     try:
-        if random.uniform(0, 1) < 0.99:
-            from art import text2art
-            original_print(text2art("OmniOpt2", font="random"))
-        else:
-            original_print("""
-           ---------
-          (OmniOpt2!)
-           ---------
-                   \/     
-                 /\_/\\
-                ( o.o )
-                 > ^ <  ,"",
-                 ( " ) :
-                  (|)""
+        original_print("""
+   ---------
+  (OmniOpt2!)
+   ---------
+           \/     
+         /\_/\\
+        ( o.o )
+         > ^ <  ,"",
+         ( " ) :
+          (|)""
 """)
 
     except Exception as e:

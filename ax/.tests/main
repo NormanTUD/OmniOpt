@@ -199,6 +199,14 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
+if [[ "$num_random_steps" -gt "$max_eval" ]]; then
+	yellow_text "--num_random_steps was larger than --max_eval. Switching them..."
+	tmp=$num_random_steps
+	max_eval=$num_random_steps
+	num_random_steps=$tmp
+	unset tmp
+fi
+
 if [[ "$num_parallel_jobs" -lt "1" ]]; then
 	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs"
 	exit 1

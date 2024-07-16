@@ -1901,6 +1901,8 @@ def save_pd_csv():
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
+    return pd_csv
+
 def get_tmp_file_from_json(experiment_args):
     k = 0
     p = "/tmp/0"
@@ -2631,7 +2633,7 @@ def finish_previous_jobs(args, new_msgs):
                 if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
-                    done_jobs(1)
+                    #done_jobs(1)
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
@@ -3306,13 +3308,77 @@ def submitted_jobs(nr=0):
 
     return append_and_read(f'{current_run_folder}/state_files/submitted_jobs', nr)
 
-def done_jobs(nr=0):
-    state_files_folder = f"{current_run_folder}/state_files/"
+def done_jobs():
+    csv_file_path = save_pd_csv()
+    results = 0
 
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    if not os.path.exists(csv_file_path):
+        print_yellow(f"CSV file does not exist at path: {csv_file_path}")
+        return results
 
-    return append_and_read(f'{current_run_folder}/state_files/done_jobs', nr)
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+        df.dropna(subset=["result"], inplace=True)
+    except KeyError as e:
+        return 0
+    except pd.errors.EmptyDataError as e:
+        print_red(f"Error reading CSV file 1: {str(e)}")
+        return 0
+    except pd.errors.ParserError as e:
+        print_red(f"Error reading CSV file 2: {str(e)}")
+        return 0
+    except UnicodeDecodeError as e:
+        print_red(f"Error reading CSV file 3: {str(e)}")
+        return 0
+    except Exception as e:
+        print_red(f"Error reading CSV file 4: {str(e)}")
+        return 0
+
+    assert_condition(df is not None, "DataFrame should not be None after reading CSV file")
+    assert_condition("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
+
+    non_sobol_rows = df[df["generation_method"] != "Sobol"]
+    non_sobol_rows_count = len(non_sobol_rows)
+
+    return non_sobol_rows_count
+
+def count_sobol_steps():
+    csv_file_path = save_pd_csv()
+    sobol_count = 0
+
+    if not os.path.exists(csv_file_path):
+        print_yellow(f"CSV file does not exist at path: {csv_file_path}")
+        return sobol_count
+
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+        df.dropna(subset=["result"], inplace=True)
+    except KeyError as e:
+        return 0
+    except pd.errors.EmptyDataError as e:
+        print_red(f"Error reading CSV file 1: {str(e)}")
+        return 0
+    except pd.errors.ParserError as e:
+        print_red(f"Error reading CSV file 2: {str(e)}")
+        return 0
+    except UnicodeDecodeError as e:
+        print_red(f"Error reading CSV file 3: {str(e)}")
+        return 0
+    except Exception as e:
+        print_red(f"Error reading CSV file 4: {str(e)}")
+        return 0
+
+    assert_condition(df is not None, "DataFrame should not be None after reading CSV file")
+    assert_condition("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
+
+    sobol_rows = df[df["generation_method"] == "Sobol"]
+    sobol_count = len(sobol_rows)
+
+    return sobol_count
 
 def execute_nvidia_smi():
     if not is_executable_in_path("nvidia-smi"):

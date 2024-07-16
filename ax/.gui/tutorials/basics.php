@@ -64,7 +64,7 @@ runs a program with these parameters, and identifies promising areas for further
 
 <h2 id="scalability">Scalability</h2>
 
-<p>OmniOpt2, when slurm is installed, automatically starts sub-jobs on different nodes to maximize resource utilization. Use the flag <tt>--num_parallel_jobs n</tt> with n being the number of workers you want to start jobs in parallel. When no slurm is installed on your system, OmniOpt2 will run the jobs sequentially.</p>
+<p>OmniOpt2, when SLURM is installed, automatically starts sub-jobs on different nodes to maximize resource utilization. Use the flag <tt>--num_parallel_jobs n</tt> with n being the number of workers you want to start jobs in parallel. When no SLURM is installed on your system, OmniOpt2 will run the jobs sequentially.</p>
 
 
 <h2 class="error_handling">Error Handling</h2>

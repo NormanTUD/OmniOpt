@@ -51,7 +51,7 @@ if [[ ! -z $random_phase ]]; then
 fi
 
 if [[ ! -z $manual ]]; then
-	if [[ $NR_MANUAL -ne $manual ]]; then
+	if [[ $NR_MANUAL -ne $manual ]] && ! [[ $NR_MANUAL -gt $manual ]] ; then
 		red_text "Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL"
 		errors+=("Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL")
 	else

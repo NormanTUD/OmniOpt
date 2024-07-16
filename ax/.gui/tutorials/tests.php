@@ -9,6 +9,10 @@
 
 <p>A large part of the source code of OmniOpt2 is to make sure that everything works as expected. This code executes real test cases and looks at the results to check if they are as expected. Many things in OmniOpt2 get tested automatically to see if they work properly. All test related files are in the folder <tt>.tests</tt>.</p>
 
+<h2 id="why_run_these">Why would I want to run those?</h2>
+
+<p>OmniOpt2 is supposed to be run on a wide variety of Linux systems. Not every system specific thing can be caught, though, since I cannot test it manually on all the available Linux-distributions. If you encounter Problems in OmniOpt2, we may ask you to run those tests and submit us the outputs, so that we can debug it thoroughly.</p>
+
 <h2 id="how_to_run_tests">How to run tests?</h2>
 
 <p>To run all tests, which takes a lot of time, run:</p>

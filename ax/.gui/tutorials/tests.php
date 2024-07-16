@@ -53,7 +53,7 @@
 <p>When this succeeds without any errors, you can be reasonably sure that OmniOpt2 will properly do the following things under normal circumstances:</p>
 
 <ul>
-	<li>Run a simple run</li>
+	<li>Run a simple run (one random step and 2 steps in total, so both model, <tt>SOBOL</tt> and <tt>BOTORCH_MODULAR</tt> get tested)</li>
 	<li>Continue a run</li>
 	<li>Continue an already continued run</li>
 	<li>Test the of the number of results for all these jobs</li>

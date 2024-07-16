@@ -11,7 +11,9 @@
 
 <h2 id="why_run_these">Why would I want to run those?</h2>
 
-<p>OmniOpt2 is supposed to be run on a wide variety of Linux systems. Not every system specific thing can be caught, though, since I cannot test it manually on all the available Linux-distributions. If you encounter Problems in OmniOpt2, we may ask you to run those tests and submit us the outputs, so that we can debug it thoroughly.</p>
+<p>OmniOpt2 is supposed to be run on a wide variety of Linux systems. Not every system specific thing can be caught, though, since I cannot test it manually on all the available Linux-distributions. If you encounter problems in OmniOpt2, I may ask you to run those tests and submit the output to me, so that I can debug it thoroughly.</p>
+
+<p>You may have made a change to OmniOpt2 and want to see if it still runs and you haven't broken anything.</p>
 
 <h2 id="how_to_run_tests">How to run tests?</h2>
 

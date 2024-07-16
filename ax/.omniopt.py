@@ -3312,6 +3312,10 @@ def submitted_jobs(nr=0):
 
 def count_done_jobs():
     csv_file_path = save_pd_csv()
+
+    return _count_done_jobs(csv_file_path)
+
+def _count_done_jobs(csv_file_path):
     results = 0
 
     if not os.path.exists(csv_file_path):
@@ -3347,6 +3351,10 @@ def count_done_jobs():
 
 def count_manual_steps():
     csv_file_path = save_pd_csv()
+
+    return _count_manual_steps(csv_file_path)
+
+def _count_manual_steps(csv_file_path):
     sobol_count = 0
 
     if not os.path.exists(csv_file_path):
@@ -3384,6 +3392,10 @@ def count_manual_steps():
 
 def count_sobol_steps():
     csv_file_path = save_pd_csv()
+
+    return _count_sobol_steps(csv_file_path)
+
+def _count_sobol_steps(csv_file_path):
     sobol_count = 0
 
     if not os.path.exists(csv_file_path):

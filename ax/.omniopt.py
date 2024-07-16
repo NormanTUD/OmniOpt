@@ -1617,8 +1617,8 @@ def print_best_result(csv_file_path, result_column):
                     if "min_done_jobs" in plot:
                         min_done_jobs = plot["min_done_jobs"]
 
-                    if done_jobs() < min_done_jobs:
-                        print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {done_jobs()} jobs done")
+                    if count_done_jobs() < min_done_jobs:
+                        print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
                         continue
 
                     try:
@@ -1877,6 +1877,9 @@ def save_pd_csv():
 
     if not os.path.exists(state_files_folder):
         os.makedirs(state_files_folder)
+
+    if ax_client is None:
+        return pd_csv
 
     try:
         pd_frame = ax_client.get_trials_data_frame()
@@ -2633,7 +2636,7 @@ def finish_previous_jobs(args, new_msgs):
                 if result != val_if_nothing_found:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
-                    #done_jobs(1)
+                    #count_done_jobs(1)
 
                     _trial = ax_client.get_trial(trial_index)
                     try:
@@ -2789,13 +2792,13 @@ def get_desc_progress_text(new_msgs=[]):
         in_brackets.append(f"{bcolors.red}failed jobs: {failed_jobs()}{bcolors.endc}")
 
     if random_steps and random_steps > submitted_jobs():
-        in_brackets.append(f"random phase ({abs(done_jobs() - random_steps)} left)")
+        in_brackets.append(f"random phase ({abs(count_done_jobs() - random_steps)} left)")
 
     best_params = None
 
     this_time = time.time()
 
-    if done_jobs():
+    if count_done_jobs():
         best_params = get_best_params(result_csv_file, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]
@@ -3167,9 +3170,9 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
                 print_red(f"Error 2: {e}")
                 return 0
 
-        random_steps_left = done_jobs() - random_steps
+        random_steps_left = count_done_jobs() - random_steps
 
-        if random_steps_left <= 0 and done_jobs() <= random_steps:
+        if random_steps_left <= 0 and count_done_jobs() <= random_steps:
             return len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_red("\n⚠ " + str(e))
@@ -3192,14 +3195,14 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
 def get_random_steps_from_prev_job(args):
     if not args.continue_previous_job:
-        return 0
+        return count_sobol_steps()
 
     prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
 
     if not os.path.exists(prev_step_file):
-        return 0
+        return count_sobol_steps()
 
-    return add_to_phase_counter("random", 0, args.continue_previous_job)
+    return add_to_phase_counter("random", count_sobol_steps(), args.continue_previous_job)
 
 def get_number_of_steps(args, max_eval):
     random_steps = args.num_random_steps
@@ -3260,14 +3263,13 @@ def get_executor(args):
 
     return executor
 
-def append_and_read(file, zahl=0):
+def append_and_read(file, nr=0):
     try:
         with open(file, 'a+') as f:
             f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
             anzahl_zeilen = len(f.readlines())
 
-            # Wenn zahl == 1, Zeile mit 1 hinzufügen
-            if zahl == 1:
+            if nr == 1:
                 f.write('1\n')
 
         return anzahl_zeilen
@@ -3275,7 +3277,7 @@ def append_and_read(file, zahl=0):
     except FileNotFoundError as e:
         print(f"File not found: {e}")
     except (signalUSR, signalINT, signalCONT) as e:
-        append_and_read(file, zahl)
+        append_and_read(file, nr)
     except OSError as e:
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
         sys.exit(199)
@@ -3308,7 +3310,7 @@ def submitted_jobs(nr=0):
 
     return append_and_read(f'{current_run_folder}/state_files/submitted_jobs', nr)
 
-def done_jobs():
+def count_done_jobs():
     csv_file_path = save_pd_csv()
     results = 0
 
@@ -3324,7 +3326,6 @@ def done_jobs():
     except KeyError as e:
         return 0
     except pd.errors.EmptyDataError as e:
-        print_red(f"Error reading CSV file 1: {str(e)}")
         return 0
     except pd.errors.ParserError as e:
         print_red(f"Error reading CSV file 2: {str(e)}")
@@ -3360,7 +3361,6 @@ def count_sobol_steps():
     except KeyError as e:
         return 0
     except pd.errors.EmptyDataError as e:
-        print_red(f"Error reading CSV file 1: {str(e)}")
         return 0
     except pd.errors.ParserError as e:
         print_red(f"Error reading CSV file 2: {str(e)}")
@@ -3430,7 +3430,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
-        if done_jobs() >= max_eval:
+        if count_done_jobs() >= max_eval:
             raise searchSpaceExhausted("Search space exhausted")
 
         finish_previous_jobs(args, ["finishing jobs"])
@@ -3454,14 +3454,14 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 def run_random_jobs(random_steps, ax_client, executor):
     global search_space_exhausted
 
-    while random_steps >= done_jobs() + 1 and not search_space_exhausted:
+    while random_steps >= count_done_jobs() + 1 and not search_space_exhausted:
         log_nr_of_workers()
 
         if system_has_sbatch:
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
-        if done_jobs() >= max_eval or submitted_jobs() >= max_eval:
+        if count_done_jobs() >= max_eval or submitted_jobs() >= max_eval:
             raise searchSpaceExhausted("Search space exhausted")
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:

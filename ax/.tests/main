@@ -72,6 +72,7 @@ function help () {
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --help                                             This help"
         echo "  --quick                                            Only run quick tests"
+        echo "  --reallyquick                                      Only run really quick tests"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }

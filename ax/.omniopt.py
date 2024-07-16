@@ -3195,14 +3195,14 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
 def get_random_steps_from_prev_job(args):
     if not args.continue_previous_job:
-        return count_sobol_steps()
+        return count_sobol_steps() + count_manual_steps()
 
     prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
 
     if not os.path.exists(prev_step_file):
-        return count_sobol_steps()
+        return count_sobol_steps() + count_manual_steps()
 
-    return add_to_phase_counter("random", count_sobol_steps(), args.continue_previous_job)
+    return add_to_phase_counter("random", count_sobol_steps() + count_manual_steps(), args.continue_previous_job)
 
 def get_number_of_steps(args, max_eval):
     random_steps = args.num_random_steps
@@ -3344,6 +3344,43 @@ def count_done_jobs():
     non_sobol_rows_count = len(non_sobol_rows)
 
     return non_sobol_rows_count
+
+def count_manual_steps():
+    csv_file_path = save_pd_csv()
+    sobol_count = 0
+
+    if not os.path.exists(csv_file_path):
+        print_yellow(f"CSV file does not exist at path: {csv_file_path}")
+        return sobol_count
+
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+        df.dropna(subset=["result"], inplace=True)
+    except KeyError as e:
+        return 0
+    except pd.errors.EmptyDataError as e:
+        return 0
+    except pd.errors.ParserError as e:
+        print_red(f"Error reading CSV file 2: {str(e)}")
+        return 0
+    except UnicodeDecodeError as e:
+        print_red(f"Error reading CSV file 3: {str(e)}")
+        return 0
+    except Exception as e:
+        print_red(f"Error reading CSV file 4: {str(e)}")
+        return 0
+
+    assert_condition(df is not None, "DataFrame should not be None after reading CSV file")
+    assert_condition("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
+
+    sobol_rows = df[df["generation_method"] == "Manual"]
+    sobol_count = len(sobol_rows)
+
+    return sobol_count
+
+
 
 def count_sobol_steps():
     csv_file_path = save_pd_csv()

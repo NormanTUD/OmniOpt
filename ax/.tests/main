@@ -317,11 +317,11 @@ _test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_paral
 _test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 if [[ "$reallyquick" -eq "0" ]]; then
 	_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps" 0 87
-	_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --follow" 0
+	_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
 
-	_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --follow" 0
+	_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
 
-	_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --follow" 0 87
+	_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0 87
 
 	if [[ "$quick" -eq "0" ]]; then
 		for model_name in $(echo "SOBOL GPEI FACTORIAL SAASBO FULLYBAYESIAN LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do
@@ -346,7 +346,7 @@ if [[ "$reallyquick" -eq "0" ]]; then
 	_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 87
 	if [[ "$quick" -eq "0" ]]; then
 		_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
-		_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch --follow" 0
+		_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0
 	fi
 	_test "Plot-Tests" "bash .tests/plots" 0
 fi

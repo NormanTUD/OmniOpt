@@ -352,10 +352,13 @@ follow=0
 wait_until_ended=0
 tests=0
 
+continue_was_set=0
+
 args_string=""
 
 args=("$@")
 k=0
+
 while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
@@ -372,6 +375,7 @@ while [ $k -lt ${#args[@]} ]; do
 			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
+			continue_was_set=1
 
 			;;
 		--continue)
@@ -390,6 +394,7 @@ while [ $k -lt ${#args[@]} ]; do
 			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
+			continue_was_set=1
 
 			;;
 
@@ -473,6 +478,7 @@ while [ $k -lt ${#args[@]} ]; do
 			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
+			continue_was_set=1
 
 			;;
 
@@ -492,6 +498,7 @@ while [ $k -lt ${#args[@]} ]; do
 			args_string+=" --continue $continue_previous_job "
 
 			continue_previous_job=$continue_previous_job
+			continue_was_set=1
 
 			;;
 
@@ -706,6 +713,11 @@ fi
 
 if [[ -z "$SLURM_JOB_ID" ]]; then
 	echo "Current git-hash: $git_hash"
+fi
+
+if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
+	echo "--continue was set, but empty."
+	exit 19
 fi
 
 set +x

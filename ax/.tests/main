@@ -345,8 +345,8 @@ if [[ "$reallyquick" -eq "0" ]]; then
 	_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0
 	_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 87
 	if [[ "$quick" -eq "0" ]]; then
-		_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps" 0
-		_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0
+		_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
+		_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch --follow" 0
 	fi
 	_test "Plot-Tests" "bash .tests/plots" 0
 fi

@@ -341,6 +341,7 @@ slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 slurm.add_argument('--account', help='Account to be used', type=str, default=None)
 slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
+debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
 
 installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
@@ -352,6 +353,14 @@ debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 
 args = parser.parse_args()
+
+if args.exclude:
+    entries = [entry.strip() for entry in args.exclude.split(',')]
+
+    # Verarbeitung der Einträge
+    for entry in entries:
+        count_defective_nodes(None, entry)
+
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
@@ -1259,11 +1268,68 @@ def write_data_and_headers(data_dict, error_description=""):
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
+
+def count_defective_nodes(file_path=None, entry=None):
+    """
+    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
+    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
+    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
+    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
+    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
+    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
+    '{current_run_folder}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
+    """
+    # Standardpfad für die Datei, wenn keiner angegeben ist
+    if file_path is None:
+        file_path = os.path.join(current_run_folder, "state_files", "defective_nodes")
+
+    # Sicherstellen, dass das Verzeichnis existiert
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    try:
+        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
+        with open(file_path, 'a+') as file:
+            file.seek(0)  # Zurück zum Anfang der Datei
+            lines = file.readlines()
+
+            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
+            entries = [line.strip() for line in lines]
+
+            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
+            if entry is not None and entry not in entries:
+                file.write(entry + '\n')
+                entries.append(entry)
+
+        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
+        return sorted(set(entries))
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+        return []
+
 def evaluate(parameters):
     global global_vars
     global is_in_evaluate
 
     nvidia_smi_thread = start_nvidia_smi_thread()
+
+    return_in_case_of_error = {"result": val_if_nothing_found}
+
+    if args.maximize:
+        return_in_case_of_error = {"result": -val_if_nothing_found}
+
+
+
+    if is_executable_in_path("sbatch") and args.gpus >= 1 and args.auto_exclude_defective_hosts:
+        try:
+            for i in range(torch.cuda.device_count()):
+                tmp = torch.cuda.get_device_properties(i).name
+        except RuntimeError:
+            print(f"Node {socket.gethostname()} was detected as faulty. It should have had a GPU, but there is an error initializing the CUDA driver. Adding this node to the --exclude list.")
+            count_defective_nodes(None, socket.gethostname())
+            return return_in_case_of_error
+        except:
+            pass
 
     is_in_evaluate = True
     if args.evaluate_to_random_value:
@@ -1279,11 +1345,6 @@ def evaluate(parameters):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
-
-    return_in_case_of_error = {"result": val_if_nothing_found}
-
-    if args.maximize:
-        return_in_case_of_error = {"result": -val_if_nothing_found}
 
     try:
         original_print("parameters:", parameters)
@@ -2932,6 +2993,10 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
         if args.account:
             os.environ['SBATCH_ACCOUNT'] = args.account
+
+        executor.update_parameters(
+                exclude=",".join(count_defective_nodes())
+        )
 
         new_job = executor.submit(evaluate, parameters)
         write_worker_usage()

@@ -1084,7 +1084,7 @@ else
 
 						#echo -ne "$backspaces"
 						echo -ne "$print_line"
-						sleep 0.3
+						sleep 0.2
 
 						last_print_line_length=$print_line_length
 					done

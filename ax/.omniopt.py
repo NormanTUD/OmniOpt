@@ -833,14 +833,14 @@ def get_bound_if_prev_data(_type, _column, _default):
                 if _default > _old_min_col:
                     ret_val = _old_min_col
                 else:
-                    ret_val = min(ret_val, _default, _old_min_col) * strictly_larger
+                    ret_val = _default
             else:
                 _old_max_col = get_max_column_value(pd_csv, _column, _default)
 
                 if _default < _old_max_col:
                     ret_val = _old_max_col
                 else:
-                    ret_val = _default * strictly_larger
+                    ret_val = _default
         else:
             print_red(f"{pd_csv} was not found")
 

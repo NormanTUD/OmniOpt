@@ -196,6 +196,11 @@
 			<td colspan="3">Slurm</td>
 		</tr>
 		<tr>
+			<td><tt>--auto_exclude_defective_hosts</tt></td>
+			<td>Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
 			<td><tt>--slurm_use_srun</tt></td>
 			<td>Using srun instead of sbatch. <a href="https://slurm.schedmd.com/srun.html" target="_blank">Learn more</a></td>
 			<td><tt>False</tt></td>

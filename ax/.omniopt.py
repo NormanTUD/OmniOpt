@@ -1234,8 +1234,6 @@ def write_data_and_headers(data_dict, error_description=""):
         if not os.path.exists(failed_logs_dir):
             os.makedirs(failed_logs_dir)
             print_debug(f"Directory created: {failed_logs_dir}")
-        else:
-            print_red(f"Directory already exists: {failed_logs_dir}")
 
         # Write headers if the file does not exist
         if not os.path.exists(header_file_path):

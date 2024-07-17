@@ -951,11 +951,11 @@ def parse_experiment_parameters(args):
                     upper_bound = math.ceil(upper_bound)
 
                 if args.continue_previous_job:
-                    if old_lower_bound != lower_bound:
+                    if old_lower_bound != lower_bound and found_lower_bound_in_file and old_lower_bound < lower_bound:
                         print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
                         search_space_reduction_warning = True
 
-                    if old_upper_bound != upper_bound:
+                    if old_upper_bound != upper_bound and found_upper_bound_in_file and old_upper_bound > upper_bound:
                         print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                         search_space_reduction_warning = True
                 

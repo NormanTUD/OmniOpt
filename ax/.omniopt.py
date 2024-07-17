@@ -798,8 +798,6 @@ def flatten_extend(matrix):
 def get_bound_if_prev_data(_type, _column, _default):
     ret_val = _default
 
-    strictly_larger = 1.1 # cause the search space has to be strictly larger
-
     found_in_file = False
 
     if args.load_previous_job_data and len(args.load_previous_job_data):

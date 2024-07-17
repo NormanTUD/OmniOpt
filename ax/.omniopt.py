@@ -2112,7 +2112,9 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                         new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
                         _replaced = True
 
-                        print_yellow(compare_parameters(old_param_json, new_param_json))
+                        compared_params = compare_parameters(old_param_json, new_param_json)
+                        if compared_params:
+                            print_yellow(compared_params)
 
                 if not _replaced:
                     print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")

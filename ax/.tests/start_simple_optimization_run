@@ -243,6 +243,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--model=$model \
+			--auto_exclude_defective_hosts \
 			--gridsearch \
 			--hide_ascii_plots
 		exit_code=$?
@@ -267,6 +268,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--model=$model \
+			--auto_exclude_defective_hosts \
 			--gridsearch \
 			--hide_ascii_plots
 		exit_code=$?
@@ -292,6 +294,7 @@ else
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--model=$model \
+			--auto_exclude_defective_hosts \
 			--hide_ascii_plots
 		exit_code=$?
 	else
@@ -315,6 +318,7 @@ else
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--model=$model \
+			--auto_exclude_defective_hosts \
 			--hide_ascii_plots
 		exit_code=$?
 	fi

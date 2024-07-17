@@ -950,14 +950,14 @@ def parse_experiment_parameters(args):
                     lower_bound = math.floor(lower_bound)
                     upper_bound = math.ceil(upper_bound)
 
-                if old_lower_bound != lower_bound and args.continue_previous_job:
-                    print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
-                    search_space_reduction_warning = True
+                if args.continue_previous_job:
+                    if old_lower_bound != lower_bound:
+                        print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+                        search_space_reduction_warning = True
 
-                if old_upper_bound != upper_bound and args.continue_previous_job:
-                    print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
-                    search_space_reduction_warning = True
-
+                    if old_upper_bound != upper_bound:
+                        print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+                        search_space_reduction_warning = True
                 
                 if args.gridsearch:
                     global changed_grid_search_params

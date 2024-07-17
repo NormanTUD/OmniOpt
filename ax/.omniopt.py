@@ -754,7 +754,7 @@ def get_max_column_value(pd_csv, column, _default):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
 
     try:
-        df = pd.read_csv(pd_csv)
+        df = pd.read_csv(pd_csv, float_precision='round_trip')
         if not column in df.columns:
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
@@ -779,7 +779,7 @@ def get_min_column_value(pd_csv, column, _default):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
 
     try:
-        df = pd.read_csv(pd_csv)
+        df = pd.read_csv(pd_csv, float_precision='round_trip')
         if not column in df.columns:
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
@@ -1960,7 +1960,7 @@ def save_pd_csv():
     try:
         pd_frame = ax_client.get_trials_data_frame()
 
-        pd_frame.to_csv(pd_csv, index=False)
+        pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
         #pd_frame.to_json(pd_json)
 
         json_snapshot = ax_client.to_json_snapshot()
@@ -2005,13 +2005,13 @@ def compare_parameters(old_param_json, new_param_json):
         for key in old_param:
             if old_param[key] != new_param[key]:
                 differences.append(f"{key} from {old_param[key]} to {new_param[key]}")
-        
+
         if differences:
             differences_message = f"Changed parameter {old_param['name']} " + ", ".join(differences)
             return differences_message
         else:
             return "No differences found between the old and new parameters."
-    
+
     except AssertionError as e:
         print(f"Assertion error: {e}")
     except Exception as e:
@@ -2024,7 +2024,7 @@ def get_ax_param_representation(data):
                 "name": data["name"],
                 "parameter_type": {
                     "__type": "ParameterType", "name": data["value_type"].upper()
-                },
+                    },
                 "lower": data["bounds"][0],
                 "upper": data["bounds"][1],
                 "log_scale": False,
@@ -2032,19 +2032,19 @@ def get_ax_param_representation(data):
                 "digits": None, 
                 "is_fidelity": False, 
                 "target_value": None
-            }
+                }
     elif data["type"] == "choice":
         return {
-            '__type': 'ChoiceParameter',
-            'dependents': None,
-            'is_fidelity': False,
-            'is_ordered': data["is_ordered"],
-            'is_task': False,
-            'name': data["name"],
-            'parameter_type': {'__type': 'ParameterType', 'name': 'STRING'},
-            'target_value': None,
-            'values': data["values"]
-        }
+                '__type': 'ChoiceParameter',
+                'dependents': None,
+                'is_fidelity': False,
+                'is_ordered': data["is_ordered"],
+                'is_task': False,
+                'name': data["name"],
+                'parameter_type': {'__type': 'ParameterType', 'name': 'STRING'},
+                'target_value': None,
+                'values': data["values"]
+                }
 
     else:
         print("data:")
@@ -2466,7 +2466,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         return None
     
     try:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, float_precision='round_trip')
     except Exception as e:
         raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
     
@@ -2632,7 +2632,6 @@ def load_data_from_existing_run_folders(args, _paths):
 
                     old_arm_parameter_with_result = old_arm_parameter
                     old_arm_parameter_with_result["result"] = old_result_simple
-                    already_inserted_param_data.append(old_arm_parameter_with_result)
             else:
                 old_arm_parameter_with_result = old_arm_parameter
                 old_arm_parameter_with_result["result"] = old_result_simple
@@ -3411,7 +3410,7 @@ def _count_done_jobs(csv_file_path):
     df = None
 
     try:
-        df = pd.read_csv(csv_file_path, index_col=0)
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
     except KeyError as e:
         return 0
@@ -3450,7 +3449,7 @@ def _count_manual_steps(csv_file_path):
     df = None
 
     try:
-        df = pd.read_csv(csv_file_path, index_col=0)
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
     except KeyError as e:
         return 0
@@ -3491,7 +3490,7 @@ def _count_sobol_steps(csv_file_path):
     df = None
 
     try:
-        df = pd.read_csv(csv_file_path, index_col=0)
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
     except KeyError as e:
         return 0
@@ -4293,7 +4292,7 @@ def get_best_params(csv_file_path, result_column):
     df = None
 
     try:
-        df = pd.read_csv(csv_file_path, index_col=0)
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=[result_column], inplace=True)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
         return results
@@ -4378,7 +4377,7 @@ def find_promising_bubbles(pd_csv):
     :param csv_file: Der Pfad zur CSV-Datei
     """
     # CSV-Datei einlesen
-    data = pd.read_csv(pd_csv)
+    data = pd.read_csv(pd_csv, float_precision='round_trip')
     
     # Ignoriere irrelevante Spalten
     relevant_columns = [col for col in data.columns if col not in ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']]

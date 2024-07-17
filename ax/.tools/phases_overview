@@ -61,8 +61,8 @@ fi
 
 if [[ ! -z $systematic_phase ]]; then
 	if [[ $NR_SYSTEMATIC -ne $systematic_phase ]]; then
-		red_text "Number of random steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC"
-		errors+=("Number of random steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC")
+		red_text "Number of systematic steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC"
+		errors+=("Number of systematic steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC")
 	else
 		green_text "Number of systematic steps OK"
 	fi

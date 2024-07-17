@@ -1041,7 +1041,7 @@ else
 						current_time=$(date +%s)
 						last_sq_time=$current_time
 
-						squeue_me_output=$(squeue --me)
+						squeue_me_output=$(squeue --me 2>/dev/null)
 						squeue_exit_code=$?
 
 						if [[ $squeue_exit_code -eq "0" ]]; then

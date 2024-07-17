@@ -29,6 +29,7 @@
 		pyvista
 		pytz
 		pyqt5
+		tensorflow
 	)
 
 	FROZEN=""

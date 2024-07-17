@@ -30,6 +30,7 @@
 		pytz
 		pyqt5
 		tensorflow
+		absl
 	)
 
 	FROZEN=""

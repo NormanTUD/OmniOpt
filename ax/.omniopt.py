@@ -2556,10 +2556,12 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
-            load_data_from_existing_run_folders(args, this_path)
+            with console.status("[bold green]Loading existing jobs into ax_client...") as status:
+                load_data_from_existing_run_folders(args, this_path)
 
     if args.continue_previous_job:
-        load_data_from_existing_run_folders(args, [args.continue_previous_job])
+        with console.status("[bold green]Loading existing jobs into ax_client...") as status:
+            load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
 
     if len(already_inserted_param_hashes.keys()):

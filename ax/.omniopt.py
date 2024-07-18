@@ -28,19 +28,30 @@ already_inserted_param_hashes = {}
 from rich.console import Console
 console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
 
-with console.status("[bold green]Loading base modules...") as status:
+with console.status("[bold green]Loading uuid...") as status:
     import uuid
+with console.status("[bold green]Loading traceback...") as status:
     import traceback
+with console.status("[bold green]Loading inspect...") as status:
     import inspect
-    import os
-    import sys
-    import threading
-    import shutil
-    import math
-    import json
-    from itertools import combinations
-    import importlib.util
     from inspect import currentframe, getframeinfo
+with console.status("[bold green]Loading os...") as status:
+    import os
+with console.status("[bold green]Loading sys...") as status:
+    import sys
+with console.status("[bold green]Loading threading...") as status:
+    import threading
+with console.status("[bold green]Loading shutil...") as status:
+    import shutil
+    from shutil import which
+with console.status("[bold green]Loading math...") as status:
+    import math
+with console.status("[bold green]Loading json...") as status:
+    import json
+with console.status("[bold green]Loading itertools...") as status:
+    from itertools import combinations
+with console.status("[bold green]Loading importlib...") as status:
+    import importlib.util
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -134,50 +145,78 @@ my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
 try:
-    with console.status("[bold green]Loading base modules...") as status:
+    with console.status("[bold green]Loading signal...") as status:
         import signal
+    with console.status("[bold green]Loading datetime...") as status:
         from datetime import datetime, timezone
-        from tzlocal import get_localzone
-        import platform
-        from unittest.mock import patch
-        import difflib
         import datetime
-        from shutil import which
+    with console.status("[bold green]Loading tzlocal...") as status:
+        from tzlocal import get_localzone
+    with console.status("[bold green]Loading platform...") as status:
+        import platform
+    with console.status("[bold green]Loading difflib...") as status:
+        import difflib
+    with console.status("[bold green]Loading warnings...") as status:
         import warnings
+    with console.status("[bold green]Loading pandas...") as status:
         import pandas as pd
+    with console.status("[bold green]Loading random...") as status:
         import random
+    with console.status("[bold green]Loading pathlib...") as status:
         from pathlib import Path
+    with console.status("[bold green]Loading glob...") as status:
         import glob
+    with console.status("[bold green]Loading os...") as status:
         from os import listdir
         from os.path import isfile, join
+    with console.status("[bold green]Loading re...") as status:
         import re
+    with console.status("[bold green]Loading socket...") as status:
         import socket
+    with console.status("[bold green]Loading stat...") as status:
         import stat
+    with console.status("[bold green]Loading pwd...") as status:
         import pwd
+    with console.status("[bold green]Loading base64...") as status:
         import base64
+    with console.status("[bold green]Loading argparse...") as status:
         import argparse
+    with console.status("[bold green]Loading rich_argparse...") as status:
         from rich_argparse import RichHelpFormatter
+    with console.status("[bold green]Loading time...") as status:
         import time
+    with console.status("[bold green]Loading pformat...") as status:
         from pprint import pformat
+    with console.status("[bold green]Loading sixel...") as status:
         import sixel
         from sixel import converter
+    with console.status("[bold green]Loading PIL...") as status:
         from PIL import Image
-    with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
-        #from rich.traceback import install
-        #install(show_locals=True)
 
+    #with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
+    #    #from rich.traceback import install
+    #    #install(show_locals=True)
+
+    with console.status("[bold green]Loading rich.table...") as status:
         from rich.table import Table
+    with console.status("[bold green]Loading print from rich...") as status:
         from rich import print
+    with console.status("[bold green]Loading rich.progress...") as status:
         from rich.progress import track
-
-        import csv
-        from rich.pretty import pprint
-        from pprint import pprint
         from rich.progress import BarColumn, Progress, TextColumn, TaskProgressColumn, TimeRemainingColumn, Column
+    with console.status("[bold green]Loading csv...") as status:
+        import csv
+    with console.status("[bold green]Loading rich.pretty...") as status:
+        from rich.pretty import pprint
+    with console.status("[bold green]Loading pprint...") as status:
+        from pprint import pprint
+    with console.status("[bold green]Loading subprocess...") as status:
         import subprocess
+    with console.status("[bold green]Loading logging...") as status:
 
         import logging
         logging.basicConfig(level=logging.ERROR)
+    with console.status("[bold green]Loading tqdm...") as status:
         from tqdm import tqdm
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")

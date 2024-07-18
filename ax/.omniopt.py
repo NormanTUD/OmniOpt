@@ -3564,7 +3564,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
-        if count_done_jobs() >= max_eval:
+        if submitted_jobs() >= max_eval:
             raise searchSpaceExhausted("Search space exhausted")
 
         finish_previous_jobs(args, ["finishing jobs"])

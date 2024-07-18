@@ -25,6 +25,7 @@ SUPPORTED_MODELS = [
 original_print = print
 
 already_inserted_param_hashes = {}
+already_inserted_param_data = []
 from rich.console import Console
 console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
 
@@ -2604,6 +2605,9 @@ def extract_headers_and_rows(data_list):
         return None, None
 
 def load_data_from_existing_run_folders(args, _paths):
+    global already_inserted_param_hashes
+    global already_inserted_param_data
+
     #dier(help(ax_client.experiment.search_space))
     for this_path in _paths:
         this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
@@ -2632,10 +2636,6 @@ def load_data_from_existing_run_folders(args, _paths):
             old_result_simple = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)
 
             hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
-
-            global already_inserted_param_hashes
-
-            already_inserted_param_data = []
 
             if looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 if hashed_params_result not in already_inserted_param_hashes.keys():
@@ -3349,7 +3349,7 @@ def get_number_of_steps(args, max_eval):
     if second_step_steps != original_second_steps:
         original_print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
     if second_step_steps == 0:
-        original_print("red", "This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        print_red("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
     second_step_steps = second_step_steps - already_done_random_steps
 

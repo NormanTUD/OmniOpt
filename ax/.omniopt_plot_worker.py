@@ -22,6 +22,7 @@ from datetime import datetime
 import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import timezone
 
 def assert_condition(condition, error_text):
     if not condition:
@@ -68,7 +69,7 @@ def plot_worker_usage(args, pd_csv):
         valid_times = data['time'].apply(looks_like_number)
         data = data[valid_times]
 
-        data['time'] = data['time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
+        data['time'] = data['time'].apply(lambda x: datetime.fromtimestamp(int(float(x)), timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
         data['time'] = pd.to_datetime(data['time'])
 
         # Sort data by time

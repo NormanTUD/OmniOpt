@@ -3636,8 +3636,8 @@ def run_random_jobs(random_steps, ax_client, executor):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
-        if count_done_jobs() >= max_eval or submitted_jobs() >= max_eval:
-            print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} or submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}:")
+        if count_done_jobs() >= max_eval:
+            print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval}:")
             raise searchSpaceExhausted("Search space exhausted")
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:

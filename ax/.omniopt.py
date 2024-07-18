@@ -28,123 +28,31 @@ already_inserted_param_hashes = {}
 from rich.console import Console
 console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
 
-with console.status("[bold green]Loading uuid...") as status:
-    import uuid
-with console.status("[bold green]Loading traceback...") as status:
-    import traceback
-with console.status("[bold green]Loading inspect...") as status:
-    import inspect
-    from inspect import currentframe, getframeinfo
-with console.status("[bold green]Loading os...") as status:
-    import os
-with console.status("[bold green]Loading sys...") as status:
-    import sys
-with console.status("[bold green]Loading threading...") as status:
-    import threading
-with console.status("[bold green]Loading shutil...") as status:
-    import shutil
-    from shutil import which
-with console.status("[bold green]Loading math...") as status:
-    import math
-with console.status("[bold green]Loading json...") as status:
-    import json
-with console.status("[bold green]Loading itertools...") as status:
-    from itertools import combinations
-with console.status("[bold green]Loading importlib...") as status:
-    import importlib.util
-
-class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NpEncoder, self).default(obj)
-
-global_vars = {}
-
-val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
-NO_RESULT = "{:.0e}".format(val_if_nothing_found)
-
-global_vars["jobs"] = []
-global_vars["_time"] = None
-global_vars["mem_gb"] = None
-global_vars["num_parallel_jobs"] = None
-global_vars["parameter_names"] = []
-
-# max_eval usw. in unterordner
-# grid ausblenden
-pd_csv_filename = "results.csv"
-worker_percentage_usage = []
-is_in_evaluate = False
-end_program_ran = False
-already_shown_worker_usage_over_time = False
-ax_client = None
-time_get_next_trials_took = []
-progress_plot = []
-current_run_folder = None
-run_folder_number = 0
-args = None
-result_csv_file = None
-shown_end_table = False
-max_eval = None
-random_steps = None
-progress_bar = None
-searching_for = None
-
-main_pid = os.getpid()
-
-run_uuid = uuid.uuid4()
-
-def _debug(msg, _lvl=0, ee=None):
-    if _lvl > 3:
-        original_print(f"Cannot write _debug, error: {ee}")
-        sys.exit(193)
-
-    try:
-        with open(logfile, 'a') as f:
-            original_print(msg, file=f)
-    except FileNotFoundError:
-        print_red(f"It seems like the run's folder was deleted during the run. Cannot continue.")
-        sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
-        original_print("_debug: Error trying to write log file: " + str(e))
-
-        _debug(msg, _lvl + 1, e)
-
-def print_debug(msg):
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}: {msg}"
-    if args.debug:
-        print(msg)
-
-    _debug(msg)
-
-def my_exit(_code=0):
-    tb = traceback.format_exc()
-    print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-
-    print("Exit-Code: " + str(_code))
-    sys.exit(_code)
-
-def getLineInfo():
-    return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
-          inspect.stack()[1][3])
-
-#print(f"sys.path: {sys.path}")
-
-script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file = f"{script_dir}/.helpers.py"
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=helpers_file,
-)
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
-
 try:
+    with console.status("[bold green]Loading uuid...") as status:
+        import uuid
+    with console.status("[bold green]Loading traceback...") as status:
+        import traceback
+    with console.status("[bold green]Loading inspect...") as status:
+        import inspect
+        from inspect import currentframe, getframeinfo
+    with console.status("[bold green]Loading os...") as status:
+        import os
+    with console.status("[bold green]Loading sys...") as status:
+        import sys
+    with console.status("[bold green]Loading threading...") as status:
+        import threading
+    with console.status("[bold green]Loading shutil...") as status:
+        import shutil
+        from shutil import which
+    with console.status("[bold green]Loading math...") as status:
+        import math
+    with console.status("[bold green]Loading json...") as status:
+        import json
+    with console.status("[bold green]Loading itertools...") as status:
+        from itertools import combinations
+    with console.status("[bold green]Loading importlib...") as status:
+        import importlib.util
     with console.status("[bold green]Loading signal...") as status:
         import signal
     with console.status("[bold green]Loading datetime...") as status:
@@ -236,6 +144,97 @@ except signalCONT:
 except (KeyboardInterrupt) as e:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
+global_vars = {}
+
+val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT = "{:.0e}".format(val_if_nothing_found)
+
+global_vars["jobs"] = []
+global_vars["_time"] = None
+global_vars["mem_gb"] = None
+global_vars["num_parallel_jobs"] = None
+global_vars["parameter_names"] = []
+
+# max_eval usw. in unterordner
+# grid ausblenden
+pd_csv_filename = "results.csv"
+worker_percentage_usage = []
+is_in_evaluate = False
+end_program_ran = False
+already_shown_worker_usage_over_time = False
+ax_client = None
+time_get_next_trials_took = []
+progress_plot = []
+current_run_folder = None
+run_folder_number = 0
+args = None
+result_csv_file = None
+shown_end_table = False
+max_eval = None
+random_steps = None
+progress_bar = None
+searching_for = None
+
+main_pid = os.getpid()
+
+run_uuid = uuid.uuid4()
+
+def _debug(msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        original_print(f"Cannot write _debug, error: {ee}")
+        sys.exit(193)
+
+    try:
+        with open(logfile, 'a') as f:
+            original_print(msg, file=f)
+    except FileNotFoundError:
+        print_red(f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
+    except Exception as e:
+        original_print("_debug: Error trying to write log file: " + str(e))
+
+        _debug(msg, _lvl + 1, e)
+
+def print_debug(msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg = f"{time_str}: {msg}"
+    if args.debug:
+        print(msg)
+
+    _debug(msg)
+
+def my_exit(_code=0):
+    tb = traceback.format_exc()
+    print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
+
+    print("Exit-Code: " + str(_code))
+    sys.exit(_code)
+
+def getLineInfo():
+    return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
+          inspect.stack()[1][3])
+
+#print(f"sys.path: {sys.path}")
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+my_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(my_module)
 
 def print_image_to_cli(image_path, width):
     print("")

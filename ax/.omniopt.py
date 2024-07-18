@@ -568,7 +568,7 @@ signal.signal(signal.SIGCONT, receive_signal_cont)
 try:
     from rich.console import Console
     console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
-    with console.status("[bold green]Importing rich, time, csv, re, argparse, subprocess and logging...") as status:
+    with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
         #from rich.traceback import install
         #install(show_locals=True)
 
@@ -1436,7 +1436,7 @@ def evaluate(parameters):
 
 try:
     if not args.tests:
-        with console.status("[bold green]Importing ax...") as status:
+        with console.status("[bold green]Loading ax...") as status:
             try:
                 import ax.modelbridge.generation_node
                 import numpy as np
@@ -1455,7 +1455,7 @@ try:
                 print_red("\n⚠ You pressed CTRL+C. Program execution halted.")
                 my_exit(31)
 
-        with console.status("[bold green]Importing botorch...") as status:
+        with console.status("[bold green]Loading botorch...") as status:
             try:
                 import botorch
             except ModuleNotFoundError as e:
@@ -1465,7 +1465,7 @@ try:
                 print_red("\n⚠ You pressed CTRL+C. Program execution halted.")
                 my_exit(31)
 
-        with console.status("[bold green]Importing submitit...") as status:
+        with console.status("[bold green]Loading submitit...") as status:
             try:
                 import submitit
                 from submitit import AutoExecutor, LocalJob, DebugJob
@@ -3575,6 +3575,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
         if submitted_jobs() >= max_eval:
+            print(f"submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}")
             raise searchSpaceExhausted("Search space exhausted")
 
         finish_previous_jobs(args, ["finishing jobs"])
@@ -3606,6 +3607,7 @@ def run_random_jobs(random_steps, ax_client, executor):
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
         if count_done_jobs() >= max_eval or submitted_jobs() >= max_eval:
+            print(f"count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} or submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}:")
             raise searchSpaceExhausted("Search space exhausted")
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
@@ -3822,6 +3824,7 @@ def main():
         finish_previous_jobs_random(args)
 
         if max_eval - random_steps <= 0:
+            print(f"max_eval {max_eval} - random_steps {random_steps} <= 0")
             raise searchSpaceExhausted("Search space exhausted")
             
         run_systematic_search(args, max_nr_steps, executor, ax_client)

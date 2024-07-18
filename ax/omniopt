@@ -4,7 +4,7 @@ debug=0
 main_process_gb=4
 
 function echoerr {
-        echo "$@" 1>&2
+	echo "$@" 1>&2
 }
 
 function yellow_text {
@@ -263,7 +263,7 @@ slurmlogpath () {
 
 function calltracer {
 	LINE_AND_FUNCTION=$(caller)
-	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]];  then
+	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
 		red_text "Error occured in file/line: $LINE_AND_FUNCTION"
 	fi
 
@@ -989,36 +989,36 @@ else
 	if [[ $gpus -ne 0 ]]; then
 		if [[ -z $account ]]; then
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --job-name "$experiment_name" --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		else
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		fi
 	else
 		if [[ -z $account ]]; then
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --job-name "$experiment_name" --time=$formatted_time $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		else
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		fi
@@ -1116,8 +1116,8 @@ else
 						#done
 
 						print_line="$print_line$i"
-						_tput cr   # Move cursor to beginning of line
-						_tput el   # Delete line from start to finish
+						_tput cr # Move cursor to beginning of line
+						_tput el # Delete line from start to finish
 
 						#echo -ne "$backspaces"
 						echo -ne "$print_line"

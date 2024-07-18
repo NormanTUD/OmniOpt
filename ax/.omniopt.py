@@ -30,6 +30,8 @@ from rich.console import Console
 console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
 
 try:
+    with console.status("[bold green]Loading psutil...") as status:
+        import psutil
     with console.status("[bold green]Loading uuid...") as status:
         import uuid
     with console.status("[bold green]Loading traceback...") as status:
@@ -146,6 +148,8 @@ except (KeyboardInterrupt) as e:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
+process = psutil.Process(os.getpid())
+
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.integer):
@@ -214,6 +218,16 @@ def print_debug(msg):
         print(msg)
 
     _debug(msg)
+
+def write_process_info():
+    try:
+        cpu_usage = process.cpu_percent(interval=1)
+        ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
+
+        print_debug(f"CPU Usage: {cpu_usage}%")
+        print_debug(f"RAM Usage: {ram_usage} MB")
+    except Exception as e:
+        print_debug(f"Error retrieving process information: {str(e)}")
 
 def my_exit(_code=0):
     tb = traceback.format_exc()
@@ -3606,8 +3620,10 @@ def start_nvidia_smi_thread():
 
 def run_systematic_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
+    write_process_info()
 
     while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
+        write_process_info()
         log_nr_of_workers()
 
         if system_has_sbatch:
@@ -3617,6 +3633,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         if count_done_jobs() >= max_eval:
             print_debug(f"searchSpaceExhausted: submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}")
             raise searchSpaceExhausted("Search space exhausted")
+        write_process_info()
 
         finish_previous_jobs(args, ["finishing jobs"])
 
@@ -3633,13 +3650,16 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 
         _sleep(args, 1)
+        write_process_info()
 
     return False
 
 def run_random_jobs(random_steps, ax_client, executor):
+    write_process_info()
     global search_space_exhausted
 
     while random_steps >= count_done_jobs() + 1 and not search_space_exhausted:
+        write_process_info()
         log_nr_of_workers()
 
         if system_has_sbatch:
@@ -3652,6 +3672,7 @@ def run_random_jobs(random_steps, ax_client, executor):
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
             break
+        write_process_info()
 
         try:
             steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(global_vars["jobs"])))
@@ -3674,6 +3695,7 @@ def run_random_jobs(random_steps, ax_client, executor):
             print_red(f"Error 4: {e}")
 
         _sleep(args, 0.1)
+        write_process_info()
 
     return False
 
@@ -3765,7 +3787,6 @@ def main():
 
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
 
-
     if args.ui_url:
         with open(f"{current_run_folder}/ui_url.txt", "a") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
@@ -3853,7 +3874,10 @@ def main():
 
     save_global_vars()
 
+    write_process_info()
+
     with tqdm(total=max_eval, disable=False) as _progress_bar:
+        write_process_info()
         global progress_bar
         progress_bar = _progress_bar
 
@@ -3872,6 +3896,7 @@ def main():
         while len(global_vars["jobs"]):
             finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
             _sleep(args, 1)
+        write_process_info()
 
     end_program(result_csv_file)
 
@@ -4314,6 +4339,8 @@ def analyze_out_files(rootdir, print_to_stdout=True):
         return ""
 
 def log_nr_of_workers():
+    write_process_info()
+
     last_line = ""
     nr_of_workers = len(global_vars["jobs"])
 

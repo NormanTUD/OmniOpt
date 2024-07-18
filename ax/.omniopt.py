@@ -161,12 +161,41 @@ try:
         import sixel
         from sixel import converter
         from PIL import Image
+    with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
+        #from rich.traceback import install
+        #install(show_locals=True)
+
+        from rich.table import Table
+        from rich import print
+        from rich.progress import track
+
+        import csv
+        from rich.pretty import pprint
+        from pprint import pprint
+        from rich.progress import BarColumn, Progress, TextColumn, TaskProgressColumn, TimeRemainingColumn, Column
+        import subprocess
+
+        import logging
+        logging.basicConfig(level=logging.ERROR)
+        from tqdm import tqdm
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
     my_exit(31)
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     my_exit(31)
+except signalINT:
+    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+    my_exit(128 + 2)
+except (signalUSR):
+    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+    my_exit(128 + 10)
+except signalCONT:
+    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+    my_exit(128 + 18)
+except (KeyboardInterrupt) as e:
+    print("\n⚠ You pressed CTRL+C. Program execution halted.")
+    my_exit(0)
 
 def print_image_to_cli(image_path, width):
     print("")
@@ -535,12 +564,6 @@ def print_debug_progressbar(msg):
 
     _debug_progressbar(msg)
 
-try:
-    from tqdm import tqdm
-except ModuleNotFoundError as e:
-    print(f"Error loading module: {e}")
-    my_exit(31)
-
 class signalUSR (Exception):
     pass
 
@@ -565,29 +588,6 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
-try:
-    with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
-        #from rich.traceback import install
-        #install(show_locals=True)
-
-        from rich.table import Table
-        from rich import print
-        from rich.progress import track
-
-        import csv
-        from rich.pretty import pprint
-        from pprint import pprint
-        from rich.progress import BarColumn, Progress, TextColumn, TaskProgressColumn, TimeRemainingColumn, Column
-        import subprocess
-
-        import logging
-        logging.basicConfig(level=logging.ERROR)
-except ModuleNotFoundError as e:
-    print(f"Error: {e}")
-    my_exit(31)
-except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-    print("\n⚠ You pressed CTRL+C or signal was sent. Program execution halted.")
-    my_exit(0)
 
 class bcolors:
     header = '\033[95m'
@@ -2085,10 +2085,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 else:
                     if args.verbose:
                         print_yellow("No suitable CUDA devices found")
-        except ModuleNotFoundError:
-            print_red("Cannot load torch and thus, cannot use gpu")
-            experiment_parameters = None
-
         except json.decoder.JSONDecodeError as e:
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(47)

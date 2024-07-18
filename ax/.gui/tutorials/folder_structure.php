@@ -152,6 +152,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>submitted_jobs</i>: The number of submitted jobs</li>
 	<li><i>time</i>: The time this job-sbatch has allocated</li>
 	<li><i>defective_nodes</i>: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires <tt>--auto_exclude_defective_hosts</tt> to be set.</li>
+	<li><i>succeeded_jobs</i>: Contains one line for each succeeded job.</li>
 	<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
 </ul>
 

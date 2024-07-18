@@ -2719,6 +2719,7 @@ def finish_previous_jobs(args, new_msgs):
                     try:
                         progressbar_description([f"new result: {result}"])
                         _trial.mark_completed(unsafe=True)
+                        succeeded_jobs(1)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     print_outfile_analyzed(job)
@@ -3386,6 +3387,15 @@ def get_steps_from_prev_job(prev_job, nr=0):
         os.makedirs(state_files_folder)
 
     return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
+
+def succeeded_jobs(nr=0):
+    state_files_folder = f"{current_run_folder}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f'{current_run_folder}/state_files/succeeded_jobs', nr)
+
 
 def submitted_jobs(nr=0):
     state_files_folder = f"{current_run_folder}/state_files/"

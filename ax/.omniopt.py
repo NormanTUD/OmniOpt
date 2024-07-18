@@ -574,7 +574,6 @@ try:
         from rich import print
         from rich.progress import track
 
-        import time
         import csv
         from rich.pretty import pprint
         from pprint import pprint
@@ -1434,6 +1433,8 @@ def evaluate(parameters):
 
 try:
     if not args.tests:
+        with console.status("[bold green]Loading torch...") as status:
+            import torch
         with console.status("[bold green]Loading ax...") as status:
             try:
                 import ax.modelbridge.generation_node
@@ -2070,8 +2071,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             with open(checkpoint_file) as f:
                 experiment_parameters = json.load(f)
 
-            import torch
-
             cuda_is_available = torch.cuda.is_available()
 
             if not cuda_is_available or cuda_is_available == 0:
@@ -2171,8 +2170,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
 
         try:
-            import torch
-
             cuda_is_available = torch.cuda.is_available()
 
             if not cuda_is_available or cuda_is_available == 0:

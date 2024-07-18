@@ -2343,12 +2343,12 @@ def check_equation(variables, equation):
     if not (">=" in equation or "<=" in equation):
         return False
 
-    comparer_at_beginning = re.search("^\s*((<=|>=)|(<=|>=))", equation)
+    comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
     if comparer_at_beginning:
         print(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
         return False
 
-    comparer_at_end = re.search("((<=|>=)|(<=|>=))\s*$", equation)
+    comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
     if comparer_at_end:
         print(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
         return False
@@ -3652,8 +3652,8 @@ def print_logo():
    ---------
   (OmniOpt2!)
    ---------
-           \/     
-         /\_/\\
+           \\/     
+         /\\_/\\
         ( o.o )
          > ^ <  ,"",
          ( " ) :

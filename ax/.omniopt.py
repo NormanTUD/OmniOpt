@@ -221,7 +221,7 @@ def print_debug(msg):
 
 def write_process_info():
     try:
-        cpu_usage = process.cpu_percent(interval=1)
+        cpu_usage = process.cpu_percent(interval=0.0)
         ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
 
         print_debug(f"CPU Usage: {cpu_usage}%")

@@ -25,14 +25,21 @@ SUPPORTED_MODELS = [
 original_print = print
 
 already_inserted_param_hashes = {}
-
-import os
-import threading
-import shutil
-import math
-import json
-from itertools import combinations
-from inspect import currentframe, getframeinfo
+from rich.console import Console
+console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
+with console.status("[bold green]Loading base modules...") as status:
+    import uuid
+    import traceback
+    import inspect
+    import os
+    import sys
+    import threading
+    import shutil
+    import math
+    import json
+    from itertools import combinations
+    import importlib.util
+    from inspect import currentframe, getframeinfo
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -77,9 +84,6 @@ searching_for = None
 
 main_pid = os.getpid()
 
-import uuid
-import traceback
-
 run_uuid = uuid.uuid4()
 
 def _debug(msg, _lvl=0, ee=None):
@@ -113,18 +117,14 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
-import inspect
 def getLineInfo():
     return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
           inspect.stack()[1][3])
-
-import sys
 
 #print(f"sys.path: {sys.path}")
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -133,40 +133,40 @@ my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
 try:
-    import signal
-    from datetime import datetime, timezone
-    from tzlocal import get_localzone
-    import platform
-    from unittest.mock import patch
-    import difflib
-    import datetime
-    from shutil import which
-    import warnings
-    import pandas as pd
-    import random
-    from pathlib import Path
-    import glob
-    from os import listdir
-    from os.path import isfile, join
-    import re
-    import socket
-    import stat
-    import pwd
-    import base64
-    import argparse
-    from rich_argparse import RichHelpFormatter
-    import time
-    from pprint import pformat
-    import sixel
+    with console.status("[bold green]Loading base modules...") as status:
+        import signal
+        from datetime import datetime, timezone
+        from tzlocal import get_localzone
+        import platform
+        from unittest.mock import patch
+        import difflib
+        import datetime
+        from shutil import which
+        import warnings
+        import pandas as pd
+        import random
+        from pathlib import Path
+        import glob
+        from os import listdir
+        from os.path import isfile, join
+        import re
+        import socket
+        import stat
+        import pwd
+        import base64
+        import argparse
+        from rich_argparse import RichHelpFormatter
+        import time
+        from pprint import pformat
+        import sixel
+        from sixel import converter
+        from PIL import Image
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
     my_exit(31)
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     my_exit(31)
-
-from sixel import converter
-from PIL import Image
 
 def print_image_to_cli(image_path, width):
     print("")
@@ -566,8 +566,6 @@ signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
 try:
-    from rich.console import Console
-    console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
     with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
         #from rich.traceback import install
         #install(show_locals=True)

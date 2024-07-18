@@ -3575,7 +3575,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
         if submitted_jobs() >= max_eval:
-            print(f"submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}")
+            print_debug(f"searchSpaceExhausted: submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}")
             raise searchSpaceExhausted("Search space exhausted")
 
         finish_previous_jobs(args, ["finishing jobs"])
@@ -3607,7 +3607,7 @@ def run_random_jobs(random_steps, ax_client, executor):
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
         if count_done_jobs() >= max_eval or submitted_jobs() >= max_eval:
-            print(f"count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} or submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}:")
+            print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} or submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}:")
             raise searchSpaceExhausted("Search space exhausted")
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
@@ -3824,7 +3824,7 @@ def main():
         finish_previous_jobs_random(args)
 
         if max_eval - random_steps <= 0:
-            print(f"max_eval {max_eval} - random_steps {random_steps} <= 0")
+            print_debug(f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} <= 0")
             raise searchSpaceExhausted("Search space exhausted")
             
         run_systematic_search(args, max_nr_steps, executor, ax_client)

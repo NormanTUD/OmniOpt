@@ -6,6 +6,7 @@
 class searchSpaceExhausted (Exception):
     pass
 
+nr_inserted_jobs = 0
 changed_grid_search_params = {}
 duplicate_value_filter = []
 last_cpu_mem_time = None
@@ -2572,11 +2573,16 @@ def load_existing_job_data_into_ax_client(args):
                 for l in range(0, already_inserted_param_hashes[_hash]):
                     double_hashes.append(_hash)
 
+        global nr_inserted_jobs
+
         if len(double_hashes):
             print(f"Double parameters not inserted: {len(double_hashes)}")
+            nr_inserted_jobs += len(double_hashes)
 
         if len(double_hashes) - len(already_inserted_param_hashes.keys()):
             print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
+            nr_inserted_jobs += len(already_inserted_param_hashes.keys())
+
 
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)
@@ -3642,7 +3648,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
-        if count_done_jobs() >= max_eval:
+        if count_done_jobs() - nr_inserted_jobs >= max_eval:
             print_debug(f"searchSpaceExhausted: submitted_jobs() {submitted_jobs()} >= max_eval {max_eval}")
             raise searchSpaceExhausted("Search space exhausted")
         write_process_info()

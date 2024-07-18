@@ -159,6 +159,11 @@
 			<td>Where to install your modules to ($root_venv_dir/.omniax_...)</td>
 			<td><tt>$HOME</tt></td>
 		</tr>
+		<tr>
+			<td><tt>--main_process_gb (INT)</tt></td>
+			<td>Amount of RAM the main process should have</td>
+			<td><tt>4</tt></td>
+		</tr>
 		<tr class="section-header">
 			<td colspan="3">Experimental</td>
 			</tr>

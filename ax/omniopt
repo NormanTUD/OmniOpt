@@ -1,7 +1,7 @@
 #!/bin/bash
 
 debug=0
-
+main_process_gb=4
 
 function echoerr {
         echo "$@" 1>&2
@@ -502,6 +502,43 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 
+		--main_process_gb=*)
+			old_main_process_gb=$main_process_gb
+			main_process_gb="${i#*=}"
+			if ! [[ $main_process_gb =~ $int_re ]] ; then
+				red_text "error: --main_process_gb not a INT: $i" >&2
+				myexit 100
+			fi
+
+			if [[ ! -z $old_main_process_gb ]]; then
+				red_text "--main_process_gb was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
+			fi
+
+			args_string+=" --main_process_gb=$main_process_gb "
+
+			;;
+		--main_process_gb)
+			old_main_process_gb=$main_process_gb
+
+			shift
+			k=$((k+1))
+
+			main_process_gb="${args[k]}"
+			if ! [[ $main_process_gb =~ $int_re ]] ; then
+				red_text "error: --main_process_gb not a INT: $i" >&2
+				myexit 100
+			fi
+
+			if [[ ! -z $old_main_process_gb ]]; then
+				red_text "--main_process_gb was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
+			fi
+
+			args_string+=" --main_process_gb=$main_process_gb "
+
+			;;
+
 		--mem_gb=*)
 			old_mem_gb=$mem_gb
 			mem_gb="${i#*=}"
@@ -952,36 +989,36 @@ else
 	if [[ $gpus -ne 0 ]]; then
 		if [[ -z $account ]]; then
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		else
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		fi
 	else
 		if [[ -z $account ]]; then
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		else
 			if [[ -z $reservation ]]; then
-				sbatch_result=$(sbatch -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			else
-				sbatch_result=$(sbatch -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
+				sbatch_result=$(sbatch --mem=$main_process_gb -N 1 --account=$account --reservation=$reservation --job-name "$experiment_name" --time=$formatted_time --mem=${mem_gb}GB $SCRIPT_DIR/omniopt $args_string | tee /dev/stderr)
 				exit_code=$?
 			fi
 		fi

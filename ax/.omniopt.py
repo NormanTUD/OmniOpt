@@ -390,6 +390,7 @@ optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usa
 optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
 optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
 optional.add_argument('--exclude', help=f'A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
+optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)

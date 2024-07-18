@@ -27,6 +27,7 @@ original_print = print
 already_inserted_param_hashes = {}
 from rich.console import Console
 console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
+
 with console.status("[bold green]Loading base modules...") as status:
     import uuid
     import traceback

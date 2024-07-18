@@ -2617,6 +2617,13 @@ def load_data_from_existing_run_folders(args, _paths):
 
         for old_trial_index in old_trials:
             old_trial = old_trials[old_trial_index]
+            trial_status = old_trial.status
+            trial_status_str = trial_status.__repr__
+
+            print_debug(f"trial_status_str: {trial_status_str}")
+
+            if not "COMPLETED" in str(trial_status_str):
+                continue
 
             old_arm_parameter = old_trial.arm.parameters
 

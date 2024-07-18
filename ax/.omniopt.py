@@ -8,6 +8,7 @@ class searchSpaceExhausted (Exception):
 
 changed_grid_search_params = {}
 duplicate_value_filter = []
+last_cpu_mem_time = None
 
 search_space_exhausted = False
 SUPPORTED_MODELS = [
@@ -220,14 +221,23 @@ def print_debug(msg):
     _debug(msg)
 
 def write_process_info():
-    try:
-        cpu_usage = process.cpu_percent(interval=0.0)
-        ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
+    global last_cpu_mem_time
 
-        print_debug(f"CPU Usage: {cpu_usage}%")
-        print_debug(f"RAM Usage: {ram_usage} MB")
-    except Exception as e:
-        print_debug(f"Error retrieving process information: {str(e)}")
+    if last_cpu_mem_time is None:
+        process.cpu_percent(interval=0.0)
+        last_cpu_mem_time = time.time()
+    elif abs(last_cpu_mem_time - time.time()) < 1:
+        pass
+    else:
+        try:
+            cpu_usage = process.cpu_percent(interval=1)
+            ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
+
+            print_debug(f"CPU Usage: {cpu_usage}%")
+            print_debug(f"RAM Usage: {ram_usage} MB")
+        except Exception as e:
+            print_debug(f"Error retrieving process information: {str(e)}")
+        last_cpu_mem_time = None
 
 def my_exit(_code=0):
     tb = traceback.format_exc()

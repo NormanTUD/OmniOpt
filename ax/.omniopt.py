@@ -2399,8 +2399,9 @@ def print_overview_tables(experiment_parameters, experiment_args):
             text_file.write(table_str)
 
 def check_equation(variables, equation):
-    print_debug("check_equation")
+    print_debug(f"check_equation({variables}, {equation})")
     if not (">=" in equation or "<=" in equation):
+        print_debug(f"check_equation({variables}, {equation}): if not ('>=' in equation or '<=' in equation)")
         return False
 
     comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)

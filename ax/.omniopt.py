@@ -201,39 +201,71 @@ main_pid = os.getpid()
 
 run_uuid = uuid.uuid4()
 
-log_entries = []
+log_stack = []
+
+class LogEntry:
+    def __init__(self, function_name, start_time, caller):
+        self.function_name = function_name
+        self.start_time = start_time
+        self.caller = caller
+        self.end_time = None
+        self.duration = None
+        self.sub_calls = []
+
+    def end(self, end_time):
+        self.end_time = end_time
+        self.duration = end_time - self.start_time
+
+    def to_dict(self):
+        return {
+            "function_name": self.function_name,
+            "start_time": self.start_time,
+            "caller": self.caller,
+            "end_time": self.end_time,
+            "duration": self.duration,
+            "sub_calls": [sub_call.to_dict() for sub_call in self.sub_calls]
+        }
 
 def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.time()
         caller = inspect.stack()[1].function
-        log_entry = {
-            "function_name": func.__name__,
-            "start_time": start_time,
-            "caller": caller
-        }
+
+        log_entry = LogEntry(func.__name__, start_time, caller)
+        
+        if log_stack:
+            log_stack[-1].sub_calls.append(log_entry)
+        
+        log_stack.append(log_entry)
+        
         try:
             result = func(*args, **kwargs)
             return result
         except Exception as e:
-            log_entry["error"] = str(e)
+            log_entry.end(time.time())
             raise e
         finally:
-            end_time = time.time()
-            log_entry["end_time"] = end_time
-            log_entry["duration"] = end_time - start_time
-            log_entries.append(log_entry)
+            if log_stack and log_stack[-1] is log_entry:
+                log_entry.end(time.time())
+                log_stack.pop()
+            else:
+                log_entry.end(time.time())
     return wrapper
 
-@log_function_call
+def sort_log_entries(log_entry):
+    log_entry.sub_calls.sort(key=lambda x: x.duration, reverse=True)
+    for sub_call in log_entry.sub_calls:
+        sort_log_entries(sub_call)
+
 def save_logs_to_json(filename):
-    print_debug(f"save_logs_to_json({filename})")
-    if len(log_entries):
-        with open(filename, 'w') as log_file:
-            json.dump(log_entries, log_file, indent=4)
-    else:
-        print_debug("No log_entries found.")
+    root_entries = [entry for entry in log_stack if entry.caller == "<module>"]
+    for root_entry in root_entries:
+        sort_log_entries(root_entry)
+
+    sorted_entries = sorted(root_entries, key=lambda x: x.duration, reverse=True)
+    with open(filename, 'w') as log_file:
+        json.dump([entry.to_dict() for entry in sorted_entries], log_file, indent=4)
 
 @log_function_call
 def get_nesting_level(caller_frame):

@@ -110,7 +110,7 @@ try:
     with console.status("[bold green]Loading PIL...") as status:
         from PIL import Image
 
-    #with console.status("[bold green]Loading rich, time, csv, re, argparse, subprocess and logging...") as status:
+    #with console.status("[bold green]Importing rich tracebacks...") as status:
     #    #from rich.traceback import install
     #    #install(show_locals=True)
 

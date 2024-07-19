@@ -3753,7 +3753,7 @@ def run_random_jobs(random_steps, ax_client, executor):
 def finish_previous_jobs_random(args):
     try:
         while len(global_vars['jobs']):
-            finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
+            finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
             _sleep(args, 1)
     except EOFError as e:
         print_red(f"Error {e}: This may mean that you are running on an unstable file system. Cannot continue.")
@@ -3945,7 +3945,7 @@ def main():
         run_systematic_search(args, max_nr_steps, executor, ax_client)
 
         while len(global_vars["jobs"]):
-            finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs']) - 1} left)"])
+            finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
             _sleep(args, 1)
         write_process_info()
 

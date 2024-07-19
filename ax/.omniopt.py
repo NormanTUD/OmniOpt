@@ -357,14 +357,15 @@ def getLineInfo():
 
 #print(f"sys.path: {sys.path}")
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file = f"{script_dir}/.helpers.py"
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=helpers_file,
-)
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
+with console.status("[bold green]Loading helpers-module...") as status:
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    helpers_file = f"{script_dir}/.helpers.py"
+    spec = importlib.util.spec_from_file_location(
+        name="helpers",
+        location=helpers_file,
+    )
+    my_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(my_module)
 
 @log_function_call
 def print_image_to_cli(image_path, width):

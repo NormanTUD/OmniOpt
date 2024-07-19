@@ -735,7 +735,7 @@ def print_yellow(text):
     print_color("yellow", text)
 
 def is_executable_in_path(executable_name):
-    print_debug("is_executable_in_path")
+    print_debug(f"is_executable_in_path({executable_name})")
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
         if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
@@ -743,9 +743,12 @@ def is_executable_in_path(executable_name):
     return False
 
 system_has_sbatch = False
+is_nvidia_smi_system = False
 
 if is_executable_in_path("sbatch"):
     system_has_sbatch = True
+if is_executable_in_path("nvidia-smi"):
+    is_nvidia_smi_system = True
 
 if not system_has_sbatch:
     num_parallel_jobs = 1
@@ -1428,7 +1431,7 @@ def evaluate(parameters):
 
 
 
-    if is_executable_in_path("sbatch") and args.gpus >= 1 and args.auto_exclude_defective_hosts:
+    if system_has_sbatch and args.gpus >= 1 and args.auto_exclude_defective_hosts:
         try:
             for i in range(torch.cuda.device_count()):
                 tmp = torch.cuda.get_device_properties(i).name
@@ -3397,7 +3400,7 @@ def get_number_of_steps(args, max_eval):
     if random_steps > max_eval:
         print_yellow(f"You have less --max_eval than --num_random_steps.")
 
-    if random_steps < num_parallel_jobs and is_executable_in_path("sbatch"):
+    if random_steps < num_parallel_jobs and system_has_sbatch:
         old_random_steps = random_steps
         random_steps = num_parallel_jobs
         original_print(f"random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
@@ -3626,7 +3629,7 @@ def _count_sobol_steps(csv_file_path):
     return sobol_count
 
 def execute_nvidia_smi():
-    if not is_executable_in_path("nvidia-smi"):
+    if not is_nvidia_smi_system:
         print_debug(f"Cannot find nvidia-smi. Cannot take GPU logs")
         return
 
@@ -3659,7 +3662,7 @@ def execute_nvidia_smi():
 def start_nvidia_smi_thread():
     print_debug("start_nvidia_smi_thread")
 
-    if is_executable_in_path("nvidia-smi"):
+    if is_nvidia_smi_system:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
         return nvidia_smi_thread

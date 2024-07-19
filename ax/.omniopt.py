@@ -1664,10 +1664,11 @@ try:
     if not args.tests:
         with console.status("[bold green]Loading torch...") as status:
             import torch
+        with console.status("[bold green]Loading numpy...") as status:
+            import numpy as np
         with console.status("[bold green]Loading ax...") as status:
             try:
                 import ax.modelbridge.generation_node
-                import numpy as np
                 import ax
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
@@ -1700,9 +1701,24 @@ try:
             except:
                 print_red("\n⚠ submitit could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
-except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
-    print("\n⚠ signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
+except ModuleNotFoundError as e:
+    original_print(f"Base modules could not be loaded: {e}")
     my_exit(31)
+except KeyboardInterrupt:
+    original_print("You cancelled loading the basic modules")
+    my_exit(31)
+except signalINT:
+    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+    my_exit(128 + 2)
+except (signalUSR):
+    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+    my_exit(128 + 10)
+except signalCONT:
+    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+    my_exit(128 + 18)
+except (KeyboardInterrupt) as e:
+    print("\n⚠ You pressed CTRL+C. Program execution halted.")
+    my_exit(0)
 
 @log_function_call
 def disable_logging():

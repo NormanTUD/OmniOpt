@@ -4150,7 +4150,7 @@ def main():
 
         finish_previous_jobs_random(args)
 
-        if max_eval - random_steps <= 0:
+        if max_eval - random_steps + nr_inserted_jobs <= 0:
             print_debug(f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} <= 0")
             raise searchSpaceExhausted("Search space exhausted")
             
@@ -4908,9 +4908,8 @@ if __name__ == "__main__":
 
                 end_program(result_csv_file, "result", 1)
             except searchSpaceExhausted:
-
                 _get_perc = int((submitted_jobs() / max_eval) * 100)
-                original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
+                original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval}) after main ran")
                 if _get_perc != 100:
                     end_program(result_csv_file, "result", 1, 87)
                 else:

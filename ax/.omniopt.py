@@ -2369,6 +2369,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
         table.add_row(*row, style='bright_green')
 
         k += 1
+
     console.print(table)
 
     with console.capture() as capture:

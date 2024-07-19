@@ -261,8 +261,11 @@ def sort_log_entries(log_entry):
 
 def save_logs_to_json(filename):
     root_entries = [entry for entry in log_stack if entry.caller == "<module>"]
-    for root_entry in root_entries:
-        sort_log_entries(root_entry)
+    try:
+        for root_entry in root_entries:
+            sort_log_entries(root_entry)
+    except:
+        pass
 
     sorted_entries = sorted(root_entries, key=lambda x: x.duration, reverse=True)
     with open(filename, 'w') as log_file:
@@ -401,28 +404,31 @@ def get_timezone_offset_seconds():
 
     return offset
 
-log_dir = ".logs"
-try:
-    Path(log_dir).mkdir(parents=True, exist_ok=True)
-except Exception as e:
-    original_print(f"Could not create logs for {os.path.abspath(log_dir)}: " + str(e))
+with console.status("[bold green]Defining creating .logs dir if it doesn't exist...") as status:
+    log_dir = ".logs"
+    try:
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        original_print(f"Could not create logs for {os.path.abspath(log_dir)}: " + str(e))
 
-log_i = 0
-logfile = f'{log_dir}/{log_i}'
-logfile_linewise = f'{log_dir}/{log_i}_linewise'
-logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
-while os.path.exists(logfile):
-    log_i = log_i + 1
+with console.status("[bold green]Defining variables...") as status:
+    log_dir = ".logs"
+    log_i = 0
     logfile = f'{log_dir}/{log_i}'
+    logfile_linewise = f'{log_dir}/{log_i}_linewise'
+    logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
+    while os.path.exists(logfile):
+        log_i = log_i + 1
+        logfile = f'{log_dir}/{log_i}'
 
-logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
-logfile_linewise = f'{log_dir}/{log_i}_linewise'
-logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
-logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
-logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
-logfile_debug_get_next_trials = None
+    logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
+    logfile_linewise = f'{log_dir}/{log_i}_linewise'
+    logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
+    logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
+    logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
+    logfile_debug_get_next_trials = None
 
-nvidia_smi_logs_base = None
+    nvidia_smi_logs_base = None
 
 @log_function_call
 def log_message_to_file(logfile, message, _lvl=0, ee=None):

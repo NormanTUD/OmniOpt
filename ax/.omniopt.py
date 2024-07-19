@@ -2079,6 +2079,8 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
 
     _exit = 0
 
+    save_logs_to_json(f'{current_run_folder}/function_logs.json')
+
     try:
         if current_run_folder is None:
             print_debug("[end_program] current_run_folder was empty. Not running end-algorithm.")
@@ -4877,15 +4879,12 @@ if __name__ == "__main__":
         else:
             try:
                 main()
-                save_logs_to_json(f'{current_run_folder}/function_logs.json')
             except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
                 is_in_evaluate = False
 
-                save_logs_to_json(f'{current_run_folder}/function_logs.json')
                 end_program(result_csv_file, "result", 1)
             except searchSpaceExhausted:
-                save_logs_to_json(f'{current_run_folder}/function_logs.json')
 
                 _get_perc = int((submitted_jobs() / max_eval) * 100)
                 original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")

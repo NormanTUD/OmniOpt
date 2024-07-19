@@ -123,7 +123,7 @@ try:
     except Exception as e:
         print("Error writing the JSON file:", e)
 
-    from tensorflow.keras.optimizers.legacy import Adam
+    from tensorflow.keras.optimizers import Adam
     optimizer = Adam(beta_1=0.9, beta_2=0.999, epsilon=0.0001, learning_rate=args.learning_rate)
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])

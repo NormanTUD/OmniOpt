@@ -234,7 +234,7 @@ def get_functions_stack_array():
     function_names = []
     for frame_info in stack[1:]:
         if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
-            function_names.insert(0, frame_info.function)
+            function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
     return "Function stack: " + (" -> ".join(function_names) + ":")
 
 def print_debug(msg):
@@ -1236,7 +1236,7 @@ def get_result(input_string):
         return None
 
 def add_to_csv(file_path, heading, data_line):
-    print_debug("add_to_csv")
+    print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
     data_line = [to_int_when_possible(x) for x in data_line]
@@ -2000,7 +2000,7 @@ def save_checkpoint(trial_nr=0, ee=None):
         return
 
     try:
-        print_debug("save_checkpoint")
+        print_debug(f"save_checkpoint(trial_nr: {trial_nr}, ee: {ee})")
         global ax_client
 
         state_files_folder = f"{current_run_folder}/state_files/"

@@ -32,6 +32,8 @@ from rich.console import Console
 console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
 
 try:
+    with console.status("[bold green]Loading functools...") as status:
+        import functools
     with console.status("[bold green]Loading psutil...") as status:
         import psutil
     with console.status("[bold green]Loading uuid...") as status:
@@ -199,6 +201,41 @@ main_pid = os.getpid()
 
 run_uuid = uuid.uuid4()
 
+log_entries = []
+
+def log_function_call(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        caller = inspect.stack()[1].function
+        log_entry = {
+            "function_name": func.__name__,
+            "start_time": start_time,
+            "caller": caller
+        }
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except Exception as e:
+            log_entry["error"] = str(e)
+            raise e
+        finally:
+            end_time = time.time()
+            log_entry["end_time"] = end_time
+            log_entry["duration"] = end_time - start_time
+            log_entries.append(log_entry)
+    return wrapper
+
+@log_function_call
+def save_logs_to_json(filename):
+    print_debug(f"save_logs_to_json({filename})")
+    if len(log_entries):
+        with open(filename, 'w') as log_file:
+            json.dump(log_entries, log_file, indent=4)
+    else:
+        print_debug("No log_entries found.")
+
+@log_function_call
 def get_nesting_level(caller_frame):
     filename, caller_lineno, _, _, _ = inspect.getframeinfo(caller_frame)
     with open(filename) as f:
@@ -213,6 +250,7 @@ def get_nesting_level(caller_frame):
                 indentation_level -= 1
         return indentation_level
 
+@log_function_call
 def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
@@ -229,6 +267,7 @@ def _debug(msg, _lvl=0, ee=None):
 
         _debug(msg, _lvl + 1, e)
 
+@log_function_call
 def get_functions_stack_array():
     stack = inspect.stack()
     function_names = []
@@ -237,6 +276,7 @@ def get_functions_stack_array():
             function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
     return "Function stack: " + (" -> ".join(function_names) + ":")
 
+@log_function_call
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nl = get_nesting_level(inspect.currentframe().f_back)
@@ -248,6 +288,7 @@ def print_debug(msg):
     _debug(f"{time_str}: {get_functions_stack_array()}")
     _debug(msg)
 
+@log_function_call
 def write_process_info():
     global last_cpu_mem_time
 
@@ -267,6 +308,7 @@ def write_process_info():
             print_debug(f"Error retrieving process information: {str(e)}")
         last_cpu_mem_time = None
 
+@log_function_call
 def my_exit(_code=0):
     tb = traceback.format_exc()
     print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
@@ -276,6 +318,7 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
+@log_function_call
 def getLineInfo():
     return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
           inspect.stack()[1][3])
@@ -291,6 +334,7 @@ spec = importlib.util.spec_from_file_location(
 my_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(my_module)
 
+@log_function_call
 def print_image_to_cli(image_path, width):
     print("")
     try:
@@ -309,9 +353,11 @@ def print_image_to_cli(image_path, width):
     except Exception as e:
         print_debug(f"Error converting and resizing image: {str(e)}, width: {width}, image_path: {image_path}")
 
+@log_function_call
 def datetime_from_string(input_string):
     return datetime.datetime.fromtimestamp(input_string)
 
+@log_function_call
 def get_timezone_offset_seconds():
     # Get the current time in the local timezone
     local_tz = get_localzone()
@@ -345,6 +391,7 @@ logfile_debug_get_next_trials = None
 
 nvidia_smi_logs_base = None
 
+@log_function_call
 def log_message_to_file(logfile, message, _lvl=0, ee=None):
     assert logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
@@ -364,21 +411,27 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(logfile, message, _lvl + 1, e)
 
+@log_function_call
 def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
     log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, ee)
 
+@log_function_call
 def _debug_worker_creation(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, ee)
 
+@log_function_call
 def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
     log_message_to_file(_file, result, _lvl, ee)
 
+@log_function_call
 def _debug_get_next_trials(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_debug_get_next_trials, msg, _lvl, ee)
 
+@log_function_call
 def _debug_progressbar(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_progressbar, msg, _lvl, ee)
 
+@log_function_call
 def add_to_phase_counter(phase, nr=0, run_folder=""):
     global current_run_folder
 
@@ -398,6 +451,7 @@ class REMatcher(object):
     def group(self,i):
         return self.rematch.group(i)
 
+@log_function_call
 def dier(msg):
     pprint(msg)
     my_exit(10)
@@ -493,6 +547,7 @@ if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
 if args.num_parallel_jobs:
     num_parallel_jobs = args.num_parallel_jobs
 
+@log_function_call
 def decode_if_base64(input_str):
     try:
         decoded_bytes = base64.b64decode(input_str)
@@ -501,6 +556,7 @@ def decode_if_base64(input_str):
     except Exception as e:
         return input_str
 
+@log_function_call
 def get_file_as_string(f):
     datafile = ""
     if not os.path.exists(f):
@@ -527,6 +583,7 @@ else:
 
 global_vars["experiment_name"] = args.experiment_name
 
+@log_function_call
 def load_global_vars(_file):
     if not os.path.exists(_file):
         print(f"You've tried to continue a non-existing job: {_file}")
@@ -647,12 +704,14 @@ if not args.tests:
             my_exit(19)
 
 
+@log_function_call
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
+@log_function_call
 def print_debug_progressbar(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
@@ -668,12 +727,15 @@ class signalINT (Exception):
 class signalCONT (Exception):
     pass
 
+@log_function_call
 def receive_usr_signal_one(signum, stack):
     raise signalUSR(f"USR1-signal received ({signum})")
 
+@log_function_call
 def receive_usr_signal_int(signum, stack):
     raise signalINT(f"INT-signal received ({signum})")
 
+@log_function_call
 def receive_signal_cont(signum, stack):
     raise signalCONT(f"CONT-signal received ({signum})")
 
@@ -696,6 +758,7 @@ class bcolors:
     underline = '\033[4m'
     yellow = '\033[33m'
 
+@log_function_call
 def print_color(color, text):
     color_codes = {
         "header": bcolors.header,
@@ -717,6 +780,7 @@ def print_color(color, text):
         print(f"Error: {e}")
         original_print(text)
 
+@log_function_call
 def print_red(text):
     print_color("red", text)
 
@@ -728,12 +792,15 @@ def print_red(text):
             print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
             sys.exit(99)
 
+@log_function_call
 def print_green(text):
     print_color("green", text)
 
+@log_function_call
 def print_yellow(text):
     print_color("yellow", text)
 
+@log_function_call
 def is_executable_in_path(executable_name):
     print_debug(f"is_executable_in_path({executable_name})")
     for path in os.environ.get('PATH', '').split(':'):
@@ -753,6 +820,7 @@ if is_executable_in_path("nvidia-smi"):
 if not system_has_sbatch:
     num_parallel_jobs = 1
 
+@log_function_call
 def save_global_vars():
     state_files_folder = f"{current_run_folder}/state_files"
     if not os.path.exists(state_files_folder):
@@ -761,6 +829,7 @@ def save_global_vars():
     with open(f'{state_files_folder}/global_vars.json', "w") as f:
         json.dump(global_vars, f)
 
+@log_function_call
 def check_slurm_job_id():
     print_debug("check_slurm_job_id()")
     if system_has_sbatch:
@@ -772,6 +841,7 @@ def check_slurm_job_id():
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a Slurm job."
             )
 
+@log_function_call
 def create_folder_and_file(folder):
     print_debug(f"create_folder_and_file({folder})")
 
@@ -785,6 +855,7 @@ def create_folder_and_file(folder):
 
     return file_path
 
+@log_function_call
 def sort_numerically_or_alphabetically(arr):
     print_debug("sort_numerically_or_alphabetically")
     try:
@@ -798,9 +869,11 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
+@log_function_call
 def looks_like_number (x):
     return looks_like_float(x) or looks_like_int(x)
 
+@log_function_call
 def looks_like_float(x):
     print_debug(f"looks_like_float({x})")
     if isinstance(x, (int, float)):
@@ -813,6 +886,7 @@ def looks_like_float(x):
             return False  # If conversion fails, it's not a float-like string
     return False  # If x is neither str, int, nor float, it's not float-like
 
+@log_function_call
 def looks_like_int(x):
     print_debug(f"looks_like_int({x})")
     if isinstance(x, int):
@@ -824,6 +898,7 @@ def looks_like_int(x):
     else:
         return False
 
+@log_function_call
 def get_program_code_from_out_file(f):
     print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
@@ -835,6 +910,7 @@ def get_program_code_from_out_file(f):
             if "Program-Code:" in line:
                 return line
 
+@log_function_call
 def get_max_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the maximum value in the specified column.
@@ -860,6 +936,7 @@ def get_max_column_value(pd_csv, column, _default):
         print_red(f"Error while getting max value from column {column}: {str(e)}")
         raise
 
+@log_function_call
 def get_min_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the minimum value in the specified column.
@@ -885,12 +962,14 @@ def get_min_column_value(pd_csv, column, _default):
         print_red(f"Error while getting min value from column {column}: {str(e)}")
         raise
 
+@log_function_call
 def flatten_extend(matrix):
     flat_list = []
     for row in matrix:
         flat_list.extend(row)
     return flat_list
 
+@log_function_call
 def get_bound_if_prev_data(_type, _column, _default):
     ret_val = _default
 
@@ -951,6 +1030,7 @@ def get_bound_if_prev_data(_type, _column, _default):
 
     return round(ret_val, 4), found_in_file
 
+@log_function_call
 def parse_experiment_parameters(args):
     global global_vars
     print_debug("parse_experiment_parameters")
@@ -1157,6 +1237,7 @@ def parse_experiment_parameters(args):
 
     return params
 
+@log_function_call
 def replace_parameters_in_string(parameters, input_string):
     print_debug("replace_parameters_in_string")
     try:
@@ -1172,6 +1253,7 @@ def replace_parameters_in_string(parameters, input_string):
         print_red(f"\n⚠ Error: {e}")
         return None
 
+@log_function_call
 def execute_bash_code(code):
     print_debug(f"execute_bash_code({code})")
     try:
@@ -1211,6 +1293,7 @@ def execute_bash_code(code):
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
+@log_function_call
 def get_result(input_string):
     print_debug("get_result(input_string)")
     if input_string is None:
@@ -1236,6 +1319,7 @@ def get_result(input_string):
         print(f"Error extracting the RESULT-string: {e}")
         return None
 
+@log_function_call
 def add_to_csv(file_path, heading, data_line):
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
@@ -1252,6 +1336,7 @@ def add_to_csv(file_path, heading, data_line):
         data_line = ["{:.20f}".format(x) if type(x) == float else x for x in data_line]
         csv_writer.writerow(data_line)
 
+@log_function_call
 def make_strings_equal_length(str1, str2):
     print_debug("make_strings_equal_length")
     length_difference = len(str1) - len(str2)
@@ -1263,6 +1348,7 @@ def make_strings_equal_length(str1, str2):
 
     return str1, str2
 
+@log_function_call
 def find_file_paths(_text):
     print_debug("find_file_paths(_text)")
     file_paths = []
@@ -1278,6 +1364,7 @@ def find_file_paths(_text):
 
     return []
 
+@log_function_call
 def check_file_info(file_path):
     print_debug("check_file_info")
     if not os.path.exists(file_path):
@@ -1313,6 +1400,7 @@ def check_file_info(file_path):
 
     return string
 
+@log_function_call
 def find_file_paths_and_print_infos(_text, program_code):
     print_debug("find_file_paths_and_print_infos(_text, {program_code}")
     file_paths = find_file_paths(_text)
@@ -1331,6 +1419,7 @@ def find_file_paths_and_print_infos(_text, program_code):
 
     return string
 
+@log_function_call
 def write_data_and_headers(data_dict, error_description=""):
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
@@ -1381,6 +1470,7 @@ def write_data_and_headers(data_dict, error_description=""):
         print_red(f"Unexpected error: {e}")
 
 
+@log_function_call
 def count_defective_nodes(file_path=None, entry=None):
     """
     Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
@@ -1419,6 +1509,7 @@ def count_defective_nodes(file_path=None, entry=None):
         print(f"Ein Fehler ist aufgetreten: {e}")
         return []
 
+@log_function_call
 def evaluate(parameters):
     global global_vars
     global is_in_evaluate
@@ -1574,6 +1665,7 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     print("\n⚠ signal was sent or CTRL-c pressed. Cancelling loading ax. Stopped loading program.")
     my_exit(31)
 
+@log_function_call
 def disable_logging():
     print_debug("disable_logging()")
     logging.basicConfig(level=logging.ERROR)
@@ -1631,6 +1723,7 @@ def disable_logging():
 
     print_debug("disable_logging() done")
 
+@log_function_call
 def display_failed_jobs_table():
     global current_run_folder
     console = Console()
@@ -1683,6 +1776,7 @@ def display_failed_jobs_table():
     except Exception as e:
         print_red(f"Error: {str(e)}")
 
+@log_function_call
 def plot_command(_command, tmp_file, _width=1300):
     if not args.show_sixel_graphics:
         return
@@ -1704,6 +1798,7 @@ def plot_command(_command, tmp_file, _width=1300):
     else:
         print_debug(f"{tmp_file} not found, error: {error}")
 
+@log_function_call
 def replace_string_with_params(input_string, params):
     try:
         assert isinstance(input_string, str), "Input string must be a string"
@@ -1719,6 +1814,7 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
+@log_function_call
 def print_best_result(csv_file_path, result_column):
     global current_run_folder
 
@@ -1867,6 +1963,7 @@ def print_best_result(csv_file_path, result_column):
 
     return None
 
+@log_function_call
 def show_end_table_and_save_end_files(csv_file_path, result_column):
     print_debug(f"show_end_table_and_save_end_files({csv_file_path}, {result_column})")
 
@@ -1913,6 +2010,7 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     return _exit
 
+@log_function_call
 def write_worker_usage():
     global current_run_folder
 
@@ -1926,6 +2024,7 @@ def write_worker_usage():
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
 
+@log_function_call
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars
     global ax_client
@@ -1992,6 +2091,7 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
 
     my_exit(_exit)
 
+@log_function_call
 def save_checkpoint(trial_nr=0, ee=None):
     if trial_nr > 3:
         if ee:
@@ -2016,6 +2116,7 @@ def save_checkpoint(trial_nr=0, ee=None):
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 
+@log_function_call
 def to_int_when_possible(val):
     # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte
     if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
@@ -2040,6 +2141,7 @@ def to_int_when_possible(val):
         # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val
 
+@log_function_call
 def save_pd_csv():
     print_debug("save_pd_csv()")
     global ax_client
@@ -2080,6 +2182,7 @@ def save_pd_csv():
 
     return pd_csv
 
+@log_function_call
 def get_tmp_file_from_json(experiment_args):
     k = 0
     p = "/tmp/0"
@@ -2094,6 +2197,7 @@ def get_tmp_file_from_json(experiment_args):
 
     return f"/tmp/{k}"
 
+@log_function_call
 def compare_parameters(old_param_json, new_param_json):
     try:
         old_param = json.loads(old_param_json)
@@ -2115,6 +2219,7 @@ def compare_parameters(old_param_json, new_param_json):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
+@log_function_call
 def get_ax_param_representation(data):
     if data["type"] == "range":
         return {
@@ -2149,6 +2254,7 @@ def get_ax_param_representation(data):
         pprint(data)
         dier(f"Unknown data range {data['type']}")
 
+@log_function_call
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None
     if continue_previous_job:
@@ -2305,6 +2411,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
     return ax_client, experiment_parameters, experiment_args
 
+@log_function_call
 def get_type_short(typename):
     if typename == "RangeParameter":
         return "range"
@@ -2314,6 +2421,7 @@ def get_type_short(typename):
 
     return typename
 
+@log_function_call
 def print_overview_tables(experiment_parameters, experiment_args):
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -2429,6 +2537,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
         with open(f"{current_run_folder}/constraints.txt", "w") as text_file:
             text_file.write(table_str)
 
+@log_function_call
 def check_equation(variables, equation):
     print_debug(f"check_equation({variables}, {equation})")
     if not (">=" in equation or "<=" in equation):
@@ -2515,6 +2624,7 @@ def check_equation(variables, equation):
 
     return equation
 
+@log_function_call
 def progressbar_description(new_msgs=[]):
     global result_csv_file
     global random_steps
@@ -2526,20 +2636,24 @@ def progressbar_description(new_msgs=[]):
     progress_bar.set_description(desc)
     progress_bar.refresh()
 
+@log_function_call
 def clean_completed_jobs():
     global jobs
     for job, trial_index in global_vars["jobs"][:]:
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
 
+@log_function_call
 def dataframe_dier():
     pd_frame = ax_client.get_trials_data_frame()
     dier(pd_frame)
 
+@log_function_call
 def assert_condition(condition, error_text):
     if not condition:
         raise AssertionError(error_text)
 
+@log_function_call
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -2587,6 +2701,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
+@log_function_call
 def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
@@ -2617,6 +2732,7 @@ def load_existing_job_data_into_ax_client(args):
             nr_inserted_jobs += len(already_inserted_param_hashes.keys())
 
 
+@log_function_call
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)
     try:
@@ -2647,6 +2763,7 @@ def parse_parameter_type_error(error_message):
         # Logging the error
         return None
 
+@log_function_call
 def extract_headers_and_rows(data_list):
     try:
         if not data_list:
@@ -2669,6 +2786,7 @@ def extract_headers_and_rows(data_list):
         print(f"An error occured: {e}")
         return None, None
 
+@log_function_call
 def load_data_from_existing_run_folders(args, _paths):
     global already_inserted_param_hashes
     global already_inserted_param_data
@@ -2755,6 +2873,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
         console.print(table)
 
+@log_function_call
 def print_outfile_analyzed(job):
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
@@ -2788,6 +2907,7 @@ def print_outfile_analyzed(job):
 
         print_red(out_files_string)
 
+@log_function_call
 def finish_previous_jobs(args, new_msgs):
     print_debug(f"finish_previous_jobs(args, {new_msgs})")
 
@@ -2915,6 +3035,7 @@ def finish_previous_jobs(args, new_msgs):
 
     clean_completed_jobs()
 
+@log_function_call
 def state_from_job(job):
     job_string = f'{job}'
     match = re.search(r'state="([^"]+)"', job_string)
@@ -2928,6 +3049,7 @@ def state_from_job(job):
 
     return state
 
+@log_function_call
 def get_workers_string():
     global jobs
 
@@ -2960,6 +3082,7 @@ def get_workers_string():
 
     return string
 
+@log_function_call
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
     global result_csv_file
@@ -3043,16 +3166,19 @@ def get_desc_progress_text(new_msgs=[]):
 
     return desc
 
+@log_function_call
 def is_slurm_job():
     if os.environ.get('SLURM_JOB_ID') is not None:
         return True
     return False
 
+@log_function_call
 def _sleep(args, t):
     if not args.no_sleep:
         print_debug(f"Sleeping {t} second(s) before continuation")
         time.sleep(t)
 
+@log_function_call
 def save_state_files(args):
     global current_run_folder
     global global_vars
@@ -3088,12 +3214,14 @@ def save_state_files(args):
     with open(f'{state_files_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
+@log_function_call
 def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.11.2", "3.11.9", "3.9.2", "3.12.4"]
     if not python_version in supported_versions:
         print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
+@log_function_call
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
@@ -3176,6 +3304,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
+@log_function_call
 def _get_next_trials(ax_client):
     global global_vars
 
@@ -3253,6 +3382,7 @@ def _get_next_trials(ax_client):
 
     return trial_index_to_param
 
+@log_function_call
 def get_next_nr_steps(num_parallel_jobs, max_eval):
     if not system_has_sbatch:
         return 1
@@ -3263,6 +3393,7 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
 
     return requested
 
+@log_function_call
 def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     global random_steps
 
@@ -3325,6 +3456,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     return gs
 
+@log_function_call
 def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
@@ -3380,6 +3512,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     return num_new_keys
 
+@log_function_call
 def get_random_steps_from_prev_job(args):
     if not args.continue_previous_job:
         return count_sobol_steps()
@@ -3391,6 +3524,7 @@ def get_random_steps_from_prev_job(args):
 
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
+@log_function_call
 def get_number_of_steps(args, max_eval):
     random_steps = args.num_random_steps
 
@@ -3423,6 +3557,7 @@ def get_number_of_steps(args, max_eval):
 
     return random_steps, second_step_steps
 
+@log_function_call
 def get_executor(args):
     global run_uuid
 
@@ -3454,6 +3589,7 @@ def get_executor(args):
 
     return executor
 
+@log_function_call
 def append_and_read(file, nr=0):
     try:
         with open(file, 'a+') as f:
@@ -3477,6 +3613,7 @@ def append_and_read(file, nr=0):
 
     return 0
 
+@log_function_call
 def failed_jobs(nr=0):
     state_files_folder = f"{current_run_folder}/state_files/"
 
@@ -3485,6 +3622,7 @@ def failed_jobs(nr=0):
 
     return append_and_read(f'{current_run_folder}/state_files/failed_jobs', nr)
 
+@log_function_call
 def get_steps_from_prev_job(prev_job, nr=0):
     state_files_folder = f"{current_run_folder}/state_files/"
 
@@ -3493,6 +3631,7 @@ def get_steps_from_prev_job(prev_job, nr=0):
 
     return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
 
+@log_function_call
 def succeeded_jobs(nr=0):
     state_files_folder = f"{current_run_folder}/state_files/"
 
@@ -3502,6 +3641,7 @@ def succeeded_jobs(nr=0):
     return append_and_read(f'{current_run_folder}/state_files/succeeded_jobs', nr)
 
 
+@log_function_call
 def submitted_jobs(nr=0):
     state_files_folder = f"{current_run_folder}/state_files/"
 
@@ -3510,11 +3650,13 @@ def submitted_jobs(nr=0):
 
     return append_and_read(f'{current_run_folder}/state_files/submitted_jobs', nr)
 
+@log_function_call
 def count_done_jobs():
     csv_file_path = save_pd_csv()
 
     return _count_done_jobs(csv_file_path)
 
+@log_function_call
 def _count_done_jobs(csv_file_path):
     results = 0
 
@@ -3549,11 +3691,13 @@ def _count_done_jobs(csv_file_path):
 
     return non_sobol_rows_count
 
+@log_function_call
 def count_manual_steps():
     csv_file_path = save_pd_csv()
 
     return _count_manual_steps(csv_file_path)
 
+@log_function_call
 def _count_manual_steps(csv_file_path):
     sobol_count = 0
 
@@ -3590,11 +3734,13 @@ def _count_manual_steps(csv_file_path):
 
 
 
+@log_function_call
 def count_sobol_steps():
     csv_file_path = save_pd_csv()
 
     return _count_sobol_steps(csv_file_path)
 
+@log_function_call
 def _count_sobol_steps(csv_file_path):
     sobol_count = 0
 
@@ -3629,6 +3775,7 @@ def _count_sobol_steps(csv_file_path):
 
     return sobol_count
 
+@log_function_call
 def execute_nvidia_smi():
     if not is_nvidia_smi_system:
         print_debug(f"Cannot find nvidia-smi. Cannot take GPU logs")
@@ -3660,6 +3807,7 @@ def execute_nvidia_smi():
             print(f"An error occurred: {e}")
         time.sleep(10)
 
+@log_function_call
 def start_nvidia_smi_thread():
     print_debug("start_nvidia_smi_thread()")
 
@@ -3669,6 +3817,7 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
+@log_function_call
 def run_systematic_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
     write_process_info()
@@ -3705,6 +3854,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
     return False
 
+@log_function_call
 def run_random_jobs(random_steps, ax_client, executor):
     write_process_info()
     global search_space_exhausted
@@ -3750,6 +3900,7 @@ def run_random_jobs(random_steps, ax_client, executor):
 
     return False
 
+@log_function_call
 def finish_previous_jobs_random(args):
     try:
         while len(global_vars['jobs']):
@@ -3759,6 +3910,7 @@ def finish_previous_jobs_random(args):
         print_red(f"Error {e}: This may mean that you are running on an unstable file system. Cannot continue.")
         sys.exit(199)
 
+@log_function_call
 def print_logo():
     try:
         original_print("""
@@ -3776,6 +3928,7 @@ def print_logo():
     except Exception as e:
         print_green("OmniOpt2")
 
+@log_function_call
 def show_strategy_message (random_steps, second_step_steps):
     second_step_steps_string = ""
     if second_step_steps:
@@ -3784,6 +3937,7 @@ def show_strategy_message (random_steps, second_step_steps):
     if random_steps and random_steps > submitted_jobs():
         print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
 
+@log_function_call
 def show_messages(args, random_steps, second_step_steps):
     global current_run_folder
     show_strategy_message(random_steps, second_step_steps)
@@ -3797,6 +3951,7 @@ def show_messages(args, random_steps, second_step_steps):
         else:
             print(f"Auto-Executing step {args.auto_execute_counter}")
 
+@log_function_call
 def main():
     print_debug("main()")
 
@@ -3949,8 +4104,10 @@ def main():
             _sleep(args, 1)
         write_process_info()
 
+    save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)
 
+@log_function_call
 def _unidiff_output(expected, actual):
     """
     Helper function. Returns a string containing the unified diff of two multiline strings.
@@ -3963,6 +4120,7 @@ def _unidiff_output(expected, actual):
 
     return ''.join(diff)
 
+@log_function_call
 def print_diff(o, i):
     if type(i) == str:
         print("Should be:", i.strip())
@@ -3976,6 +4134,7 @@ def print_diff(o, i):
     #if type(i) == str or type(o) == str:
     #    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
+@log_function_call
 def is_equal(n, i, o):
     r = _is_equal(n, i, o)
 
@@ -3984,6 +4143,7 @@ def is_equal(n, i, o):
 
     return r
 
+@log_function_call
 def is_not_equal(n, i, o):
     r = _is_not_equal(n, i, o)
 
@@ -3992,6 +4152,7 @@ def is_not_equal(n, i, o):
 
     return r
 
+@log_function_call
 def _is_not_equal(name, input, output):
     if type(input) == str or type(input) == int or type(input) == float:
         if input == output:
@@ -4012,6 +4173,7 @@ def _is_not_equal(name, input, output):
     print_green(f"Test OK: {name}")
     return 0
 
+@log_function_call
 def _is_equal(name, input, output):
     if type(input) != type(output):
         print_red(f"Failed test: {name}")
@@ -4035,6 +4197,7 @@ def _is_equal(name, input, output):
     print_green(f"Test OK: {name}")
     return 0
 
+@log_function_call
 def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_yellow(f"Test suite: {_program_name}")
 
@@ -4079,12 +4242,14 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
 
     return nr_errors
 
+@log_function_call
 def get_files_in_dir(mypath):
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
+@log_function_call
 def test_find_paths(program_code):
     nr_errors = 0
 
@@ -4112,6 +4277,7 @@ def test_find_paths(program_code):
 
     return nr_errors
 
+@log_function_call
 def run_tests():
     print_image_to_cli(".tools/slimer.png", 300)
     print_image_to_cli(".tools/slimer2.png", 300)
@@ -4141,6 +4307,7 @@ def run_tests():
 
     my_exit(nr_errors)
 
+@log_function_call
 def file_contains_text(f, t):
     print_debug("file_contains_text")
     datafile = get_file_as_string(f)
@@ -4151,6 +4318,7 @@ def file_contains_text(f, t):
             return True
     return False
 
+@log_function_call
 def get_first_line_of_file_that_contains_string(i, s):
     print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
@@ -4178,6 +4346,7 @@ def get_first_line_of_file_that_contains_string(i, s):
 
     return None
 
+@log_function_call
 def get_errors_from_outfile(i):
     print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)
@@ -4346,6 +4515,7 @@ def get_errors_from_outfile(i):
 
     return errors
 
+@log_function_call
 def find_files(directory, extension='.out'):
     files = []
     for root, dirs, filenames in os.walk(directory):
@@ -4354,6 +4524,7 @@ def find_files(directory, extension='.out'):
                 files.append(os.path.join(root, filename))
     return files
 
+@log_function_call
 def analyze_out_files(rootdir, print_to_stdout=True):
     try:
         outfiles = find_files('{rootdir}/')
@@ -4389,6 +4560,7 @@ def analyze_out_files(rootdir, print_to_stdout=True):
         print("error: " + str(e))
         return ""
 
+@log_function_call
 def log_nr_of_workers():
     write_process_info()
 
@@ -4411,6 +4583,7 @@ def log_nr_of_workers():
             print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
             sys.exit(99)
 
+@log_function_call
 def get_best_params(csv_file_path, result_column):
     results = {
         result_column: None,
@@ -4469,6 +4642,7 @@ def get_best_params(csv_file_path, result_column):
 
     return results
 
+@log_function_call
 def is_near_boundary(value, min_value, max_value, threshold=0.1):
     """
     Überprüft, ob ein Wert nahe an einem der Ränder seiner Parametergrenzen liegt.
@@ -4482,6 +4656,7 @@ def is_near_boundary(value, min_value, max_value, threshold=0.1):
     range_value = max_value - min_value
     return abs(value - min_value) < threshold * range_value or abs(value - max_value) < threshold * range_value
 
+@log_function_call
 def calculate_probability(value, min_value, max_value):
     """
     Berechnet die Wahrscheinlichkeit basierend auf der relativen Nähe des Werts zu den Grenzen.
@@ -4501,6 +4676,7 @@ def calculate_probability(value, min_value, max_value):
     probability = (1 - (distance_to_boundary / range_value)) * 100
     return round(probability, 2)
 
+@log_function_call
 def find_promising_bubbles(pd_csv):
     """
     Findet vielversprechende Punkte (grüne Bubbles) am Rand des Parameterraums.
@@ -4669,12 +4845,16 @@ if __name__ == "__main__":
         else:
             try:
                 main()
+                save_logs_to_json(f'{current_run_folder}/function_logs.json')
             except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
                 is_in_evaluate = False
 
+                save_logs_to_json(f'{current_run_folder}/function_logs.json')
                 end_program(result_csv_file, "result", 1)
             except searchSpaceExhausted:
+                save_logs_to_json(f'{current_run_folder}/function_logs.json')
+
                 _get_perc = int((submitted_jobs() / max_eval) * 100)
                 original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval})")
                 if _get_perc != 100:

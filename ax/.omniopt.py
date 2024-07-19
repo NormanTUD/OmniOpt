@@ -229,6 +229,14 @@ def _debug(msg, _lvl=0, ee=None):
 
         _debug(msg, _lvl + 1, e)
 
+def get_functions_stack_array():
+    stack = inspect.stack()
+    function_names = []
+    for frame_info in stack[1:]:
+        if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
+            function_names.insert(0, frame_info.function)
+    return "Function stack: " + (" -> ".join(function_names) + ":")
+
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nl = get_nesting_level(inspect.currentframe().f_back)
@@ -237,6 +245,7 @@ def print_debug(msg):
     if args.debug:
         print(msg)
 
+    _debug(f"{time_str}: {get_functions_stack_array()}")
     _debug(msg)
 
 def write_process_info():

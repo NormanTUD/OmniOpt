@@ -802,6 +802,7 @@ def looks_like_number (x):
     return looks_like_float(x) or looks_like_int(x)
 
 def looks_like_float(x):
+    print_debug(f"looks_like_float({x})")
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
     elif isinstance(x, str):
@@ -813,7 +814,7 @@ def looks_like_float(x):
     return False  # If x is neither str, int, nor float, it's not float-like
 
 def looks_like_int(x):
-    print_debug("looks_like_int")
+    print_debug(f"looks_like_int({x})")
     if isinstance(x, int):
         return True
     elif isinstance(x, float):
@@ -824,7 +825,7 @@ def looks_like_int(x):
         return False
 
 def get_program_code_from_out_file(f):
-    print_debug("get_program_code_from_out_file")
+    print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
         print(f"{f} not found")
     else:
@@ -1172,7 +1173,7 @@ def replace_parameters_in_string(parameters, input_string):
         return None
 
 def execute_bash_code(code):
-    print_debug("execute_bash_code")
+    print_debug(f"execute_bash_code({code})")
     try:
         result = subprocess.run(code, shell=True, check=True, text=True, capture_output=True)
 
@@ -1263,7 +1264,7 @@ def make_strings_equal_length(str1, str2):
     return str1, str2
 
 def find_file_paths(_text):
-    print_debug("find_file_paths")
+    print_debug("find_file_paths(_text)")
     file_paths = []
 
     if type(_text) == str:
@@ -1313,7 +1314,7 @@ def check_file_info(file_path):
     return string
 
 def find_file_paths_and_print_infos(_text, program_code):
-    print_debug("find_file_paths_and_print_infos")
+    print_debug("find_file_paths_and_print_infos(_text, {program_code}")
     file_paths = find_file_paths(_text)
 
     if len(file_paths) == 0:
@@ -2040,7 +2041,7 @@ def to_int_when_possible(val):
         return val
 
 def save_pd_csv():
-    print_debug("save_pd_csv")
+    print_debug("save_pd_csv()")
     global ax_client
 
     pd_csv = f'{current_run_folder}/{pd_csv_filename}'

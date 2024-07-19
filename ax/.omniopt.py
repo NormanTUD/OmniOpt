@@ -251,6 +251,7 @@ def log_function_call(func):
                 log_stack.pop()
             else:
                 log_entry.end(time.time())
+
     return wrapper
 
 def sort_log_entries(log_entry):
@@ -320,7 +321,6 @@ def print_debug(msg):
     _debug(f"{time_str}: {get_functions_stack_array()}")
     _debug(msg)
 
-@log_function_call
 def write_process_info():
     global last_cpu_mem_time
 

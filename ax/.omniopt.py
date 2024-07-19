@@ -762,7 +762,7 @@ def save_global_vars():
         json.dump(global_vars, f)
 
 def check_slurm_job_id():
-    print_debug("check_slurm_job_id")
+    print_debug("check_slurm_job_id()")
     if system_has_sbatch:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
@@ -773,7 +773,7 @@ def check_slurm_job_id():
             )
 
 def create_folder_and_file(folder):
-    print_debug("create_folder_and_file")
+    print_debug(f"create_folder_and_file({folder})")
 
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -1212,7 +1212,7 @@ def execute_bash_code(code):
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 def get_result(input_string):
-    print_debug("get_result")
+    print_debug("get_result(input_string)")
     if input_string is None:
         print("Input-String is None")
         return None
@@ -1575,7 +1575,7 @@ except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
     my_exit(31)
 
 def disable_logging():
-    print_debug("disable_logging")
+    print_debug("disable_logging()")
     logging.basicConfig(level=logging.ERROR)
 
     logging.getLogger("ax").setLevel(logging.ERROR)
@@ -1629,7 +1629,7 @@ def disable_logging():
             warnings.filterwarnings("ignore", category=_cat, module=_module)
 
 
-    print_debug("disable_logging done")
+    print_debug("disable_logging() done")
 
 def display_failed_jobs_table():
     global current_run_folder
@@ -1868,7 +1868,7 @@ def print_best_result(csv_file_path, result_column):
     return None
 
 def show_end_table_and_save_end_files(csv_file_path, result_column):
-    print_debug("show_end_table_and_save_end_files")
+    print_debug(f"show_end_table_and_save_end_files({csv_file_path}, {result_column})")
 
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -2319,7 +2319,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
 
-    print_debug("print_overview_tables")
+    print_debug("print_overview_tables(experiment_parameters, experiment_args)")
     global args
 
     if not experiment_parameters:
@@ -2789,7 +2789,7 @@ def print_outfile_analyzed(job):
         print_red(out_files_string)
 
 def finish_previous_jobs(args, new_msgs):
-    print_debug("finish_previous_jobs")
+    print_debug(f"finish_previous_jobs(args, {new_msgs})")
 
     log_nr_of_workers()
 
@@ -3661,7 +3661,7 @@ def execute_nvidia_smi():
         time.sleep(10)
 
 def start_nvidia_smi_thread():
-    print_debug("start_nvidia_smi_thread")
+    print_debug("start_nvidia_smi_thread()")
 
     if is_nvidia_smi_system:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
@@ -3798,7 +3798,7 @@ def show_messages(args, random_steps, second_step_steps):
             print(f"Auto-Executing step {args.auto_execute_counter}")
 
 def main():
-    print_debug("main")
+    print_debug("main()")
 
     print_logo()
 
@@ -4179,7 +4179,7 @@ def get_first_line_of_file_that_contains_string(i, s):
     return None
 
 def get_errors_from_outfile(i):
-    print_debug("get_errors_from_outfile")
+    print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)
     m = REMatcher(file_as_string)
 

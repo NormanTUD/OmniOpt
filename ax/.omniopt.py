@@ -41,6 +41,8 @@ try:
     with console.status("[bold green]Loading inspect...") as status:
         import inspect
         from inspect import currentframe, getframeinfo
+    with console.status("[bold green]Loading tokenize...") as status:
+        import tokenize
     with console.status("[bold green]Loading os...") as status:
         import os
     with console.status("[bold green]Loading sys...") as status:
@@ -197,6 +199,20 @@ main_pid = os.getpid()
 
 run_uuid = uuid.uuid4()
 
+def get_nesting_level(caller_frame):
+    filename, caller_lineno, _, _, _ = inspect.getframeinfo(caller_frame)
+    with open(filename) as f:
+        indentation_level = 0
+        for token_record in tokenize.generate_tokens(f.readline):
+            token_type, _, (token_lineno, _), _, _ = token_record
+            if token_lineno > caller_lineno:
+                break
+            elif token_type == tokenize.INDENT:
+                indentation_level += 1
+            elif token_type == tokenize.DEDENT:
+                indentation_level -= 1
+        return indentation_level
+
 def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
@@ -215,7 +231,9 @@ def _debug(msg, _lvl=0, ee=None):
 
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}: {msg}"
+    nl = get_nesting_level(inspect.currentframe().f_back)
+    _tabs = ("\t" * nl)
+    msg = f"{time_str}:{_tabs}{msg}"
     if args.debug:
         print(msg)
 

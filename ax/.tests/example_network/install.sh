@@ -86,3 +86,4 @@ ppip keras
 ppip termcolor
 ppip pyyaml
 ppip h5py
+ppip tf_keras

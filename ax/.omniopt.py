@@ -1837,7 +1837,7 @@ def display_failed_jobs_table():
 
 @log_function_call
 def plot_command(_command, tmp_file, _width=1300):
-    show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter:
+    show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
     if not show_sixel_graphics:
         return
 

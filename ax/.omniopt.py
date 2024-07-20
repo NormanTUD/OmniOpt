@@ -387,6 +387,7 @@ def print_image_to_cli(image_path, width):
 
         # Schreiben der Ausgabe in sys.stdout
         sixel_converter.write(sys.stdout)
+        time.sleep(2)
     except Exception as e:
         print_debug(f"Error converting and resizing image: {str(e)}, width: {width}, image_path: {image_path}")
 
@@ -534,6 +535,7 @@ optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='st
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
 optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
+optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end (requires --show_sixel_graphics)', action='store_true', default=False)
 optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
 optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
 optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
@@ -1923,18 +1925,25 @@ def print_best_result(csv_file_path, result_column):
                     {
                         "type": "trial_index_result",
                         "min_done_jobs": 2
-                    },
-                    {
-                        "type": "scatter",
-                        "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
-                        "iterate_through": x_y_combinations, 
-                        "dpi": 76,
-                        "filename": "plot_%0_%1_%2" # omit file ending
-                    },
+                    }
+                ]
+
+                if args.show_sixel_scatter:
+                    plot_types.append(
+                        {
+                            "type": "scatter",
+                            "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
+                            "iterate_through": x_y_combinations, 
+                            "dpi": 76,
+                            "filename": "plot_%0_%1_%2" # omit file ending
+                        }
+                    )
+
+                plot_types.append(
                     {
                         "type": "general"
                     }
-                ]
+                )
 
                 for plot in plot_types:
                     plot_type = plot["type"]

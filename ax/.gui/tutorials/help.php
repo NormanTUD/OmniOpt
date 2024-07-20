@@ -140,6 +140,11 @@
 			<td><tt>False</tt></td>
 		</tr>
 		<tr>
+			<td><tt>--show_sixel_scatter</tt></td>
+			<td>Show sixel graphics of scatter plot in the end (requires <tt>--show_sixel_graphics</tt>).</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
 			<td><tt>--follow</tt></td>
 			<td>Automatically follow log file of sbatch.</td>
 			<td><tt>False</tt></td>

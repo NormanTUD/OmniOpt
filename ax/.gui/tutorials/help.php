@@ -244,7 +244,7 @@
 		</tr>
 		<tr>
 			<td><tt>--slurm_signal_delay_s SLURM_SIGNAL_DELAY_S</tt></td>
-			<td>When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to react to USR1.</td>
+			<td>When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.</td>
 			<td><tt>0</tt></td>
 		</tr>
 		<tr>

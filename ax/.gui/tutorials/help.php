@@ -60,9 +60,9 @@
 		<tr>
 			<td><tt>--parameter PARAMETER [PARAMETER ...]</tt></td>
 			<td>Experiment parameters in the formats: <br>
-				- <NAME> range &lt;NAME&gt; &lt;LOWER BOUND&gt; &lt;UPPER BOUND&gt; (&lt;INT, FLOAT&gt;) <br>
-				- <NAME> fixed &lt;NAME&gt; &lt;VALUE&gt; <br>
-				- <NAME> choice &lt;NAME&gt; &lt;Comma-separated list of values&gt;
+				- <tt>&lt;NAME&gt; range &lt;NAME&gt; &lt;LOWER BOUND&gt; &lt;UPPER BOUND&gt; (&lt;INT, FLOAT&gt;)</tt><br>
+				- <tt>&lt;NAME&gt; fixed &lt;NAME&gt; &lt;VALUE&gt;</tt><br>
+				- <tt>&lt;NAME&gt; choice &lt;NAME&gt; &lt;Comma-separated list of values&gt;</tt>
 			</td>
 			<td>-</td>
 		</tr>

@@ -888,8 +888,12 @@ def check_slurm_job_id():
 def create_folder_and_file(folder):
     print_debug(f"create_folder_and_file({folder})")
 
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    try:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+    except FileExistsError:
+        print_red(f"create_folder_and_file({folder}) failed, because the folder already existed. Cannot continue.")
+        sys.exit(13)
 
     file_path = os.path.join(folder, f"results.csv")
 

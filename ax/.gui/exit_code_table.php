@@ -14,6 +14,7 @@
 				10 => "Usually only returned by dier (for debugging).",
 				11 => "Required program not found (check logs)",
 				12 => "Error with pip, check logs.",
+				13 => "Run folder already exists",
 				15 => "Unimplemented error.",
 				18 => "test_wronggoing_stuff program not found (only --tests).",
 				19 => "Something was wrong with your parameters. See output for details.",

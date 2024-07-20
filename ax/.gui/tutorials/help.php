@@ -86,7 +86,7 @@
 		</tr>
 		<tr>
 			<td><tt>--experiment_constraints EXPERIMENT_CONSTRAINTS [EXPERIMENT_CONSTRAINTS ...]</tt></td>
-			<td>Constraints for parameters. Example: x + y <= 2.0.</td>
+			<td>Constraints for parameters. Example: <tt>x + y <= 2.0</tt>.</td>
 			<td>-</td>
 		</tr>
 		<tr>
@@ -168,7 +168,7 @@
 		</tr>
 		<tr>
 			<td><tt>--root_venv_dir ROOT_VENV_DIR</tt></td>
-			<td>Where to install your modules to ($root_venv_dir/.omniax_...)</td>
+			<td>Where to install your modules to (<tt>$root_venv_dir/.omniax_...</tt>)</td>
 			<td><tt>$HOME</tt></td>
 		</tr>
 		<tr>

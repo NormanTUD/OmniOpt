@@ -24,6 +24,7 @@ SUPPORTED_MODELS = [
     "BO_MIXED"
 ]
 
+nr_of_0_results = 0
 original_print = print
 
 already_inserted_param_hashes = {}
@@ -3877,6 +3878,8 @@ def start_nvidia_smi_thread():
 @log_function_call
 def run_systematic_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
+    global nr_of_0_results
+
     write_process_info()
 
     while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
@@ -3909,12 +3912,24 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         _sleep(args, 1)
         write_process_info()
 
+        if nr_of_items == 0:
+            nr_of_0_results += 1
+            print_debug(f"got 0 results, {nr_of_0_results} times now (max 10)")
+        else:
+            nr_of_0_results = 0
+
+        if nr_of_0_results > 10:
+            print_debug("run_systematic_search: nr_of_0_results {nr_of_0_results} > 10")
+            raise searchSpaceExhausted("Search space exhausted")
+
     return False
 
 @log_function_call
 def run_random_jobs(random_steps, ax_client, executor):
-    write_process_info()
     global search_space_exhausted
+    global nr_of_0_results
+
+    write_process_info()
 
     while random_steps >= count_done_jobs() + 1 and not search_space_exhausted:
         write_process_info()
@@ -3941,12 +3956,17 @@ def run_random_jobs(random_steps, ax_client, executor):
             if nr_of_items_random:
                 progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
 
-            if nr_of_items_random == 0:
-                break
-
             _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items_random}, {steps_mind_worker}, random")
 
-            #progressbar_description([f"got {nr_of_items_random}, requested {steps_mind_worker}"])
+            if nr_of_items_random == 0:
+                nr_of_0_results += 1
+                print_debug(f"got 0 results, {nr_of_0_results} times now (max 10)")
+            else:
+                nr_of_0_results = 0
+
+            if nr_of_0_results > 10:
+                print_debug("run_random_jobs: nr_of_0_results {nr_of_0_results} > 10")
+                raise searchSpaceExhausted("Search space exhausted")
         except botorch.exceptions.errors.InputDataError as e:
             print_red(f"Error 3: {e}")
         except ax.exceptions.core.DataRequiredError as e:

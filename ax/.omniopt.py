@@ -534,8 +534,9 @@ optional.add_argument('--load_previous_job_data', action="append", nargs="+", he
 optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
 optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
 optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
-optional.add_argument('--show_sixel_graphics', help='Show sixel graphics in the end', action='store_true', default=False)
-optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end (requires --show_sixel_graphics)', action='store_true', default=False)
+optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
+optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
 optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
 optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
 optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
@@ -1836,7 +1837,8 @@ def display_failed_jobs_table():
 
 @log_function_call
 def plot_command(_command, tmp_file, _width=1300):
-    if not args.show_sixel_graphics:
+    show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter:
+    if not show_sixel_graphics:
         return
 
     if os.getenv("DISABLE_SIXEL_GRAPHICS"):
@@ -1920,13 +1922,16 @@ def print_best_result(csv_file_path, result_column):
 
             x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if os.path.exists(_pd_csv) and args.show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"):
-                plot_types = [
-                    {
-                        "type": "trial_index_result",
-                        "min_done_jobs": 2
-                    }
-                ]
+            show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+
+            if os.path.exists(_pd_csv) and show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"):
+                if args.show_sixel_trial_index_result:
+                    plot_types = [
+                        {
+                            "type": "trial_index_result",
+                            "min_done_jobs": 2
+                        }
+                    ]
 
                 if args.show_sixel_scatter:
                     plot_types.append(
@@ -1939,11 +1944,12 @@ def print_best_result(csv_file_path, result_column):
                         }
                     )
 
-                plot_types.append(
-                    {
-                        "type": "general"
-                    }
-                )
+                if args.show_sixel_general:
+                    plot_types.append(
+                        {
+                            "type": "general"
+                        }
+                    )
 
                 for plot in plot_types:
                     plot_type = plot["type"]

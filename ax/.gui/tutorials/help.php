@@ -135,13 +135,20 @@
 			<td><tt>False</tt></td>
 		</tr>
 		<tr>
-			<td><tt>--show_sixel_graphics</tt></td>
-			<td>Show sixel graphics in the end.</td>
+			<td><tt>--show_sixel_scatter</tt></td>
+			<td>Show <a href="https://en.wikipedia.org/wiki/Sixel" target="_blank">sixel</a> graphics of scatter plot in the end.</td>
 			<td><tt>False</tt></td>
 		</tr>
+
 		<tr>
-			<td><tt>--show_sixel_scatter</tt></td>
-			<td>Show sixel graphics of scatter plot in the end (requires <tt>--show_sixel_graphics</tt>).</td>
+			<td><tt>--show_sixel_general</tt></td>
+			<td>Show <a href="https://en.wikipedia.org/wiki/Sixel" target="_blank">sixel</a> graphics of general plot in the end.</td>
+			<td><tt>False</tt></td>
+		</tr>
+
+		<tr>
+			<td><tt>--show_sixel_trial_index_result</tt></td>
+			<td>Show <a href="https://en.wikipedia.org/wiki/Sixel" target="_blank">sixel</a> graphics of trial_index_result plot in the end.</td>
 			<td><tt>False</tt></td>
 		</tr>
 		<tr>

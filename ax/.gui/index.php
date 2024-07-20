@@ -1,4 +1,27 @@
 <?php
+
+	function get_all_get_parameters_as_query_string() {
+		$query_string = '';
+		if (!isset($_GET)) {
+			return;
+		}
+		$parameters = array();
+		foreach ($_GET as $key => $value) {
+			$parameters[] = urlencode($key) . '=' . urlencode($value);
+		}
+		$query_string = implode('&', $parameters);
+		return $query_string;
+	}
+
+	if (array_key_exists('partition', $_GET)) {
+		$all_parameters_query_string = get_all_get_parameters_as_query_string();
+		if ($all_parameters_query_string && !empty($all_parameters_query_string)) {
+			$redirect_url = 'gui.php?' . $all_parameters_query_string;
+			header("Location: " . $redirect_url);
+			exit(0);
+		}
+	}
+
 	include("_header_base.php");
 ?>
 	<p><i>OmniOpt2</i> allows you to easily optimize complex hyperparameter configurations. It is based on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.dev">BoTorch</a></p>

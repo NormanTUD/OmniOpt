@@ -1568,8 +1568,6 @@ def evaluate(parameters):
     if args.maximize:
         return_in_case_of_error = {"result": -val_if_nothing_found}
 
-
-
     if system_has_sbatch and args.gpus >= 1 and args.auto_exclude_defective_hosts:
         try:
             for i in range(torch.cuda.device_count()):

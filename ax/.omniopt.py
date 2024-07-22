@@ -543,6 +543,7 @@ optional.add_argument('--ui_url', help='Site from which the OO-run was called', 
 optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
 optional.add_argument('--exclude', help=f'A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
 optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
+optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials(). Default is 10', type=int, default=10)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
@@ -562,7 +563,6 @@ slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 slurm.add_argument('--account', help='Account to be used', type=str, default=None)
 slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
 slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
-debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
 
 installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
@@ -572,6 +572,7 @@ debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
+debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -3920,8 +3921,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         else:
             nr_of_0_results = 0
 
-        if nr_of_0_results > 10:
-            print_debug("run_systematic_search: nr_of_0_results {nr_of_0_results} > 10")
+        if nr_of_0_results > args.max_nr_of_zero_results:
+            print_debug(f"run_systematic_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}")
             raise searchSpaceExhausted("Search space exhausted")
 
     return False
@@ -3966,8 +3967,8 @@ def run_random_jobs(random_steps, ax_client, executor):
             else:
                 nr_of_0_results = 0
 
-            if nr_of_0_results > 10:
-                print_debug("run_random_jobs: nr_of_0_results {nr_of_0_results} > 10")
+            if nr_of_0_results > args.max_nr_of_zero_results:
+                print_debug(f"run_random_jobs: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}")
                 raise searchSpaceExhausted("Search space exhausted")
         except botorch.exceptions.errors.InputDataError as e:
             print_red(f"Error 3: {e}")

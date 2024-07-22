@@ -575,6 +575,46 @@ debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table o
 
 args = parser.parse_args()
 
+@log_function_call
+def count_defective_nodes(file_path=None, entry=None):
+    """
+    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
+    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
+    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
+    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
+    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
+    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
+    '{current_run_folder}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
+    """
+    # Standardpfad für die Datei, wenn keiner angegeben ist
+    if file_path is None:
+        file_path = os.path.join(current_run_folder, "state_files", "defective_nodes")
+
+    # Sicherstellen, dass das Verzeichnis existiert
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    try:
+        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
+        with open(file_path, 'a+') as file:
+            file.seek(0)  # Zurück zum Anfang der Datei
+            lines = file.readlines()
+
+            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
+            entries = [line.strip() for line in lines]
+
+            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
+            if entry is not None and entry not in entries:
+                file.write(entry + '\n')
+                entries.append(entry)
+
+        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
+        return sorted(set(entries))
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+        return []
+
+
 if args.exclude:
     entries = [entry.strip() for entry in args.exclude.split(',')]
 
@@ -1516,45 +1556,6 @@ def write_data_and_headers(data_dict, error_description=""):
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
-
-@log_function_call
-def count_defective_nodes(file_path=None, entry=None):
-    """
-    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
-    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
-    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
-    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
-    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
-    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
-    '{current_run_folder}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
-    """
-    # Standardpfad für die Datei, wenn keiner angegeben ist
-    if file_path is None:
-        file_path = os.path.join(current_run_folder, "state_files", "defective_nodes")
-
-    # Sicherstellen, dass das Verzeichnis existiert
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    try:
-        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
-        with open(file_path, 'a+') as file:
-            file.seek(0)  # Zurück zum Anfang der Datei
-            lines = file.readlines()
-
-            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
-            entries = [line.strip() for line in lines]
-
-            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
-            if entry is not None and entry not in entries:
-                file.write(entry + '\n')
-                entries.append(entry)
-
-        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
-        return sorted(set(entries))
-
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
-        return []
 
 @log_function_call
 def evaluate(parameters):

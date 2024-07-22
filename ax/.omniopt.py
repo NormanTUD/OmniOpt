@@ -2517,7 +2517,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
             my_exit(15)
 
     table = Table(header_style="bold", title="Experiment parameters:")
-    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Value-Type"]
+    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type"]
 
     _param_name = ""
 

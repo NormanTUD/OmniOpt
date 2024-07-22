@@ -2710,15 +2710,43 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     
     try:
         matching_rows = df
+        print_debug(matching_rows)
+        
         for param, value in params.items():
             if param in df.columns:
                 if isinstance(value, float):
-                    matching_rows = matching_rows[np.isclose(matching_rows[param], value, atol=float_tolerance)]
+                    # Log current state before filtering
+                    print_debug(f"Filtering for float parameter '{param}' with value '{value}' and tolerance '{float_tolerance}'")
+                    
+                    is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
+                    print_debug(is_close_array)
+                    
+                    matching_rows = matching_rows[is_close_array]
+                    print_debug(matching_rows)
+                    
+                    assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
+                    # Ensure consistent types for comparison
+                    print_debug(f"Filtering for parameter '{param}' with value '{value}'")
+                    if matching_rows[param].dtype == np.int64 and isinstance(value, str):
+                        value = int(value)
+                    elif matching_rows[param].dtype == np.float64 and isinstance(value, str):
+                        value = float(value)
+                    
                     matching_rows = matching_rows[matching_rows[param] == value]
-
+                    print_debug(matching_rows)
+                    
+                    assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
+            else:
+                print_debug(f"Parameter '{param}' not found in DataFrame columns")
+        
         if matching_rows.empty:
+            print_debug("No matching rows found after all filters applied")
             return None
+        else:
+            print_debug("Matching rows found")
+            print_debug(matching_rows)
+            return matching_rows
         
         result_value = matching_rows['result'].values[0]
         return result_value
@@ -2844,11 +2872,15 @@ def load_data_from_existing_run_folders(args, _paths):
 
             old_arm_parameter = old_trial.arm.parameters
 
-            old_result_simple = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)
+            old_result_simple = None
+            try:
+                old_result_simple = float(get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"])
+            except:
+                pass
 
             hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
 
-            if looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+            if old_result_simple and looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 if hashed_params_result not in already_inserted_param_hashes.keys():
                     #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
                     old_result = {'result': old_result_simple}
@@ -4931,6 +4963,16 @@ if __name__ == "__main__":
 
         if args.tests:
             #dier(get_best_params("runs/test_wronggoing_stuff/2/results.csv", "result"))
+
+            """
+            import numpy as np
+            dier(get_old_result_by_params("runs/__main__tests__/1/results.csv", {
+                'choice_param': '4',
+                'float_param': -36.302191615104675,
+                'int_param': -60,
+                'int_param_two': -16
+            }))
+            """
 
             print_red("This should be red")
             print_yellow("This should be yellow")

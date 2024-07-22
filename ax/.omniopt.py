@@ -575,54 +575,6 @@ debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table o
 
 args = parser.parse_args()
 
-@log_function_call
-def count_defective_nodes(file_path=None, entry=None):
-    """
-    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
-    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
-    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
-    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
-    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
-    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
-    '{current_run_folder}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
-    """
-    # Standardpfad für die Datei, wenn keiner angegeben ist
-    if file_path is None:
-        file_path = os.path.join(current_run_folder, "state_files", "defective_nodes")
-
-    # Sicherstellen, dass das Verzeichnis existiert
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    try:
-        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
-        with open(file_path, 'a+') as file:
-            file.seek(0)  # Zurück zum Anfang der Datei
-            lines = file.readlines()
-
-            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
-            entries = [line.strip() for line in lines]
-
-            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
-            if entry is not None and entry not in entries:
-                file.write(entry + '\n')
-                entries.append(entry)
-
-        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
-        return sorted(set(entries))
-
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
-        return []
-
-
-if args.exclude:
-    entries = [entry.strip() for entry in args.exclude.split(',')]
-
-    # Verarbeitung der Einträge
-    for entry in entries:
-        count_defective_nodes(None, entry)
-
-
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
     my_exit(203)
@@ -4047,6 +3999,47 @@ def show_messages(args, random_steps, second_step_steps):
             print(f"Auto-Executing step {args.auto_execute_counter}")
 
 @log_function_call
+def count_defective_nodes(file_path=None, entry=None):
+    """
+    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
+    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
+    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
+    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
+    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
+    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
+    '{current_run_folder}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
+    """
+    # Standardpfad für die Datei, wenn keiner angegeben ist
+    if file_path is None:
+        file_path = os.path.join(current_run_folder, "state_files", "defective_nodes")
+
+    # Sicherstellen, dass das Verzeichnis existiert
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    try:
+        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
+        with open(file_path, 'a+') as file:
+            file.seek(0)  # Zurück zum Anfang der Datei
+            lines = file.readlines()
+
+            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
+            entries = [line.strip() for line in lines]
+
+            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
+            if entry is not None and entry not in entries:
+                file.write(entry + '\n')
+                entries.append(entry)
+
+        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
+        return sorted(set(entries))
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+        return []
+
+
+
+@log_function_call
 def main():
     print_debug("main()")
 
@@ -4116,6 +4109,13 @@ def main():
         sys.exit(19)
 
     random_steps, second_step_steps = get_number_of_steps(args, max_eval)
+
+    if args.exclude:
+        entries = [entry.strip() for entry in args.exclude.split(',')]
+
+        # Verarbeitung der Einträge
+        for entry in entries:
+            count_defective_nodes(None, entry)
 
     if args.parameter and len(args.parameter) and args.continue_previous_job and random_steps <= 0:
         print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")

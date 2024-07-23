@@ -310,7 +310,8 @@ def get_functions_stack_array():
     function_names = []
     for frame_info in stack[1:]:
         if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
-            function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
+            if frame_info.function != "wrapper":
+                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
     return "Function stack: " + (" -> ".join(function_names) + ":")
 
 @log_function_call
@@ -3893,6 +3894,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
+                clean_completed_jobs()
+
         #if count_done_jobs() - nr_inserted_jobs >= max_eval:
         #    print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}")
         #    raise searchSpaceExhausted("Search space exhausted")
@@ -3942,6 +3945,8 @@ def run_random_jobs(random_steps, ax_client, executor):
             while len(global_vars["jobs"]) > num_parallel_jobs:
                 progressbar_description([f"waiting for new jobs to start"])
                 time.sleep(10)
+                clean_completed_jobs()
+
         if count_done_jobs() - nr_inserted_jobs >= max_eval:
             print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:")
             raise searchSpaceExhausted("Search space exhausted")

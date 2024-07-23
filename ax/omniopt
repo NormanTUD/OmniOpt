@@ -885,7 +885,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	if command -v scontrol 2>/dev/null >/dev/null; then
 		SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
 		SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
-		set -e
 
 		if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then
 			SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
@@ -896,6 +895,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 		red_text "scontrol not found. Unsetting SLURM_JOB_ID"
 		unset SLURM_JOB_ID
 	fi
+	set -e
 fi
 
 set +x

@@ -1,4 +1,4 @@
-!/bin/env python3
+#!/bin/env python3
 
 # Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 # Geht, aber was ist mit continued runs?

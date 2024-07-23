@@ -179,7 +179,7 @@
 		<tr>
 			<td><tt>--max_nr_of_zero_results (INT)</tt></td>
 			<td>Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted.</td>
-			<td><tt>10</tt></td>
+			<td><tt>20</tt></td>
 		</tr>
 		<tr class="section-header">
 			<td colspan="3">Experimental</td>

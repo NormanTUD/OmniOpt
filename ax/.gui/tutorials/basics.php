@@ -14,7 +14,7 @@ runs a program with these parameters, and identifies promising areas for further
 
 <ul>
 	<li>Simple Hyperparameter Optimization: OmniOpt2 allows for easy hyperparameter optimization within defined ranges.</li>
-	<li>Tool Agnostic: It is completely agnostic regarding the code it runs. OmniOpt2 only requires command-line arguments with the hyperparameters and expects the program to output results, e.g., <code class='language-python'>print(f"RESULT: {loss}")</code>. <a href="run_sh.php">See here how to prepare your program for the use with OmniOpt2</a></li>
+	<li>Tool Agnostic: It is completely agnostic regarding the code it runs. OmniOpt2 only requires command-line arguments with the hyperparameters and expects the program to output results, e.g., <code class='language-python'>print(f"RESULT: {loss}")</code>. <a href="tutorials.php?tutorial=run_sh">See here how to prepare your program for the use with OmniOpt2</a></li>
 	<li>Self-Installation: OmniOpt2 installs itself into a virtual environment.</li>
 	<li>No Configuration Files: All configuration is handled through the command line interface (CLI).</li>
 </ul>

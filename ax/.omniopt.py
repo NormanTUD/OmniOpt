@@ -4692,7 +4692,10 @@ def analyze_out_files(rootdir, print_to_stdout=True):
 
 @log_function_call
 def log_nr_of_workers():
-    write_process_info()
+    try:
+        write_process_info()
+    except Exception as e:
+        print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
 
     last_line = ""
     nr_of_workers = len(global_vars["jobs"])

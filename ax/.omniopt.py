@@ -4697,6 +4697,10 @@ def log_nr_of_workers():
     except Exception as e:
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
 
+    if not "jobs" in global_vars:
+        print_debug("log_nr_of_workers: Could not find jobs in global_vars")
+        return
+
     last_line = ""
     nr_of_workers = len(global_vars["jobs"])
 

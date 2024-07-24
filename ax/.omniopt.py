@@ -3916,6 +3916,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
         _sleep(args, 1)
         write_process_info()
+        write_worker_usage()
 
         if nr_of_items == 0:
             nr_of_0_results += 1
@@ -3953,6 +3954,7 @@ def run_random_jobs(random_steps, ax_client, executor):
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
             break
         write_process_info()
+        write_worker_usage()
 
         try:
             steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(global_vars["jobs"])))

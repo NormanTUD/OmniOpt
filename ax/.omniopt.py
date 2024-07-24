@@ -2051,6 +2051,8 @@ def write_worker_usage():
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
+    else:
+        print_debug(f"worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
 @log_function_call
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):

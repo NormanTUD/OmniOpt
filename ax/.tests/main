@@ -267,7 +267,7 @@ function _test {
 			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE). Command: $COMMAND"
 		fi
 
-		if [[ $(echo $ERRORMSG | wc -l) -gt 1 ]]; then
+		if [[ $(echo $ERRORMSG | wc -c) -gt 2 ]]; then
 			red_text "$ERRORMSG"
 			errors+=($(echo "$ERRORMSG" | base64))
 		fi
@@ -278,7 +278,7 @@ function _test {
 			ERRORMSG="$NAME exited with $exit_code (wanted $WANTED_EXIT_CODE or $ALTERNATIVE_OK_EXIT_CODE). Command: $COMMAND"
 		fi
 
-		if [[ $(echo $ERRORMSG | wc -l) -gt 1 ]]; then
+		if [[ $(echo $ERRORMSG | wc -c) -gt 2 ]]; then
 			red_text "$ERRORMSG"
 			errors+=($(echo "$ERRORMSG" | base64))
 		fi

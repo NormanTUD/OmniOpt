@@ -4709,16 +4709,10 @@ def log_nr_of_workers():
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return
 
-    last_line = ""
     nr_of_workers = len(global_vars["jobs"])
 
     if not nr_of_workers:
         return
-
-    if os.path.exists(logfile_nr_workers):
-        with open(logfile_nr_workers, 'r') as f:
-            for line in f:
-                last_line = line.strip()
 
     try:
         with open(logfile_nr_workers, 'a+') as f:
@@ -4726,6 +4720,8 @@ def log_nr_of_workers():
     except FileNotFoundError:
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
         sys.exit(99)
+    except OSError as e:
+        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
 
 @log_function_call
 def get_best_params(csv_file_path, result_column):

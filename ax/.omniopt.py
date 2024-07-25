@@ -2878,7 +2878,15 @@ def load_data_from_existing_run_folders(args, _paths):
 
             old_result_simple = None
             try:
-                old_result_simple = float(get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"])
+                tmp_old_res = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"]
+                tmp_old_res_list = list(set(list(tmp_old_res)))
+
+                if len(tmp_old_res_list) == 1:
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+                    old_result_simple = float(tmp_old_res_list[0])
+                else:
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+                    old_result_simple = None
             except:
                 pass
 
@@ -2920,6 +2928,7 @@ def load_data_from_existing_run_folders(args, _paths):
                     old_arm_parameter_with_result = old_arm_parameter
                     old_arm_parameter_with_result["result"] = old_result_simple
             else:
+                print_debug("Prevent inserting a parameter set without result")
                 old_arm_parameter_with_result = old_arm_parameter
                 old_arm_parameter_with_result["result"] = old_result_simple
                 already_inserted_param_data.append(old_arm_parameter_with_result)

@@ -4722,6 +4722,7 @@ def log_nr_of_workers():
         sys.exit(99)
     except OSError as e:
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
+        sys.exit(199)
 
 @log_function_call
 def get_best_params(csv_file_path, result_column):

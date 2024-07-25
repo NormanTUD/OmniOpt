@@ -4094,7 +4094,7 @@ def main():
     global searching_for
 
     if (not args.continue_previous_job or not args.load_previous_job_data) and (args.num_random_steps == 0 or not args.num_random_steps):
-        print_red("When you have no random steps. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
+        print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         my_exit(233)
 
     _debug_worker_creation("time, nr_workers, got, requested, phase")

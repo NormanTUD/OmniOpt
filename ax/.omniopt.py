@@ -4976,18 +4976,6 @@ if __name__ == "__main__":
         warnings.simplefilter("ignore")
 
         if args.tests:
-            #dier(get_best_params("runs/test_wronggoing_stuff/2/results.csv", "result"))
-
-            """
-            import numpy as np
-            dier(get_old_result_by_params("runs/__main__tests__/1/results.csv", {
-                'choice_param': '4',
-                'float_param': -36.302191615104675,
-                'int_param': -60,
-                'int_param_two': -16
-            }))
-            """
-
             print_red("This should be red")
             print_yellow("This should be yellow")
             print_green("This should be green")

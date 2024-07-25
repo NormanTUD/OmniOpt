@@ -4140,6 +4140,9 @@ def main():
     if not args.verbose:
         disable_logging()
 
+    print("MAX_EVAL vorher:")
+    print(max_eval)
+
     max_eval = args.max_eval
 
     if not max_eval:
@@ -4185,9 +4188,6 @@ def main():
     with open(checkpoint_parameters_filepath, "w") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-    if args.continue_previous_job:
-        max_eval = submitted_jobs() + random_steps + second_step_steps
-
     print_overview_tables(experiment_parameters, experiment_args)
 
     executor = get_executor(args)
@@ -4203,19 +4203,22 @@ def main():
     show_messages(args, random_steps, second_step_steps)
 
     max_nr_steps = second_step_steps
-    if submitted_jobs() < random_steps:
-        max_nr_steps = (random_steps - submitted_jobs()) + second_step_steps
+    if count_done_jobs() < random_steps:
+        max_nr_steps = (random_steps - count_done_jobs()) + second_step_steps
         max_eval = max_nr_steps
 
     if args.continue_previous_job:
         max_nr_steps = get_steps_from_prev_job(args.continue_previous_job) + max_nr_steps
-        max_eval = max_nr_steps
+        #max_eval = max_nr_steps
 
     save_global_vars()
 
     write_process_info()
 
-    max_tqdm_jobs = nr_inserted_jobs + max_eval
+    max_tqdm_jobs = count_done_jobs() + max_eval
+
+    print("MAX_EVAL nachher:")
+    print(max_eval)
 
     with tqdm(total=max_tqdm_jobs, disable=False) as _progress_bar:
         write_process_info()

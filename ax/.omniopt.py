@@ -1120,7 +1120,7 @@ def parse_experiment_parameters(args):
                     my_exit(181)
 
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_red(f"\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)");
+                    print_red(f"\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
                     my_exit(181)
 
                 try:
@@ -1226,7 +1226,7 @@ def parse_experiment_parameters(args):
                 j += skip
             elif param_type == "fixed":
                 if len(this_args) != 3:
-                    print_red(f"⚠ --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>");
+                    print_red(f"⚠ --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>")
                     my_exit(181)
 
                 value = this_args[j + 2]
@@ -1246,7 +1246,7 @@ def parse_experiment_parameters(args):
                 j += 3
             elif param_type == "choice":
                 if len(this_args) != 3:
-                    print_red(f"⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>");
+                    print_red(f"⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
                     my_exit(181)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
@@ -1268,7 +1268,7 @@ def parse_experiment_parameters(args):
 
                 j += 3
             else:
-                print_red(f"⚠ Parameter type '{param_type}' not yet implemented.");
+                print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
         i += 1
 
@@ -1584,8 +1584,8 @@ def evaluate(parameters):
 
         original_print(f"Result: {result}")
 
-        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"];
-        values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, _signal, socket.gethostname()];
+        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"]
+        values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, _signal, socket.gethostname()]
 
         original_print(f"EXIT_CODE: {exit_code}")
 
@@ -1858,7 +1858,7 @@ def print_best_result(csv_file_path, result_column):
 
             table.add_column("result")
 
-            row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()];
+            row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
             row = [*row_without_result, str(best_result)][3:]
 
             table.add_row(*row)
@@ -2353,7 +2353,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
                     if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
                         old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
-                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item);
+                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
                         new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
                         _replaced = True
 
@@ -2515,7 +2515,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
             rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), ""])
         else:
-            print_red(f"Type {_type} is not yet implemented in the overview table.");
+            print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
 
     table = Table(header_style="bold", title="Experiment parameters:")
@@ -4093,7 +4093,8 @@ def main():
     global second_step_steps
     global searching_for
 
-    if (not args.continue_previous_job or not args.load_previous_job_data) and (args.num_random_steps == 0 or not args.num_random_steps):
+    if (not args.continue_previous_job and not args.load_previous_job_data and not "--continue" in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
+        print(sys.argv)
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         my_exit(233)
 

@@ -8,7 +8,6 @@ class searchSpaceExhausted (Exception):
 
 nr_inserted_jobs = 0
 changed_grid_search_params = {}
-duplicate_value_filter = []
 last_cpu_mem_time = None
 
 search_space_exhausted = False
@@ -3422,20 +3421,6 @@ def _get_next_trials(ax_client):
         )
 
         removed_duplicates = 0
-        """
-        cleaned_trial_index_to_param = {}
-
-        for index in trial_index_to_param.keys():
-            value = trial_index_to_param[index]
-            value_dump = json.dumps(value)
-            if not value_dump in duplicate_value_filter:
-                cleaned_trial_index_to_param[index] = value
-                duplicate_value_filter.append(value_dump)
-            else:
-                print_debug(f"Removed already existing trial {value_dump} from trial_index_to_param")
-                removed_duplicates += 1
-        trial_index_to_param = cleaned_trial_index_to_param
-        """
     except np.linalg.LinAlgError as e:
         if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
             print_red(f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")

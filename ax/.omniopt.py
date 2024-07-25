@@ -4215,7 +4215,9 @@ def main():
 
     write_process_info()
 
-    with tqdm(total=(nr_inserted_jobs + max_eval), disable=False) as _progress_bar:
+    max_tqdm_jobs = nr_inserted_jobs + max_eval
+
+    with tqdm(total=max_tqdm_jobs, disable=False) as _progress_bar:
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar

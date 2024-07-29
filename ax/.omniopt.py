@@ -3554,7 +3554,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
-    print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
+    #print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
     if next_nr_steps == 0:
         return 0
 

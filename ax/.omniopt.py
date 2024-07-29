@@ -272,8 +272,6 @@ def log_function_call(func):
             else:
                 log_entry.end(time.time())
 
-    log_what_needs_to_be_logged()
-
     return wrapper
 
 def sort_log_entries(log_entry):

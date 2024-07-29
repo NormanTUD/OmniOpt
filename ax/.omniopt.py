@@ -4000,8 +4000,8 @@ def run_random_search(random_steps, ax_client, executor):
         print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-        if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
-            break
+        #if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
+        #    break
 
         write_process_info()
         write_worker_usage()

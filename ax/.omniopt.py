@@ -544,6 +544,7 @@ optional.add_argument('--root_venv_dir', help=f'Where to install your modules to
 optional.add_argument('--exclude', help=f'A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
 optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
 optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 10', type=int, default=20)
+optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
@@ -3918,7 +3919,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         else:
             nr_of_0_results = 0
 
-        if nr_of_0_results > args.max_nr_of_zero_results:
+        if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
             print_debug(f"run_systematic_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}")
             raise searchSpaceExhausted("Search space exhausted")
 
@@ -3941,7 +3942,7 @@ def run_random_jobs(random_steps, ax_client, executor):
                 time.sleep(10)
                 clean_completed_jobs()
 
-        if count_done_jobs() - nr_inserted_jobs >= max_eval:
+        if not args.disable_search_space_exhaustion_detection and count_done_jobs() - nr_inserted_jobs >= max_eval:
             print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:")
             raise searchSpaceExhausted("Search space exhausted")
 
@@ -3967,7 +3968,7 @@ def run_random_jobs(random_steps, ax_client, executor):
             else:
                 nr_of_0_results = 0
 
-            if nr_of_0_results > args.max_nr_of_zero_results:
+            if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
                 print_debug(f"run_random_jobs: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}")
                 raise searchSpaceExhausted("Search space exhausted")
         except botorch.exceptions.errors.InputDataError as e:
@@ -4225,7 +4226,7 @@ def main():
 
         finish_previous_jobs_random(args)
 
-        if max_eval - random_steps + nr_inserted_jobs <= 0:
+        if not args.disable_search_space_exhaustion_detection and max_eval - random_steps + nr_inserted_jobs <= 0:
             print_debug(f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}  <= 0")
             raise searchSpaceExhausted("Search space exhausted")
             

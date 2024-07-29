@@ -181,6 +181,11 @@
 			<td>Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted.</td>
 			<td><tt>20</tt></td>
 		</tr>
+		<tr>
+			<td><tt>--disable_search_space_exhaustion_detection</tt></td>
+			<td>Disables automatic search space reduction detection</td>
+			<td><tt>False</tt></td>
+		</tr>
 		<tr class="section-header">
 			<td colspan="3">Experimental</td>
 			</tr>

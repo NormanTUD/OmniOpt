@@ -3996,7 +3996,7 @@ def run_random_search(random_steps, ax_client, executor):
                 clean_completed_jobs()
 
         if not args.disable_search_space_exhaustion_detection and count_done_jobs() - nr_inserted_jobs >= max_eval:
-            _wrn = f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:"
+            _wrn = f"run_random_search: searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:"
 
             progressbar_description(_wrn)
             print_debug(_wrn)

@@ -3881,6 +3881,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
     global nr_of_0_results
 
+    nr_of_0_results = 0
     write_process_info()
 
     while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
@@ -3931,6 +3932,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 def run_random_jobs(random_steps, ax_client, executor):
     global search_space_exhausted
     global nr_of_0_results
+
+    nr_of_0_results = 0
 
     write_process_info()
 

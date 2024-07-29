@@ -3995,9 +3995,9 @@ def run_random_search(random_steps, ax_client, executor):
     #print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - rand_in_prev_job {rand_in_prev_job} and not search_space_exhausted {search_space_exhausted}")
     #while random_steps + rand_in_prev_job >= (count_done_jobs() - rand_in_prev_job) and not search_space_exhausted:
 
-    print("while not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} >= random_steps {random_steps}:")
+    print(f"while not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} >= random_steps {random_steps}:")
     while not search_space_exhausted and rand_in_this_job > random_steps:
-        print("while not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} >= random_steps {random_steps}:")
+        print(f"while not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} >= random_steps {random_steps}:")
         wait_for_jobs_to_complete(num_parallel_jobs)
 
         if not args.disable_search_space_exhaustion_detection and count_done_jobs() - rand_in_prev_job >= max_eval:

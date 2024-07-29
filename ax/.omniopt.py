@@ -4000,14 +4000,6 @@ def run_random_search(random_steps, ax_client, executor):
         print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-        if not args.disable_search_space_exhaustion_detection and count_done_jobs() - rand_in_prev_job >= max_eval:
-            _wrn = f"run_random_search: searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - rand_in_prev_job {rand_in_prev_job} >= max_eval {max_eval}:"
-
-            progressbar_description(_wrn)
-            print_debug(_wrn)
-    
-            raise searchSpaceExhausted("Search space exhausted")
-
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
             break
 

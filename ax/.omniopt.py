@@ -226,9 +226,27 @@ class LogEntry:
             "sub_calls": [sub_call.to_dict() for sub_call in self.sub_calls]
         }
 
+def log_what_needs_to_be_logged ():
+    try:
+        write_worker_usage()
+    except:
+        pass
+
+    try:
+        write_process_info()
+    except:
+        pass
+
+    try:
+        log_nr_of_workers()
+    except:
+        pass
+
 def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        log_what_needs_to_be_logged()
+
         start_time = time.time()
         caller = inspect.stack()[1].function
 
@@ -241,9 +259,11 @@ def log_function_call(func):
         
         try:
             result = func(*args, **kwargs)
+            log_what_needs_to_be_logged()
             return result
         except Exception as e:
             log_entry.end(time.time())
+            log_what_needs_to_be_logged()
             raise e
         finally:
             if log_stack and log_stack[-1] is log_entry:
@@ -251,6 +271,8 @@ def log_function_call(func):
                 log_stack.pop()
             else:
                 log_entry.end(time.time())
+
+    log_what_needs_to_be_logged()
 
     return wrapper
 
@@ -2034,11 +2056,8 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
             table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%', style='bright_green')
         console.print(table)
 
-    write_worker_usage()
-
     return _exit
 
-@log_function_call
 def write_worker_usage():
     global current_run_folder
 
@@ -2984,8 +3003,6 @@ def print_outfile_analyzed(job):
 def finish_previous_jobs(args, new_msgs):
     print_debug(f"finish_previous_jobs(args, {new_msgs})")
 
-    log_nr_of_workers()
-
     global result_csv_file
     global random_steps
     global jobs
@@ -3103,8 +3120,6 @@ def finish_previous_jobs(args, new_msgs):
     else:
         if jobs_finished:
             progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
-
-    log_nr_of_workers()
 
     clean_completed_jobs()
 
@@ -3299,8 +3314,6 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     global global_vars
     global progress_bar
 
-    log_nr_of_workers()
-
     _trial = ax_client.get_trial(trial_index)
 
     try:
@@ -3323,7 +3336,6 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         )
 
         new_job = executor.submit(evaluate, parameters)
-        write_worker_usage()
         submitted_jobs(1)
 
         global_vars["jobs"].append((new_job, trial_index))
@@ -3940,8 +3952,6 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
 
         _sleep(args, 1)
-        write_process_info()
-        write_worker_usage()
 
         if nr_of_items == 0:
             _wrn = f"systematic: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
@@ -3965,17 +3975,11 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 def wait_for_jobs_to_complete (num_parallel_jobs):
     global global_vars
 
-    log_nr_of_workers()
-    write_process_info()
-
     if system_has_sbatch:
         while len(global_vars["jobs"]) > num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             time.sleep(5)
             clean_completed_jobs()
-
-    write_process_info()
-    log_nr_of_workers()
 
 @log_function_call
 def run_random_search(random_steps, ax_client, executor):
@@ -4004,7 +4008,6 @@ def run_random_search(random_steps, ax_client, executor):
         #    break
 
         write_process_info()
-        write_worker_usage()
 
         try:
             steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(global_vars["jobs"])))
@@ -4188,8 +4191,6 @@ def main():
 
     logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'
 
-    write_worker_usage()
-
     check_python_version()
 
     experiment_parameters = None
@@ -4303,7 +4304,6 @@ def main():
         while len(global_vars["jobs"]):
             finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
             _sleep(args, 1)
-        write_process_info()
 
     save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)
@@ -4761,7 +4761,6 @@ def analyze_out_files(rootdir, print_to_stdout=True):
         print("error: " + str(e))
         return ""
 
-@log_function_call
 def log_nr_of_workers():
     try:
         write_process_info()

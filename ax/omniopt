@@ -884,7 +884,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	set +e
 	if command -v scontrol 2>/dev/null >/dev/null; then
 		SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-		echo "scontrol show job $SLURM_JOB_ID: exited with $?"
+		#echo "scontrol show job $SLURM_JOB_ID: exited with $?"
 		SLURM_FILE_SCRIPT_DIR=$(dirname $SLURM_FILE_SCRIPT_DIR)
 
 		if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then

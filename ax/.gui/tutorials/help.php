@@ -179,7 +179,7 @@
 		<tr>
 			<td><tt>--max_nr_of_zero_results (INT)</tt></td>
 			<td>Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted.</td>
-			<td><tt>20</tt></td>
+			<td><tt>100</tt></td>
 		</tr>
 		<tr>
 			<td><tt>--disable_search_space_exhaustion_detection</tt></td>

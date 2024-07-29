@@ -543,7 +543,7 @@ optional.add_argument('--ui_url', help='Site from which the OO-run was called', 
 optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
 optional.add_argument('--exclude', help=f'A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
 optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
-optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 10', type=int, default=20)
+optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 10', type=int, default=100)
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
@@ -4227,7 +4227,7 @@ def main():
 
         finish_previous_jobs_random(args)
 
-        if not args.disable_search_space_exhaustion_detection and max_eval - random_steps + nr_inserted_jobs <= 0:
+        if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) <= 0:
             print_debug(f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}  <= 0")
             raise searchSpaceExhausted("Search space exhausted")
             
@@ -4986,8 +4986,11 @@ if __name__ == "__main__":
 
                 end_program(result_csv_file, "result", 1)
             except searchSpaceExhausted:
-                _get_perc = int((submitted_jobs() / max_eval) * 100)
-                original_print(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {submitted_jobs()}, requested: {max_eval}) after main ran")
+                _get_perc = int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100)
+
+                if _get_perc < 100:
+                    print_red(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {count_done_jobs()}, requested: {max_eval}) after main ran")
+
                 if _get_perc != 100:
                     end_program(result_csv_file, "result", 1, 87)
                 else:

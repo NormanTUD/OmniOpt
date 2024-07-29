@@ -4095,7 +4095,6 @@ def main():
     global searching_for
 
     if (not args.continue_previous_job and not args.load_previous_job_data and not "--continue" in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
-        print(sys.argv)
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         my_exit(233)
 

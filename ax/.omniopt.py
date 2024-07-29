@@ -3554,6 +3554,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 
+    print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
     if next_nr_steps == 0:
         return 0
 
@@ -3978,7 +3979,11 @@ def run_random_jobs(random_steps, ax_client, executor):
 
     write_process_info()
 
-    while random_steps >= count_done_jobs() + 1 and not search_space_exhausted:
+    rand_in_prev_job = 0
+    if args.continue_previous_job:
+        rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
+
+    while random_steps + rand_in_prev_job >= count_done_jobs() + 1 and not search_space_exhausted:
         write_process_info()
         log_nr_of_workers()
 

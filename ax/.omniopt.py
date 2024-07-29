@@ -3471,22 +3471,17 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
         print(f"!!! get_generation_strategy: random_steps == {random_steps}")
 
-
-        print(f"""
-        _steps.append(
-            GenerationStep(
-                model=Models.SOBOL,
-                num_trials=max({num_parallel_jobs}, {random_steps}),
-                min_trials_observed=min({max_eval}, {random_steps}),
-                max_parallelism={num_parallel_jobs},  # Max parallelism for this step
-                enforce_num_trials=True,
-                model_kwargs={"seed": {seed}},  # Any kwargs you want passed into the model
-                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
-            )
-        )
-
-
-        """)
+        print(f"_steps.append(")
+        print(f"    GenerationStep(")
+        print(f"        model=Models.SOBOL,")
+        print(f"        num_trials=max({num_parallel_jobs}, {random_steps}),")
+        print(f"        min_trials_observed=min({max_eval}, {random_steps}),")
+        print(f"        max_parallelism={num_parallel_jobs},  # Max parallelism for this step")
+        print(f"        enforce_num_trials=True,")
+        print(f"        model_kwargs={"seed": {seed}},  # Any kwargs you want passed into the model")
+        print(f"        model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`")
+        print(f"    )")
+        print(f")")
 
         _steps.append(
             GenerationStep(
@@ -3519,20 +3514,18 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     print("get_generation_strategy: Second step")
 
-    print(f"""
-    _steps.append(
-        GenerationStep(
-            model={chosen_non_random_model},
-            num_trials=-1,  # No limitation on how many trials should be produced from this step
-            max_parallelism={num_parallel_jobs} * 2,  # Max parallelism for this step
-            #model_kwargs={"seed": {seed}},  # Any kwargs you want passed into the model
-            enforce_num_trials=True,
-            model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
-            # More on parallelism vs. required samples in BayesOpt:
-            # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
-        )
-    )
-    """)
+    print(f"_steps.append(")
+    print(f"    GenerationStep(")
+    print(f"        model={chosen_non_random_model},")
+    print(f"        num_trials=-1,  # No limitation on how many trials should be produced from this step")
+    print(f"        max_parallelism={num_parallel_jobs} * 2,  # Max parallelism for this step")
+    print(f"        #model_kwargs={"seed": {seed}},  # Any kwargs you want passed into the model")
+    print(f"        enforce_num_trials=True,")
+    print(f"        model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`")
+    print(f"        # More on parallelism vs. required samples in BayesOpt:")
+    print(f"        # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials")
+    print(f"    )")
+    print(f")")
 
     _steps.append(
         GenerationStep(

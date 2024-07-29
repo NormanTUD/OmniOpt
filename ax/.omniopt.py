@@ -3473,7 +3473,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)
 
-        print(f"!!! get_generation_strategy: random_steps == {random_steps}")
+        #print(f"!!! get_generation_strategy: random_steps == {random_steps}")
 
         #print(f"_steps.append(")
         #print(f"    GenerationStep(")

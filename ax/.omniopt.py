@@ -2369,8 +2369,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         ax_client = (AxClient.load_from_json_file(tmp_file_path))
 
-        load_existing_job_data_into_ax_client(args)
-
         os.unlink(tmp_file_path)
 
         state_files_folder = f"{current_run_folder}/state_files"
@@ -2443,6 +2441,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             my_exit(49)
 
+    load_existing_job_data_into_ax_client(args)
     return ax_client, experiment_parameters, experiment_args
 
 @log_function_call

@@ -3475,23 +3475,23 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
         #print(f"!!! get_generation_strategy: random_steps == {random_steps}")
 
-        #print(f"_steps.append(")
-        #print(f"    GenerationStep(")
-        #print(f"        model=Models.SOBOL,")
-        #print(f"        num_trials=max({num_parallel_jobs}, {random_steps} + {rand_in_prev_job}),")
-        #print(f"        min_trials_observed=min(0, {max_eval}, {random_steps}),")
-        #print(f"        max_parallelism={num_parallel_jobs},  # Max parallelism for this step")
-        #print(f"        enforce_num_trials=True,")
-        #print(f"        model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
-        #print(f"        model_gen_kwargs='enforce_num_arms': True,  # Any kwargs you want passed to `modelbridge.gen`")
-        #print(f"    )")
-        #print(f")")
+        print(f"_steps.append(")
+        print(f"    GenerationStep(")
+        print(f"        model=Models.SOBOL,")
+        print(f"        num_trials=max({num_parallel_jobs}, {random_steps} + {rand_in_prev_job}),")
+        print(f"        min_trials_observed=max(min(0, {max_eval}, {random_steps}), {random_steps} + {rand_in_prev_job}),")
+        print(f"        max_parallelism={num_parallel_jobs},  # Max parallelism for this step")
+        print(f"        enforce_num_trials=True,")
+        print(f"        model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
+        print(f"        model_gen_kwargs='enforce_num_arms': True,  # Any kwargs you want passed to `modelbridge.gen`")
+        print(f"    )")
+        print(f")")
 
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
                 num_trials=max(num_parallel_jobs, random_steps + rand_in_prev_job),
-                min_trials_observed=min(0, max_eval, random_steps),
+                min_trials_observed=max(min(0, max_eval, random_steps), random_steps + rand_in_prev_job),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model

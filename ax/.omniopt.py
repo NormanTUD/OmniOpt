@@ -2369,6 +2369,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         ax_client = (AxClient.load_from_json_file(tmp_file_path))
 
+        load_existing_job_data_into_ax_client(args)
+
         os.unlink(tmp_file_path)
 
         state_files_folder = f"{current_run_folder}/state_files"
@@ -4244,8 +4246,6 @@ def main():
         experiment_parameters, 
         minimize_or_maximize
     )
-
-    load_existing_job_data_into_ax_client(args)
 
     with open(checkpoint_parameters_filepath, "w") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)

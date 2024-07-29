@@ -3918,7 +3918,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
         if nr_of_items == 0:
             nr_of_0_results += 1
-            print_debug(f"got 0 results, {nr_of_0_results} times now (max {args.max_nr_of_zero_results})")
+            progressbar_description([f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"])
+            print_debug(f"got 0 results, {nr_of_0_results} times now (systematic, max {args.max_nr_of_zero_results})")
         else:
             nr_of_0_results = 0
 
@@ -3969,7 +3970,9 @@ def run_random_jobs(random_steps, ax_client, executor):
 
             if nr_of_items_random == 0:
                 nr_of_0_results += 1
-                print_debug(f"got 0 results, {nr_of_0_results} times now (max {args.max_nr_of_zero_results})")
+
+                progressbar_description([f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"])
+                print_debug(f"got 0 results, {nr_of_0_results} times now (random, max {args.max_nr_of_zero_results})")
             else:
                 nr_of_0_results = 0
 
@@ -4223,6 +4226,8 @@ def main():
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar
+
+        progressbar_description([f"Started OmniOpt2 run..."])
 
         progress_bar.update(count_done_jobs())
 

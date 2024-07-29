@@ -3478,7 +3478,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         print(f"_steps.append(")
         print(f"    GenerationStep(")
         print(f"        model=Models.SOBOL,")
-        print(f"        num_trials=max({num_parallel_jobs}, {random_steps}),")
+        print(f"        num_trials=max({num_parallel_jobs}, {random_steps} + {rand_in_prev_job}),")
         print(f"        min_trials_observed=min({max_eval}, {random_steps}),")
         print(f"        max_parallelism={num_parallel_jobs},  # Max parallelism for this step")
         print(f"        enforce_num_trials=True,")

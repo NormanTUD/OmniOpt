@@ -3917,14 +3917,19 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         write_worker_usage()
 
         if nr_of_items == 0:
+            _wrn = f"got 0 results, {nr_of_0_results} times now (systematic, max {args.max_nr_of_zero_results})"
             nr_of_0_results += 1
-            progressbar_description([f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"])
-            print_debug(f"got 0 results, {nr_of_0_results} times now (systematic, max {args.max_nr_of_zero_results})")
+            progressbar_description([_wrn])
+            print_debug(_wrn)
         else:
             nr_of_0_results = 0
 
         if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
-            print_debug(f"run_systematic_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}")
+            _wrn = f"run_systematic_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}"
+
+            print_debug(_wrn)
+            progressbar_description([_wrn])
+
             raise searchSpaceExhausted("Search space exhausted")
 
     return False
@@ -3949,7 +3954,11 @@ def run_random_jobs(random_steps, ax_client, executor):
                 clean_completed_jobs()
 
         if not args.disable_search_space_exhaustion_detection and count_done_jobs() - nr_inserted_jobs >= max_eval:
-            print_debug(f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:")
+            _wrn = f"searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:"
+
+            progressbar_description(_wrn)
+            print_debug(_wrn)
+    
             raise searchSpaceExhausted("Search space exhausted")
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
@@ -3971,13 +3980,19 @@ def run_random_jobs(random_steps, ax_client, executor):
             if nr_of_items_random == 0:
                 nr_of_0_results += 1
 
-                progressbar_description([f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"])
-                print_debug(f"got 0 results, {nr_of_0_results} times now (random, max {args.max_nr_of_zero_results})")
+                _wrn = f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
+
+                progressbar_description([_wrn])
+                print_debug(_wrn)
             else:
                 nr_of_0_results = 0
 
             if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
-                print_debug(f"run_random_jobs: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}")
+                _wrn = f"run_random_jobs: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}"
+
+                progressbar_description([_wrn])
+                print_debug(_wrn)
+
                 raise searchSpaceExhausted("Search space exhausted")
         except botorch.exceptions.errors.InputDataError as e:
             print_red(f"Error 3: {e}")
@@ -4236,7 +4251,11 @@ def main():
         finish_previous_jobs_random(args)
 
         if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) <= 0:
-            print_debug(f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}  <= 0")
+            _wrn = f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs} <= 0"
+
+            progressbar_description([_wrn])
+            print_debug(_wrn)
+
             raise searchSpaceExhausted("Search space exhausted")
             
         run_systematic_search(args, max_nr_steps, executor, ax_client)

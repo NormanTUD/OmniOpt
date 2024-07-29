@@ -3944,7 +3944,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         write_worker_usage()
 
         if nr_of_items == 0:
-            _wrn = f"got 0 results, {nr_of_0_results} times now (systematic, max {args.max_nr_of_zero_results})"
+            _wrn = f"systematic: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
             nr_of_0_results += 1
             progressbar_description([_wrn])
             print_debug(_wrn)
@@ -4020,7 +4020,7 @@ def run_random_search(random_steps, ax_client, executor):
             if nr_of_items_random == 0:
                 nr_of_0_results += 1
 
-                _wrn = f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
+                _wrn = f"random: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
 
                 progressbar_description([_wrn])
                 print_debug(_wrn)

@@ -4245,6 +4245,8 @@ def main():
         minimize_or_maximize
     )
 
+    load_existing_job_data_into_ax_client(args)
+
     with open(checkpoint_parameters_filepath, "w") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
@@ -4252,8 +4254,6 @@ def main():
 
     executor = get_executor(args)
     searching_for = "minimum" if not args.maximize else "maximum"
-
-    load_existing_job_data_into_ax_client(args)
 
     initial_text = get_desc_progress_text()
     print(f"Searching {searching_for}")

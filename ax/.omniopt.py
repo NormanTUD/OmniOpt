@@ -3990,7 +3990,7 @@ def run_random_search(random_steps, ax_client, executor):
     if args.continue_previous_job:
         rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
 
-    rand_in_this_job = count_sobol_steps()
+    rand_in_this_job = count_sobol_steps() - rand_in_prev_job
 
     #print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - rand_in_prev_job {rand_in_prev_job} and not search_space_exhausted {search_space_exhausted}")
     #while random_steps + rand_in_prev_job >= (count_done_jobs() - rand_in_prev_job) and not search_space_exhausted:

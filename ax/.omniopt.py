@@ -2441,7 +2441,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             my_exit(49)
 
-    load_existing_job_data_into_ax_client(args)
     return ax_client, experiment_parameters, experiment_args
 
 @log_function_call
@@ -4253,6 +4252,8 @@ def main():
 
     executor = get_executor(args)
     searching_for = "minimum" if not args.maximize else "maximum"
+
+    load_existing_job_data_into_ax_client(args)
 
     initial_text = get_desc_progress_text()
     print(f"Searching {searching_for}")

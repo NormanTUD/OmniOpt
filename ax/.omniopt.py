@@ -3468,6 +3468,26 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)
+
+        print(f"!!! get_generation_strategy: random_steps == {random_steps}")
+
+
+        print(f"""
+        _steps.append(
+            GenerationStep(
+                model=Models.SOBOL,
+                num_trials=max({num_parallel_jobs}, {random_steps}),
+                min_trials_observed=min({max_eval}, {random_steps}),
+                max_parallelism={num_parallel_jobs},  # Max parallelism for this step
+                enforce_num_trials=True,
+                model_kwargs={"seed": {seed}},  # Any kwargs you want passed into the model
+                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+            )
+        )
+
+
+        """)
+
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
@@ -3496,6 +3516,24 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
+
+    print("get_generation_strategy: Second step")
+
+    print(f"""
+    _steps.append(
+        GenerationStep(
+            model={chosen_non_random_model},
+            num_trials=-1,  # No limitation on how many trials should be produced from this step
+            max_parallelism={num_parallel_jobs} * 2,  # Max parallelism for this step
+            #model_kwargs={"seed": {seed}},  # Any kwargs you want passed into the model
+            enforce_num_trials=True,
+            model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+            # More on parallelism vs. required samples in BayesOpt:
+            # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+        )
+    )
+    """)
+
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,

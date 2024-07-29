@@ -3951,8 +3951,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         else:
             nr_of_0_results = 0
 
-        if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
-            _wrn = f"run_systematic_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}"
+        if not args.disable_search_space_exhaustion_detection and nr_of_0_results >= args.max_nr_of_zero_results:
+            _wrn = f"run_systematic_search: nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
 
             print_debug(_wrn)
             progressbar_description([_wrn])
@@ -4027,8 +4027,8 @@ def run_random_search(random_steps, ax_client, executor):
             else:
                 nr_of_0_results = 0
 
-            if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
-                _wrn = f"run_random_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}"
+            if not args.disable_search_space_exhaustion_detection and nr_of_0_results >= args.max_nr_of_zero_results:
+                _wrn = f"run_random_search: nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
 
                 progressbar_description([_wrn])
                 print_debug(_wrn)

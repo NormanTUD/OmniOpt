@@ -3991,7 +3991,7 @@ def run_random_search(random_steps, ax_client, executor):
 
         if system_has_sbatch:
             while len(global_vars["jobs"]) > num_parallel_jobs:
-                progressbar_description([f"waiting for new jobs to start"])
+                progressbar_description([f"waiting for old jobs to finish"])
                 time.sleep(10)
                 clean_completed_jobs()
 

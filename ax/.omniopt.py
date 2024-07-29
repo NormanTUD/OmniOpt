@@ -3983,9 +3983,9 @@ def run_random_search(random_steps, ax_client, executor):
     if args.continue_previous_job:
         rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
 
-    original_print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} + 1 and not search_space_exhausted {search_space_exhausted}")
-    while random_steps + rand_in_prev_job >= count_done_jobs() + 1 and not search_space_exhausted:
-        original_print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} + 1 and not search_space_exhausted {search_space_exhausted}")
+    original_print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} + 1 and not search_space_exhausted {search_space_exhausted}")
+    while random_steps + rand_in_prev_job >= (count_done_jobs() - nr_inserted_jobs) + 1 and not search_space_exhausted:
+        original_print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} + 1 and not search_space_exhausted {search_space_exhausted}")
         write_process_info()
         log_nr_of_workers()
 

@@ -227,20 +227,14 @@ class LogEntry:
         }
 
 def log_what_needs_to_be_logged ():
-    try:
+    if "write_worker_usage" in globals():
         write_worker_usage()
-    except:
-        pass
 
-    try:
+    if "write_process_info" in globals():
         write_process_info()
-    except:
-        pass
 
-    try:
+    if "log_nr_of_workers" in globals():
         log_nr_of_workers()
-    except:
-        pass
 
 def log_function_call(func):
     @functools.wraps(func)
@@ -291,7 +285,6 @@ def save_logs_to_json(filename):
     with open(filename, 'w') as log_file:
         json.dump([entry.to_dict() for entry in sorted_entries], log_file, indent=4)
 
-@log_function_call
 def get_nesting_level(caller_frame):
     filename, caller_lineno, _, _, _ = inspect.getframeinfo(caller_frame)
     with open(filename) as f:
@@ -306,7 +299,6 @@ def get_nesting_level(caller_frame):
                 indentation_level -= 1
         return indentation_level
 
-@log_function_call
 def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
@@ -323,7 +315,6 @@ def _debug(msg, _lvl=0, ee=None):
 
         _debug(msg, _lvl + 1, e)
 
-@log_function_call
 def get_functions_stack_array():
     stack = inspect.stack()
     function_names = []
@@ -333,7 +324,6 @@ def get_functions_stack_array():
                 function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
     return "Function stack: " + (" -> ".join(function_names) + ":")
 
-@log_function_call
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nl = get_nesting_level(inspect.currentframe().f_back)
@@ -411,11 +401,9 @@ def print_image_to_cli(image_path, width):
     except Exception as e:
         print_debug(f"Error converting and resizing image: {str(e)}, width: {width}, image_path: {image_path}")
 
-@log_function_call
 def datetime_from_string(input_string):
     return datetime.datetime.fromtimestamp(input_string)
 
-@log_function_call
 def get_timezone_offset_seconds():
     # Get the current time in the local timezone
     local_tz = get_localzone()
@@ -452,7 +440,6 @@ with console.status("[bold green]Defining variables...") as status:
 
     nvidia_smi_logs_base = None
 
-@log_function_call
 def log_message_to_file(logfile, message, _lvl=0, ee=None):
     assert logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
@@ -472,23 +459,18 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(logfile, message, _lvl + 1, e)
 
-@log_function_call
 def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
     log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, ee)
 
-@log_function_call
 def _debug_worker_creation(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, ee)
 
-@log_function_call
 def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
     log_message_to_file(_file, result, _lvl, ee)
 
-@log_function_call
 def _debug_get_next_trials(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_debug_get_next_trials, msg, _lvl, ee)
 
-@log_function_call
 def _debug_progressbar(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_progressbar, msg, _lvl, ee)
 
@@ -815,7 +797,6 @@ class bcolors:
     underline = '\033[4m'
     yellow = '\033[33m'
 
-@log_function_call
 def print_color(color, text):
     color_codes = {
         "header": bcolors.header,
@@ -837,7 +818,6 @@ def print_color(color, text):
         print(f"Error: {e}")
         original_print(text)
 
-@log_function_call
 def print_red(text):
     print_color("red", text)
 
@@ -849,11 +829,9 @@ def print_red(text):
             print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
             sys.exit(99)
 
-@log_function_call
 def print_green(text):
     print_color("green", text)
 
-@log_function_call
 def print_yellow(text):
     print_color("yellow", text)
 

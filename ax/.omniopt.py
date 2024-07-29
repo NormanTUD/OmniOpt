@@ -3523,7 +3523,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     print(f"        num_trials=-1,  # No limitation on how many trials should be produced from this step")
     print(f"        max_parallelism={num_parallel_jobs} * 2,  # Max parallelism for this step")
     print(f"        #model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
-    print(f"        enforce_num_trials=True,")
+    print(f"        #enforce_num_trials=True,")
     print(f"        model_gen_kwargs='enforce_num_arms': True,  # Any kwargs you want passed to `modelbridge.gen`")
     print(f"        # More on parallelism vs. required samples in BayesOpt:")
     print(f"        # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials")
@@ -3536,7 +3536,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
             num_trials=-1,  # No limitation on how many trials should be produced from this step
             max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
             #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
-            enforce_num_trials=True,
+            #enforce_num_trials=True,
             model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
             # More on parallelism vs. required samples in BayesOpt:
             # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials

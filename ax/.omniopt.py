@@ -3971,7 +3971,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     return False
 
 @log_function_call
-def run_random_jobs(random_steps, ax_client, executor):
+def run_random_search(random_steps, ax_client, executor):
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4028,7 +4028,7 @@ def run_random_jobs(random_steps, ax_client, executor):
                 nr_of_0_results = 0
 
             if not args.disable_search_space_exhaustion_detection and nr_of_0_results > args.max_nr_of_zero_results:
-                _wrn = f"run_random_jobs: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}"
+                _wrn = f"run_random_search: nr_of_0_results {nr_of_0_results} > {args.max_nr_of_zero_results}"
 
                 progressbar_description([_wrn])
                 print_debug(_wrn)
@@ -4286,7 +4286,7 @@ def main():
 
         progress_bar.update(count_done_jobs())
 
-        run_random_jobs(random_steps, ax_client, executor)
+        run_random_search(random_steps, ax_client, executor)
 
         finish_previous_jobs_random(args)
 

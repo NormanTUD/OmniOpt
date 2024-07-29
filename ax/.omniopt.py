@@ -3921,16 +3921,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
-        write_process_info()
-        log_nr_of_workers()
-
-        if system_has_sbatch:
-            while len(global_vars["jobs"]) > num_parallel_jobs:
-                progressbar_description([f"waiting for new jobs to start"])
-                time.sleep(10)
-                clean_completed_jobs()
-
-        write_process_info()
+        wait_for_jobs_to_complete(num_parallel_jobs)
 
         finish_previous_jobs(args, ["finishing jobs"])
 
@@ -3971,6 +3962,22 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     return False
 
 @log_function_call
+def wait_for_jobs_to_complete (num_parallel_jobs):
+    global global_vars
+
+    log_nr_of_workers()
+    write_process_info()
+
+    if system_has_sbatch:
+        while len(global_vars["jobs"]) > num_parallel_jobs:
+            progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
+            time.sleep(5)
+            clean_completed_jobs()
+
+    write_process_info()
+    log_nr_of_workers()
+
+@log_function_call
 def run_random_search(random_steps, ax_client, executor):
     global search_space_exhausted
     global nr_of_0_results
@@ -3986,14 +3993,8 @@ def run_random_search(random_steps, ax_client, executor):
     print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} and not search_space_exhausted {search_space_exhausted}")
     while random_steps + rand_in_prev_job >= (count_done_jobs() - nr_inserted_jobs) and not search_space_exhausted:
         print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} and not search_space_exhausted {search_space_exhausted}")
-        write_process_info()
-        log_nr_of_workers()
 
-        if system_has_sbatch:
-            while len(global_vars["jobs"]) > num_parallel_jobs:
-                progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
-                time.sleep(5)
-                clean_completed_jobs()
+        wait_for_jobs_to_complete(num_parallel_jobs)
 
         if not args.disable_search_space_exhaustion_detection and count_done_jobs() - nr_inserted_jobs >= max_eval:
             _wrn = f"run_random_search: searchSpaceExhausted: count_done_jobs() {count_done_jobs()} - nr_inserted_jobs {nr_inserted_jobs} >= max_eval {max_eval}:"

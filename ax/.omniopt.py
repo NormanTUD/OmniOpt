@@ -2841,13 +2841,13 @@ def load_data_from_existing_run_folders(args, _paths):
     global already_inserted_param_data
 
     #dier(help(ax_client.experiment.search_space))
-    with console.status(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client...") as status:
+    with console.status(f"[bold green]Loading existing jobs into ax_client...") as status:
         path_idx = 0
         for this_path in _paths:
             if len(_paths) > 1:
-                status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client (folder {path_idx + 1})...")
+                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1})...")
             else:
-                status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client...")
+                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client...")
 
             this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
@@ -2863,9 +2863,9 @@ def load_data_from_existing_run_folders(args, _paths):
             trial_idx = 0
             for old_trial_index in old_trials:
                 if len(_paths) > 1:
-                    status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)})...")
+                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)})...")
                 else:
-                    status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client (trial {trial_idx + 1}/{len(old_trials)})...")
+                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)})...")
                 trial_idx += 1
                 old_trial = old_trials[old_trial_index]
                 trial_status = old_trial.status

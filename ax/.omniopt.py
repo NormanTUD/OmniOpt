@@ -746,14 +746,12 @@ if not args.tests:
             my_exit(19)
 
 
-@log_function_call
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
-@log_function_call
 def print_debug_progressbar(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
@@ -2647,7 +2645,6 @@ def check_equation(variables, equation):
 
     return equation
 
-@log_function_call
 def progressbar_description(new_msgs=[]):
     global result_csv_file
     global random_steps
@@ -2659,14 +2656,12 @@ def progressbar_description(new_msgs=[]):
     progress_bar.set_description(desc)
     progress_bar.refresh()
 
-@log_function_call
 def clean_completed_jobs():
     global jobs
     for job, trial_index in global_vars["jobs"][:]:
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
 
-@log_function_call
 def dataframe_dier():
     pd_frame = ax_client.get_trials_data_frame()
     dier(pd_frame)
@@ -2971,7 +2966,6 @@ def print_outfile_analyzed(job):
 
         print_red(out_files_string)
 
-@log_function_call
 def finish_previous_jobs(args, new_msgs):
     print_debug(f"finish_previous_jobs(args, {new_msgs})")
 
@@ -3281,7 +3275,6 @@ def check_python_version():
     if not python_version in supported_versions:
         print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-@log_function_call
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
@@ -3309,11 +3302,11 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
                     exclude=excluded_string
             )
 
-        try:
-            new_job = executor.submit(evaluate, parameters)
-            submitted_jobs(1)
-        except TypeError as e:
-            print_red(f"Error while trying to submit job: {e}")
+        #try:
+        new_job = executor.submit(evaluate, parameters)
+        submitted_jobs(1)
+        #except TypeError as e:
+        #    print_red(f"Error while trying to submit job: {e}")
 
         global_vars["jobs"].append((new_job, trial_index))
         _sleep(args, 1)
@@ -3367,7 +3360,6 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-@log_function_call
 def _get_next_trials(ax_client):
     global global_vars
 
@@ -3529,7 +3521,6 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     return gs
 
-@log_function_call
 def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
     global random_steps
 

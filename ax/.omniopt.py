@@ -3467,7 +3467,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         print(f"    GenerationStep(")
         print(f"        model=Models.SOBOL,")
         print(f"        num_trials=max({num_parallel_jobs}, {random_steps} + {rand_in_prev_job}),")
-        print(f"        min_trials_observed=max(min(0, {max_eval}, {random_steps}), {random_steps} + {nr_inserted_jobs}),")
+        #print(f"        min_trials_observed=max(min(0, {max_eval}, {random_steps}), {random_steps} + {nr_inserted_jobs}),")
         print(f"        max_parallelism={num_parallel_jobs},  # Max parallelism for this step")
         print(f"        enforce_num_trials=True,")
         print(f"        model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
@@ -3479,7 +3479,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
             GenerationStep(
                 model=Models.SOBOL,
                 num_trials=max(num_parallel_jobs, random_steps + rand_in_prev_job),
-                min_trials_observed=max(min(0, max_eval, random_steps), random_steps + nr_inserted_jobs),
+                #min_trials_observed=max(min(0, max_eval, random_steps), random_steps + nr_inserted_jobs),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
@@ -3555,10 +3555,11 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
             i = 1
             for trial_index, parameters in trial_index_to_param.items():
-                progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                 while len(global_vars["jobs"]) > num_parallel_jobs:
                     finish_previous_jobs(args, ["finishing previous jobs"])
                     time.sleep(5)
+
+                progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                 execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                 i += 1
         except botorch.exceptions.errors.InputDataError as e:
@@ -3574,8 +3575,8 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
         random_steps_left = count_done_jobs() - random_steps
 
-        if random_steps_left <= 0 and count_done_jobs() <= random_steps:
-            return len(trial_index_to_param.keys())
+        #if random_steps_left <= 0 and count_done_jobs() <= random_steps:
+        #    return len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_red("\n⚠ " + str(e))
     except (
@@ -3588,6 +3589,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         end_program(result_csv_file, "result", 1)
 
     num_new_keys = 0
+
     try:
         num_new_keys = len(trial_index_to_param.keys())
     except:

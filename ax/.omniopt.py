@@ -3986,7 +3986,7 @@ def run_random_search(random_steps, ax_client, executor):
         try:
             steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(global_vars["jobs"])))
 
-            progressbar_description([f"trying to get {steps_mind_worker} workers (random)"])
+            progressbar_description([f"random: trying to get {steps_mind_worker} workers"])
 
             nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor, "random")
             if nr_of_items_random:

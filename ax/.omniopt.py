@@ -3971,20 +3971,15 @@ def run_random_search(random_steps, ax_client, executor):
 
     rand_in_this_job = count_sobol_steps() - rand_in_prev_job
 
-    #print(f"random_steps {random_steps} + rand_in_prev_job {rand_in_prev_job} >= count_done_jobs() {count_done_jobs()} - rand_in_prev_job {rand_in_prev_job} and not search_space_exhausted {search_space_exhausted}")
-    #while random_steps + rand_in_prev_job >= (count_done_jobs() - rand_in_prev_job) and not search_space_exhausted:
-
-    #print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
     while not search_space_exhausted and rand_in_this_job <= random_steps:
         rand_in_this_job = count_sobol_steps() - rand_in_prev_job
         if max_eval < count_done_jobs():
             break
         log_what_needs_to_be_logged()
-        #print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-        #if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
-        #    break
+        if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
+            break
 
         write_process_info()
 

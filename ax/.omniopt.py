@@ -3310,9 +3310,11 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         if args.account:
             os.environ['SBATCH_ACCOUNT'] = args.account
 
-        executor.update_parameters(
-                exclude=",".join(count_defective_nodes())
-        )
+        excluded_string = ",".join(count_defective_nodes())
+        if len(excluded_string) > 1:
+            executor.update_parameters(
+                    exclude=excluded_string
+            )
 
         try:
             new_job = executor.submit(evaluate, parameters)

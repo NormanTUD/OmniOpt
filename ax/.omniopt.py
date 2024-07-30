@@ -3459,24 +3459,12 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     if max_eval is None:
         max_eval = max(1, random_steps)
 
-    if random_steps > 1: 
+    if random_steps >= 1: 
         # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)
 
         #print(f"!!! get_generation_strategy: random_steps == {random_steps}")
-
-        print(f"_steps.append(")
-        print(f"    GenerationStep(")
-        print(f"        model=Models.SOBOL,")
-        print(f"        num_trials=max({num_parallel_jobs}, {random_steps} + {rand_in_prev_job}),")
-        #print(f"        min_trials_observed=max(min(0, {max_eval}, {random_steps}), {random_steps} + {nr_inserted_jobs}),")
-        print(f"        max_parallelism={num_parallel_jobs},  # Max parallelism for this step")
-        print(f"        enforce_num_trials=True,")
-        print(f"        model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
-        print(f"        model_gen_kwargs='enforce_num_arms': True,  # Any kwargs you want passed to `modelbridge.gen`")
-        print(f"    )")
-        print(f")")
 
         _steps.append(
             GenerationStep(

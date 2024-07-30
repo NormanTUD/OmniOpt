@@ -3365,8 +3365,10 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-def _get_next_trials(ax_client, phase):
+def _get_next_trials(args, ax_client, phase):
     global global_vars
+
+    finish_previous_jobs(args, ["finishing jobs (_get_next_trials)"])
 
     last_ax_client_time = None
     ax_client_time_avg = None
@@ -3538,7 +3540,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         print_debug("Trying to get trial_index_to_param")
 
         try:
-            trial_index_to_param = _get_next_trials(ax_client, phase)
+            trial_index_to_param = _get_next_trials(args, ax_client, phase)
 
             i = 1
             for trial_index, parameters in trial_index_to_param.items():

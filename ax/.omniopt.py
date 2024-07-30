@@ -239,7 +239,6 @@ def log_what_needs_to_be_logged ():
 def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        log_what_needs_to_be_logged()
 
         start_time = time.time()
         caller = inspect.stack()[1].function
@@ -252,12 +251,23 @@ def log_function_call(func):
         log_stack.append(log_entry)
         
         try:
-            result = func(*args, **kwargs)
             log_what_needs_to_be_logged()
+        except:
+            pass
+
+        try:
+            result = func(*args, **kwargs)
+            try:
+                log_what_needs_to_be_logged()
+            except:
+                pass
             return result
         except Exception as e:
             log_entry.end(time.time())
-            log_what_needs_to_be_logged()
+            try:
+                log_what_needs_to_be_logged()
+            except:
+                pass
             raise e
         finally:
             if log_stack and log_stack[-1] is log_entry:

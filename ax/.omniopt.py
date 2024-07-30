@@ -332,7 +332,10 @@ def print_debug(msg):
     if args.debug:
         print(msg)
 
-    _debug(f"{time_str}: {get_functions_stack_array()}")
+    try:
+        _debug(f"{time_str}: {get_functions_stack_array()}")
+    except:
+        pass
     _debug(msg)
 
 def write_process_info():

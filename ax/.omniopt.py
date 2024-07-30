@@ -4246,10 +4246,15 @@ def main():
         max_nr_steps = (random_steps - count_done_jobs()) + second_step_steps
         max_eval = max_nr_steps
 
+    prev_steps_nr = 0
+
     if args.continue_previous_job:
-        max_nr_steps = get_steps_from_prev_job(args.continue_previous_job) + max_nr_steps
+        prev_steps_nr = get_steps_from_prev_job(args.continue_previous_job)
+
+        max_nr_steps = prev_steps_nr + max_nr_steps
         #max_eval = max_nr_steps
 
+    max_eval = max_eval + prev_steps_nr
     save_global_vars()
 
     write_process_info()

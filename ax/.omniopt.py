@@ -3459,8 +3459,8 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         random_steps = 0
 
     rand_in_prev_job = 0
-    if args.continue_previous_job:
-        rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
+    #if args.continue_previous_job:
+    #    rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
 
     if max_eval is None:
         max_eval = max(1, random_steps)

@@ -250,24 +250,24 @@ def log_function_call(func):
         
         log_stack.append(log_entry)
         
-        try:
-            log_what_needs_to_be_logged()
-        except:
-            pass
+        #try:
+        #    log_what_needs_to_be_logged()
+        #except:
+        #    pass
 
         try:
             result = func(*args, **kwargs)
-            try:
-                log_what_needs_to_be_logged()
-            except:
-                pass
+            #try:
+            #    log_what_needs_to_be_logged()
+            #except:
+            #    pass
             return result
         except Exception as e:
             log_entry.end(time.time())
-            try:
-                log_what_needs_to_be_logged()
-            except:
-                pass
+            #try:
+            #    log_what_needs_to_be_logged()
+            #except:
+            #    pass
             raise e
         finally:
             if log_stack and log_stack[-1] is log_entry:

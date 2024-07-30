@@ -248,7 +248,6 @@ def log_what_needs_to_be_logged ():
 def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-
         start_time = time.time()
         caller = inspect.stack()[1].function
 

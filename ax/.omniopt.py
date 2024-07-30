@@ -3545,10 +3545,10 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
             i = 1
             for trial_index, parameters in trial_index_to_param.items():
                 while len(global_vars["jobs"]) > num_parallel_jobs:
-                    finish_previous_jobs(args, ["finishing previous jobs"])
+                    finish_previous_jobs(args, ["finishing previous jobs ({phase})"])
                     time.sleep(5)
 
-                progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                progressbar_description([f"starting parameter set ({phase}, {i}/{next_nr_steps})"])
                 execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                 i += 1
         except botorch.exceptions.errors.InputDataError as e:
@@ -3921,7 +3921,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(args, ["finishing previous jobs after starting new jobs"])
+        finish_previous_jobs(args, ["finishing previous jobs after starting new jobs (systematic)"])
 
         _sleep(args, 1)
 

@@ -3170,7 +3170,7 @@ def get_desc_progress_text(new_msgs=[]):
 
     this_time = time.time()
 
-    if count_done_jobs():
+    if count_done_jobs() >= 0:
         best_params = get_best_params(result_csv_file, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]

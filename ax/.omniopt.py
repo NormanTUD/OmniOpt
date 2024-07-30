@@ -2757,13 +2757,10 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 def load_existing_job_data_into_ax_client(args):
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
-            with console.status(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client...") as status:
-                load_data_from_existing_run_folders(args, this_path)
+            load_data_from_existing_run_folders(args, this_path)
 
     if args.continue_previous_job:
-        with console.status(f"[bold green]Loading existing jobs from {args.continue_previous_job} into ax_client...") as status:
-            load_data_from_existing_run_folders(args, [args.continue_previous_job])
-
+        load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
     if len(already_inserted_param_hashes.keys()):
         double_hashes = []
@@ -2844,99 +2841,113 @@ def load_data_from_existing_run_folders(args, _paths):
     global already_inserted_param_data
 
     #dier(help(ax_client.experiment.search_space))
-    for this_path in _paths:
-        this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
+    with console.status(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client...") as status:
+        path_idx = 0
+        for this_path in _paths:
+            if len(_paths) > 1:
+                status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client (folder {path_idx + 1})...")
+            else:
+                status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client...")
 
-        if not os.path.exists(this_path_json):
-            print_red(f"{this_path_json} does not exist, cannot load data from it")
-            return
+            this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
-        old_experiments = load_experiment(this_path_json)
+            if not os.path.exists(this_path_json):
+                print_red(f"{this_path_json} does not exist, cannot load data from it")
+                return
 
-        old_trials = old_experiments.trials
-        #dataframe_dier()
+            old_experiments = load_experiment(this_path_json)
 
-        for old_trial_index in old_trials:
-            old_trial = old_trials[old_trial_index]
-            trial_status = old_trial.status
-            trial_status_str = trial_status.__repr__
+            old_trials = old_experiments.trials
+            #dataframe_dier()
 
-            print_debug(f"trial_status_str: {trial_status_str}")
-
-            if not "COMPLETED" in str(trial_status_str):
-                continue
-
-            old_arm_parameter = old_trial.arm.parameters
-
-            old_result_simple = None
-            try:
-                tmp_old_res = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"]
-                tmp_old_res_list = list(set(list(tmp_old_res)))
-
-                if len(tmp_old_res_list) == 1:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-                    old_result_simple = float(tmp_old_res_list[0])
+            trial_idx = 0
+            for old_trial_index in old_trials:
+                if len(_paths) > 1:
+                    status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)})...")
                 else:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-                    old_result_simple = None
-            except:
-                pass
+                    status.update(f"[bold green]Loading existing jobs from {args.load_previous_job_data} into ax_client (trial {trial_idx + 1}/{len(old_trials)})...")
+                trial_idx += 1
+                old_trial = old_trials[old_trial_index]
+                trial_status = old_trial.status
+                trial_status_str = trial_status.__repr__
 
-            hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
+                print_debug(f"trial_status_str: {trial_status_str}")
 
-            if old_result_simple and looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
-                if hashed_params_result not in already_inserted_param_hashes.keys():
-                    #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
-                    old_result = {'result': old_result_simple}
+                if not "COMPLETED" in str(trial_status_str):
+                    continue
 
-                    done_converting = False
+                old_arm_parameter = old_trial.arm.parameters
 
-                    while not done_converting:
-                        try:
-                            new_old_trial = ax_client.attach_trial(old_arm_parameter)
+                old_result_simple = None
+                try:
+                    tmp_old_res = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"]
+                    tmp_old_res_list = list(set(list(tmp_old_res)))
 
-                            ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+                    if len(tmp_old_res_list) == 1:
+                        print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+                        old_result_simple = float(tmp_old_res_list[0])
+                    else:
+                        print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+                        old_result_simple = None
+                except:
+                    pass
 
-                            already_inserted_param_hashes[hashed_params_result] = 1
+                hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
 
-                            done_converting = True
-                            save_pd_csv()
-                        except ax.exceptions.core.UnsupportedError as e:
-                            parsed_error = parse_parameter_type_error(e)
+                if old_result_simple and looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+                    if hashed_params_result not in already_inserted_param_hashes.keys():
+                        #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
+                        old_result = {'result': old_result_simple}
 
-                            if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
-                                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                                old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
-                            elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
-                                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                                old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
-                            #elif parsed_error["expected_type"] == "str" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "str":
-                            #    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                            #    old_arm_parameter[parsed_error["parameter_name"]] = str(old_arm_parameter[parsed_error["parameter_name"]])
+                        done_converting = False
+
+                        while not done_converting:
+                            try:
+                                new_old_trial = ax_client.attach_trial(old_arm_parameter)
+
+                                ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+
+                                already_inserted_param_hashes[hashed_params_result] = 1
+
+                                done_converting = True
+                                save_pd_csv()
+                            except ax.exceptions.core.UnsupportedError as e:
+                                parsed_error = parse_parameter_type_error(e)
+
+                                if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
+                                    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                    old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
+                                elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
+                                    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                    old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
+                                #elif parsed_error["expected_type"] == "str" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "str":
+                                #    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                                #    old_arm_parameter[parsed_error["parameter_name"]] = str(old_arm_parameter[parsed_error["parameter_name"]])
+                    else:
+                        print_debug("Prevented inserting a double entry")
+                        already_inserted_param_hashes[hashed_params_result] += 1
+
+                        old_arm_parameter_with_result = old_arm_parameter
+                        old_arm_parameter_with_result["result"] = old_result_simple
                 else:
-                    print_debug("Prevented inserting a double entry")
-                    already_inserted_param_hashes[hashed_params_result] += 1
-
+                    print_debug("Prevent inserting a parameter set without result")
                     old_arm_parameter_with_result = old_arm_parameter
                     old_arm_parameter_with_result["result"] = old_result_simple
-            else:
-                print_debug("Prevent inserting a parameter set without result")
-                old_arm_parameter_with_result = old_arm_parameter
-                old_arm_parameter_with_result["result"] = old_result_simple
-                already_inserted_param_data.append(old_arm_parameter_with_result)
+                    already_inserted_param_data.append(old_arm_parameter_with_result)
 
-    headers, rows = extract_headers_and_rows(already_inserted_param_data)
+            path_idx += 1
+        headers, rows = extract_headers_and_rows(already_inserted_param_data)
 
-    if headers and rows:
-        table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
+        if headers and rows:
+            table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
 
-        for header in headers:
-            table.add_column(header)
+            for header in headers:
+                table.add_column(header)
 
-        for row in rows:
-            table.add_row(*row)
+            for row in rows:
+                table.add_row(*row)
 
-        console.print(table)
+            console.print(table)
 
 @log_function_call
 def print_outfile_analyzed(job):

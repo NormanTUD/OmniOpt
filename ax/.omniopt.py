@@ -3365,7 +3365,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     return trial_counter
 
-def _get_next_trials(ax_client):
+def _get_next_trials(ax_client, phase):
     global global_vars
 
     last_ax_client_time = None
@@ -3383,7 +3383,7 @@ def _get_next_trials(ax_client):
     if total_jobs_left < real_num_parallel_jobs:
         real_num_parallel_jobs = total_jobs_left
 
-    base_msg = f"getting {real_num_parallel_jobs} trials "
+    base_msg = f"{phase}: getting {real_num_parallel_jobs} trials "
 
     if system_has_sbatch:
         if last_ax_client_time:
@@ -3538,7 +3538,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         print_debug("Trying to get trial_index_to_param")
 
         try:
-            trial_index_to_param = _get_next_trials(ax_client)
+            trial_index_to_param = _get_next_trials(ax_client, phase)
 
             i = 1
             for trial_index, parameters in trial_index_to_param.items():

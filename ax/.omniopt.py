@@ -228,13 +228,22 @@ class LogEntry:
 
 def log_what_needs_to_be_logged ():
     if "write_worker_usage" in globals():
-        write_worker_usage()
+        try:
+            write_worker_usage()
+        except:
+            pass
 
     if "write_process_info" in globals():
-        write_process_info()
+        try:
+            write_process_info()
+        except:
+            pass
 
     if "log_nr_of_workers" in globals():
-        log_nr_of_workers()
+        try:
+            log_nr_of_workers()
+        except:
+            pass
 
 def log_function_call(func):
     @functools.wraps(func)
@@ -250,24 +259,11 @@ def log_function_call(func):
         
         log_stack.append(log_entry)
         
-        #try:
-        #    log_what_needs_to_be_logged()
-        #except:
-        #    pass
-
         try:
             result = func(*args, **kwargs)
-            #try:
-            #    log_what_needs_to_be_logged()
-            #except:
-            #    pass
             return result
         except Exception as e:
             log_entry.end(time.time())
-            #try:
-            #    log_what_needs_to_be_logged()
-            #except:
-            #    pass
             raise e
         finally:
             if log_stack and log_stack[-1] is log_entry:
@@ -3898,10 +3894,13 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
     global nr_of_0_results
 
+    log_what_needs_to_be_logged()
+
     nr_of_0_results = 0
     write_process_info()
 
     while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
+        log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
         finish_previous_jobs(args, ["finishing jobs"])
@@ -3937,7 +3936,9 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             progressbar_description([_wrn])
 
             raise searchSpaceExhausted("Search space exhausted")
+        log_what_needs_to_be_logged()
 
+    log_what_needs_to_be_logged()
     return False
 
 @log_function_call
@@ -3955,6 +3956,7 @@ def run_random_search(random_steps, ax_client, executor):
     global search_space_exhausted
     global nr_of_0_results
 
+    log_what_needs_to_be_logged()
     nr_of_0_results = 0
 
     write_process_info()
@@ -3970,6 +3972,7 @@ def run_random_search(random_steps, ax_client, executor):
 
     #print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
     while not search_space_exhausted and rand_in_this_job <= random_steps:
+        log_what_needs_to_be_logged()
         #print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
         wait_for_jobs_to_complete(num_parallel_jobs)
 
@@ -4007,12 +4010,17 @@ def run_random_search(random_steps, ax_client, executor):
 
                 raise searchSpaceExhausted("Search space exhausted")
         except botorch.exceptions.errors.InputDataError as e:
+            log_what_needs_to_be_logged()
             print_red(f"Error 3: {e}")
         except ax.exceptions.core.DataRequiredError as e:
+            log_what_needs_to_be_logged()
             print_red(f"Error 4: {e}")
 
         _sleep(args, 0.1)
         write_process_info()
+        log_what_needs_to_be_logged()
+
+    log_what_needs_to_be_logged()
 
     return False
 

@@ -1279,7 +1279,6 @@ def parse_experiment_parameters(args):
 
     return params
 
-@log_function_call
 def replace_parameters_in_string(parameters, input_string):
     print_debug("replace_parameters_in_string")
     try:
@@ -1295,7 +1294,6 @@ def replace_parameters_in_string(parameters, input_string):
         print_red(f"\n⚠ Error: {e}")
         return None
 
-@log_function_call
 def execute_bash_code(code):
     print_debug(f"execute_bash_code({code})")
     try:
@@ -1335,7 +1333,6 @@ def execute_bash_code(code):
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-@log_function_call
 def get_result(input_string):
     print_debug("get_result(input_string)")
     if input_string is None:
@@ -1361,7 +1358,6 @@ def get_result(input_string):
         print(f"Error extracting the RESULT-string: {e}")
         return None
 
-@log_function_call
 def add_to_csv(file_path, heading, data_line):
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
@@ -1442,7 +1438,6 @@ def check_file_info(file_path):
 
     return string
 
-@log_function_call
 def find_file_paths_and_print_infos(_text, program_code):
     print_debug("find_file_paths_and_print_infos(_text, {program_code}")
     file_paths = find_file_paths(_text)
@@ -1461,7 +1456,6 @@ def find_file_paths_and_print_infos(_text, program_code):
 
     return string
 
-@log_function_call
 def write_data_and_headers(data_dict, error_description=""):
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
@@ -1512,7 +1506,6 @@ def write_data_and_headers(data_dict, error_description=""):
         print_red(f"Unexpected error: {e}")
 
 
-@log_function_call
 def evaluate(parameters):
     global global_vars
     global is_in_evaluate
@@ -3890,7 +3883,6 @@ def execute_nvidia_smi():
             print(f"An error occurred: {e}")
         time.sleep(10)
 
-@log_function_call
 def start_nvidia_smi_thread():
     print_debug("start_nvidia_smi_thread()")
 
@@ -4074,7 +4066,6 @@ def show_messages(args, random_steps, second_step_steps):
         else:
             print(f"Auto-Executing step {args.auto_execute_counter}")
 
-@log_function_call
 def count_defective_nodes(file_path=None, entry=None):
     """
     Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.

@@ -3198,9 +3198,8 @@ def get_desc_progress_text(new_msgs=[]):
             "time": this_time
         }
 
-        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
-            if is_slurm_job():
-                worker_percentage_usage.append(this_values)
+    if is_slurm_job() and (len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values):
+        worker_percentage_usage.append(this_values)
 
     if args.verbose_tqdm and submitted_jobs():
         in_brackets.append(f"total submitted: {submitted_jobs()}")

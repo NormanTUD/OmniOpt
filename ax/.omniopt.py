@@ -3378,12 +3378,10 @@ def _get_next_trials(args, ax_client, phase):
 
     new_msgs = []
 
-    total_jobs_left = max_eval - submitted_jobs()
-
+    currently_running_jobs = len(global_vars["jobs"])
     real_num_parallel_jobs = num_parallel_jobs
 
-    if total_jobs_left < real_num_parallel_jobs:
-        real_num_parallel_jobs = total_jobs_left
+    total_jobs_left = real_num_parallel_jobs - currently_running_jobs
 
     base_msg = f"{phase}: getting {real_num_parallel_jobs} trials "
 

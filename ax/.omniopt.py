@@ -3324,6 +3324,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
         global_vars["jobs"].append((new_job, trial_index))
         _sleep(args, 1)
+
         try:
             _trial.mark_running(no_runner_required=True)
         except Exception as e:

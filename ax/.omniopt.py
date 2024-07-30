@@ -3533,7 +3533,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     trial_index_to_param = None
     try:
-        print_debug("Trying to get trial_index_to_param")
+        print_debug("{phase}: trying to get trial_index_to_param")
 
         try:
             trial_index_to_param = _get_next_trials(args, ax_client, phase)
@@ -3910,7 +3910,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
         nr_of_items = 0
 
         if next_nr_steps:
-            progressbar_description([f"trying to get {next_nr_steps} next steps"])
+            progressbar_description([f"systematic: trying to get {next_nr_steps} next steps"])
             nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])

@@ -555,6 +555,7 @@ optional.add_argument('--exclude', help=f'A comma seperated list of values of ex
 optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
 optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
+optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
 
 experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
 experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
@@ -3127,7 +3128,10 @@ def get_workers_string():
         stats[state] += 1
 
     for key in stats.keys():
-        string_keys.append(key.lower()[0])
+        if args.abbreviate_job_names:
+            string_keys.append(key.lower()[0])
+        else:
+            string_keys.append(key.lower())
         string_values.append(str(stats[key]))
 
     if len(string_keys) and len(string_values):

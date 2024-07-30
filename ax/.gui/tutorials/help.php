@@ -182,6 +182,11 @@
 			<td><tt>20</tt></td>
 		</tr>
 		<tr>
+			<td><tt>--abbreviate_job_names</tt></td>
+			<td>Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
 			<td><tt>--disable_search_space_exhaustion_detection</tt></td>
 			<td>Disables automatic search space reduction detection</td>
 			<td><tt>False</tt></td>

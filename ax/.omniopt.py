@@ -3188,18 +3188,19 @@ def get_desc_progress_text(new_msgs=[]):
                 if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_values["best_result"]:
                     progress_plot.append(this_progress_values)
 
-        nr_current_workers = len(global_vars["jobs"])
-        percentage = round((nr_current_workers/num_parallel_jobs) * 100)
+        if is_slurm_job():
+            nr_current_workers = len(global_vars["jobs"])
+            percentage = round((nr_current_workers/num_parallel_jobs) * 100)
 
-        this_values = {
-            "nr_current_workers": nr_current_workers,
-            "num_parallel_jobs": num_parallel_jobs,
-            "percentage": percentage,
-            "time": this_time
-        }
+            this_values = {
+                "nr_current_workers": nr_current_workers,
+                "num_parallel_jobs": num_parallel_jobs,
+                "percentage": percentage,
+                "time": this_time
+            }
 
-    if is_slurm_job() and (len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values):
-        worker_percentage_usage.append(this_values)
+            if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
+                worker_percentage_usage.append(this_values)
 
     if args.verbose_tqdm and submitted_jobs():
         in_brackets.append(f"total submitted: {submitted_jobs()}")

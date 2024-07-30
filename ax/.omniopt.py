@@ -3156,8 +3156,11 @@ def get_desc_progress_text(new_msgs=[]):
     if failed_jobs():
         in_brackets.append(f"{bcolors.red}failed jobs: {failed_jobs()}{bcolors.endc}")
 
-    if random_steps and random_steps > submitted_jobs():
-        in_brackets.append(f"random phase ({abs(count_done_jobs() - random_steps)} left)")
+    if random_steps > count_sobol_steps():
+        if random_steps:
+            in_brackets.append(f"random phase ({abs(count_done_jobs() - random_steps)} left)")
+    else:
+        in_brackets.append(f"systematic phase ({abs(count_done_jobs() - max_eval)} left)")
 
     best_params = None
 

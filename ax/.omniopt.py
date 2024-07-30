@@ -3314,8 +3314,11 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
                 exclude=",".join(count_defective_nodes())
         )
 
-        new_job = executor.submit(evaluate, parameters)
-        submitted_jobs(1)
+        try:
+            new_job = executor.submit(evaluate, parameters)
+            submitted_jobs(1)
+        except TypeError as e:
+            print_red(f"Error while trying to submit job: {e}")
 
         global_vars["jobs"].append((new_job, trial_index))
         _sleep(args, 1)

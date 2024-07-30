@@ -3477,7 +3477,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
             GenerationStep(
                 model=Models.SOBOL,
                 num_trials=max(num_parallel_jobs, random_steps + rand_in_prev_job),
-                min_trials_observed=min(0, max_eval, random_steps),
+                min_trials_observed=min(max_eval, random_steps),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model

@@ -3921,7 +3921,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(args, ["finishing previous jobs after starting new jobs (systematic)"])
+        finish_previous_jobs(args, ["finishing previous jobs (systematic)"])
 
         _sleep(args, 1)
 

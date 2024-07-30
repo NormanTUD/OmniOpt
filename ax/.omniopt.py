@@ -3923,7 +3923,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
         _sleep(args, 1)
 
-        if nr_of_items == 0:
+        if nr_of_items == 0 and len(global_vars["jobs"]):
             _wrn = f"systematic: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
             nr_of_0_results += 1
             progressbar_description([_wrn])
@@ -3996,7 +3996,7 @@ def run_random_search(random_steps, ax_client, executor):
 
             _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items_random}, {steps_mind_worker}, random")
 
-            if nr_of_items_random == 0:
+            if nr_of_items_random == 0 and len(global_vars["jobs"]):
                 nr_of_0_results += 1
 
                 _wrn = f"random: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"

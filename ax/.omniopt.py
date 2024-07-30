@@ -3976,6 +3976,7 @@ def run_random_search(random_steps, ax_client, executor):
 
     #print(f"\nwhile not search_space_exhausted {search_space_exhausted} and rand_in_this_job {rand_in_this_job} <= random_steps {random_steps}:")
     while not search_space_exhausted and rand_in_this_job <= random_steps:
+        rand_in_this_job = count_sobol_steps() - rand_in_prev_job
         if max_eval < count_done_jobs():
             break
         log_what_needs_to_be_logged()

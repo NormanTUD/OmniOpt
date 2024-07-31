@@ -3189,9 +3189,9 @@ def get_desc_progress_text(new_msgs=[]):
 
     if random_steps > count_sobol_steps():
         if random_steps:
-            in_brackets.append(f"random phase ({abs(count_sobol_steps() - random_steps)} left)")
+            in_brackets.append(f"{current_model} ({abs(count_sobol_steps() - random_steps)} left)")
     else:
-        in_brackets.append(f"systematic phase ({abs(count_done_jobs() - max_eval) - random_steps} left)")
+        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval) - random_steps} left)")
 
     best_params = None
 

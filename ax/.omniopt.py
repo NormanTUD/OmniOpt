@@ -3945,7 +3945,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() <= max_nr_steps or len(global_vars["jobs"])) and not search_space_exhausted:
-        if count_done_jobs() > max_eval + nr_inserted_jobs:
+        if count_done_jobs() >= max_eval + nr_inserted_jobs:
+            print_debug(f"breaking run_systematic_search: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
             break
 
         log_what_needs_to_be_logged()
@@ -4018,11 +4019,13 @@ def run_random_search(random_steps, ax_client, executor):
     while not search_space_exhausted and rand_in_this_job <= random_steps:
         rand_in_this_job = count_sobol_steps() - rand_in_prev_job
         if max_eval < count_done_jobs():
+            print_debug(f"breaking run_random_search: max_eval {max_eval} < count_done_jobs() {count_done_jobs()}")
             break
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
         if submitted_jobs() >= random_steps or len(global_vars["jobs"]) == random_steps:
+            print(f"breaking run_random_search: submitted_jobs() {submitted_jobs()} >= random_steps {random_steps} or len(global_vars['jobs']) {len(global_vars['jobs'])} == random_steps {random_steps}")
             break
 
         write_process_info()

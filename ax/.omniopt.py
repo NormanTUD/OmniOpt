@@ -4291,7 +4291,7 @@ def main():
         max_nr_steps = prev_steps_nr + max_nr_steps
         #max_eval = max_nr_steps
 
-    max_eval = max_eval + prev_steps_nr
+    max_eval = max_eval + nr_inserted_jobs
     save_global_vars()
 
     write_process_info()

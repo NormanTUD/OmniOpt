@@ -3978,7 +3978,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             nr_of_0_results = 0
 
         if not args.disable_search_space_exhaustion_detection and nr_of_0_results >= args.max_nr_of_zero_results:
-            _wrn = f"run_systematic_search: nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
+            _wrn = f"sys: nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
 
             print_debug(_wrn)
             progressbar_description([_wrn])

@@ -132,6 +132,7 @@ our %options = (
         install_despite_dryrun => 0,
         overcommit => 0,
         overlap => 0,
+	use_sbatch => 0,
         filter_stdout => 1,
         run_full_tests => 0,
         run_multigpu_tests => 1,
@@ -1123,7 +1124,12 @@ sub run_srun {
                 $overlap = " --overlap ";
         }
 
-        my $command = qq#srun -N$number_of_nodes $overcommit $overlap -n$number_of_tasks --export=ALL,CUDA_VISIBLE_DEVICES $exclusive $ntasks_per_core_str $cpus_per_task_str $gpu_options --mpi=none --mem-per-cpu=$options{mempercpu} --no-kill bash -c "$bash_vars$run"#;
+	my $srun_or_sbatch = "srun";
+	if($options{use_sbatch}) {
+		$srun_or_sbatch = "sbatch";
+	}
+
+        my $command = qq#$srun_or_sbatch -N$number_of_nodes $overcommit $overlap -n$number_of_tasks --export=ALL,CUDA_VISIBLE_DEVICES $exclusive $ntasks_per_core_str $cpus_per_task_str $gpu_options --mpi=none --mem-per-cpu=$options{mempercpu} --no-kill bash -c "$bash_vars$run"#;
         $command =~ s#\s{2,}# #g;
         $command =~ s#/{2,}#/#g;
 
@@ -1568,6 +1574,7 @@ Parameters:
     --account=ACCOUNT                       Name of the account
     --overcommit                            Allow overcommitting, default: disabled
     --overlap                               Allow steps to overlap each other on the CPUs.  By default steps do not share CPUs with other parallel steps.
+    --use_sbatch                            Use sbatch instead of srun
 
 Debug and output parameters:
     --nomsgs                                Disables messages
@@ -1710,6 +1717,8 @@ sub analyze_args {
                         $options{num_gpus_per_worker} = $1;
                 } elsif ($arg =~ m#^--mempercpu=(\d+)$#) {
                         $options{mempercpu} = $1;
+                } elsif ($arg =~ m#^--use_sbatch$#) {
+                        $options{use_sbatch} = 1;
                 } elsif ($arg =~ m#^--overlap$#) {
                         $options{overlap} = 1;
                 } elsif ($arg =~ m#^--overcommit$#) {

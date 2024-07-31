@@ -4296,7 +4296,7 @@ def main():
 
     write_process_info()
 
-    max_tqdm_jobs = count_done_jobs() + max_eval
+    max_tqdm_jobs = count_manual_steps() + max_eval
 
     with tqdm(total=max_tqdm_jobs, disable=False) as _progress_bar:
         write_process_info()

@@ -3945,9 +3945,9 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() <= max_nr_steps or len(global_vars["jobs"])) and not search_space_exhausted:
-        if count_done_jobs() >= max_eval + nr_inserted_jobs:
-            print_debug(f"breaking run_systematic_search: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
-            break
+        #if count_done_jobs() >= max_eval + nr_inserted_jobs:
+        #    print_debug(f"breaking run_systematic_search: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
+        #    break
 
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)

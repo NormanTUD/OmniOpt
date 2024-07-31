@@ -3500,7 +3500,6 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     if args.model:
         if str(args.model).upper() in available_models:
-            print_yellow(f"Using model {str(args.model).upper()}")
             chosen_non_random_model = Models.__members__[str(args.model).upper()]
         else:
             print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
@@ -4133,7 +4132,18 @@ def count_defective_nodes(file_path=None, entry=None):
         print(f"Ein Fehler ist aufgetreten: {e}")
         return []
 
+def human_readable_generation_strategy (ax_client):
+    generation_strategy_str = str(ax_client.generation_strategy)
 
+    pattern = r'\[(.*?)\]'
+
+    match = re.search(pattern, generation_strategy_str)
+
+    if match:
+        content = match.group(1)
+        return content
+
+    return None
 
 @log_function_call
 def main():
@@ -4241,6 +4251,10 @@ def main():
         experiment_parameters, 
         minimize_or_maximize
     )
+
+    gs_hr = human_readable_generation_strategy(ax_client)
+    if gs_hr:
+        print(f"Generation strategy: {gs_hr}")
 
     with open(checkpoint_parameters_filepath, "w") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)

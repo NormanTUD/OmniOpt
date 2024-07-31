@@ -3185,6 +3185,8 @@ def get_desc_progress_text(new_msgs=[]):
     if failed_jobs():
         in_brackets.append(f"{bcolors.red}failed jobs: {failed_jobs()}{bcolors.endc}")
 
+    current_model = get_current_model()
+
     if random_steps > count_sobol_steps():
         if random_steps:
             in_brackets.append(f"random phase ({abs(count_sobol_steps() - random_steps)} left)")
@@ -3396,6 +3398,17 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
     add_to_phase_counter(phase, 1)
 
     return trial_counter
+
+def get_current_model ():
+    global ax_client
+
+    if ax_client:
+        gs_model = ax_client.generation_strategy.model
+
+        if gs_model:
+            return "model: " + str(gs_model.model)
+
+    return ""
 
 def _get_next_trials(args, ax_client, phase):
     global global_vars

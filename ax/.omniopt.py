@@ -3931,7 +3931,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     nr_of_0_results = 0
     write_process_info()
 
-    while submitted_jobs() < max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
+    while submitted_jobs() <= max_nr_steps or global_vars["jobs"] and not search_space_exhausted:
         if max_eval + nr_inserted_jobs < count_done_jobs():
             break
 
@@ -4328,7 +4328,7 @@ def main():
             print_debug(_wrn)
 
             raise searchSpaceExhausted("Search space exhausted")
-            
+
         run_systematic_search(args, max_nr_steps, executor, ax_client)
 
         while len(global_vars["jobs"]):

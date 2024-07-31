@@ -203,6 +203,11 @@ run_uuid = uuid.uuid4()
 
 log_stack = []
 
+def set_max_eval (new_max_eval):
+    global max_eval
+
+    max_eval = new_max_eval
+
 class LogEntry:
     def __init__(self, function_name, start_time, caller):
         self.function_name = function_name
@@ -727,7 +732,7 @@ if not args.tests:
             print(f"neither --gpus nor file {gpus_file} found")
             my_exit(19)
     else:
-        max_eval = args.max_eval
+        set_max_eval(args.max_eval)
 
     if not args.max_eval:
         if not args.continue_previous_job:
@@ -737,7 +742,7 @@ if not args.tests:
             if os.path.exists(max_eval_file):
                 max_eval_file_contents = get_file_as_string(max_eval_file).strip()
                 if max_eval_file_contents.isdigit():
-                    max_eval = int(max_eval_file_contents)
+                    set_max_eval(int(max_eval_file_contents))
                     print(f"Using old run's --max_eval: {max_eval}")
                 else:
                     print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
@@ -745,7 +750,7 @@ if not args.tests:
                 print(f"neither --max_eval nor file {max_eval_file} found")
                 my_exit(19)
     else:
-        max_eval = args.max_eval
+        set_max_eval(args.max_eval)
 
         if max_eval <= 0:
             print_red("--max_eval must be larger than 0")
@@ -3477,7 +3482,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     #    rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
 
     if max_eval is None:
-        max_eval = max(1, random_steps)
+        set_max_eval(max(1, random_steps))
 
     if random_steps >= 1: 
         # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
@@ -3637,7 +3642,7 @@ def get_number_of_steps(args, max_eval):
         original_print(f"random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
 
     if random_steps > max_eval:
-        max_eval = random_steps
+        set_max_eval(random_steps)
 
     original_second_steps = max_eval - random_steps
     second_step_steps = max(0, original_second_steps)
@@ -4215,7 +4220,7 @@ def main():
     if not args.verbose:
         disable_logging()
 
-    max_eval = args.max_eval
+    set_max_eval(args.max_eval)
 
     if not max_eval:
         print_red("--max_eval needs to be set!")
@@ -4281,7 +4286,7 @@ def main():
     max_nr_steps = second_step_steps
     if count_done_jobs() < random_steps:
         max_nr_steps = (random_steps - count_done_jobs()) + second_step_steps
-        max_eval = max_nr_steps
+        set_max_eval(max_nr_steps)
 
     prev_steps_nr = 0
 
@@ -4289,9 +4294,9 @@ def main():
         prev_steps_nr = get_steps_from_prev_job(args.continue_previous_job)
 
         max_nr_steps = prev_steps_nr + max_nr_steps
-        #max_eval = max_nr_steps
+        #set_max_eval(max_nr_steps)
 
-    max_eval = max_eval + nr_inserted_jobs
+    set_max_eval(max_eval + nr_inserted_jobs)
     save_global_vars()
 
     write_process_info()

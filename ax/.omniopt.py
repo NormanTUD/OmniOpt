@@ -1111,10 +1111,6 @@ def parse_experiment_parameters(args):
 
             param_names.append(name)
 
-            if not j + 1 in this_args:
-                print_red(f"Not enough arguments for --parameter")
-                my_exit(181)
-
             param_type = this_args[j + 1]
 
             valid_types = ["range", "fixed", "choice"]

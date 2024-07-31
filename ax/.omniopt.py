@@ -3945,8 +3945,8 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() <= max_nr_steps or len(global_vars["jobs"])) and not search_space_exhausted:
-        if count_done_jobs() >= max_eval + nr_inserted_jobs:
-            print_debug(f"breaking run_systematic_search: count_done_jobs() {count_done_jobs()} >= max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
+        if (count_done_jobs() - count_manual_steps()) >= max_eval + nr_inserted_jobs:
+            print_debug(f"breaking run_systematic_search: (count_done_jobs() {count_done_jobs()} - count_manual_steps() {count_manual_steps()}) >= max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
             break
 
         log_what_needs_to_be_logged()
@@ -4321,17 +4321,17 @@ def main():
 
     write_process_info()
 
-    max_tqdm_jobs = count_manual_steps() + max_eval
+    #max_tqdm_jobs = count_manual_steps() + max_eval
     #print(f"max_tqdm_jobs {max_tqdm_jobs} = count_manual_steps: {count_manual_steps()} + max_eval: {max_eval}")
 
-    with tqdm(total=max_tqdm_jobs, disable=False) as _progress_bar:
+    with tqdm(total=max_eval, disable=False) as _progress_bar:
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar
 
         progressbar_description([f"Started OmniOpt2 run..."])
 
-        progress_bar.update(count_done_jobs())
+        progress_bar.update(count_done_jobs() - count_manual_steps())
 
         run_random_search(random_steps, ax_client, executor)
 

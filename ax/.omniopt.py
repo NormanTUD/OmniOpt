@@ -3581,7 +3581,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     trial_index_to_param = None
     try:
-        print_debug("{phase}: trying to get trial_index_to_param")
+        print_debug(f"{phase}: trying to get trial_index_to_param")
 
         try:
             trial_index_to_param = _get_next_trials(args, ax_client, phase)
@@ -3937,6 +3937,7 @@ def start_nvidia_smi_thread():
 
 @log_function_call
 def run_systematic_search(args, max_nr_steps, executor, ax_client):
+    print("run_systematic_search")
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4008,6 +4009,7 @@ def wait_for_jobs_to_complete (num_parallel_jobs):
 
 @log_function_call
 def run_random_search(random_steps, ax_client, executor):
+    print("run_random_search")
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4024,8 +4026,9 @@ def run_random_search(random_steps, ax_client, executor):
 
     while not search_space_exhausted and rand_in_this_job <= random_steps:
         rand_in_this_job = count_sobol_steps() - rand_in_prev_job
-        if max_eval <= submitted_jobs():
-            print_debug(f"breaking run_random_search: max_eval {max_eval} <= submitted_jobs() {submitted_jobs()}")
+
+        if submitted_jobs() >= random_steps:
+            print_debug(f"breaking run_random_search: submitted_jobs() {submitted_jobs()} >= random_steps {random_steps}")
             finish_previous_jobs_random(args)
             break
 

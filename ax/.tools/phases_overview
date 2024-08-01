@@ -55,7 +55,7 @@ if [[ ! -z $manual ]]; then
 		red_text "Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL"
 		errors+=("Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL")
 	else
-		green_text "Number of systematic steps OK"
+		green_text "Number of manual steps OK"
 	fi
 fi
 

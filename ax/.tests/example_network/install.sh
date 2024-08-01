@@ -82,6 +82,7 @@ source $VENV_DIR/bin/activate || {
 FROZEN=$(pip3 freeze)
 
 ppip decorator
+ppip six
 if [[ ! -z $LMOD_CMD ]]; then
 	ppip tensorflow
 fi

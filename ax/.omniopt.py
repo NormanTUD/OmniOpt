@@ -3410,7 +3410,7 @@ def get_current_model ():
         gs_model = ax_client.generation_strategy.model
 
         if gs_model:
-            return "model: " + str(gs_model.model)
+            return str(gs_model.model)
 
     return "initializing"
 

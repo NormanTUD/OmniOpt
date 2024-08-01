@@ -3958,6 +3958,10 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         finish_previous_jobs(args, ["finishing jobs"])
 
+        if abs(count_done_jobs() - max_eval) - random_steps <= 0:
+            print_debug("if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval}) - random_steps {random_steps} <= 0")
+            break
+
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
 
         nr_of_items = 0

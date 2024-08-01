@@ -50,15 +50,6 @@ if [[ ! -z $random_phase ]]; then
 	fi
 fi
 
-if [[ ! -z $manual ]]; then
-	if [[ $NR_MANUAL -ne $manual ]]; then
-		red_text "Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL"
-		errors+=("Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL")
-	else
-		green_text "Number of manual steps OK"
-	fi
-fi
-
 if [[ ! -z $systematic_phase ]]; then
 	if [[ $NR_SYSTEMATIC -ne $systematic_phase ]]; then
 		red_text "Number of systematic steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC"
@@ -68,6 +59,14 @@ if [[ ! -z $systematic_phase ]]; then
 	fi
 fi
 
+if [[ ! -z $manual ]]; then
+	if [[ $NR_MANUAL -ne $manual ]]; then
+		red_text "Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL"
+		errors+=("Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL")
+	else
+		green_text "Number of manual steps OK"
+	fi
+fi
 
 if [[ ! -z $systematic_phase ]] || [[ ! -z $manual ]] || [[ ! -z $random_phase ]]; then
 	if [ ${#errors[@]} -eq 0 ]; then

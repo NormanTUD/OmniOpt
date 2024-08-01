@@ -77,6 +77,7 @@ source $VENV_DIR/bin/activate || {
 
 FROZEN=$(pip3 freeze)
 
+ppip decorator
 ppip tensorflow
 ppip tensorflowjs
 ppip protobuf

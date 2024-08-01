@@ -3936,7 +3936,7 @@ def start_nvidia_smi_thread():
     return None
 
 @log_function_call
-def run_systematic_search(args, max_nr_steps, executor, ax_client):
+def run_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
     global nr_of_0_results
 
@@ -3947,7 +3947,7 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
 
     while (submitted_jobs() <= max_nr_steps or len(global_vars["jobs"])) and not search_space_exhausted:
         if (count_done_jobs() - count_manual_steps()) > max_eval + nr_inserted_jobs:
-            print_debug(f"breaking run_systematic_search: (count_done_jobs() {count_done_jobs()} - count_manual_steps() {count_manual_steps()}) > max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
+            print_debug(f"breaking run_search: (count_done_jobs() {count_done_jobs()} - count_manual_steps() {count_manual_steps()}) > max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
             break
 
         log_what_needs_to_be_logged()
@@ -4007,7 +4007,7 @@ def wait_for_jobs_to_complete (num_parallel_jobs):
             clean_completed_jobs()
 
 @log_function_call
-def run_random_search(random_steps, ax_client, executor):
+def run_random_search(args, random_steps, executor, ax_client):
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4349,10 +4349,10 @@ def main():
 
         progressbar_description([f"Started OmniOpt2 run..."])
 
-        progress_bar.update(count_done_jobs() - count_manual_steps())
+        progress_bar.update(count_done_jobs())
 
-        run_random_search(random_steps, ax_client, executor)
-        run_systematic_search(args, max_nr_steps - random_steps, executor, ax_client)
+        #run_random_search(args, random_steps, executor, ax_client)
+        run_search(args, max_eval, executor, ax_client)
 
     save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)

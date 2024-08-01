@@ -3937,7 +3937,6 @@ def start_nvidia_smi_thread():
 
 @log_function_call
 def run_systematic_search(args, max_nr_steps, executor, ax_client):
-    print("run_systematic_search")
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4009,7 +4008,6 @@ def wait_for_jobs_to_complete (num_parallel_jobs):
 
 @log_function_call
 def run_random_search(random_steps, ax_client, executor):
-    print("run_random_search")
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4355,7 +4353,7 @@ def main():
 
         run_random_search(random_steps, ax_client, executor)
 
-        run_systematic_search(args, max_nr_steps, executor, ax_client)
+        run_systematic_search(args, max_nr_steps - random_steps, executor, ax_client)
 
     save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)

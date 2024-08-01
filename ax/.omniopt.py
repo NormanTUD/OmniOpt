@@ -3593,7 +3593,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
                     while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(args, ["finishing previous jobs"])
+                        finish_previous_jobs(args, ["finishing prev jobs"])
                         time.sleep(5)
 
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
@@ -3974,7 +3974,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(args, ["finishing previous jobs"])
+        finish_previous_jobs(args, ["finishing prev jobs"])
 
         _sleep(args, 1)
 

@@ -68,18 +68,21 @@ if [[ ! -z $systematic_phase ]]; then
 	fi
 fi
 
-secs=$SECONDS
-hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
-printf 'phases_overview test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
-if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No phases-overview errors"
-	exit 0
-else
-	red_text "=> phases-overview-ERRORS => phases-overview-ERRORS => phases-overview-ERRORS =>"
-	for i in "${errors[@]}"; do
-		red_text "$i"
-	done
+if [[ ! -z $systematic_phase ]] || [[ ! -z $manual ]] || [[ ! -z $random_phase ]]; then
+	if [ ${#errors[@]} -eq 0 ]; then
+		green_text "No phases-overview errors"
+		exit 0
+	else
+		red_text "=> phases-overview-ERRORS => phases-overview-ERRORS => phases-overview-ERRORS =>"
+		for i in "${errors[@]}"; do
+			red_text "$i"
+		done
 
-	exit ${#errors[@]}
+		exit ${#errors[@]}
+	fi
+
+	secs=$SECONDS
+	hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+	printf 'phases_overview test took: %02d:%02d:%02d\n' $hrs $mins $secs
 fi

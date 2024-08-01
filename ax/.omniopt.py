@@ -3948,8 +3948,11 @@ def run_search(args, max_nr_steps, executor, ax_client):
     nr_of_0_results = 0
     write_process_info()
 
-    while (submitted_jobs() <= max_nr_steps or len(global_vars["jobs"])) and not search_space_exhausted:
-        if count_done_jobs() > max_eval:
+    while (submitted_jobs() <= max_eval) and not search_space_exhausted:
+        while len(global_vars["jobs"]):
+            wait_for_jobs_to_complete(num_parallel_jobs)
+
+        if submitted_jobs() > max_eval:
             print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
             break
 

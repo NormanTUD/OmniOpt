@@ -3197,7 +3197,7 @@ def get_desc_progress_text(new_msgs=[]):
         if random_steps:
             in_brackets.append(f"{current_model} ({abs(count_sobol_steps() - random_steps)} left)")
     else:
-        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval)} left)")
+        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval - random_steps)} left)")
 
     best_params = None
 
@@ -3951,8 +3951,8 @@ def run_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() <= max_nr_steps or len(global_vars["jobs"])) and not search_space_exhausted:
-        if (count_done_jobs() - count_manual_steps()) > max_eval + nr_inserted_jobs:
-            print_debug(f"breaking run_search: (count_done_jobs() {count_done_jobs()} - count_manual_steps() {count_manual_steps()}) > max_eval {max_eval} + nr_inserted_jobs {nr_inserted_jobs}")
+        if count_done_jobs() > max_eval:
+            print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
             break
 
         log_what_needs_to_be_logged()

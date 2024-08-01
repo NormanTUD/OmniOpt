@@ -2,9 +2,6 @@
 
 FROZEN=""
 
-if [[ ! -z $LMOD_CMD ]]; then
-fi
-
 function ppip {
 	set +e
 	echo "$FROZEN" | grep -i "$1" 2>/dev/null >/dev/null

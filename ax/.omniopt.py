@@ -4352,7 +4352,6 @@ def main():
         progress_bar.update(count_done_jobs() - count_manual_steps())
 
         run_random_search(random_steps, ax_client, executor)
-
         run_systematic_search(args, max_nr_steps - random_steps, executor, ax_client)
 
     save_logs_to_json(f'{current_run_folder}/function_logs.json')

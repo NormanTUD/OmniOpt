@@ -2877,8 +2877,6 @@ def load_data_from_existing_run_folders(args, _paths):
 
             trial_idx = 0
             for old_trial_index in old_trials:
-                # TODO!!! Wird nicht mehr richtig importiert.?
-                continue
                 if len(_paths) > 1:
                     status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)})...")
                 else:
@@ -3197,7 +3195,7 @@ def get_desc_progress_text(new_msgs=[]):
         if random_steps:
             in_brackets.append(f"{current_model} ({abs(count_sobol_steps() - random_steps)} left)")
     else:
-        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval - random_steps)} left)")
+        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval) - random_steps} left)")
 
     best_params = None
 

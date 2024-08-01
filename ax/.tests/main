@@ -326,7 +326,7 @@ _test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_paral
 _test_nr_jobs 1 $num_random_steps $(($max_eval-$num_random_steps)) $max_eval
 
 _test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float" 0
-_test_nr_jobs 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
+_test_nr_jobs 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) $(($max_eval*2))
 
 _test "Test search space exhaustion" "./omniopt --partition=$partition --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=10 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --parameter x choice 0,1 --follow" 87
 

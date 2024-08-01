@@ -2881,7 +2881,9 @@ def load_data_from_existing_run_folders(args, _paths):
                     status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)})...")
                 else:
                     status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)})...")
+
                 trial_idx += 1
+
                 old_trial = old_trials[old_trial_index]
                 trial_status = old_trial.status
                 trial_status_str = trial_status.__repr__
@@ -2951,6 +2953,7 @@ def load_data_from_existing_run_folders(args, _paths):
                     already_inserted_param_data.append(old_arm_parameter_with_result)
 
             path_idx += 1
+
         headers, rows = extract_headers_and_rows(already_inserted_param_data)
 
         if headers and rows:

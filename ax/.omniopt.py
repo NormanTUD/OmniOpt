@@ -4019,8 +4019,8 @@ def run_random_search(random_steps, ax_client, executor):
 
     while not search_space_exhausted and rand_in_this_job <= random_steps:
         rand_in_this_job = count_sobol_steps() - rand_in_prev_job
-        if max_eval <= count_done_jobs():
-            print_debug(f"breaking run_random_search: max_eval {max_eval} <= count_done_jobs() {count_done_jobs()}")
+        if max_eval <= submitted_jobs():
+            print_debug(f"breaking run_random_search: max_eval {max_eval} <= submitted_jobs() {submitted_jobs()}")
             break
 
         log_what_needs_to_be_logged()
@@ -4070,6 +4070,8 @@ def run_random_search(random_steps, ax_client, executor):
         _sleep(args, 0.1)
         write_process_info()
         log_what_needs_to_be_logged()
+
+    finish_previous_jobs_random(args)
 
     log_what_needs_to_be_logged()
 
@@ -4334,8 +4336,6 @@ def main():
         progress_bar.update(count_done_jobs() - count_manual_steps())
 
         run_random_search(random_steps, ax_client, executor)
-
-        finish_previous_jobs_random(args)
 
         if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) < 0:
             _wrn = f"searchSpaceExhausted: not args.disable_search_space_exhaustion_detection {args.disable_search_space_exhaustion_detection} and (max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}) < 0"

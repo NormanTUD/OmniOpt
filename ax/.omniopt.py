@@ -2185,8 +2185,8 @@ def to_int_when_possible(val):
 
 @log_function_call
 def save_pd_csv():
-    print_debug("save_pd_csv()")
     global ax_client
+    #print_debug("save_pd_csv()")
 
     pd_csv = f'{current_run_folder}/{pd_csv_filename}'
     pd_json = f'{current_run_folder}/state_files/pd.json'
@@ -2212,7 +2212,7 @@ def save_pd_csv():
 
         save_experiment(ax_client.experiment, f"{current_run_folder}/state_files/ax_client.experiment.json")
 
-        print_debug("pd.{csv,json} saved")
+        #print_debug("pd.{csv,json} saved")
     except signalUSR as e:
         raise signalUSR(str(e))
     except signalCONT as e:

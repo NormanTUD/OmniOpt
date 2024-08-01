@@ -3192,7 +3192,7 @@ def get_desc_progress_text(new_msgs=[]):
         if random_steps:
             in_brackets.append(f"{current_model} ({abs(count_sobol_steps() - random_steps)} left)")
     else:
-        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval) - random_steps} left)")
+        in_brackets.append(f"{current_model} ({abs(count_done_jobs() - max_eval)} left)")
 
     best_params = None
 

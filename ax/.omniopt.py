@@ -3963,7 +3963,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
         nr_of_items = 0
 
         if next_nr_steps:
-            progressbar_description([f"sys: trying to get {next_nr_steps} next steps"])
+            progressbar_description([f"trying to get {next_nr_steps} next steps"])
             nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
@@ -3975,7 +3975,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
         _sleep(args, 1)
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
-            _wrn = f"sys: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
+            _wrn = f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
             nr_of_0_results += 1
             progressbar_description([_wrn])
             print_debug(_wrn)
@@ -3983,7 +3983,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
             nr_of_0_results = 0
 
         if not args.disable_search_space_exhaustion_detection and nr_of_0_results >= args.max_nr_of_zero_results:
-            _wrn = f"sys: nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
+            _wrn = f"nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
 
             print_debug(_wrn)
             progressbar_description([_wrn])

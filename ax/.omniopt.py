@@ -3393,7 +3393,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print(tb)
         print_red(f"\n⚠ Starting job failed with error: {e}")
 
-    finish_previous_jobs(args, ["finishing jobs"])
+    finish_previous_jobs(args, [])
 
     add_to_phase_counter(phase, 1)
 
@@ -3952,7 +3952,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-        finish_previous_jobs(args, ["finishing jobs"])
+        finish_previous_jobs(args, [])
 
         if abs(count_done_jobs() - max_eval) - random_steps <= 0:
             print_debug("if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval}) - random_steps {random_steps} <= 0")

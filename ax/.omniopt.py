@@ -3949,9 +3949,6 @@ def run_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() <= max_eval) and not search_space_exhausted:
-        while len(global_vars["jobs"]):
-            wait_for_jobs_to_complete(num_parallel_jobs)
-
         if submitted_jobs() > max_eval:
             print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
             break
@@ -3994,6 +3991,8 @@ def run_search(args, max_nr_steps, executor, ax_client):
             raise searchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
+
+    wait_for_jobs_to_complete(num_parallel_jobs)
 
     while len(global_vars["jobs"]):
         finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])

@@ -82,7 +82,9 @@ source $VENV_DIR/bin/activate || {
 FROZEN=$(pip3 freeze)
 
 ppip decorator
-ppip tensorflow
+if [[ ! -z $LMOD_CMD ]]; then
+	ppip tensorflow
+fi
 ppip tensorflowjs
 ppip protobuf
 ppip scikit-image

@@ -2061,7 +2061,8 @@ def write_worker_usage():
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
     else:
-        print_debug(f"worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
+        if is_slurm_job():
+            print_debug(f"worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
 @log_function_call
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
@@ -4337,8 +4338,8 @@ def main():
 
         finish_previous_jobs_random(args)
 
-        if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) <= 0:
-            _wrn = f"searchSpaceExhausted: max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs} <= 0"
+        if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) < 0:
+            _wrn = f"searchSpaceExhausted: not args.disable_search_space_exhaustion_detection {args.disable_search_space_exhaustion_detection} and (max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}) < 0"
 
             progressbar_description([_wrn])
             print_debug(_wrn)

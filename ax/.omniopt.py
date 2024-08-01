@@ -4025,8 +4025,8 @@ def run_random_search(random_steps, ax_client, executor):
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-        if submitted_jobs() > random_steps or len(global_vars["jobs"]) == random_steps:
-            print_debug(f"breaking run_random_search: submitted_jobs() {submitted_jobs()} > random_steps {random_steps} or len(global_vars['jobs']) {len(global_vars['jobs'])} == random_steps {random_steps}")
+        if count_done_jobs() > random_steps or len(global_vars["jobs"]) == random_steps:
+            print_debug(f"breaking run_random_search: count_done_jobs() {count_done_jobs()} > random_steps {random_steps} or len(global_vars['jobs']) {len(global_vars['jobs'])} == random_steps {random_steps}")
             break
 
         write_process_info()

@@ -3988,6 +3988,11 @@ def run_systematic_search(args, max_nr_steps, executor, ax_client):
             raise searchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
+
+    while len(global_vars["jobs"]):
+        finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+        _sleep(args, 1)
+
     log_what_needs_to_be_logged()
     return False
 
@@ -4021,6 +4026,7 @@ def run_random_search(random_steps, ax_client, executor):
         rand_in_this_job = count_sobol_steps() - rand_in_prev_job
         if max_eval <= submitted_jobs():
             print_debug(f"breaking run_random_search: max_eval {max_eval} <= submitted_jobs() {submitted_jobs()}")
+            finish_previous_jobs_random(args)
             break
 
         log_what_needs_to_be_logged()
@@ -4028,6 +4034,7 @@ def run_random_search(random_steps, ax_client, executor):
 
         if count_done_jobs() > random_steps or len(global_vars["jobs"]) == random_steps:
             print_debug(f"breaking run_random_search: count_done_jobs() {count_done_jobs()} > random_steps {random_steps} or len(global_vars['jobs']) {len(global_vars['jobs'])} == random_steps {random_steps}")
+            finish_previous_jobs_random(args)
             break
 
         write_process_info()
@@ -4072,6 +4079,14 @@ def run_random_search(random_steps, ax_client, executor):
         log_what_needs_to_be_logged()
 
     finish_previous_jobs_random(args)
+
+    if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) < 0:
+        _wrn = f"searchSpaceExhausted: not args.disable_search_space_exhaustion_detection {args.disable_search_space_exhaustion_detection} and (max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}) < 0"
+
+        progressbar_description([_wrn])
+        print_debug(_wrn)
+
+        raise searchSpaceExhausted("Search space exhausted")
 
     log_what_needs_to_be_logged()
 
@@ -4337,19 +4352,7 @@ def main():
 
         run_random_search(random_steps, ax_client, executor)
 
-        if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) < 0:
-            _wrn = f"searchSpaceExhausted: not args.disable_search_space_exhaustion_detection {args.disable_search_space_exhaustion_detection} and (max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}) < 0"
-
-            progressbar_description([_wrn])
-            print_debug(_wrn)
-
-            raise searchSpaceExhausted("Search space exhausted")
-
         run_systematic_search(args, max_nr_steps, executor, ax_client)
-
-        while len(global_vars["jobs"]):
-            finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-            _sleep(args, 1)
 
     save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)

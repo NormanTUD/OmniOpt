@@ -76,6 +76,9 @@ source $VENV_DIR/bin/activate || {
 }
 
 FROZEN=$(pip3 freeze)
+if [[ ! -z $LMOD_CMD ]]; then
+	ml release/24.04  GCC/11.3.0  OpenMPI/4.1.4 TensorFlow/2.9.1
+fi
 
 ppip decorator
 ppip tensorflow

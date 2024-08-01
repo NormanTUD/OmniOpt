@@ -3,7 +3,6 @@
 FROZEN=""
 
 if [[ ! -z $LMOD_CMD ]]; then
-	ml release/24.04 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.9.1
 fi
 
 function ppip {
@@ -57,7 +56,7 @@ if [[ -d $LMOD_DIR ]]; then
 		eval "$($LMOD_DIR/ml_cmd "$@")"
 	}
 
-	ml release/23.10 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.11.0-CUDA-11.7.0
+	ml release/24.04 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.9.1
 fi
 
 VENV_DIR=$HOME/.omniopt_test_install_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
@@ -83,7 +82,7 @@ FROZEN=$(pip3 freeze)
 
 ppip decorator
 ppip six
-if [[ ! -z $LMOD_CMD ]]; then
+if [[ ! -d $LMOD_DIR ]]; then
 	ppip tensorflow
 fi
 ppip tensorflowjs

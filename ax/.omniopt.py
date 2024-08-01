@@ -3033,6 +3033,8 @@ def finish_previous_jobs(args, new_msgs):
                         progressbar_description([f"new result: {result}"])
                         _trial.mark_completed(unsafe=True)
                         succeeded_jobs(1)
+
+                        progress_bar.update(1)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     print_outfile_analyzed(job)
@@ -3103,8 +3105,6 @@ def finish_previous_jobs(args, new_msgs):
                 jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
-
-            progress_bar.update(1)
 
             if args.verbose:
                 progressbar_description([f"saving checkpoints and {pd_csv_filename}"])
@@ -3378,7 +3378,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             global_vars["jobs"].remove((new_job, trial_index))
             print_debug("Removed failed job")
 
-            progress_bar.update(1)
+            #progress_bar.update(1)
 
             save_checkpoint()
             save_pd_csv()

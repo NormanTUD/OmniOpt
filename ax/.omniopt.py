@@ -3414,7 +3414,7 @@ def get_current_model ():
 
     return "initializing"
 
-def _get_next_trials(args, ax_client, phase):
+def _get_next_trials(args, ax_client):
     global global_vars
 
     finish_previous_jobs(args, ["finishing jobs (_get_next_trials)"])
@@ -3433,7 +3433,7 @@ def _get_next_trials(args, ax_client, phase):
     if real_num_parallel_jobs == 0:
         return None
 
-    base_msg = f"{phase}: getting {real_num_parallel_jobs} trials "
+    base_msg = f"getting {real_num_parallel_jobs} trials "
 
     if system_has_sbatch:
         if last_ax_client_time:
@@ -3584,19 +3584,19 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     trial_index_to_param = None
     try:
-        print_debug(f"{phase}: trying to get trial_index_to_param")
+        print_debug(f"trying to get trial_index_to_param")
 
         try:
-            trial_index_to_param = _get_next_trials(args, ax_client, phase)
+            trial_index_to_param = _get_next_trials(args, ax_client)
 
             if trial_index_to_param:
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
                     while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(args, ["finishing previous jobs ({phase})"])
+                        finish_previous_jobs(args, ["finishing previous jobs"])
                         time.sleep(5)
 
-                    progressbar_description([f"starting parameter set ({phase}, {i}/{next_nr_steps})"])
+                    progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                     execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                     i += 1
         except botorch.exceptions.errors.InputDataError as e:
@@ -3970,7 +3970,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(args, ["finishing previous jobs (systematic)"])
+        finish_previous_jobs(args, ["finishing previous jobs"])
 
         _sleep(args, 1)
 

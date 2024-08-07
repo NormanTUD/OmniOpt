@@ -2803,8 +2803,8 @@ def load_existing_job_data_into_ax_client(args):
         for this_path in args.load_previous_job_data:
             load_data_from_existing_run_folders(args, this_path)
 
-    if args.continue_previous_job:
-        load_data_from_existing_run_folders(args, [args.continue_previous_job])
+    #if args.continue_previous_job:
+    #    load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
     if len(already_inserted_param_hashes.keys()):
         if len(missing_results):
@@ -2951,7 +2951,7 @@ def get_list_import_as_string (_brackets=True, _comma=False):
 
 @log_function_call
 def load_data_from_existing_run_folders(args, _paths):
-    return
+    #return
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes

@@ -3704,7 +3704,7 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
 
     return gs, _steps
 
-def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
+def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase, max_eval):
     global random_steps
 
     #print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
@@ -3721,15 +3721,13 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
             if trial_index_to_param:
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
-                    if count_done_jobs() >= max_eval:
-                        print_debug(f"breaking create_and_execute_next_runs: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+                    if break_run_search("create_and_execute_next_runs", max_eval):
                         break
 
                     while len(global_vars["jobs"]) > num_parallel_jobs:
                         finish_previous_jobs(args, ["finishing prev jobs"])
 
-                        if count_done_jobs() >= max_eval:
-                            print_debug(f"breaking create_and_execute_next_runs: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+                        if break_run_search("create_and_execute_next_runs", max_eval):
                             break
 
                         time.sleep(5)
@@ -4079,6 +4077,25 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
+def break_run_search (_name, max_eval):
+    if succeeded_jobs() > max_eval:
+        print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {max_eval}")
+        return True
+
+    if count_done_jobs() >= max_eval:
+        print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+        return True
+
+    if submitted_jobs() > max_eval:
+        print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {max_eval}")
+        return True
+
+    if abs(count_done_jobs() - max_eval - nr_inserted_jobs) <= 0:
+        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - nr_inserted_jobs {nr_inserted_jobs}) <= 0")
+        return True
+
+    return False
+
 @log_function_call
 def run_search(args, max_nr_steps, executor, ax_client):
     global search_space_exhausted
@@ -4090,21 +4107,12 @@ def run_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() <= max_eval) and not search_space_exhausted:
-        if count_done_jobs() >= max_eval:
-            print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
-            break
-
-        if submitted_jobs() > max_eval:
-            print_debug(f"breaking run_search: submitted_jobs() {submitted_jobs()} > max_eval {max_eval}")
-            break
-
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
         finish_previous_jobs(args, [])
 
-        if abs(count_done_jobs() - max_eval - nr_inserted_jobs) <= 0:
-            print_debug(f"if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - nr_inserted_jobs {nr_inserted_jobs}) <= 0")
+        if break_run_search("run_search", max_eval):
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -4113,7 +4121,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps"])
-            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic")
+            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic", max_eval)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -4423,6 +4431,8 @@ def main():
         progress_bar.update(count_done_jobs())
 
         run_search(args, max_eval, executor, ax_client)
+
+        wait_for_jobs_to_complete(num_parallel_jobs)
 
     save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)

@@ -2395,12 +2395,12 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         with open(original_ax_client_file) as f:
             loaded_original_ax_client_json = json.load(f)
             original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+            dier("LEN: " + str(len(original_generation_strategy["trials"])))
 
         if original_generation_strategy:
             experiment_parameters["generation_strategy"] = original_generation_strategy
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-
 
         ax_client = (AxClient.load_from_json_file(tmp_file_path))
         #dier(human_readable_generation_strategy(ax_client))

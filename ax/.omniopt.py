@@ -2694,6 +2694,13 @@ def check_equation(variables, equation):
 
     return equation
 
+def update_progress_bar (progress_bar, nr):
+    #import traceback
+    #print(f"update_progress_bar(progress_bar, {nr})")
+    #traceback.print_stack()
+
+    progress_bar.update(nr)
+
 def progressbar_description(new_msgs=[]):
     global result_csv_file
     global random_steps
@@ -3145,7 +3152,8 @@ def finish_previous_jobs(args, new_msgs):
                         _trial.mark_completed(unsafe=True)
                         succeeded_jobs(1)
 
-                        progress_bar.update(1)
+                        #update_progress_bar(progress_bar, 1)
+                        update_progress_bar(progress_bar, count_done_jobs())
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     print_outfile_analyzed(job)
@@ -3487,7 +3495,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             global_vars["jobs"].remove((new_job, trial_index))
             print_debug("Removed failed job")
 
-            #progress_bar.update(1)
+            #update_progress_bar(1)
 
             save_checkpoint()
             save_pd_csv()
@@ -3525,7 +3533,7 @@ def _get_next_trials(args, ax_client):
 
     finish_previous_jobs(args, ["finishing jobs (_get_next_trials)"])
 
-    if break_run_search("_get_next_trials", max_eval):
+    if break_run_search("_get_next_trials", max_eval, progress_bar):
         return
 
     last_ax_client_time = None
@@ -3707,7 +3715,7 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
 
     return gs, _steps
 
-def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase, max_eval):
+def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase, max_eval, progress_bar):
     global random_steps
 
     #print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
@@ -3724,13 +3732,13 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
             if trial_index_to_param:
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
-                    if break_run_search("create_and_execute_next_runs", max_eval):
+                    if break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
                         break
 
                     while len(global_vars["jobs"]) > num_parallel_jobs:
                         finish_previous_jobs(args, ["finishing prev jobs"])
 
-                        if break_run_search("create_and_execute_next_runs", max_eval):
+                        if break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
                             break
 
                         time.sleep(5)
@@ -4080,9 +4088,13 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
-def break_run_search (_name, max_eval):
+def break_run_search (_name, max_eval, progress_bar):
     if succeeded_jobs() > max_eval:
         print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {max_eval}")
+        return True
+
+    if progress_bar.total < submitted_jobs():
+        print_debug(f"breaking {_name}: progress_bar.total {progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
         return True
 
     if count_done_jobs() >= max_eval:
@@ -4100,7 +4112,7 @@ def break_run_search (_name, max_eval):
     return False
 
 @log_function_call
-def run_search(args, max_nr_steps, executor, ax_client):
+def run_search(args, max_nr_steps, executor, ax_client, progress_bar):
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4115,7 +4127,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         finish_previous_jobs(args, [])
 
-        if break_run_search("run_search", max_eval):
+        if break_run_search("run_search", max_eval, progress_bar):
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -4124,7 +4136,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps"])
-            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic", max_eval)
+            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic", max_eval, progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -4431,9 +4443,9 @@ def main():
 
         progressbar_description([f"Started OmniOpt2 run..."])
 
-        progress_bar.update(count_done_jobs())
+        update_progress_bar(progress_bar, count_done_jobs())
 
-        run_search(args, max_eval, executor, ax_client)
+        run_search(args, max_eval, executor, ax_client, progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 

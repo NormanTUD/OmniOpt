@@ -1866,7 +1866,7 @@ def print_best_result(csv_file_path, result_column):
             print_red("Best result could not be determined")
             return 87
         else:
-            table = Table(show_header=True, header_style="bold", title="Best parameter:")
+            table = Table(show_header=True, header_style="bold", title=f"Best parameter (total: {count_done_jobs()}, failed: {failed_jobs()}):")
 
             k = 0
             for key in best_params["parameters"].keys():

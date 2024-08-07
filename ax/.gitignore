@@ -185,3 +185,4 @@ old_runs
 .pip_logs
 git_hash
 runs_OLD
+.dont_ask_upgrade_omniopt

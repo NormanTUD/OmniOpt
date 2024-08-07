@@ -2818,6 +2818,9 @@ def load_existing_job_data_into_ax_client(args):
         if len(double_hashes) - len(already_inserted_param_hashes.keys()):
             print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
             nr_inserted_jobs += len(already_inserted_param_hashes.keys())
+    else:
+        nr_of_imported_jobs = get_nr_of_imported_jobs(args)
+        nr_inserted_jobs += nr_of_imported_jobs
 
 @log_function_call
 def parse_parameter_type_error(error_message):
@@ -2948,6 +2951,7 @@ def get_list_import_as_string (_brackets=True, _comma=False):
 
 @log_function_call
 def load_data_from_existing_run_folders(args, _paths):
+    return
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes
@@ -3715,8 +3719,17 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
             if trial_index_to_param:
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
+                    if count_done_jobs() >= max_eval:
+                        print_debug(f"breaking create_and_execute_next_runs: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+                        break
+
                     while len(global_vars["jobs"]) > num_parallel_jobs:
                         finish_previous_jobs(args, ["finishing prev jobs"])
+
+                        if count_done_jobs() >= max_eval:
+                            print_debug(f"breaking create_and_execute_next_runs: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+                            break
+
                         time.sleep(5)
 
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
@@ -4075,8 +4088,12 @@ def run_search(args, max_nr_steps, executor, ax_client):
     write_process_info()
 
     while (submitted_jobs() < max_eval) and not search_space_exhausted:
-        if submitted_jobs() > max_eval:
+        if count_done_jobs() >= max_eval:
             print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+            break
+
+        if submitted_jobs() > max_eval:
+            print_debug(f"breaking run_search: submitted_jobs() {submitted_jobs()} > max_eval {max_eval}")
             break
 
         log_what_needs_to_be_logged()

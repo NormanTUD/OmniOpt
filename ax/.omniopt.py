@@ -3263,7 +3263,7 @@ def get_desc_progress_text(new_msgs=[]):
             if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
                 worker_percentage_usage.append(this_values)
 
-    in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
+    #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
 
     if args.verbose_tqdm:
         if submitted_jobs():
@@ -3601,12 +3601,12 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
     #print(f"    )")
     #print(f")")
 
-    _nr_trials = max_eval - max(num_parallel_jobs, random_steps) + nr_of_imported_jobs
+    _nr_trials = max_eval - random_steps + nr_of_imported_jobs
 
     if _nr_trials <= 0:
         _nr_trials = -1
 
-    _nr_trials = -1
+    #_nr_trials = -1
     #print(f"_nr_trials: {_nr_trials}")
 
     _steps.append(

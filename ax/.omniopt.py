@@ -214,6 +214,7 @@ max_eval = None
 random_steps = None
 progress_bar = None
 searching_for = None
+sum_of_values_for_tqdm = 0
 
 main_pid = os.getpid()
 
@@ -2627,6 +2628,14 @@ def update_progress_bar (progress_bar, nr):
     #print(f"update_progress_bar(progress_bar, {nr})")
     #traceback.print_stack()
 
+    global sum_of_values_for_tqdm
+
+    sum_of_values_for_tqdm += nr
+
+    if sum_of_values_for_tqdm > max_eval:
+        #print(f"Reaching upper limit for tqdm: sum_of_values_for_tqdm {sum_of_values_for_tqdm} > max_eval {max_eval}")
+        return
+
     progress_bar.update(nr)
 
 def progressbar_description(new_msgs=[]):
@@ -3074,7 +3083,7 @@ def finish_previous_jobs(args, new_msgs):
                         succeeded_jobs(1)
 
                         #update_progress_bar(progress_bar, 1)
-                        update_progress_bar(progress_bar, count_done_jobs())
+                        update_progress_bar(progress_bar, 1)
                     except Exception as e:
                         print(f"ERROR in line {getLineInfo()}: {e}")
                     print_outfile_analyzed(job)

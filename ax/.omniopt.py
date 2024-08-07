@@ -3561,7 +3561,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     if _nr_trials == 0:
         _nr_trials = -1
 
-    print(f"_nr_trials: {_nr_trials}")
+    #print(f"_nr_trials: {_nr_trials}")
 
     _steps.append(
         GenerationStep(

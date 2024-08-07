@@ -3263,7 +3263,7 @@ def get_desc_progress_text(new_msgs=[]):
             if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
                 worker_percentage_usage.append(this_values)
 
-    #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
+    in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
 
     if args.verbose_tqdm:
         if submitted_jobs():

@@ -46,8 +46,11 @@ SUPPORTED_MODELS = [
 nr_of_0_results = 0
 original_print = print
 
+double_hashes = []
+missing_results = []
 already_inserted_param_hashes = {}
 already_inserted_param_data = []
+
 console = None
 try:
     from rich.console import Console
@@ -2794,6 +2797,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
 @log_function_call
 def load_existing_job_data_into_ax_client(args):
+    global nr_inserted_jobs
+
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
             load_data_from_existing_run_folders(args, this_path)
@@ -2802,14 +2807,9 @@ def load_existing_job_data_into_ax_client(args):
         load_data_from_existing_run_folders(args, [args.continue_previous_job])
 
     if len(already_inserted_param_hashes.keys()):
-        double_hashes = []
-
-        for _hash in already_inserted_param_hashes.keys():
-            if already_inserted_param_hashes[_hash] > 1:
-                for l in range(0, already_inserted_param_hashes[_hash]):
-                    double_hashes.append(_hash)
-
-        global nr_inserted_jobs
+        if len(missing_results):
+            print(f"Missing results: {len(missing_results)}")
+            #nr_inserted_jobs += len(double_hashes)
 
         if len(double_hashes):
             print(f"Double parameters not inserted: {len(double_hashes)}")
@@ -2925,19 +2925,42 @@ def simulate_load_data_from_existing_run_folders(args, _paths):
 
     return _counter
 
+def get_list_import_as_string (_brackets=True, _comma=False):
+    _str = []
+
+    if len(double_hashes):
+        _str.append(f"double hashes: {len(double_hashes)}")
+
+    if len(missing_results):
+        _str.append(f"missing_results: {len(missing_results)}")
+
+    if len(_str):
+        if(_brackets):
+            if _comma:
+                return ", (" + (", ".join(_str)) + ")"
+            return " (" + (", ".join(_str)) + ")"
+        else:
+            if _comma:
+                return ", " + (", ".join(_str))
+            return ", ".join(_str)
+
+    return ""
+
 @log_function_call
 def load_data_from_existing_run_folders(args, _paths):
     global already_inserted_param_hashes
     global already_inserted_param_data
+    global double_hashes
+    global missing_results
 
     #dier(help(ax_client.experiment.search_space))
     with console.status(f"[bold green]Loading existing jobs into ax_client...") as status:
         path_idx = 0
         for this_path in _paths:
             if len(_paths) > 1:
-                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1})...")
+                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}{get_list_import_as_string(False, True)})...")
             else:
-                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client...")
+                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client{get_list_import_as_string()}...")
 
             this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
@@ -2953,9 +2976,9 @@ def load_data_from_existing_run_folders(args, _paths):
             trial_idx = 0
             for old_trial_index in old_trials:
                 if len(_paths) > 1:
-                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)})...")
+                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
                 else:
-                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)})...")
+                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
 
                 trial_idx += 1
 
@@ -3019,10 +3042,15 @@ def load_data_from_existing_run_folders(args, _paths):
                         print_debug("Prevented inserting a double entry")
                         already_inserted_param_hashes[hashed_params_result] += 1
 
+                        double_hashes.append(hashed_params_result)
+
                         old_arm_parameter_with_result = old_arm_parameter
                         old_arm_parameter_with_result["result"] = old_result_simple
                 else:
                     print_debug("Prevent inserting a parameter set without result")
+
+                    missing_results.append(hashed_params_result)
+
                     old_arm_parameter_with_result = old_arm_parameter
                     old_arm_parameter_with_result["result"] = old_result_simple
                     already_inserted_param_data.append(old_arm_parameter_with_result)
@@ -3588,10 +3616,6 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
     if random_steps is None:
         random_steps = 0
 
-    rand_in_prev_job = 0
-    #if args.continue_previous_job:
-    #    rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
-
     if max_eval is None:
         set_max_eval(max(1, random_steps))
 
@@ -3606,8 +3630,8 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=max(num_parallel_jobs, random_steps),
-                min_trials_observed=min(max_eval, random_steps + rand_in_prev_job),
+                num_trials=max(num_parallel_jobs, random_steps) + nr_of_imported_jobs,
+                min_trials_observed=min(max_eval, random_steps),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model

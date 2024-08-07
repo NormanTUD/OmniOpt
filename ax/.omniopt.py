@@ -4049,7 +4049,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
     nr_of_0_results = 0
     write_process_info()
 
-    while (submitted_jobs() <= max_eval) and not search_space_exhausted:
+    while (count_done_jobs() < max_eval) and not search_space_exhausted:
         if submitted_jobs() > max_eval:
             print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
             break
@@ -4115,91 +4115,6 @@ def wait_for_jobs_to_complete (num_parallel_jobs):
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             time.sleep(5)
             clean_completed_jobs()
-
-@log_function_call
-def run_random_search(args, random_steps, executor, ax_client):
-    global search_space_exhausted
-    global nr_of_0_results
-
-    log_what_needs_to_be_logged()
-    nr_of_0_results = 0
-
-    write_process_info()
-
-    rand_in_prev_job = 0
-    if args.continue_previous_job:
-        rand_in_prev_job = _count_sobol_steps(f"{args.continue_previous_job}/results.csv")
-
-    rand_in_this_job = count_sobol_steps() - rand_in_prev_job
-
-    while not search_space_exhausted and rand_in_this_job <= random_steps:
-        rand_in_this_job = count_sobol_steps() - rand_in_prev_job
-
-        if submitted_jobs() >= random_steps:
-            print_debug(f"breaking run_random_search: submitted_jobs() {submitted_jobs()} >= random_steps {random_steps}")
-            finish_previous_jobs_random(args)
-            break
-
-        log_what_needs_to_be_logged()
-        wait_for_jobs_to_complete(num_parallel_jobs)
-
-        if count_done_jobs() > random_steps or len(global_vars["jobs"]) == random_steps:
-            print_debug(f"breaking run_random_search: count_done_jobs() {count_done_jobs()} > random_steps {random_steps} or len(global_vars['jobs']) {len(global_vars['jobs'])} == random_steps {random_steps}")
-            finish_previous_jobs_random(args)
-            break
-
-        write_process_info()
-
-        try:
-            steps_mind_worker = min(random_steps, max(1, num_parallel_jobs - len(global_vars["jobs"])))
-
-            progressbar_description([f"random: trying to get {steps_mind_worker} workers"])
-
-            nr_of_items_random = create_and_execute_next_runs(args, ax_client, steps_mind_worker, executor, "random")
-            if nr_of_items_random:
-                progressbar_description([f"got {nr_of_items_random} random, requested {random_steps}"])
-
-            _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items_random}, {steps_mind_worker}, random")
-
-            if nr_of_items_random == 0 and len(global_vars["jobs"]) == 0:
-                nr_of_0_results += 1
-
-                _wrn = f"rand: found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
-
-                progressbar_description([_wrn])
-                print_debug(_wrn)
-            else:
-                nr_of_0_results = 0
-
-            if not args.disable_search_space_exhaustion_detection and nr_of_0_results >= args.max_nr_of_zero_results:
-                _wrn = f"rand: nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
-
-                progressbar_description([_wrn])
-                print_debug(_wrn)
-
-                raise searchSpaceExhausted("Search space exhausted")
-        except botorch.exceptions.errors.InputDataError as e:
-            log_what_needs_to_be_logged()
-            print_red(f"Error 3: {e}")
-        except ax.exceptions.core.DataRequiredError as e:
-            log_what_needs_to_be_logged()
-            print_red(f"Error 4: {e}")
-
-        _sleep(args, 0.1)
-        write_process_info()
-        log_what_needs_to_be_logged()
-
-    finish_previous_jobs_random(args)
-
-    if not args.disable_search_space_exhaustion_detection and (max_eval - random_steps + nr_inserted_jobs) < 0:
-        _wrn = f"searchSpaceExhausted: not args.disable_search_space_exhaustion_detection {args.disable_search_space_exhaustion_detection} and (max_eval {max_eval} - random_steps {random_steps} + nr_inserted_jobs {nr_inserted_jobs}) < 0"
-
-        progressbar_description([_wrn])
-        print_debug(_wrn)
-
-        raise searchSpaceExhausted("Search space exhausted")
-
-    log_what_needs_to_be_logged()
 
 @log_function_call
 def finish_previous_jobs_random(args):

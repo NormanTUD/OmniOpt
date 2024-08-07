@@ -53,14 +53,19 @@
 		fi
 		MSG=$1
 		echo_red "$MSG"
-		export NEWT_COLORS='
-		window=,red
-		border=white,red
-		textbox=white,red
-		button=black,white
-		'
-		whiptail --title "Error Message" --scrolltext --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
-		export NEWT_COLORS=""
+
+		if command -v whiptail 2>/dev/null >/dev/null; then
+			export NEWT_COLORS='
+			window=,red
+			border=white,red
+			textbox=white,red
+			button=black,white
+			'
+			whiptail --title "Error Message" --scrolltext --msgbox "$MSG" $LINES $COLUMNS $(( $LINES - 8 ))
+			export NEWT_COLORS=""
+		else
+			echo_red "Whiptail not found. Try installing it, for example, with apt-get install whiptail"
+		fi
 	}
 
 	export RUN_VIA_RUNSH=1

@@ -33,10 +33,10 @@ fi
 
 NR_RANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i sobol | wc -l)
 NR_MANUAL=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i manual | wc -l)
-NR_SYSTEMATIC=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | wc -l)
+NR_NONRANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | wc -l)
 
 echo "Random steps:    $NR_RANDOM"
-echo "Nonrandom steps: $NR_SYSTEMATIC"
+echo "Nonrandom steps: $NR_NONRANDOM"
 echo "Manual steps:    $NR_MANUAL"
 
 errors=()
@@ -51,9 +51,9 @@ if [[ ! -z $random_phase ]]; then
 fi
 
 if [[ ! -z $systematic_phase ]]; then
-	if [[ $NR_SYSTEMATIC -ne $systematic_phase ]]; then
-		red_text "Number of nonrandom steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC"
-		errors+=("Number of nonrandom steps is wrong, should be $systematic_phase, is $NR_SYSTEMATIC")
+	if [[ $NR_NONRANDOM -ne $systematic_phase ]]; then
+		red_text "Number of nonrandom steps is wrong, should be $systematic_phase, is $NR_NONRANDOM"
+		errors+=("Number of nonrandom steps is wrong, should be $systematic_phase, is $NR_NONRANDOM")
 	else
 		green_text "Number of nonrandom steps OK"
 	fi

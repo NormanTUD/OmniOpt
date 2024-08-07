@@ -1866,7 +1866,13 @@ def print_best_result(csv_file_path, result_column):
             print_red("Best result could not be determined")
             return 87
         else:
-            table = Table(show_header=True, header_style="bold", title=f"Best parameter (total: {count_done_jobs()}, failed: {failed_jobs()}):")
+            total_str = f"total: {count_done_jobs() - nr_inserted_jobs}"
+
+            if nr_inserted_jobs:
+                total_str += f" + nr_inserted_jobs: {nr_inserted_jobs}"
+
+
+            table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}, failed: {failed_jobs()}):")
 
             k = 0
             for key in best_params["parameters"].keys():
@@ -4053,8 +4059,8 @@ def run_search(args, max_nr_steps, executor, ax_client):
 
         finish_previous_jobs(args, [])
 
-        if abs(count_done_jobs() - max_eval - nr_inserted_jobs) - random_steps <= 0:
-            print_debug(f"if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - nr_inserted_jobs {nr_inserted_jobs}) - random_steps {random_steps} <= 0")
+        if abs(count_done_jobs() - max_eval - nr_inserted_jobs) <= 0:
+            print_debug(f"if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - nr_inserted_jobs {nr_inserted_jobs}) <= 0")
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -5208,7 +5214,7 @@ if __name__ == "__main__":
                 _get_perc = abs(int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100))
 
                 if _get_perc < 100:
-                    print_red(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {count_done_jobs()}, requested: {max_eval}) after main ran")
+                    print_red(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {count_done_jobs() - nr_inserted_jobs}, requested: {max_eval}) after main ran")
 
                 if _get_perc != 100:
                     end_program(result_csv_file, "result", 1, 87)

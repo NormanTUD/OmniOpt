@@ -1871,7 +1871,6 @@ def print_best_result(csv_file_path, result_column):
             if nr_inserted_jobs:
                 total_str += f" + nr_inserted_jobs: {nr_inserted_jobs}"
 
-
             table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}, failed: {failed_jobs()}):")
 
             k = 0

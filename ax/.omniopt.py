@@ -205,7 +205,6 @@ end_program_ran = False
 already_shown_worker_usage_over_time = False
 ax_client = None
 time_get_next_trials_took = []
-progress_plot = []
 current_run_folder = None
 run_folder_number = 0
 args = None
@@ -3213,7 +3212,6 @@ def get_workers_string():
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
     global result_csv_file
-    global progress_plot
     global random_steps
     global max_eval
 
@@ -3241,14 +3239,6 @@ def get_desc_progress_text(new_msgs=[]):
 
                 if str(best_result) != NO_RESULT and best_result is not None:
                     in_brackets.append(f"best result: {best_result_int_if_possible}")
-
-                this_progress_values = {
-                    "best_result": str(best_result_int_if_possible),
-                    "time": this_time
-                }
-
-                if len(progress_plot) == 0 or not progress_plot[len(progress_plot) - 1]["best_result"] == this_progress_values["best_result"]:
-                    progress_plot.append(this_progress_values)
 
         if is_slurm_job():
             nr_current_workers = len(global_vars["jobs"])

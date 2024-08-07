@@ -3525,6 +3525,9 @@ def _get_next_trials(args, ax_client):
 
     finish_previous_jobs(args, ["finishing jobs (_get_next_trials)"])
 
+    if break_run_search("_get_next_trials", max_eval):
+        return
+
     last_ax_client_time = None
     ax_client_time_avg = None
     if len(time_get_next_trials_took):

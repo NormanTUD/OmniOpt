@@ -28,8 +28,12 @@ original_print = print
 
 already_inserted_param_hashes = {}
 already_inserted_param_data = []
-from rich.console import Console
-console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
+console = None
+try:
+    from rich.console import Console
+    console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
+except ModuleNotFoundError as e:
+    print(f"Error loading module rich")
 
 try:
     with console.status("[bold green]Loading functools...") as status:

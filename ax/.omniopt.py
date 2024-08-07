@@ -21,8 +21,6 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
-
-
 class searchSpaceExhausted (Exception):
     pass
 

@@ -3630,7 +3630,7 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=max(num_parallel_jobs, random_steps) + nr_of_imported_jobs,
+                num_trials=max(num_parallel_jobs, random_steps),
                 min_trials_observed=min(max_eval, random_steps),
                 max_parallelism=num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
@@ -4072,7 +4072,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
     nr_of_0_results = 0
     write_process_info()
 
-    while (count_done_jobs() < max_eval) and not search_space_exhausted:
+    while (submitted_jobs() < max_eval) and not search_space_exhausted:
         if submitted_jobs() > max_eval:
             print_debug(f"breaking run_search: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
             break

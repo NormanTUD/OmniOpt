@@ -3601,12 +3601,12 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
     #print(f"    )")
     #print(f")")
 
-    _nr_trials = max_eval - random_steps + nr_of_imported_jobs
+    #_nr_trials = max_eval - random_steps + nr_of_imported_jobs
 
-    if _nr_trials <= 0:
-        _nr_trials = -1
+    #if _nr_trials <= 0:
+    #    _nr_trials = -1
 
-    #_nr_trials = -1
+    _nr_trials = -1
     #print(f"_nr_trials: {_nr_trials}")
 
     _steps.append(

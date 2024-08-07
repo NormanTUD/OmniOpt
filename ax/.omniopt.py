@@ -2899,7 +2899,7 @@ def simulate_load_data_from_existing_run_folders(args, _paths):
 
             print_debug(f"trial_status_str: {trial_status_str}")
 
-            if not ("COMPLETED".lower() in str(trial_status_str).lower() or "MANUAL".lower() in str(trial_status_str).lower()):
+            if not ("COMPLETED".lower() in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
                 continue
 
             old_arm_parameter = old_trial.arm.parameters

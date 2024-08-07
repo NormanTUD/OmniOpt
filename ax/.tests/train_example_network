@@ -182,10 +182,10 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--parameter validation_split range 0 0.4 float \
 			--parameter learning_rate range 0.001 0.4 float \
 			--parameter epochs range 1 $max_epochs int \
-			--parameter dense range 1 5 int \
-			--parameter dense_units range 1 5 int \
-			--parameter conv range 1 5 int \
-			--parameter conv_filters range 1 5 int \
+			--parameter dense range 10 20 int \
+			--parameter dense_units range 10 20 int \
+			--parameter conv range 10 20 int \
+			--parameter conv_filters range 10 20 int \
 			--hide_ascii_plots \
 			--num_random_steps=$num_random_steps \
 			--gridsearch \
@@ -208,10 +208,10 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--parameter height range 60 100 int \
 			--parameter validation_split range 0 0.4 float \
 			--parameter learning_rate range 0.001 0.4 float \
-			--parameter dense range 1 5 int \
-			--parameter dense_units range 1 5 int \
-			--parameter conv range 1 5 int \
-			--parameter conv_filters range 1 5 int \
+			--parameter dense range 10 20 int \
+			--parameter dense_units range 10 20 int \
+			--parameter conv range 10 20 int \
+			--parameter conv_filters range 10 20 int \
 			--hide_ascii_plots \
 			--num_random_steps=$num_random_steps \
 			--gridsearch \
@@ -238,10 +238,10 @@ else
 			--parameter validation_split range 0 0.4 float \
 			--parameter learning_rate range 0.001 0.4 float \
 			--parameter epochs range 1 $max_epochs int \
-			--parameter dense range 1 5 int \
-			--parameter dense_units range 1 5 int \
-			--parameter conv range 1 5 int \
-			--parameter conv_filters range 1 5 int \
+			--parameter dense range 10 20 int \
+			--parameter dense_units range 10 20 int \
+			--parameter conv range 10 20 int \
+			--parameter conv_filters range 10 20 int \
 			--hide_ascii_plots \
 			--num_random_steps=$num_random_steps \
 			--follow
@@ -263,10 +263,10 @@ else
 			--parameter height range 60 100 int \
 			--parameter validation_split range 0 0.4 float \
 			--parameter learning_rate range 0.001 0.4 float \
-			--parameter dense range 1 5 int \
-			--parameter dense_units range 1 5 int \
-			--parameter conv range 1 5 int \
-			--parameter conv_filters range 1 5 int \
+			--parameter dense range 10 20 int \
+			--parameter dense_units range 10 20 int \
+			--parameter conv range 10 20 int \
+			--parameter conv_filters range 10 20 int \
 			--hide_ascii_plots \
 			--num_random_steps=$num_random_steps \
 			--parameter epochs range 1 $max_epochs int

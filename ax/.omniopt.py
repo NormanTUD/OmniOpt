@@ -4134,8 +4134,8 @@ def show_strategy_message (random_steps, second_step_steps):
     if second_step_steps:
         second_step_steps_string = f", followed by {second_step_steps} systematic steps"
 
-    if random_steps and random_steps > submitted_jobs():
-        print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
+    #if random_steps and random_steps > submitted_jobs():
+    #    print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
 
 @log_function_call
 def show_messages(args, random_steps, second_step_steps):

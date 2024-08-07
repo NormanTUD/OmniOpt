@@ -3556,10 +3556,14 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     #print(f"    )")
     #print(f")")
 
+    _nr_trials = -1
+
+    _nr_trials = max_eval - max(num_parallel_jobs, random_steps)
+
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,
-            num_trials=-1,  # No limitation on how many trials should be produced from this step
+            num_trials=_nr_trials,  # No limitation on how many trials should be produced from this step
             max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
             #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
             #enforce_num_trials=True,

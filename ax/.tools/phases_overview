@@ -33,7 +33,7 @@ fi
 
 NR_RANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i sobol | wc -l)
 NR_MANUAL=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i manual | wc -l)
-NR_NONRANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | wc -l)
+NR_NONRANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | grep -iv running | wc -l)
 
 echo "Random steps:    $NR_RANDOM"
 echo "Nonrandom steps: $NR_NONRANDOM"

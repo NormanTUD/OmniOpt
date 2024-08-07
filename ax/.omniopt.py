@@ -224,9 +224,9 @@ log_stack = []
 def set_max_eval (new_max_eval):
     global max_eval
 
-    #import traceback
-    #print(f"set_max_eval(new_max_eval: {new_max_eval})")
-    #traceback.print_stack()
+    import traceback
+    print(f"set_max_eval(new_max_eval: {new_max_eval})")
+    traceback.print_stack()
 
     max_eval = new_max_eval
 
@@ -2800,7 +2800,6 @@ def load_existing_job_data_into_ax_client(args):
             print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
             nr_inserted_jobs += len(already_inserted_param_hashes.keys())
 
-
 @log_function_call
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)
@@ -2854,6 +2853,58 @@ def extract_headers_and_rows(data_list):
     except Exception as e:
         print(f"An error occured: {e}")
         return None, None
+
+
+def simulate_load_data_from_existing_run_folders(args, _paths):
+    _counter = 0
+
+    path_idx = 0
+    for this_path in _paths:
+        this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
+
+        if not os.path.exists(this_path_json):
+            print_red(f"{this_path_json} does not exist, cannot load data from it")
+            return 0
+
+        old_experiments = load_experiment(this_path_json)
+
+        old_trials = old_experiments.trials
+
+        trial_idx = 0
+        for old_trial_index in old_trials:
+            trial_idx += 1
+
+            old_trial = old_trials[old_trial_index]
+            trial_status = old_trial.status
+            trial_status_str = trial_status.__repr__
+
+            print_debug(f"trial_status_str: {trial_status_str}")
+
+            if not ("COMPLETED".lower() in str(trial_status_str).lower() or "MANUAL".lower() in str(trial_status_str).lower()):
+                continue
+
+            old_arm_parameter = old_trial.arm.parameters
+
+            old_result_simple = None
+            try:
+                tmp_old_res = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"]
+                tmp_old_res_list = list(set(list(tmp_old_res)))
+
+                if len(tmp_old_res_list) == 1:
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+                    old_result_simple = float(tmp_old_res_list[0])
+                else:
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+                    old_result_simple = None
+            except:
+                pass
+
+            if old_result_simple and looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+                _counter += 1
+                
+        path_idx += 1
+
+    return _counter
 
 @log_function_call
 def load_data_from_existing_run_folders(args, _paths):
@@ -3491,10 +3542,29 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
     return requested
 
 @log_function_call
-def get_generation_strategy(num_parallel_jobs, seed, max_eval):
+def get_nr_of_imported_jobs(args):
+    nr_jobs = 0
+
+    if args.load_previous_job_data:
+        for this_path in args.load_previous_job_data:
+            nr_jobs += simulate_load_data_from_existing_run_folders(args, this_path)
+
+    if args.continue_previous_job:
+        nr_jobs += simulate_load_data_from_existing_run_folders(args, [args.continue_previous_job])
+
+    return nr_jobs
+
+@log_function_call
+def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
     global random_steps
 
     _steps = []
+
+    nr_of_imported_jobs = get_nr_of_imported_jobs(args)
+
+    #random_steps = nr_of_imported_jobs
+
+    set_max_eval(max_eval + nr_of_imported_jobs)
 
     if random_steps is None:
         random_steps = 0
@@ -3557,7 +3627,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     #print(f"    )")
     #print(f")")
 
-    _nr_trials = max_eval - max(num_parallel_jobs, random_steps)
+    _nr_trials = max_eval - max(num_parallel_jobs, random_steps) + nr_of_imported_jobs
 
     if _nr_trials == 0:
         _nr_trials = -1
@@ -3970,7 +4040,7 @@ def run_search(args, max_nr_steps, executor, ax_client):
         finish_previous_jobs(args, [])
 
         if abs(count_done_jobs() - max_eval) - random_steps <= 0:
-            print_debug("if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval}) - random_steps {random_steps} <= 0")
+            print_debug(f"if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval}) - random_steps {random_steps} <= 0")
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -4278,7 +4348,7 @@ def main():
     if not args.verbose:
         disable_logging()
 
-    set_max_eval(args.max_eval)
+    #set_max_eval(args.max_eval)
 
     if not max_eval:
         print_red("--max_eval needs to be set!")
@@ -4297,7 +4367,7 @@ def main():
         print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-    gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
+    gs = get_generation_strategy(args, num_parallel_jobs, args.seed, args.max_eval)
 
     ax_client = AxClient(
         verbose_logging=args.verbose,
@@ -4354,7 +4424,7 @@ def main():
         max_nr_steps = prev_steps_nr + max_nr_steps
         #set_max_eval(max_nr_steps)
 
-    set_max_eval(max_eval + nr_inserted_jobs)
+    #set_max_eval(max_eval + nr_inserted_jobs)
     save_global_vars()
 
     write_process_info()

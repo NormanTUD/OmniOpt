@@ -224,9 +224,9 @@ log_stack = []
 def set_max_eval (new_max_eval):
     global max_eval
 
-    import traceback
-    print(f"set_max_eval(new_max_eval: {new_max_eval})")
-    traceback.print_stack()
+    #import traceback
+    #print(f"set_max_eval(new_max_eval: {new_max_eval})")
+    #traceback.print_stack()
 
     max_eval = new_max_eval
 
@@ -2314,7 +2314,6 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_red(f"{checkpoint_file} not found")
             my_exit(47)
 
-        ax_client = None
         try:
             f = open(checkpoint_file)
             experiment_parameters = json.load(f)
@@ -2380,9 +2379,24 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if not _replaced:
                     print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
+        original_ax_client_file = f"{current_run_folder}/state_files/original_ax_client_before_loading_tmp_one.json"
+        ax_client.save_to_json_file(filepath=original_ax_client_file)
+
+        original_generation_strategy = None
+
+        with open(original_ax_client_file) as f:
+            loaded_original_ax_client_json = json.load(f)
+            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+
+        if original_generation_strategy:
+            experiment_parameters["generation_strategy"] = original_generation_strategy
+
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
+
         ax_client = (AxClient.load_from_json_file(tmp_file_path))
+        #dier(human_readable_generation_strategy(ax_client))
+        #dier(tmp_file_path)
 
         os.unlink(tmp_file_path)
 
@@ -3651,7 +3665,7 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
         steps=_steps
     )
 
-    return gs
+    return gs, _steps
 
 def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase):
     global random_steps
@@ -4367,7 +4381,7 @@ def main():
         print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-    gs = get_generation_strategy(args, num_parallel_jobs, args.seed, args.max_eval)
+    gs, gs_steps = get_generation_strategy(args, num_parallel_jobs, args.seed, args.max_eval)
 
     ax_client = AxClient(
         verbose_logging=args.verbose,
@@ -4389,6 +4403,8 @@ def main():
         experiment_parameters, 
         minimize_or_maximize
     )
+
+    #ax_client._set_generation_strategy(*gs_steps)
 
     gs_hr = human_readable_generation_strategy(ax_client)
     if gs_hr:

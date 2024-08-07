@@ -5119,7 +5119,7 @@ if __name__ == "__main__":
 
                 end_program(result_csv_file, "result", 1)
             except searchSpaceExhausted:
-                _get_perc = int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100)
+                _get_perc = abs(int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100))
 
                 if _get_perc < 100:
                     print_red(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {count_done_jobs()}, requested: {max_eval}) after main ran")

@@ -3,6 +3,26 @@
 # Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 # Geht, aber was ist mit continued runs?
 
+import sys
+
+try:
+    import traceback
+    import time
+except ModuleNotFoundError as e:
+    print(f"ModuleNotFoundError: {e}")
+    sys.exit(31)
+
+def my_exit(_code=0):
+    tb = traceback.format_exc()
+    print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
+
+    time.sleep(5)
+
+    print("Exit-Code: " + str(_code))
+    sys.exit(_code)
+
+
+
 class searchSpaceExhausted (Exception):
     pass
 
@@ -42,8 +62,6 @@ try:
         import psutil
     with console.status("[bold green]Loading uuid...") as status:
         import uuid
-    with console.status("[bold green]Loading traceback...") as status:
-        import traceback
     with console.status("[bold green]Loading inspect...") as status:
         import inspect
         from inspect import currentframe, getframeinfo
@@ -51,8 +69,6 @@ try:
         import tokenize
     with console.status("[bold green]Loading os...") as status:
         import os
-    with console.status("[bold green]Loading sys...") as status:
-        import sys
     with console.status("[bold green]Loading threading...") as status:
         import threading
     with console.status("[bold green]Loading shutil...") as status:
@@ -104,8 +120,6 @@ try:
         import argparse
     with console.status("[bold green]Loading rich_argparse...") as status:
         from rich_argparse import RichHelpFormatter
-    with console.status("[bold green]Loading time...") as status:
-        import time
     with console.status("[bold green]Loading pformat...") as status:
         from pprint import pformat
     with console.status("[bold green]Loading sixel...") as status:
@@ -374,16 +388,6 @@ def write_process_info():
         except Exception as e:
             print_debug(f"Error retrieving process information: {str(e)}")
         last_cpu_mem_time = None
-
-@log_function_call
-def my_exit(_code=0):
-    tb = traceback.format_exc()
-    print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-
-    time.sleep(5)
-
-    print("Exit-Code: " + str(_code))
-    sys.exit(_code)
 
 @log_function_call
 def getLineInfo():
@@ -786,15 +790,12 @@ class signalINT (Exception):
 class signalCONT (Exception):
     pass
 
-@log_function_call
 def receive_usr_signal_one(signum, stack):
     raise signalUSR(f"USR1-signal received ({signum})")
 
-@log_function_call
 def receive_usr_signal_int(signum, stack):
     raise signalINT(f"INT-signal received ({signum})")
 
-@log_function_call
 def receive_signal_cont(signum, stack):
     raise signalCONT(f"CONT-signal received ({signum})")
 

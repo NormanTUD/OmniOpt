@@ -3556,9 +3556,12 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     #print(f"    )")
     #print(f")")
 
-    _nr_trials = -1
-
     _nr_trials = max_eval - max(num_parallel_jobs, random_steps)
+
+    if _nr_trials == 0:
+        _nr_trials = -1
+
+    print(f"_nr_trials: {_nr_trials}")
 
     _steps.append(
         GenerationStep(
@@ -3659,7 +3662,10 @@ def get_number_of_steps(args, max_eval):
     random_steps = random_steps - already_done_random_steps
 
     if random_steps > max_eval:
-        print_yellow(f"You have less --max_eval than --num_random_steps.")
+        print_yellow(f"You have less --max_eval {max_eval} than --num_random_steps {random_steps}. Switched both.")
+        tmp = random_steps
+        random_steps = max_eval
+        max_eval = tmp
 
     if random_steps < num_parallel_jobs and system_has_sbatch:
         old_random_steps = random_steps

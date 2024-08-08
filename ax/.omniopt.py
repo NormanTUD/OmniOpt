@@ -4434,6 +4434,12 @@ def run_tests():
     nr_errors += is_equal("looks_like_int('1')", looks_like_int('1'), True)
     nr_errors += is_equal("looks_like_int(False)", looks_like_int(False), False)
     nr_errors += is_equal("looks_like_int(True)", looks_like_int(True), False)
+    nr_errors += is_equal(
+        "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")", 
+        replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"), 
+        "echo 'RESULT: 123'"
+    )
+            
 
     nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), None)
 

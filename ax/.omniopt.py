@@ -2344,7 +2344,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 if equation:
                     experiment_args["parameter_constraints"].append(constraints_string)
                 else:
-                    print_red(f"Experiment constraint '{constraints_string}' is invalid and will be ignored.")
+                    print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
                     my_exit(19)
 
         try:

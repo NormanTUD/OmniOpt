@@ -337,6 +337,15 @@ PYTHON_OR_COVERAGE=python3
 if [[ ! -z $RUN_WITH_COVERAGE ]]; then
 	PYTHON_OR_COVERAGE="coverage run -p"
 
+	_cluster=""
+
+	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+		if [[ ! -z $MYCLUSTER_HOST ]]; then
+			_cluster="_$MYCLUSTER_HOST"
+		fi
+	fi
+
 	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
 
 	ROOT_VENV_DIR=$HOME

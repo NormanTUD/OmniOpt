@@ -336,6 +336,18 @@ PYTHON_OR_COVERAGE=python3
 
 if [[ ! -z $RUN_WITH_COVERAGE ]]; then
 	PYTHON_OR_COVERAGE="coverage run -p"
+
+	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+	ROOT_VENV_DIR=$HOME
+
+	if [[ ! -z $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+		ROOT_VENV_DIR=$root_venv_dir
+	fi
+
+	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+	source $VENV_DIR/bin/activate
 fi
 
 _test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 31

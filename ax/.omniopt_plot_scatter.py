@@ -321,15 +321,15 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm):
     except Exception as e:
         print(f"Error in plot_two_graphs: {e}")
 
-        import traceback
-        tb = traceback.format_exc()
-        print("Traceback ==>", tb, "<==")
+        #import traceback
+        #tb = traceback.format_exc()
+        #print("Traceback ==>", tb, "<==")
 
-        print("df_filtered:")
-        print(df_filtered.to_string(index=False))
+        #print("df_filtered:")
+        #print(df_filtered.to_string(index=False))
 
-        print("non_empty_graphs:")
-        print(non_empty_graphs)
+        #print("non_empty_graphs:")
+        #print(non_empty_graphs)
         sys.exit(45)
 
     scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)

@@ -365,7 +365,7 @@ if [[ ! -z $RUN_WITH_COVERAGE ]]; then
 	source $VENV_DIR/bin/activate
 fi
 
-_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 31
+_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
 
 _test "Test OO without needed params" "./omniopt" 19
 

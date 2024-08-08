@@ -2611,10 +2611,6 @@ def clean_completed_jobs():
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
 
-def dataframe_dier():
-    pd_frame = ax_client.get_trials_data_frame()
-    dier(pd_frame)
-
 def assert_condition(condition, error_text):
     if not condition:
         raise AssertionError(error_text)
@@ -2870,7 +2866,6 @@ def load_data_from_existing_run_folders(args, _paths):
             old_experiments = load_experiment(this_path_json)
 
             old_trials = old_experiments.trials
-            #dataframe_dier()
 
             trial_idx = 0
             for old_trial_index in old_trials:

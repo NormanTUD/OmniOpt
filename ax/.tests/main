@@ -344,6 +344,8 @@ _test "Test OO without needed params" "./omniopt --parameter x range 0 1 float -
 
 _test "Incomplete fixed parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x fixed" 181
 
+_test "Invalid name for parameter: exit_code" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter exit_code range 0 1" 181
+
 _test "Incomplete choice parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice" 181
 
 _test "Incomplete range parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181

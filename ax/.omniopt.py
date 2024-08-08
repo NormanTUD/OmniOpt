@@ -2589,7 +2589,7 @@ def update_progress_bar (progress_bar, nr):
     sum_of_values_for_tqdm += nr
 
     if sum_of_values_for_tqdm > max_eval:
-        #print(f"Reaching upper limit for tqdm: sum_of_values_for_tqdm {sum_of_values_for_tqdm} > max_eval {max_eval}")
+        print_debug(f"Reaching upper limit for tqdm: sum_of_values_for_tqdm {sum_of_values_for_tqdm} > max_eval {max_eval}")
         return
 
     progress_bar.update(nr)

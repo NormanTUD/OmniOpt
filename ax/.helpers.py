@@ -112,6 +112,51 @@ def flatten_extend(matrix):
         flat_list.extend(row)
     return flat_list
 
+def convert_string_to_number(input_string):
+    try:
+        assert isinstance(input_string, str), "Input must be a string"
+        
+        # Replace commas with dots
+        input_string = input_string.replace(",", ".")
+
+        # Regular expression patterns for int and float
+        float_pattern = re.compile(r"[+-]?\d*\.\d+")
+        int_pattern = re.compile(r"[+-]?\d+")
+
+        # Search for float pattern
+        float_match = float_pattern.search(input_string)
+        if float_match:
+            number_str = float_match.group(0)
+            try:
+                number = float(number_str)
+                return number
+            except ValueError as e:
+                print(f"Failed to convert {number_str} to float: {e}")
+
+        # If no float found, search for int pattern
+        int_match = int_pattern.search(input_string)
+        if int_match:
+            number_str = int_match.group(0)
+            try:
+                number = int(number_str)
+                return number
+            except ValueError as e:
+                print(f"Failed to convert {number_str} to int: {e}")
+
+        return None
+
+    except AssertionError as e:
+        print(f"Assertion error: {e}")
+        return None
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
+        return None
+
 
 
 warn_versions()

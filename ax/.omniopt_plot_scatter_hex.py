@@ -639,53 +639,6 @@ def main():
 
         update_graph(args.min, args.max)
 
-def convert_string_to_number(input_string):
-    print_debug("convert_string_to_number")
-    try:
-        assert isinstance(input_string, str), "Input must be a string"
-        
-        # Replace commas with dots
-        input_string = input_string.replace(",", ".")
-
-        # Regular expression patterns for int and float
-        float_pattern = re.compile(r"[+-]?\d*\.\d+")
-        int_pattern = re.compile(r"[+-]?\d+")
-
-        # Search for float pattern
-        float_match = float_pattern.search(input_string)
-        if float_match:
-            number_str = float_match.group(0)
-            try:
-                number = float(number_str)
-                return number
-            except ValueError as e:
-                print(f"Failed to convert {number_str} to float: {e}")
-
-        # If no float found, search for int pattern
-        int_match = int_pattern.search(input_string)
-        if int_match:
-            number_str = int_match.group(0)
-            try:
-                number = int(number_str)
-                return number
-            except ValueError as e:
-                print(f"Failed to convert {number_str} to int: {e}")
-
-        return None
-
-    except AssertionError as e:
-        print(f"Assertion error: {e}")
-        return None
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-
-        import traceback
-        tb = traceback.format_exc()
-        print(tb)
-
-        return None
-
-
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
     print_debug("update_graph")
@@ -693,10 +646,10 @@ def update_graph(event=None, _min=None, _max=None):
 
     try:
         if minimum_textbox and helpers.looks_like_float(minimum_textbox.text):
-            _min = convert_string_to_number(minimum_textbox.text)
+            _min = helpers.convert_string_to_number(minimum_textbox.text)
 
         if maximum_textbox and helpers.looks_like_float(maximum_textbox.text):
-            _max = convert_string_to_number(maximum_textbox.text)
+            _max = helpers.convert_string_to_number(maximum_textbox.text)
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 

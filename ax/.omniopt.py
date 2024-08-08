@@ -250,23 +250,6 @@ def log_what_needs_to_be_logged ():
         except:
             pass
 
-def sort_log_entries(log_entry):
-    log_entry.sub_calls.sort(key=lambda x: x.duration, reverse=True)
-    for sub_call in log_entry.sub_calls:
-        sort_log_entries(sub_call)
-
-def save_logs_to_json(filename):
-    root_entries = [entry for entry in log_stack if entry.caller == "<module>"]
-    try:
-        for root_entry in root_entries:
-            sort_log_entries(root_entry)
-    except:
-        pass
-
-    sorted_entries = sorted(root_entries, key=lambda x: x.duration, reverse=True)
-    with open(filename, 'w') as log_file:
-        json.dump([entry.to_dict() for entry in sorted_entries], log_file, indent=4)
-
 def get_nesting_level(caller_frame):
     filename, caller_lineno, _, _, _ = inspect.getframeinfo(caller_frame)
     with open(filename) as f:
@@ -340,8 +323,7 @@ def write_process_info():
         last_cpu_mem_time = None
 
 def getLineInfo():
-    return(inspect.stack()[1][1],":",inspect.stack()[1][2],":",
-          inspect.stack()[1][3])
+    return(inspect.stack()[1][1],":",inspect.stack()[1][2],":", inspect.stack()[1][3])
 
 #print(f"sys.path: {sys.path}")
 
@@ -373,19 +355,6 @@ def print_image_to_cli(image_path, width):
         time.sleep(2)
     except Exception as e:
         print_debug(f"Error converting and resizing image: {str(e)}, width: {width}, image_path: {image_path}")
-
-def datetime_from_string(input_string):
-    return datetime.datetime.fromtimestamp(input_string)
-
-def get_timezone_offset_seconds():
-    # Get the current time in the local timezone
-    local_tz = get_localzone()
-    local_time = datetime.datetime.now(local_tz)
-
-    # Get the offset of the local timezone from UTC in seconds
-    offset = local_time.utcoffset().total_seconds()
-
-    return offset
 
 with console.status("[bold green]Defining creating .logs dir if it doesn't exist...") as status:
     log_dir = ".logs"
@@ -2019,8 +1988,6 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
     end_program_ran = True
 
     _exit = 0
-
-    save_logs_to_json(f'{current_run_folder}/function_logs.json')
 
     try:
         if current_run_folder is None:
@@ -4326,7 +4293,6 @@ def main():
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-    save_logs_to_json(f'{current_run_folder}/function_logs.json')
     end_program(result_csv_file)
 
 def _unidiff_output(expected, actual):

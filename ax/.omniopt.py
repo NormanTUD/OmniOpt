@@ -4008,8 +4008,7 @@ def finish_previous_jobs_random(args):
         sys.exit(199)
 
 def print_logo():
-    try:
-        original_print("""
+    original_print("""
    ---------
   (OmniOpt2!)
    ---------
@@ -4020,9 +4019,6 @@ def print_logo():
          ( " ) :
           (|)""
 """)
-
-    except Exception as e:
-        print_green("OmniOpt2")
 
 def show_strategy_message (random_steps, second_step_steps):
     second_step_steps_string = ""

@@ -352,6 +352,8 @@ _test "Incomplete range parameter" "./omniopt --run_program 'echo' --experiment_
 
 _test "Non-unique parameter names" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice 123 --parameter x choice 1234" 181
 
+_test "Invalid range type" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 123 123123 123" 181
+
 if command -v sbatch 2>/dev/null >/dev/null; then
 	excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')
 	_test "Test search space exhaustion" "./omniopt --partition=$partition --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87

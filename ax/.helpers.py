@@ -177,4 +177,10 @@ def get_result_column_values(df):
 
     return result_column_values
 
+def check_path(_path):
+    global args
+    if not os.path.exists(_path):
+        print(f'The folder {args.run_dir} does not exist.')
+        sys.exit(1)
+
 warn_versions()

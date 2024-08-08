@@ -147,7 +147,7 @@ def check_args ():
         elif args.min == args.max:
             print("Max and min value are the same. May result in empty data")
 
-    check_path()
+    helpers.check_path(args.run_dir)
 
 def check_dir_and_csv (csv_file_path):
     print_debug("check_dir_and_csv()")
@@ -421,13 +421,6 @@ def get_colors(df):
             sys.exit(8)
 
     return colors
-
-def check_path():
-    global args
-    print_debug("check_path")
-    if not os.path.exists(args.run_dir):
-        print(f'The folder {args.run_dir} does not exist.')
-        sys.exit(1)
 
 def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     print_debug("get_non_empty_graphs")

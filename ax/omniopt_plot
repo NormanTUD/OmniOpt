@@ -395,15 +395,29 @@ fi
 
 set +e
 if [[ "$_save_to_file" == "0" ]]; then
-	OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
-	exit_code=$?
-else
-	if [[ -d docker_user_dir ]]; then
-		OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=docker_user_dir/$_save_to_file $* 2>&1)
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
+		exit_code=$?
 	else
-		OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=$_save_to_file $* 2>&1)
+		OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
+		exit_code=$?
 	fi
-	exit_code=$?
+else
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		if [[ -d docker_user_dir ]]; then
+			OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=docker_user_dir/$_save_to_file $* 2>&1)
+		else
+			OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=$_save_to_file $* 2>&1)
+		fi
+		exit_code=$?
+	else
+		if [[ -d docker_user_dir ]]; then
+			OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=docker_user_dir/$_save_to_file $* 2>&1)
+		else
+			OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=$_save_to_file $* 2>&1)
+		fi
+		exit_code=$?
+	fi
 fi
 set -e
 
@@ -427,6 +441,10 @@ fi
 
 if [[ -z $NO_RUNTIME ]]; then
 	echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
+fi
+
+if [[ ! -z $RUN_WITH_COVERAGE ]]; then
+	echo "Run *coverage combine*, *coverage xml* and *coverage html*"
 fi
 
 exit $exit_code

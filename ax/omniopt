@@ -915,12 +915,20 @@ fi
 mycd "$ORIGINAL_PWD"
 
 if [[ "$help" -eq "1" ]]; then
-	python3 $SCRIPT_DIR/.omniopt.py --help
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		python3 $SCRIPT_DIR/.omniopt.py --help
+	else
+		coverage run -p $SCRIPT_DIR/.omniopt.py --help
+	fi
 	exit 0
 fi
 
 if [[ "$tests" -eq "1" ]]; then
-	python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+	else
+		coverage run -p $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+	fi
 	exit $?
 fi
 
@@ -966,7 +974,11 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	#run_before_end &
 
 	set +e
-	python3 $SCRIPT_DIR/.omniopt.py $args_string &
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		python3 $SCRIPT_DIR/.omniopt.py $args_string &
+	else
+		coverage run -p $SCRIPT_DIR/.omniopt.py $args_string &
+	fi
 	python_pid=$!
 
 	set +x
@@ -1197,6 +1209,10 @@ else
 fi
 
 echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
+
+if [[ ! -z $RUN_WITH_COVERAGE ]]; then
+	echo "Run *coverage combine*, *coverage xml* and *coverage html*"
+fi
 
 if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
 	myexit $exit_code

@@ -918,6 +918,7 @@ if [[ "$help" -eq "1" ]]; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		python3 $SCRIPT_DIR/.omniopt.py --help
 	else
+		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 		coverage run -p $SCRIPT_DIR/.omniopt.py --help
 	fi
 	exit 0
@@ -927,6 +928,7 @@ if [[ "$tests" -eq "1" ]]; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
 	else
+		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 		coverage run -p $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
 	fi
 	exit $?
@@ -977,6 +979,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		python3 $SCRIPT_DIR/.omniopt.py $args_string &
 	else
+		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 		coverage run -p $SCRIPT_DIR/.omniopt.py $args_string &
 	fi
 	python_pid=$!

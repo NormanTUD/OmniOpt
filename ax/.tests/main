@@ -71,6 +71,7 @@ function help () {
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --help                                             This help"
+        echo "  --run_with_coverage                                Allows to use coverage instead of python3 for coverage testing unit test coverage"
         echo "  --quick                                            Only run quick tests"
         echo "  --reallyquick                                      Only run really quick tests"
         echo "  --debug                                            Enables debug mode (set -x)"
@@ -95,6 +96,10 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--run_with_coverage)
+			export RUN_WITH_COVERAGE=1
+
+			;;
 		--num_random_steps=*)
 			old_num_random_steps=$num_random_steps
 			num_random_steps="${i#*=}"

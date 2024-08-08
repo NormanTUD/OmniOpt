@@ -885,6 +885,7 @@ def get_program_code_from_out_file(f):
     print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
         print(f"{f} not found")
+        return None
     else:
         fs = get_file_as_string(f)
 
@@ -4483,6 +4484,10 @@ def run_tests():
     nr_errors += is_equal("looks_like_float('hallo')", looks_like_float('hallo'), False)
     nr_errors += is_equal("looks_like_int('hallo')", looks_like_int('hallo'), False)
     nr_errors += is_equal("looks_like_int('1')", looks_like_int('1'), True)
+    nr_errors += is_equal("looks_like_int(False)", looks_like_int(False), False)
+    nr_errors += is_equal("looks_like_int(True)", looks_like_int(True), False)
+
+    nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), None)
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
     nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")

@@ -454,12 +454,6 @@ def get_csv_file_path():
 
     return csv_file_path
 
-def flatten_extend(matrix):
-    flat_list = []
-    for row in matrix:
-        flat_list.extend(row)
-    return flat_list
-
 def get_df_filtered(args, df):
     print_debug("get_df_filtered")
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
@@ -472,7 +466,7 @@ def get_df_filtered(args, df):
 
     if len(args.allow_axes):
         for col in existing_columns:
-            if col != "result" and col not in flatten_extend(args.allow_axes):
+            if col != "result" and col not in helpers.flatten_extend(args.allow_axes):
                 columns_to_remove.append(col)
 
     df_filtered = df.drop(columns=columns_to_remove)

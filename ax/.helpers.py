@@ -106,8 +106,12 @@ def dier (msg):
     pprint(msg)
     sys.exit(1)
 
-def assert_condition(condition, error_text):
-    if not condition:
-        raise AssertionError(error_text)
+def flatten_extend(matrix):
+    flat_list = []
+    for row in matrix:
+        flat_list.extend(row)
+    return flat_list
+
+
 
 warn_versions()

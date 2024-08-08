@@ -913,19 +913,13 @@ def get_min_column_value(pd_csv, column, _default):
         print_red(f"Error while getting min value from column {column}: {str(e)}")
         raise
 
-def flatten_extend(matrix):
-    flat_list = []
-    for row in matrix:
-        flat_list.extend(row)
-    return flat_list
-
 def get_bound_if_prev_data(_type, _column, _default):
     ret_val = _default
 
     found_in_file = False
 
     if args.load_previous_job_data and len(args.load_previous_job_data):
-        prev_runs = flatten_extend(args.load_previous_job_data)
+        prev_runs = helpers.flatten_extend(args.load_previous_job_data)
         for prev_run in prev_runs:
             pd_csv = f"{prev_run}/{pd_csv_filename}"
 

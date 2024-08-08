@@ -13,8 +13,8 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 import sys
 import argparse

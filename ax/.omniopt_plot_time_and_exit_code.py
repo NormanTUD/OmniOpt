@@ -18,32 +18,19 @@ from tzlocal import get_localzone
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
+
 def dier(msg):
     pprint(msg)
     sys.exit(1)
-
-def looks_like_number(x):
-    return looks_like_float(x) or looks_like_int(x)
-
-def looks_like_float(x):
-    if isinstance(x, (int, float)):
-        return True
-    elif isinstance(x, str):
-        try:
-            float(x)
-            return True
-        except ValueError:
-            return False
-    return False
-
-def looks_like_int(x):
-    if isinstance(x, int):
-        return True
-    elif isinstance(x, float):
-        return x.is_integer()
-    elif isinstance(x, str):
-        return bool(re.match(r'^\d+$', x))
-    return False
 
 def main():
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
@@ -91,8 +78,8 @@ def main():
     df['start_time'] = pd.to_datetime(df['start_time'], unit='s', utc=True).dt.tz_convert(local_tz)
     df['end_time'] = pd.to_datetime(df['end_time'], unit='s', utc=True).dt.tz_convert(local_tz)
 
-    df['start_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
-    df['end_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
+    df['start_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
+    df['end_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
 
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes[0, 1])
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes[0, 1])

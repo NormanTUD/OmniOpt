@@ -353,8 +353,8 @@ with console.status("[bold green]Loading helpers-module...") as status:
         name="helpers",
         location=helpers_file,
     )
-    my_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(my_module)
+    helpers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helpers)
 
 def print_image_to_cli(image_path, width):
     print("")
@@ -855,34 +855,6 @@ def sort_numerically_or_alphabetically(arr):
 
     return sorted_arr
 
-def looks_like_number (x):
-    return looks_like_float(x) or looks_like_int(x)
-
-def looks_like_float(x):
-    print_debug(f"looks_like_float({x})")
-    if isinstance(x, (int, float)):
-        return True  # int and float types are directly considered as floats
-    elif isinstance(x, str):
-        try:
-            float(x)  # Try converting string to float
-            return True
-        except ValueError:
-            return False  # If conversion fails, it's not a float-like string
-    return False  # If x is neither str, int, nor float, it's not float-like
-
-def looks_like_int(x):
-    print_debug(f"looks_like_int({x})")
-    if isinstance(x, bool):
-        return False
-    elif isinstance(x, int):
-        return True
-    elif isinstance(x, float):
-        return x.is_integer()
-    elif isinstance(x, str):
-        return bool(re.match(r'^\d+$', x))
-    else:
-        return False
-
 def get_program_code_from_out_file(f):
     print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
@@ -1109,11 +1081,11 @@ def parse_experiment_parameters(args):
                     my_exit(181)
 
                 if value_type == "int":
-                    if not looks_like_int(lower_bound):
+                    if not helpers.looks_like_int(lower_bound):
                         print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
                         lower_bound = math.floor(lower_bound)
 
-                    if not looks_like_int(upper_bound):
+                    if not helpers.looks_like_int(upper_bound):
                         print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
                         upper_bound = math.ceil(upper_bound)
 
@@ -2813,7 +2785,7 @@ def simulate_load_data_from_existing_run_folders(args, _paths):
             except:
                 pass
 
-            if old_result_simple and looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+            if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 _counter += 1
                 
         path_idx += 1
@@ -2903,7 +2875,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
                 hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
 
-                if old_result_simple and looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+                if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                     if hashed_params_result not in already_inserted_param_hashes.keys():
                         #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
                         old_result = {'result': old_result_simple}
@@ -3193,7 +3165,7 @@ def get_desc_progress_text(new_msgs=[]):
         best_params = get_best_params(result_csv_file, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]
-            if type(best_result) == float or type(best_result) == int or looks_like_float(best_result):
+            if type(best_result) == float or type(best_result) == int or helpers.looks_like_float(best_result):
                 best_result_int_if_possible = to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
@@ -4428,12 +4400,12 @@ def run_tests():
     nr_errors += is_equal("get_result(None)", get_result(None), None)
     nr_errors += is_equal("get_result(123)", get_result(123), None)
     nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
-    nr_errors += is_equal("looks_like_float(10)", looks_like_float(10), True)
-    nr_errors += is_equal("looks_like_float('hallo')", looks_like_float('hallo'), False)
-    nr_errors += is_equal("looks_like_int('hallo')", looks_like_int('hallo'), False)
-    nr_errors += is_equal("looks_like_int('1')", looks_like_int('1'), True)
-    nr_errors += is_equal("looks_like_int(False)", looks_like_int(False), False)
-    nr_errors += is_equal("looks_like_int(True)", looks_like_int(True), False)
+    nr_errors += is_equal("helpers.looks_like_float(10)", helpers.looks_like_float(10), True)
+    nr_errors += is_equal("helpers.looks_like_float('hallo')", helpers.looks_like_float('hallo'), False)
+    nr_errors += is_equal("helpers.looks_like_int('hallo')", helpers.looks_like_int('hallo'), False)
+    nr_errors += is_equal("helpers.looks_like_int('1')", helpers.looks_like_int('1'), True)
+    nr_errors += is_equal("helpers.looks_like_int(False)", helpers.looks_like_int(False), False)
+    nr_errors += is_equal("helpers.looks_like_int(True)", helpers.looks_like_int(True), False)
     nr_errors += is_equal(
         "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")", 
         replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"), 

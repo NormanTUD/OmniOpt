@@ -12,8 +12,8 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 import re
 import traceback
@@ -31,29 +31,6 @@ def assert_condition(condition, error_text):
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)
 
-def looks_like_number(x):
-    return looks_like_float(x) or looks_like_int(x)
-
-def looks_like_float(x):
-    if isinstance(x, (int, float)):
-        return True
-    elif isinstance(x, str):
-        try:
-            float(x)
-            return True
-        except ValueError:
-            return False
-    return False
-
-def looks_like_int(x):
-    if isinstance(x, int):
-        return True
-    elif isinstance(x, float):
-        return x.is_integer()
-    elif isinstance(x, str):
-        return bool(re.match(r'^\d+$', x))
-    return False
-
 def plot_worker_usage(args, pd_csv):
     try:
         data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])
@@ -66,10 +43,10 @@ def plot_worker_usage(args, pd_csv):
         data = data[~duplicate_mask].reset_index(drop=True)
 
         # Filter out invalid 'time' entries
-        valid_times = data['time'].apply(looks_like_number)
+        valid_times = data['time'].apply(helpers.looks_like_number)
         data = data[valid_times]
 
-        data['time'] = data['time'].apply(lambda x: datetime.fromtimestamp(int(float(x)), timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if looks_like_number(x) else x)
+        data['time'] = data['time'].apply(lambda x: datetime.fromtimestamp(int(float(x)), timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
         data['time'] = pd.to_datetime(data['time'])
 
         # Sort data by time

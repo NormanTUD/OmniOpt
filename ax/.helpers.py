@@ -1,3 +1,4 @@
+import numpy as np
 import os
 from importlib.metadata import version
 import sys
@@ -60,7 +61,19 @@ def looks_like_float(x):
             return False  # If conversion fails, it's not a float-like string
     return False  # If x is neither str, int, nor float, it's not float-like
 
+def looks_like_int(x):
+    if isinstance(x, bool):
+        return False
+    elif isinstance(x, int):
+        return True
+    elif isinstance(x, float):
+        return x.is_integer()
+    elif isinstance(x, str):
+        return bool(re.match(r'^\d+$', x))
+    else:
+        return False
 
-
+def looks_like_number (x):
+    return looks_like_float(x) or looks_like_int(x) or type(x) == int or type(x) == float or type(x) == np.int64
 
 warn_versions()

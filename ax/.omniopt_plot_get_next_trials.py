@@ -14,8 +14,8 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -39,29 +39,6 @@ def assert_condition(condition, error_text):
 
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)
-
-def looks_like_number(x):
-    return looks_like_float(x) or looks_like_int(x)
-
-def looks_like_float(x):
-    if isinstance(x, (int, float)):
-        return True
-    elif isinstance(x, str):
-        try:
-            float(x)
-            return True
-        except ValueError:
-            return False
-    return False
-
-def looks_like_int(x):
-    if isinstance(x, int):
-        return True
-    elif isinstance(x, float):
-        return x.is_integer()
-    elif isinstance(x, str):
-        return bool(re.match(r'^\d+$', x))
-    return False
 
 def parse_log_file(log_file_path):
     try:

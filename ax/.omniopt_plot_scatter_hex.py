@@ -17,8 +17,8 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
@@ -54,14 +54,6 @@ except ModuleNotFoundError:
 def dier(msg):
     pprint(msg)
     sys.exit(9)
-
-import importlib.util
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=".helpers.py",
-)
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
 
 try:
     import re
@@ -275,9 +267,6 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def looks_like_number (x):
-    return looks_like_float(x) or looks_like_int(x) or type(x) == int or type(x) == float or type(x) == np.int64
-
 def remove_lines_where_y_is_string (_x, _y):
     if len(_x) != len(_y):
         print(f"remove_lines_where_y_is_string: len(_x) is != len(_y). Consider this a bug. Both should have the same length.")
@@ -286,7 +275,7 @@ def remove_lines_where_y_is_string (_x, _y):
     del_indices = []
 
     for i in range(0, len(_x)):
-        if not looks_like_number(_y[i]):
+        if not helpers.looks_like_number(_y[i]):
             del_indices.append(i)
 
     _x = np.delete(_x, del_indices)
@@ -467,11 +456,11 @@ def get_args ():
     global bins
 
     if args.bins:
-        if not (args.bins == "log" or looks_like_int(args.bins)):
+        if not (args.bins == "log" or helpers.looks_like_int(args.bins)):
             print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
             sys.exit(193)
 
-        if looks_like_int(args.bins):
+        if helpers.looks_like_int(args.bins):
             bins = int(args.bins)
         else:
             bins = args.bins
@@ -737,10 +726,10 @@ def update_graph(event=None, _min=None, _max=None):
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:
-        if minimum_textbox and looks_like_float(minimum_textbox.text):
+        if minimum_textbox and helpers.looks_like_float(minimum_textbox.text):
             _min = convert_string_to_number(minimum_textbox.text)
 
-        if maximum_textbox and looks_like_float(maximum_textbox.text):
+        if maximum_textbox and helpers.looks_like_float(maximum_textbox.text):
             _max = convert_string_to_number(maximum_textbox.text)
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
@@ -789,31 +778,6 @@ def update_graph(event=None, _min=None, _max=None):
         if not "invalid command name" in str(e):
             print(f"Failed to update graph: {e}")
 
-def looks_like_int(x):
-    print_debug("looks_like_int")
-    if isinstance(x, int):
-        return True
-    elif isinstance(x, float):
-        return x.is_integer()
-    elif isinstance(x, str):
-        return bool(re.match(r'^\d+$', x))
-    else:
-        return False
-
-
-def looks_like_float(x):
-    print_debug(f"looks_like_float(x = {x})")
-    if isinstance(x, (int, float)):
-        return True  # int and float types are directly considered as floats
-    elif isinstance(x, str):
-        try:
-            float(x)  # Try converting string to float
-            return True
-        except ValueError:
-            return False  # If conversion fails, it's not a float-like string
-    return False  # If x is neither str, int, nor float, it's not float-like
-
-
 def change_min_max(expression):
     print_debug("change_min_max")
     global args
@@ -821,11 +785,11 @@ def change_min_max(expression):
     try:
         has_params = False
         # Assuming the expression is a filter value update for min/max
-        if textbox_maximum.text and  looks_like_float(textbox_maximum.text):
+        if textbox_maximum.text and helpers.looks_like_float(textbox_maximum.text):
             args.min = float(textbox_maximum.text)
             print(f"set arg min to {args.min}")
             has_params = True
-        if textbox_minimum.text and looks_like_float(textbox_minimum.text):
+        if textbox_minimum.text and helpers.looks_like_float(textbox_minimum.text):
             args.min = float(textbox_minimum.text)
             print(f"set arg max to {args.max}")
             has_params = True
@@ -854,10 +818,10 @@ def create_widgets():
     max_string = ""
     min_string = ""
 
-    if looks_like_float(args.max):
+    if helpers.looks_like_float(args.max):
         max_string = str(args.max)
 
-    if looks_like_float(args.min):
+    if helpers.looks_like_float(args.min):
         min_string = str(args.min)
 
     textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])

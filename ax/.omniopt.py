@@ -4481,6 +4481,8 @@ def run_tests():
     nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
     nr_errors += is_equal("looks_like_float(10)", looks_like_float(10), True)
     nr_errors += is_equal("looks_like_float('hallo')", looks_like_float('hallo'), False)
+    nr_errors += is_equal("looks_like_int('hallo')", looks_like_int('hallo'), False)
+    nr_errors += is_equal("looks_like_int('1')", looks_like_int('1'), True)
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
     nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")

@@ -1295,17 +1295,6 @@ def add_to_csv(file_path, heading, data_line):
         data_line = ["{:.20f}".format(x) if type(x) == float else x for x in data_line]
         csv_writer.writerow(data_line)
 
-def make_strings_equal_length(str1, str2):
-    print_debug("make_strings_equal_length")
-    length_difference = len(str1) - len(str2)
-
-    if length_difference > 0:
-        str2 = str2 + ' ' * length_difference
-    elif length_difference < 0:
-        str2 = str2[:len(str1)]
-
-    return str1, str2
-
 def find_file_paths(_text):
     print_debug("find_file_paths(_text)")
     file_paths = []

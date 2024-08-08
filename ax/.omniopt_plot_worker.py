@@ -24,9 +24,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import timezone
 
-def log_error(error_text):
-    print(f"Error: {error_text}", file=sys.stderr)
-
 def plot_worker_usage(args, pd_csv):
     try:
         data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])
@@ -78,11 +75,11 @@ def plot_worker_usage(args, pd_csv):
             if not args.no_plt_show:
                 plt.show()
     except FileNotFoundError:
-        log_error(f"File '{pd_csv}' not found.")
+        helpers.log_error(f"File '{pd_csv}' not found.")
     except AssertionError as e:
-        log_error(str(e))
+        helpers.log_error(str(e))
     except Exception as e:
-        log_error(f"An unexpected error occurred: {e}")
+        helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
 
 def main():
@@ -117,10 +114,10 @@ def main():
             try:
                 plot_worker_usage(args, worker_usage_csv)
             except Exception as e:
-                log_error(f"Error: {e}")
+                helpers.log_error(f"Error: {e}")
                 sys.exit(3)
         else:
-            log_error(f"File '{worker_usage_csv}' does not exist.")
+            helpers.log_error(f"File '{worker_usage_csv}' does not exist.")
             sys.exit(19)
 
 if __name__ == "__main__":

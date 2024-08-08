@@ -157,6 +157,7 @@ def convert_string_to_number(input_string):
 
         return None
 
-
+def log_error(error_text):
+    print(f"Error: {error_text}", file=sys.stderr)
 
 warn_versions()

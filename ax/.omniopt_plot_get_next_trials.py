@@ -28,9 +28,6 @@ import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def log_error(error_text):
-    print(f"Error: {error_text}", file=sys.stderr)
-
 def parse_log_file(log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
@@ -45,7 +42,7 @@ def parse_log_file(log_file_path):
         valid_time_mask = data['time'].apply(is_valid_time_format)
         if not valid_time_mask.all():
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                log_error("Some rows have invalid time format and will be removed.")
+                helpers.log_error("Some rows have invalid time format and will be removed.")
         data = data[valid_time_mask]
 
         data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d %H:%M:%S')
@@ -55,13 +52,13 @@ def parse_log_file(log_file_path):
 
         return data
     except FileNotFoundError:
-        log_error(f"File '{log_file_path}' not found.")
+        helpers.log_error(f"File '{log_file_path}' not found.")
         raise
     except AssertionError as e:
-        log_error(str(e))
+        helpers.log_error(str(e))
         raise
     except Exception as e:
-        log_error(f"An unexpected error occurred: {e}")
+        helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
         raise
 
@@ -98,7 +95,7 @@ def plot_trial_usage(args, log_file_path):
             if not args.no_plt_show:
                 plt.show()
     except Exception as e:
-        log_error(f"An error occurred while plotting: {e}")
+        helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 
 def main():
@@ -119,10 +116,10 @@ def main():
             try:
                 plot_trial_usage(args, log_file_path)
             except Exception as e:
-                log_error(f"Error: {e}")
+                helpers.log_error(f"Error: {e}")
                 sys.exit(3)
         else:
-            log_error(f"File '{log_file_path}' does not exist.")
+            helpers.log_error(f"File '{log_file_path}' does not exist.")
 
 if __name__ == "__main__":
     main()

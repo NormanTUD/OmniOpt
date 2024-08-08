@@ -24,10 +24,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import timezone
 
-def assert_condition(condition, error_text):
-    if not condition:
-        raise AssertionError(error_text)
-
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)
 
@@ -35,9 +31,9 @@ def plot_worker_usage(args, pd_csv):
     try:
         data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])
 
-        assert_condition(len(data.columns) > 0, "CSV file has no columns.")
-        assert_condition("time" in data.columns, "The 'time' column is missing.")
-        assert_condition(data is not None, "No data could be found in the CSV file.")
+        assert(len(data.columns) > 0, "CSV file has no columns.")
+        assert("time" in data.columns, "The 'time' column is missing.")
+        assert(data is not None, "No data could be found in the CSV file.")
 
         duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
         data = data[~duplicate_mask].reset_index(drop=True)

@@ -4466,6 +4466,8 @@ def run_tests():
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
+    nr_errors += is_equal("get_result(None)", get_result(None), None)
+    nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10)
     nr_errors += is_equal("looks_like_float(10)", looks_like_float(10), True)
     nr_errors += is_equal("looks_like_float('hallo')", looks_like_float('hallo'), False)
 

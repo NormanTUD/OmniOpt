@@ -3825,47 +3825,6 @@ def _count_done_jobs(csv_file_path):
 
     return completed_rows_count
 
-def count_manual_steps():
-    csv_file_path = save_pd_csv()
-
-    return _count_manual_steps(csv_file_path)
-
-def _count_manual_steps(csv_file_path):
-    sobol_count = 0
-
-    if not os.path.exists(csv_file_path):
-        print_yellow(f"CSV file does not exist at path: {csv_file_path}")
-        return sobol_count
-
-    df = None
-
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
-    except KeyError as e:
-        return 0
-    except pd.errors.EmptyDataError as e:
-        return 0
-    except pd.errors.ParserError as e:
-        print_red(f"Error reading CSV file 2: {str(e)}")
-        return 0
-    except UnicodeDecodeError as e:
-        print_red(f"Error reading CSV file 3: {str(e)}")
-        return 0
-    except Exception as e:
-        print_red(f"Error reading CSV file 4: {str(e)}")
-        return 0
-
-    assert_condition(df is not None, "DataFrame should not be None after reading CSV file")
-    assert_condition("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
-
-    sobol_rows = df[df["generation_method"] == "Manual"]
-    sobol_count = len(sobol_rows)
-
-    return sobol_count
-
-
-
 def count_sobol_steps():
     csv_file_path = save_pd_csv()
 
@@ -4283,9 +4242,6 @@ def main():
     save_global_vars()
 
     write_process_info()
-
-    #max_tqdm_jobs = count_manual_steps() + max_eval
-    #print(f"max_tqdm_jobs {max_tqdm_jobs} = count_manual_steps: {count_manual_steps()} + max_eval: {max_eval}")
 
     with tqdm(total=max_eval, disable=False) as _progress_bar:
         write_process_info()

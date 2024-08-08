@@ -3843,6 +3843,12 @@ def _count_done_jobs(csv_file_path):
 
     df = None
 
+    __debug = f"_count_done_jobs({csv_file_path})\n"
+    with open(csv_file_path, 'r') as fin:
+        __debug += fin.read()
+
+    print_debug(__debug)
+
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
@@ -3863,10 +3869,10 @@ def _count_done_jobs(csv_file_path):
     assert_condition(df is not None, "DataFrame should not be None after reading CSV file")
     assert_condition("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
 
-    non_sobol_rows = df[df["generation_method"] != "Sobol"]
-    non_sobol_rows_count = len(non_sobol_rows)
+    completed_rows = df[df["trial_status"] == "COMPLETED"]
+    completed_rows_count = len(completed_rows)
 
-    return non_sobol_rows_count
+    return completed_rows_count
 
 def count_manual_steps():
     csv_file_path = save_pd_csv()
@@ -4034,7 +4040,8 @@ def run_search(args, max_nr_steps, executor, ax_client, progress_bar):
         nr_of_items = 0
 
         if next_nr_steps:
-            progressbar_description([f"trying to get {next_nr_steps} next steps"])
+            progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
+
             nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic", max_eval, progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])

@@ -4466,6 +4466,9 @@ def run_tests():
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
+    nr_errors += is_equal("looks_like_float(10)", looks_like_float(10), True)
+    nr_errors += is_equal("looks_like_float('hallo')", looks_like_float('hallo'), False)
+
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo", 0, None)
     nr_errors += complex_tests("divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True)

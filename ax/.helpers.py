@@ -49,4 +49,18 @@ def warn_versions():
     if len(wrns):
         print("- " + ("\n- ".join(wrns)))
 
+def looks_like_float(x):
+    if isinstance(x, (int, float)):
+        return True  # int and float types are directly considered as floats
+    elif isinstance(x, str):
+        try:
+            float(x)  # Try converting string to float
+            return True
+        except ValueError:
+            return False  # If conversion fails, it's not a float-like string
+    return False  # If x is neither str, int, nor float, it's not float-like
+
+
+
+
 warn_versions()

@@ -16,8 +16,8 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
@@ -54,14 +54,6 @@ def dier(msg):
     pprint(msg)
     sys.exit(9)
 
-import importlib.util
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=".helpers.py",
-)
-my_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(my_module)
-
 try:
     import re
     import pandas as pd
@@ -83,10 +75,6 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
-
-def get_current_time():
-    print_debug("get_current_time()")
-    return time.time()
 
 def check_csv_modified(last_modified_time, csv_file_path):
     print_debug("check_csv_modified()")
@@ -684,10 +672,10 @@ def update_graph(event=None, _min=None, _max=None):
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:
-        if minimum_textbox and looks_like_float(minimum_textbox.text):
+        if minimum_textbox and helpers.looks_like_float(minimum_textbox.text):
             _min = convert_string_to_number(minimum_textbox.text)
 
-        if maximum_textbox and looks_like_float(maximum_textbox.text):
+        if maximum_textbox and helpers.looks_like_float(maximum_textbox.text):
             _max = convert_string_to_number(maximum_textbox.text)
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
@@ -735,19 +723,6 @@ def update_graph(event=None, _min=None, _max=None):
         if not "invalid command name" in str(e):
             print(f"Failed to update graph: {e}")
 
-def looks_like_float(x):
-    print_debug(f"looks_like_float(x = {x})")
-    if isinstance(x, (int, float)):
-        return True  # int and float types are directly considered as floats
-    elif isinstance(x, str):
-        try:
-            float(x)  # Try converting string to float
-            return True
-        except ValueError:
-            return False  # If conversion fails, it's not a float-like string
-    return False  # If x is neither str, int, nor float, it's not float-like
-
-
 def change_min_max(expression):
     print_debug("change_min_max")
     global args
@@ -755,11 +730,11 @@ def change_min_max(expression):
     try:
         has_params = False
         # Assuming the expression is a filter value update for min/max
-        if textbox_maximum.text and  looks_like_float(textbox_maximum.text):
+        if textbox_maximum.text and  helpers.looks_like_float(textbox_maximum.text):
             args.min = float(textbox_maximum.text)
             print(f"set arg min to {args.min}")
             has_params = True
-        if textbox_minimum.text and looks_like_float(textbox_minimum.text):
+        if textbox_minimum.text and helpers.looks_like_float(textbox_minimum.text):
             args.min = float(textbox_minimum.text)
             print(f"set arg max to {args.max}")
             has_params = True
@@ -788,10 +763,10 @@ def create_widgets():
     max_string = ""
     min_string = ""
 
-    if looks_like_float(args.max):
+    if helpers.looks_like_float(args.max):
         max_string = str(args.max)
 
-    if looks_like_float(args.min):
+    if helpers.looks_like_float(args.min):
         min_string = str(args.min)
 
     textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])

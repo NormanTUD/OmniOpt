@@ -1283,7 +1283,7 @@ def get_result(input_string):
         return None
 
     if not isinstance(input_string, str):
-        print(f"Type of input_string is not string, but {type(input_string)}")
+        print_debug(f"get_result: Type of input_string is not string, but {type(input_string)}")
         return None
 
     try:
@@ -2235,8 +2235,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
                     print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
-                    if args.verbose:
-                        print_yellow("No suitable CUDA devices found")
+                    print_yellow("No suitable CUDA devices found")
         except json.decoder.JSONDecodeError as e:
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(47)
@@ -2340,8 +2339,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
                     print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
-                    if args.verbose:
-                        print_yellow("No suitable CUDA devices found")
+                    print_yellow("No suitable CUDA devices found")
         except ModuleNotFoundError:
             print_red("Cannot load torch and thus, cannot use gpus")
 
@@ -4481,6 +4479,7 @@ def run_tests():
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
     nr_errors += is_equal("get_result(None)", get_result(None), None)
+    nr_errors += is_equal("get_result(123)", get_result(123), None)
     nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
     nr_errors += is_equal("looks_like_float(10)", looks_like_float(10), True)
     nr_errors += is_equal("looks_like_float('hallo')", looks_like_float('hallo'), False)

@@ -872,7 +872,9 @@ def looks_like_float(x):
 
 def looks_like_int(x):
     print_debug(f"looks_like_int({x})")
-    if isinstance(x, int):
+    if isinstance(x, bool):
+        return False
+    elif isinstance(x, int):
         return True
     elif isinstance(x, float):
         return x.is_integer()

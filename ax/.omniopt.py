@@ -871,8 +871,8 @@ def get_max_column_value(pd_csv, column, _default):
     :param column: The column name for which the maximum value is to be found.
     :return: The maximum value in the specified column.
     """
-    assert(isinstance(pd_csv, str), "pd_csv must be a string")
-    assert(isinstance(column, str), "column must be a string")
+    assert isinstance(pd_csv, str), "pd_csv must be a string"
+    assert isinstance(column, str), "column must be a string"
 
     if not os.path.exists(pd_csv):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
@@ -896,8 +896,8 @@ def get_min_column_value(pd_csv, column, _default):
     :param column: The column name for which the minimum value is to be found.
     :return: The minimum value in the specified column.
     """
-    assert(isinstance(pd_csv, str), "pd_csv must be a string")
-    assert(isinstance(column, str), "column must be a string")
+    assert isinstance(pd_csv, str), "pd_csv must be a string"
+    assert isinstance(column, str), "column must be a string"
 
     if not os.path.exists(pd_csv):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
@@ -2560,8 +2560,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     :param float_tolerance: The tolerance for comparing float values.
     :return: The value of the 'result' column from the matched row.
     """
-    assert(isinstance(file_path, str), "file_path must be a string")
-    assert(isinstance(params, dict), "params must be a dictionary")
+    assert isinstance(file_path, str), "file_path must be a string"
+    assert isinstance(params, dict), "params must be a dictionary"
     
     if not os.path.exists(file_path):
         print_red(f"{file_path} for getting old CSV results cannot be found")
@@ -3752,8 +3752,8 @@ def _count_done_jobs(csv_file_path):
         print_red(f"Error reading CSV file 4: {str(e)}")
         return 0
 
-    assert(df is not None, "DataFrame should not be None after reading CSV file")
-    assert("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
+    assert df is not None, "DataFrame should not be None after reading CSV file"
+    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
     completed_rows = df[df["trial_status"] == "COMPLETED"]
     completed_rows_count = len(completed_rows)
@@ -3791,8 +3791,8 @@ def _count_sobol_steps(csv_file_path):
         print_red(f"Error reading CSV file 4: {str(e)}")
         return 0
 
-    assert(df is not None, "DataFrame should not be None after reading CSV file")
-    assert("generation_method" in df.columns, "'generation_method' column must be present in the DataFrame")
+    assert df is not None, "DataFrame should not be None after reading CSV file"
+    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
     sobol_rows = df[df["generation_method"] == "Sobol"]
     sobol_count = len(sobol_rows)

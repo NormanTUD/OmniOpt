@@ -84,16 +84,6 @@ def set_margins (fig):
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
-def check_if_results_are_empty(result_column_values):
-    print_debug("check_if_results_are_empty()")
-    filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
-
-    number_of_non_nan_results = len(filtered_data)
-
-    if number_of_non_nan_results == 0:
-        print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
-        sys.exit(11)
-
 def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
     _mean = result_column_values.mean()
     print_debug("set_title")
@@ -547,14 +537,6 @@ def use_matplotlib():
         print("An error occured while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
         sys.exit(33)
 
-def get_result_column_values(df, result_column):
-    print_debug("get_result_column_values")
-    result_column_values = df[result_column]
-
-    check_if_results_are_empty(result_column_values)
-
-    return result_column_values
-
 def plot_image_to_command_line(title, path):
     print_debug("plot_image_to_command_line")
     path = os.path.abspath(path)
@@ -608,7 +590,7 @@ def main():
     global fig
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    result_column_values = get_result_column_values(df, "result")
+    result_column_values = helpers.get_result_column_values(df)
 
     plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
 
@@ -686,7 +668,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 
-        result_column_values = get_result_column_values(df, result_column)
+        result_column_values = helpers.get_result_column_values(df)
 
         plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
         

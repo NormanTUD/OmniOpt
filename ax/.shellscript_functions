@@ -30,6 +30,7 @@
 		pytz
 		pyqt5
 		psutil
+		coverage
 	)
 
 	FROZEN=""

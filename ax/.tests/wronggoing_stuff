@@ -163,6 +163,7 @@ cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
 EXPECTED_TO_FAIL=1
 ./omniopt \
+	--max_nr_of_zero_results 3 \
 	--send_anonymized_usage_stats \
 	--partition=$PARTITION \
 	--gpus=$NUM_GPUS \

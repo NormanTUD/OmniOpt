@@ -54,7 +54,23 @@ try:
     from rich.console import Console
     console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
 except ModuleNotFoundError as e:
-    print(f"Error loading module rich")
+    original_print(f"Base modules could not be loaded: {e}")
+    my_exit(31)
+except KeyboardInterrupt:
+    original_print("You cancelled loading the basic modules")
+    my_exit(31)
+except signalINT:
+    original_print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+    my_exit(128 + 2)
+except (signalUSR):
+    original_print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+    my_exit(128 + 10)
+except signalCONT:
+    original_print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+    my_exit(128 + 18)
+except (KeyboardInterrupt) as e:
+    original_print("\n⚠ You pressed CTRL+C. Program execution halted.")
+    my_exit(0)
 
 try:
     with console.status("[bold green]Loading functools...") as status:

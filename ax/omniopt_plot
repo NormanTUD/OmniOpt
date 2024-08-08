@@ -445,7 +445,7 @@ if [[ -z $NO_RUNTIME ]]; then
 fi
 
 if [[ ! -z $RUN_WITH_COVERAGE ]]; then
-	echo "Run *coverage combine*, *coverage xml* and *coverage html*"
+	echo "Run *coverage combine; coverage xml; coverage html*"
 fi
 
 exit $exit_code

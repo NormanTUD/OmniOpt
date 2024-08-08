@@ -467,4 +467,12 @@ else
 	exit ${#errors[@]}
 fi
 
+if [[ ! -z $RUN_WITH_COVERAGE ]]; then
+	coverage combine
+	coverage xml
+	coverage html
+
+	firefox htmlcov/index.html
+fi
+
 echo "Test took $(displaytime $SECONDS)"

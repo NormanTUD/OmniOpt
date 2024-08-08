@@ -4276,8 +4276,8 @@ def print_diff(o, i):
         print("Is:", o.strip())
     else:
         print("Is:", o)
-    #if type(i) == str or type(o) == str:
-    #    print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
+    if type(i) == str or type(o) == str:
+        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
 def is_equal(n, i, o):
     r = _is_equal(n, i, o)

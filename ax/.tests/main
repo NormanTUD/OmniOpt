@@ -97,6 +97,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 	case $i in
 		--run_with_coverage)
+			echo "Using *coverage run -p* instead of *python3*"
 			export RUN_WITH_COVERAGE=1
 
 			;;

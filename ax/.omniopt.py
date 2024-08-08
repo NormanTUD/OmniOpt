@@ -1115,12 +1115,12 @@ def parse_experiment_parameters(args):
 
                     if value_type == "int":
                         values = [int(value) for value in values]
-                        changed_grid_search_params[name] = f"Gridsearch from {to_int_when_possible(lower_bound)} to {to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
+                        changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
                     else:
-                        changed_grid_search_params[name] = f"Gridsearch from {to_int_when_possible(lower_bound)} to {to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
+                        changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
 
                     values = sorted(set(values))
-                    values = [str(to_int_when_possible(value)) for value in values]
+                    values = [str(helpers.to_int_when_possible(value)) for value in values]
 
                     param = {
                         "name": name,
@@ -1277,7 +1277,7 @@ def add_to_csv(file_path, heading, data_line):
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
-    data_line = [to_int_when_possible(x) for x in data_line]
+    data_line = [helpers.to_int_when_possible(x) for x in data_line]
 
     with open(file_path, 'a+', newline='') as file:
         csv_writer = csv.writer(file)
@@ -1676,7 +1676,7 @@ def display_failed_jobs_table():
         added_rows = set()
 
         for parameter_set in parameters:
-            row = [str(to_int_when_possible(value)) for value in parameter_set]
+            row = [str(helpers.to_int_when_possible(value)) for value in parameter_set]
             row_tuple = tuple(row)  # Convert to tuple for set operations
             if row_tuple not in added_rows:
                 table.add_row(*row, style='red')
@@ -1760,7 +1760,7 @@ def print_best_result(csv_file_path, result_column):
 
             table.add_column("result")
 
-            row_without_result = [str(to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
+            row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
             row = [*row_without_result, str(best_result)][3:]
 
             table.add_row(*row)
@@ -2041,30 +2041,6 @@ def save_checkpoint(trial_nr=0, ee=None):
         print_debug("Checkpoint saved")
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
-
-def to_int_when_possible(val):
-    # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte
-    if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
-        return int(val)
-
-    # Überprüfung auf nicht-numerische Zeichenketten
-    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
-        return val
-
-    try:
-        # Versuche, den Wert als Float zu interpretieren
-        val = float(val)
-        # Bestimmen der Anzahl der Dezimalstellen, um die Genauigkeit der Ausgabe zu steuern
-        if '.' in str(val):
-            decimal_places = len(str(val).split('.')[1])
-            # Formatieren des Floats mit der exakten Anzahl der Dezimalstellen, ohne wissenschaftliche Notation
-            formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
-            return formatted_value if formatted_value else '0'
-        else:
-            return str(int(val))
-    except:
-        # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
-        return val
 
 def save_pd_csv():
     global ax_client
@@ -2403,12 +2379,12 @@ def print_overview_tables(experiment_parameters, experiment_args):
             else:
                 _upper = param["bounds"][1]
 
-            rows.append([str(param["name"]), get_type_short(_type), str(to_int_when_possible(_lower)), str(to_int_when_possible(_upper)), "", value_type])
+            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type])
         elif "fixed" in _type.lower():
-            rows.append([str(param["name"]), get_type_short(_type), "", "", str(to_int_when_possible(param["value"])), ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), ""])
         elif "choice" in _type.lower():
             values = param["values"]
-            values = [str(to_int_when_possible(item)) for item in values]
+            values = [str(helpers.to_int_when_possible(item)) for item in values]
 
             rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), ""])
         else:
@@ -3166,7 +3142,7 @@ def get_desc_progress_text(new_msgs=[]):
         if best_params and "result" in best_params:
             best_result = best_params["result"]
             if type(best_result) == float or type(best_result) == int or helpers.looks_like_float(best_result):
-                best_result_int_if_possible = to_int_when_possible(float(best_result))
+                best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
                     in_brackets.append(f"best result: {best_result_int_if_possible}")

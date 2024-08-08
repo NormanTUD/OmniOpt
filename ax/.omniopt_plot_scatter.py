@@ -81,21 +81,6 @@ def check_csv_modified(last_modified_time, csv_file_path):
     current_modified_time = os.path.getmtime(csv_file_path)
     return current_modified_time > last_modified_time
 
-def to_int_when_possible(val):
-    print_debug("to_int_when_possible")
-    if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
-        return int(val)
-    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
-        return val
-
-    try:
-        val = float(val)
-
-        return '{:.{}f}'.format(val, len(str(val).split('.')[1])).rstrip('0').rstrip('.')
-    except:
-        return val
-
-
 def set_margins (fig):
     print_debug("set_margins()")
     left  = 0.04
@@ -142,25 +127,25 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
     for l in extreme_values_items:
         if not "result" in l:
             key = l[0]
-            value = to_int_when_possible(l[1])
+            value = helpers.to_int_when_possible(l[1])
             title_values.append(f"{key} = {value}")
 
     #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
 
     title += " of f("
     title += ', '.join(title_values)
-    title += f") = {to_int_when_possible(result_column_values[extreme_index])}"
+    title += f") = {helpers.to_int_when_possible(result_column_values[extreme_index])}"
 
     title += f"\nNumber of evaluations shown: {num_entries}"
 
     if _min is not None:
-        title += f", show min = {to_int_when_possible(_min)}"
+        title += f", show min = {helpers.to_int_when_possible(_min)}"
 
     if _max is not None:
-        title += f", show max = {to_int_when_possible(_max)}"
+        title += f", show max = {helpers.to_int_when_possible(_max)}"
 
     if _mean is not None:
-        title += f", mean result = {to_int_when_possible(_mean)}"
+        title += f", mean result = {helpers.to_int_when_possible(_mean)}"
 
     fig.suptitle(title)
 

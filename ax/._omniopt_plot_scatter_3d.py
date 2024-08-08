@@ -13,12 +13,6 @@ def dier(msg):
 def assert_condition(condition, error_text):
     assert condition, error_text
 
-def to_int_when_possible(x):
-    try:
-        return int(x)
-    except ValueError:
-        return x
-
 def get_data(csv_file_path, _min=None, _max=None):
     try:
         assert_condition(os.path.exists(csv_file_path), f"{csv_file_path} does not exist.")

@@ -4,6 +4,7 @@ import os
 from importlib.metadata import version
 import sys
 from pprint import pprint
+import math
 
 def check_environment_variable(variable_name):
     try:

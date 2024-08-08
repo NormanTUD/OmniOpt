@@ -1601,6 +1601,7 @@ def disable_logging():
     logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
     logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
+    logging.getLogger("ax.modelbridge.transforms").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
     logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
@@ -1614,6 +1615,7 @@ def disable_logging():
     logging.getLogger("ax.service").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.report_utils").setLevel(logging.ERROR)
+
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
     modules = [
@@ -1632,10 +1634,9 @@ def disable_logging():
         "botorch.optim.fit",
         "ax.core.parameter",
         "ax.service.utils.report_utils",
-        "ax.modelbridge.transforms.int_to_float",
+        "ax.modelbridge.transforms",
         "ax.modelbridge.cross_validation",
         "ax.service.utils.best_point",
-        "ax.modelbridge.transforms.int_to_float",
         "ax.modelbridge.dispatch_utils",
         "ax.service.utils.instantiation",
         "botorch.optim.optimize",

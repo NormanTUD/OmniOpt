@@ -1171,7 +1171,7 @@ def parse_experiment_parameters(args):
                 j += skip
             elif param_type == "fixed":
                 if len(this_args) != 3:
-                    print_red(f"⚠ --parameter for type fixed must have 3 parameters: <NAME> range <VALUE>")
+                    print_red(f"⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
                     my_exit(181)
 
                 value = this_args[j + 2]

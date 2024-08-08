@@ -3656,9 +3656,12 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
                         time.sleep(5)
 
-                    progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                    execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
-                    i += 1
+                    if not break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
+                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                        execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
+                        i += 1
+                    else:
+                        break
         except botorch.exceptions.errors.InputDataError as e:
             print_red(f"Error 1: {e}")
             return 0

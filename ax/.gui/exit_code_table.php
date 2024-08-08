@@ -16,6 +16,7 @@
 				12 => "Error with pip, check logs.",
 				13 => "Run folder already exists",
 				15 => "Unimplemented error.",
+				16 => "Wrongly called .py files: Probably you tried to call them directly instead of over the bash file",
 				18 => "test_wronggoing_stuff program not found (only --tests).",
 				19 => "Something was wrong with your parameters. See output for details.",
 				31 => "Basic modules could not be loaded or you cancelled loading them.",

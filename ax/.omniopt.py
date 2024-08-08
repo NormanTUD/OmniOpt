@@ -2345,6 +2345,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     experiment_args["parameter_constraints"].append(constraints_string)
                 else:
                     print_red(f"Experiment constraint '{constraints_string}' is invalid and will be ignored.")
+                    my_exit(19)
 
         try:
             experiment = ax_client.create_experiment(**experiment_args)

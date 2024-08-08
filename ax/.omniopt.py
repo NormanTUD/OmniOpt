@@ -4471,7 +4471,7 @@ def run_tests():
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
     nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")
-    nr_errors += is_equal("create_and_execute_next_runs(args, None, 0, None, None, None, None)", create_and_execute_next_runs(args, None, 0, None, None, None, None), 0
+    nr_errors += is_equal("create_and_execute_next_runs(args, None, 0, None, None, None, None)", create_and_execute_next_runs(args, None, 0, None, None, None, None), 0)
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo", 0, None)

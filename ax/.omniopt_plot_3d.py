@@ -1,11 +1,6 @@
 # DESCRIPTION: 3d plot
 # EXPECTED FILES: results.csv
 
-import sys
-from pprint import pprint
-def dier (msg):
-    pprint(msg)
-    sys.exit(1)
 import argparse
 import pandas as pd
 import itertools

@@ -51,10 +51,6 @@ try:
 except ModuleNotFoundError:
     from pprint import pprint
 
-def dier(msg):
-    pprint(msg)
-    sys.exit(9)
-
 try:
     import re
     import pandas as pd
@@ -569,7 +565,7 @@ def plot_image_to_command_line(title, path):
     print_debug("plot_image_to_command_line")
     path = os.path.abspath(path)
     if not os.path.exists(path):
-        dier(f"Cannot continue: {path} does not exist")
+        helpers.dier(f"Cannot continue: {path} does not exist")
     try:
         import plotext as plt
 
@@ -578,7 +574,7 @@ def plot_image_to_command_line(title, path):
         if not args.no_plt_show:
             plt.show()
     except ModuleNotFoundError:
-        dier("Cannot plot without plotext being installed")
+        helpers.dier("Cannot plot without plotext being installed")
 
 def main():
     global args

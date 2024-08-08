@@ -50,10 +50,6 @@ try:
 except ModuleNotFoundError:
     from pprint import pprint
 
-def dier(msg):
-    pprint(msg)
-    sys.exit(9)
-
 try:
     import re
     import pandas as pd

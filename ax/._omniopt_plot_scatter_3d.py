@@ -6,19 +6,23 @@ import os
 import argparse
 import traceback
 
-def dier(msg):
-    pprint(msg)
-    sys.exit(1)
-
-def assert_condition(condition, error_text):
-    assert condition, error_text
+import os
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 def get_data(csv_file_path, _min=None, _max=None):
     try:
-        assert_condition(os.path.exists(csv_file_path), f"{csv_file_path} does not exist.")
+        assert(os.path.exists(csv_file_path), f"{csv_file_path} does not exist.")
         df = pd.read_csv(csv_file_path)
         pprint(df)
-        assert_condition("result" in df.columns, f"result not found in CSV columns.")
+        assert("result" in df.columns, f"result not found in CSV columns.")
         df = df.dropna(subset=["result"])
         if _min is not None and _max is not None:
             df = df[(df["result"] >= _min) & (df["result"] <= _max)]
@@ -32,7 +36,7 @@ def get_data(csv_file_path, _min=None, _max=None):
 
 def check_if_results_are_empty(result_series):
     try:
-        assert_condition(not result_series.empty, "Result column is empty.")
+        assert(not result_series.empty, "Result column is empty.")
     except AssertionError as e:
         traceback.print_exc()
         raise e

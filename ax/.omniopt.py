@@ -454,10 +454,6 @@ class REMatcher(object):
     def group(self,i):
         return self.rematch.group(i)
 
-def dier(msg):
-    pprint(msg)
-    my_exit(10)
-
 parser = argparse.ArgumentParser(
     prog="omniopt",
     description='A hyperparameter optimizer for slurmbased HPC-systems',
@@ -2149,7 +2145,7 @@ def get_ax_param_representation(data):
     else:
         print("data:")
         pprint(data)
-        dier(f"Unknown data range {data['type']}")
+        helpers.dier(f"Unknown data range {data['type']}")
 
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None
@@ -2240,8 +2236,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
         ax_client = (AxClient.load_from_json_file(tmp_file_path))
-        #dier(human_readable_generation_strategy(ax_client))
-        #dier(tmp_file_path)
+        #helpers.dier(human_readable_generation_strategy(ax_client))
+        #helpers.dier(tmp_file_path)
 
         os.unlink(tmp_file_path)
 
@@ -2796,7 +2792,7 @@ def load_data_from_existing_run_folders(args, _paths):
     global double_hashes
     global missing_results
 
-    #dier(help(ax_client.experiment.search_space))
+    #helpers.dier(help(ax_client.experiment.search_space))
     with console.status(f"[bold green]Loading existing jobs into ax_client...") as status:
         path_idx = 0
         for this_path in _paths:

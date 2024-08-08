@@ -25,10 +25,6 @@ from pprint import pprint
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def dier(msg):
-    pprint(msg)
-    sys.exit(1)
-
 def plot_gpu_usage(run_dir):
     gpu_data = []
     num_plots = 0

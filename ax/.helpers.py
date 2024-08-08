@@ -3,6 +3,7 @@ import re
 import os
 from importlib.metadata import version
 import sys
+from pprint import pprint
 
 def check_environment_variable(variable_name):
     try:
@@ -100,5 +101,13 @@ def to_int_when_possible(val):
     except:
         # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val
+
+def dier (msg):
+    pprint(msg)
+    sys.exit(1)
+
+def assert_condition(condition, error_text):
+    if not condition:
+        raise AssertionError(error_text)
 
 warn_versions()

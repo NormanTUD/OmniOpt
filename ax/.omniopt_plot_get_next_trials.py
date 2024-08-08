@@ -27,15 +27,6 @@ from datetime import datetime
 import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
-from pprint import pprint
-
-def dier(msg):
-    pprint(msg)
-    sys.exit(10)
-
-def assert_condition(condition, error_text):
-    if not condition:
-        raise AssertionError(error_text)
 
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)

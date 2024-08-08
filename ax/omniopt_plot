@@ -444,8 +444,4 @@ if [[ -z $NO_RUNTIME ]]; then
 	echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
 fi
 
-if [[ ! -z $RUN_WITH_COVERAGE ]]; then
-	echo "Run *coverage combine; coverage xml; coverage html*"
-fi
-
 exit $exit_code

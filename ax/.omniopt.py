@@ -231,29 +231,6 @@ def set_max_eval (new_max_eval):
 
     max_eval = new_max_eval
 
-class LogEntry:
-    def __init__(self, function_name, start_time, caller):
-        self.function_name = function_name
-        self.start_time = start_time
-        self.caller = caller
-        self.end_time = None
-        self.duration = None
-        self.sub_calls = []
-
-    def end(self, end_time):
-        self.end_time = end_time
-        self.duration = end_time - self.start_time
-
-    def to_dict(self):
-        return {
-            "function_name": self.function_name,
-            "start_time": self.start_time,
-            "caller": self.caller,
-            "end_time": self.end_time,
-            "duration": self.duration,
-            "sub_calls": [sub_call.to_dict() for sub_call in self.sub_calls]
-        }
-
 def log_what_needs_to_be_logged ():
     if "write_worker_usage" in globals():
         try:

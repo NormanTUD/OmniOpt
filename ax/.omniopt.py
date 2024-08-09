@@ -2279,7 +2279,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             my_exit(49)
 
-    return ax_client, experiment_parameters, experiment_args
+    return ax_client, experiment_parameters, experiment_args, experiment
 
 def get_type_short(typename):
     if typename == "RangeParameter":
@@ -4059,7 +4059,7 @@ def main():
 
     minimize_or_maximize = not args.maximize
 
-    ax_client, experiment_parameters, experiment_args = get_experiment_parameters(
+    ax_client, experiment_parameters, experiment_args, experiment = get_experiment_parameters(
         ax_client, 
         args.continue_previous_job, 
         args.seed, 

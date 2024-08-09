@@ -4,13 +4,14 @@
 
 import os
 import sys
+import importlib.util
+import logging
+import signal
+import traceback
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
-import logging
-import signal
-import importlib.util
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -136,7 +137,6 @@ def update_graph():
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 
-        import traceback
         tb = traceback.format_exc()
         print(tb)
 

@@ -3273,7 +3273,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
             trial_counter += 1
         except Exception as e:
             print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
-    except (signalUSR, signalINT, signalCONT) as e:
+    except (signalUSR, signalINT, signalCONT):
         print_red(f"\n⚠ Detected signal. Will exit.")
         is_in_evaluate = False
         end_program(result_csv_file, "result", 1)
@@ -3642,7 +3642,7 @@ def append_and_read(file, nr=0):
 
     except FileNotFoundError as e:
         print(f"File not found: {e}")
-    except (signalUSR, signalINT, signalCONT) as e:
+    except (signalUSR, signalINT, signalCONT):
         append_and_read(file, nr)
     except OSError as e:
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
@@ -3708,9 +3708,9 @@ def _count_done_jobs(csv_file_path):
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
-    except KeyError as e:
+    except KeyError:
         return 0
-    except pd.errors.EmptyDataError as e:
+    except pd.errors.EmptyDataError:
         return 0
     except pd.errors.ParserError as e:
         print_red(f"Error reading CSV file 2: {str(e)}")
@@ -3747,9 +3747,9 @@ def _count_sobol_steps(csv_file_path):
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
-    except KeyError as e:
+    except KeyError:
         return 0
-    except pd.errors.EmptyDataError as e:
+    except pd.errors.EmptyDataError:
         return 0
     except pd.errors.ParserError as e:
         print_red(f"Error reading CSV file 2: {str(e)}")
@@ -3771,7 +3771,7 @@ def _count_sobol_steps(csv_file_path):
 
 def execute_nvidia_smi():
     if not is_nvidia_smi_system:
-        print_debug(f"Cannot find nvidia-smi. Cannot take GPU logs")
+        print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
         return
 
     while True:
@@ -3996,7 +3996,7 @@ def main():
     global second_step_steps
     global searching_for
 
-    if (not args.continue_previous_job and not args.load_previous_job_data and not "--continue" in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
+    if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         my_exit(233)
 
@@ -4067,8 +4067,6 @@ def main():
 
     minimize_or_maximize = not args.maximize
 
-    experiment = None
-
     ax_client, experiment_parameters, experiment_args = get_experiment_parameters(
         ax_client, 
         args.continue_previous_job, 
@@ -4096,7 +4094,6 @@ def main():
 
     load_existing_job_data_into_ax_client(args)
 
-    initial_text = get_desc_progress_text()
     print(f"Searching {searching_for}")
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
@@ -4124,7 +4121,7 @@ def main():
         global progress_bar
         progress_bar = _progress_bar
 
-        progressbar_description([f"Started OmniOpt2 run..."])
+        progressbar_description(["Started OmniOpt2 run..."])
 
         update_progress_bar(progress_bar, count_done_jobs())
 

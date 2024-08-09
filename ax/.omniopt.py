@@ -3234,7 +3234,7 @@ def _get_next_trials(ax_client):
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
     if break_run_search("_get_next_trials", max_eval, progress_bar):
-        return
+        return False
 
     last_ax_client_time = None
     ax_client_time_avg = None
@@ -3494,9 +3494,7 @@ def get_number_of_steps(max_eval):
 
     if random_steps > max_eval:
         print_yellow(f"You have less --max_eval {max_eval} than --num_random_steps {random_steps}. Switched both.")
-        tmp = random_steps
-        random_steps = max_eval
-        max_eval = tmp
+        random_steps, max_eval = max_eval, random_steps
 
     if random_steps < num_parallel_jobs and system_has_sbatch:
         old_random_steps = random_steps
@@ -3906,7 +3904,6 @@ def main():
     global logfile_debug_get_next_trials
     global search_space_exhausted
     global random_steps
-    global second_step_steps
     global searching_for
 
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):

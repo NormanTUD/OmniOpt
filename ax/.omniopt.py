@@ -123,8 +123,6 @@ try:
         import random
     with console.status("[bold green]Loading pathlib...") as status:
         from pathlib import Path
-    with console.status("[bold green]Loading glob...") as status:
-        import glob
     with console.status("[bold green]Loading os...") as status:
         from os import listdir
         from os.path import isfile, join

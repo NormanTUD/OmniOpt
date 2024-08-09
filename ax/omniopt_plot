@@ -411,7 +411,6 @@ else
 		fi
 		exit_code=$?
 	else
-		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 		if [[ -d docker_user_dir ]]; then
 			OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=docker_user_dir/$_save_to_file $* 2>&1)
 		else

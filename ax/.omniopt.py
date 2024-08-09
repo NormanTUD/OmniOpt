@@ -1225,10 +1225,11 @@ def check_file_info(file_path):
     print_debug("check_file_info")
     if not os.path.exists(file_path):
         print(f"The file {file_path} does not exist.")
-        return
+        return ""
 
     if not os.access(file_path, os.R_OK):
         print(f"The file {file_path} is not readable.")
+        return ""
 
     file_stat = os.stat(file_path)
 

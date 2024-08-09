@@ -158,8 +158,6 @@ try:
         import csv
     with console.status("[bold green]Loading rich.pretty...") as status:
         from rich.pretty import pprint
-    with console.status("[bold green]Loading pprint...") as status:
-        from pprint import pprint
     with console.status("[bold green]Loading subprocess...") as status:
         import subprocess
     with console.status("[bold green]Loading logging...") as status:

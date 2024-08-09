@@ -1683,7 +1683,7 @@ def print_best_result(csv_file_path, result_column):
 
         show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
-        if os.path.exists(_pd_csv) and show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"):
+        if os.path.exists(_pd_csv) and show_sixel_graphics:
             if args.show_sixel_trial_index_result:
                 plot_types = [
                     {

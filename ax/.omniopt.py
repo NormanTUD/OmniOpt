@@ -74,13 +74,13 @@ except KeyboardInterrupt:
 except signalINT:
     original_print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
-except (signalUSR):
+except signalUSR:
     original_print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(128 + 10)
 except signalCONT:
     original_print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
-except (KeyboardInterrupt):
+except KeyboardInterrupt:
     original_print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
@@ -175,13 +175,13 @@ except KeyboardInterrupt:
 except signalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
-except (signalUSR):
+except signalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(128 + 10)
 except signalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
-except (KeyboardInterrupt):
+except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
@@ -784,12 +784,12 @@ def get_program_code_from_out_file(f):
     if not os.path.exists(f):
         print(f"{f} not found")
         return None
-    else:
-        fs = get_file_as_string(f)
 
-        for line in fs.split("\n"):
-            if "Program-Code:" in line:
-                return line
+    fs = get_file_as_string(f)
+
+    for line in fs.split("\n"):
+        if "Program-Code:" in line:
+            return line
 
 def get_max_column_value(pd_csv, column, _default):
     """
@@ -1490,13 +1490,13 @@ except KeyboardInterrupt:
 except signalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
-except (signalUSR):
+except signalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(128 + 10)
 except signalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
-except (KeyboardInterrupt):
+except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 

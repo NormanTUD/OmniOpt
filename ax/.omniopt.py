@@ -3,6 +3,15 @@
 # Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 # Geht, aber was ist mit continued runs?
 
+class signalUSR (Exception):
+    pass
+
+class signalINT (Exception):
+    pass
+
+class signalCONT (Exception):
+    pass
+
 import sys
 
 try:
@@ -685,15 +694,6 @@ def print_debug_progressbar(msg):
     msg = f"{time_str}: {msg}"
 
     _debug_progressbar(msg)
-
-class signalUSR (Exception):
-    pass
-
-class signalINT (Exception):
-    pass
-
-class signalCONT (Exception):
-    pass
 
 def receive_usr_signal_one(signum, stack):
     raise signalUSR(f"USR1-signal received ({signum})")

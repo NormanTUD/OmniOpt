@@ -111,7 +111,6 @@ try:
     with console.status("[bold green]Loading signal...") as status:
         import signal
     with console.status("[bold green]Loading datetime...") as status:
-        from datetime import datetime
         import datetime
     with console.status("[bold green]Loading difflib...") as status:
         import difflib

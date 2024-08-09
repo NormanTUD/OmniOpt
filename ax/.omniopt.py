@@ -3757,7 +3757,7 @@ def break_run_search (_name, max_eval, progress_bar):
 
     return False
 
-def run_search(max_nr_steps, executor, ax_client, progress_bar):
+def run_search(executor, ax_client, progress_bar):
     global search_space_exhausted
     global nr_of_0_results
 
@@ -4039,7 +4039,7 @@ def main():
 
         update_progress_bar(progress_bar, count_done_jobs())
 
-        run_search(max_eval, executor, ax_client, progress_bar)
+        run_search(executor, ax_client, progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 

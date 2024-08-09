@@ -1436,7 +1436,7 @@ def evaluate(parameters):
             return {"result": int(result)}
         elif type(result) is float:
             is_in_evaluate = False
-            return {"result": helpers.to_int_when_possible(float(result))}
+            return {"result": float(result)}
         else:
             is_in_evaluate = False
             write_data_and_headers(parameters, "No Result")
@@ -2846,10 +2846,10 @@ def load_data_from_existing_run_folders(args, _paths):
 
 def print_outfile_analyzed(job):
     stdout_path = str(job.paths.stdout.resolve())
-    stderr_path = str(job.paths.stderr.resolve())
+    #stderr_path = str(job.paths.stderr.resolve())
 
     errors = get_errors_from_outfile(stdout_path)
-    errors.append(*get_errors_from_outfile(stderr_path))
+    #errors.append(*get_errors_from_outfile(stderr_path))
 
     _strs = []
     j = 0

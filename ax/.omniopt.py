@@ -810,8 +810,8 @@ def create_folder_and_file(folder):
 
     file_path = os.path.join(folder, "results.csv")
 
-    with open(file_path, 'w') as file:
-        pass
+    #with open(file_path, 'w') as file:
+    #    pass
 
     return file_path
 
@@ -1381,7 +1381,7 @@ def evaluate(parameters):
     global global_vars
     global is_in_evaluate
 
-    nvidia_smi_thread = start_nvidia_smi_thread()
+    start_nvidia_smi_thread()
 
     return_in_case_of_error = {"result": val_if_nothing_found}
 
@@ -1936,11 +1936,11 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
-    if is_in_evaluate and not force:
+    if is_in_evaluate and not _force:
         print_debug("is_in_evaluate true, returning end_program")
         return
 
-    if end_program_ran and not force:
+    if end_program_ran and not _force:
         print_debug("[end_program] end_program_ran was true. Returning.")
         return
 

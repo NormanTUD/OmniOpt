@@ -270,7 +270,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         axs[row, col].set_visible(False)
 
     show_legend(scatter, axs, result_column)
-    
+
 def show_legend(_scatter, axs, result_column):
     print_debug("show_legend")
     global args, fig
@@ -594,7 +594,7 @@ def update_graph(event=None, _min=None, _max=None):
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
         plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
-        
+
         set_title(fig, df_filtered, result_column_values, len(df_filtered), _min, _max)
 
         plt.draw()
@@ -632,7 +632,7 @@ def create_widgets():
 
     textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
     maximum_textbox = TextBox(textbox_maximum, 'Maximum result:', initial=max_string)
-     
+
 if __name__ == "__main__":
     try:
         get_args()

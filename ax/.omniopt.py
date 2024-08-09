@@ -4275,7 +4275,7 @@ def run_tests():
         0
     )
 
-    nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), None)
+    nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), "")
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
     nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")

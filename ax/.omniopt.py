@@ -1971,7 +1971,7 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
             return
 
         _exit = show_end_table_and_save_end_files(csv_file_path, result_column)
-    except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
+    except (signalUSR, signalINT, signalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         _exit = show_end_table_and_save_end_files(csv_file_path, result_column)
@@ -4730,7 +4730,7 @@ if __name__ == "__main__":
         else:
             try:
                 main()
-            except (signalUSR, signalINT, signalCONT, KeyboardInterrupt) as e:
+            except (signalUSR, signalINT, signalCONT, KeyboardInterrupt):
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
                 is_in_evaluate = False
 

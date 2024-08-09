@@ -22,3 +22,4 @@ pytz
 tzlocal
 rich-argparse
 coverage
+deadcode

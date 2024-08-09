@@ -4511,14 +4511,6 @@ def get_errors_from_outfile(i):
 
     return errors
 
-def find_files(directory, extension='.out'):
-    files = []
-    for root, dirs, filenames in os.walk(directory):
-        for filename in filenames:
-            if filename.endswith(extension):
-                files.append(os.path.join(root, filename))
-    return files
-
 def log_nr_of_workers():
     try:
         write_process_info()

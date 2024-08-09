@@ -49,7 +49,7 @@ hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-min
 printf 'Deadcode test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No plot errors"
+	green_text "No deadcode errors"
 	exit 0
 else
 	red_text "=> DEADCODE-ERRORS => DEADCODE-ERRORS => DEADCODE-ERRORS =>\n"

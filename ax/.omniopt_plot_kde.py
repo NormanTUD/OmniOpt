@@ -4,16 +4,7 @@
 # TEST_OUTPUT_MUST_CONTAIN: Count
 
 import os
-script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file = f"{script_dir}/.helpers.py"
 import importlib.util
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=helpers_file,
-)
-helpers = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(helpers)
-
 import numpy as np
 import math
 import sys
@@ -21,6 +12,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 import logging
+import traceback
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -68,8 +69,6 @@ def plot_histograms(dataframe, save_to_file=None):
     except Exception as e:
         if "'Axes' object has no attribute 'flatten'" not in str(e):
             print(e)
-
-            import traceback
             tb = traceback.format_exc()
             print(tb)
 
@@ -108,7 +107,7 @@ def plot_histograms(dataframe, save_to_file=None):
 
     try:
         nr_axes = len(axes)
-    except:
+    except Exception:
         pass
 
     for j in range(num_plots, nr_axes):
@@ -148,7 +147,6 @@ def update_graph():
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 
-        import traceback
         tb = traceback.format_exc()
         print(tb)
 

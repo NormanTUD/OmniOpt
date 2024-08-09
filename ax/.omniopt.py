@@ -441,6 +441,25 @@ def _debug_get_next_trials(msg, _lvl=0, ee=None):
 def _debug_progressbar(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_progressbar, msg, _lvl, ee)
 
+def print_red(text):
+    helpers.print_color("red", text)
+
+    if current_run_folder:
+        try:
+            with open(f"{current_run_folder}/oo_errors.txt", "a") as myfile:
+                myfile.write(text)
+        except FileNotFoundError as e:
+            print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
+            sys.exit(99)
+
+def print_green(text):
+    helpers.print_color("green", text)
+
+def print_yellow(text):
+    helpers.print_color("yellow", text)
+
+
+
 def add_to_phase_counter(phase, nr=0, run_folder=""):
     global current_run_folder
 
@@ -709,24 +728,6 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
-
-def print_red(text):
-    helpers.print_color("red", text)
-
-    if current_run_folder:
-        try:
-            with open(f"{current_run_folder}/oo_errors.txt", "a") as myfile:
-                myfile.write(text)
-        except FileNotFoundError as e:
-            print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
-            sys.exit(99)
-
-def print_green(text):
-    helpers.print_color("green", text)
-
-def print_yellow(text):
-    helpers.print_color("yellow", text)
-
 def is_executable_in_path(executable_name):
     print_debug(f"is_executable_in_path({executable_name})")
     for path in os.environ.get('PATH', '').split(':'):
@@ -917,7 +918,7 @@ def get_bound_if_prev_data(_type, _column, _default):
 
     return round(ret_val, 4), found_in_file
 
-def parse_experiment_parameters(args):
+def parse_experiment_parameters():
     global global_vars
     print_debug("parse_experiment_parameters")
 
@@ -2570,15 +2571,15 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
-def load_existing_job_data_into_ax_client(args):
+def load_existing_job_data_into_ax_client():
     global nr_inserted_jobs
 
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
-            load_data_from_existing_run_folders(args, this_path)
+            load_data_from_existing_run_folders(this_path)
 
     #if args.continue_previous_job:
-    #    load_data_from_existing_run_folders(args, [args.continue_previous_job])
+    #    load_data_from_existing_run_folders([args.continue_previous_job])
 
     if len(already_inserted_param_hashes.keys()):
         if len(missing_results):
@@ -2593,7 +2594,7 @@ def load_existing_job_data_into_ax_client(args):
             print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
             nr_inserted_jobs += len(already_inserted_param_hashes.keys())
     else:
-        nr_of_imported_jobs = get_nr_of_imported_jobs(args)
+        nr_of_imported_jobs = get_nr_of_imported_jobs()
         nr_inserted_jobs += nr_of_imported_jobs
 
 def parse_parameter_type_error(error_message):
@@ -2649,7 +2650,7 @@ def extract_headers_and_rows(data_list):
         return None, None
 
 
-def simulate_load_data_from_existing_run_folders(args, _paths):
+def simulate_load_data_from_existing_run_folders(_paths):
     _counter = 0
 
     path_idx = 0
@@ -2721,7 +2722,7 @@ def get_list_import_as_string (_brackets=True, _comma=False):
 
     return ""
 
-def load_data_from_existing_run_folders(args, _paths):
+def load_data_from_existing_run_folders(_paths):
     #return
     global already_inserted_param_hashes
     global already_inserted_param_data
@@ -2878,8 +2879,8 @@ def print_outfile_analyzed(job):
 
         print_red(out_files_string)
 
-def finish_previous_jobs(args, new_msgs):
-    print_debug(f"finish_previous_jobs(args, {new_msgs})")
+def finish_previous_jobs(new_msgs):
+    print_debug(f"finish_previous_jobs({new_msgs})")
 
     global result_csv_file
     global random_steps
@@ -3133,12 +3134,12 @@ def is_slurm_job():
         return True
     return False
 
-def _sleep(args, t):
+def _sleep(t):
     if not args.no_sleep:
         print_debug(f"Sleeping {t} second(s) before continuation")
         time.sleep(t)
 
-def save_state_files(args):
+def save_state_files():
     global current_run_folder
     global global_vars
 
@@ -3173,7 +3174,7 @@ def save_state_files(args):
     with open(f'{state_files_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
+def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
     global is_in_evaluate
@@ -3208,7 +3209,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         #    print_red(f"Error while trying to submit job: {e}")
 
         global_vars["jobs"].append((new_job, trial_index))
-        _sleep(args, 1)
+        _sleep(1)
 
         try:
             _trial.mark_running(no_runner_required=True)
@@ -3253,7 +3254,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         print(tb)
         print_red(f"\n⚠ Starting job failed with error: {e}")
 
-    finish_previous_jobs(args, [])
+    finish_previous_jobs([])
 
     add_to_phase_counter(phase, 1)
 
@@ -3270,10 +3271,10 @@ def get_current_model ():
 
     return "initializing"
 
-def _get_next_trials(args, ax_client):
+def _get_next_trials(ax_client):
     global global_vars
 
-    finish_previous_jobs(args, ["finishing jobs (_get_next_trials)"])
+    finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
     if break_run_search("_get_next_trials", max_eval, progress_bar):
         return
@@ -3345,19 +3346,19 @@ def get_next_nr_steps(num_parallel_jobs, max_eval):
 
     return requested
 
-def get_nr_of_imported_jobs(args):
+def get_nr_of_imported_jobs():
     nr_jobs = 0
 
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
-            nr_jobs += simulate_load_data_from_existing_run_folders(args, this_path)
+            nr_jobs += simulate_load_data_from_existing_run_folders(this_path)
 
     if args.continue_previous_job:
-        nr_jobs += simulate_load_data_from_existing_run_folders(args, [args.continue_previous_job])
+        nr_jobs += simulate_load_data_from_existing_run_folders([args.continue_previous_job])
 
     return nr_jobs
 
-def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
+def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     global random_steps
 
     _steps = []
@@ -3452,7 +3453,7 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
 
     return gs, _steps
 
-def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase, max_eval, progress_bar):
+def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_eval, progress_bar):
     global random_steps
 
     #print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
@@ -3464,7 +3465,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
         print_debug("trying to get trial_index_to_param")
 
         try:
-            trial_index_to_param = _get_next_trials(args, ax_client)
+            trial_index_to_param = _get_next_trials(ax_client)
 
             if trial_index_to_param:
                 i = 1
@@ -3473,7 +3474,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
                         break
 
                     while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(args, ["finishing prev jobs"])
+                        finish_previous_jobs(["finishing prev jobs"])
 
                         if break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
                             break
@@ -3482,7 +3483,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
                     if not break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                        execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
+                        execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                         i += 1
                     else:
                         break
@@ -3516,7 +3517,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     return num_new_keys
 
-def get_random_steps_from_prev_job(args):
+def get_random_steps_from_prev_job():
     if not args.continue_previous_job:
         return count_sobol_steps()
 
@@ -3527,10 +3528,10 @@ def get_random_steps_from_prev_job(args):
 
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
-def get_number_of_steps(args, max_eval):
+def get_number_of_steps(max_eval):
     random_steps = args.num_random_steps
 
-    already_done_random_steps = get_random_steps_from_prev_job(args)
+    already_done_random_steps = get_random_steps_from_prev_job()
 
     random_steps = random_steps - already_done_random_steps
 
@@ -3562,7 +3563,7 @@ def get_number_of_steps(args, max_eval):
 
     return random_steps, second_step_steps
 
-def get_executor(args):
+def get_executor():
     global run_uuid
 
     log_folder = f'{current_run_folder}/single_runs/%j'
@@ -3796,7 +3797,7 @@ def break_run_search (_name, max_eval, progress_bar):
 
     return False
 
-def run_search(args, max_nr_steps, executor, ax_client, progress_bar):
+def run_search(max_nr_steps, executor, ax_client, progress_bar):
     global search_space_exhausted
     global nr_of_0_results
 
@@ -3809,7 +3810,7 @@ def run_search(args, max_nr_steps, executor, ax_client, progress_bar):
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-        finish_previous_jobs(args, [])
+        finish_previous_jobs([])
 
         if break_run_search("run_search", max_eval, progress_bar):
             break
@@ -3821,15 +3822,15 @@ def run_search(args, max_nr_steps, executor, ax_client, progress_bar):
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
 
-            nr_of_items = create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, "systematic", max_eval, progress_bar)
+            nr_of_items = create_and_execute_next_runs(ax_client, next_nr_steps, executor, "systematic", max_eval, progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(args, ["finishing prev jobs"])
+        finish_previous_jobs(["finishing prev jobs"])
 
-        _sleep(args, 1)
+        _sleep(1)
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
             _wrn = f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
@@ -3852,8 +3853,8 @@ def run_search(args, max_nr_steps, executor, ax_client, progress_bar):
     wait_for_jobs_to_complete(num_parallel_jobs)
 
     while len(global_vars["jobs"]):
-        finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-        _sleep(args, 1)
+        finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+        _sleep(1)
 
     log_what_needs_to_be_logged()
     return False
@@ -3866,15 +3867,6 @@ def wait_for_jobs_to_complete (num_parallel_jobs):
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             time.sleep(5)
             clean_completed_jobs()
-
-def finish_previous_jobs_random(args):
-    try:
-        while len(global_vars['jobs']):
-            finish_previous_jobs(args, [f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-            _sleep(args, 1)
-    except EOFError as e:
-        print_red(f"Error {e}: This may mean that you are running on an unstable file system. Cannot continue.")
-        sys.exit(199)
 
 def print_logo():
     original_print("""
@@ -3977,7 +3969,7 @@ def main():
 
     result_csv_file = create_folder_and_file(f"{current_run_folder}")
 
-    save_state_files(args)
+    save_state_files()
 
     print(f"[yellow]Run-folder[/yellow]: [underline]{current_run_folder}[/underline]")
     if args.continue_previous_job:
@@ -3996,7 +3988,7 @@ def main():
     checkpoint_parameters_filepath = f"{current_run_folder}/state_files/checkpoint.json.parameters.json"
 
     if args.parameter:
-        experiment_parameters = parse_experiment_parameters(args)
+        experiment_parameters = parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
     if not args.verbose:
@@ -4008,7 +4000,7 @@ def main():
         print_red("--max_eval needs to be set!")
         sys.exit(19)
 
-    random_steps, second_step_steps = get_number_of_steps(args, max_eval)
+    random_steps, second_step_steps = get_number_of_steps(max_eval)
 
     if args.exclude:
         entries = [entry.strip() for entry in args.exclude.split(',')]
@@ -4021,7 +4013,7 @@ def main():
         print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-    gs, gs_steps = get_generation_strategy(args, num_parallel_jobs, args.seed, args.max_eval)
+    gs, gs_steps = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 
     ax_client = AxClient(
         verbose_logging=args.verbose,
@@ -4053,10 +4045,10 @@ def main():
 
     print_overview_tables(experiment_parameters, experiment_args)
 
-    executor = get_executor(args)
+    executor = get_executor()
     searching_for = "minimum" if not args.maximize else "maximum"
 
-    load_existing_job_data_into_ax_client(args)
+    load_existing_job_data_into_ax_client()
 
     print(f"Searching {searching_for}")
 
@@ -4089,7 +4081,7 @@ def main():
 
         update_progress_bar(progress_bar, count_done_jobs())
 
-        run_search(args, max_eval, executor, ax_client, progress_bar)
+        run_search(max_eval, executor, ax_client, progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
@@ -4313,7 +4305,7 @@ def run_tests():
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
     nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")
-    nr_errors += is_equal("create_and_execute_next_runs(args, None, 0, None, None, None, None)", create_and_execute_next_runs(args, None, 0, None, None, None, None), 0)
+    nr_errors += is_equal("create_and_execute_next_runs(None, 0, None, None, None, None)", create_and_execute_next_runs(None, 0, None, None, None, None), 0)
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo", 0, None)

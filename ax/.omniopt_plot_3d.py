@@ -1,11 +1,11 @@
 # DESCRIPTION: 3d plot
 # EXPECTED FILES: results.csv
 
+import itertools
+import sys
 import argparse
 import pandas as pd
-import itertools
 import pyvista as pv
-import sys
 
 def main():
     parser = argparse.ArgumentParser(description='3D Scatter Plot from CSV')

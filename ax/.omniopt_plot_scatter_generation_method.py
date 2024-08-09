@@ -4,12 +4,12 @@
 
 import os
 import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import argparse
 import logging
 import importlib.util
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"

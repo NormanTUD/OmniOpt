@@ -4302,7 +4302,7 @@ def test_find_paths(program_code):
     string = find_file_paths_and_print_infos(text, program_code)
 
     for i in files:
-        if not i in string:
+        if i not in string:
             if os.path.exists(i):
                 print("Missing {i} in find_file_paths string!")
                 nr_errors += 1

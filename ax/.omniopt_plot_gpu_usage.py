@@ -7,11 +7,11 @@
 
 import os
 import sys
+import importlib.util
+import signal
 import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
-import signal
-import importlib.util
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"

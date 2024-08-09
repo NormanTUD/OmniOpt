@@ -3539,7 +3539,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     try:
         num_new_keys = len(trial_index_to_param.keys())
-    except:
+    except Exception:
         pass
 
     return num_new_keys

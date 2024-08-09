@@ -3117,7 +3117,8 @@ def get_desc_progress_text(new_msgs=[]):
         if in_brackets_clean:
             desc += f"{', '.join(in_brackets_clean)}"
 
-    capitalized_string = lambda s: s[0].upper() + s[1:] if s else ''
+    def capitalized_string(s):
+        return s[0].upper() + s[1:] if s else ""
     desc = capitalized_string(desc)
 
     return desc

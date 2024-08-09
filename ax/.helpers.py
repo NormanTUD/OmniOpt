@@ -9,7 +9,7 @@ import math
 
 def check_environment_variable(variable_name):
     try:
-        value = os.environ[variable_name]
+        os.environ[variable_name]
         return True
     except KeyError:
         return False

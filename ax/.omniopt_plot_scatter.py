@@ -412,7 +412,7 @@ def get_colors(df):
         colors = df["result"]
     except KeyError as e:
         if str(e) == "'result'":
-            print(f"Could not find any results")
+            print("Could not find any results")
             sys.exit(3)
         else:
             print(f"Key-Error: {e}")

@@ -508,24 +508,8 @@ def use_matplotlib():
         print("An error occured while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
         sys.exit(33)
 
-def plot_image_to_command_line(title, path):
-    print_debug("plot_image_to_command_line")
-    path = os.path.abspath(path)
-    if not os.path.exists(path):
-        helpers.dier(f"Cannot continue: {path} does not exist")
-    try:
-        import plotext as plt
-
-        plt.image_plot(path)
-        plt.title(title)
-        if not args.no_plt_show:
-            plt.show()
-    except ModuleNotFoundError:
-        helpers.dier("Cannot plot without plotext being installed")
-
 def main():
     global args
-    #plot_image_to_command_line("test", "runs/__main__tests__/1/2d-scatterplots/__main__tests__.jpg")
     result_column = "result"
 
     use_matplotlib()

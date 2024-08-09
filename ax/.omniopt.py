@@ -33,7 +33,7 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
-class searchSpaceExhausted (Exception):
+class SearchSpaceExhausted (Exception):
     pass
 
 nr_inserted_jobs = 0
@@ -2158,7 +2158,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
-        ax_client = (AxClient.load_from_json_file(tmp_file_path))
+        ax_client = AxClient.load_from_json_file(tmp_file_path)
         #helpers.dier(human_readable_generation_strategy(ax_client))
         #helpers.dier(tmp_file_path)
 
@@ -2694,14 +2694,14 @@ def get_list_import_as_string (_brackets=True, _comma=False):
         _str.append(f"missing_results: {len(missing_results)}")
 
     if len(_str):
-        if(_brackets):
+        if _brackets:
             if _comma:
                 return ", (" + (", ".join(_str)) + ")"
             return " (" + (", ".join(_str)) + ")"
-        else:
-            if _comma:
-                return ", " + (", ".join(_str))
-            return ", ".join(_str)
+
+        if _comma:
+            return ", " + (", ".join(_str))
+        return ", ".join(_str)
 
     return ""
 
@@ -3830,7 +3830,7 @@ def run_search(max_nr_steps, executor, ax_client, progress_bar):
             print_debug(_wrn)
             progressbar_description([_wrn])
 
-            raise searchSpaceExhausted("Search space exhausted")
+            raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
 
@@ -4604,7 +4604,7 @@ if __name__ == "__main__":
                 IS_IN_EVALUATE = False
 
                 end_program(result_csv_file, "result", 1)
-            except searchSpaceExhausted:
+            except SearchSpaceExhausted:
                 _get_perc = abs(int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100))
 
                 if _get_perc < 100:

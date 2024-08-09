@@ -49,15 +49,18 @@ def plot_gpu_usage(run_dir):
                 gpu_data_len += len(df)
 
     if len(_paths) == 0:
-        print(f"No gpu_usage_*.csv files could be found in {run_dir}")
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print(f"No gpu_usage_*.csv files could be found in {run_dir}")
         sys.exit(10)
 
     if not gpu_data:
-        print("No GPU usage data found.")
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print("No GPU usage data found.")
         sys.exit(44)
 
     if gpu_data_len < 1:
-        print(f"No valid GPU usage data foundf (len = {gpu_data_len}).")
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print(f"No valid GPU usage data foundf (len = {gpu_data_len}).")
         sys.exit(55)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots

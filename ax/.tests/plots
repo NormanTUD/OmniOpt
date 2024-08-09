@@ -109,8 +109,6 @@ if [[ "$help" -eq "1" ]]; then
 	exit 0
 fi
 
-export NO_WHIPTAIL=1
-
 errors=()
 
 function join_by {

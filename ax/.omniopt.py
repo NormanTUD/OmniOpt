@@ -4061,7 +4061,7 @@ def _unidiff_output(expected, actual):
 
     return ''.join(diff)
 
-def print_diff(o, i):
+def print_diff(i, o):
     if type(i) is str:
         print("Should be:", i.strip())
     else:
@@ -4114,18 +4114,15 @@ def _is_equal(name, input, output):
     if type(input) is not type(output):
         print_red(f"Failed test: {name}")
         return 1
-    elif type(input) is str or type(input) is int or type(input) is float:
-        if input != output:
-            print_red(f"Failed test: {name}")
-            return 1
-    elif type(input) is bool:
-        if input != output:
-            print_red(f"Failed test: {name}")
-            return 1
-    elif output is None or input is None:
-        if input != output:
-            print_red(f"Failed test: {name}")
-            return 1
+    elif type(input) is str or type(input) is int or type(input) is float and input != output:
+        print_red(f"Failed test: {name}")
+        return 1
+    elif type(input) is bool and input != output:
+        print_red(f"Failed test: {name}")
+        return 1
+    elif output is None or input is None and input != output:
+        print_red(f"Failed test: {name}")
+        return 1
     else:
         print_red(f"Unknown data type for test {name}")
         my_exit(192)

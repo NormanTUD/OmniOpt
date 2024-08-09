@@ -2042,6 +2042,8 @@ def get_ax_param_representation(data):
     pprint(data)
     helpers.dier(f"Unknown data range {data['type']}")
 
+    return {} # only for linter, never reached because of die
+
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None
     experiment = None

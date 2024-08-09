@@ -52,7 +52,6 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 try:
-    import re
     import pandas as pd
     from matplotlib.colors import LinearSegmentedColormap
 
@@ -102,17 +101,13 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
 
     extreme_values_items = extreme_values.items()
 
-    filtered_extreme_values_items = {}
-
     title_values = []
 
-    for l in extreme_values_items:
-        if "result" not in l:
-            key = l[0]
-            value = helpers.to_int_when_possible(l[1])
+    for _l in extreme_values_items:
+        if "result" not in _l:
+            key = _l[0]
+            value = helpers.to_int_when_possible(_l[1])
             title_values.append(f"{key} = {value}")
-
-    #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
 
     title += " of f("
     title += ', '.join(title_values)
@@ -296,6 +291,8 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm):
     # Farbgebung und Legende für das einzelne Scatterplot
     show_legend(_y, axs)
 
+    return scatter
+
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs):
     print_debug("plot_single_graph()")
     _range = range(len(df_filtered))
@@ -306,13 +303,15 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, non_empty_grap
     _x = []
     _y = []
 
-    for l in _data:
-        _x.append(l[0])
-        _y.append(l[1])
+    for _l in _data:
+        _x.append(_l[0])
+        _y.append(_l[1])
 
     scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel("result")
+
+    return scatter
 
 def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     print_debug("plot_graphs")
@@ -324,16 +323,16 @@ def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, param
     norm = None
     try:
         norm = plt.Normalize(colors.min(), colors.max())
-    except:
+    except Exception:
         print("Wrong values in csv file")
         sys.exit(16)
 
     c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]
     c = c[::-1]
     v = [0, 0.3, 0.5, 0.7, 0.9, 1]
-    l = list(zip(v,c))
+    _l = list(zip(v,c))
 
-    cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
+    cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
     if num_subplots == 1 and (type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1):
         plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs)

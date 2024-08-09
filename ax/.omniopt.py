@@ -4137,7 +4137,7 @@ def _is_equal(name, _input, output):
         print_red(f"Failed test (6): {name}")
         return 1
 
-    if output is None and _input is None:
+    if (output is None and _input is not None) or (output is not None and _input is None):
         print_red(f"Failed test (7): {name}")
         return 1
 

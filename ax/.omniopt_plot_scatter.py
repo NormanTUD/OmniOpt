@@ -250,7 +250,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
         axs[row, col].set_visible(False)
 
     show_legend(scatter, axs)
-    
+
 def show_legend(_scatter, axs):
     print_debug("show_legend")
     global args, fig
@@ -516,6 +516,9 @@ def main():
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
     print_debug("update_graph")
+    if event: # only for fooling pylint...
+        pass
+
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 
     try:
@@ -560,7 +563,7 @@ def update_graph(event=None, _min=None, _max=None):
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 
         plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
-        
+
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
         set_title(fig, df_filtered, result_column_values, len(df_filtered), _min, _max)
 
@@ -599,7 +602,7 @@ def create_widgets():
 
     textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
     maximum_textbox = TextBox(textbox_maximum, 'Maximum result:', initial=max_string)
-     
+
 if __name__ == "__main__":
     try:
         get_args()

@@ -9,6 +9,7 @@ import sys
 import signal
 import argparse
 import logging
+import traceback
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -89,7 +90,6 @@ def update_graph():
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 
-        import traceback
         tb = traceback.format_exc()
         print(tb)
 

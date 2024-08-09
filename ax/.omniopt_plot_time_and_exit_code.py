@@ -5,16 +5,16 @@
 # TEST_OUTPUT_MUST_CONTAIN: Distribution of Run Time
 # TEST_OUTPUT_MUST_CONTAIN: Result over Time
 
-import pandas as pd
 import argparse
 import os
 import sys
-import seaborn as sns
-import matplotlib.pyplot as plt
-from tzlocal import get_localzone
 import importlib.util
 import signal
 from datetime import datetime
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+from tzlocal import get_localzone
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 

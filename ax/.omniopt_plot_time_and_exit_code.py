@@ -12,12 +12,13 @@ import sys
 import seaborn as sns
 import matplotlib.pyplot as plt
 from tzlocal import get_localzone
+import importlib.util
 import signal
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,

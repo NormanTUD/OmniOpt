@@ -6,6 +6,7 @@
 import os
 import importlib.util
 import math
+import warnings
 import sys
 import argparse
 import logging
@@ -113,7 +114,6 @@ def plot_histograms(dataframe):
     for j in range(num_plots, nr_axes):
         axes[j].axis('off')
 
-    import warnings
     warnings.filterwarnings("ignore")
 
     plt.tight_layout()

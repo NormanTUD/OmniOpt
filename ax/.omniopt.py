@@ -440,18 +440,6 @@ def add_to_phase_counter(phase, nr=0, run_folder=""):
         run_folder = current_run_folder
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
-
-class REMatcher(object):
-    def __init__(self, matchstring):
-        self.matchstring = matchstring
-
-    def match(self,regexp):
-        self.rematch = re.match(regexp, self.matchstring)
-        return bool(self.rematch)
-
-    def group(self,i):
-        return self.rematch.group(i)
-
 parser = argparse.ArgumentParser(
     prog="omniopt",
     description='A hyperparameter optimizer for slurmbased HPC-systems',
@@ -4429,7 +4417,6 @@ def get_first_line_of_file_that_contains_string(i, s):
 def get_errors_from_outfile(i):
     print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)
-    m = REMatcher(file_as_string)
 
     program_code = get_program_code_from_out_file(i)
     file_paths = find_file_paths(program_code)

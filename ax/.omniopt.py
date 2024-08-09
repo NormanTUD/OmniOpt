@@ -4385,6 +4385,12 @@ def run_tests():
     )
 
     nr_errors += is_equal(
+        "_count_sobol_steps('/etc/idontexist')",
+        _count_sobol_steps("/etc/idontexist"),
+        0
+    )
+
+    nr_errors += is_equal(
         "_count_done_jobs('/etc/idontexist')",
         _count_done_jobs("/etc/idontexist"),
         0

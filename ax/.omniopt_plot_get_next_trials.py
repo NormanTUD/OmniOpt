@@ -7,9 +7,17 @@
 # TEST_OUTPUT_MUST_CONTAIN: Requested
 
 import os
+import signal
+import importlib.util
+import traceback
+import sys
+from datetime import datetime
+import argparse
+import pandas as pd
+import matplotlib.pyplot as plt
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -17,15 +25,7 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-import traceback
-import sys
-from datetime import datetime
-import argparse
-import pandas as pd
-import matplotlib.pyplot as plt
 
 def parse_log_file(log_file_path):
     try:

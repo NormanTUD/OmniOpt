@@ -64,13 +64,13 @@ def main():
                 plotter.add_axes(interactive=True, **labels)
                 plotter.add_scalar_bar(title='Result')
                 plotted += 1
-            except TypeError as e:
+            except TypeError:
                 print(f"Cannot plot {col1}, {col2}, {col3}")
 
         if plotted:
             plotter.show()
         else:
-            print(f"Did not plot anything")
+            print("Did not plot anything")
             sys.exit(42)
     except FileNotFoundError:
         print(f"results.csv cannot be found under {args.run_dir}")

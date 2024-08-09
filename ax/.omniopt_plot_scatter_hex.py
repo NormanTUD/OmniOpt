@@ -6,14 +6,20 @@
 
 from rich.pretty import pprint
 from rich.traceback import install
+import traceback
+import os
+import importlib.util
+import sys
+import argparse
+import math
+import signal
+
 install(show_locals=True)
 
 bins = None
 
-import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -33,19 +39,13 @@ def print_debug(msg):
         print("DEBUG: ", end="")
         pprint(msg)
 
-import sys
-import argparse
-import math
-
 fig = None
 maximum_textbox = None
 minimum_textbox = None
 
-import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 try:
-    import re
     import pandas as pd
     from matplotlib.colors import LinearSegmentedColormap
 
@@ -97,10 +97,10 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
 
     title_values = []
 
-    for l in extreme_values_items:
-        if "result" not in l:
-            key = l[0]
-            value = helpers.to_int_when_possible(l[1])
+    for _l in extreme_values_items:
+        if "result" not in _l:
+            key = _l[0]
+            value = helpers.to_int_when_possible(_l[1])
             title_values.append(f"{key} = {value}")
 
     #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
@@ -324,9 +324,9 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
     _x = []
     _y = []
 
-    for l in _data:
-        _x.append(l[0])
-        _y.append(l[1])
+    for _l in _data:
+        _x.append(_l[0])
+        _y.append(_l[1])
 
     global bins
     if bins:
@@ -353,9 +353,9 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]
     c = c[::-1]
     v = [0, 0.3, 0.5, 0.7, 0.9, 1]
-    l = list(zip(v,c))
+    _l = list(zip(v,c))
 
-    cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
+    cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
     if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
         plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs, result_column_values)
@@ -655,7 +655,6 @@ def change_min_max(expression):
         
         update_graph(None)
     except Exception as e:
-        import traceback
         tb = traceback.format_exc()
         print(tb)
 

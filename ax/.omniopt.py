@@ -1971,11 +1971,11 @@ def save_pd_csv():
 
         #print_debug("pd.{csv,json} saved")
     except SignalUSR as e:
-        raise SignalUSR(str(e))
+        raise SignalUSR(str(e)) from e
     except SignalCONT as e:
-        raise SignalCONT(str(e))
+        raise SignalCONT(str(e)) from e
     except SignalINT as e:
-        raise SignalINT(str(e))
+        raise SignalINT(str(e)) from e
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
@@ -2052,6 +2052,7 @@ def get_ax_param_representation(data):
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None
     experiment = None
+
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 

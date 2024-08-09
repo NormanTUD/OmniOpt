@@ -6,13 +6,13 @@
 
 import os
 import sys
-import matplotlib.pyplot as plt
-import seaborn as sns
+import signal
 import argparse
 import logging
+import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
 
-import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def setup_logging():

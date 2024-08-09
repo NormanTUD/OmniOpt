@@ -2879,7 +2879,7 @@ def print_outfile_analyzed(job):
     stderr_path = str(job.paths.stderr.resolve())
 
     errors = get_errors_from_outfile(stdout_path)
-    errors.append(...get_errors_from_outfile(stderr_path))
+    errors.append(*get_errors_from_outfile(stderr_path))
 
     _strs = []
     j = 0

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ORIGINAL_WHIPTAIL=$WHIPTAIL
+ORIGINAL_WHIPTAIL=$WHIPTAIL
 
 export ORIGINAL_PWD=$(pwd)
 export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"

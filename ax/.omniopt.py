@@ -4288,7 +4288,7 @@ def run_tests():
     nr_errors += is_equal(
             "evaluate({'x': 123})",
             json.dumps(evaluate({'x': 123.0})),
-            json.dumps({'result': 123})
+            json.dumps({'result': 123.0})
     )
 
     nr_errors += is_equal(

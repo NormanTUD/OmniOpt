@@ -226,10 +226,12 @@ for _command in "${_commands[@]}"; do
 	END_TIME=$SECONDS
 	RUN_TIME=$(($END_TIME-$START_TIME))
 
-	if [[ "$_exit_code" -ne 0 ]]; then
-		echo ""
-		red_text "$_command failed"
-		errors+=("$_command failed")
+	if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
+		if [[ "$_exit_code" -ne 0 ]]; then
+			echo ""
+			red_text "$_command failed"
+			errors+=("$_command failed")
+		fi
 	fi
 
 	if [[ -e "$this_img" ]]; then

@@ -6,13 +6,19 @@
 
 from rich.traceback import install
 from rich.pretty import pprint
+import traceback
+import os
+import importlib.util
+import sys
+import argparse
+import math
+import signal
+
 #install(show_locals=True)
 install()
 
-import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -32,15 +38,10 @@ def print_debug(msg):
         print("DEBUG: ", end="")
         pprint(msg)
 
-import sys
-import argparse
-import math
-
 fig = None
 maximum_textbox = None
 minimum_textbox = None
 
-import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
@@ -639,7 +640,6 @@ def change_min_max(expression):
         
         update_graph(None)
     except Exception as e:
-        import traceback
         tb = traceback.format_exc()
         print(tb)
 

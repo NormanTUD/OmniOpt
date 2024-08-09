@@ -2903,6 +2903,7 @@ def load_data_from_existing_run_folders(args, _paths):
 def print_outfile_analyzed(job):
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
+
     errors = get_errors_from_outfile(stdout_path)
     #errors.append(...get_errors_from_outfile(stderr_path))
 
@@ -4421,16 +4422,6 @@ def run_tests():
 
     my_exit(nr_errors)
 
-def file_contains_text(f, t):
-    print_debug("file_contains_text")
-    datafile = get_file_as_string(f)
-
-    found = False
-    for line in datafile:
-        if t in line:
-            return True
-    return False
-
 def get_first_line_of_file_that_contains_string(i, s):
     print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
@@ -4633,41 +4624,6 @@ def find_files(directory, extension='.out'):
             if filename.endswith(extension):
                 files.append(os.path.join(root, filename))
     return files
-
-def analyze_out_files(rootdir, print_to_stdout=True):
-    try:
-        outfiles = find_files('{rootdir}/')
-        # outfiles = glob.glob(f'{rootdir}/**/*.out', recursive=True)
-
-        j = 0
-
-        _strs = []
-
-        for i in outfiles:
-            errors = get_errors_from_outfile(i)
-
-            if len(errors):
-                if j == 0:
-                    _strs.append("")
-                _strs.append(f"Out file {i} contains potential errors:\n")
-                program_code = get_program_code_from_out_file(i)
-                if program_code:
-                    _strs.append(program_code)
-
-                for e in errors:
-                    _strs.append(f"- {e}\n")
-
-                _strs.append("\n")
-
-                j = j + 1
-
-        if print_to_stdout:
-            print_red("\n".join(errors))
-
-        return "\n".join(_strs)
-    except Exception as e:
-        print("error: " + str(e))
-        return ""
 
 def log_nr_of_workers():
     try:

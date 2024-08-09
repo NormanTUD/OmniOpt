@@ -778,7 +778,7 @@ def get_program_code_from_out_file(f):
     print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
         print(f"{f} not found")
-        return None
+        return ""
 
     fs = get_file_as_string(f)
 
@@ -1775,8 +1775,6 @@ def print_best_result(csv_file_path, result_column):
                     tb = traceback.format_exc()
                     print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
                     print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
-            else:
-                print_debug(f"{_pd_csv} not found")
 
         shown_end_table = True
     except Exception as e:

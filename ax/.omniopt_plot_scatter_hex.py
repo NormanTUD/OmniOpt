@@ -14,7 +14,10 @@ import math
 import signal
 from rich.pretty import pprint
 from rich.traceback import install
+
 install(show_locals=True)
+
+button = None
 
 textbox_minimum = None
 textbox_maximum = None

@@ -56,7 +56,14 @@ def main():
         print(f"Error: {_job_infos_csv} not found")
         sys.exit(1)
 
-    df = pd.read_csv(_job_infos_csv)
+    df = None
+
+    try:
+        df = pd.read_csv(_job_infos_csv)
+    except pandas.errors.EmptyDataError:
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print(f"Could not find values in file {_job_infos_csv}")
+        sys.exit(20)
     df = df.sort_values(by='exit_code')
 
     fig, axes = plt.subplots(2, 2, figsize=(20, 30))

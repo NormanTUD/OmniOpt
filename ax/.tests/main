@@ -454,6 +454,8 @@ _test "folder structure Documentation" "bash .tests/folder_structure" 0
 _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
 
+_test "Lint python" "bash .tests/lint_python" 0
+
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
 	exit 0

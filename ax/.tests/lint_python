@@ -38,8 +38,9 @@ errors=()
 
 for i in $(ls .*.py); do
 	ruff check $i || {
-		red_text "Failed linting $i"
-		errors+=("Failed linting $i")
+		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'ruff check $i' to see details."
+		red_text $ERRSTR
+		errors+=("$ERRSTR")
 	}
 done
 

@@ -786,6 +786,8 @@ def get_program_code_from_out_file(f):
         if "Program-Code:" in line:
             return line
 
+    return ""
+
 def get_max_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the maximum value in the specified column.
@@ -1781,7 +1783,7 @@ def print_best_result(csv_file_path, result_column):
         tb = traceback.format_exc()
         print_red(f"[print_best_result] Error during print_best_result: {e}, tb: {tb}")
 
-    return None
+    return -1
 
 def show_end_table_and_save_end_files(csv_file_path, result_column):
     print_debug(f"show_end_table_and_save_end_files({csv_file_path}, {result_column})")
@@ -1811,7 +1813,7 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     best_result_exit = print_best_result(csv_file_path, result_column)
 
-    if best_result_exit:
+    if best_result_exit > 0:
         _exit = best_result_exit
 
     if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not already_shown_worker_usage_over_time:

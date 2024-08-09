@@ -16,6 +16,12 @@ import signal
 
 install(show_locals=True)
 
+textbox_minimum = None
+textbox_maximum = None
+
+maximum_textbox = None
+minimum_textbox = None
+
 bins = None
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -40,8 +46,6 @@ def print_debug(msg):
         pprint(msg)
 
 fig = None
-maximum_textbox = None
-minimum_textbox = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -678,6 +682,12 @@ def create_widgets():
 
     if helpers.looks_like_float(args.min):
         min_string = str(args.min)
+
+    global textbox_minimum
+    global textbox_maximum
+
+    global maximum_textbox
+    global minimum_textbox
 
     textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
     minimum_textbox = TextBox(textbox_minimum, 'Minimum result:', initial=min_string)

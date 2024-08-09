@@ -92,9 +92,13 @@ def update_graph():
         plot_graph(dataframe, args.save_to_file)
 
     except FileNotFoundError:
-        logging.error("File not found: %s", args.run_dir + "/results.csv")
+        print("File not found: %s", args.run_dir + "/results.csv")
+    except pandas.errors.EmptyDataError:
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
+            print("The file to be parsed was empty")
+        sys.exit(20)
     except Exception as exception:
-        logging.error("An unexpected error occurred: %s", str(exception))
+        print("An unexpected error occurred: %s" % str(exception))
 
 if __name__ == "__main__":
     setup_logging()

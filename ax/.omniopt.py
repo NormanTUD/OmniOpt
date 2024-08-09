@@ -4602,38 +4602,6 @@ def get_best_params(csv_file_path, result_column):
 
     return results
 
-def is_near_boundary(value, min_value, max_value, threshold=0.1):
-    """
-    Überprüft, ob ein Wert nahe an einem der Ränder seiner Parametergrenzen liegt.
-    
-    :param value: Der zu überprüfende Wert
-    :param min_value: Der minimale Grenzwert
-    :param max_value: Der maximale Grenzwert
-    :param threshold: Der Prozentsatz der Nähe zum Rand (Standard ist 10%)
-    :return: True, wenn der Wert nahe am Rand ist, sonst False
-    """
-    range_value = max_value - min_value
-    return abs(value - min_value) < threshold * range_value or abs(value - max_value) < threshold * range_value
-
-def calculate_probability(value, min_value, max_value):
-    """
-    Berechnet die Wahrscheinlichkeit basierend auf der relativen Nähe des Werts zu den Grenzen.
-    
-    :param value: Der zu überprüfende Wert
-    :param min_value: Der minimale Grenzwert
-    :param max_value: Der maximale Grenzwert
-    :return: Wahrscheinlichkeit, dass eine Erweiterung sinnvoll ist
-    """
-    range_value = max_value - min_value
-    if abs(value - min_value) < abs(value - max_value):
-        distance_to_boundary = abs(value - min_value)
-    else:
-        distance_to_boundary = abs(value - max_value)
-        
-    # Je näher am Rand, desto höher die Wahrscheinlichkeit
-    probability = (1 - (distance_to_boundary / range_value)) * 100
-    return round(probability, 2)
-
 if __name__ == "__main__":
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

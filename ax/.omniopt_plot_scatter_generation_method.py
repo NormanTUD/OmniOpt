@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 import logging
+import importlib.util
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,

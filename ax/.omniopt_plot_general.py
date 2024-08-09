@@ -8,10 +8,10 @@ import importlib.util
 import logging
 import signal
 import traceback
+import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import argparse
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 

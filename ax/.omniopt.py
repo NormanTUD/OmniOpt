@@ -3057,7 +3057,7 @@ def get_workers_string():
     for job, trial_index in global_vars["jobs"][:]:
         state = state_from_job(job)
 
-        if not state in stats.keys():
+        if state not in stats.keys():
             stats[state] = 0
         stats[state] += 1
 

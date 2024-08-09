@@ -4141,8 +4141,6 @@ def _is_equal(name, _input, output):
         print_red(f"Failed test (7): {name}")
         return 1
 
-    print_red(f"Unknown data type for test {name}")
-
     print_green(f"Test OK: {name}")
     return 0
 

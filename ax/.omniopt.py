@@ -3274,7 +3274,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         except Exception as e:
             print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
     except (signalUSR, signalINT, signalCONT):
-        print_red(f"\n⚠ Detected signal. Will exit.")
+        print_red("\n⚠ Detected signal. Will exit.")
         is_in_evaluate = False
         end_program(result_csv_file, "result", 1)
     except Exception as e:

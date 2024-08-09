@@ -1592,9 +1592,6 @@ def plot_command(_command, tmp_file, _width=1300):
     if not show_sixel_graphics:
         return
 
-    if os.getenv("DISABLE_SIXEL_GRAPHICS"):
-        return
-
     print_debug(f"command: {_command}")
 
     my_env = os.environ.copy()

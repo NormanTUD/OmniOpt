@@ -2120,7 +2120,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         original_ax_client_file = f"{current_run_folder}/state_files/original_ax_client_before_loading_tmp_one.json"
         ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-        with open(original_ax_client_file) as f:
+        with open(original_ax_client_file, encoding="utf-8") as f:
             loaded_original_ax_client_json = json.load(f)
             original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
 

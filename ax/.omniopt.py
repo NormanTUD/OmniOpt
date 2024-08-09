@@ -2207,7 +2207,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     my_exit(19)
 
         try:
-            experiment = ax_client.create_experiment(**experiment_args)
+            ax_client.create_experiment(**experiment_args)
         except ValueError as error:
             print_red(f"An error has occured while creating the experiment: {error}")
             my_exit(49)
@@ -3725,7 +3725,8 @@ def execute_nvidia_smi():
                 '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
                 f'--format=csv{noheader}'],
                 capture_output=True,
-                text=True
+                text=True,
+                check=True
             )
             assert result.returncode == 0, "nvidia-smi execution failed"
 

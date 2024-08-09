@@ -139,7 +139,8 @@ def update_graph():
         try:
             dataframe = pd.read_csv(pd_csv)
         except pd.errors.EmptyDataError:
-            print(f"{pd_csv} seems to be empty.")
+            if not os.environ.get("PLOT_TESTS"):
+                print(f"{pd_csv} seems to be empty.")
             sys.exit(19)
 
         plot_histograms(dataframe, args.save_to_file)

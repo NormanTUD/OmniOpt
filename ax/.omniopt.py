@@ -1125,7 +1125,13 @@ def replace_parameters_in_string(parameters, input_string):
 def execute_bash_code(code):
     print_debug(f"execute_bash_code({code})")
     try:
-        result = subprocess.run(code, shell=True, check=True, text=True, capture_output=True)
+        result = subprocess.run(
+            code,
+            shell=True,
+            check=True,
+            text=True,
+            capture_output=True
+        )
 
         if result.returncode != 0:
             print(f"Exit-Code: {result.returncode}")
@@ -2046,7 +2052,6 @@ def get_ax_param_representation(data):
 
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None
-    experiment = None
 
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
@@ -2210,7 +2215,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             my_exit(49)
 
-    return ax_client, experiment_parameters, experiment_args, experiment
+    return ax_client, experiment_parameters, experiment_args
 
 def get_type_short(typename):
     if typename == "RangeParameter":
@@ -3991,7 +3996,7 @@ def main():
 
     minimize_or_maximize = not args.maximize
 
-    ax_client, experiment_parameters, experiment_args, experiment = get_experiment_parameters(
+    ax_client, experiment_parameters, experiment_args = get_experiment_parameters(
         ax_client,
         args.continue_previous_job,
         args.seed,

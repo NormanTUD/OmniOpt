@@ -974,9 +974,7 @@ def parse_experiment_parameters():
 
                 if lower_bound > upper_bound:
                     print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
-                    tmp = upper_bound
-                    upper_bound = lower_bound
-                    lower_bound = tmp
+                    upper_bound, lower_bound = lower_bound, upper_bound
 
                 skip = 5
 
@@ -3615,7 +3613,7 @@ def _count_done_jobs(csv_file_path):
     df = None
 
     __debug = f"_count_done_jobs({csv_file_path})\n"
-    with open(csv_file_path, 'r') as fin:
+    with open(csv_file_path, mode='r', encoding="utf-8") as fin:
         __debug += fin.read()
 
     print_debug(__debug)

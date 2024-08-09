@@ -4384,6 +4384,12 @@ def run_tests():
             json.dumps({'result': "-0.05"})
     )
 
+    nr_errors += is_equal(
+        "_count_done_jobs('/etc/idontexist')",
+        _count_done_jobs("/etc/idontexist"),
+        0
+    )
+
     nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), None)
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")

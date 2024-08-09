@@ -40,7 +40,7 @@ for i in $(ls .*.py | grep -v ".helpers.py"); do
 	yellow_text "pylint $i"
 	pylint $i || {
 		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
-		red_text $ERRSTR
+		red_text "$ERRSTR\n"
 		errors+=("$ERRSTR")
 	}
 done

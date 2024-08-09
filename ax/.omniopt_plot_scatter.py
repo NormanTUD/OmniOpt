@@ -284,7 +284,7 @@ def plot_single_graph (axs, df_filtered, colors, cmap, norm, non_empty_graphs):
 
     return scatter
 
-def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
+def plot_graphs(df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols):
     print_debug("plot_graphs")
     colors = get_colors(df)
 
@@ -484,7 +484,7 @@ def main():
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
+    plot_graphs(df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols)
 
     result_column_values = helpers.get_result_column_values(df, csv_file_path)
 

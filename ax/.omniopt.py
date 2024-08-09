@@ -2807,7 +2807,7 @@ def load_data_from_existing_run_folders(args, _paths):
                     else:
                         print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
                         old_result_simple = None
-                except:
+                except Exception:
                     pass
 
                 hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)

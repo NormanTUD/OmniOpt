@@ -1298,6 +1298,7 @@ def check_file_info(file_path):
     string += f"File: {file_path}\n"
     string += f"UID: {uid}\n"
     string += f"GID: {gid}\n"
+    string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"
     string += f"Permissions: {permissions}\n"
     string += f"Owner: {username}\n"

@@ -1266,14 +1266,14 @@ def add_to_csv(file_path, heading, data_line):
             csv_writer.writerow(heading)
 
         # desc += " (best loss: " + '{:f}'.format(best_result) + ")"
-        data_line = ["{:.20f}".format(x) if type(x) == float else x for x in data_line]
+        data_line = ["{:.20f}".format(x) if type(x) is float else x for x in data_line]
         csv_writer.writerow(data_line)
 
 def find_file_paths(_text):
     print_debug("find_file_paths(_text)")
     file_paths = []
 
-    if type(_text) == str:
+    if type(_text) is str:
         words = _text.split()
 
         for word in words:
@@ -1473,10 +1473,10 @@ def evaluate(parameters):
         else:
             print_debug(f"evaluate: current_run_folder {current_run_folder} could not be found")
 
-        if type(result) == int:
+        if type(result) is int:
             is_in_evaluate = False
             return {"result": int(result)}
-        elif type(result) == float:
+        elif type(result) is float:
             is_in_evaluate = False
             return {"result": helpers.to_int_when_possible(float(result))}
         else:
@@ -3116,7 +3116,7 @@ def get_desc_progress_text(new_msgs=[]):
         best_params = get_best_params(result_csv_file, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]
-            if type(best_result) == float or type(best_result) == int or helpers.looks_like_float(best_result):
+            if type(best_result) is float or type(best_result) is int or helpers.looks_like_float(best_result):
                 best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
@@ -4173,16 +4173,16 @@ def _unidiff_output(expected, actual):
     return ''.join(diff)
 
 def print_diff(o, i):
-    if type(i) == str:
+    if type(i) is str:
         print("Should be:", i.strip())
     else:
         print("Should be:", i)
 
-    if type(o) == str:
+    if type(o) is str:
         print("Is:", o.strip())
     else:
         print("Is:", o)
-    if type(i) == str or type(o) == str:
+    if type(i) is str or type(o) is str:
         print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
 def is_equal(n, i, o):
@@ -4202,11 +4202,11 @@ def is_not_equal(n, i, o):
     return r
 
 def _is_not_equal(name, input, output):
-    if type(input) == str or type(input) == int or type(input) == float:
+    if type(input) is str or type(input) is int or type(input) is float:
         if input == output:
             print_red(f"Failed test: {name}")
             return 1
-    elif type(input) == bool:
+    elif type(input) is bool:
         if input == output:
             print_red(f"Failed test: {name}")
             return 1
@@ -4225,11 +4225,11 @@ def _is_equal(name, input, output):
     if type(input) != type(output):
         print_red(f"Failed test: {name}")
         return 1
-    elif type(input) == str or type(input) == int or type(input) == float:
+    elif type(input) is str or type(input) is int or type(input) is float:
         if input != output:
             print_red(f"Failed test: {name}")
             return 1
-    elif type(input) == bool:
+    elif type(input) is bool:
         if input != output:
             print_red(f"Failed test: {name}")
             return 1
@@ -4394,7 +4394,7 @@ def run_tests():
 
     find_path_res = test_find_paths("ls")
     if find_path_res:
-        is_equal("test_find_paths failed", true, false)
+        is_equal("test_find_paths failed", true, False)
         nr_errors += find_path_res
 
     my_exit(nr_errors)
@@ -4441,9 +4441,9 @@ def get_errors_from_outfile(i):
     if len(file_paths):
         try:
             first_file_as_string = get_file_as_string(file_paths[0])
-            if type(first_file_as_string) == str and first_file_as_string.strip().isprintable():
+            if type(first_file_as_string) is str and first_file_as_string.strip().isprintable():
                 first_line = first_file_as_string.split('\n')[0]
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             pass
 
         if first_file_as_string == "":
@@ -4454,7 +4454,7 @@ def get_errors_from_outfile(i):
     if "Result: None" in file_as_string:
         errors.append("Got no result.")
 
-        if first_line and type(first_line) == str and first_line.isprintable() and not first_line.startswith("#!"):
+        if first_line and type(first_line) is str and first_line.isprintable() and not first_line.startswith("#!"):
             errors.append("First line does not seem to be a shebang line: " + first_line)
 
         if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
@@ -4466,7 +4466,7 @@ def get_errors_from_outfile(i):
 
             if len(file_paths):
                 file_result = execute_bash_code("file " + file_paths[0])
-                if len(file_result) and type(file_result[0]) == str:
+                if len(file_result) and type(file_result[0]) is str:
                     file_output = ", " + file_result[0].strip()
 
             errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
@@ -4479,10 +4479,10 @@ def get_errors_from_outfile(i):
         ]
 
         for err in base_errors:
-            if type(err) == list:
+            if type(err) is list:
                 if err[0] in file_as_string:
                     errors.append(f"{err[0]} {err[1]}")
-            elif type(err) == str:
+            elif type(err) is str:
                 if err in file_as_string:
                     errors.append(f"{err} detected")
             else:
@@ -4608,7 +4608,7 @@ def log_nr_of_workers():
     except Exception as e:
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
 
-    if not "jobs" in global_vars:
+    if "jobs" not in global_vars:
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return
 
@@ -4657,7 +4657,7 @@ def get_best_params(csv_file_path, result_column):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
-        if type(this_line_result) == str and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
+        if type(this_line_result) is str and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
             this_line_result = float(this_line_result)
 
         if type(this_line_result) in [float, int]:

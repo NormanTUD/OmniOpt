@@ -46,7 +46,7 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-def plot_histograms(dataframe, save_to_file=None):
+def plot_histograms(dataframe):
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
 

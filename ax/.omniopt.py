@@ -3925,18 +3925,6 @@ def print_logo():
           (|)""
 """)
 
-def show_strategy_message (random_steps, second_step_steps):
-    second_step_steps_string = ""
-    if second_step_steps:
-        second_step_steps_string = f", followed by {second_step_steps} systematic steps"
-
-    #if random_steps and random_steps > submitted_jobs():
-    #    print(f"\nStarting random search for {random_steps} steps{second_step_steps_string}.")
-
-def show_messages(args, random_steps, second_step_steps):
-    global current_run_folder
-    show_strategy_message(random_steps, second_step_steps)
-
 def count_defective_nodes(file_path=None, entry=None):
     """
     Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
@@ -4112,8 +4100,6 @@ def main():
     print(f"Searching {searching_for}")
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
-
-    show_messages(args, random_steps, second_step_steps)
 
     max_nr_steps = second_step_steps
     if count_done_jobs() < random_steps:

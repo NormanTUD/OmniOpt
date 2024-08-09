@@ -113,6 +113,9 @@ def plot_histograms(dataframe):
     for j in range(num_plots, nr_axes):
         axes[j].axis('off')
 
+    import warnings
+    warnings.filterwarnings("ignore")
+
     plt.tight_layout()
 
     if args.save_to_file:

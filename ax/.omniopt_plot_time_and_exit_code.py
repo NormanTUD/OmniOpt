@@ -91,7 +91,7 @@ def main():
 
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes[0, 1])
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes[0, 1])
-    axes[0, 1].legend()
+
     axes[0, 1].set_title('Result over Time')
 
     df["exit_code"] = [str(int(x)) for x in df["exit_code"]]

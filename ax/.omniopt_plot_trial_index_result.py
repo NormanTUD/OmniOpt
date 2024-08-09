@@ -72,7 +72,8 @@ def update_graph():
         try:
             dataframe = pd.read_csv(args.run_dir + "/results.csv")
         except pd.errors.EmptyDataError:
-            print(f"{args.run_dir}/results.csv seems to be empty.")
+            if not os.environ.get("PLOT_TESTS"):
+                print(f"{args.run_dir}/results.csv seems to be empty.")
             sys.exit(19)
 
         if args.min is not None or args.max is not None:

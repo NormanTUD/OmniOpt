@@ -141,7 +141,7 @@ def update_graph():
                 print(f"{pd_csv} seems to be empty.")
             sys.exit(19)
 
-        plot_histograms(dataframe, args.save_to_file)
+        plot_histograms(dataframe)
     except FileNotFoundError:
         logging.error("File not found: %s", pd_csv)
     except Exception as exception:

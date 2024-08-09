@@ -64,7 +64,6 @@ except ModuleNotFoundError as e:
     sys.exit(244)
 
 # Get shell variables or use default values
-BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 15))
 ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 
 if ORIGINAL_PWD:
@@ -288,34 +287,6 @@ def show_legend(_scatter, axs, result_column):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column, result_column_values):
-    print_debug("plot_two_graphs()")
-    _x = df_filtered[non_empty_graphs[0][0]]
-    try:
-        _y = df_filtered[non_empty_graphs[0][1]]
-    except Exception as e:
-        print(f"Error in plot_two_graphs: {e}")
-
-        import traceback
-        tb = traceback.format_exc()
-        print("Traceback ==>", tb, "<==")
-
-        print("df_filtered:")
-        print(df_filtered.to_string(index=False))
-
-        print("non_empty_graphs:")
-        print(non_empty_graphs)
-        sys.exit(45)
-
-    scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-    axs.set_xlabel(non_empty_graphs[0][0])
-    axs.set_ylabel(non_empty_graphs[0][1])
-
-    # Farbgebung und Legende für das einzelne Scatterplot
-    show_legend(_y, axs, result_column)
-
-    return scatter
-
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs, result_column_values):
     print_debug("plot_single_graph()")
     _range = range(len(df_filtered))
@@ -408,10 +379,6 @@ def get_args ():
             bins = int(args.bins)
         else:
             bins = args.bins
-
-    if args.bubblesize:
-        global BUBBLESIZEINPX
-        BUBBLESIZEINPX = args.bubblesize
 
     check_args()
 
@@ -637,32 +604,6 @@ def update_graph(event=None, _min=None, _max=None):
     except Exception as e:
         if "invalid command name" not in str(e):
             print(f"Failed to update graph: {e}")
-
-def change_min_max(expression):
-    print_debug("change_min_max")
-    global args
-
-    try:
-        has_params = False
-        # Assuming the expression is a filter value update for min/max
-        if textbox_maximum.text and helpers.looks_like_float(textbox_maximum.text):
-            args.min = float(textbox_maximum.text)
-            print(f"set arg min to {args.min}")
-            has_params = True
-        if textbox_minimum.text and helpers.looks_like_float(textbox_minimum.text):
-            args.min = float(textbox_minimum.text)
-            print(f"set arg max to {args.max}")
-            has_params = True
-        if has_params:
-            args.min = None
-            args.max = None
-        
-        update_graph(None)
-    except Exception as e:
-        tb = traceback.format_exc()
-        print(tb)
-
-        print(f"Failed to update graph with expression '{expression}': {e}")
 
 def create_widgets():
     print_debug("create_widgets()")

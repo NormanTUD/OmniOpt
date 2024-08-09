@@ -265,34 +265,6 @@ def show_legend(_scatter, axs):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm):
-    print_debug("plot_two_graphs()")
-    _x = df_filtered[non_empty_graphs[0][0]]
-    try:
-        _y = df_filtered[non_empty_graphs[0][1]]
-    except Exception as e:
-        print(f"Error in plot_two_graphs: {e}")
-
-        #import traceback
-        #tb = traceback.format_exc()
-        #print("Traceback ==>", tb, "<==")
-
-        #print("df_filtered:")
-        #print(df_filtered.to_string(index=False))
-
-        #print("non_empty_graphs:")
-        #print(non_empty_graphs)
-        sys.exit(45)
-
-    scatter = axs.scatter(_x, _y, c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-    axs.set_xlabel(non_empty_graphs[0][0])
-    axs.set_ylabel(non_empty_graphs[0][1])
-
-    # Farbgebung und Legende für das einzelne Scatterplot
-    show_legend(_y, axs)
-
-    return scatter
-
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs):
     print_debug("plot_single_graph()")
     _range = range(len(df_filtered))
@@ -477,30 +449,6 @@ def use_matplotlib():
         print("An error occured while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
         sys.exit(33)
 
-def create_new_figure_from_axes(ax):
-    # Extrahiere Daten aus dem vorhandenen Axes-Element
-    lines = ax.get_lines()
-    x_data = []
-    y_data = []
-
-    for line in lines:
-        x_data.append(line.get_xdata())
-        y_data.append(line.get_ydata())
-
-    # Erstelle eine neue Figur und Achsen
-    new_fig, new_ax = plt.subplots()
-
-    # Plotte die extrahierten Daten in der neuen Figur
-    for x, y in zip(x_data, y_data):
-        new_ax.plot(x, y)
-
-    # Kopiere Achsentitel und Labels
-    new_ax.set_xlabel(ax.get_xlabel())
-    new_ax.set_ylabel(ax.get_ylabel())
-    new_ax.set_title(ax.get_title())
-
-    return new_fig, new_ax
-
 def main():
     global args
     use_matplotlib()
@@ -621,32 +569,6 @@ def update_graph(event=None, _min=None, _max=None):
     except Exception as e:
         if "invalid command name" not in str(e):
             print(f"Failed to update graph: {e}")
-
-def change_min_max(expression):
-    print_debug("change_min_max")
-    global args
-
-    try:
-        has_params = False
-        # Assuming the expression is a filter value update for min/max
-        if textbox_maximum.text and  helpers.looks_like_float(textbox_maximum.text):
-            args.min = float(textbox_maximum.text)
-            print(f"set arg min to {args.min}")
-            has_params = True
-        if textbox_minimum.text and helpers.looks_like_float(textbox_minimum.text):
-            args.min = float(textbox_minimum.text)
-            print(f"set arg max to {args.max}")
-            has_params = True
-        if has_params:
-            args.min = None
-            args.max = None
-        
-        update_graph(None)
-    except Exception as e:
-        tb = traceback.format_exc()
-        print(tb)
-
-        print(f"Failed to update graph with expression '{expression}': {e}")
 
 def create_widgets():
     print_debug("create_widgets()")

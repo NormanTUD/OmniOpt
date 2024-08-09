@@ -4,7 +4,6 @@
 # TEST_OUTPUT_MUST_CONTAIN: mean result
 # TEST_OUTPUT_MUST_CONTAIN: result
 
-
 import traceback
 import os
 import importlib.util

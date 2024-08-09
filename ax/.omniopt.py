@@ -164,7 +164,6 @@ try:
         from rich import print
     with console.status("[bold green]Loading rich.progress...") as status:
         from rich.progress import track
-        from rich.progress import BarColumn, Progress, TextColumn, TaskProgressColumn, TimeRemainingColumn, Column
     with console.status("[bold green]Loading csv...") as status:
         import csv
     with console.status("[bold green]Loading rich.pretty...") as status:
@@ -3363,7 +3362,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     _steps = []
 
-    nr_of_imported_jobs = get_nr_of_imported_jobs(args)
+    nr_of_imported_jobs = get_nr_of_imported_jobs()
 
     #random_steps = nr_of_imported_jobs
 

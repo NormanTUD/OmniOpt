@@ -12,7 +12,6 @@ import importlib.util
 import signal
 from datetime import datetime
 import seaborn as sns
-import pandas
 import pandas as pd
 import matplotlib.pyplot as plt
 from tzlocal import get_localzone
@@ -61,7 +60,7 @@ def main():
 
     try:
         df = pd.read_csv(_job_infos_csv)
-    except pandas.errors.EmptyDataError:
+    except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print(f"Could not find values in file {_job_infos_csv}")
         sys.exit(20)

@@ -4,8 +4,7 @@
 # TEST_OUTPUT_MUST_CONTAIN: mean result
 # TEST_OUTPUT_MUST_CONTAIN: result
 
-from rich.pretty import pprint
-from rich.traceback import install
+
 import traceback
 import os
 import importlib.util
@@ -13,7 +12,8 @@ import sys
 import argparse
 import math
 import signal
-
+from rich.pretty import pprint
+from rich.traceback import install
 install(show_locals=True)
 
 textbox_minimum = None

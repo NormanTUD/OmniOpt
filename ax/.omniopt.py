@@ -3230,12 +3230,6 @@ def save_state_files(args):
     with open(f'{state_files_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def check_python_version():
-    python_version = platform.python_version()
-    supported_versions = ["3.8.10", "3.10.4", "3.11.2", "3.11.9", "3.9.2", "3.12.4"]
-    if not python_version in supported_versions:
-        print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
-
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
@@ -4080,8 +4074,6 @@ def main():
             myfile.write(decode_if_base64(args.ui_url))
 
     logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'
-
-    check_python_version()
 
     experiment_parameters = None
     cli_params_experiment_parameters = None

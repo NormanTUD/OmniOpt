@@ -538,8 +538,8 @@ def get_file_as_string(f):
     if not os.path.exists(f):
         print_red(f"{f} not found!")
     else:
-        with open(f) as f:
-            datafile = f.readlines()
+        with open(f) as _f:
+            datafile = _f.readlines()
 
     return "\n".join(datafile)
 
@@ -1459,9 +1459,6 @@ try:
             from submitit import LocalJob, DebugJob
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
-    my_exit(31)
-except KeyboardInterrupt:
-    original_print("You cancelled loading the basic modules")
     my_exit(31)
 except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")

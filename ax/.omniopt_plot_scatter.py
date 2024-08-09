@@ -429,7 +429,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
         if param in df_filtered and df_filtered[param].notna().any():
             non_empty_graphs = [(param,)]
     else:
-        if len(parameter_combinations) > 1 or type(parameter_combinations[0]) == tuple:
+        if len(parameter_combinations) > 1 or type(parameter_combinations[0]) is tuple:
             non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
         elif len(parameter_combinations) == 1:
             non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb].notna().any()]

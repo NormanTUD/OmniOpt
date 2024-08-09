@@ -71,7 +71,7 @@ except (signalUSR):
 except signalCONT:
     original_print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
-except (KeyboardInterrupt) as e:
+except (KeyboardInterrupt):
     original_print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
@@ -186,7 +186,7 @@ except (signalUSR):
 except signalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
-except (KeyboardInterrupt) as e:
+except (KeyboardInterrupt):
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
@@ -290,7 +290,7 @@ def _debug(msg, _lvl=0, ee=None):
         with open(logfile, 'a') as f:
             original_print(msg, file=f)
     except FileNotFoundError:
-        print_red(f"It seems like the run's folder was deleted during the run. Cannot continue.")
+        print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print("_debug: Error trying to write log file: " + str(e))
@@ -483,7 +483,7 @@ optional.add_argument('--follow', help='Automatically follow log file of sbatch'
 optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
 optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
 optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
-optional.add_argument('--exclude', help=f'A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
+optional.add_argument('--exclude', help='A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
 optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
 optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
@@ -525,7 +525,7 @@ def decode_if_base64(input_str):
         decoded_bytes = base64.b64decode(input_str)
         decoded_str = decoded_bytes.decode('utf-8')
         return decoded_str
-    except Exception as e:
+    except Exception:
         return input_str
 
 def get_file_as_string(f):
@@ -593,12 +593,12 @@ if not args.tests:
                 my_exit(19)
 
     if not args.mem_gb:
-        print(f"--mem_gb needs to be set")
+        print("--mem_gb needs to be set")
         my_exit(19)
 
     if not args.time:
         if not args.continue_previous_job:
-            print(f"--time needs to be set")
+            print("--time needs to be set")
         else:
             time_file = args.continue_previous_job + "/state_files/time"
             if os.path.exists(time_file):
@@ -620,7 +620,7 @@ if not args.tests:
 
     if not args.mem_gb:
         if not args.continue_previous_job:
-            print(f"--mem_gb needs to be set")
+            print("--mem_gb needs to be set")
         else:
             mem_gb_file = args.continue_previous_job + "/state_files/mem_gb"
             if os.path.exists(mem_gb_file):
@@ -653,7 +653,7 @@ if not args.tests:
 
     if not args.max_eval:
         if not args.continue_previous_job:
-            print(f"--max_eval needs to be set")
+            print("--max_eval needs to be set")
         else:
             max_eval_file = args.continue_previous_job + "/state_files/max_eval"
             if os.path.exists(max_eval_file):
@@ -809,7 +809,7 @@ def create_folder_and_file(folder):
         print_red(f"create_folder_and_file({folder}) failed, because the folder already existed. Cannot continue.")
         sys.exit(13)
 
-    file_path = os.path.join(folder, f"results.csv")
+    file_path = os.path.join(folder, "results.csv")
 
     with open(file_path, 'w') as file:
         pass
@@ -857,7 +857,7 @@ def get_max_column_value(pd_csv, column, _default):
 
     try:
         df = pd.read_csv(pd_csv, float_precision='round_trip')
-        if not column in df.columns:
+        if column not in df.columns:
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
         max_value = df[column].max()
@@ -882,7 +882,7 @@ def get_min_column_value(pd_csv, column, _default):
 
     try:
         df = pd.read_csv(pd_csv, float_precision='round_trip')
-        if not column in df.columns:
+        if column not in df.columns:
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
         min_value = df[column].min()
@@ -988,7 +988,7 @@ def parse_experiment_parameters(args):
             try:
                 param_type = this_args[j + 1]
             except Exception:
-                print_red(f"Not enough arguments for --parameter")
+                print_red("Not enough arguments for --parameter")
                 my_exit(181)
 
 
@@ -1001,11 +1001,11 @@ def parse_experiment_parameters(args):
 
             if param_type == "range":
                 if args.model and args.model == "FACTORIAL":
-                    print_red(f"\n⚠ --model FACTORIAL cannot be used with range parameter")
+                    print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
                     my_exit(181)
 
                 if len(this_args) != 5 and len(this_args) != 4:
-                    print_red(f"\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
+                    print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
                     my_exit(181)
 
                 try:
@@ -1111,7 +1111,7 @@ def parse_experiment_parameters(args):
                 j += skip
             elif param_type == "fixed":
                 if len(this_args) != 3:
-                    print_red(f"⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
+                    print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
                     my_exit(181)
 
                 value = this_args[j + 2]
@@ -1131,7 +1131,7 @@ def parse_experiment_parameters(args):
                 j += 3
             elif param_type == "choice":
                 if len(this_args) != 3:
-                    print_red(f"⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
+                    print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
                     my_exit(181)
 
                 values = re.split(r'\s*,\s*', str(this_args[j + 2]))
@@ -1158,7 +1158,7 @@ def parse_experiment_parameters(args):
         i += 1
 
     if search_space_reduction_warning:
-        print_red(f"⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
+        print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
 
@@ -1504,7 +1504,7 @@ try:
                 from ax.storage.json_store.save import save_experiment
                 from ax.storage.json_store.load import load_experiment
                 from ax.service.utils.report_utils import exp_to_df
-            except ModuleNotFoundError as e:
+            except ModuleNotFoundError:
                 print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
             except KeyboardInterrupt:
@@ -1514,7 +1514,7 @@ try:
         with console.status("[bold green]Loading botorch...") as status:
             try:
                 import botorch
-            except ModuleNotFoundError as e:
+            except ModuleNotFoundError:
                 print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
             except KeyboardInterrupt:
@@ -1543,7 +1543,7 @@ except (signalUSR):
 except signalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
-except (KeyboardInterrupt) as e:
+except (KeyboardInterrupt):
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
@@ -1921,7 +1921,7 @@ def write_worker_usage():
                 csv_writer.writerow(row)
     else:
         if is_slurm_job():
-            print_debug(f"worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
+            print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars
@@ -2149,7 +2149,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                     print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
                 else:
                     print_yellow("No suitable CUDA devices found")
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(47)
 
@@ -2387,7 +2387,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
         text_file.write(table_str)
 
-    if not experiment_args is None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
+    if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
         constraints = experiment_args["parameter_constraints"]
         table = Table(header_style="bold", title="Constraints:")
         columns = ["Constraints"]
@@ -2547,7 +2547,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     except Exception as e:
         raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
     
-    if not 'result' in df.columns:
+    if 'result' not in df.columns:
         print_red(f"Error: Could not get old result for {params} in {file_path}")
         return None
     
@@ -2652,7 +2652,7 @@ def parse_parameter_type_error(error_message):
             "current_type": current_type,
             "expected_type": expected_type
         }
-    except AssertionError as e:
+    except AssertionError:
         # Logging the error
         return None
 
@@ -2704,7 +2704,7 @@ def simulate_load_data_from_existing_run_folders(args, _paths):
 
             print_debug(f"trial_status_str: {trial_status_str}")
 
-            if not ("COMPLETED".lower() in str(trial_status_str).lower()): # or "MANUAL".lower() in str(trial_status_str).lower()):
+            if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
                 continue
 
             old_arm_parameter = old_trial.arm.parameters
@@ -2759,7 +2759,7 @@ def load_data_from_existing_run_folders(args, _paths):
     global missing_results
 
     #helpers.dier(help(ax_client.experiment.search_space))
-    with console.status(f"[bold green]Loading existing jobs into ax_client...") as status:
+    with console.status("[bold green]Loading existing jobs into ax_client...") as status:
         path_idx = 0
         for this_path in _paths:
             if len(_paths) > 1:
@@ -2925,7 +2925,7 @@ def finish_previous_jobs(args, new_msgs):
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
-        if not job is None and (job.done() or type(job) in [LocalJob, DebugJob]):
+        if job is not None and (job.done() or type(job) in [LocalJob, DebugJob]):
             #print(job.result())
             try:
                 result = job.result()
@@ -2952,7 +2952,7 @@ def finish_previous_jobs(args, new_msgs):
                 else:
                     if job:
                         try:
-                            progressbar_description([f"job_failed"])
+                            progressbar_description(["job_failed"])
 
                             ax_client.log_trial_failure(trial_index=trial_index)
                             print_outfile_analyzed(job)
@@ -2968,7 +2968,7 @@ def finish_previous_jobs(args, new_msgs):
 
                 if job:
                     try:
-                        progressbar_description([f"job_failed"])
+                        progressbar_description(["job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                         print_outfile_analyzed(job)
@@ -2985,7 +2985,7 @@ def finish_previous_jobs(args, new_msgs):
 
                 if job:
                     try:
-                        progressbar_description([f"job_failed"])
+                        progressbar_description(["job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
                         print_outfile_analyzed(job)
@@ -3005,7 +3005,7 @@ def finish_previous_jobs(args, new_msgs):
 
                 if job:
                     try:
-                        progressbar_description([f"job_failed"])
+                        progressbar_description(["job_failed"])
                         ax_client.log_trial_failure(trial_index=trial_index)
                         print_outfile_analyzed(job)
                     except Exception as e:
@@ -3211,7 +3211,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
     try:
         _trial.mark_staged()
-    except Exception as e:
+    except Exception:
         #print(e)
         pass
     new_job = None
@@ -3241,7 +3241,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
 
         try:
             _trial.mark_running(no_runner_required=True)
-        except Exception as e:
+        except Exception:
             #print(f"ERROR in line {getLineInfo()}: {e}")
             pass
         trial_counter += 1

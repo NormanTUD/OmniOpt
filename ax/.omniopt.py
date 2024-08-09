@@ -1500,10 +1500,9 @@ try:
                 from ax.service.ax_client import AxClient, ObjectiveProperties
                 import ax.exceptions.core
                 from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
-                from ax.modelbridge.registry import ModelRegistryBase, Models
+                from ax.modelbridge.registry import Models
                 from ax.storage.json_store.save import save_experiment
                 from ax.storage.json_store.load import load_experiment
-                from ax.service.utils.report_utils import exp_to_df
             except ModuleNotFoundError:
                 print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)

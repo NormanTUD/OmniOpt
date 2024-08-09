@@ -44,6 +44,11 @@ def parse_log_file(log_file_path):
                 helpers.log_error("Some rows have invalid time format and will be removed.")
         data = data[valid_time_mask]
 
+        if "time" not in data:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print("time could not be found in data")
+            sys.exit(20)
+
         data['time'] = pd.to_datetime(data['time'], format='%Y-%m-%d %H:%M:%S')
 
         # Sort data by time

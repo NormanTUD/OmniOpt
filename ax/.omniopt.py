@@ -262,7 +262,7 @@ def get_nesting_level(caller_frame):
         for token_record in tokenize.generate_tokens(f.readline):
             token_type, _, (token_lineno, _), _, _ = token_record
             if token_lineno > caller_lineno:
-                break
+                pass
             elif token_type == tokenize.INDENT:
                 indentation_level += 1
             elif token_type == tokenize.DEDENT:
@@ -1601,7 +1601,7 @@ def plot_command(_command, tmp_file, _width=1300):
     my_env["DONT_SHOW_DONT_INSTALL_MESSAGE"] = "1"
 
     process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE, env=my_env)
-    output, error = process.communicate()
+    _, error = process.communicate()
 
     if os.path.exists(tmp_file):
         print_image_to_cli(tmp_file, _width)
@@ -1640,148 +1640,148 @@ def print_best_result(csv_file_path, result_column):
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
             print_red("Best result could not be determined")
             return 87
-        else:
-            total_str = f"total: {count_done_jobs() - nr_inserted_jobs}"
 
-            if nr_inserted_jobs:
-                total_str += f" + nr_inserted_jobs: {nr_inserted_jobs}"
+        total_str = f"total: {count_done_jobs() - nr_inserted_jobs}"
 
-            failed_error_str = ""
-            if failed_jobs() >= 1:
-                failed_error_str = f", failed: {failed_jobs()}"
+        if nr_inserted_jobs:
+            total_str += f" + nr_inserted_jobs: {nr_inserted_jobs}"
 
-            table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}{failed_error_str}):")
+        failed_error_str = ""
+        if failed_jobs() >= 1:
+            failed_error_str = f", failed: {failed_jobs()}"
 
-            k = 0
-            for key in best_params["parameters"].keys():
-                if k > 2:
-                    table.add_column(key)
-                k += 1
+        table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}{failed_error_str}):")
 
-            table.add_column("result")
+        k = 0
+        for key in best_params["parameters"].keys():
+            if k > 2:
+                table.add_column(key)
+            k += 1
 
-            row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
-            row = [*row_without_result, str(best_result)][3:]
+        table.add_column("result")
 
-            table.add_row(*row)
+        row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
+        row = [*row_without_result, str(best_result)][3:]
 
+        table.add_row(*row)
+
+        console.print(table)
+
+        with console.capture() as capture:
             console.print(table)
+        table_str = capture.get()
 
-            with console.capture() as capture:
-                console.print(table)
-            table_str = capture.get()
+        with open(f'{current_run_folder}/best_result.txt', "w") as text_file:
+            text_file.write(table_str)
 
-            with open(f'{current_run_folder}/best_result.txt', "w") as text_file:
-                text_file.write(table_str)
+        _pd_csv = f"{current_run_folder}/{pd_csv_filename}"
 
-            _pd_csv = f"{current_run_folder}/{pd_csv_filename}"
+        global global_vars
 
-            global global_vars
+        x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
+        show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
-            show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+        if os.path.exists(_pd_csv) and show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"):
+            if args.show_sixel_trial_index_result:
+                plot_types = [
+                    {
+                        "type": "trial_index_result",
+                        "min_done_jobs": 2
+                    }
+                ]
 
-            if os.path.exists(_pd_csv) and show_sixel_graphics and not os.getenv("DISABLE_SIXEL_GRAPHICS"):
-                if args.show_sixel_trial_index_result:
-                    plot_types = [
-                        {
-                            "type": "trial_index_result",
-                            "min_done_jobs": 2
-                        }
-                    ]
+            if args.show_sixel_scatter:
+                plot_types.append(
+                    {
+                        "type": "scatter",
+                        "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
+                        "iterate_through": x_y_combinations,
+                        "dpi": 76,
+                        "filename": "plot_%0_%1_%2" # omit file ending
+                    }
+                )
 
-                if args.show_sixel_scatter:
-                    plot_types.append(
-                        {
-                            "type": "scatter",
-                            "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
-                            "iterate_through": x_y_combinations,
-                            "dpi": 76,
-                            "filename": "plot_%0_%1_%2" # omit file ending
-                        }
-                    )
+            if args.show_sixel_general:
+                plot_types.append(
+                    {
+                        "type": "general"
+                    }
+                )
 
-                if args.show_sixel_general:
-                    plot_types.append(
-                        {
-                            "type": "general"
-                        }
-                    )
+            for plot in plot_types:
+                plot_type = plot["type"]
+                min_done_jobs = 1
 
-                for plot in plot_types:
-                    plot_type = plot["type"]
-                    min_done_jobs = 1
+                if "min_done_jobs" in plot:
+                    min_done_jobs = plot["min_done_jobs"]
 
-                    if "min_done_jobs" in plot:
-                        min_done_jobs = plot["min_done_jobs"]
+                if count_done_jobs() < min_done_jobs:
+                    print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
+                    continue
 
-                    if count_done_jobs() < min_done_jobs:
-                        print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
-                        continue
+                try:
+                    _tmp = f"{current_run_folder}/plots/"
+                    _width = 1200
 
-                    try:
-                        _tmp = f"{current_run_folder}/plots/"
-                        _width = 1200
+                    if "width" in plot:
+                        _width = plot["width"]
 
-                        if "width" in plot:
-                            _width = plot["width"]
+                    if not os.path.exists(_tmp):
+                        os.makedirs(_tmp)
 
-                        if not os.path.exists(_tmp):
-                            os.makedirs(_tmp)
+                    j = 0
+                    tmp_file = f"{_tmp}/{plot_type}.png"
+                    _fn = ""
+                    _p = []
+                    if "filename" in plot:
+                        _fn = plot['filename']
 
-                        j = 0
-                        tmp_file = f"{_tmp}/{plot_type}.png"
-                        _fn = ""
-                        _p = []
-                        if "filename" in plot:
-                            _fn = plot['filename']
+                    while os.path.exists(tmp_file):
+                        j += 1
+                        tmp_file = f"{_tmp}/{plot_type}_{j}.png"
 
-                        while os.path.exists(tmp_file):
-                            j += 1
-                            tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                    maindir = os.path.dirname(os.path.realpath(__file__))
 
-                        maindir = os.path.dirname(os.path.realpath(__file__))
+                    _command = f"bash {maindir}/omniopt_plot --run_dir {current_run_folder} --plot_type={plot_type}"
+                    if "dpi" in plot:
+                        _command += " --dpi=" + str(plot["dpi"])
 
-                        _command = f"bash {maindir}/omniopt_plot --run_dir {current_run_folder} --plot_type={plot_type}"
-                        if "dpi" in plot:
-                            _command += " --dpi=" + str(plot["dpi"])
+                    if "params" in plot.keys():
+                        if "iterate_through" in plot.keys():
+                            iterate_through = plot["iterate_through"]
+                            if len(iterate_through):
+                                for j in range(0, len(iterate_through)):
+                                    this_iteration = iterate_through[j]
+                                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
 
-                        if "params" in plot.keys():
-                            if "iterate_through" in plot.keys():
-                                iterate_through = plot["iterate_through"]
-                                if len(iterate_through):
-                                    for j in range(0, len(iterate_through)):
-                                        this_iteration = iterate_through[j]
-                                        _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+                                    j = 0
+                                    tmp_file = f"{_tmp}/{plot_type}.png"
+                                    _fn = ""
+                                    _p = []
+                                    if "filename" in plot:
+                                        _fn = plot['filename']
+                                        if len(this_iteration):
+                                            _p = [plot_type, this_iteration[0], this_iteration[1]]
+                                            if len(_p):
+                                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
 
-                                        j = 0
-                                        tmp_file = f"{_tmp}/{plot_type}.png"
-                                        _fn = ""
-                                        _p = []
-                                        if "filename" in plot:
-                                            _fn = plot['filename']
-                                            if len(this_iteration):
-                                                _p = [plot_type, this_iteration[0], this_iteration[1]]
-                                                if len(_p):
-                                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
+                                            while os.path.exists(tmp_file):
+                                                j += 1
+                                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                                                if "filename" in plot and len(_p):
+                                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
-                                                while os.path.exists(tmp_file):
-                                                    j += 1
-                                                    tmp_file = f"{_tmp}/{plot_type}_{j}.png"
-                                                    if "filename" in plot and len(_p):
-                                                        tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
-
-                                        _iterated_command += f" --save_to_file={tmp_file} "
-                                        #original_print(f"iterated_command: >>{_iterated_command}<<")
-                                        plot_command(_iterated_command, tmp_file, _width)
-                        else:
-                            _command += f" --save_to_file={tmp_file} "
-                            plot_command(_command, tmp_file, _width)
-                    except Exception as e:
-                        tb = traceback.format_exc()
-                        print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
-                        print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+                                    _iterated_command += f" --save_to_file={tmp_file} "
+                                    #original_print(f"iterated_command: >>{_iterated_command}<<")
+                                    plot_command(_iterated_command, tmp_file, _width)
+                    else:
+                        _command += f" --save_to_file={tmp_file} "
+                        plot_command(_command, tmp_file, _width)
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
+                    print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
             else:
                 print_debug(f"{_pd_csv} not found")
 
@@ -2984,7 +2984,7 @@ def get_workers_string():
 
     stats = {}
 
-    for job, trial_index in global_vars["jobs"][:]:
+    for job, _ in global_vars["jobs"][:]:
         state = state_from_job(job)
 
         if state not in stats.keys():

@@ -16,7 +16,7 @@ def my_exit(_code=0):
     tb = traceback.format_exc()
     try:
         print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-    except:
+    except Exception:
         print(f"Exiting with error code {_code}. Traceback: {tb}")
 
     time.sleep(5)
@@ -252,19 +252,19 @@ def log_what_needs_to_be_logged ():
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()
-        except:
+        except Exception:
             pass
 
     if "write_process_info" in globals():
         try:
             write_process_info()
-        except:
+        except Exception:
             pass
 
     if "log_nr_of_workers" in globals():
         try:
             log_nr_of_workers()
-        except:
+        except Exception:
             pass
 
 def get_nesting_level(caller_frame):
@@ -316,7 +316,7 @@ def print_debug(msg):
 
     try:
         _debug(f"{time_str}: {get_functions_stack_array()}")
-    except:
+    except Exception:
         pass
     _debug(msg)
 
@@ -1010,13 +1010,13 @@ def parse_experiment_parameters(args):
 
                 try:
                     lower_bound = float(this_args[j + 2])
-                except:
+                except Exception:
                     print_red(f"\n⚠ {this_args[j + 2]} is not a number")
                     my_exit(181)
 
                 try:
                     upper_bound = float(this_args[j + 3])
-                except:
+                except Exception:
                     print_red(f"\n⚠ {this_args[j + 3]} is not a number")
                     my_exit(181)
 
@@ -1037,7 +1037,7 @@ def parse_experiment_parameters(args):
 
                 try:
                     value_type = this_args[j + 4]
-                except:
+                except Exception:
                     value_type = "float"
                     skip = 4
 
@@ -1394,7 +1394,7 @@ def evaluate(parameters):
             print(f"Node {socket.gethostname()} was detected as faulty. It should have had a GPU, but there is an error initializing the CUDA driver. Adding this node to the --exclude list.")
             count_defective_nodes(None, socket.gethostname())
             return return_in_case_of_error
-        except:
+        except Exception:
             pass
 
     is_in_evaluate = True
@@ -1524,7 +1524,7 @@ try:
             try:
                 import submitit
                 from submitit import AutoExecutor, LocalJob, DebugJob
-            except:
+            except Exception:
                 print_red("\n⚠ submitit could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)
 except ModuleNotFoundError as e:
@@ -2718,7 +2718,7 @@ def simulate_load_data_from_existing_run_folders(args, _paths):
                 else:
                     print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
                     old_result_simple = None
-            except:
+            except Exception:
                 pass
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":

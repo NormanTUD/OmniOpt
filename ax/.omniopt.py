@@ -1416,21 +1416,19 @@ def evaluate(parameters):
             IS_IN_EVALUATE = False
             return {"result": float(result)}
 
-        IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "No Result")
 
     except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
-        IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "USR1-signal")
     except SignalCONT:
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
-        IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "CONT-signal")
     except SignalINT:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_data_and_headers(parameters, "INT-signal")
-        IS_IN_EVALUATE = False
+
+    IS_IN_EVALUATE = False
 
     return return_in_case_of_error
 

@@ -3441,7 +3441,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         steps=_steps
     )
 
-    return gs, _steps
+    return gs
 
 def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_eval, progress_bar):
     global random_steps
@@ -4003,7 +4003,7 @@ def main():
         print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-    gs, gs_steps = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
+    gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
 
     ax_client = AxClient(
         verbose_logging=args.verbose,
@@ -4023,8 +4023,6 @@ def main():
         experiment_parameters, 
         minimize_or_maximize
     )
-
-    #ax_client._set_generation_strategy(*gs_steps)
 
     gs_hr = human_readable_generation_strategy(ax_client)
     if gs_hr:

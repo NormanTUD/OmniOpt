@@ -1697,6 +1697,7 @@ def replace_string_with_params(input_string, params):
 
 def print_best_result(csv_file_path, result_column):
     global current_run_folder
+    global shown_end_table
 
     try:
         best_params = get_best_params(csv_file_path, result_column)

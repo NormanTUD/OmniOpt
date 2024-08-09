@@ -4,6 +4,7 @@
 # TEST_OUTPUT_MUST_CONTAIN: mean result
 # TEST_OUTPUT_MUST_CONTAIN: result
 
+from rich.pretty import pprint
 from rich.traceback import install
 install(show_locals=True)
 
@@ -45,11 +46,6 @@ minimum_textbox = None
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-try:
-    from rich.pretty import pprint
-except ModuleNotFoundError:
-    from pprint import pprint
 
 try:
     import re

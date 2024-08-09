@@ -2049,7 +2049,6 @@ def save_pd_csv():
 
 def get_tmp_file_from_json(experiment_args):
     k = 0
-    p = "/tmp/0"
     while os.path.exists(f"/tmp/{k}"):
         k = k + 1
 

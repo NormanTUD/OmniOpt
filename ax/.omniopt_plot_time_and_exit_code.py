@@ -63,6 +63,10 @@ def main():
 
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
+    if "run_time" not in df:
+        print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
+        sys.exit(2)
+
     axes[0, 0].hist(df['run_time'], bins=args.bins)
     axes[0, 0].set_title('Distribution of Run Time')
     axes[0, 0].set_xlabel('Run Time')

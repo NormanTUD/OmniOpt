@@ -238,7 +238,6 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
                 else:
                     print("ERROR: " + str(e))
 
-                    import traceback
                     tb = traceback.format_exc()
                     print(tb)
 

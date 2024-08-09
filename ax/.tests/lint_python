@@ -39,7 +39,7 @@ errors=()
 for i in $(ls .*.py); do
 	ruff check $i || {
 		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'ruff check $i' to see details."
-		red_text $ERRSTR
+		red_text "\n$ERRSTR"
 		errors+=("$ERRSTR")
 	}
 done
@@ -52,9 +52,9 @@ if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No plot errors"
 	exit 0
 else
-	red_text "=> LINT-ERRORS => LINT-ERRORS => LINT-ERRORS =>"
+	red_text "=> LINT-ERRORS => LINT-ERRORS => LINT-ERRORS =>\n"
 	for i in "${errors[@]}"; do
-		red_text "$i"
+		red_text "$i\n"
 	done
 
 	exit ${#errors[@]}

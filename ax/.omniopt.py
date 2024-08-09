@@ -1484,7 +1484,7 @@ try:
         with console.status("[bold green]Loading submitit...") as status:
             try:
                 import submitit
-                from submitit import AutoExecutor, LocalJob, DebugJob
+                from submitit import LocalJob, DebugJob
             except Exception:
                 print_red("\n⚠ submitit could not be loaded. Did you create and load the virtual environment properly?")
                 my_exit(31)

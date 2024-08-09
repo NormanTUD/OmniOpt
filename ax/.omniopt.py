@@ -111,7 +111,7 @@ try:
     with console.status("[bold green]Loading signal...") as status:
         import signal
     with console.status("[bold green]Loading datetime...") as status:
-        from datetime import datetime, timezone
+        from datetime import datetime
         import datetime
     with console.status("[bold green]Loading tzlocal...") as status:
         from tzlocal import get_localzone

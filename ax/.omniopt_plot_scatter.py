@@ -266,7 +266,6 @@ def show_legend(_scatter, axs):
 
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs):
     print_debug("plot_single_graph()")
-    _range = range(len(df_filtered))
     _data = df_filtered
 
     _data = _data[:].values

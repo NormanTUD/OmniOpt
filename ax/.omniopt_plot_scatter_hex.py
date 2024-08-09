@@ -287,7 +287,6 @@ def show_legend(_scatter, axs, result_column):
 
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs, result_column_values):
     print_debug("plot_single_graph()")
-    _range = range(len(df_filtered))
     _data = df_filtered
 
     _data = _data[:].values

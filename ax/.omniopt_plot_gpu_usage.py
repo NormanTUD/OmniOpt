@@ -20,7 +20,6 @@ import sys
 import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
-from pprint import pprint
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -71,7 +70,7 @@ def plot_gpu_usage(run_dir):
         _ax = axs
         try:
             _ax = axs[i]
-        except Exception as e:
+        except Exception:
             pass
         df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y/%m/%d %H:%M:%S.%f', errors='coerce')
         df = df.sort_values(by='timestamp')

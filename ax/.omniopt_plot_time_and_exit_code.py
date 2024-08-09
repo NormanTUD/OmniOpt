@@ -11,9 +11,6 @@ import os
 import sys
 import seaborn as sns
 import matplotlib.pyplot as plt
-import pandas as pd
-from pprint import pprint
-import pytz
 from tzlocal import get_localzone
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)

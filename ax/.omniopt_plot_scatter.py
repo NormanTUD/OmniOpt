@@ -32,12 +32,9 @@ def print_debug(msg):
         print("DEBUG: ", end="")
         pprint(msg)
 
-import numpy as np
 import sys
 import argparse
 import math
-import time
-import threading
 
 fig = None
 maximum_textbox = None
@@ -103,7 +100,7 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
     title_values = []
 
     for l in extreme_values_items:
-        if not "result" in l:
+        if "result" not in l:
             key = l[0]
             value = helpers.to_int_when_possible(l[1])
             title_values.append(f"{key} = {value}")
@@ -156,13 +153,13 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if _min and not _max:
-                print(f"Using --min filtered out all results")
+                print("Using --min filtered out all results")
             elif not _min and _max:
-                print(f"Using --max filtered out all results")
+                print("Using --max filtered out all results")
             elif _min and _max:
-                print(f"Using --min and --max filtered out all results")
+                print("Using --min and --max filtered out all results")
             else:
-                print(f"For some reason, there were values in the beginning but not after filtering")
+                print("For some reason, there were values in the beginning but not after filtering")
         else:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print(f"No applicable values could be found in {csv_file_path}.")
@@ -185,7 +182,7 @@ def get_data (csv_file_path, _min, _max, old_headers_string=None):
             df = df[df[result_column] >= _min]
         if _max is not None:
             df = df[df[result_column] <= _max]
-        if not "result" in df:
+        if "result" not in df:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
@@ -227,7 +224,7 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
-        if (len(args.exclude_params) and not param1 in args.exclude_params[0] and not param2 in args.exclude_params[0]) or len(args.exclude_params) == 0:
+        if (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
                 scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
                 axs[row, col].set_xlabel(param1)
@@ -322,7 +319,7 @@ def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, param
     try:
         norm = plt.Normalize(colors.min(), colors.max())
     except:
-        print(f"Wrong values in csv file")
+        print("Wrong values in csv file")
         sys.exit(16)
 
     c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]
@@ -471,7 +468,7 @@ def use_matplotlib():
     try:
         if not args.save_to_file:
             matplotlib.use('TkAgg')
-    except Exception as e:
+    except Exception:
         print("An error occured while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
         sys.exit(33)
 
@@ -618,7 +615,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         plt.draw()
     except Exception as e:
-        if not "invalid command name" in str(e):
+        if "invalid command name" not in str(e):
             print(f"Failed to update graph: {e}")
 
 def change_min_max(expression):
@@ -684,5 +681,5 @@ if __name__ == "__main__":
 
         with plt.style.context(theme):
             main()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         sys.exit(0)

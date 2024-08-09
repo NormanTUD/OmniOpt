@@ -15,7 +15,6 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-import re
 import traceback
 import sys
 from datetime import datetime

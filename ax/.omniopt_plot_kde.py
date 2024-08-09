@@ -19,7 +19,6 @@ import math
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import argparse
 import logging
 
@@ -67,7 +66,7 @@ def plot_histograms(dataframe, save_to_file=None):
     try:
         axes = axes.flatten()
     except Exception as e:
-        if not "'Axes' object has no attribute 'flatten'" in str(e):
+        if "'Axes' object has no attribute 'flatten'" not in str(e):
             print(e)
 
             import traceback
@@ -83,7 +82,7 @@ def plot_histograms(dataframe, save_to_file=None):
             ax = axes
 
         values = dataframe[col]
-        if not "result" in dataframe:
+        if "result" not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print("KDE: Result column not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)

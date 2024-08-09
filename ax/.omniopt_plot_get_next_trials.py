@@ -20,7 +20,6 @@ spec.loader.exec_module(helpers)
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-import re
 import traceback
 import sys
 from datetime import datetime

@@ -6,6 +6,74 @@ export NO_NO_RESULT_ERROR=1
 export DONT_INSTALL_MODULES=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 
+function _tput {
+	set +e
+	CHAR=$1
+
+	if ! command -v tput 2>/dev/null >/dev/null; then
+		red_text "tput not installed" >&2
+		set +e
+		return 0
+	fi
+
+	if [[ -z $CHAR ]]; then
+		red_text "No character given" >&2
+		set +e
+		return 0
+	fi
+
+	if ! tty 2>/dev/null >/dev/null; then
+		echo ""
+		set +e
+		return 0
+	fi
+
+	tput $CHAR
+	set +e
+}
+
+function green {
+	echo -ne "${Green}$1${Color_Off}"
+}
+
+function green_reset_line {
+	_tput cr
+	_tput el
+	green "$1"
+}
+
+generate_progress_bar() {
+	local current_progress=$1
+	local total_progress=$2
+
+	# Überprüfen, ob die Eingaben gültige positive Ganzzahlen sind
+	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
+		echo "Fehler: Beide Parameter müssen positive Ganzzahlen sein, sind $current_progress/$total_progress." >&2
+		return 1
+	fi
+
+	# Überprüfen, ob der aktuelle Fortschritt den Gesamtfortschritt nicht überschreitet
+	if [ "$current_progress" -gt "$total_progress" ]; then
+		echo "Fehler: Der aktuelle Fortschritt darf den Gesamtfortschritt nicht überschreiten ($current_progress/$total_progress)." >&2
+		return 1
+	fi
+
+	local bar_length=30
+	local filled_length=$((bar_length * current_progress / total_progress))
+	local empty_length=$((bar_length - filled_length))
+
+	local bar=""
+	for ((i = 0; i < filled_length; i++)); do
+		bar="${bar}#"
+	done
+	for ((i = 0; i < empty_length; i++)); do
+		bar="${bar} "
+	done
+
+	echo "[${bar}] ($current_progress/$total_progress)"
+}
+
+
 help=0
 
 args=("$@")
@@ -81,11 +149,12 @@ for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_p
 done
 
 test_projects=()
+_commands=()
 
 projectdir=".tests/_plot_example_runs"
 projectnumber=0
 
-for folder in $(ls -1 $projectdir); do
+for folder in $(ls -1 $projectdir | tac); do
 	test_projects+=("$folder")
 done
 
@@ -127,54 +196,8 @@ for projectname in "${test_projects[@]}"; do
 
 				if [[ $ALL_FILES_THERE -ne 0 ]]; then
 					_command="bash omniopt_plot --run_dir=$run_dir --save_to_file=$this_img --plot_type=$possible_plot_type"
-					START_TIME=$SECONDS
-					$_command
-					END_TIME=$SECONDS
-					RUN_TIME=$(($END_TIME-$START_TIME))
 
-					_exit_code=$?
-
-					if [[ -e "$this_img" ]]; then
-						if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
-							red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code"
-							errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code")
-						else
-							MISSING_OUTPUTS=()
-
-							saved_IFS=$IFS
-							IFS=$'\n'
-							for needed_output in $(cat .omniopt_plot_${possible_plot_type}.py | grep "TEST_OUTPUT_MUST_CONTAIN" | sed -e 's#.*TEST_OUTPUT_MUST_CONTAIN:\s##g'); do
-								if ! grep "$needed_output" "$this_img" 2>/dev/null >/dev/null; then
-									MISSING_OUTPUTS+=("$needed_output")
-								fi
-							done
-
-							if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
-								green_text "OK: $_command (${RUN_TIME}s)"
-								if [[ "$keep_tmp" -eq 0 ]]; then
-									rm -f "$this_img" || {
-										red_text "Could not remove $this_img. ls -aslrt1:"
-										ls -aslrt1 "$this_img"
-										exit 5
-									}
-								fi
-							else
-								if [[ "$projectname" == "no_result" ]]; then
-									missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
-									red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
-									errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
-								fi
-							fi
-							IFS=$saved_IFS
-						fi
-					else
-						if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
-							green_text "OK: $_command (${RUN_TIME}s)"
-						else
-							red_text "$_command: $this_img does not exist"
-							errors+=("$_command: $this_img does not exist")
-						fi
-					fi
+					_commands+=("$_command")
 				else
 					missing_files_str=$(join_by "," $missing_files)
 					yellow_text "Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str"
@@ -185,6 +208,63 @@ for projectname in "${test_projects[@]}"; do
 		done
 	fi
 done
+
+i=0
+for _command in "${_commands[@]}"; do
+	PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
+	green_reset_line "$PROGRESSBAR Plot-Tests"
+
+	START_TIME=$SECONDS
+	$_command
+	_exit_code=$?
+
+	END_TIME=$SECONDS
+	RUN_TIME=$(($END_TIME-$START_TIME))
+
+	if [[ -e "$this_img" ]]; then
+		if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
+			red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code"
+			errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code")
+		else
+			MISSING_OUTPUTS=()
+
+			saved_IFS=$IFS
+			IFS=$'\n'
+			for needed_output in $(cat .omniopt_plot_${possible_plot_type}.py | grep "TEST_OUTPUT_MUST_CONTAIN" | sed -e 's#.*TEST_OUTPUT_MUST_CONTAIN:\s##g'); do
+				if ! grep "$needed_output" "$this_img" 2>/dev/null >/dev/null; then
+					MISSING_OUTPUTS+=("$needed_output")
+				fi
+			done
+
+			if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
+				green_reset_line "$PROGRESSBAR OK Plot-Tests"
+				if [[ "$keep_tmp" -eq 0 ]]; then
+					rm -f "$this_img" || {
+						red_text "Could not remove $this_img. ls -aslrt1:"
+						ls -aslrt1 "$this_img"
+						exit 5
+					}
+				fi
+			else
+				if [[ "$_command" =~ *"no_result"* ]]; then
+					missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
+					red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
+					errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
+				fi
+			fi
+			IFS=$saved_IFS
+		fi
+	else
+		if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
+			green_reset_line "$PROGRESSBAR OK Plot-Tests"
+		else
+			red_text "$_command: $this_img does not exist"
+			errors+=("$_command: $this_img does not exist")
+		fi
+	fi
+	i=$(($i+1))
+done
+
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

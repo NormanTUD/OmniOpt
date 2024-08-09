@@ -39,6 +39,11 @@ def plot_worker_usage(args, pd_csv):
         valid_times = data['time'].apply(helpers.looks_like_number)
         data = data[valid_times]
 
+        if "time" not in data:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print("time could not be found in data")
+            sys.exit(20)
+
         data['time'] = data['time'].apply(lambda x: datetime.fromtimestamp(int(float(x)), timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
         data['time'] = pd.to_datetime(data['time'])
 

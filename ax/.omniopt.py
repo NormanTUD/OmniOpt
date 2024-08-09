@@ -4110,18 +4110,19 @@ def _is_equal(name, input, output):
     if type(input) is not type(output):
         print_red(f"Failed test: {name}")
         return 1
-    elif type(input) is str or type(input) is int or type(input) is float and input != output:
+    if type(input) is str or type(input) is int or type(input) is float and input != output:
         print_red(f"Failed test: {name}")
         return 1
-    elif type(input) is bool and input != output:
+
+    if type(input) is bool and input != output:
         print_red(f"Failed test: {name}")
         return 1
-    elif output is None or input is None and input != output:
+
+    if output is None or input is None and input != output:
         print_red(f"Failed test: {name}")
         return 1
-    else:
-        print_red(f"Unknown data type for test {name}")
-        my_exit(192)
+
+    print_red(f"Unknown data type for test {name}")
 
     print_green(f"Test OK: {name}")
     return 0

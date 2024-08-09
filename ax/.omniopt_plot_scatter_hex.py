@@ -452,7 +452,7 @@ def get_colors(df, result_column):
         colors = df[result_column]
     except KeyError as e:
         if str(e) == "'" + result_column + "'":
-            print(f"Could not find any results in {csv_file_path}")
+            print("Could not find any results")
             sys.exit(3)
         else:
             print(f"Key-Error: {e}")

@@ -17,7 +17,6 @@ def main():
         print("Cannot use 3d plot without showing plots. Exiting")
         sys.exit(1)
 
-    csv_file_path = f"{args.run_dir}/results.csv"
     try:
         dataframe = None
 

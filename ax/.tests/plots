@@ -154,7 +154,7 @@ _commands=()
 projectdir=".tests/_plot_example_runs"
 projectnumber=0
 
-for folder in $(ls -1 $projectdir | tac); do
+for folder in $(ls -1 $projectdir); do
 	test_projects+=("$folder")
 done
 

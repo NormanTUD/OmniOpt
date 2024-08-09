@@ -1,0 +1,61 @@
+#!/bin/bash
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+ROOT_VENV_DIR=$HOME
+
+if [[ ! -z $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+fi
+
+VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+errors=()
+
+for i in $(ls .*.py); do
+	ruff check $i || {
+		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'ruff check $i' to see details."
+		red_text $ERRSTR
+		errors+=("$ERRSTR")
+	}
+done
+
+secs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'Plot test took: %02d:%02d:%02d\n' $hrs $mins $secs
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No plot errors"
+	exit 0
+else
+	red_text "=> LINT-ERRORS => LINT-ERRORS => LINT-ERRORS =>"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi

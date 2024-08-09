@@ -1418,22 +1418,21 @@ def evaluate(parameters):
 
         IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "No Result")
-        return return_in_case_of_error
+
     except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "USR1-signal")
-        return return_in_case_of_error
     except SignalCONT:
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
         IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "CONT-signal")
-        return return_in_case_of_error
     except SignalINT:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_data_and_headers(parameters, "INT-signal")
         IS_IN_EVALUATE = False
-        return return_in_case_of_error
+
+    return return_in_case_of_error
 
 try:
     if not args.tests:
@@ -2333,18 +2332,24 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
 def check_equation(variables, equation):
     print_debug(f"check_equation({variables}, {equation})")
+
+    _errors = []
+
     if not (">=" in equation or "<=" in equation):
-        print_debug(f"check_equation({variables}, {equation}): if not ('>=' in equation or '<=' in equation)")
-        return False
+        _errors.append(f"check_equation({variables}, {equation}): if not ('>=' in equation or '<=' in equation)")
 
     comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
     if comparer_at_beginning:
-        print(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
-        return False
+        errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
 
     comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
     if comparer_at_end:
-        print(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
+        errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
+
+    if len(_errors):
+        for er in _errors:
+            print_red(er)
+
         return False
 
     equation = equation.replace("\\*", "*")

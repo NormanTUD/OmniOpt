@@ -2026,7 +2026,7 @@ def get_ax_param_representation(data):
                 "is_fidelity": False,
                 "target_value": None
                 }
-    elif data["type"] == "choice":
+    if data["type"] == "choice":
         return {
                 '__type': 'ChoiceParameter',
                 'dependents': None,
@@ -2039,10 +2039,9 @@ def get_ax_param_representation(data):
                 'values': data["values"]
                 }
 
-    else:
-        print("data:")
-        pprint(data)
-        helpers.dier(f"Unknown data range {data['type']}")
+    print("data:")
+    pprint(data)
+    helpers.dier(f"Unknown data range {data['type']}")
 
 def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None

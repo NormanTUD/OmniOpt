@@ -1413,13 +1413,14 @@ def evaluate(parameters):
         if type(result) is int:
             IS_IN_EVALUATE = False
             return {"result": int(result)}
-        elif type(result) is float:
+
+        if type(result) is float:
             IS_IN_EVALUATE = False
             return {"result": float(result)}
-        else:
-            IS_IN_EVALUATE = False
-            write_data_and_headers(parameters, "No Result")
-            return return_in_case_of_error
+
+        IS_IN_EVALUATE = False
+        write_data_and_headers(parameters, "No Result")
+        return return_in_case_of_error
     except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         IS_IN_EVALUATE = False

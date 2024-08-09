@@ -197,13 +197,16 @@ def get_data (csv_file_path, result_column, _min, _max, old_headers_string=None)
             print(f"It seems like all available columns had strings instead of numbers. String columns cannot currently be plotted with scatter_hex.")
             sys.exit(19)
     except pd.errors.EmptyDataError:
-        print(f"{csv_file_path} has no lines to parse.")
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{csv_file_path} has no lines to parse.")
         sys.exit(5)
     except pd.errors.ParserError as e:
-        print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
         sys.exit(12)
     except UnicodeDecodeError:
-        print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
         sys.exit(7)
 
     try:

@@ -3,6 +3,8 @@
 # Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 # Geht, aber was ist mit continued runs?
 
+import sys
+
 class signalUSR (Exception):
     pass
 
@@ -11,8 +13,6 @@ class signalINT (Exception):
 
 class signalCONT (Exception):
     pass
-
-import sys
 
 try:
     import traceback
@@ -102,7 +102,6 @@ try:
         import threading
     with console.status("[bold green]Loading shutil...") as status:
         import shutil
-        from shutil import which
     with console.status("[bold green]Loading math...") as status:
         import math
     with console.status("[bold green]Loading json...") as status:
@@ -1297,6 +1296,8 @@ def check_file_info(file_path):
 
     string = f"pwd: {os.getcwd()}\n"
     string += f"File: {file_path}\n"
+    string += f"UID: {uid}\n"
+    string += f"GID: {gid}\n"
     string += f"Size: {size} Bytes\n"
     string += f"Permissions: {permissions}\n"
     string += f"Owner: {username}\n"

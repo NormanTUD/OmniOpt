@@ -2003,6 +2003,8 @@ def compare_parameters(old_param_json, new_param_json):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
+    return ""
+
 def get_ax_param_representation(data):
     if data["type"] == "range":
         return {

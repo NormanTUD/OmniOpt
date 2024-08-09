@@ -15,6 +15,8 @@ import signal
 from rich.traceback import install
 from rich.pretty import pprint
 
+button = None
+
 textbox_minimum = None
 textbox_maximum = None
 

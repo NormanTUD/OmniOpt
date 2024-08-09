@@ -162,8 +162,6 @@ try:
         from rich.table import Table
     with console.status("[bold green]Loading print from rich...") as status:
         from rich import print
-    with console.status("[bold green]Loading rich.progress...") as status:
-        from rich.progress import track
     with console.status("[bold green]Loading csv...") as status:
         import csv
     with console.status("[bold green]Loading rich.pretty...") as status:

@@ -565,7 +565,7 @@ def load_global_vars(_file):
         sys.exit(44)
     try:
         global global_vars
-        with open(_file) as f:
+        with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
     except Exception as e:
         print("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
@@ -1191,7 +1191,7 @@ def add_to_csv(file_path, heading, data_line):
 
     data_line = [helpers.to_int_when_possible(x) for x in data_line]
 
-    with open(file_path, 'a+', newline='') as file:
+    with open(file_path, 'a+', encoding="utf-8", newline='') as file:
         csv_writer = csv.writer(file)
 
         if is_empty:
@@ -4481,7 +4481,7 @@ def log_nr_of_workers():
         return
 
     try:
-        with open(logfile_nr_workers, 'a+') as f:
+        with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
             f.write(str(nr_of_workers) + "\n")
     except FileNotFoundError:
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")

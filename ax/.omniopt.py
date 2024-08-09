@@ -257,7 +257,7 @@ def log_what_needs_to_be_logged ():
 
 def get_nesting_level(caller_frame):
     filename, caller_lineno, _, _, _ = inspect.getframeinfo(caller_frame)
-    with open(filename) as f:
+    with open(filename, encoding="utf-8") as f:
         indentation_level = 0
         for token_record in tokenize.generate_tokens(f.readline):
             token_type, _, (token_lineno, _), _, _ = token_record
@@ -275,7 +275,7 @@ def _debug(msg, _lvl=0, ee=None):
         sys.exit(193)
 
     try:
-        with open(logfile, 'a') as f:
+        with open(logfile, mode='a', encoding="utf-8") as f:
             original_print(msg, file=f)
     except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
@@ -394,7 +394,7 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
         return
 
     try:
-        with open(logfile, 'a') as f:
+        with open(logfile, mode='a', encoding="utf-8") as f:
             #original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
     except FileNotFoundError:
@@ -730,7 +730,7 @@ def save_global_vars():
     if not os.path.exists(state_files_folder):
         os.makedirs(state_files_folder)
 
-    with open(f'{state_files_folder}/global_vars.json', "w") as f:
+    with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
 def check_slurm_job_id():
@@ -756,7 +756,7 @@ def create_folder_and_file(folder):
 
     file_path = os.path.join(folder, "results.csv")
 
-    #with open(file_path, 'w') as file:
+    #with open(file_path, mode='w', encoding='utf-8') as file:
     #    pass
 
     return file_path
@@ -1301,7 +1301,7 @@ def write_data_and_headers(data_dict, error_description=""):
         # Write headers if the file does not exist
         if not os.path.exists(header_file_path):
             try:
-                with open(header_file_path, mode='w', newline='') as header_file:
+                with open(header_file_path, mode='w', encoding='utf-8', newline='') as header_file:
                     writer = csv.writer(header_file)
                     writer.writerow(headers)
                     print_debug(f"Header file created with headers: {headers}")
@@ -1312,7 +1312,7 @@ def write_data_and_headers(data_dict, error_description=""):
 
         # Append data to the data file
         try:
-            with open(data_file_path, mode='a', newline='') as data_file:
+            with open(data_file_path, mode='a', encoding="utf-8", newline='') as data_file:
                 writer = csv.writer(data_file)
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
@@ -1669,7 +1669,7 @@ def print_best_result(csv_file_path, result_column):
             console.print(table)
         table_str = capture.get()
 
-        with open(f'{current_run_folder}/best_result.txt', "w") as text_file:
+        with open(f'{current_run_folder}/best_result.txt', mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
         _pd_csv = f"{current_run_folder}/{pd_csv_filename}"
@@ -1842,7 +1842,7 @@ def write_worker_usage():
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
-        with open(csv_filename, 'w', newline='') as csvfile:
+        with open(csv_filename, mode='w', encoding="utf-8", newline='') as csvfile:
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
@@ -1957,7 +1957,7 @@ def save_pd_csv():
 
         json_snapshot = ax_client.to_json_snapshot()
 
-        with open(pd_json, 'w') as json_file:
+        with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
         save_experiment(ax_client.experiment, f"{current_run_folder}/state_files/ax_client.experiment.json")
@@ -1980,7 +1980,7 @@ def get_tmp_file_from_json(experiment_args):
         k = k + 1
 
     try:
-        with open(f'/tmp/{k}', "w") as f:
+        with open(f'/tmp/{k}', mode="w", encoding="utf-8") as f:
             json.dump(experiment_args, f)
     except PermissionError as e:
         print_red(f"Error writing '{k}' in get_tmp_file_from_json: {e}")
@@ -2142,14 +2142,14 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         if not os.path.exists(state_files_folder):
             os.makedirs(state_files_folder)
-        with open(checkpoint_filepath, "w") as outfile:
+        with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
             json.dump(experiment_parameters, outfile)
 
         if not os.path.exists(checkpoint_filepath):
             print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
             my_exit(47)
 
-        with open(f'{current_run_folder}/checkpoint_load_source', 'w') as f:
+        with open(f'{current_run_folder}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
             print(f"Continuation from checkpoint {continue_previous_job}", file=f)
     else:
         experiment_args = {
@@ -2233,7 +2233,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     if args.maximize:
         min_or_max = "maximize"
 
-    with open(f"{current_run_folder}/state_files/{min_or_max}", 'w') as f:
+    with open(f"{current_run_folder}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
     rows = []
@@ -2311,7 +2311,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
         console.print(table)
     table_str = capture.get()
 
-    with open(f"{current_run_folder}/parameters.txt", "w") as text_file:
+    with open(f"{current_run_folder}/parameters.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
     if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
@@ -2330,7 +2330,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
         console.print(table)
 
-        with open(f"{current_run_folder}/constraints.txt", "w") as text_file:
+        with open(f"{current_run_folder}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
 def check_equation(variables, equation):
@@ -2826,7 +2826,7 @@ def print_outfile_analyzed(job):
 
     if len(_strs):
         try:
-            with open(f'{current_run_folder}/evaluation_errors.log', "a+") as error_file:
+            with open(f'{current_run_folder}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
                 error_file.write(out_files_string)
         except Exception as e:
             print_debug(f"Error occurred while writing to evaluation_errors.log: {e}")
@@ -3103,30 +3103,30 @@ def save_state_files():
     if not os.path.exists(state_files_folder):
         os.makedirs(state_files_folder)
 
-    with open(f'{state_files_folder}/joined_run_program', 'w') as f:
+    with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
         print(global_vars["joined_run_program"], file=f)
 
-    with open(f'{state_files_folder}/experiment_name', 'w') as f:
+    with open(f'{state_files_folder}/experiment_name', mode='w', encoding="utf-8") as f:
         print(global_vars["experiment_name"], file=f)
 
-    with open(f'{state_files_folder}/mem_gb', 'w') as f:
+    with open(f'{state_files_folder}/mem_gb', mode='w', encoding='utf-8') as f:
         print(global_vars["mem_gb"], file=f)
 
-    with open(f'{state_files_folder}/max_eval', 'w') as f:
+    with open(f'{state_files_folder}/max_eval', mode='w', encoding='utf-8') as f:
         print(max_eval, file=f)
 
-    with open(f'{state_files_folder}/gpus', 'w') as f:
+    with open(f'{state_files_folder}/gpus', mode='w', encoding='utf-8') as f:
         print(args.gpus, file=f)
 
-    with open(f'{state_files_folder}/time', 'w') as f:
+    with open(f'{state_files_folder}/time', mode='w', encoding='utf-8') as f:
         print(global_vars["_time"], file=f)
 
-    with open(f'{state_files_folder}/env', 'a') as f:
+    with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
         env = dict(os.environ)
         for key in env:
             print(str(key) + " = " + str(env[key]), file=f)
 
-    with open(f'{state_files_folder}/run.sh', 'w') as f:
+    with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
 def execute_evaluation(ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
@@ -3990,7 +3990,7 @@ def main():
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-    with open(checkpoint_parameters_filepath, "w") as outfile:
+    with open(checkpoint_parameters_filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
     print_overview_tables(experiment_parameters, experiment_args)

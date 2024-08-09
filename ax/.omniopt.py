@@ -2792,7 +2792,7 @@ def load_data_from_existing_run_folders(args, _paths):
 
                 print_debug(f"trial_status_str: {trial_status_str}")
 
-                if not "COMPLETED" in str(trial_status_str):
+                if "COMPLETED" not in str(trial_status_str):
                     continue
 
                 old_arm_parameter = old_trial.arm.parameters
@@ -2879,7 +2879,7 @@ def print_outfile_analyzed(job):
     stderr_path = str(job.paths.stderr.resolve())
 
     errors = get_errors_from_outfile(stdout_path)
-    #errors.append(...get_errors_from_outfile(stderr_path))
+    errors.append(...get_errors_from_outfile(stderr_path))
 
     _strs = []
     j = 0
@@ -3249,7 +3249,7 @@ def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, param
         progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
     except submitit.core.utils.FailedJobError as error:
         if "QOSMinGRES" in str(error) and args.gpus == 0:
-            print_red(f"\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+            print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
         else:
             print_red(f"\n⚠ FAILED: {error}")
 
@@ -3345,8 +3345,6 @@ def _get_next_trials(args, ax_client):
         trial_index_to_param, _ = ax_client.get_next_trials(
             max_trials=real_num_parallel_jobs
         )
-
-        removed_duplicates = 0
     except np.linalg.LinAlgError as e:
         if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
             print_red(f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
@@ -3436,7 +3434,7 @@ def get_generation_strategy(args, num_parallel_jobs, seed, max_eval):
             print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
         if args.model.lower() != "FACTORIAL" and args.gridsearch:
-            print_red(f"Gridsearch only really works when you chose the FACTORIAL model.")
+            print_red("Gridsearch only really works when you chose the FACTORIAL model.")
 
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
@@ -3492,7 +3490,7 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
 
     trial_index_to_param = None
     try:
-        print_debug(f"trying to get trial_index_to_param")
+        print_debug("trying to get trial_index_to_param")
 
         try:
             trial_index_to_param = _get_next_trials(args, ax_client)
@@ -3527,11 +3525,6 @@ def create_and_execute_next_runs(args, ax_client, next_nr_steps, executor, phase
             else:
                 print_red(f"Error 2: {e}")
                 return 0
-
-        random_steps_left = count_done_jobs() - random_steps
-
-        #if random_steps_left <= 0 and count_done_jobs() <= random_steps:
-        #    return len(trial_index_to_param.keys())
     except RuntimeError as e:
         print_red("\n⚠ " + str(e))
     except (

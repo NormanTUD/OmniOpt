@@ -234,8 +234,6 @@ main_pid = os.getpid()
 
 run_uuid = uuid.uuid4()
 
-log_stack = []
-
 def set_max_eval (new_max_eval):
     global max_eval
 
@@ -381,14 +379,12 @@ with console.status("[bold green]Defining variables...") as status:
     log_dir = ".logs"
     log_i = 0
     logfile = f'{log_dir}/{log_i}'
-    logfile_linewise = f'{log_dir}/{log_i}_linewise'
     logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
     while os.path.exists(logfile):
         log_i = log_i + 1
         logfile = f'{log_dir}/{log_i}'
 
     logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
-    logfile_linewise = f'{log_dir}/{log_i}_linewise'
     logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
     logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
     logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'

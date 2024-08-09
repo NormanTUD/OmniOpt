@@ -3134,7 +3134,7 @@ def save_state_files():
     with open(f'{state_files_folder}/run.sh', 'w') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
+def execute_evaluation(ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
     global IS_IN_EVALUATE
@@ -3443,7 +3443,7 @@ def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_
 
                     if not break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                        execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
+                        execute_evaluation(ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
                         i += 1
                     else:
                         break

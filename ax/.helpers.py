@@ -9,8 +9,9 @@ import math
 
 def check_environment_variable(variable_name):
     try:
-        os.environ[variable_name]
-        return True
+        value = os.environ[variable_name]
+        if value == "1":
+            return True
     except KeyError:
         return False
 

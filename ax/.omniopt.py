@@ -4,6 +4,7 @@
 # Geht, aber was ist mit continued runs?
 
 import sys
+import platform
 
 class SignalUSR (Exception):
     pass
@@ -4341,7 +4342,6 @@ def get_errors_from_outfile(i):
             errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
 
         if "Exec format error" in file_as_string:
-            import platform
             current_platform = platform.machine()
             file_output = ""
 

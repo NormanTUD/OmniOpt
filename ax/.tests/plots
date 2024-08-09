@@ -283,8 +283,10 @@ if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No plot errors"
 	exit 0
 else
+	echo ""
 	red_text "=> PLOT-ERRORS => PLOT-ERRORS => PLOT-ERRORS =>"
 	for i in "${errors[@]}"; do
+		echo ""
 		red_text "$i"
 	done
 

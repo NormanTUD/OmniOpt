@@ -302,7 +302,7 @@ def get_functions_stack_array():
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nl = get_nesting_level(inspect.currentframe().f_back)
-    _tabs = ("\t" * nl)
+    _tabs = "\t" * nl
     msg = f"{time_str}:{_tabs}{msg}"
     if args.debug:
         print(msg)

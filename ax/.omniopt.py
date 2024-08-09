@@ -4210,7 +4210,7 @@ def _is_not_equal(name, input, output):
     return 0
 
 def _is_equal(name, input, output):
-    if type(input) != type(output):
+    if type(input) is not type(output):
         print_red(f"Failed test: {name}")
         return 1
     elif type(input) is str or type(input) is int or type(input) is float:

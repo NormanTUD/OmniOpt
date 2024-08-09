@@ -5,14 +5,14 @@
 
 import os
 import importlib.util
-import numpy as np
 import math
 import sys
-import pandas as pd
-import matplotlib.pyplot as plt
 import argparse
 import logging
 import traceback
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -167,4 +167,3 @@ if __name__ == "__main__":
         sys.exit(1)
 
     update_graph()
-

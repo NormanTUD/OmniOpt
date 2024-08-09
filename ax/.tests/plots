@@ -226,6 +226,12 @@ for _command in "${_commands[@]}"; do
 	END_TIME=$SECONDS
 	RUN_TIME=$(($END_TIME-$START_TIME))
 
+	if [[ "$_exit_code" -ne 0 ]]; then
+		echo ""
+		red_text "$_command failed"
+		errors+=("$_command failed")
+	fi
+
 	if [[ -e "$this_img" ]]; then
 		if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
 			echo ""

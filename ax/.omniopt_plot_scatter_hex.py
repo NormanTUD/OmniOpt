@@ -225,22 +225,6 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def remove_lines_where_y_is_string (_x, _y):
-    if len(_x) != len(_y):
-        print(f"remove_lines_where_y_is_string: len(_x) is != len(_y). Consider this a bug. Both should have the same length.")
-        return _x, _y
-
-    del_indices = []
-
-    for i in range(0, len(_x)):
-        if not helpers.looks_like_number(_y[i]):
-            del_indices.append(i)
-
-    _x = np.delete(_x, del_indices)
-    _y = np.delete(_y, del_indices)
-
-    return _x, _y
-
 def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values):
     print_debug("plot_multiple_graphs")
     global bins
@@ -251,8 +235,6 @@ def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colo
             try:
                 _x = df_filtered[param1]
                 _y = df_filtered[param2]
-
-                #_x, _y = remove_lines_where_y_is_string(_x, _y)
 
                 if bins:
                     scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)

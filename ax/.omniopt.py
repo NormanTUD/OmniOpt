@@ -5,13 +5,13 @@
 
 import sys
 
-class signalUSR (Exception):
+class SignalUSR (Exception):
     pass
 
-class signalINT (Exception):
+class SignalINT (Exception):
     pass
 
-class signalCONT (Exception):
+class SignalCONT (Exception):
     pass
 
 try:
@@ -71,13 +71,13 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     my_exit(31)
-except signalINT:
+except SignalINT:
     original_print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
-except signalUSR:
+except SignalUSR:
     original_print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(128 + 10)
-except signalCONT:
+except SignalCONT:
     original_print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
 except KeyboardInterrupt:
@@ -172,13 +172,13 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     my_exit(31)
-except signalINT:
+except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
-except signalUSR:
+except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(128 + 10)
-except signalCONT:
+except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
 except KeyboardInterrupt:
@@ -212,7 +212,7 @@ global_vars["parameter_names"] = []
 # grid ausblenden
 pd_csv_filename = "results.csv"
 worker_percentage_usage = []
-is_in_evaluate = False
+IS_IN_EVALUATE = False
 end_program_ran = False
 already_shown_worker_usage_over_time = False
 ax_client = None
@@ -697,13 +697,13 @@ def print_debug_progressbar(msg):
     _debug_progressbar(msg)
 
 def receive_usr_signal_one(signum, stack):
-    raise signalUSR(f"USR1-signal received ({signum})")
+    raise SignalUSR(f"USR1-signal received ({signum})")
 
 def receive_usr_signal_int(signum, stack):
-    raise signalINT(f"INT-signal received ({signum})")
+    raise SignalINT(f"INT-signal received ({signum})")
 
 def receive_signal_cont(signum, stack):
-    raise signalCONT(f"CONT-signal received ({signum})")
+    raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
 signal.signal(signal.SIGUSR2, receive_usr_signal_one)
@@ -1330,7 +1330,7 @@ def write_data_and_headers(data_dict, error_description=""):
 
 def evaluate(parameters):
     global global_vars
-    global is_in_evaluate
+    global IS_IN_EVALUATE
 
     start_nvidia_smi_thread()
 
@@ -1351,10 +1351,10 @@ def evaluate(parameters):
         except Exception:
             pass
 
-    is_in_evaluate = True
+    IS_IN_EVALUATE = True
     if args.evaluate_to_random_value:
         rand_res = random.uniform(0, 1)
-        is_in_evaluate = False
+        IS_IN_EVALUATE = False
         return {"result": helpers.to_int_when_possible(float(rand_res))}
 
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
@@ -1416,29 +1416,29 @@ def evaluate(parameters):
             print_debug(f"evaluate: current_run_folder {current_run_folder} could not be found")
 
         if type(result) is int:
-            is_in_evaluate = False
+            IS_IN_EVALUATE = False
             return {"result": int(result)}
         elif type(result) is float:
-            is_in_evaluate = False
+            IS_IN_EVALUATE = False
             return {"result": float(result)}
         else:
-            is_in_evaluate = False
+            IS_IN_EVALUATE = False
             write_data_and_headers(parameters, "No Result")
             return return_in_case_of_error
-    except signalUSR:
+    except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
-        is_in_evaluate = False
+        IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "USR1-signal")
         return return_in_case_of_error
-    except signalCONT:
+    except SignalCONT:
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
-        is_in_evaluate = False
+        IS_IN_EVALUATE = False
         write_data_and_headers(parameters, "CONT-signal")
         return return_in_case_of_error
-    except signalINT:
+    except SignalINT:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_data_and_headers(parameters, "INT-signal")
-        is_in_evaluate = False
+        IS_IN_EVALUATE = False
         return return_in_case_of_error
 
 try:
@@ -1487,13 +1487,13 @@ except ModuleNotFoundError as e:
 except KeyboardInterrupt:
     original_print("You cancelled loading the basic modules")
     my_exit(31)
-except signalINT:
+except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
-except signalUSR:
+except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(128 + 10)
-except signalCONT:
+except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(128 + 18)
 except KeyboardInterrupt:
@@ -1887,8 +1887,8 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
-    if is_in_evaluate and not _force:
-        print_debug("is_in_evaluate true, returning end_program")
+    if IS_IN_EVALUATE and not _force:
+        print_debug("IS_IN_EVALUATE true, returning end_program")
         return
 
     if end_program_ran and not _force:
@@ -1913,7 +1913,7 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
             return
 
         _exit = show_end_table_and_save_end_files(csv_file_path, result_column)
-    except (signalUSR, signalINT, signalCONT, KeyboardInterrupt):
+    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         _exit = show_end_table_and_save_end_files(csv_file_path, result_column)
@@ -1990,12 +1990,12 @@ def save_pd_csv():
         save_experiment(ax_client.experiment, f"{current_run_folder}/state_files/ax_client.experiment.json")
 
         #print_debug("pd.{csv,json} saved")
-    except signalUSR as e:
-        raise signalUSR(str(e))
-    except signalCONT as e:
-        raise signalCONT(str(e))
-    except signalINT as e:
-        raise signalINT(str(e))
+    except SignalUSR as e:
+        raise SignalUSR(str(e))
+    except SignalCONT as e:
+        raise SignalCONT(str(e))
+    except SignalINT as e:
+        raise SignalINT(str(e))
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
 
@@ -3161,7 +3161,7 @@ def save_state_files():
 def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
-    global is_in_evaluate
+    global IS_IN_EVALUATE
 
     _trial = ax_client.get_trial(trial_index)
 
@@ -3229,9 +3229,9 @@ def execute_evaluation(trial_index_to_param, ax_client, trial_index, parameters,
             trial_counter += 1
         except Exception as e:
             print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
-    except (signalUSR, signalINT, signalCONT):
+    except (SignalUSR, SignalINT, SignalCONT):
         print_red("\n⚠ Detected signal. Will exit.")
-        is_in_evaluate = False
+        IS_IN_EVALUATE = False
         end_program(result_csv_file, "result", 1)
     except Exception as e:
         tb = traceback.format_exc()
@@ -3591,7 +3591,7 @@ def append_and_read(file, nr=0):
 
     except FileNotFoundError as e:
         print(f"File not found: {e}")
-    except (signalUSR, signalINT, signalCONT):
+    except (SignalUSR, SignalINT, SignalCONT):
         append_and_read(file, nr)
     except OSError as e:
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
@@ -4599,9 +4599,9 @@ if __name__ == "__main__":
         else:
             try:
                 main()
-            except (signalUSR, signalINT, signalCONT, KeyboardInterrupt):
+            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
-                is_in_evaluate = False
+                IS_IN_EVALUATE = False
 
                 end_program(result_csv_file, "result", 1)
             except searchSpaceExhausted:

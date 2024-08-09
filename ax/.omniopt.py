@@ -1392,6 +1392,7 @@ def evaluate(parameters):
         try:
             for i in range(torch.cuda.device_count()):
                 tmp = torch.cuda.get_device_properties(i).name
+                print_debug(f"Got CUDA device {tmp}")
         except RuntimeError:
             print(f"Node {socket.gethostname()} was detected as faulty. It should have had a GPU, but there is an error initializing the CUDA driver. Adding this node to the --exclude list.")
             count_defective_nodes(None, socket.gethostname())

@@ -3207,6 +3207,7 @@ def save_state_files(args):
 def execute_evaluation(args, trial_index_to_param, ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
+    global is_in_evaluate
 
     _trial = ax_client.get_trial(trial_index)
 

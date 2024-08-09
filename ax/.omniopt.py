@@ -424,7 +424,7 @@ def print_red(text):
 
     if current_run_folder:
         try:
-            with open(f"{current_run_folder}/oo_errors.txt", "a") as myfile:
+            with open(f"{current_run_folder}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(text)
         except FileNotFoundError as e:
             print_red(f"Error: {e}. This may mean that the {current_run_folder} was deleted during the run.")
@@ -538,7 +538,7 @@ def get_file_as_string(f):
     if not os.path.exists(f):
         print_red(f"{f} not found!")
     else:
-        with open(f) as _f:
+        with open(f, encoding="utf-8") as _f:
             datafile = _f.readlines()
 
     return "\n".join(datafile)
@@ -1554,7 +1554,7 @@ def display_failed_jobs_table():
         return
 
     try:
-        with open(header_file, mode='r') as file:
+        with open(header_file, mode='r', encoding="utf-8") as file:
             reader = csv.reader(file)
             headers = next(reader)
             print_debug(f"Headers: {headers}")
@@ -2056,11 +2056,11 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
             my_exit(47)
 
         try:
-            f = open(checkpoint_file)
+            f = open(checkpoint_file, encoding="utf-8")
             experiment_parameters = json.load(f)
             f.close()
 
-            with open(checkpoint_file) as f:
+            with open(checkpoint_file, encoding="utf-8") as f:
                 experiment_parameters = json.load(f)
 
             cuda_is_available = torch.cuda.is_available()
@@ -2511,13 +2511,10 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         if matching_rows.empty:
             print_debug("No matching rows found after all filters applied")
             return None
-        else:
-            print_debug("Matching rows found")
-            print_debug(matching_rows)
-            return matching_rows
 
-        result_value = matching_rows['result'].values[0]
-        return result_value
+        print_debug("Matching rows found")
+        print_debug(matching_rows)
+        return matching_rows
     except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")
         raise
@@ -3549,7 +3546,7 @@ def get_executor():
 
 def append_and_read(file, nr=0):
     try:
-        with open(file, 'a+') as f:
+        with open(file, mode='a+', encoding="utf-8") as f:
             f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
             anzahl_zeilen = len(f.readlines())
 
@@ -3853,7 +3850,7 @@ def count_defective_nodes(file_path=None, entry=None):
 
     try:
         # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
-        with open(file_path, 'a+') as file:
+        with open(file_path, mode='a+', encoding="utf-8") as file:
             file.seek(0)  # Zurück zum Anfang der Datei
             lines = file.readlines()
 
@@ -3930,7 +3927,7 @@ def main():
     nvidia_smi_logs_base = f'{current_run_folder}/gpu_usage_'
 
     if args.ui_url:
-        with open(f"{current_run_folder}/ui_url.txt", "a") as myfile:
+        with open(f"{current_run_folder}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
 
     logfile_debug_get_next_trials = f'{current_run_folder}/get_next_trials.csv'

@@ -144,7 +144,6 @@ try:
         from pprint import pformat
     with console.status("[bold green]Loading sixel...") as status:
         import sixel
-        from sixel import converter
     with console.status("[bold green]Loading PIL...") as status:
         from PIL import Image
 
@@ -364,7 +363,7 @@ def print_image_to_cli(image_path, width):
         height = int((original_height / original_width) * width)
 
         # Erstellen des SixelConverters mit den neuen Dimensionen
-        sixel_converter = converter.SixelConverter(image_path, w=width, h=height)
+        sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
 
         # Schreiben der Ausgabe in sys.stdout
         sixel_converter.write(sys.stdout)

@@ -2414,10 +2414,8 @@ def check_equation(variables, equation):
 
     if order_check:
         return equation
-    else:
-        return False
 
-    return equation
+    return False
 
 def update_progress_bar (progress_bar, nr):
     #import traceback

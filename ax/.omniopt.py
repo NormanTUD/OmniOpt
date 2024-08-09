@@ -109,8 +109,6 @@ try:
         import datetime
     with console.status("[bold green]Loading tzlocal...") as status:
         from tzlocal import get_localzone
-    with console.status("[bold green]Loading platform...") as status:
-        import platform
     with console.status("[bold green]Loading difflib...") as status:
         import difflib
     with console.status("[bold green]Loading warnings...") as status:

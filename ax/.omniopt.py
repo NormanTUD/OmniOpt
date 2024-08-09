@@ -1998,8 +1998,8 @@ def compare_parameters(old_param_json, new_param_json):
         if differences:
             differences_message = f"Changed parameter {old_param['name']} " + ", ".join(differences)
             return differences_message
-        else:
-            return "No differences found between the old and new parameters."
+
+        return "No differences found between the old and new parameters."
 
     except AssertionError as e:
         print(f"Assertion error: {e}")

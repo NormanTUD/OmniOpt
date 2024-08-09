@@ -33,7 +33,7 @@ def plot_gpu_usage(run_dir):
     _paths = []
     gpu_data_len = 0
 
-    for root, dirs, files in os.walk(run_dir):
+    for root, _, files in os.walk(run_dir):
         for file in files:
             if file.startswith("gpu_usage_") and file.endswith(".csv"):
                 file_path = os.path.join(root, file)

@@ -2258,8 +2258,8 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 
         if experiment_constraints and len(experiment_constraints):
             experiment_args["parameter_constraints"] = []
-            for l in range(0, len(experiment_constraints)):
-                constraints_string = " ".join(experiment_constraints[l])
+            for _l in range(0, len(experiment_constraints)):
+                constraints_string = " ".join(experiment_constraints[_l])
 
                 variables = [item['name'] for item in experiment_parameters]
 

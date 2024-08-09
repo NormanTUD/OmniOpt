@@ -175,7 +175,6 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
 
 def get_data (csv_file_path, _min, _max, old_headers_string=None):
     print_debug("get_data")
-    result_column = "result"
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 
@@ -186,9 +185,9 @@ def get_data (csv_file_path, _min, _max, old_headers_string=None):
                 return None
 
         if _min is not None:
-            df = df[df[result_column] >= _min]
+            df = df[df["result"] >= _min]
         if _max is not None:
-            df = df[df[result_column] <= _max]
+            df = df[df["result"] <= _max]
         if "result" not in df:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
@@ -516,7 +515,7 @@ def main():
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
-            prev_run_df = get_data(prev_run_csv_path, result_column, args.min, args.max, old_headers_string)
+            prev_run_df = get_data(prev_run_csv_path, args.min, args.max, old_headers_string)
             if prev_run_df is not None:
                 print(f"Loading {prev_run_csv_path} into the dataset")
                 df = df.merge(prev_run_df, how='outer')
@@ -582,7 +581,6 @@ def update_graph(event=None, _min=None, _max=None):
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
-        result_column = "result"
         csv_file_path = get_csv_file_path()
         df = get_data(csv_file_path, _min, _max)
 

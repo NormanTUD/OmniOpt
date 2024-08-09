@@ -7,7 +7,6 @@ import sys
 import argparse
 import logging
 import importlib.util
-import pandas
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -94,7 +93,7 @@ def update_graph():
 
     except FileNotFoundError:
         print("File not found: %s", args.run_dir + "/results.csv")
-    except pandas.errors.EmptyDataError:
+    except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print("The file to be parsed was empty")
         sys.exit(20)

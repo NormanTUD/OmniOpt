@@ -97,8 +97,6 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
 
     extreme_values_items = extreme_values.items()
 
-    filtered_extreme_values_items = {}
-
     title_values = []
 
     for _l in extreme_values_items:
@@ -106,8 +104,6 @@ def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
             key = _l[0]
             value = helpers.to_int_when_possible(_l[1])
             title_values.append(f"{key} = {value}")
-
-    #title_values = [f"{key} = {value}" for key, value in filtered_extreme_values_items]
 
     title += " of f("
     title += ', '.join(title_values)
@@ -292,7 +288,7 @@ def show_legend(_scatter, axs, result_column):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column):
+def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, result_column, result_column_values):
     print_debug("plot_two_graphs()")
     _x = df_filtered[non_empty_graphs[0][0]]
     try:
@@ -318,6 +314,8 @@ def plot_two_graphs(axs, df_filtered, non_empty_graphs, colors, cmap, norm, resu
     # Farbgebung und Legende für das einzelne Scatterplot
     show_legend(_y, axs, result_column)
 
+    return scatter
+
 def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs, result_column_values):
     print_debug("plot_single_graph()")
     _range = range(len(df_filtered))
@@ -340,6 +338,8 @@ def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column,
     axs.set_xlabel(non_empty_graphs[0][0])
     axs.set_ylabel(result_column)
 
+    return scatter
+
 def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values):
     print_debug("plot_graphs")
     colors = get_colors(df, result_column)
@@ -350,8 +350,8 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     norm = None
     try:
         norm = plt.Normalize(colors.min(), colors.max())
-    except:
-        print(f"Wrong values in {csv_file_path}")
+    except Exception:
+        print("Wrong values")
         sys.exit(16)
 
     c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]

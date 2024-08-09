@@ -192,39 +192,6 @@
 			<td><tt>False</tt></td>
 		</tr>
 		<tr class="section-header">
-			<td colspan="3">Experimental</td>
-			</tr>
-		<tr>
-			<td><tt>--experimental</tt></td>
-			<td class="warning">Do some stuff not well tested yet.</td>
-			<td><tt>False</tt></td>
-		</tr>
-		<tr>
-			<td><tt>--auto_execute_suggestions</tt></td>
-			<td class="warning">Automatically run again with suggested parameters (NOT FOR SLURM YET!).</td>
-			<td><tt>False</tt></td>
-		</tr>
-		<tr>
-			<td><tt>--auto_execute_counter AUTO_EXECUTE_COUNTER</tt></td>
-			<td class="warning">(Will automatically be set).</td>
-			<td><tt>0</tt></td>
-		</tr>
-		<tr>
-			<td><tt>--max_auto_execute MAX_AUTO_EXECUTE</tt></td>
-			<td class="warning">How many nested jobs should be done.</td>
-			<td><tt>3</tt></td>
-		</tr>
-		<tr>
-			<td><tt>--show_parameter_suggestions</tt></td>
-			<td class="warning">Show suggestions for possible promising parameter space changes.</td>
-			<td><tt>False</tt></td>
-		</tr>
-		<tr>
-			<td><tt>--maximizer MAXIMIZER</tt></td>
-			<td class="warning">Value to expand search space for suggestions. Calculation is point [+-] maximizer * abs(point).</td>
-			<td><tt>2</tt></td>
-		</tr>
-			<tr class="section-header">
 			<td colspan="3">Slurm</td>
 		</tr>
 		<tr>

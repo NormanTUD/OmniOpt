@@ -462,7 +462,6 @@ parser = argparse.ArgumentParser(
 required = parser.add_argument_group('Required arguments', "These options have to be set")
 required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
 optional = parser.add_argument_group('Optional', "These options are optional")
-experimental = parser.add_argument_group('Experimental', "Experimental parameters")
 slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
 installing = parser.add_argument_group('Installing', "Parameters related to installing")
 debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
@@ -501,13 +500,6 @@ optional.add_argument('--main_process_gb', help='Amount of RAM for the main proc
 optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
 optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
-
-experimental.add_argument('--experimental', help='Do some stuff not well tested yet.', action='store_true', default=False)
-experimental.add_argument('--auto_execute_suggestions', help='Automatically run again with suggested parameters (NOT FOR SLURM YET!)', action='store_true', default=False)
-experimental.add_argument('--auto_execute_counter', help='(Will automatically be set)', type=int, default=0)
-experimental.add_argument('--max_auto_execute', help='How many nested jobs should be done', type=int, default=3)
-experimental.add_argument('--show_parameter_suggestions', help='Show suggestions for possible promising parameter space changes.', action='store_true', default=False)
-experimental.add_argument('--maximizer', help='Value to expand search space for suggestions (default: 2), calculation is point [+-] maximizer * abs(point)', type=float, default=2)
 
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)
@@ -1997,12 +1989,6 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
             job.cancel()
 
     save_pd_csv()
-
-    pd_csv = f'{current_run_folder}/{pd_csv_filename}'
-    try:
-        find_promising_bubbles(pd_csv)
-    except Exception as e:
-        print_debug("Error trying to find promising bubbles: " + str(e))
 
     if exit_code:
         _exit = exit_code
@@ -3963,15 +3949,6 @@ def show_messages(args, random_steps, second_step_steps):
     global current_run_folder
     show_strategy_message(random_steps, second_step_steps)
 
-    if args.auto_execute_suggestions and args.experimental and not current_run_folder.endswith("/0") and args.auto_execute_counter == 0:
-        print_red(f"When you do a automatic parameter search space expansion, it's recommended that you have an empty run folder, i.e this run is runs/example/0. But this run is {current_run_folder}. This may not be what you want, when you want to plot the expansion of the search space with bash .tools/plot_gif_from_history runs/custom_run")
-
-    if args.auto_execute_counter:
-        if args.max_auto_execute:
-            print(f"Auto-Executing step {args.auto_execute_counter}/max. {args.max_auto_execute}")
-        else:
-            print(f"Auto-Executing step {args.auto_execute_counter}")
-
 def count_defective_nodes(file_path=None, entry=None):
     """
     Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
@@ -4739,159 +4716,6 @@ def calculate_probability(value, min_value, max_value):
     # Je näher am Rand, desto höher die Wahrscheinlichkeit
     probability = (1 - (distance_to_boundary / range_value)) * 100
     return round(probability, 2)
-
-def find_promising_bubbles(pd_csv):
-    """
-    Findet vielversprechende Punkte (grüne Bubbles) am Rand des Parameterraums.
-    
-    :param csv_file: Der Pfad zur CSV-Datei
-    """
-    # CSV-Datei einlesen
-    data = pd.read_csv(pd_csv, float_precision='round_trip')
-    
-    # Ignoriere irrelevante Spalten
-    relevant_columns = [col for col in data.columns if col not in ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']]
-    
-    # Ergebnisse sortieren (niedrigste Werte zuerst)
-    sorted_data = data.sort_values(by='result')
-    
-    # Bestimmen der Parametergrenzen für jede relevante Spalte
-    param_bounds = {col: (sorted_data[col].min(), sorted_data[col].max()) for col in relevant_columns}
-
-    # Berechnung des automatischen result_thresholds
-    min_result = sorted_data['result'].min()
-    result_threshold = min_result + 0.2 * abs(min_result)
-    
-    # Vielversprechende Punkte finden
-    promising_bubbles = set()
-    probability_dict = {}
-    
-    for index, row in sorted_data.iterrows():
-        if row['result'] > result_threshold:
-            continue
-        try:
-            for col in relevant_columns:
-                min_value, max_value = param_bounds[col]
-                if is_near_boundary(float(row[col]), float(min_value), float(max_value)):
-                    direction = 'negative' if abs(float(row[col]) - float(min_value)) < abs(float(row[col]) - float(max_value)) else 'positive'
-                    probability = calculate_probability(float(row[col]), float(min_value), float(max_value))
-                    key = (col, direction)
-                    promising_bubbles.add(key)
-                    probability_dict[key] = probability_dict.get(key, []) + [probability]
-        except Exception as e:
-            pass
-    
-
-    param_directions_strings = {}
-
-    for point in promising_bubbles:
-        param, direction = point
-
-        smaller_or_larger = "smaller"
-        if direction == "positive":
-            smaller_or_larger = "larger"
-
-        if not param in param_directions_strings.keys():
-            param_directions_strings[param] = []
-
-        if direction == "positive":
-            param_directions_strings[param].append(f"larger {param} upper bound")
-        else:
-            param_directions_strings[param].append(f"smaller {param} lower bound")
-
-    if len(param_directions_strings.keys()) and args.show_parameter_suggestions:
-        print("\nParameter suggestions:\n")
-
-        for param in param_directions_strings.keys():
-            _start = f"- Suggestion for {param}: "
-            print(_start + ", ".join(param_directions_strings[param]))
-
-        print(f"--maximizer: {args.maximizer}")
-
-        argv_copy = sys.argv
-
-        argv_copy[0] = f"{script_dir}/omniopt"
-
-        # --parameter float_param range -5 5 float
-        # --parameter choice_param choice 1,2,4,8,16,hallo
-
-        i = 0
-
-        while i < len(argv_copy):
-            param = argv_copy[i]
-            if param == "--parameter":
-                i = i + 1
-                param = argv_copy[i]
-
-                _name = param
-
-                i = i + 1
-                param = argv_copy[i]
-
-                _type = param
-                
-                if _type == "range":
-                    for this_changable_name, this_changable_direction in promising_bubbles:
-                        if _name == this_changable_name:
-                            i = i + 1
-                            param = argv_copy[i]
-
-                            if this_changable_direction == "negative":
-                                new_lower_limit = float(argv_copy[i]) - abs(args.maximizer * abs(float(argv_copy[i])))
-
-                                integerize = False
-
-                                if argv_copy[i + 2] == "int":
-                                    integerize = True
-
-                                if integerize:
-                                    new_lower_limit = round(new_lower_limit)
-                                else:
-                                    new_lower_limit = round(new_lower_limit, 2)
-
-                                argv_copy[i] = str(new_lower_limit)
-                            else:
-                                new_upper_limit = float(argv_copy[i]) + abs(args.maximizer * abs(float(argv_copy[i])))
-
-                                integerize = False
-
-                                if argv_copy[i + 1] == "int":
-                                    integerize = True
-
-                                if integerize:
-                                    new_upper_limit = round(new_upper_limit)
-                                else:
-                                    new_upper_limit = round(new_upper_limit, 2)
-
-                                argv_copy[i] = str(new_upper_limit)
-
-            i = i + 1
-
-        argv_copy.append("--load_previous_job_data")
-        argv_copy.append(f"{current_run_folder}/")
-
-        if args.auto_execute_suggestions:
-            argv_copy.append("--auto_execute_counter")
-            argv_copy.append(str(args.auto_execute_counter + 1))
-
-        argv_copy_string = " ".join(argv_copy)
-
-        if "--parameter" in argv_copy_string:
-            original_print("Given, you accept these suggestions, simply run this OmniOpt command:\n" + argv_copy_string + "\n")
-
-        if args.experimental and args.auto_execute_suggestions:
-            if system_has_sbatch:
-                print_red("Warning: Auto-executing on systems with sbatch may not work as expected. The main worker may get killed with all subjobs")
-            print("Auto-executing is not recommended")
-
-            if args.auto_execute_counter is not None and args.max_auto_execute is not None and args.auto_execute_counter >= args.max_auto_execute:
-                print("Too nested")
-                my_exit(0)
-
-            subprocess.run([*argv_copy])
-        elif args.auto_execute_suggestions:
-            print("Auto executing suggestions is so fucking experimental that you need the --experimental switch to be set")
-
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

@@ -48,7 +48,7 @@ def warn_versions():
             _real_version = version(key)
             if _real_version not in _supported_versions:
                 wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported version(s): {', '.join(_supported_versions)}")
-        except Exception as e:
+        except Exception:
             pass
 
     if len(wrns):
@@ -187,7 +187,7 @@ def check_path(_path):
 def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.11.2", "3.11.9", "3.9.2", "3.12.4"]
-    if not python_version in supported_versions:
+    if python_version not in supported_versions:
         print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 check_python_version()

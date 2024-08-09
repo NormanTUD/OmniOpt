@@ -335,7 +335,7 @@ def plot_graphs(df, fig, axs, df_filtered, non_empty_graphs, num_subplots, param
 
     cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
 
-    if num_subplots == 1 and (type(non_empty_graphs[0]) == str or len(non_empty_graphs[0]) == 1):
+    if num_subplots == 1 and (type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1):
         plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, non_empty_graphs)
     else:
         plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows)
@@ -412,7 +412,7 @@ def get_colors(df):
         colors = df["result"]
     except KeyError as e:
         if str(e) == "'result'":
-            print(f"Could not find any results in {csv_file_path}")
+            print(f"Could not find any results")
             sys.exit(3)
         else:
             print(f"Key-Error: {e}")

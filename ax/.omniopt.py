@@ -4284,7 +4284,7 @@ def get_first_line_of_file_that_contains_string(i, s):
     print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
         print(f"File {i} not found")
-        return
+        return ""
 
     f = get_file_as_string(i)
 
@@ -4305,7 +4305,7 @@ def get_first_line_of_file_that_contains_string(i, s):
     if lines != "":
         return lines
 
-    return None
+    return ""
 
 def get_errors_from_outfile(i):
     print_debug(f"get_errors_from_outfile({i})")

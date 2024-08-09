@@ -4100,40 +4100,45 @@ def is_not_equal(n, i, o):
 
     return r
 
-def _is_not_equal(name, input, output):
-    if type(input) is str or type(input) is int or type(input) is float:
-        if input == output:
-            print_red(f"Failed test: {name}")
+def _is_not_equal(name, _input, output):
+    _equal_types = [
+        int, str, float, bool
+    ]
+    for equal_type in _equal_types:
+        if type(_input) is equal_type and type(output) == equal_type and _input == output:
+            print_red(f"Failed test (1): {name}")
             return 1
-    elif type(input) is bool:
-        if input == output:
-            print_red(f"Failed test: {name}")
-            return 1
-    elif output is None or input is None:
-        if input == output:
-            print_red(f"Failed test: {name}")
-            return 1
-    else:
-        print_red(f"Unknown data type for test {name}")
-        my_exit(193)
+
+    if type(_input) is bool and _input == output:
+        print_red(f"Failed test (2): {name}")
+        return 1
+
+    if not (output is not None and _input is not None):
+        print_red(f"Failed test (3): {name}")
+        return 1
 
     print_green(f"Test OK: {name}")
     return 0
 
-def _is_equal(name, input, output):
-    if type(input) is not type(output):
-        print_red(f"Failed test: {name}")
-        return 1
-    if type(input) is str or type(input) is int or type(input) is float and input != output:
-        print_red(f"Failed test: {name}")
+def _is_equal(name, _input, output):
+    _equal_types = [
+        int, str, float, bool
+    ]
+    for equal_type in _equal_types:
+        if type(_input) is equal_type and type(output) == equal_type and _input != output:
+            print_red(f"Failed test (1): {name}")
+            return 1
+
+    if type(_input) is not type(output):
+        print_red(f"Failed test (4): {name}")
         return 1
 
-    if type(input) is bool and input != output:
-        print_red(f"Failed test: {name}")
+    if type(_input) is bool and _input != output:
+        print_red(f"Failed test (6): {name}")
         return 1
 
-    if output is None or input is None and input != output:
-        print_red(f"Failed test: {name}")
+    if output is None and _input is None:
+        print_red(f"Failed test (7): {name}")
         return 1
 
     print_red(f"Unknown data type for test {name}")
@@ -4225,6 +4230,7 @@ def run_tests():
     nr_errors = 0
 
     nr_errors += is_not_equal("nr equal string", 1, "1")
+
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 

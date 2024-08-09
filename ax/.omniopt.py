@@ -85,8 +85,6 @@ except (KeyboardInterrupt):
     my_exit(0)
 
 try:
-    with console.status("[bold green]Loading functools...") as status:
-        import functools
     with console.status("[bold green]Loading psutil...") as status:
         import psutil
     with console.status("[bold green]Loading uuid...") as status:

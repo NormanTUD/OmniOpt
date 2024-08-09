@@ -1557,7 +1557,7 @@ def display_failed_jobs_table():
             headers = next(reader)
             print_debug(f"Headers: {headers}")
 
-        with open(parameters_file, mode='r') as file:
+        with open(parameters_file, mode='r', encoding="utf-8") as file:
             reader = csv.reader(file)
             parameters = [row for row in reader]
             print_debug(f"Parameters: {parameters}")
@@ -2468,7 +2468,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     try:
         df = pd.read_csv(file_path, float_precision='round_trip')
     except Exception as e:
-        raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
+        raise RuntimeError(f"Failed to read the CSV file: {str(e)}") from e
 
     if 'result' not in df.columns:
         print_red(f"Error: Could not get old result for {params} in {file_path}")

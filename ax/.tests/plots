@@ -243,6 +243,7 @@ for _command in "${_commands[@]}"; do
 				green_reset_line "$PROGRESSBAR OK Plot-Tests $possible_plot_type/$this_img"
 				if [[ "$keep_tmp" -eq 0 ]]; then
 					rm -f "$this_img" || {
+						echo ""
 						red_text "Could not remove $this_img. ls -aslrt1:"
 						ls -aslrt1 "$this_img"
 						exit 5
@@ -251,6 +252,7 @@ for _command in "${_commands[@]}"; do
 			else
 				if [[ "$_command" =~ *"no_result"* ]]; then
 					missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
+					echo ""
 					red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code"
 					errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code")
 				fi

@@ -1184,8 +1184,7 @@ def get_result(input_string):
         if match:
             result_number = float(match.group(1))
             return result_number
-        else:
-            return None
+        return None
 
     except Exception as e:
         print(f"Error extracting the RESULT-string: {e}")
@@ -1448,39 +1447,19 @@ try:
         with console.status("[bold green]Loading numpy...") as status:
             import numpy as np
         with console.status("[bold green]Loading ax...") as status:
-            try:
-                import ax.modelbridge.generation_node
-                import ax
-                from ax.service.ax_client import AxClient, ObjectiveProperties
-                import ax.exceptions.core
-                from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
-                from ax.modelbridge.registry import Models
-                from ax.storage.json_store.save import save_experiment
-                from ax.storage.json_store.load import load_experiment
-            except ModuleNotFoundError:
-                print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
-                my_exit(31)
-            except KeyboardInterrupt:
-                print_red("\n⚠ You pressed CTRL+C. Program execution halted.")
-                my_exit(31)
-
+            import ax.modelbridge.generation_node
+            import ax
+            from ax.service.ax_client import AxClient, ObjectiveProperties
+            import ax.exceptions.core
+            from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
+            from ax.modelbridge.registry import Models
+            from ax.storage.json_store.save import save_experiment
+            from ax.storage.json_store.load import load_experiment
         with console.status("[bold green]Loading botorch...") as status:
-            try:
-                import botorch
-            except ModuleNotFoundError:
-                print_red("\n⚠ ax could not be loaded. Did you create and load the virtual environment properly?")
-                my_exit(31)
-            except KeyboardInterrupt:
-                print_red("\n⚠ You pressed CTRL+C. Program execution halted.")
-                my_exit(31)
-
+            import botorch
         with console.status("[bold green]Loading submitit...") as status:
-            try:
-                import submitit
-                from submitit import LocalJob, DebugJob
-            except Exception:
-                print_red("\n⚠ submitit could not be loaded. Did you create and load the virtual environment properly?")
-                my_exit(31)
+            import submitit
+            from submitit import LocalJob, DebugJob
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
     my_exit(31)
@@ -3094,7 +3073,7 @@ def get_desc_progress_text(new_msgs=[]):
 
     if len(new_msgs):
         for new_msg in new_msgs:
-            if(new_msg):
+            if new_msg:
                 in_brackets.append(new_msg)
 
     if len(in_brackets):

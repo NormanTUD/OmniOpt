@@ -224,7 +224,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values):
+def plot_multiple_graphs(non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values):
     print_debug("plot_multiple_graphs")
     global bins
     for i, (param1, param2) in enumerate(non_empty_graphs):
@@ -285,7 +285,7 @@ def show_legend(_scatter, axs, result_column):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_single_graph (fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs, result_column_values):
+def plot_single_graph (axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values):
     print_debug("plot_single_graph()")
     _data = df_filtered
 
@@ -330,9 +330,9 @@ def plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_
     cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
     if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
-        plot_single_graph(fig, axs, df_filtered, colors, cmap, norm, result_column, non_empty_graphs, result_column_values)
+        plot_single_graph(axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values)
     else:
-        plot_multiple_graphs(fig, non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values)
+        plot_multiple_graphs(non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values)
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
@@ -546,6 +546,8 @@ def main():
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
+    if event: # only to fool pylint
+        pass
     print_debug("update_graph")
     global fig, ax, button, maximum_textbox, minimum_textbox, args
 

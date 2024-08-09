@@ -3665,21 +3665,26 @@ def _count_sobol_steps(csv_file_path):
 
     df = None
 
+    _err = False
+
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
     except KeyError:
-        return 0
+        _err = True
     except pd.errors.EmptyDataError:
-        return 0
+        _err = True
     except pd.errors.ParserError as e:
         print_red(f"Error reading CSV file 2: {str(e)}")
-        return 0
+        _err = True
     except UnicodeDecodeError as e:
         print_red(f"Error reading CSV file 3: {str(e)}")
-        return 0
+        _err = True
     except Exception as e:
         print_red(f"Error reading CSV file 4: {str(e)}")
+        _err = True
+
+    if _err:
         return 0
 
     assert df is not None, "DataFrame should not be None after reading CSV file"

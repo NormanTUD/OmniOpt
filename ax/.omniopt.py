@@ -734,7 +734,7 @@ def save_global_vars():
     state_files_folder = f"{current_run_folder}/state_files"
     if not os.path.exists(state_files_folder):
         os.makedirs(state_files_folder)
-    
+
     with open(f'{state_files_folder}/global_vars.json', "w") as f:
         json.dump(global_vars, f)
 
@@ -1025,7 +1025,7 @@ def parse_experiment_parameters():
                     if old_upper_bound != upper_bound and found_upper_bound_in_file and old_upper_bound > upper_bound:
                         print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
                         search_space_reduction_warning = True
-                
+
                 if args.gridsearch:
                     global changed_grid_search_params
 
@@ -1562,11 +1562,11 @@ def disable_logging():
 def display_failed_jobs_table():
     global current_run_folder
     console = Console()
-    
+
     failed_jobs_folder = f"{current_run_folder}/failed_logs"
     header_file = os.path.join(failed_jobs_folder, "headers.csv")
     parameters_file = os.path.join(failed_jobs_folder, "parameters.csv")
-    
+
     # Assert the existence of the folder and files
     if not os.path.exists(failed_jobs_folder):
         print_debug(f"Failed jobs {failed_jobs_folder} folder does not exist.")
@@ -1575,7 +1575,7 @@ def display_failed_jobs_table():
     if not os.path.isfile(header_file):
         print_debug(f"Failed jobs Header file ({header_file}) does not exist.")
         return
- 
+
     if not os.path.isfile(parameters_file):
         print_debug(f"Failed jobs Parameters file ({parameters_file}) does not exist.")
         return
@@ -1585,18 +1585,18 @@ def display_failed_jobs_table():
             reader = csv.reader(file)
             headers = next(reader)
             print_debug(f"Headers: {headers}")
-        
+
         with open(parameters_file, mode='r') as file:
             reader = csv.reader(file)
             parameters = [row for row in reader]
             print_debug(f"Parameters: {parameters}")
-            
+
         # Create the table
         table = Table(show_header=True, header_style="bold red", title="Failed Jobs parameters:")
-        
+
         for header in headers:
             table.add_column(header)
-        
+
         added_rows = set()
 
         for parameter_set in parameters:
@@ -1605,7 +1605,7 @@ def display_failed_jobs_table():
             if row_tuple not in added_rows:
                 table.add_row(*row, style='red')
                 added_rows.add(row_tuple)
-        
+
         # Print the table to the console
         console.print(table)
     except Exception as e:
@@ -1721,7 +1721,7 @@ def print_best_result(csv_file_path, result_column):
                         {
                             "type": "scatter",
                             "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
-                            "iterate_through": x_y_combinations, 
+                            "iterate_through": x_y_combinations,
                             "dpi": 76,
                             "filename": "plot_%0_%1_%2" # omit file ending
                         }
@@ -2047,8 +2047,8 @@ def get_ax_param_representation(data):
                 "upper": data["bounds"][1],
                 "log_scale": False,
                 "logit_scale": False,
-                "digits": None, 
-                "is_fidelity": False, 
+                "digits": None,
+                "is_fidelity": False,
                 "target_value": None
                 }
     elif data["type"] == "choice":
@@ -2239,7 +2239,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
 def get_type_short(typename):
     if typename == "RangeParameter":
         return "range"
-    
+
     if typename == "ChoiceParameter":
         return "choice"
 
@@ -2491,36 +2491,36 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
     assert isinstance(file_path, str), "file_path must be a string"
     assert isinstance(params, dict), "params must be a dictionary"
-    
+
     if not os.path.exists(file_path):
         print_red(f"{file_path} for getting old CSV results cannot be found")
         return None
-    
+
     try:
         df = pd.read_csv(file_path, float_precision='round_trip')
     except Exception as e:
         raise RuntimeError(f"Failed to read the CSV file: {str(e)}")
-    
+
     if 'result' not in df.columns:
         print_red(f"Error: Could not get old result for {params} in {file_path}")
         return None
-    
+
     try:
         matching_rows = df
         print_debug(matching_rows)
-        
+
         for param, value in params.items():
             if param in df.columns:
                 if isinstance(value, float):
                     # Log current state before filtering
                     print_debug(f"Filtering for float parameter '{param}' with value '{value}' and tolerance '{float_tolerance}'")
-                    
+
                     is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
                     print_debug(is_close_array)
-                    
+
                     matching_rows = matching_rows[is_close_array]
                     print_debug(matching_rows)
-                    
+
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
                     # Ensure consistent types for comparison
@@ -2529,14 +2529,14 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
                         value = int(value)
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str):
                         value = float(value)
-                    
+
                     matching_rows = matching_rows[matching_rows[param] == value]
                     print_debug(matching_rows)
-                    
+
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
             else:
                 print_debug(f"Parameter '{param}' not found in DataFrame columns")
-        
+
         if matching_rows.empty:
             print_debug("No matching rows found after all filters applied")
             return None
@@ -2544,7 +2544,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
             print_debug("Matching rows found")
             print_debug(matching_rows)
             return matching_rows
-        
+
         result_value = matching_rows['result'].values[0]
         return result_value
     except AssertionError as ae:
@@ -2679,7 +2679,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 _counter += 1
-                
+
         path_idx += 1
 
     return _counter
@@ -3359,7 +3359,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     if max_eval is None:
         set_max_eval(max(1, random_steps))
 
-    if random_steps >= 1: 
+    if random_steps >= 1:
         # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)
@@ -3857,7 +3857,7 @@ def print_logo():
    ---------
   (OmniOpt2!)
    ---------
-          \\/     
+          \\/
          /\\_/\\
         ( o.o )
          > ^ <  ,"",
@@ -4008,13 +4008,13 @@ def main():
     minimize_or_maximize = not args.maximize
 
     ax_client, experiment_parameters, experiment_args, experiment = get_experiment_parameters(
-        ax_client, 
-        args.continue_previous_job, 
-        args.seed, 
-        args.experiment_constraints, 
-        args.parameter, 
-        cli_params_experiment_parameters, 
-        experiment_parameters, 
+        ax_client,
+        args.continue_previous_job,
+        args.seed,
+        args.experiment_constraints,
+        args.parameter,
+        cli_params_experiment_parameters,
+        experiment_parameters,
         minimize_or_maximize
     )
 
@@ -4250,15 +4250,15 @@ def run_tests():
     nr_errors += is_equal("helpers.looks_like_int(False)", helpers.looks_like_int(False), False)
     nr_errors += is_equal("helpers.looks_like_int(True)", helpers.looks_like_int(True), False)
     nr_errors += is_equal(
-        "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")", 
-        replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"), 
+        "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")",
+        replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"),
         "echo 'RESULT: 123'"
     )
 
     global global_vars
 
     global_vars["joined_run_program"] = "echo 'RESULT: %x'"
-    
+
     nr_errors += is_equal(
             "evaluate({'x': 123})",
             json.dumps(evaluate({'x': 123.0})),
@@ -4315,7 +4315,7 @@ def get_first_line_of_file_that_contains_string(i, s):
         return
 
     f = get_file_as_string(i)
-    
+
     lines = ""
     get_lines_until_end = False
 

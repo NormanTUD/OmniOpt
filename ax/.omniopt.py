@@ -1805,7 +1805,7 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     if shown_end_table:
         print("End table already shown, not doing it again")
-        return
+        return -1
 
     _exit = 0
 
@@ -1880,11 +1880,15 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
             print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
-        _exit = show_end_table_and_save_end_files(csv_file_path, result_column)
+        new_exit = show_end_table_and_save_end_files(csv_file_path, result_column)
+        if new_exit > 0:
+            _exit = new_exit
     except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
-        _exit = show_end_table_and_save_end_files(csv_file_path, result_column)
+        new_exit = show_end_table_and_save_end_files(csv_file_path, result_column)
+        if new_exit > 0:
+            _exit = new_exit
     except TypeError as e:
         print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 

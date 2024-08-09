@@ -228,6 +228,7 @@ for _command in "${_commands[@]}"; do
 
 	if [[ -e "$this_img" ]]; then
 		if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
+			echo ""
 			red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code"
 			errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code")
 		else

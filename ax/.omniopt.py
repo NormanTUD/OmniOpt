@@ -4269,7 +4269,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     if res_is_none:
         nr_errors += is_equal(f"{_program_name} res is None", None, res)
     else:
-        nr_errors += is_equal(f"{_program_name} res type is nr", True, type(res) == int or type(res) == float)
+        nr_errors += is_equal(f"{_program_name} res type is nr", True, type(res) is int or type(res) is float)
     nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
     nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
     nr_errors += is_equal(f"{_program_name} signal", signal, wanted_signal)

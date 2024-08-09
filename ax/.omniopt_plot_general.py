@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 import logging
-
 import signal
+import importlib.util
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -121,7 +121,7 @@ def update_graph():
 
         if dataframe.empty:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"No applicable values could be found in {csv_file_path}.")
+                print("No applicable values could be found.")
             return
 
         if args.save_to_file:

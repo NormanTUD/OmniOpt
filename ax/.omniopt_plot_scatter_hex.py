@@ -548,7 +548,7 @@ def main():
     global fig
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
 
-    result_column_values = helpers.get_result_column_values(df)
+    result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
     plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
 
@@ -626,7 +626,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 
-        result_column_values = helpers.get_result_column_values(df)
+        result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
         plot_graphs(df, fig, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
         

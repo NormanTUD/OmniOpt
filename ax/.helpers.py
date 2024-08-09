@@ -78,15 +78,15 @@ def looks_like_int(x):
         return False
 
 def looks_like_number (x):
-    return looks_like_float(x) or looks_like_int(x) or type(x) == int or type(x) == float or type(x) == np.int64
+    return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
 def to_int_when_possible(val):
     # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte
-    if type(val) == int or (type(val) == float and val.is_integer()) or (type(val) == str and val.isdigit()):
+    if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
         return int(val)
 
     # Überprüfung auf nicht-numerische Zeichenketten
-    if type(val) == str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
+    if type(val) is str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
         return val
 
     try:
@@ -100,7 +100,7 @@ def to_int_when_possible(val):
             return formatted_value if formatted_value else '0'
         else:
             return int(val)
-    except:
+    except Exception:
         # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val
 
@@ -162,7 +162,7 @@ def convert_string_to_number(input_string):
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)
 
-def check_if_results_are_empty(result_column_values):
+def check_if_results_are_empty(result_column_values, csv_file_path):
     filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
 
     number_of_non_nan_results = len(filtered_data)
@@ -171,10 +171,10 @@ def check_if_results_are_empty(result_column_values):
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-def get_result_column_values(df):
+def get_result_column_values(df, csv_file_path):
     result_column_values = df["result"]
 
-    check_if_results_are_empty(result_column_values)
+    check_if_results_are_empty(result_column_values, csv_file_path)
 
     return result_column_values
 
@@ -184,11 +184,44 @@ def check_path(_path):
         print(f'The folder {args.run_dir} does not exist.')
         sys.exit(1)
 
+class bcolors:
+    header = '\033[95m'
+    blue = '\033[94m'
+    cyan = '\033[96m'
+    green = '\033[92m'
+    warning = '\033[93m'
+    red = '\033[91m'
+    endc = '\033[0m'
+    bold = '\033[1m'
+    underline = '\033[4m'
+    yellow = '\033[33m'
+
+def print_color(color, text):
+    color_codes = {
+        "header": bcolors.header,
+        "blue": bcolors.blue,
+        "cyan": bcolors.cyan,
+        "green": bcolors.green,
+        "warning": bcolors.warning,
+        "red": bcolors.red,
+        "bold": bcolors.bold,
+        "underline": bcolors.underline,
+        "yellow": bcolors.yellow,
+    }
+    end_color = bcolors.endc
+
+    try:
+        assert color in color_codes, f"Color '{color}' is not supported."
+        print(f"{color_codes[color]}{text}{end_color}")
+    except AssertionError as e:
+        print(f"Error: {e}")
+        print(text)
+
 def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.11.2", "3.11.9", "3.9.2", "3.12.4"]
     if python_version not in supported_versions:
-        print_yellow(f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
+        print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 check_python_version()
 

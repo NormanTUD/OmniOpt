@@ -710,41 +710,8 @@ signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
 
-class bcolors:
-    header = '\033[95m'
-    blue = '\033[94m'
-    cyan = '\033[96m'
-    green = '\033[92m'
-    warning = '\033[93m'
-    red = '\033[91m'
-    endc = '\033[0m'
-    bold = '\033[1m'
-    underline = '\033[4m'
-    yellow = '\033[33m'
-
-def print_color(color, text):
-    color_codes = {
-        "header": bcolors.header,
-        "blue": bcolors.blue,
-        "cyan": bcolors.cyan,
-        "green": bcolors.green,
-        "warning": bcolors.warning,
-        "red": bcolors.red,
-        "bold": bcolors.bold,
-        "underline": bcolors.underline,
-        "yellow": bcolors.yellow,
-    }
-    end_color = bcolors.endc
-
-    try:
-        assert color in color_codes, f"Color '{color}' is not supported."
-        original_print(f"{color_codes[color]}{text}{end_color}")
-    except AssertionError as e:
-        print(f"Error: {e}")
-        original_print(text)
-
 def print_red(text):
-    print_color("red", text)
+    helpers.print_color("red", text)
 
     if current_run_folder:
         try:
@@ -755,10 +722,10 @@ def print_red(text):
             sys.exit(99)
 
 def print_green(text):
-    print_color("green", text)
+    helpers.print_color("green", text)
 
 def print_yellow(text):
-    print_color("yellow", text)
+    helpers.print_color("yellow", text)
 
 def is_executable_in_path(executable_name):
     print_debug(f"is_executable_in_path({executable_name})")

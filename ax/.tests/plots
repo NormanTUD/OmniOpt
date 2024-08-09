@@ -213,6 +213,7 @@ i=0
 for _command in "${_commands[@]}"; do
 	this_img=$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')
 	possible_plot_type=$(echo $_command | sed -e 's#.*--plot_type=##' -e 's#\s.*##')
+	projectname=$(echo $_command | sed -e 's#.*--run_dir=##' -e 's#\s.*##' -e 's#.*/\(.*\)/[0-9]*$#\1#')
 
 	PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
 	green_reset_line "$PROGRESSBAR Plot-Tests $possible_plot_type/$this_img"

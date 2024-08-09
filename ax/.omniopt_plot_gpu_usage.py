@@ -6,9 +6,15 @@
 # TEST_OUTPUT_MUST_CONTAIN: Time
 
 import os
+import sys
+import argparse
+import pandas as pd
+import matplotlib.pyplot as plt
+import signal
+import importlib.util
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -16,12 +22,7 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-import sys
-import argparse
-import pandas as pd
-import matplotlib.pyplot as plt
 
-import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def plot_gpu_usage(run_dir):

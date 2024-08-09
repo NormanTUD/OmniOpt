@@ -1423,7 +1423,7 @@ def evaluate(parameters):
     if args.evaluate_to_random_value:
         rand_res = random.uniform(0, 1)
         is_in_evaluate = False
-        return {"result": float(rand_res)}
+        return {"result": helpers.to_int_when_possible(float(rand_res))}
 
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 
@@ -1478,14 +1478,17 @@ def evaluate(parameters):
         headline = ['None' if element is None else element for element in headline]
         values = ['None' if element is None else element for element in values]
 
-        add_to_csv(f"{current_run_folder}/job_infos.csv", headline, values)
+        if current_run_folder is not None and os.path.exists(current_run_folder):
+            add_to_csv(f"{current_run_folder}/job_infos.csv", headline, values)
+        else:
+            print_debug(f"evaluate: current_run_folder {current_run_folder} could not be found")
 
         if type(result) == int:
             is_in_evaluate = False
             return {"result": int(result)}
         elif type(result) == float:
             is_in_evaluate = False
-            return {"result": float(result)}
+            return {"result": helpers.to_int_when_possible(float(result))}
         else:
             is_in_evaluate = False
             write_data_and_headers(parameters, "No Result")
@@ -4374,7 +4377,16 @@ def run_tests():
         replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"), 
         "echo 'RESULT: 123'"
     )
-            
+
+    global global_vars
+
+    global_vars["joined_run_program"] = "echo 'RESULT: %x'"
+    
+    nr_errors += is_equal(
+            "evaluate({'x': 123})",
+            json.dumps(evaluate({'x': 123})),
+            json.dumps({'result': 123})
+    )
 
     nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), None)
 

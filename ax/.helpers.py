@@ -98,7 +98,7 @@ def to_int_when_possible(val):
             formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
             return formatted_value if formatted_value else '0'
         else:
-            return str(int(val))
+            return int(val)
     except:
         # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val

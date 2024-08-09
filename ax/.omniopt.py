@@ -4391,7 +4391,7 @@ def run_tests():
     nr_errors += is_equal(
             "evaluate({'x': -0.05})",
             json.dumps(evaluate({'x': -0.05})),
-            json.dumps({'result': -0.05})
+            json.dumps({'result': "-0.05"})
     )
 
     nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), None)

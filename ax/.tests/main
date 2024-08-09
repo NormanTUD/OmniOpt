@@ -455,6 +455,7 @@ _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
 
 _test "Lint python" "bash .tests/lint_python" 0
+_test "Find dead code" "bash .tests/deadcode" 0
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"

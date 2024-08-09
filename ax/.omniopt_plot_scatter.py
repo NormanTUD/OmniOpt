@@ -69,11 +69,6 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def check_csv_modified(last_modified_time, csv_file_path):
-    print_debug("check_csv_modified()")
-    current_modified_time = os.path.getmtime(csv_file_path)
-    return current_modified_time > last_modified_time
-
 def set_margins (fig):
     print_debug("set_margins()")
     left  = 0.04

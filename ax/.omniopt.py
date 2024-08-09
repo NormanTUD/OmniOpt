@@ -4382,7 +4382,7 @@ def run_tests():
 
     find_path_res = test_find_paths("ls")
     if find_path_res:
-        is_equal("test_find_paths failed", true, False)
+        is_equal("test_find_paths failed", True, False)
         nr_errors += find_path_res
 
     my_exit(nr_errors)

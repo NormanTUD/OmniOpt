@@ -61,7 +61,7 @@ def plot_gpu_usage(run_dir):
     if gpu_data_len < 1:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print(f"No valid GPU usage data foundf (len = {gpu_data_len}).")
-        sys.exit(55)
+        sys.exit(19)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns

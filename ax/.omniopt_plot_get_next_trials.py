@@ -27,7 +27,7 @@ spec.loader.exec_module(helpers)
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def parse_log_file(log_file_path):
+def parse_log_file(args, log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
@@ -72,7 +72,7 @@ def parse_log_file(log_file_path):
 
 def plot_trial_usage(args, log_file_path):
     try:
-        data = parse_log_file(log_file_path)
+        data = parse_log_file(args, log_file_path)
 
         plt.figure(figsize=(12, 6))
 

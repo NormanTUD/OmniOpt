@@ -144,7 +144,6 @@ try:
     with console.status("[bold green]Loading subprocess...") as status:
         import subprocess
     with console.status("[bold green]Loading logging...") as status:
-
         import logging
         logging.basicConfig(level=logging.ERROR)
     with console.status("[bold green]Loading tqdm...") as status:

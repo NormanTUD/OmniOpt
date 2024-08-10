@@ -97,6 +97,10 @@ def update_graph():
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print("The file to be parsed was empty")
         sys.exit(20)
+    except UnicodeDecodeError:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+        sys.exit(7)
     except Exception as exception:
         print("An unexpected error occurred: %s" % str(exception))
 

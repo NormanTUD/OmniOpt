@@ -63,7 +63,7 @@ def main():
     except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print(f"Could not find values in file {_job_infos_csv}")
-        sys.exit(20)
+        sys.exit(19)
     except UnicodeDecodeError:
         if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")

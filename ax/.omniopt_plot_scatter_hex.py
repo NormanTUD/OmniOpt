@@ -198,7 +198,7 @@ def get_data (csv_file_path, result_column, _min, _max, old_headers_string=None)
     except pd.errors.EmptyDataError:
         if not os.environ.get("PLOT_TESTS"):
             print(f"{csv_file_path} has no lines to parse.")
-        sys.exit(5)
+        sys.exit(19)
     except pd.errors.ParserError as e:
         if not os.environ.get("PLOT_TESTS"):
             print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")

@@ -96,7 +96,7 @@ def update_graph():
     except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print("The file to be parsed was empty")
-        sys.exit(20)
+        sys.exit(19)
     except UnicodeDecodeError:
         if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")

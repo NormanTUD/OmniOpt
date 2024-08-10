@@ -230,6 +230,12 @@ for _command in "${_commands[@]}"; do
 			red_text "$_command failed. Required exit-code: 7, got exit-code $_exit_code"
 			errors+=("$_command failed. Required exit-code: 7, got exit-code $_exit_code")
 		fi
+	elif [[ "$projectname" == "empty_resultsfile" ]]; then
+		if [[ "$_exit_code" -ne 19 ]]; then
+			echo ""
+			red_text "$_command failed. Required exit-code: 19, got exit-code $_exit_code"
+			errors+=("$_command failed. Required exit-code: 19, got exit-code $_exit_code")
+		fi
 	else
 		if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
 			true # Do nothing here. Do not count jobs in these folders as fails

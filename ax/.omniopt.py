@@ -63,26 +63,11 @@ already_inserted_param_hashes = {}
 already_inserted_param_data = []
 
 console = None
+
 try:
     from rich.console import Console
     console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
-except ModuleNotFoundError as e:
-    original_print(f"Base modules could not be loaded: {e}")
-    my_exit(31)
-except SignalINT:
-    original_print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(128 + 2)
-except SignalUSR:
-    original_print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(128 + 10)
-except SignalCONT:
-    original_print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(128 + 18)
-except KeyboardInterrupt:
-    original_print("\n⚠ You pressed CTRL+C. Program execution halted.")
-    my_exit(0)
 
-try:
     with console.status("[bold green]Loading psutil...") as status:
         import psutil
     with console.status("[bold green]Loading uuid...") as status:

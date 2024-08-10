@@ -74,6 +74,10 @@ def update_graph():
             if not os.environ.get("PLOT_TESTS"):
                 print(f"{args.run_dir}/results.csv seems to be empty.")
             sys.exit(19)
+        except UnicodeDecodeError:
+            if not os.environ.get("PLOT_TESTS"):
+                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+            sys.exit(7)
 
         if args.min is not None or args.max is not None:
             dataframe = filter_data(dataframe, args.min, args.max)

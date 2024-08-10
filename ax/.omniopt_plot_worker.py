@@ -83,6 +83,10 @@ def plot_worker_usage(args, pd_csv):
         helpers.log_error(f"File '{pd_csv}' not found.")
     except AssertionError as e:
         helpers.log_error(str(e))
+    except UnicodeDecodeError:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+        sys.exit(7)
     except Exception as e:
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)

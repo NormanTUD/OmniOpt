@@ -143,6 +143,10 @@ def update_graph():
             if not os.environ.get("PLOT_TESTS"):
                 print(f"{pd_csv} seems to be empty.")
             sys.exit(19)
+        except UnicodeDecodeError:
+            if not os.environ.get("PLOT_TESTS"):
+                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+            sys.exit(7)
 
         plot_histograms(dataframe)
     except FileNotFoundError:

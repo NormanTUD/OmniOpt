@@ -134,4 +134,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    plot_gpu_usage(args.run_dir)
+    try:
+        plot_gpu_usage(args.run_dir)
+    except UnicodeDecodeError:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+        sys.exit(7)

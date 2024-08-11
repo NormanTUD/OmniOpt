@@ -698,15 +698,15 @@ def is_executable_in_path(executable_name):
             return True
     return False
 
-system_has_sbatch = False
-is_nvidia_smi_system = False
+SYSTEM_HAS_SBATCH = False
+IS_NVIDIA_SMI_SYSTEM = False
 
 if is_executable_in_path("sbatch"):
-    system_has_sbatch = True
+    SYSTEM_HAS_SBATCH = True
 if is_executable_in_path("nvidia-smi"):
-    is_nvidia_smi_system = True
+    IS_NVIDIA_SMI_SYSTEM = True
 
-if not system_has_sbatch:
+if not SYSTEM_HAS_SBATCH:
     num_parallel_jobs = 1
 
 def save_global_vars():
@@ -719,7 +719,7 @@ def save_global_vars():
 
 def check_slurm_job_id():
     print_debug("check_slurm_job_id()")
-    if system_has_sbatch:
+    if SYSTEM_HAS_SBATCH:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_red("Not a valid SLURM_JOB_ID.")
@@ -1324,7 +1324,7 @@ def evaluate(parameters):
     if args.maximize:
         return_in_case_of_error = {"result": -val_if_nothing_found}
 
-    if system_has_sbatch and args.gpus >= 1 and args.auto_exclude_defective_hosts:
+    if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
         try:
             for i in range(torch.cuda.device_count()):
                 tmp = torch.cuda.get_device_properties(i).name
@@ -2096,9 +2096,13 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
                 _replaced = False
                 for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
                     if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
-                        old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+                        old_param_json = json.dumps(
+                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                        )
                         experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
-                        new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+                        new_param_json = json.dumps(
+                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                        )
                         _replaced = True
 
                         compared_params = compare_parameters(old_param_json, new_param_json)
@@ -3050,7 +3054,7 @@ def get_desc_progress_text(new_msgs=[]):
         if max_eval:
             in_brackets.append(f"max_eval: {max_eval}")
 
-    if system_has_sbatch:
+    if SYSTEM_HAS_SBATCH:
         workers_strings = get_workers_string()
         if workers_strings:
             in_brackets.append(workers_strings)
@@ -3242,7 +3246,7 @@ def _get_next_trials(ax_client):
 
     base_msg = f"getting {real_num_parallel_jobs} trials "
 
-    if system_has_sbatch:
+    if SYSTEM_HAS_SBATCH:
         if last_ax_client_time:
             new_msgs.append(f"{base_msg}(last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
@@ -3284,7 +3288,7 @@ def _get_next_trials(ax_client):
     return trial_index_to_param
 
 def get_next_nr_steps(num_parallel_jobs, max_eval):
-    if not system_has_sbatch:
+    if not SYSTEM_HAS_SBATCH:
         return 1
 
     #return num_parallel_jobs
@@ -3486,7 +3490,7 @@ def get_number_of_steps(max_eval):
         print_yellow(f"You have less --max_eval {max_eval} than --num_random_steps {random_steps}. Switched both.")
         random_steps, max_eval = max_eval, random_steps
 
-    if random_steps < num_parallel_jobs and system_has_sbatch:
+    if random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
         old_random_steps = random_steps
         random_steps = num_parallel_jobs
         original_print(f"random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
@@ -3690,7 +3694,7 @@ def _count_sobol_steps(csv_file_path):
     return sobol_count
 
 def execute_nvidia_smi():
-    if not is_nvidia_smi_system:
+    if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
         return
 
@@ -3724,7 +3728,7 @@ def execute_nvidia_smi():
 def start_nvidia_smi_thread():
     print_debug("start_nvidia_smi_thread()")
 
-    if is_nvidia_smi_system:
+    if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
         return nvidia_smi_thread
@@ -3816,7 +3820,7 @@ def run_search(executor, ax_client, progress_bar):
     return False
 
 def wait_for_jobs_to_complete (num_parallel_jobs):
-    if system_has_sbatch:
+    if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             time.sleep(5)

@@ -1006,14 +1006,14 @@ def parse_experiment_parameters():
                         search_space_reduction_warning = True
 
                 if args.gridsearch:
-                    global changed_grid_search_params
-
                     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
                     if value_type == "int":
                         values = [int(value) for value in values]
+                        global changed_grid_search_params
                         changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
                     else:
+                        global changed_grid_search_params
                         changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
 
                     values = sorted(set(values))
@@ -4149,7 +4149,11 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         f"{program_path_with_program} %a %(b) $c $(def)"
     )
 
-    nr_errors += is_equal(f"replace_parameters_in_string {_program_name}", program_string_with_params, f"{program_path_with_program} 1 2 3 45")
+    nr_errors += is_equal(
+        f"replace_parameters_in_string {_program_name}", 
+        program_string_with_params, 
+        f"{program_path_with_program} 1 2 3 45"
+    )
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
@@ -4261,11 +4265,21 @@ def run_tests():
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
     nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")
-    nr_errors += is_equal("create_and_execute_next_runs(None, 0, None, None, None, None)", create_and_execute_next_runs(None, 0, None, None, None, None), 0)
+    nr_errors += is_equal(
+        "create_and_execute_next_runs(None, 0, None, None, None, None)",
+        create_and_execute_next_runs(None, 0, None, None, None, None),
+        0
+    )
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo", 0, None)
-    nr_errors += complex_tests("divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True)
+    nr_errors += complex_tests(
+        "divide_by_0",
+        'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n',
+        255,
+        None,
+        True
+    )
     #nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr", 5, None)
     #nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
@@ -4551,7 +4565,15 @@ def get_best_params(csv_file_path, result_column):
 
     for i in range(0, len(cols)):
         col = cols[i]
-        if col not in ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"]:
+        if col not in [
+            "start_time",
+            "end_time",
+            "hostname",
+            "signal",
+            "exit_code",
+            "run_time",
+            "program_string"
+        ]:
             if col == result_column:
                 results[result_column] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
             else:

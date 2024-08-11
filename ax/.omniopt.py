@@ -1834,7 +1834,6 @@ def write_worker_usage():
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars
     global ax_client
-    global console
     global end_program_ran
 
     if os.getpid() != main_pid:

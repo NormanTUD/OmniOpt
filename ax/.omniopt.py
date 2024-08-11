@@ -4154,7 +4154,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     stdout = stdout_stderr_exit_code_signal[0]
     stderr = stdout_stderr_exit_code_signal[1]
     exit_code = stdout_stderr_exit_code_signal[2]
-    signal = stdout_stderr_exit_code_signal[3]
+    _signal = stdout_stderr_exit_code_signal[3]
 
     res = get_result(stdout)
 
@@ -4164,7 +4164,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, int) or isinstance(res, float))
     nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
     nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
-    nr_errors += is_equal(f"{_program_name} signal", signal, wanted_signal)
+    nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
 
     return nr_errors
 

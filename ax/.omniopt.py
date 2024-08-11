@@ -2441,7 +2441,6 @@ def progressbar_description(new_msgs=[]):
     progress_bar.refresh()
 
 def clean_completed_jobs():
-    global jobs
     for job, trial_index in global_vars["jobs"][:]:
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
@@ -2832,7 +2831,6 @@ def finish_previous_jobs(new_msgs):
 
     global result_csv_file
     global random_steps
-    global jobs
     global ax_client
     global progress_bar
 
@@ -2964,8 +2962,6 @@ def state_from_job(job):
     return state
 
 def get_workers_string():
-    global jobs
-
     string = ""
 
     string_keys = []

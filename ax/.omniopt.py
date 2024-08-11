@@ -45,7 +45,7 @@ search_space_exhausted = False
 SUPPORTED_MODELS = [
     "SOBOL",
     "GPEI",
-    "FACTORIAL", # ValueError: RangeParameter(name='float_param', parameter_type=FLOAT, range=[-5.0, 5.0]) not ChoiceParameter or FixedParameter
+    "FACTORIAL",
     "SAASBO",
     "FULLYBAYESIAN",
     "LEGACY_BOTORCH",

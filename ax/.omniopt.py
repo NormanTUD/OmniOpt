@@ -880,6 +880,8 @@ def get_bound_if_prev_data(_type, _column, _default):
 
 def parse_experiment_parameters():
     global global_vars
+    global changed_grid_search_params
+
     print_debug("parse_experiment_parameters")
 
     #if args.continue_previous_job and len(args.parameter):
@@ -1006,10 +1008,8 @@ def parse_experiment_parameters():
 
                     if value_type == "int":
                         values = [int(value) for value in values]
-                        global changed_grid_search_params
                         changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
                     else:
-                        global changed_grid_search_params
                         changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
 
                     values = sorted(set(values))
@@ -1184,14 +1184,14 @@ def add_to_csv(file_path, heading, data_line):
             csv_writer.writerow(heading)
 
         # desc += " (best loss: " + '{:f}'.format(best_result) + ")"
-        data_line = ["{:.20f}".format(x) if type(x) is float else x for x in data_line]
+        data_line = ["{:.20f}".format(x) if isinstance(x, float) else x for x in data_line]
         csv_writer.writerow(data_line)
 
 def find_file_paths(_text):
     print_debug("find_file_paths(_text)")
     file_paths = []
 
-    if type(_text) is str:
+    if isinstance(_text, str):
         words = _text.split()
 
         for word in words:
@@ -1397,11 +1397,11 @@ def evaluate(parameters):
         else:
             print_debug(f"evaluate: current_run_folder {current_run_folder} could not be found")
 
-        if type(result) is int:
+        if isinstance(result, int):
             IS_IN_EVALUATE = False
             return {"result": int(result)}
 
-        if type(result) is float:
+        if isinstance(result, float):
             IS_IN_EVALUATE = False
             return {"result": float(result)}
 
@@ -3017,7 +3017,7 @@ def get_desc_progress_text(new_msgs=[]):
         best_params = get_best_params(result_csv_file, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]
-            if type(best_result) is float or type(best_result) is int or helpers.looks_like_float(best_result):
+            if isinstance(best_result, float) or isinstance(best_result, int) or helpers.looks_like_float(best_result):
                 best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
@@ -4046,16 +4046,16 @@ def _unidiff_output(expected, actual):
     return ''.join(diff)
 
 def print_diff(i, o):
-    if type(i) is str:
+    if isinstance(i, str):
         print("Should be:", i.strip())
     else:
         print("Should be:", i)
 
-    if type(o) is str:
+    if isinstance(o, str):
         print("Is:", o.strip())
     else:
         print("Is:", o)
-    if type(i) is str or type(o) is str:
+    if isinstance(i, str) or isinstance(o, str):
         print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
 def is_equal(n, i, o):
@@ -4079,11 +4079,11 @@ def _is_not_equal(name, _input, output):
         int, str, float, bool
     ]
     for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) == equal_type and _input == output:
+        if isinstance(_input, equal_type) and isinstance(output, equal_type) == equal_type and _input == output:
             print_red(f"Failed test (1): {name}")
             return 1
 
-    if type(_input) is bool and _input == output:
+    if isinstance(_input, bool) and _input == output:
         print_red(f"Failed test (2): {name}")
         return 1
 
@@ -4107,7 +4107,7 @@ def _is_equal(name, _input, output):
         print_red(f"Failed test (4): {name}")
         return 1
 
-    if type(_input) is bool and _input != output:
+    if isinstance(_input, bool) and _input != output:
         print_red(f"Failed test (6): {name}")
         return 1
 
@@ -4159,7 +4159,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     if res_is_none:
         nr_errors += is_equal(f"{_program_name} res is None", None, res)
     else:
-        nr_errors += is_equal(f"{_program_name} res type is nr", True, type(res) is int or type(res) is float)
+        nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, int) or isinstance(res, float))
     nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
     nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
     nr_errors += is_equal(f"{_program_name} signal", signal, wanted_signal)
@@ -4329,7 +4329,7 @@ def get_errors_from_outfile(i):
     if len(file_paths):
         try:
             first_file_as_string = get_file_as_string(file_paths[0])
-            if type(first_file_as_string) is str and first_file_as_string.strip().isprintable():
+            if isinstance(first_file_as_string, str) and first_file_as_string.strip().isprintable():
                 first_line = first_file_as_string.split('\n')[0]
         except UnicodeDecodeError:
             pass
@@ -4342,7 +4342,7 @@ def get_errors_from_outfile(i):
     if "Result: None" in file_as_string:
         errors.append("Got no result.")
 
-        if first_line and type(first_line) is str and first_line.isprintable() and not first_line.startswith("#!"):
+        if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
             errors.append("First line does not seem to be a shebang line: " + first_line)
 
         if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
@@ -4354,7 +4354,7 @@ def get_errors_from_outfile(i):
 
             if len(file_paths):
                 file_result = execute_bash_code("file " + file_paths[0])
-                if len(file_result) and type(file_result[0]) is str:
+                if len(file_result) and isinstance(file_result[0], str):
                     file_output = ", " + file_result[0].strip()
 
             errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
@@ -4367,10 +4367,10 @@ def get_errors_from_outfile(i):
         ]
 
         for err in base_errors:
-            if type(err) is list:
+            if isinstance(err, list):
                 if err[0] in file_as_string:
                     errors.append(f"{err[0]} {err[1]}")
-            elif type(err) is str:
+            elif isinstance(err, str):
                 if err in file_as_string:
                     errors.append(f"{err} detected")
             else:
@@ -4537,7 +4537,7 @@ def get_best_params(csv_file_path, result_column):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
-        if type(this_line_result) is str and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
+        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
             this_line_result = float(this_line_result)
 
         if type(this_line_result) in [float, int]:

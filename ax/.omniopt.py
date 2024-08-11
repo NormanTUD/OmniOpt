@@ -191,22 +191,21 @@ global_vars["parameter_names"] = []
 
 # max_eval usw. in unterordner
 # grid ausblenden
-pd_csv_filename = "results.csv"
+PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
 IS_IN_EVALUATE = False
 END_PROGRAM_RAN = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
 ax_client = None
-time_get_next_trials_took = []
+TIME_NEXT_TRIALS_TOOK = []
 CURRENT_RUN_FOLDER = None
 RUN_FOLDER_NUMBER = 0
 args = None
-result_csv_file = None
-shown_end_table = False
+RESULT_CSV_FILE = None
+SHOWN_END_TABLE = False
 max_eval = None
 random_steps = None
 progress_bar = None
-searching_for = None
 SUM_OF_VALUES_FOR_TQDM = 0
 
 main_pid = os.getpid()
@@ -351,28 +350,27 @@ def print_image_to_cli(image_path, width):
         )
 
 with console.status("[bold green]Defining creating .logs dir if it doesn't exist...") as status:
-    log_dir = ".logs"
+    LOG_DIR = ".logs"
     try:
-        Path(log_dir).mkdir(parents=True, exist_ok=True)
+        Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        original_print(f"Could not create logs for {os.path.abspath(log_dir)}: " + str(e))
+        original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(e))
 
 with console.status("[bold green]Defining variables...") as status:
-    log_dir = ".logs"
-    log_i = 0
-    logfile = f'{log_dir}/{log_i}'
-    logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
+    LOG_I = 0
+    logfile = f'{LOG_DIR}/{LOG_I}'
+    logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
     while os.path.exists(logfile):
-        log_i = log_i + 1
-        logfile = f'{log_dir}/{log_i}'
+        LOG_I = LOG_I + 1
+        logfile = f'{LOG_DIR}/{LOG_I}'
 
-    logfile_nr_workers = f'{log_dir}/{log_i}_nr_workers'
-    logfile_progressbar = f'{log_dir}/{log_i}_progressbar'
-    logfile_worker_creation_logs = f'{log_dir}/{log_i}_worker_creation_logs'
-    logfile_trial_index_to_param_logs = f'{log_dir}/{log_i}_trial_index_to_param_logs'
-    logfile_debug_get_next_trials = None
+    logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
+    logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
+    logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
+    logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
+    LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
-    nvidia_smi_logs_base = None
+    NVIDIA_SMI_LOGS_BASE = None
 
 def log_message_to_file(_logfile, message, _lvl=0, ee=None):
     assert _logfile is not None, "Logfile path must be provided."
@@ -403,7 +401,7 @@ def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
     log_message_to_file(_file, result, _lvl, ee)
 
 def _debug_get_next_trials(msg, _lvl=0, ee=None):
-    log_message_to_file(logfile_debug_get_next_trials, msg, _lvl, ee)
+    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, ee)
 
 def _debug_progressbar(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_progressbar, msg, _lvl, ee)
@@ -596,9 +594,9 @@ if not args.tests:
         else:
             time_file = args.continue_previous_job + "/state_files/time"
             if os.path.exists(time_file):
-                time_file_contents = get_file_as_string(time_file).strip()
-                if time_file_contents.isdigit():
-                    global_vars["_time"] = int(time_file_contents)
+                TIME_FILE_CONTENTS = get_file_as_string(time_file).strip()
+                if TIME_FILE_CONTENTS.isdigit():
+                    global_vars["_time"] = int(TIME_FILE_CONTENTS)
                     print(f"Using old run's --time: {global_vars['_time']}")
                 else:
                     print(f"Time-setting: The contents of {time_file} do not contain a single number")
@@ -633,9 +631,9 @@ if not args.tests:
     if args.continue_previous_job and not args.gpus:
         gpus_file = args.continue_previous_job + "/state_files/gpus"
         if os.path.exists(gpus_file):
-            gpus_file_contents = get_file_as_string(gpus_file).strip()
-            if gpus_file_contents.isdigit():
-                gpus = int(gpus_file_contents)
+            GPUS_FILE_CONTENTS = get_file_as_string(gpus_file).strip()
+            if GPUS_FILE_CONTENTS.isdigit():
+                gpus = int(GPUS_FILE_CONTENTS)
                 print(f"Using old run's --gpus: {gpus}")
             else:
                 print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
@@ -651,9 +649,9 @@ if not args.tests:
         else:
             max_eval_file = args.continue_previous_job + "/state_files/max_eval"
             if os.path.exists(max_eval_file):
-                max_eval_file_contents = get_file_as_string(max_eval_file).strip()
-                if max_eval_file_contents.isdigit():
-                    set_max_eval(int(max_eval_file_contents))
+                MAX_EVAL_FILE_CONTENTS = get_file_as_string(max_eval_file).strip()
+                if MAX_EVAL_FILE_CONTENTS.isdigit():
+                    set_max_eval(int(MAX_EVAL_FILE_CONTENTS))
                     print(f"Using old run's --max_eval: {max_eval}")
                 else:
                     print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
@@ -835,7 +833,7 @@ def get_bound_if_prev_data(_type, _column, _default):
     if args.load_previous_job_data and len(args.load_previous_job_data):
         prev_runs = helpers.flatten_extend(args.load_previous_job_data)
         for prev_run in prev_runs:
-            pd_csv = f"{prev_run}/{pd_csv_filename}"
+            pd_csv = f"{prev_run}/{PD_CSV_FILENAME}"
 
             if os.path.exists(pd_csv):
                 if _type == "lower":
@@ -860,7 +858,7 @@ def get_bound_if_prev_data(_type, _column, _default):
                 print_red(f"{pd_csv} was not found")
 
     if args.continue_previous_job:
-        pd_csv = f"{args.continue_previous_job}/{pd_csv_filename}"
+        pd_csv = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
         if os.path.exists(pd_csv):
             if _type == "lower":
                 _old_min_col = get_min_column_value(pd_csv, _column, _default)
@@ -1613,7 +1611,7 @@ def replace_string_with_params(input_string, params):
 
 def print_best_result(csv_file_path, result_column):
     global CURRENT_RUN_FOLDER
-    global shown_end_table
+    global SHOWN_END_TABLE
 
     try:
         best_params = get_best_params(csv_file_path, result_column)
@@ -1662,7 +1660,7 @@ def print_best_result(csv_file_path, result_column):
         with open(f'{CURRENT_RUN_FOLDER}/best_result.txt', mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
-        _pd_csv = f"{CURRENT_RUN_FOLDER}/{pd_csv_filename}"
+        _pd_csv = f"{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}"
 
         global global_vars
 
@@ -1773,7 +1771,7 @@ def print_best_result(csv_file_path, result_column):
                     print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
                     print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
 
-        shown_end_table = True
+        SHOWN_END_TABLE = True
     except Exception as e:
         tb = traceback.format_exc()
         print_red(f"[print_best_result] Error during print_best_result: {e}, tb: {tb}")
@@ -1793,12 +1791,12 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     global ax_client
     global console
-    global shown_end_table
+    global SHOWN_END_TABLE
     global args
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars
 
-    if shown_end_table:
+    if SHOWN_END_TABLE:
         print("End table already shown, not doing it again")
         return -1
 
@@ -1930,7 +1928,7 @@ def save_checkpoint(trial_nr=0, ee=None):
 def save_pd_csv():
     #print_debug("save_pd_csv()")
 
-    pd_csv = f'{CURRENT_RUN_FOLDER}/{pd_csv_filename}'
+    pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
     pd_json = f'{CURRENT_RUN_FOLDER}/state_files/pd.json'
 
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
@@ -2632,7 +2630,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
             old_result_simple = None
             try:
-                tmp_old_res = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"]
+                tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
                 tmp_old_res_list = list(set(list(tmp_old_res)))
 
                 if len(tmp_old_res_list) == 1:
@@ -2722,7 +2720,7 @@ def load_data_from_existing_run_folders(_paths):
 
                 old_result_simple = None
                 try:
-                    tmp_old_res = get_old_result_by_params(f"{this_path}/{pd_csv_filename}", old_arm_parameter)["result"]
+                    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
                     tmp_old_res_list = list(set(list(tmp_old_res)))
 
                     if len(tmp_old_res_list) == 1:
@@ -2834,7 +2832,7 @@ def print_outfile_analyzed(job):
 def finish_previous_jobs(new_msgs):
     print_debug(f"finish_previous_jobs({new_msgs})")
 
-    global result_csv_file
+    global RESULT_CSV_FILE
     global random_steps
     global ax_client
     global progress_bar
@@ -2940,7 +2938,7 @@ def finish_previous_jobs(new_msgs):
                 global_vars["jobs"].remove((job, trial_index))
 
             if args.verbose:
-                progressbar_description([f"saving checkpoints and {pd_csv_filename}"])
+                progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
             save_checkpoint()
             save_pd_csv()
         else:
@@ -3001,7 +2999,7 @@ def get_workers_string():
 
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
-    global result_csv_file
+    global RESULT_CSV_FILE
     global random_steps
     global max_eval
 
@@ -3021,7 +3019,7 @@ def get_desc_progress_text(new_msgs=[]):
     this_time = time.time()
 
     if count_done_jobs() >= 0:
-        best_params = get_best_params(result_csv_file, "result")
+        best_params = get_best_params(RESULT_CSV_FILE, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]
             if isinstance(best_result, float) or isinstance(best_result, int) or helpers.looks_like_float(best_result):
@@ -3198,7 +3196,7 @@ def execute_evaluation(ax_client, trial_index, parameters, trial_counter, execut
     except (SignalUSR, SignalINT, SignalCONT):
         print_red("\n⚠ Detected signal. Will exit.")
         IS_IN_EVALUATE = False
-        end_program(result_csv_file, "result", 1)
+        end_program(RESULT_CSV_FILE, "result", 1)
     except Exception as e:
         tb = traceback.format_exc()
         print(tb)
@@ -3231,9 +3229,9 @@ def _get_next_trials(ax_client):
 
     last_ax_client_time = None
     ax_client_time_avg = None
-    if len(time_get_next_trials_took):
-        last_ax_client_time = time_get_next_trials_took[len(time_get_next_trials_took) - 1]
-        ax_client_time_avg = sum(time_get_next_trials_took) / len(time_get_next_trials_took)
+    if len(TIME_NEXT_TRIALS_TOOK):
+        last_ax_client_time = TIME_NEXT_TRIALS_TOOK[len(TIME_NEXT_TRIALS_TOOK) - 1]
+        ax_client_time_avg = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
 
     new_msgs = []
 
@@ -3280,7 +3278,7 @@ def _get_next_trials(ax_client):
 
     _ax_took = get_next_trials_time_end - get_next_trials_time_start
 
-    time_get_next_trials_took.append(_ax_took)
+    TIME_NEXT_TRIALS_TOOK.append(_ax_took)
 
     _log_trial_index_to_param(trial_index_to_param)
 
@@ -3456,7 +3454,7 @@ def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_
         botorch.exceptions.errors.InputDataError
     ) as e:
         print_red("\n⚠ " + str(e))
-        end_program(result_csv_file, "result", 1)
+        end_program(RESULT_CSV_FILE, "result", 1)
 
     num_new_keys = 0
 
@@ -3701,7 +3699,7 @@ def execute_nvidia_smi():
         try:
             host = socket.gethostname()
 
-            _file = nvidia_smi_logs_base + "_" + host + ".csv"
+            _file = NVIDIA_SMI_LOGS_BASE + "_" + host + ".csv"
             noheader = ",noheader"
 
             result = subprocess.run([
@@ -3764,7 +3762,7 @@ def run_search(executor, ax_client, progress_bar):
     NR_OF_0_RESULTS = 0
     write_process_info()
 
-    while (submitted_jobs() <= max_eval):
+    while submitted_jobs() <= max_eval:
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
@@ -3893,17 +3891,16 @@ def main():
 
     print_logo()
 
-    global result_csv_file
+    global RESULT_CSV_FILE
     global ax_client
     global global_vars
     global max_eval
     global global_vars
     global RUN_FOLDER_NUMBER
     global CURRENT_RUN_FOLDER
-    global nvidia_smi_logs_base
-    global logfile_debug_get_next_trials
+    global NVIDIA_SMI_LOGS_BASE
+    global LOGFILE_DEBUG_GET_NEXT_TRIALS
     global random_steps
-    global searching_for
 
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
@@ -3920,7 +3917,7 @@ def main():
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
         RUN_FOLDER_NUMBER = RUN_FOLDER_NUMBER + 1
 
-    result_csv_file = create_folder_and_file(f"{CURRENT_RUN_FOLDER}")
+    RESULT_CSV_FILE = create_folder_and_file(f"{CURRENT_RUN_FOLDER}")
 
     save_state_files()
 
@@ -3928,13 +3925,13 @@ def main():
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
 
-    nvidia_smi_logs_base = f'{CURRENT_RUN_FOLDER}/gpu_usage_'
+    NVIDIA_SMI_LOGS_BASE = f'{CURRENT_RUN_FOLDER}/gpu_usage_'
 
     if args.ui_url:
         with open(f"{CURRENT_RUN_FOLDER}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
 
-    logfile_debug_get_next_trials = f'{CURRENT_RUN_FOLDER}/get_next_trials.csv'
+    LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{CURRENT_RUN_FOLDER}/get_next_trials.csv'
 
     experiment_parameters = None
     cli_params_experiment_parameters = None
@@ -4036,7 +4033,7 @@ def main():
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-    end_program(result_csv_file)
+    end_program(RESULT_CSV_FILE)
 
 def _unidiff_output(expected, actual):
     """
@@ -4595,7 +4592,7 @@ if __name__ == "__main__":
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
                 IS_IN_EVALUATE = False
 
-                end_program(result_csv_file, "result", 1)
+                end_program(RESULT_CSV_FILE, "result", 1)
             except SearchSpaceExhausted:
                 _get_perc = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
@@ -4607,6 +4604,6 @@ if __name__ == "__main__":
                     )
 
                 if _get_perc != 100:
-                    end_program(result_csv_file, "result", 1, 87)
+                    end_program(RESULT_CSV_FILE, "result", 1, 87)
                 else:
-                    end_program(result_csv_file, "result", 1)
+                    end_program(RESULT_CSV_FILE, "result", 1)

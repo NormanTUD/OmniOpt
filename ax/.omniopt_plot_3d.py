@@ -9,8 +9,16 @@ import pyvista as pv
 
 def main():
     parser = argparse.ArgumentParser(description='3D Scatter Plot from CSV')
-    parser.add_argument('--run_dir', type=str, required=True, help='Directory containing the CSV file')
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+    parser.add_argument('--run_dir',
+        type=str,
+        required=True,
+        help='Directory containing the CSV file'
+    )
+    parser.add_argument('--no_plt_show',
+        help='Disable showing the plot',
+        action='store_true',
+        default=False
+    )
     args = parser.parse_args()
 
     if args.no_plt_show:
@@ -31,7 +39,9 @@ def main():
         dynamic_columns = [col for col in dataframe.columns if col not in ignore_columns]
 
         # Generate all permutations of 3 columns
-        column_permutations = list(itertools.combinations(dynamic_columns, 3))
+        column_permutations = list(
+            itertools.combinations(dynamic_columns, 3)
+        )
 
         # Create a plotter with the appropriate shape
         num_plots = len(column_permutations)
@@ -39,7 +49,9 @@ def main():
         try:
             plotter = pv.Plotter(shape=plotter_shape)
         except ValueError as e:
-            print(f"Error: {e} This may happen when your results.csv has no result column or you don't have at least 3 numeric columns.")
+            print(f"Error: {e} This may happen when your results.csv "
+                f"has no result column or you don't have at least 3 numeric columns."
+            )
             sys.exit(12)
 
         plotted = 0

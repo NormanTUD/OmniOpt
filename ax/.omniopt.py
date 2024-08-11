@@ -1922,7 +1922,6 @@ def save_checkpoint(trial_nr=0, ee=None):
         save_checkpoint(trial_nr + 1, e)
 
 def save_pd_csv():
-    global ax_client
     #print_debug("save_pd_csv()")
 
     pd_csv = f'{current_run_folder}/{pd_csv_filename}'

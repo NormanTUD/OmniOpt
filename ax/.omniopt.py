@@ -1278,8 +1278,6 @@ def write_data_and_headers(data_dict, error_description=""):
         for row in data:
             row.append(error_description)
 
-    global CURRENT_RUN_FOLDER
-
     failed_logs_dir = os.path.join(CURRENT_RUN_FOLDER, 'failed_logs')
 
     data_file_path = os.path.join(failed_logs_dir, 'parameters.csv')

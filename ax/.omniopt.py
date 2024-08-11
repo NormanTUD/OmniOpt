@@ -1318,7 +1318,6 @@ def write_data_and_headers(data_dict, error_description=""):
 
 
 def evaluate(parameters):
-    global global_vars
     global IS_IN_EVALUATE
 
     start_nvidia_smi_thread()

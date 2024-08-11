@@ -346,7 +346,10 @@ def print_image_to_cli(image_path, width):
         sixel_converter.write(sys.stdout)
         time.sleep(2)
     except Exception as e:
-        print_debug(f"Error converting and resizing image: {str(e)}, width: {width}, image_path: {image_path}")
+        print_debug(
+            f"Error converting and resizing image: "
+            f"{str(e)}, width: {width}, image_path: {image_path}"
+        )
 
 with console.status("[bold green]Defining creating .logs dir if it doesn't exist...") as status:
     log_dir = ".logs"

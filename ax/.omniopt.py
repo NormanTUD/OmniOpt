@@ -168,16 +168,6 @@ except KeyboardInterrupt:
 
 process = psutil.Process(os.getpid())
 
-class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NpEncoder, self).default(obj)
-
 global_vars = {}
 
 VAL_IF_NOTHING_FOUND = 99999999999999999999999999999999999999999999999999999999999
@@ -1461,6 +1451,16 @@ except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
 def disable_logging():
     print_debug("disable_logging()")
     logging.basicConfig(level=logging.ERROR)
@@ -1521,7 +1521,6 @@ def disable_logging():
     print_debug("disable_logging() done")
 
 def display_failed_jobs_table():
-    global CURRENT_RUN_FOLDER
     _console = Console()
 
     failed_jobs_folder = f"{CURRENT_RUN_FOLDER}/failed_logs"
@@ -1905,7 +1904,6 @@ def save_checkpoint(trial_nr=0, ee=None):
 
     try:
         print_debug(f"save_checkpoint(trial_nr: {trial_nr}, ee: {ee})")
-        global ax_client
 
         state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
 
@@ -2215,7 +2213,6 @@ def print_overview_tables(experiment_parameters, experiment_args):
         return
 
     print_debug("print_overview_tables(experiment_parameters, experiment_args)")
-    global args
 
     if not experiment_parameters:
         print_red("Experiment parameters could not be determined for display")

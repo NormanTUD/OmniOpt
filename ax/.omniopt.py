@@ -3266,11 +3266,11 @@ def _get_next_trials():
 
     return trial_index_to_param
 
-def get_next_nr_steps(_num_parallel_jobs, max_eval):
+def get_next_nr_steps(_num_parallel_jobs, _max_eval):
     if not SYSTEM_HAS_SBATCH:
         return 1
 
-    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), max_eval - submitted_jobs())
+    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval - submitted_jobs())
 
     return requested
 
@@ -3286,7 +3286,7 @@ def get_nr_of_imported_jobs():
 
     return nr_jobs
 
-def get_generation_strategy(_num_parallel_jobs, seed, max_eval):
+def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     global random_steps
 
     _steps = []
@@ -3295,12 +3295,12 @@ def get_generation_strategy(_num_parallel_jobs, seed, max_eval):
 
     #random_steps = nr_of_imported_jobs
 
-    set_max_eval(max_eval + nr_of_imported_jobs)
+    set_max_eval(_max_eval + nr_of_imported_jobs)
 
     if random_steps is None:
         random_steps = 0
 
-    if max_eval is None:
+    if _max_eval is None:
         set_max_eval(max(1, random_steps))
 
     if random_steps >= 1:
@@ -3309,13 +3309,13 @@ def get_generation_strategy(_num_parallel_jobs, seed, max_eval):
         # initial sampling of the search space)
 
         #print(f"!!! get_generation_strategy: random_steps == {random_steps}")
-        #min_trials_observed=max(min(0, max_eval, random_steps), random_steps + NR_INSERTED_JOBS),
+        #min_trials_observed=max(min(0, _max_eval, random_steps), random_steps + NR_INSERTED_JOBS),
 
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
                 num_trials=max(_num_parallel_jobs, random_steps),
-                min_trials_observed=min(max_eval, random_steps),
+                min_trials_observed=min(_max_eval, random_steps),
                 max_parallelism=_num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
@@ -3354,7 +3354,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, max_eval):
     #print(f"    )")
     #print(f")")
 
-    #_nr_trials = max_eval - random_steps + nr_of_imported_jobs
+    #_nr_trials = _max_eval - random_steps + nr_of_imported_jobs
 
     #if _nr_trials <= 0:
     #    _nr_trials = -1

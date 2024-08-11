@@ -1520,7 +1520,7 @@ def disable_logging():
 
 def display_failed_jobs_table():
     global current_run_folder
-    console = Console()
+    _console = Console()
 
     failed_jobs_folder = f"{current_run_folder}/failed_logs"
     header_file = os.path.join(failed_jobs_folder, "headers.csv")
@@ -1566,7 +1566,7 @@ def display_failed_jobs_table():
                 added_rows.add(row_tuple)
 
         # Print the table to the console
-        console.print(table)
+        _console.print(table)
     except Exception as e:
         print_red(f"Error: {str(e)}")
 

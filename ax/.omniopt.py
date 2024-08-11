@@ -1607,7 +1607,6 @@ def replace_string_with_params(input_string, params):
         raise
 
 def print_best_result(csv_file_path, result_column):
-    global CURRENT_RUN_FOLDER
     global SHOWN_END_TABLE
 
     try:
@@ -1837,7 +1836,6 @@ def write_worker_usage():
 
 def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
     global global_vars
-    global ax_client
     global END_PROGRAM_RAN
 
     if os.getpid() != main_pid:
@@ -3508,8 +3506,6 @@ def get_number_of_steps(max_eval):
     return random_steps, second_step_steps
 
 def get_executor():
-    global run_uuid
-
     log_folder = f'{CURRENT_RUN_FOLDER}/single_runs/%j'
     executor = None
     if args.force_local_execution:
@@ -3755,9 +3751,9 @@ def break_run_search (_name, max_eval, progress_bar):
 def run_search(executor, ax_client, progress_bar):
     global NR_OF_0_RESULTS
 
-    log_what_needs_to_be_logged()
-
     NR_OF_0_RESULTS = 0
+
+    log_what_needs_to_be_logged()
     write_process_info()
 
     while submitted_jobs() <= max_eval:

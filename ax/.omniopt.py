@@ -1606,6 +1606,7 @@ def replace_string_with_params(input_string, params):
         raise
 
 def print_best_result(csv_file_path, result_column):
+    global global_vars
     global SHOWN_END_TABLE
 
     try:
@@ -1625,7 +1626,7 @@ def print_best_result(csv_file_path, result_column):
         total_str = f"total: {count_done_jobs() - NR_INSERTED_JOBS}"
 
         if NR_INSERTED_JOBS:
-            total_str += f" + NR_INSERTED_JOBS: {nr_inserted_jobs}"
+            total_str += f" + NR_INSERTED_JOBS: {NR_INSERTED_JOBS}"
 
         failed_error_str = ""
         if failed_jobs() >= 1:
@@ -1656,8 +1657,6 @@ def print_best_result(csv_file_path, result_column):
             text_file.write(table_str)
 
         _pd_csv = f"{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}"
-
-        global global_vars
 
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
@@ -3470,7 +3469,7 @@ def get_number_of_steps(_max_eval):
 
     if _random_steps > _max_eval:
         print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {_random_steps}. Switched both.")
-        _random_steps, max_eval = _max_eval, _random_steps
+        _random_steps, _max_eval = _max_eval, _random_steps
 
     if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
         old_random_steps = _random_steps
@@ -3732,7 +3731,7 @@ def break_run_search (_name, _max_eval, _progress_bar):
         return True
 
     if abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
-        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {nr_inserted_jobs}) <= 0")
+        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0")
         return True
 
     return False
@@ -4184,6 +4183,8 @@ def test_find_paths(program_code):
     return nr_errors
 
 def run_tests():
+    global global_vars
+
     print_image_to_cli(".tools/slimer.png", 300)
     print_image_to_cli(".tools/slimer2.png", 300)
 
@@ -4208,8 +4209,6 @@ def run_tests():
         replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"),
         "echo 'RESULT: 123'"
     )
-
-    global global_vars
 
     global_vars["joined_run_program"] = "echo 'RESULT: %x'"
 

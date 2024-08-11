@@ -35,7 +35,7 @@ def my_exit(_code=0):
 class SearchSpaceExhausted (Exception):
     pass
 
-nr_inserted_jobs = 0
+NR_INSERTED_JOBS = 0
 changed_grid_search_params = {}
 LAST_CPU_MEM_TIME = None
 
@@ -416,7 +416,9 @@ def print_red(text):
             with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(text)
         except FileNotFoundError as e:
-            print_red(f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run.")
+            print_red(
+                f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run."
+            )
             sys.exit(99)
 
 def print_green(text):
@@ -1627,10 +1629,10 @@ def print_best_result(csv_file_path, result_column):
             print_red("Best result could not be determined")
             return 87
 
-        total_str = f"total: {count_done_jobs() - nr_inserted_jobs}"
+        total_str = f"total: {count_done_jobs() - NR_INSERTED_JOBS}"
 
-        if nr_inserted_jobs:
-            total_str += f" + nr_inserted_jobs: {nr_inserted_jobs}"
+        if NR_INSERTED_JOBS:
+            total_str += f" + NR_INSERTED_JOBS: {nr_inserted_jobs}"
 
         failed_error_str = ""
         if failed_jobs() >= 1:
@@ -1703,7 +1705,9 @@ def print_best_result(csv_file_path, result_column):
                     min_done_jobs = plot["min_done_jobs"]
 
                 if count_done_jobs() < min_done_jobs:
-                    print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
+                    print_debug(
+                        f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
+                    )
                     continue
 
                 try:
@@ -2518,7 +2522,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         raise
 
 def load_existing_job_data_into_ax_client():
-    global nr_inserted_jobs
+    global NR_INSERTED_JOBS
 
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
@@ -2530,18 +2534,18 @@ def load_existing_job_data_into_ax_client():
     if len(already_inserted_param_hashes.keys()):
         if len(missing_results):
             print(f"Missing results: {len(missing_results)}")
-            #nr_inserted_jobs += len(double_hashes)
+            #NR_INSERTED_JOBS += len(double_hashes)
 
         if len(double_hashes):
             print(f"Double parameters not inserted: {len(double_hashes)}")
-            #nr_inserted_jobs += len(double_hashes)
+            #NR_INSERTED_JOBS += len(double_hashes)
 
         if len(double_hashes) - len(already_inserted_param_hashes.keys()):
             print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
-            nr_inserted_jobs += len(already_inserted_param_hashes.keys())
+            NR_INSERTED_JOBS += len(already_inserted_param_hashes.keys())
     else:
         nr_of_imported_jobs = get_nr_of_imported_jobs()
-        nr_inserted_jobs += nr_of_imported_jobs
+        NR_INSERTED_JOBS += nr_of_imported_jobs
 
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)
@@ -3327,7 +3331,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         # initial sampling of the search space)
 
         #print(f"!!! get_generation_strategy: random_steps == {random_steps}")
-        #min_trials_observed=max(min(0, max_eval, random_steps), random_steps + nr_inserted_jobs),
+        #min_trials_observed=max(min(0, max_eval, random_steps), random_steps + NR_INSERTED_JOBS),
 
         _steps.append(
             GenerationStep(
@@ -3746,8 +3750,8 @@ def break_run_search (_name, max_eval, progress_bar):
         print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {max_eval}")
         return True
 
-    if abs(count_done_jobs() - max_eval - nr_inserted_jobs) <= 0:
-        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - nr_inserted_jobs {nr_inserted_jobs}) <= 0")
+    if abs(count_done_jobs() - max_eval - NR_INSERTED_JOBS) <= 0:
+        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - NR_INSERTED_JOBS {nr_inserted_jobs}) <= 0")
         return True
 
     return False
@@ -4014,7 +4018,7 @@ def main():
         max_nr_steps = prev_steps_nr + max_nr_steps
         #set_max_eval(max_nr_steps)
 
-    #set_max_eval(max_eval + nr_inserted_jobs)
+    #set_max_eval(max_eval + NR_INSERTED_JOBS)
     save_global_vars()
 
     write_process_info()
@@ -4593,12 +4597,12 @@ if __name__ == "__main__":
 
                 end_program(result_csv_file, "result", 1)
             except SearchSpaceExhausted:
-                _get_perc = abs(int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100))
+                _get_perc = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
                 if _get_perc < 100:
                     print_red(f"\nIt seems like the search space was exhausted. "
                         f"You were able to get {_get_perc}% of the jobs you requested "
-                        f"(got: {count_done_jobs() - nr_inserted_jobs}, "
+                        f"(got: {count_done_jobs() - NR_INSERTED_JOBS}, "
                         f"requested: {max_eval}) after main ran"
                     )
 

@@ -2021,7 +2021,8 @@ def get_ax_param_representation(data):
 
     return {} # only for linter, never reached because of die
 
-def get_experiment_parameters(continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+def get_experiment_parameters(_params):
+    continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
     global ax_client
 
     experiment_args = None
@@ -3105,9 +3106,11 @@ def save_state_files():
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def execute_evaluation(trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
+def execute_evaluation(_params):
     global global_vars
     global IS_IN_EVALUATE
+
+    trial_index, parameters, trial_counter, executor, next_nr_steps, phase = _params
 
     _trial = ax_client.get_trial(trial_index)
 
@@ -3410,7 +3413,14 @@ def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, _pro
 
                     if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                        execute_evaluation(trial_index, parameters, i, executor, next_nr_steps, phase)
+                        execute_evaluation([
+                            trial_index,
+                            parameters,
+                            i,
+                            executor,
+                            next_nr_steps,
+                            phase
+                        ])
                         i += 1
                     else:
                         break
@@ -3953,7 +3963,7 @@ def main():
 
     minimize_or_maximize = not args.maximize
 
-    ax_client, experiment_parameters, experiment_args = get_experiment_parameters(
+    ax_client, experiment_parameters, experiment_args = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
         args.experiment_constraints,
@@ -3961,7 +3971,7 @@ def main():
         cli_params_experiment_parameters,
         experiment_parameters,
         minimize_or_maximize
-    )
+    ])
 
     gs_hr = human_readable_generation_strategy()
     if gs_hr:

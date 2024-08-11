@@ -367,8 +367,8 @@ with console.status("[bold green]Defining variables...") as status:
 
     nvidia_smi_logs_base = None
 
-def log_message_to_file(logfile, message, _lvl=0, ee=None):
-    assert logfile is not None, "Logfile path must be provided."
+def log_message_to_file(_logfile, message, _lvl=0, ee=None):
+    assert _logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
 
     if _lvl > 3:
@@ -376,7 +376,7 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
         return
 
     try:
-        with open(logfile, mode='a', encoding="utf-8") as f:
+        with open(_logfile, mode='a', encoding="utf-8") as f:
             #original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
     except FileNotFoundError:
@@ -384,7 +384,7 @@ def log_message_to_file(logfile, message, _lvl=0, ee=None):
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
         original_print(f"Error trying to write log file: {e}")
-        log_message_to_file(logfile, message, _lvl + 1, e)
+        log_message_to_file(_logfile, message, _lvl + 1, e)
 
 def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
     log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, ee)

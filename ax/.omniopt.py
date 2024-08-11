@@ -3893,7 +3893,6 @@ def main():
 
     print_logo()
 
-    global args
     global result_csv_file
     global ax_client
     global global_vars

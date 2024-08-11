@@ -1582,8 +1582,8 @@ def plot_command(_command, tmp_file, _width=1300):
     my_env["DONT_INSTALL_MODULES"] = "1"
     my_env["DONT_SHOW_DONT_INSTALL_MESSAGE"] = "1"
 
-    process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE, env=my_env)
-    _, error = process.communicate()
+    _process = subprocess.Popen(_command.split(), stdout=subprocess.PIPE, env=my_env)
+    _, error = _process.communicate()
 
     if os.path.exists(tmp_file):
         print_image_to_cli(tmp_file, _width)
@@ -1784,7 +1784,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     disable_logging()
 
-    global ax_client
     global console
     global args
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
@@ -2025,7 +2024,7 @@ def get_ax_param_representation(data):
 
     return {} # only for linter, never reached because of die
 
-def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+def get_experiment_parameters(continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
     experiment_args = None
 
     if continue_previous_job:
@@ -3960,7 +3959,6 @@ def main():
     minimize_or_maximize = not args.maximize
 
     ax_client, experiment_parameters, experiment_args = get_experiment_parameters(
-        ax_client,
         args.continue_previous_job,
         args.seed,
         args.experiment_constraints,

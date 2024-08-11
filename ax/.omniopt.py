@@ -4060,7 +4060,7 @@ def _is_not_equal(name, _input, output):
         int, str, float, bool
     ]
     for equal_type in _equal_types:
-        if isinstance(_input, equal_type) and isinstance(output, equal_type) == equal_type and _input == output:
+        if isinstance(_input, equal_type) and isinstance(output, equal_type) and _input == output:
             print_red(f"Failed test (1): {name}")
             return 1
 
@@ -4080,7 +4080,7 @@ def _is_equal(name, _input, output):
         int, str, float, bool
     ]
     for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) == equal_type and _input != output:
+        if type(_input) is equal_type and type(output) and _input != output:
             print_red(f"Failed test (1): {name}")
             return 1
 

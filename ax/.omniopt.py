@@ -2117,6 +2117,8 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
+        global ax_client
+
         ax_client = AxClient.load_from_json_file(tmp_file_path)
         #helpers.dier(human_readable_generation_strategy())
         #helpers.dier(tmp_file_path)

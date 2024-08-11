@@ -74,7 +74,7 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def set_margins (fig):
+def set_margins ():
     print_debug("set_margins()")
     left  = 0.04
     if args.save_to_file and len(args.allow_axes):
@@ -87,7 +87,7 @@ def set_margins (fig):
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
-def set_title(fig, df_filtered, result_column_values, num_entries, _min, _max):
+def set_title(df_filtered, result_column_values, num_entries, _min, _max):
     _mean = result_column_values.mean()
     print_debug("set_title")
     #extreme_index = result_column_values.idxmax() if args.run_dir + "/state_files/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
@@ -492,9 +492,9 @@ def main():
 
     result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-    set_title(fig, df_filtered, result_column_values, len(df_filtered), args.min, args.max)
+    set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
-    set_margins(fig)
+    set_margins()
 
     fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
     if args.save_to_file:
@@ -569,7 +569,7 @@ def update_graph(event=None, _min=None, _max=None):
         plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
-        set_title(fig, df_filtered, result_column_values, len(df_filtered), _min, _max)
+        set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
         plt.draw()
     except Exception as e:

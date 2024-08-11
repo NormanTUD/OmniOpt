@@ -1784,8 +1784,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     disable_logging()
 
-    global console
-    global args
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars
 
@@ -2025,6 +2023,8 @@ def get_ax_param_representation(data):
     return {} # only for linter, never reached because of die
 
 def get_experiment_parameters(continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize):
+    global ax_client
+
     experiment_args = None
 
     if continue_previous_job:
@@ -2116,8 +2116,6 @@ def get_experiment_parameters(continue_previous_job, seed, experiment_constraint
                 experiment_parameters["generation_strategy"] = original_generation_strategy
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-
-        global ax_client
 
         ax_client = AxClient.load_from_json_file(tmp_file_path)
         #helpers.dier(human_readable_generation_strategy())
@@ -2410,9 +2408,9 @@ def check_equation(variables, equation):
 
     return False
 
-def update_progress_bar (progress_bar, nr):
+def update_progress_bar (_progress_bar, nr):
     #import traceback
-    #print(f"update_progress_bar(progress_bar, {nr})")
+    #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
 
     global SUM_OF_VALUES_FOR_TQDM
@@ -2423,7 +2421,7 @@ def update_progress_bar (progress_bar, nr):
         print_debug(f"Reaching upper limit for tqdm: SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {max_eval}")
         return
 
-    progress_bar.update(nr)
+    _progress_bar.update(nr)
 
 def progressbar_description(new_msgs=[]):
     desc = get_desc_progress_text(new_msgs)
@@ -2824,7 +2822,6 @@ def finish_previous_jobs(new_msgs):
 
     global random_steps
     global ax_client
-    global progress_bar
 
     #print("jobs in finish_previous_jobs:")
     #print(jobs)
@@ -3111,7 +3108,6 @@ def save_state_files():
 
 def execute_evaluation(trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
-    global progress_bar
     global IS_IN_EVALUATE
 
     _trial = ax_client.get_trial(trial_index)
@@ -3388,7 +3384,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, progress_bar):
+def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, _progress_bar):
     global random_steps
 
     if next_nr_steps == 0:
@@ -3404,18 +3400,18 @@ def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, prog
             if trial_index_to_param:
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
-                    if break_run_search("create_and_execute_next_runs", _max_eval, progress_bar):
+                    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         break
 
                     while len(global_vars["jobs"]) > num_parallel_jobs:
                         finish_previous_jobs(["finishing prev jobs"])
 
-                        if break_run_search("create_and_execute_next_runs", _max_eval, progress_bar):
+                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                             break
 
                         time.sleep(5)
 
-                    if not break_run_search("create_and_execute_next_runs", _max_eval, progress_bar):
+                    if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                         execute_evaluation(trial_index, parameters, i, executor, next_nr_steps, phase)
                         i += 1
@@ -3466,28 +3462,28 @@ def get_random_steps_from_prev_job():
     )
 
 def get_number_of_steps(_max_eval):
-    random_steps = args.num_random_steps
+    _random_steps = args.num_random_steps
 
     already_done_random_steps = get_random_steps_from_prev_job()
 
-    random_steps = random_steps - already_done_random_steps
+    _random_steps = random_steps - already_done_random_steps
 
-    if random_steps > _max_eval:
-        print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {random_steps}. Switched both.")
-        random_steps, max_eval = _max_eval, random_steps
+    if _random_steps > _max_eval:
+        print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {_random_steps}. Switched both.")
+        _random_steps, max_eval = _max_eval, _random_steps
 
-    if random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
-        old_random_steps = random_steps
-        random_steps = num_parallel_jobs
-        original_print(f"random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
+    if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
+        old_random_steps = _random_steps
+        _random_steps = num_parallel_jobs
+        original_print(f"_random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
 
-    if random_steps > _max_eval:
-        set_max_eval(random_steps)
+    if _random_steps > _max_eval:
+        set_max_eval(_random_steps)
 
-    original_second_steps = _max_eval - random_steps
+    original_second_steps = _max_eval - _random_steps
     second_step_steps = max(0, original_second_steps)
     if second_step_steps != original_second_steps:
-        original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - random_steps {random_steps}")
+        original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
     if second_step_steps == 0:
         print_red("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
@@ -3496,7 +3492,7 @@ def get_number_of_steps(_max_eval):
     if args.continue_previous_job:
         second_step_steps = _max_eval
 
-    return random_steps, second_step_steps
+    return _random_steps, second_step_steps
 
 def get_executor():
     log_folder = f'{CURRENT_RUN_FOLDER}/single_runs/%j'
@@ -3718,13 +3714,13 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
-def break_run_search (_name, _max_eval, progress_bar):
+def break_run_search (_name, _max_eval, _progress_bar):
     if succeeded_jobs() > _max_eval:
         print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
         return True
 
-    if progress_bar.total < submitted_jobs():
-        print_debug(f"breaking {_name}: progress_bar.total {progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
+    if _progress_bar.total < submitted_jobs():
+        print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
         return True
 
     if count_done_jobs() >= _max_eval:
@@ -3741,7 +3737,7 @@ def break_run_search (_name, _max_eval, progress_bar):
 
     return False
 
-def run_search(executor, progress_bar):
+def run_search(executor, _progress_bar):
     global NR_OF_0_RESULTS
 
     NR_OF_0_RESULTS = 0
@@ -3755,7 +3751,7 @@ def run_search(executor, progress_bar):
 
         finish_previous_jobs([])
 
-        if break_run_search("run_search", max_eval, progress_bar):
+        if break_run_search("run_search", max_eval, _progress_bar):
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -3765,7 +3761,7 @@ def run_search(executor, progress_bar):
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
 
-            nr_of_items = create_and_execute_next_runs(next_nr_steps, executor, "systematic", max_eval, progress_bar)
+            nr_of_items = create_and_execute_next_runs(next_nr_steps, executor, "systematic", max_eval, _progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 

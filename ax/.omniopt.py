@@ -1302,6 +1302,7 @@ def write_data_and_headers(data_dict, error_description=""):
                 writer = csv.writer(data_file)
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
+
         except Exception as e:
             print_red(f"Failed to append data to file: {e}")
 

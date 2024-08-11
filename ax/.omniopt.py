@@ -2119,7 +2119,7 @@ def get_experiment_parameters(ax_client, continue_previous_job, seed, experiment
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
         ax_client = AxClient.load_from_json_file(tmp_file_path)
-        #helpers.dier(human_readable_generation_strategy(ax_client))
+        #helpers.dier(human_readable_generation_strategy())
         #helpers.dier(tmp_file_path)
 
         os.unlink(tmp_file_path)
@@ -3387,7 +3387,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, _max_eval, progress_bar):
+def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, progress_bar):
     global random_steps
 
     if next_nr_steps == 0:
@@ -3764,7 +3764,7 @@ def run_search(executor, progress_bar):
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
 
-            nr_of_items = create_and_execute_next_runs(ax_client, next_nr_steps, executor, "systematic", max_eval, progress_bar)
+            nr_of_items = create_and_execute_next_runs(next_nr_steps, executor, "systematic", max_eval, progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -3859,7 +3859,7 @@ def count_defective_nodes(file_path=None, entry=None):
         print(f"Ein Fehler ist aufgetreten: {e}")
         return []
 
-def human_readable_generation_strategy (ax_client):
+def human_readable_generation_strategy ():
     generation_strategy_str = str(ax_client.generation_strategy)
 
     pattern = r'\[(.*?)\]'
@@ -3970,7 +3970,7 @@ def main():
         minimize_or_maximize
     )
 
-    gs_hr = human_readable_generation_strategy(ax_client)
+    gs_hr = human_readable_generation_strategy()
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
@@ -4254,8 +4254,8 @@ def run_tests():
         "choice"
     )
     nr_errors += is_equal(
-        "create_and_execute_next_runs(None, 0, None, None, None, None)",
-        create_and_execute_next_runs(None, 0, None, None, None, None),
+        "create_and_execute_next_runs(0, None, None, None, None)",
+        create_and_execute_next_runs(0, None, None, None, None),
         0
     )
 

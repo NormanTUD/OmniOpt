@@ -2832,7 +2832,6 @@ def print_outfile_analyzed(job):
 def finish_previous_jobs(new_msgs):
     print_debug(f"finish_previous_jobs({new_msgs})")
 
-    global RESULT_CSV_FILE
     global random_steps
     global ax_client
     global progress_bar
@@ -2999,7 +2998,6 @@ def get_workers_string():
 
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
-    global RESULT_CSV_FILE
     global random_steps
     global max_eval
 
@@ -3474,7 +3472,10 @@ def get_random_steps_from_prev_job():
     if not os.path.exists(prev_step_file):
         return count_sobol_steps()
 
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
+    return add_to_phase_counter("random", count_sobol_steps() +
+        _count_sobol_steps(f"{args.continue_previous_job}/results.csv"),
+        args.continue_previous_job
+    )
 
 def get_number_of_steps(max_eval):
     random_steps = args.num_random_steps
@@ -4255,10 +4256,18 @@ def run_tests():
         0
     )
 
-    nr_errors += is_equal("get_program_code_from_out_file('/etc/doesntexist')", get_program_code_from_out_file("/etc/doesntexist"), "")
+    nr_errors += is_equal(
+        "get_program_code_from_out_file('/etc/doesntexist')",
+        get_program_code_from_out_file("/etc/doesntexist"),
+        ""
+    )
 
     nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
-    nr_errors += is_equal("get_type_short('ChoiceParameter')", get_type_short("ChoiceParameter"), "choice")
+    nr_errors += is_equal(
+        "get_type_short('ChoiceParameter')",
+        get_type_short("ChoiceParameter"),
+        "choice"
+    )
     nr_errors += is_equal(
         "create_and_execute_next_runs(None, 0, None, None, None, None)",
         create_and_execute_next_runs(None, 0, None, None, None, None),

@@ -1817,8 +1817,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
     return _exit
 
 def write_worker_usage():
-    global CURRENT_RUN_FOLDER
-
     if len(worker_percentage_usage):
         csv_filename = f'{CURRENT_RUN_FOLDER}/worker_usage.csv'
 
@@ -3389,10 +3387,9 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     return gs
 
-def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_eval, progress_bar):
+def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, _max_eval, progress_bar):
     global random_steps
 
-    #print(f"create_and_execute_next_runs, phase {phase}: next_nr_steps: {next_nr_steps}")
     if next_nr_steps == 0:
         return 0
 
@@ -3406,18 +3403,18 @@ def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_
             if trial_index_to_param:
                 i = 1
                 for trial_index, parameters in trial_index_to_param.items():
-                    if break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
+                    if break_run_search("create_and_execute_next_runs", _max_eval, progress_bar):
                         break
 
                     while len(global_vars["jobs"]) > num_parallel_jobs:
                         finish_previous_jobs(["finishing prev jobs"])
 
-                        if break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
+                        if break_run_search("create_and_execute_next_runs", _max_eval, progress_bar):
                             break
 
                         time.sleep(5)
 
-                    if not break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
+                    if not break_run_search("create_and_execute_next_runs", _max_eval, progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
                         execute_evaluation(trial_index, parameters, i, executor, next_nr_steps, phase)
                         i += 1
@@ -3467,36 +3464,36 @@ def get_random_steps_from_prev_job():
         args.continue_previous_job
     )
 
-def get_number_of_steps(max_eval):
+def get_number_of_steps(_max_eval):
     random_steps = args.num_random_steps
 
     already_done_random_steps = get_random_steps_from_prev_job()
 
     random_steps = random_steps - already_done_random_steps
 
-    if random_steps > max_eval:
-        print_yellow(f"You have less --max_eval {max_eval} than --num_random_steps {random_steps}. Switched both.")
-        random_steps, max_eval = max_eval, random_steps
+    if random_steps > _max_eval:
+        print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {random_steps}. Switched both.")
+        random_steps, max_eval = _max_eval, random_steps
 
     if random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
         old_random_steps = random_steps
         random_steps = num_parallel_jobs
         original_print(f"random_steps {old_random_steps} is smaller than num_parallel_jobs {num_parallel_jobs}. --num_random_steps will be ignored and set to num_parallel_jobs ({num_parallel_jobs}) to not have idle workers in the beginning.")
 
-    if random_steps > max_eval:
+    if random_steps > _max_eval:
         set_max_eval(random_steps)
 
-    original_second_steps = max_eval - random_steps
+    original_second_steps = _max_eval - random_steps
     second_step_steps = max(0, original_second_steps)
     if second_step_steps != original_second_steps:
-        original_print(f"? original_second_steps: {original_second_steps} = max_eval {max_eval} - random_steps {random_steps}")
+        original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - random_steps {random_steps}")
     if second_step_steps == 0:
         print_red("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
     second_step_steps = second_step_steps - already_done_random_steps
 
     if args.continue_previous_job:
-        second_step_steps = max_eval
+        second_step_steps = _max_eval
 
     return random_steps, second_step_steps
 
@@ -3720,25 +3717,25 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
-def break_run_search (_name, max_eval, progress_bar):
-    if succeeded_jobs() > max_eval:
-        print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {max_eval}")
+def break_run_search (_name, _max_eval, progress_bar):
+    if succeeded_jobs() > _max_eval:
+        print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
         return True
 
     if progress_bar.total < submitted_jobs():
         print_debug(f"breaking {_name}: progress_bar.total {progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
         return True
 
-    if count_done_jobs() >= max_eval:
-        print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {max_eval}")
+    if count_done_jobs() >= _max_eval:
+        print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}")
         return True
 
-    if submitted_jobs() > max_eval:
-        print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {max_eval}")
+    if submitted_jobs() > _max_eval:
+        print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}")
         return True
 
-    if abs(count_done_jobs() - max_eval - NR_INSERTED_JOBS) <= 0:
-        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {max_eval} - NR_INSERTED_JOBS {nr_inserted_jobs}) <= 0")
+    if abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
+        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {nr_inserted_jobs}) <= 0")
         return True
 
     return False

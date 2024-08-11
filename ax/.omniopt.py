@@ -23,6 +23,8 @@ except ModuleNotFoundError as e:
     sys.exit(31)
 
 def my_exit(_code=0):
+    tb = traceback.format_exc()
+
     print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
 
     time.sleep(5)

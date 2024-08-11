@@ -1787,7 +1787,6 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     global ax_client
     global console
-    global SHOWN_END_TABLE
     global args
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars
@@ -3081,7 +3080,6 @@ def _sleep(t):
         time.sleep(t)
 
 def save_state_files():
-    global CURRENT_RUN_FOLDER
     global global_vars
 
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
@@ -3115,7 +3113,7 @@ def save_state_files():
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def execute_evaluation(ax_client, trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
+def execute_evaluation(trial_index, parameters, trial_counter, executor, next_nr_steps, phase):
     global global_vars
     global progress_bar
     global IS_IN_EVALUATE
@@ -3424,7 +3422,7 @@ def create_and_execute_next_runs(ax_client, next_nr_steps, executor, phase, max_
 
                     if not break_run_search("create_and_execute_next_runs", max_eval, progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                        execute_evaluation(ax_client, trial_index, parameters, i, executor, next_nr_steps, phase)
+                        execute_evaluation(trial_index, parameters, i, executor, next_nr_steps, phase)
                         i += 1
                     else:
                         break
@@ -3748,7 +3746,7 @@ def break_run_search (_name, max_eval, progress_bar):
 
     return False
 
-def run_search(executor, ax_client, progress_bar):
+def run_search(executor, progress_bar):
     global NR_OF_0_RESULTS
 
     NR_OF_0_RESULTS = 0
@@ -4023,7 +4021,7 @@ def main():
 
         update_progress_bar(progress_bar, count_done_jobs())
 
-        run_search(executor, ax_client, progress_bar)
+        run_search(executor, progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 

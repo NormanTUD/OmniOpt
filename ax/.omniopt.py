@@ -3816,8 +3816,6 @@ def run_search(executor, ax_client, progress_bar):
     return False
 
 def wait_for_jobs_to_complete (num_parallel_jobs):
-    global global_vars
-
     if system_has_sbatch:
         while len(global_vars["jobs"]) > num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
@@ -4579,7 +4577,11 @@ if __name__ == "__main__":
                 _get_perc = abs(int(((count_done_jobs() - nr_inserted_jobs) / max_eval) * 100))
 
                 if _get_perc < 100:
-                    print_red(f"\nIt seems like the search space was exhausted. You were able to get {_get_perc}% of the jobs you requested (got: {count_done_jobs() - nr_inserted_jobs}, requested: {max_eval}) after main ran")
+                    print_red(f"\nIt seems like the search space was exhausted. "
+                        f"You were able to get {_get_perc}% of the jobs you requested "
+                        f"(got: {count_done_jobs() - nr_inserted_jobs}, "
+                        f"requested: {max_eval}) after main ran"
+                    )
 
                 if _get_perc != 100:
                     end_program(result_csv_file, "result", 1, 87)

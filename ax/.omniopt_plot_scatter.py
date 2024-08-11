@@ -222,7 +222,8 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def plot_multiple_graphs(non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows):
+def plot_multiple_graphs(_params):
+    non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
     print_debug("plot_multiple_graphs")
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
@@ -266,7 +267,8 @@ def show_legend(_scatter, axs):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_single_graph (axs, df_filtered, colors, cmap, norm, non_empty_graphs):
+def plot_single_graph (_params):
+    axs, df_filtered, colors, cmap, norm, non_empty_graphs = _params
     print_debug("plot_single_graph()")
     _data = df_filtered
 
@@ -310,9 +312,9 @@ def plot_graphs(params):
     cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
     if num_subplots == 1 and (type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1):
-        plot_single_graph(axs, df_filtered, colors, cmap, norm, non_empty_graphs)
+        plot_single_graph([axs, df_filtered, colors, cmap, norm, non_empty_graphs])
     else:
-        plot_multiple_graphs(non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows)
+        plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows])
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 

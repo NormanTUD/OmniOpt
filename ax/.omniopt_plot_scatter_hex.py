@@ -227,7 +227,8 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-def plot_multiple_graphs(non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values):
+def plot_multiple_graphs(_params):
+    non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values = _params
     print_debug("plot_multiple_graphs")
     global bins
     for i, (param1, param2) in enumerate(non_empty_graphs):
@@ -288,7 +289,8 @@ def show_legend(_scatter, axs, result_column):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_single_graph (axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values):
+def plot_single_graph (_params):
+    axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values = _params
     print_debug("plot_single_graph()")
     _data = df_filtered
 
@@ -311,7 +313,8 @@ def plot_single_graph (axs, df_filtered, cmap, norm, result_column, non_empty_gr
 
     return scatter
 
-def plot_graphs(df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values):
+def plot_graphs(_params):
+    df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
     print_debug("plot_graphs")
     colors = get_colors(df, result_column)
 
@@ -333,9 +336,9 @@ def plot_graphs(df, axs, df_filtered, result_column, non_empty_graphs, num_subpl
     cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
     if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
-        plot_single_graph(axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values)
+        plot_single_graph([axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values])
     else:
-        plot_multiple_graphs(non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values)
+        plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values])
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
@@ -518,7 +521,7 @@ def main():
 
     result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-    plot_graphs(df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
+    plot_graphs([df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
     if not args.no_legend:
         set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
@@ -598,7 +601,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-        plot_graphs(df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values)
+        plot_graphs([df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
         set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 

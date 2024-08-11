@@ -64,7 +64,12 @@ console = None
 
 try:
     from rich.console import Console
-    console = Console(force_terminal=True, force_interactive=True, soft_wrap=True, color_system="256")
+    console = Console(
+        force_terminal=True,
+        force_interactive=True,
+        soft_wrap=True,
+        color_system="256"
+    )
 
     with console.status("[bold green]Loading psutil...") as status:
         import psutil

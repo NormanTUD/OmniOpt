@@ -2667,13 +2667,13 @@ def load_data_from_existing_run_folders(_paths):
     global missing_results
 
     #helpers.dier(help(ax_client.experiment.search_space))
-    with console.status("[bold green]Loading existing jobs into ax_client...") as status:
+    with console.status("[bold green]Loading existing jobs into ax_client...") as _status:
         path_idx = 0
         for this_path in _paths:
             if len(_paths) > 1:
-                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}{get_list_import_as_string(False, True)})...")
+                _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}{get_list_import_as_string(False, True)})...")
             else:
-                status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client{get_list_import_as_string()}...")
+                _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client{get_list_import_as_string()}...")
 
             this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
@@ -2688,9 +2688,9 @@ def load_data_from_existing_run_folders(_paths):
             trial_idx = 0
             for old_trial_index in old_trials:
                 if len(_paths) > 1:
-                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
+                    _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
                 else:
-                    status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
+                    _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
 
                 trial_idx += 1
 
@@ -3266,13 +3266,11 @@ def _get_next_trials():
 
     return trial_index_to_param
 
-def get_next_nr_steps(num_parallel_jobs, max_eval):
+def get_next_nr_steps(_num_parallel_jobs, max_eval):
     if not SYSTEM_HAS_SBATCH:
         return 1
 
-    #return num_parallel_jobs
-
-    requested = min(num_parallel_jobs - len(global_vars["jobs"]), max_eval - submitted_jobs())
+    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), max_eval - submitted_jobs())
 
     return requested
 
@@ -3288,7 +3286,7 @@ def get_nr_of_imported_jobs():
 
     return nr_jobs
 
-def get_generation_strategy(num_parallel_jobs, seed, max_eval):
+def get_generation_strategy(_num_parallel_jobs, seed, max_eval):
     global random_steps
 
     _steps = []
@@ -3316,9 +3314,9 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
-                num_trials=max(num_parallel_jobs, random_steps),
+                num_trials=max(_num_parallel_jobs, random_steps),
                 min_trials_observed=min(max_eval, random_steps),
-                max_parallelism=num_parallel_jobs,  # Max parallelism for this step
+                max_parallelism=_num_parallel_jobs,  # Max parallelism for this step
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
                 model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
@@ -3347,7 +3345,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     #print(f"    GenerationStep(")
     #print(f"        model={chosen_non_random_model},")
     #print(f"        num_trials=-1,  # No limitation on how many trials should be produced from this step")
-    #print(f"        max_parallelism={num_parallel_jobs} * 2,  # Max parallelism for this step")
+    #print(f"        max_parallelism={_num_parallel_jobs} * 2,  # Max parallelism for this step")
     #print(f"        #model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
     #print(f"        #enforce_num_trials=True,")
     #print(f"        model_gen_kwargs='enforce_num_arms': True,  # Any kwargs you want passed to `modelbridge.gen`")
@@ -3368,7 +3366,7 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
         GenerationStep(
             model=chosen_non_random_model,
             num_trials=_nr_trials,  # No limitation on how many trials should be produced from this step
-            max_parallelism=num_parallel_jobs * 2,  # Max parallelism for this step
+            max_parallelism=_num_parallel_jobs * 2,  # Max parallelism for this step
             #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
             #enforce_num_trials=True,
             model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
@@ -3797,9 +3795,9 @@ def run_search(executor, _progress_bar):
     log_what_needs_to_be_logged()
     return False
 
-def wait_for_jobs_to_complete (num_parallel_jobs):
+def wait_for_jobs_to_complete (_num_parallel_jobs):
     if SYSTEM_HAS_SBATCH:
-        while len(global_vars["jobs"]) > num_parallel_jobs:
+        while len(global_vars["jobs"]) > _num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             time.sleep(5)
             clean_completed_jobs()

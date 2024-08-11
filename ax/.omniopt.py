@@ -421,8 +421,6 @@ def print_yellow(text):
 
 
 def add_to_phase_counter(phase, nr=0, run_folder=""):
-    global current_run_folder
-
     if run_folder == "":
         run_folder = current_run_folder
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)

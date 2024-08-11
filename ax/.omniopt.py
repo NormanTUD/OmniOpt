@@ -3006,7 +3006,7 @@ def get_desc_progress_text(new_msgs=[]):
         best_params = get_best_params(RESULT_CSV_FILE, "result")
         if best_params and "result" in best_params:
             best_result = best_params["result"]
-            if isinstance(best_result, float) or isinstance(best_result, int) or helpers.looks_like_float(best_result):
+            if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
                 best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
@@ -3201,7 +3201,7 @@ def get_current_model ():
 
     return "initializing"
 
-def _get_next_trials(ax_client):
+def _get_next_trials():
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -3394,7 +3394,7 @@ def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, _pro
         print_debug("trying to get trial_index_to_param")
 
         try:
-            trial_index_to_param = _get_next_trials(ax_client)
+            trial_index_to_param = _get_next_trials()
 
             if trial_index_to_param:
                 i = 1

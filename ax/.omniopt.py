@@ -52,7 +52,7 @@ SUPPORTED_MODELS = [
     "BO_MIXED"
 ]
 
-nr_of_0_results = 0
+NR_OF_0_RESULTS = 0
 original_print = print
 
 double_hashes = []
@@ -2636,7 +2636,9 @@ def simulate_load_data_from_existing_run_folders(_paths):
                     print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
                     old_result_simple = float(tmp_old_res_list[0])
                 else:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+                    print_debug(
+                        f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs."
+                    )
                     old_result_simple = None
             except Exception:
                 pass
@@ -2729,7 +2731,8 @@ def load_data_from_existing_run_folders(_paths):
                 except Exception:
                     pass
 
-                hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
+                hashed_params_result = pformat(old_arm_parameter) + 
+                    "====" + pformat(old_result_simple)
 
                 if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                     if hashed_params_result not in already_inserted_param_hashes.keys():
@@ -3753,11 +3756,11 @@ def break_run_search (_name, max_eval, progress_bar):
 
 def run_search(executor, ax_client, progress_bar):
     global search_space_exhausted
-    global nr_of_0_results
+    global NR_OF_0_RESULTS
 
     log_what_needs_to_be_logged()
 
-    nr_of_0_results = 0
+    NR_OF_0_RESULTS = 0
     write_process_info()
 
     while (submitted_jobs() <= max_eval) and not search_space_exhausted:
@@ -3787,15 +3790,15 @@ def run_search(executor, ax_client, progress_bar):
         _sleep(1)
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
-            _wrn = f"found {nr_of_0_results} zero-jobs (max: {args.max_nr_of_zero_results})"
-            nr_of_0_results += 1
+            _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
+            NR_OF_0_RESULTS += 1
             progressbar_description([_wrn])
             print_debug(_wrn)
         else:
-            nr_of_0_results = 0
+            NR_OF_0_RESULTS = 0
 
-        if not args.disable_search_space_exhaustion_detection and nr_of_0_results >= args.max_nr_of_zero_results:
-            _wrn = f"nr_of_0_results {nr_of_0_results} >= {args.max_nr_of_zero_results}"
+        if not args.disable_search_space_exhaustion_detection and NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
+            _wrn = f"NR_OF_0_RESULTS {NR_OF_0_RESULTS} >= {args.max_nr_of_zero_results}"
 
             print_debug(_wrn)
             progressbar_description([_wrn])

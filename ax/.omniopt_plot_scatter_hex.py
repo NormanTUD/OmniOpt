@@ -393,7 +393,7 @@ def get_csv_file_path():
 
     return csv_file_path
 
-def get_df_filtered(args, df):
+def get_df_filtered(df):
     print_debug("get_df_filtered")
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
@@ -500,7 +500,7 @@ def main():
                 df = df.merge(prev_run_df, how='outer')
 
     nr_of_items_before_filtering = len(df)
-    df_filtered = get_df_filtered(args, df)
+    df_filtered = get_df_filtered(df)
 
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
@@ -578,7 +578,7 @@ def update_graph(event=None, _min=None, _max=None):
                     df = df.merge(prev_run_df, how='outer')
 
         nr_of_items_before_filtering = len(df)
-        df_filtered = get_df_filtered(args, df)
+        df_filtered = get_df_filtered(df)
 
         check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 

@@ -309,7 +309,7 @@ def write_process_info():
             print_debug(f"Error retrieving process information: {str(e)}")
         last_cpu_mem_time = None
 
-def getLineInfo():
+def get_line_info():
     return(inspect.stack()[1][1],":",inspect.stack()[1][2],":", inspect.stack()[1][3])
 
 #print(f"sys.path: {sys.path}")
@@ -1884,7 +1884,7 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
                 _trial.mark_abandoned()
                 global_vars["jobs"].remove((job, trial_index))
             except Exception as e:
-                print(f"ERROR in line {getLineInfo()}: {e}")
+                print(f"ERROR in line {get_line_info()}: {e}")
             job.cancel()
 
     save_pd_csv()
@@ -2864,7 +2864,7 @@ def finish_previous_jobs(new_msgs):
                         #update_progress_bar(progress_bar, 1)
                         update_progress_bar(progress_bar, 1)
                     except Exception as e:
-                        print(f"ERROR in line {getLineInfo()}: {e}")
+                        print(f"ERROR in line {get_line_info()}: {e}")
                     print_outfile_analyzed(job)
                 else:
                     if job:
@@ -2874,7 +2874,7 @@ def finish_previous_jobs(new_msgs):
                             ax_client.log_trial_failure(trial_index=trial_index)
                             print_outfile_analyzed(job)
                         except Exception as e:
-                            print(f"ERROR in line {getLineInfo()}: {e}")
+                            print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
 
                     failed_jobs(1)
@@ -2890,7 +2890,7 @@ def finish_previous_jobs(new_msgs):
                         _trial.mark_failed()
                         print_outfile_analyzed(job)
                     except Exception as e:
-                        print(f"ERROR in line {getLineInfo()}: {e}")
+                        print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
 
                 failed_jobs(1)
@@ -2907,7 +2907,7 @@ def finish_previous_jobs(new_msgs):
                         _trial.mark_failed()
                         print_outfile_analyzed(job)
                     except Exception as e:
-                        print(f"ERROR in line {getLineInfo()}: {e}")
+                        print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
 
                 failed_jobs(1)
@@ -2926,7 +2926,7 @@ def finish_previous_jobs(new_msgs):
                         ax_client.log_trial_failure(trial_index=trial_index)
                         print_outfile_analyzed(job)
                     except Exception as e:
-                        print(f"ERROR in line {getLineInfo()}: {e}")
+                        print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
 
                 failed_jobs(1)
@@ -3159,7 +3159,7 @@ def execute_evaluation(ax_client, trial_index, parameters, trial_counter, execut
         try:
             _trial.mark_running(no_runner_required=True)
         except Exception:
-            #print(f"ERROR in line {getLineInfo()}: {e}")
+            #print(f"ERROR in line {get_line_info()}: {e}")
             pass
         trial_counter += 1
 
@@ -3176,7 +3176,7 @@ def execute_evaluation(ax_client, trial_index, parameters, trial_counter, execut
                 try:
                     ax_client.log_trial_failure(trial_index=trial_index)
                 except Exception as e:
-                    print(f"ERROR in line {getLineInfo()}: {e}")
+                    print(f"ERROR in line {get_line_info()}: {e}")
                 new_job.cancel()
                 print_debug("Cancelled failed job")
 

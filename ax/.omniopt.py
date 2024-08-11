@@ -2432,11 +2432,6 @@ def update_progress_bar (progress_bar, nr):
     progress_bar.update(nr)
 
 def progressbar_description(new_msgs=[]):
-    global result_csv_file
-    global random_steps
-    global searching_for
-    global progress_bar
-
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)

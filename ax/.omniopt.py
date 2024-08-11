@@ -4146,8 +4146,8 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
     )
 
     nr_errors += is_equal(
-        f"replace_parameters_in_string {_program_name}", 
-        program_string_with_params, 
+        f"replace_parameters_in_string {_program_name}",
+        program_string_with_params,
         f"{program_path_with_program} 1 2 3 45"
     )
 

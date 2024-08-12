@@ -3889,8 +3889,15 @@ def parse_orchestrator_file (_f):
                     print_red(f"{_f} file does not contain key 'errors'")
                     sys.exit(206)
 
+                valid_keys = ['name', 'match_strings', 'behavior']
+
                 for x in data["errors"]:
-                    helpers.dier(x)
+                    if not isinstance(x, dict):
+                        print_red(f"Entry is not of type dict but {type(x)}")
+                        sys.exit(206)
+
+                    if set(x.keys()) != set(valid_keys):
+                        print_red(f"{x.keys()} does not match {valid_keys}")
 
                 helpers.dier(data)
 

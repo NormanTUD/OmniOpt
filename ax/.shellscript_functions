@@ -226,7 +226,7 @@
 						if [[ $k -eq 0 ]]; then
 							green_reset_line "${PROGRESSBAR}➤Installing requirements for $MODULE"
 						fi
-						ppip $i $MODULE $NUMBER_OF_MAIN_MODULES || {
+						ppip "$i" "$MODULE" "$NUMBER_OF_MAIN_MODULES" || {
 							red_reset_line "❌Failed to install $i."
 
 							exit 3

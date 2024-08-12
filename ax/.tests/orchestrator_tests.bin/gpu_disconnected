@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "AssertionError: ``AmpOptimizerWrapper`` is only available training"

@@ -977,10 +977,10 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 
 	set +e
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		python3 $SCRIPT_DIR/.omniopt.py $args_string &
+		python3 "$SCRIPT_DIR/.omniopt.py" "$args_string" &
 	else
 		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string &
+		coverage run -p "$SCRIPT_DIR/.omniopt.py" "$args_string" &
 	fi
 	python_pid=$!
 

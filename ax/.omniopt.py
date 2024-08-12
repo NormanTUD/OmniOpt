@@ -3899,7 +3899,7 @@ def parse_orchestrator_file (_f):
                     if set(x.keys()) != set(valid_keys):
                         print_red(f"{x.keys()} does not match {valid_keys}")
 
-                helpers.dier(data)
+                #helpers.dier(data)
 
                 return data
             except Exception as e:

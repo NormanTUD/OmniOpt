@@ -1092,7 +1092,7 @@ else
 						squeue_exit_code=$?
 
 						if [[ $squeue_exit_code -eq "0" ]]; then
-							job_still_in_squeue=$(echo "$squeue_me_output" | grep "$started_job_nr" | wc -l)
+							job_still_in_squeue=$(echo "$squeue_me_output" | grep -c "$started_job_nr")
 
 							if [[ "$job_still_in_squeue" -eq "0" ]]; then
 								red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
@@ -1164,7 +1164,7 @@ else
 
 				echo ""
 
-				while [[ "$(squeue --me | grep "$started_job_nr" | wc -l)" -ne "0" ]]; do
+				while [[ "$(squeue --me | grep -c "$started_job_nr")" -ne "0" ]]; do
 					sleep $WAIT_NUM_SECONDS
 				done
 

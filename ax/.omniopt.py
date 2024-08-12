@@ -1625,7 +1625,7 @@ def print_best_result(csv_file_path, result_column):
         total_str = f"total: {count_done_jobs() - NR_INSERTED_JOBS}"
 
         if NR_INSERTED_JOBS:
-            total_str += f" + NR_INSERTED_JOBS: {NR_INSERTED_JOBS}"
+            total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
 
         failed_error_str = ""
         if failed_jobs() >= 1:

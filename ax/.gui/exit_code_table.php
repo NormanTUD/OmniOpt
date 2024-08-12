@@ -35,6 +35,7 @@
 				193 => "Error in printing logs. You may be on a read only file system.",
 				199 => "This happens on unstable file systems when trying to write a file.",
 				203 => "Unsupported --model.",
+				206 => "Invalid orchestrator file.",
 				233 => "No random steps set.",
 				243 => "Job was not found in squeue anymore, it may got cancelled before it ran."
 			]);

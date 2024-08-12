@@ -374,7 +374,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			args_string+=" --continue $continue_previous_job "
 
-			continue_previous_job=$continue_previous_job
 			continue_was_set=1
 
 			;;
@@ -393,7 +392,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			args_string+=" --continue $continue_previous_job "
 
-			continue_previous_job=$continue_previous_job
 			continue_was_set=1
 
 			;;
@@ -477,7 +475,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			args_string+=" --continue $continue_previous_job "
 
-			continue_previous_job=$continue_previous_job
 			continue_was_set=1
 
 			;;
@@ -497,7 +494,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			args_string+=" --continue $continue_previous_job "
 
-			continue_previous_job=$continue_previous_job
 			continue_was_set=1
 
 			;;

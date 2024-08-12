@@ -2954,7 +2954,7 @@ def check_orchestrator (stdout_path):
             behavior = oc["behavior"]
 
             for match_string in match_strings:
-                if match_string in stdout:
+                if match_string.lower() in stdout.lower():
                     behavs.append(behavior)
                 else:
                     print(f"Unmatched {name} with pattern '{match_string}'")

@@ -153,7 +153,7 @@ EXPECTED_TO_FAIL=1
 	--auto_exclude_defective_hosts \
 	--hide_ascii_plots \
 	--orchestrator_file .tests/example_orchestrator_config.yaml \
-	-seed 1234 \
+	--seed 1234 \
 	--follow
 
 exit $?

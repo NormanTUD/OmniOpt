@@ -168,7 +168,6 @@
 
 	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
 
-	UPGRADED_PIP=0
 	NUMBER_OF_INSTALLED_MODULES=0
 	PROGRESSBAR=""
 
@@ -219,11 +218,6 @@
 		_exit_code=$?
 
 		if [[ "$_exit_code" != "0" ]]; then
-			#if [[ "$UPGRADED_PIP" -eq "0" ]]; then
-			#	pip install --upgrade pip
-			#	UPGRADED_PIP=1
-			#fi
-
 			if [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]] && [[ "$AS_REQUIREMENT_OF" != "-" ]]; then
 				k=0
 

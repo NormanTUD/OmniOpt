@@ -470,7 +470,7 @@ optional.add_argument('--main_process_gb', help='Amount of RAM for the main proc
 optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
 optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
-optional.add_argument('--orchestrator_file', help='An orchestrator file.', default=None, type=str)
+optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
 
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)
@@ -3876,6 +3876,14 @@ def human_readable_generation_strategy ():
         return content
 
     return None
+
+def parse_orchestrator_file (_f):
+    if os.path.exists(_f):
+        with open(_f, 'r') as file:
+            data = yaml.safe_load(file)
+            helpers.dier(data)
+    else:
+        print_red(f"{_f} could not be found")
 
 def main():
     print_debug("main()")

@@ -280,14 +280,14 @@
 		MAX_NR="${#install_those[@]}"
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
-		PROGRESSBAR=$(generate_progress_bar $MAX_NR)
+		PROGRESSBAR=$(generate_progress_bar "$MAX_NR")
 
 		if [[ "$MAX_NR" -ne "$NUMBER_OF_INSTALLED_MODULES" ]]; then
 			for key in "${!install_those[@]}"; do
 				install_this=${install_those[$key]}
-				PROGRESSBAR=$(generate_progress_bar $MAX_NR)
+				PROGRESSBAR=$(generate_progress_bar "$MAX_NR")
 				green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
-				ppip $install_this "-" $MAX_NR
+				ppip "$install_this" "-" "$MAX_NR"
 			done
 
 			_tput cr
@@ -316,7 +316,7 @@
 			fi
 
 			green_reset_line "${PROGRESSBAR}➤Environment $VENV_DIR was not found. Creating it..."
-			python3 -mvenv $VENV_DIR/ || {
+			python3 -mvenv "$VENV_DIR/" || {
 				red_text "❌Failed to create Virtual Environment in $VENV_DIR"
 				exit 1
 			}
@@ -324,7 +324,7 @@
 			green_reset_line "✅Virtual Environment $VENV_DIR created. Activating it..."
 
 			if [[ -e "$VENV_DIR/bin/activate" ]]; then
-				source $VENV_DIR/bin/activate || {
+				source "$VENV_DIR/bin/activate" || {
 					red_text "❌Failed to activate $VENV_DIR"
 					exit 2
 				}
@@ -339,17 +339,17 @@
 	fi
 
 	if [[ -e "$VENV_DIR/bin/activate" ]]; then
-		source $VENV_DIR/bin/activate || {
+		source "$VENV_DIR/bin/activate" || {
 			red_reset_line "❌Failed to activate $VENV_DIR. Deleting venv and creating it again..."
-			rm -rf $VENV_DIR
+			rm -rf "$VENV_DIR"
 
-			python3 -mvenv $VENV_DIR/ || {
+			python3 -mvenv "$VENV_DIR/" || {
 				red_text "❌Failed to create Virtual Environment in $VENV_DIR"
-				rm -rf $VENV_DIR
+				rm -rf "$VENV_DIR"
 				exit 1
 			}
 
-			source $VENV_DIR/bin/activate || {
+			source "$VENV_DIR/bin/activate" || {
 				red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
 				exit 1
 			}
@@ -358,22 +358,22 @@
 		}
 	else
 		red_reset_line "❌Failed to activate $VENV_DIR. Deleting venv and creating it again..."
-		rm -rf $VENV_DIR
+		rm -rf "$VENV_DIR"
 
-		python3 -mvenv $VENV_DIR/ || {
+		python3 -mvenv "$VENV_DIR/" || {
 			red_text "❌Failed to create Virtual Environment in $VENV_DIR"
 			exit 1
 		}
 
 		if [[ -e "$VENV_DIR/bin/activate" ]]; then
-			source $VENV_DIR/bin/activate || {
+			source "$VENV_DIR/bin/activate" || {
 				red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
-				rm -rf $VENV_DIR
+				rm -rf "$VENV_DIR"
 				exit 1
 			}
 		else
 			red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
-			rm -rf $VENV_DIR
+			rm -rf "$VENV_DIR"
 			exit 1
 		fi
 

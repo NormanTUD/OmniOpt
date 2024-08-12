@@ -41,7 +41,7 @@ function _tput {
 		return 0
 	fi
 
-	tput $CHAR
+	tput "$CHAR"
 	set +e
 }
 
@@ -89,7 +89,7 @@ function myexit {
 	if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
 		send_status_report -1
 	else
-		send_status_report $CODE
+		send_status_report "$CODE"
 	fi
 
 	exit $CODE
@@ -102,7 +102,7 @@ function send_status_report {
 		BASEURL="https://imageseg.scads.de/omniax"
 
 		if [[ -e "$HOME/.oo_base_url" ]]; then
-			BASEURL=$(cat $HOME/.oo_base_url)
+			BASEURL=$(cat "$HOME/.oo_base_url")
 			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
 		fi
 
@@ -128,8 +128,8 @@ function send_status_report {
 				yellow_text "Curling $url"
 			fi
 
-			mkdir -p $ORIGINAL_PWD/.logs
-			echo "Curling $url" >> $ORIGINAL_PWD/.logs/user_stat_curls
+			mkdir -p "$ORIGINAL_PWD/.logs"
+			echo "Curling $url" >> "$ORIGINAL_PWD/.logs/user_stat_curls"
 		else
 			yellow_text "Cannot find /etc/machine-id. Not sending anonymized usage statistics."
 		fi
@@ -276,7 +276,7 @@ function calltracer {
 already_sent_signal=
 
 kill_python_if_started () {
-	REASON=$1
+	REASON="$1"
 	echo "kill_python_if_started $REASON"
 	re='^[0-9]+$'
 	if [[ -n "$SLURM_JOB_ID" ]]; then
@@ -313,7 +313,7 @@ for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*\s*)##g'); do
 		[[ "$i" != "INT" ]] &&
 		[[ "$i" != "SIGINT" ]];
 	then
-		trap "kill_python_if_started $i" $i
+		trap 'kill_python_if_started $i' $i
 	fi
 done
 

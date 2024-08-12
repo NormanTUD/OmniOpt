@@ -2821,7 +2821,7 @@ def print_outfile_analyzed(stdout_path):
 
 def get_hostname_from_outfile(stdout_path):
     try:
-        with open(stdout_path, 'r') as file:
+        with open(stdout_path, mode='r', encoding="utf-8") as file:
             for line in file:
                 if line.lower().startswith("hostname: "):
                     # Extrahiere den Hostnamen, indem du den Text nach "Hostname: " nimmst
@@ -3944,7 +3944,7 @@ def human_readable_generation_strategy ():
 
 def parse_orchestrator_file (_f):
     if os.path.exists(_f):
-        with open(_f, 'r') as file:
+        with open(_f, mode='r', encoding="utf-8") as file:
             try:
                 data = yaml.safe_load(file)
 

@@ -2932,8 +2932,8 @@ def finish_previous_jobs(new_msgs):
         print_outfile_analyzed(stdout_path)
         behavs = check_orchestrator(stdout_path)
 
-        if len(behavs)
-        print(behavs)
+        if len(behavs):
+            print(behavs)
 
     if jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {jobs_finished} job"])

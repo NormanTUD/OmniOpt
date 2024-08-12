@@ -1066,7 +1066,7 @@ else
 
 					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_whypending -gt 10 ]]; then
 						trap - ERR
-						estimated_start_time_original=$(timeout 5 whypending $started_job_nr 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
+						estimated_start_time_original=$(timeout 5 whypending "$started_job_nr" 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
 						trap 'calltracer' ERR
 
 						current_time=$(date +%s)

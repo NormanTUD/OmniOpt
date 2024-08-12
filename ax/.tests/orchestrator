@@ -1,0 +1,162 @@
+#!/bin/bash
+
+export OO_MAIN_TESTS=1
+EXPECTED_TO_FAIL=0
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd test_wronggoing_stuff.bin
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+set -e
+set -o pipefail
+
+function calltracer () {
+	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
+		yellow_text "Git status hash:"
+		git rev-parse HEAD
+		red_text 'Error occured in file/line:'
+		caller
+	fi
+}
+
+trap 'calltracer' ERR
+
+function help () {
+        echo "Possible options:"
+	echo "  --num_random_steps=(INT)                           Number of random steps"
+        echo "  --nosuccess                                        Don't run successful tests"
+	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
+        echo "  --help                                             this help"
+        echo "  --debug                                            Enables debug mode (set -x)"
+        exit $1
+}
+
+NUM_GPUS=0
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
+fi
+
+if [[ "$NUM_GPUS" -ne "0" ]]; then
+	NUM_GPUS=1
+fi
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+export num_random_steps=20
+export nosuccess=0
+
+for i in $@; do
+        case $i in
+		--num_random_steps=*)
+			num_random_steps="${i#*=}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--num_random_steps)
+			shift
+			k=$((k+1))
+
+			num_random_steps="${args[k]}"
+			if ! [[ $num_random_steps =~ $int_re ]] ; then
+				red_text "error: --num_random_steps not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--nosuccess)
+			nosuccess=1
+			shift
+			;;
+		-h|--help)
+			help 0
+			;;
+		--debug)
+			set -x
+			;;
+		--gpus=*)
+			NUM_GPUS="${i#*=}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--gpus)
+			shift
+			k=$((k+1))
+
+			NUM_GPUS="${args[k]}"
+			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
+				red_text "error: --gpus not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+                *)
+                        red_text "Unknown parameter $i" >&2
+                        help 1
+                        ;;
+        esac
+done
+
+which_programs=(
+	"divide_by_0"
+)
+
+if [[ "$nosuccess" -eq "0" ]]; then
+	which_programs+=("simple_ok")
+	which_programs+=("storage_error")
+	which_programs+=("timeout_failure")
+	which_programs+=("gpu_disconnected")
+fi
+
+which_programs_string=$(join_by , "${which_programs[@]}")
+
+PARTITION="alpha"
+
+NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
+
+cd ..
+cd ..
+# run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
+EXPECTED_TO_FAIL=1
+./omniopt \
+	--partition=alpha \
+	--experiment_name=test_orchestrator \
+	--mem_gb=5 \
+	--time=60 \
+	--worker_timeout=5 \
+	--max_eval=4 \
+	--num_parallel_jobs=20 \
+	--gpus=0 \
+	--run_program=$(echo -n "./.tests/orchestrator_tests.bin/%(name)" | base64 -w 0) \
+	--parameter name choice $which_programs_string \
+	--num_random_steps=1 \
+	--model=BOTORCH_MODULAR \
+	--auto_exclude_defective_hosts \
+	--hide_ascii_plots \
+	--orchestrator_file .tests/example_orchestrator_config.yaml \
+	--follow
+
+exit $?

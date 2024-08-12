@@ -2989,7 +2989,7 @@ def check_orchestrator (stdout_path):
     behavs = []
 
     if orchestrator and "errors" in orchestrator:
-        stdout = Path(stdout_path).read_text()
+        stdout = Path(stdout_path).read_text("UTF-8")
 
         for oc in orchestrator["errors"]:
             #name = oc["name"]

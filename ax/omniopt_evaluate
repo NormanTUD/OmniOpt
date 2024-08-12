@@ -355,14 +355,14 @@ close $fh;
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+						bash $SCRIPT_DIR/omniopt_plot --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --max $maxvalue
+						bash $SCRIPT_DIR/omniopt_plot --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --max "$maxvalue"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -371,14 +371,14 @@ close $fh;
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue
+						bash $SCRIPT_DIR/omniopt_plot --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/ --min $minvalue --max $maxvalue
+						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue" --max "$maxvalue"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -755,7 +755,7 @@ if [[ $sourced == "0" ]]; then
 		    CURRENTHASH=$(git rev-parse HEAD)
 
 		    REMOTEURL=$(git config --get remote.origin.url)
-		    REMOTEHASH=$(git ls-remote $REMOTEURL HEAD | awk '{ print $1}')
+		    REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
 
 		    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
 			debug_code "Software seems up-to-date ($CURRENTHASH)"

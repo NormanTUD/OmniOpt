@@ -3906,6 +3906,19 @@ def parse_orchestrator_file (_f):
                         print_red(f"behavior-entry {x['behavior']} is not in valid_behaviours: {', '.join(valid_behaviours)}")
                         sys.exit(206)
 
+                    if not isinstance(x["name"], str):
+                        print_red(f"name-entry is not string but {type(x['name'])}")
+                        sys.exit(206)
+
+                    if not isinstance(x["match_strings"], list):
+                        print_red(f"name-entry is not list but {type(x['match_strings'])}")
+                        sys.exit(206)
+
+                    for y in x["match_strings"]:
+                        if not isinstance(y, str):
+                            print_red("x['match_strings'] is not a string but {type(x['match_strings'])}")
+                            sys.exit(206)
+
                 #helpers.dier(data)
 
                 return data
@@ -4017,10 +4030,12 @@ def main():
     ])
 
     if args.orchestrator_file:
-        if SYSTEM_HAS_SBATCH:
-            orchestrator = parse_orchestrator_file(args.orchestrator_file)
-        else:
-            print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
+        orchestrator = parse_orchestrator_file(args.orchestrator_file)
+        print(orchestrator)
+        #if SYSTEM_HAS_SBATCH:
+        #    orchestrator = parse_orchestrator_file(args.orchestrator_file)
+        #else:
+        #    print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
     gs_hr = human_readable_generation_strategy()
     if gs_hr:

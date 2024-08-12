@@ -2819,6 +2819,23 @@ def print_outfile_analyzed(stdout_path):
 
         print_red(out_files_string)
 
+def get_hostname_from_outfile(stdout_path):
+    try:
+        with open(stdout_path, 'r') as file:
+            for line in file:
+                if line.lower().startswith("hostname: "):
+                    # Extrahiere den Hostnamen, indem du den Text nach "Hostname: " nimmst
+                    hostname = line.split(":", 1)[1].strip()
+                    return hostname
+        # Wenn keine passende Zeile gefunden wurde, gib None zurück
+        return None
+    except FileNotFoundError:
+        print(f"Die Datei {stdout_path} wurde nicht gefunden.")
+        return None
+    except Exception as e:
+        print(f"Es gab einen Fehler: {e}")
+        return None
+
 def finish_previous_jobs(new_msgs):
     print_debug(f"finish_previous_jobs({new_msgs})")
 
@@ -2932,16 +2949,19 @@ def finish_previous_jobs(new_msgs):
         print_outfile_analyzed(stdout_path)
         behavs = check_orchestrator(stdout_path)
 
+        hostname_from_out_file = get_hostname_from_outfile(stdout_path)
+
         if len(behavs):
             for b in behavs:
                 if b == "ExcludeNode":
-                    print_red("ExcludeNode not yet implemented")
-                elif b == "ExcludeNode":
-                    print_red("ExcludeNode not yet implemented")
-                elif b == "ExcludeNode":
-                    print_red("ExcludeNode not yet implemented")
+                    print_red(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+                    count_defective_nodes(None, hostname_from_out_file)
+                elif b == "RestartOnDifferentNode":
+                    print_red("RestartOnDifferentNode not yet implemented")
+                elif b == "ExcludeNodeAndRestartAll":
+                    print_red("ExcludeNodeAndRestartAll not yet implemented")
                 else:
-                    print_red(f"{b} not yet implemented!")
+                    print_red(f"Orchestrator: {b} not yet implemented!")
                     sys.exit(210)
 
     if jobs_finished == 1:

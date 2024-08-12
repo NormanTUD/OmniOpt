@@ -3886,8 +3886,11 @@ def parse_orchestrator_file (_f):
                 data = yaml.safe_load(file)
 
                 if not "errors" in data:
-                    helpers.dier(f"{_f} file does not contain key 'errors'")
+                    print_red(f"{_f} file does not contain key 'errors'")
                     sys.exit(206)
+
+                for x in data["errors"]:
+                    helpers.dier(x)
 
                 helpers.dier(data)
 

@@ -2959,7 +2959,8 @@ def finish_previous_jobs(new_msgs):
                 elif b == "RestartOnDifferentNode":
                     print_red("RestartOnDifferentNode not yet implemented")
                 elif b == "ExcludeNodeAndRestartAll":
-                    print_red("ExcludeNodeAndRestartAll not yet implemented")
+                    print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavaible hosts")
+                    count_defective_nodes(None, hostname_from_out_file)
                 else:
                     print_red(f"Orchestrator: {b} not yet implemented!")
                     sys.exit(210)

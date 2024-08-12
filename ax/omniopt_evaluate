@@ -259,7 +259,7 @@ close $fh;
 
 	if [[ $exitstatus == 0 ]]; then
 		if [[ "$WHATTODO" =~ "b)" ]]; then
-			num_of_subfolder_numbers=$(ls $PROJECTDIR/$PROJECT | wc -l)
+			num_of_subfolder_numbers=$(ls "$PROJECTDIR/$PROJECT" | wc -l)
 
 			if [[ $num_of_subfolder_numbers -eq 0 ]]; then
 				echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
@@ -621,19 +621,19 @@ function change_project_dir {
 function chose_project_number {
 	PROJECT=$1
 
-	num_of_subfolder_numbers=$(ls $PROJECTDIR/$PROJECT | wc -l)
+	num_of_subfolder_numbers=$(ls "$PROJECTDIR/$PROJECT" | wc -l)
 
 	if [[ $num_of_subfolder_numbers -eq 0 ]]; then
 		echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
 		list_projects
 	elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
-		CHOSEN=$(ls $PROJECTDIR/$PROJECT | head -n1)
+		CHOSEN=$(ls "$PROJECTDIR/$PROJECT" | head -n1)
 
 		list_option_for_job "$WHATTODO" "$CHOSEN"
 	else 
 		OLD_IFS=$IFS
 		unset IFS
-		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e "while (<>) { chomp; print qq#\$_ \$_\n#; }" |  sort -nr)
+		available_numbers=$(ls "$PROJECTDIR/$PROJECT" | perl -e "while (<>) { chomp; print qq#\$_ \$_\n#; }" |  sort -nr)
 
 		eval "$(resize)"
 

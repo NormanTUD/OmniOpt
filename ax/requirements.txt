@@ -24,3 +24,4 @@ rich-argparse
 coverage
 deadcode
 pyflakes
+shellcheck-py

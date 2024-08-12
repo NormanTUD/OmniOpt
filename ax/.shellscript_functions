@@ -33,6 +33,7 @@
 		coverage
 		deadcode
 		pyflakes
+		shellcheck-py
 	)
 
 	FROZEN=""

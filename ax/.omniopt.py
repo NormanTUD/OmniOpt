@@ -54,6 +54,7 @@ SUPPORTED_MODELS = [
 NR_OF_0_RESULTS = 0
 original_print = print
 
+orchestrator = None
 double_hashes = []
 missing_results = []
 already_inserted_param_hashes = {}
@@ -3926,6 +3927,7 @@ def main():
     global NVIDIA_SMI_LOGS_BASE
     global LOGFILE_DEBUG_GET_NEXT_TRIALS
     global random_steps
+    global orchestrator
 
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
@@ -4007,8 +4009,6 @@ def main():
         experiment_parameters,
         minimize_or_maximize
     ])
-
-    orchestrator_file = None
 
     if args.orchestrator_file:
         if SYSTEM_HAS_SBATCH:

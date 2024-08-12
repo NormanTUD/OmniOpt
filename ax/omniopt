@@ -109,11 +109,11 @@ function send_status_report {
 
 		if [[ -e /etc/machine-id ]]; then
 			anon_user=$(echo "user=$USER|hostname=$(hostname)|machine-id=$(cat /etc/machine-id)" | md5sum | sed -e 's#\s.*##')
-			if ! [[ -z $ITWORKSONMYMACHINE ]]; then
+			if [[ -n $ITWORKSONMYMACHINE ]]; then
 				anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
 			fi
 
-			if ! [[ -z $OO_MAIN_TESTS ]]; then
+			if [[ -n $OO_MAIN_TESTS ]]; then
 				anon_user="affed00faffed00faffed00faffed00f"
 			fi
 			has_sbatch=0
@@ -251,7 +251,7 @@ set -o pipefail
 
 function mycd {
 	#echo "cd $1"
-	cd $1
+	cd "$1"
 }
 
 
@@ -279,7 +279,7 @@ kill_python_if_started () {
 	REASON=$1
 	echo "kill_python_if_started $REASON"
 	re='^[0-9]+$'
-	if ! [[ -z "$SLURM_JOB_ID" ]]; then
+	if [[ -n "$SLURM_JOB_ID" ]]; then
 		if [[ $python_pid =~ $re ]] ; then
 			if [[ -z "$already_sent_signal" ]]; then
 				if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then

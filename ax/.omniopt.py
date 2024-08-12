@@ -2958,9 +2958,6 @@ def check_orchestrator (stdout_path):
                     if behavior not in behavs:
                         behavs.append(behavior)
 
-        if len(behavs) == 0:
-            print(f"No rules matches for {stdout}")
-
     return behavs
 
 def state_from_job(job):

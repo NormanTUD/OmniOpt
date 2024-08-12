@@ -2947,7 +2947,6 @@ def check_orchestrator (stdout_path):
 
     if orchestrator and "errors" in orchestrator:
         stdout = Path(stdout_path).read_text()
-        print("stdout::::", stdout)
 
         for oc in orchestrator["errors"]:
             name = oc["name"]

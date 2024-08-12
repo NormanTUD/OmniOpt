@@ -280,9 +280,9 @@ function menu {
 	if [[ -z $min ]] && [[ -z $max ]]; then
 		#minmaxstring="Neither min nor max were set"
 		true
-	elif [[ -z $min ]] && ! [[ -z $max ]]; then 
+	elif [[ -z $min ]] && [[ -n $max ]]; then 
 		minmaxstring=" (max: $max)"
-	elif ! [[ -z $min ]] && [[ -z $max ]]; then 
+	elif [[ -n $min ]] && [[ -z $max ]]; then 
 		minmaxstring=" (min: $min)"
 	else
 		minmaxstring=" (min: $min, max: $max)"
@@ -291,9 +291,9 @@ function menu {
 	if [[ -z $min ]] && [[ -z $max ]]; then
 		#minmaxstring="Neither min nor max were set"
 		true
-	elif [[ -z $min ]] && ! [[ -z $max ]]; then 
+	elif [[ -z $min ]] && [[ -n $max ]]; then 
 		minmaxstring="(max: $max)"
-	elif ! [[ -z $min ]] && [[ -z $max ]]; then 
+	elif [[ -n $min ]] && [[ -z $max ]]; then 
 		minmaxstring=" (min: $min)"
 	else
 		minmaxstring=" (min: $min, max: $max)"
@@ -320,11 +320,11 @@ function menu {
 		if [[ -z $min ]] && [[ -z $max ]]; then
 			#echo "Neither min nor max were set"
 			bash $SCRIPT_DIR/omniopt_plot --run_dir $run_dir $*
-		elif [[ -z $min ]] && ! [[ -z $max ]]; then 
+		elif [[ -z $min ]] && [[ -n $max ]]; then 
 			echo "min was not set but max ($max)"
 			bash $SCRIPT_DIR/omniopt_plot --run_dir $run_dir $* --max=$max 
 			exit $?
-		elif ! [[ -z $min ]] && [[ -z $max ]]; then 
+		elif [[ -n $min ]] && [[ -z $max ]]; then 
 			echo "min ($min) was set but max was not"
 			bash $SCRIPT_DIR/omniopt_plot --run_dir $run_dir $* --min=$min 
 			exit $?

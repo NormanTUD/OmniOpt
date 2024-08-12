@@ -180,7 +180,7 @@ function list_option_for_job {
 	args=()
 
 	if [[ -e $THISPDCSV ]]; then
-		if [[ ! -z $DISPLAY ]]; then
+		if [[ -n $DISPLAY ]]; then
 			args+=(
 				"plot)" "different plotting options" 
 			)

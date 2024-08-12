@@ -153,7 +153,7 @@
 
 	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
 		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
-		if [[ ! -z $MYCLUSTER_HOST ]]; then
+		if [[ -n $MYCLUSTER_HOST ]]; then
 			_cluster="_$MYCLUSTER_HOST"
 		fi
 	fi
@@ -162,7 +162,7 @@
 
 	ROOT_VENV_DIR=$HOME
 
-	if [[ ! -z $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
 		ROOT_VENV_DIR=$root_venv_dir
 	fi
 
@@ -211,7 +211,7 @@
 
 		set +e
 
-		PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
+		PROGRESSBAR=$(generate_progress_bar "$NUMBER_OF_MAIN_MODULES")
 
 		MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 
@@ -228,7 +228,7 @@
 				k=0
 
 				for i in $(pip3 install --disable-pip-version-check --dry-run $MODULE | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
-					if [[ "$i" != $MODULE ]]; then
+					if [[ "$i" != "$MODULE" ]]; then
 						if [[ $k -eq 0 ]]; then
 							green_reset_line "${PROGRESSBAR}➤Installing requirements for $MODULE"
 						fi
@@ -256,7 +256,7 @@
 
 			FROZEN=$(pip list --format=freeze)
 
-			PROGRESSBAR=$(generate_progress_bar $NUMBER_OF_MAIN_MODULES)
+			PROGRESSBAR=$(generate_progress_bar "$NUMBER_OF_MAIN_MODULES")
 
 			green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
 		fi

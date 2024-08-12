@@ -313,7 +313,7 @@ for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*\s*)##g'); do
 		[[ "$i" != "INT" ]] &&
 		[[ "$i" != "SIGINT" ]];
 	then
-		trap 'kill_python_if_started $i' $i
+		trap 'kill_python_if_started $i' "$i"
 	fi
 done
 

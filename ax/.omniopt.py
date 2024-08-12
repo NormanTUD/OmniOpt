@@ -70,6 +70,8 @@ try:
         color_system="256"
     )
 
+    with console.status("[bold green]Loading yaml...") as status:
+        import yaml
     with console.status("[bold green]Loading psutil...") as status:
         import psutil
     with console.status("[bold green]Loading uuid...") as status:

@@ -2787,9 +2787,7 @@ def load_data_from_existing_run_folders(_paths):
 
             console.print(table)
 
-def print_outfile_analyzed(job):
-    stdout_path = str(job.paths.stdout.resolve())
-    #stderr_path = str(job.paths.stderr.resolve())
+def print_outfile_analyzed(stdout_path):
 
     errors = get_errors_from_outfile(stdout_path)
     #errors.append(*get_errors_from_outfile(stderr_path))
@@ -2858,14 +2856,12 @@ def finish_previous_jobs(new_msgs):
                         update_progress_bar(progress_bar, 1)
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
-                    print_outfile_analyzed(job)
                 else:
                     if job:
                         try:
                             progressbar_description(["job_failed"])
 
                             ax_client.log_trial_failure(trial_index=trial_index)
-                            print_outfile_analyzed(job)
                         except Exception as e:
                             print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
@@ -2881,7 +2877,6 @@ def finish_previous_jobs(new_msgs):
                         progressbar_description(["job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
-                        print_outfile_analyzed(job)
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
@@ -2898,7 +2893,6 @@ def finish_previous_jobs(new_msgs):
                         progressbar_description(["job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         _trial.mark_failed()
-                        print_outfile_analyzed(job)
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
@@ -2917,7 +2911,6 @@ def finish_previous_jobs(new_msgs):
                     try:
                         progressbar_description(["job_failed"])
                         ax_client.log_trial_failure(trial_index=trial_index)
-                        print_outfile_analyzed(job)
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
@@ -2934,12 +2927,36 @@ def finish_previous_jobs(new_msgs):
         else:
             pass
 
+        stdout_path = str(job.paths.stdout.resolve())
+
+        check_orchestrator(stdout_path)
+
+        print_outfile_analyzed(stdout_path)
+
     if jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {jobs_finished} job"])
     elif jobs_finished > 0:
         progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
 
     clean_completed_jobs()
+
+def check_orchestrator (stdout_path):
+    behavs = []
+
+    if orchestrator and "errors" in orchestrator:
+        stdout = Path(stdout_path).read_text()
+
+        for oc in orchestrator:
+            name = oc["name"]
+            match_strings = oc["match_strings"]
+            behavior = oc["behavior"]
+
+            for match_string in match_strings:
+                if re.match(match_string, stdout):
+                    behavs.append(behavior)
+
+    return behavs
+
 
 def state_from_job(job):
     job_string = f'{job}'

@@ -25,3 +25,4 @@ coverage
 deadcode
 pyflakes
 shellcheck-py
+pylint

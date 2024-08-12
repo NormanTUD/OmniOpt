@@ -308,7 +308,7 @@ close $fh;
 
 		elif [[ "$WHATTODO" =~ "plot)" ]]; then
 			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
-				bash $SCRIPT_DIR/omniopt_plot --run_dir $PROJECTDIR/$PROJECT/$NUMBER/
+				bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
 				if [[ $? -ne 0 ]]; then
 					error_message "$OUTPUT"
 				fi
@@ -355,14 +355,14 @@ close $fh;
 				if [[ -z "$minvalue" ]]; then
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
+						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
 						set -e
 					else
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --max "$maxvalue"
+						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --max "$maxvalue"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi
@@ -371,7 +371,7 @@ close $fh;
 				else
 					if [[ -z "$maxvalue" ]]; then
 						set +e
-						bash $SCRIPT_DIR/omniopt_plot --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue"
+						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue"
 						if [[ $? -ne 0 ]]; then
 							error_message "$OUTPUT"
 						fi

@@ -629,7 +629,7 @@ function chose_project_number {
 	elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
 		CHOSEN=$(ls $PROJECTDIR/$PROJECT | head -n1)
 
-		list_option_for_job "$WHATTODO" $CHOSEN
+		list_option_for_job "$WHATTODO" "$CHOSEN"
 	else 
 		OLD_IFS=$IFS
 		unset IFS

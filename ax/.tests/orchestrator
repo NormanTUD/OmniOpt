@@ -121,15 +121,11 @@ for i in $@; do
 done
 
 which_programs=(
-	"divide_by_0"
+	"simple_ok"
+	"storage_error"
+	"timeout_failure"
+	"gpu_disconnected"
 )
-
-if [[ "$nosuccess" -eq "0" ]]; then
-	which_programs+=("simple_ok")
-	which_programs+=("storage_error")
-	which_programs+=("timeout_failure")
-	which_programs+=("gpu_disconnected")
-fi
 
 which_programs_string=$(join_by , "${which_programs[@]}")
 

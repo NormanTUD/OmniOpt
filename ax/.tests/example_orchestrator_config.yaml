@@ -1,0 +1,15 @@
+errors:
+  - name: GPUDisconnected
+    match_strings:
+      - "AssertionError: ``AmpOptimizerWrapper`` is only available training"
+    behavior: ExcludeNode
+
+  - name: Timeout
+    match_strings:
+      - "Timeout"
+    behavior: RestartOnDifferentNode
+
+  - name: StorageError
+    match_strings:
+      - "Read/Write failure"
+    behavior: ExcludeNodeAndRestartAll

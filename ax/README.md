@@ -65,6 +65,7 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 | 199       | This happens on unstable file systems when trying to write a file.                               |
 | 203       | Unsupported --model.                                                                             |
 | 206       | Invalid orchestrator file                                                                        |
+| 210       | Unimplemented orchestrator mode                                                                  |
 | 233       | No random steps set.                                                                             |
 | 242       | Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.                         |
 | 243       | Job was not found in squeue anymore, it may got cancelled before it ran.                         |

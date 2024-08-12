@@ -2933,7 +2933,16 @@ def finish_previous_jobs(new_msgs):
         behavs = check_orchestrator(stdout_path)
 
         if len(behavs):
-            print(behavs)
+            for b in behavs:
+                if b == "ExcludeNode":
+                    print_red("ExcludeNode not yet implemented")
+                elif b == "ExcludeNode":
+                    print_red("ExcludeNode not yet implemented")
+                elif b == "ExcludeNode":
+                    print_red("ExcludeNode not yet implemented")
+                else:
+                    print_red(f"{b} not yet implemented!")
+                    sys.exit(210)
 
     if jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {jobs_finished} job"])

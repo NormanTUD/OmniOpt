@@ -2955,7 +2955,7 @@ def check_orchestrator (stdout_path):
 
             for match_string in match_strings:
                 if match_string.lower() in stdout.lower():
-                    if behaviour not in behavs:
+                    if behavior not in behavs:
                         behavs.append(behavior)
 
         if len(behavs) == 0:

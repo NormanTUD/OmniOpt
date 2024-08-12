@@ -2930,7 +2930,10 @@ def finish_previous_jobs(new_msgs):
         stdout_path = str(job.paths.stdout.resolve())
 
         print_outfile_analyzed(stdout_path)
-        check_orchestrator(stdout_path)
+        behavs = check_orchestrator(stdout_path)
+
+        if len(behavs)
+        print(behavs)
 
     if jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {jobs_finished} job"])

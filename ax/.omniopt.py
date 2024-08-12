@@ -106,8 +106,6 @@ try:
         import warnings
     with console.status("[bold green]Loading pandas...") as status:
         import pandas as pd
-    with console.status("[bold green]Loading random...") as status:
-        import random
     with console.status("[bold green]Loading pathlib...") as status:
         from pathlib import Path
     with console.status("[bold green]Loading os...") as status:

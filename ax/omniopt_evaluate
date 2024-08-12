@@ -301,7 +301,7 @@ close $fh;
 					fi
 				fi
 			else
-				error_message "Could not write $DEBUFFILE"
+				error_message "Could not write $DEBUGFILE"
 			fi
 
 			list_option_for_job "$PROJECT" "$NUMBER"

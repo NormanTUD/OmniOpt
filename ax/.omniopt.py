@@ -2957,7 +2957,7 @@ def check_orchestrator (stdout_path):
                 if match_string.lower() in stdout.lower():
                     behavs.append(behavior)
                 else:
-                    print(f"Unmatched {name} with pattern '{match_string}'")
+                    print(f"Unmatched {name} with pattern '{match_string}': stdout:\n{stdout}")
     return behavs
 
 def state_from_job(job):

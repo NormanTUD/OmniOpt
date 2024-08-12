@@ -109,7 +109,7 @@ source .general.sh
 
 function info_message_large {
 	MSG=$1
-	eval `resize`
+	eval "$(resize)"
 	#echo_green "$MSG"
 	whiptail --title "Info Message" --msgbox "$MSG" $LINES $COLUMNS
 }
@@ -119,7 +119,7 @@ function inputbox {
 	MSG=$2
 	DEFAULT=$3
 
-	eval `resize`
+	eval "$(resize)"
 	RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
 	exitstatus=$?
 	if [[ $exitstatus == 0 ]]; then
@@ -171,7 +171,7 @@ function list_option_for_job {
 	PROJECT=$1
 	NUMBER=$2
 
-	eval `resize`
+	eval "$(resize)"
 
 	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
 	THISPDCSV="$THISPROJECTDIR/$NUMBER/results.csv"
@@ -313,7 +313,7 @@ close $fh;
 					error_message "$OUTPUT"
 				fi
 			else
-				eval `resize`
+				eval "$(resize)"
 				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/results.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 			list_option_for_job $PROJECT $NUMBER
@@ -386,7 +386,7 @@ close $fh;
 					fi
 				fi
 			else
-				eval `resize`
+				eval "$(resize)"
 				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
 			fi
 
@@ -460,7 +460,7 @@ close $fh;
 }
 
 function change_variables {
-	eval `resize`
+	eval "$(resize)"
 	MENU_CHOICE=$(whiptail \
 		--title "Change variables" \
 		--menu "Choose an option" \
@@ -507,7 +507,7 @@ function change_variables {
 				DEFAULTNO=" --defaultno "
 			fi
 
-			eval `resize`
+			eval "$(resize)"
 			if (whiptail --title "Show invalid jobs in plot?" --yesno "Do you want to show invalid jobs with really high values in plot?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export SHOWFAILEDJOBSINPLOT=1
 			else
@@ -521,7 +521,7 @@ function change_variables {
 				DEFAULTNO=" --defaultno "
 			fi
 
-			eval `resize`
+			eval "$(resize)"
 			if (whiptail --title "Hide max-values-string in plot?" --yesno "Do you want to hide the 'max value' string in plots?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export HIDEMAXVALUESINPLOT=1
 			else
@@ -539,7 +539,7 @@ function change_variables {
 				DEFAULTNO=" --defaultno "
 			fi
 
-			eval `resize`
+			eval "$(resize)"
 			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge whereever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export DISPLAYGAUGE=1
 			else
@@ -561,7 +561,7 @@ function change_variables {
 				DEFAULTNO=" --defaultno "
 			fi
 
-			eval `resize`
+			eval "$(resize)"
 			if (whiptail --title "Enable debug?" --yesno "Do you want to enable debug?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export DEBUG=1
 				set -x
@@ -600,7 +600,7 @@ function change_variables {
 			echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings
 			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oax_default_settings
 		else
-			eval `resize`
+			eval "$(resize)"
 			whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3
 			change_variables
 		fi
@@ -635,7 +635,7 @@ function chose_project_number {
 		unset IFS
 		available_numbers=$(ls $PROJECTDIR/$PROJECT | perl -e "while (<>) { chomp; print qq#\$_ \$_\n#; }" |  sort -nr)
 
-		eval `resize`
+		eval "$(resize)"
 
 		CHOSEN=$(whiptail --title "Available project-numbers for ${PROJECTDIR}/$PROJECT" --menu "Chose any of the available project numbers:" $LINES $COLUMNS $(( $LINES - 8 )) $available_numbers "b)" "Go back" "q)" "quit" 3>&1 1>&2 2>&3)
 		exitstatus=$?
@@ -664,7 +664,7 @@ function list_projects {
 		echo_red "No projects found (list_projects)"
 	fi
 
-	eval `resize`
+	eval "$(resize)"
 	
 	OLD_IFS=$IFS
 
@@ -760,19 +760,19 @@ if [[ $sourced == "0" ]]; then
 		    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
 			debug_code "Software seems up-to-date ($CURRENTHASH)"
 		    else
-			eval `resize`
+			eval "$(resize)"
 			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-			    git pull
-			    bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
-			    exit
+				git pull
+				bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
+				exit
 			else
-			    eval `resize`
-			    if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-				echo "Asking again next time"
-			    else
-				echo "OK, not asking again"
-				touch .dont_ask_upgrade
-			    fi
+				eval "$(resize)"
+				if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+					echo "Asking again next time"
+				else
+					echo "OK, not asking again"
+					touch .dont_ask_upgrade
+				fi
 			fi
 		    fi
 		fi
@@ -790,11 +790,11 @@ if [[ $sourced == "0" ]]; then
 		for this_module in ${modules_to_load[*]}; do
 			let load_percent=$load_percent+$stepsize
 			echo "XXX"
-			echo $load_percent
+			echo "$load_percent"
 			echo "Loading modules... ($this_module...)"
 			echo "XXX"
-			if ! myml is-loaded $this_module; then
-				ml $this_module 2>/dev/null
+			if ! myml is-loaded "$this_module"; then
+				ml "$this_module" 2>/dev/null
 			fi
 		done
         ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
@@ -805,8 +805,8 @@ if [[ $sourced == "0" ]]; then
 	else
 		if [[ "$LOAD_MODULES" -eq "1" ]]; then
 			for this_module in ${modules_to_load[*]}; do
-				if ! myml is-loaded $this_module; then
-					myml $this_module 2>/dev/null
+				if ! myml is-loaded "$this_module"; then
+					myml "$this_module" 2>/dev/null
 				fi
 			done
 		fi

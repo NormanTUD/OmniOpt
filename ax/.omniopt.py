@@ -2955,9 +2955,12 @@ def check_orchestrator (stdout_path):
 
             for match_string in match_strings:
                 if match_string.lower() in stdout.lower():
-                    behavs.append(behavior)
+                    if behaviour is not in behavs:
+                        behavs.append(behavior)
+
         if len(behavs) == 0:
             print(f"No rules matches for {stdout}")
+
     return behavs
 
 def state_from_job(job):

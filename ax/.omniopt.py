@@ -2969,7 +2969,7 @@ def finish_previous_jobs(new_msgs):
 
                 elif b == "ExcludeNodeAndRestartAll":
                     if hostname_from_out_file:
-                        print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavaible hosts and not currently restart the job")
+                        print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
                         count_defective_nodes(None, hostname_from_out_file)
                     else:
                         print_red("Cannot do ExcludeNodeAndRestartAll because the host could not be determined")

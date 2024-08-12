@@ -493,7 +493,6 @@ debug.add_argument('--verbose', help='Verbose logging', action='store_true', def
 debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
 debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
-debug.add_argument('--evaluate_to_random_value', help='Evaluate to random values', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
 
@@ -1332,10 +1331,6 @@ def evaluate(parameters):
             pass
 
     IS_IN_EVALUATE = True
-    if args.evaluate_to_random_value:
-        rand_res = random.uniform(0, 1)
-        IS_IN_EVALUATE = False
-        return {"result": helpers.to_int_when_possible(float(rand_res))}
 
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 

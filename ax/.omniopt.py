@@ -2954,7 +2954,7 @@ def finish_previous_jobs(new_msgs):
         if len(behavs):
             for b in behavs:
                 if b == "ExcludeNode":
-                    print_red(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+                    print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
                     count_defective_nodes(None, hostname_from_out_file)
                 elif b == "RestartOnDifferentNode":
                     print_red("RestartOnDifferentNode not yet implemented")

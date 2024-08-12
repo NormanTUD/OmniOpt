@@ -37,8 +37,6 @@ function calltracer () {
 }
 trap 'calltracer' ERR
 
-numberre='^[0-9]+$'
-
 if [[ -e ".oax_default_settings" ]]; then
     source ".oax_default_settings"
 fi

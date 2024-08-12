@@ -4008,6 +4008,14 @@ def main():
         minimize_or_maximize
     ])
 
+    orchestrator_file = None
+
+    if args.orchestrator_file:
+        if SYSTEM_HAS_SBATCH:
+            orchestrator = parse_orchestrator_file(args.orchestrator_file)
+        else:
+            print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
+
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
@@ -4021,6 +4029,7 @@ def main():
     searching_for = "minimum" if not args.maximize else "maximum"
 
     load_existing_job_data_into_ax_client()
+
 
     print(f"Searching {searching_for}")
 
@@ -4044,10 +4053,6 @@ def main():
 
     write_process_info()
 
-    orchestrator_file = None
-
-    if args.orchestrator_file:
-        orchestrator = parse_orchestrator_file(args.orchestrator_file)
 
     with tqdm(total=max_eval, disable=False) as _progress_bar:
         write_process_info()

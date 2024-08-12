@@ -3891,6 +3891,7 @@ def parse_orchestrator_file (_f):
                     sys.exit(206)
 
                 valid_keys = ['name', 'match_strings', 'behavior']
+                valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode"]
 
                 for x in data["errors"]:
                     if not isinstance(x, dict):
@@ -3899,6 +3900,11 @@ def parse_orchestrator_file (_f):
 
                     if set(x.keys()) != set(valid_keys):
                         print_red(f"{x.keys()} does not match {valid_keys}")
+                        sys.exit(206)
+
+                    if x["behavior"] not in valid_behaviours:
+                        print_red(f"behavior-entry {x['behavior']} is not in valid_behaviours: {', '.join(valid_behaviours)}")
+                        sys.exit(206)
 
                 #helpers.dier(data)
 

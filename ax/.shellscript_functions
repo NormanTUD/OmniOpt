@@ -2,7 +2,7 @@
 
 {
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-	cd $SCRIPT_DIR
+	cd "$SCRIPT_DIR"
 
 	install_those=(
 		setuptools
@@ -54,7 +54,7 @@
 
 	function error_message {
 		if command -v resize 2>/dev/null >/dev/null; then
-			eval `resize`
+			eval "$(resize)"
 		fi
 		MSG=$1
 		echo_red "$MSG"
@@ -125,7 +125,7 @@
 			return 0
 		fi
 
-		tput $CHAR
+		tput "$CHAR"
 		set +e
 	}
 

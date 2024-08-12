@@ -191,6 +191,11 @@
 			<td>Disables automatic search space reduction detection</td>
 			<td><tt>False</tt></td>
 		</tr>
+		<tr>
+			<td><tt>--orchestrator_file PATH/TO/orchestrator.YAML</tt></td>
+			<td>An orchestrator file.</td>
+			<td><tt>None</tt></td>
+		</tr>
 		<tr class="section-header">
 			<td colspan="3">Slurm</td>
 		</tr>

@@ -235,7 +235,7 @@ for _command in "${_commands[@]}"; do
 	fi
 
 	if [[ $has_max -gt 0 ]]; then
-		msg=", --max"
+		msg="$msg, --max"
 	fi
 
 	msg=$(echo "$msg" | sed -e 's#^, ##' -e 's#^#(#' -e 's#$#)#' -e 's#()##')

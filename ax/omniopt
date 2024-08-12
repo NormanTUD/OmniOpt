@@ -958,7 +958,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	# To start all subjobs indenpedently from the omniopt job, unset all SLURM variables
 	set +x
 	for i in $(env | egrep "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
-		unset $i
+		unset "$i"
 	done
 
 	if [[ "$debug" -eq "1" ]]; then
@@ -1058,7 +1058,6 @@ else
 
 				estimated_start_time=""
 				estimated_start_time_original=""
-				in_about_time=""
 				_remaining_time=""
 
 				set +x

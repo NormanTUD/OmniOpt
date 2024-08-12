@@ -3880,10 +3880,19 @@ def human_readable_generation_strategy ():
 def parse_orchestrator_file (_f):
     if os.path.exists(_f):
         with open(_f, 'r') as file:
-            data = yaml.safe_load(file)
-            helpers.dier(data)
+            try:
+                data = yaml.safe_load(file)
+                helpers.dier(data)
+
+                return data
+            except Exception as e:
+                print(f"Error while parse_experiment_parameters({_f}): {e}")
+
+                Return None
     else:
         print_red(f"{_f} could not be found")
+
+        Return None
 
 def main():
     print_debug("main()")
@@ -4017,6 +4026,11 @@ def main():
     save_global_vars()
 
     write_process_info()
+
+    orchestrator_file = None
+
+    if args.orchestrator_file:
+        orchestrator = parse_orchestrator_file(args.orchestrator_file)
 
     with tqdm(total=max_eval, disable=False) as _progress_bar:
         write_process_info()

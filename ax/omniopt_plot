@@ -377,10 +377,10 @@ if [[ "$plot_type" == "menu" ]]; then
 	menu
 fi
 
-cd $ORIGINAL_PWD
+cd "$ORIGINAL_PWD"
 
-source $SCRIPT_DIR/.shellscript_functions
-source $SCRIPT_DIR/.general.sh
+source "$SCRIPT_DIR/.shellscript_functions"
+source "$SCRIPT_DIR/.general.sh"
 
 if [[ "$plot_type" != "menu" ]]; then
 	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
@@ -400,25 +400,25 @@ export WHIPTAIL=1
 
 if [[ "$_save_to_file" == "0" ]]; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
+		OUTPUT=$(python3 "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" $* 2>&1)
 		exit_code=$?
 	else
-		OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir $* 2>&1)
+		OUTPUT=$(coverage run -p "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" $* 2>&1)
 		exit_code=$?
 	fi
 else
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		if [[ -d docker_user_dir ]]; then
-			OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=docker_user_dir/$_save_to_file $* 2>&1)
+			OUTPUT=$(python3 "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="docker_user_dir/$_save_to_file" $* 2>&1)
 		else
-			OUTPUT=$(python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=$_save_to_file $* 2>&1)
+			OUTPUT=$(python3 "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="$_save_to_file" $* 2>&1)
 		fi
 		exit_code=$?
 	else
 		if [[ -d docker_user_dir ]]; then
-			OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=docker_user_dir/$_save_to_file $* 2>&1)
+			OUTPUT=$(coverage run -p "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="docker_user_dir/$_save_to_file" $* 2>&1)
 		else
-			OUTPUT=$(coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py --run_dir $run_dir --save_to_file=$_save_to_file $* 2>&1)
+			OUTPUT=$(coverage run -p "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="$_save_to_file" $* 2>&1)
 		fi
 		exit_code=$?
 	fi

@@ -389,7 +389,7 @@
 			set -e
 
 			if [[ "$exit_code_pip" -ne "0" ]]; then
-				printf "pip list --format=freeze exited with exit code $exit_code_pip\n"
+				printf "pip list --format=freeze exited with exit code %s\n" $exit_code_pip
 				exit 12
 			fi
 

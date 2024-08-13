@@ -409,8 +409,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			args_string+=" --account=$account "
 
-			account=$account
-
 			;;
 
 		--account)
@@ -428,7 +426,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			args_string+=" --account=$account "
 
-			account=$account
 			;;
 
 		--reservation=*)
@@ -441,8 +438,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			args_string+=" --reservation=$reservation "
-
-			reservation=$reservation
 
 			;;
 
@@ -460,8 +455,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			args_string+=" --reservation=$reservation "
-
-			reservation=$reservation
 
 			;;
 

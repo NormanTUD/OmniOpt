@@ -210,7 +210,7 @@ main_pid = os.getpid()
 
 run_uuid = uuid.uuid4()
 
-def set_max_eval (new_max_eval):
+def set_max_eval(new_max_eval):
     global max_eval
 
     #import traceback
@@ -219,7 +219,7 @@ def set_max_eval (new_max_eval):
 
     max_eval = new_max_eval
 
-def log_what_needs_to_be_logged ():
+def log_what_needs_to_be_logged():
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()
@@ -944,7 +944,7 @@ def parse_experiment_parameters():
 
     return params
 
-def parse_range_param (params, j, this_args, name, param_type):
+def parse_range_param(params, j, this_args, name, param_type):
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
@@ -1053,7 +1053,7 @@ def parse_range_param (params, j, this_args, name, param_type):
 
     return j, params
 
-def parse_fixed_param (params, j, this_args, name, param_type):
+def parse_fixed_param(params, j, this_args, name, param_type):
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -1076,7 +1076,7 @@ def parse_fixed_param (params, j, this_args, name, param_type):
 
     return j, params
 
-def parse_choice_param (params, j, this_args, name, param_type):
+def parse_choice_param(params, j, this_args, name, param_type):
     if len(this_args) != 3:
         print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
         my_exit(181)
@@ -1678,7 +1678,7 @@ def print_best_result(csv_file_path, result_column):
 
     return -1
 
-def show_sixel_graphics (_pd_csv):
+def show_sixel_graphics(_pd_csv):
     show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
     if os.path.exists(_pd_csv) and show_sixel_graphics:
@@ -2420,7 +2420,7 @@ def check_equation(variables, equation):
 
     return False
 
-def update_progress_bar (_progress_bar, nr):
+def update_progress_bar(_progress_bar, nr):
     #import traceback
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
@@ -2649,7 +2649,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
     return _counter
 
-def get_list_import_as_string (_brackets=True, _comma=False):
+def get_list_import_as_string(_brackets=True, _comma=False):
     _str = []
 
     if len(double_hashes):
@@ -2974,7 +2974,7 @@ def finish_previous_jobs(new_msgs):
 
     clean_completed_jobs()
 
-def orchestrate_job (job, trial_index):
+def orchestrate_job(job, trial_index):
     stdout_path = str(job.paths.stdout.resolve())
 
     stdout_path = stdout_path.replace('\n', ' ').replace('\r', '')
@@ -2987,7 +2987,7 @@ def orchestrate_job (job, trial_index):
 
     _orchestrate(stdout_path, trial_index)
 
-def _orchestrate (stdout_path, trial_index):
+def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if behavs is not None and len(behavs):
@@ -3042,7 +3042,7 @@ def _orchestrate (stdout_path, trial_index):
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 sys.exit(210)
 
-def check_orchestrator (stdout_path, trial_index):
+def check_orchestrator(stdout_path, trial_index):
     behavs = []
 
     if orchestrator and "errors" in orchestrator:
@@ -3330,7 +3330,7 @@ def execute_evaluation(_params):
 
     return trial_counter
 
-def get_current_model ():
+def get_current_model():
     global ax_client
 
     if ax_client:
@@ -3851,7 +3851,7 @@ def start_nvidia_smi_thread():
         return nvidia_smi_thread
     return None
 
-def break_run_search (_name, _max_eval, _progress_bar):
+def break_run_search(_name, _max_eval, _progress_bar):
     if succeeded_jobs() > _max_eval:
         print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
         return True
@@ -3934,7 +3934,7 @@ def run_search(_progress_bar):
     log_what_needs_to_be_logged()
     return False
 
-def wait_for_jobs_to_complete (_num_parallel_jobs):
+def wait_for_jobs_to_complete(_num_parallel_jobs):
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > _num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
@@ -3954,7 +3954,7 @@ def print_logo():
           (|)""
 """)
 
-def is_already_in_defective_nodes (hostname):
+def is_already_in_defective_nodes(hostname):
     file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
 
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -4015,7 +4015,7 @@ def count_defective_nodes(file_path=None, entry=None):
         print(f"Ein Fehler ist aufgetreten: {e}")
         return []
 
-def human_readable_generation_strategy ():
+def human_readable_generation_strategy():
     generation_strategy_str = str(ax_client.generation_strategy)
 
     pattern = r'\[(.*?)\]'
@@ -4028,7 +4028,7 @@ def human_readable_generation_strategy ():
 
     return None
 
-def parse_orchestrator_file (_f):
+def parse_orchestrator_file(_f):
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -4524,7 +4524,7 @@ def get_first_line_of_file_that_contains_string(i, s):
 
     return ""
 
-def get_python_errors ():
+def get_python_errors():
     synerr = "Python syntax error detected. Check log file."
 
     return [

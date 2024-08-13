@@ -14,6 +14,10 @@ def dier (msg):
 # See https://github.com/pypa/pip/issues/7953.
 site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
+def do_nothing(x):
+    pass
+do_nothing(site.ENABLE_USER_SITE)
+
 # Warn if we are installing over top of an existing installation. This can
 # cause issues where files that were deleted from a more recent OmniOpt2 are
 # still present in site-packages. See #18115.

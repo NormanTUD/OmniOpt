@@ -3966,7 +3966,7 @@ def is_already_in_defective_nodes (hostname):
 
     try:
         # Datei öffnen und Zeilen durchsuchen
-        with open(file_path, "r") as file:
+        with open(file_path, mode="r", encoding="utf-8") as file:
             for line in file:
                 # Zeilenenden entfernen und auf Übereinstimmung prüfen
                 if line.strip() == hostname:

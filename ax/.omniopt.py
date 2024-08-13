@@ -2001,31 +2001,31 @@ def compare_parameters(old_param_json, new_param_json):
 def get_ax_param_representation(data):
     if data["type"] == "range":
         return {
-                "__type": "RangeParameter",
-                "name": data["name"],
-                "parameter_type": {
-                    "__type": "ParameterType", "name": data["value_type"].upper()
-                    },
-                "lower": data["bounds"][0],
-                "upper": data["bounds"][1],
-                "log_scale": False,
-                "logit_scale": False,
-                "digits": None,
-                "is_fidelity": False,
-                "target_value": None
-                }
+            "__type": "RangeParameter",
+            "name": data["name"],
+            "parameter_type": {
+                "__type": "ParameterType", "name": data["value_type"].upper()
+            },
+            "lower": data["bounds"][0],
+            "upper": data["bounds"][1],
+            "log_scale": False,
+            "logit_scale": False,
+            "digits": None,
+            "is_fidelity": False,
+            "target_value": None
+        }
     if data["type"] == "choice":
         return {
-                '__type': 'ChoiceParameter',
-                'dependents': None,
-                'is_fidelity': False,
-                'is_ordered': data["is_ordered"],
-                'is_task': False,
-                'name': data["name"],
-                'parameter_type': {'__type': 'ParameterType', 'name': 'STRING'},
-                'target_value': None,
-                'values': data["values"]
-                }
+            '__type': 'ChoiceParameter',
+            'dependents': None,
+            'is_fidelity': False,
+            'is_ordered': data["is_ordered"],
+            'is_task': False,
+            'name': data["name"],
+            'parameter_type': {'__type': 'ParameterType', 'name': 'STRING'},
+            'target_value': None,
+            'values': data["values"]
+        }
 
     print("data:")
     pprint(data)

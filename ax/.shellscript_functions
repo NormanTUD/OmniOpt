@@ -37,6 +37,7 @@
 		pylint
 		bandit
 		radon
+		vulture
 	)
 
 	FROZEN=""

@@ -2971,6 +2971,12 @@ def finish_previous_jobs(new_msgs):
 def orchestrate_job (job, trial_index):
     stdout_path = str(job.paths.stdout.resolve())
 
+    stdout_path = stdout_path.replace('\n', ' ').replace('\r', '')
+    stdout_path = stdout_path.rstrip('\r\n')
+    stdout_path = stdout_path.rstrip('\n')
+    stdout_path = stdout_path.rstrip('\r')
+    stdout_path = stdout_path.rstrip(' ')
+
     print_outfile_analyzed(stdout_path)
     behavs = check_orchestrator(stdout_path)
 

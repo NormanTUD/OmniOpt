@@ -292,6 +292,10 @@
 		_tput el
 	}
 
+	if ! command -v uuidgen >/dev/null 2>/dev/null; then
+		red_text "❌git not found. Try installing it with 'sudo apt-get install uuid-runtime' (depending on your distro)"
+	fi
+
 	if ! command -v git >/dev/null 2>/dev/null; then
 		red_text "❌git not found. Try installing it with 'sudo apt-get install git' (depending on your distro)"
 	fi

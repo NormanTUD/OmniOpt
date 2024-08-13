@@ -423,8 +423,6 @@ def print_green(text):
 def print_yellow(text):
     helpers.print_color("yellow", text)
 
-
-
 def add_to_phase_counter(phase, nr=0, run_folder=""):
     if run_folder == "":
         run_folder = CURRENT_RUN_FOLDER
@@ -662,7 +660,6 @@ if not args.tests:
         if max_eval <= 0:
             print_red("--max_eval must be larger than 0")
             my_exit(19)
-
 
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1325,7 +1322,6 @@ def write_data_and_headers(data_dict, error_description=""):
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
-
 def evaluate(parameters):
     global IS_IN_EVALUATE
 
@@ -1396,7 +1392,7 @@ def evaluate(parameters):
         original_print(f"Result: {result}")
 
         headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"]
-        values = [start_time, end_time, run_time, program_string_with_params,  *parameters_values, result, exit_code, _signal, socket.gethostname()]
+        values = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname()]
 
         original_print(f"EXIT_CODE: {exit_code}")
 
@@ -1501,7 +1497,6 @@ def disable_logging():
     logging.getLogger("ax.service.utils").setLevel(logging.ERROR)
     logging.getLogger("ax.service.utils.report_utils").setLevel(logging.ERROR)
 
-
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
     modules = [
         "ax",
@@ -1533,7 +1528,6 @@ def disable_logging():
         for _cat in categories:
             warnings.filterwarnings("ignore", category=_cat)
             warnings.filterwarnings("ignore", category=_cat, module=_module)
-
 
     print_debug("disable_logging() done")
 
@@ -2452,7 +2446,6 @@ def clean_completed_jobs():
         if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
 
-
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -2602,7 +2595,6 @@ def extract_headers_and_rows(data_list):
     except Exception as e:
         print(f"An error occured: {e}")
         return None, None
-
 
 def simulate_load_data_from_existing_run_folders(_paths):
     _counter = 0
@@ -2849,7 +2841,6 @@ def get_parameters_from_outfile(stdout_path):
         print(f"There was an error: {e}")
         return None
 
-
 def get_hostname_from_outfile(stdout_path):
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file:
@@ -3050,7 +3041,6 @@ def _orchestrate (stdout_path, trial_index):
             else:
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 sys.exit(210)
-
 
 def check_orchestrator (stdout_path, trial_index):
     behavs = []
@@ -3443,8 +3433,6 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
 
     nr_of_imported_jobs = get_nr_of_imported_jobs()
 
-    #random_steps = nr_of_imported_jobs
-
     set_max_eval(_max_eval + nr_of_imported_jobs)
 
     if random_steps is None:
@@ -3466,10 +3454,10 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
                 model=Models.SOBOL,
                 num_trials=max(_num_parallel_jobs, random_steps),
                 min_trials_observed=min(_max_eval, random_steps),
-                max_parallelism=_num_parallel_jobs,  # Max parallelism for this step
+                max_parallelism=_num_parallel_jobs, # Max parallelism for this step
                 enforce_num_trials=True,
-                model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
-                model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+                model_kwargs={"seed": seed}, # Any kwargs you want passed into the model
+                model_gen_kwargs={'enforce_num_arms': True}, # Any kwargs you want passed to `modelbridge.gen`
             )
         )
 
@@ -3494,11 +3482,11 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     #print(f"_steps.append(")
     #print(f"    GenerationStep(")
     #print(f"        model={chosen_non_random_model},")
-    #print(f"        num_trials=-1,  # No limitation on how many trials should be produced from this step")
-    #print(f"        max_parallelism={_num_parallel_jobs} * 2,  # Max parallelism for this step")
-    #print(f"        #model_kwargs=seed: {seed},  # Any kwargs you want passed into the model")
+    #print(f"        num_trials=-1, # No limitation on how many trials should be produced from this step")
+    #print(f"        max_parallelism={_num_parallel_jobs} * 2, # Max parallelism for this step")
+    #print(f"        #model_kwargs=seed: {seed}, # Any kwargs you want passed into the model")
     #print(f"        #enforce_num_trials=True,")
-    #print(f"        model_gen_kwargs='enforce_num_arms': True,  # Any kwargs you want passed to `modelbridge.gen`")
+    #print(f"        model_gen_kwargs='enforce_num_arms': True, # Any kwargs you want passed to `modelbridge.gen`")
     #print(f"        # More on parallelism vs. required samples in BayesOpt:")
     #print(f"        # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials")
     #print(f"    )")
@@ -3515,11 +3503,11 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,
-            num_trials=_nr_trials,  # No limitation on how many trials should be produced from this step
-            max_parallelism=_num_parallel_jobs * 2,  # Max parallelism for this step
-            #model_kwargs={"seed": seed},  # Any kwargs you want passed into the model
+            num_trials=_nr_trials, # No limitation on how many trials should be produced from this step
+            max_parallelism=_num_parallel_jobs * 2, # Max parallelism for this step
+            #model_kwargs={"seed": seed}, # Any kwargs you want passed into the model
             #enforce_num_trials=True,
-            model_gen_kwargs={'enforce_num_arms': True},  # Any kwargs you want passed to `modelbridge.gen`
+            model_gen_kwargs={'enforce_num_arms': True}, # Any kwargs you want passed to `modelbridge.gen`
             # More on parallelism vs. required samples in BayesOpt:
             # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
         )
@@ -3721,7 +3709,6 @@ def succeeded_jobs(nr=0):
         os.makedirs(state_files_folder)
 
     return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/succeeded_jobs', nr)
-
 
 def submitted_jobs(nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
@@ -3937,7 +3924,6 @@ def run_search(_progress_bar):
 
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
-
 
     wait_for_jobs_to_complete(num_parallel_jobs)
 
@@ -4211,7 +4197,6 @@ def main():
 
     load_existing_job_data_into_ax_client()
 
-
     print(f"Searching {searching_for}")
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
@@ -4233,7 +4218,6 @@ def main():
     save_global_vars()
 
     write_process_info()
-
 
     with tqdm(total=max_eval, disable=False) as _progress_bar:
         write_process_info()

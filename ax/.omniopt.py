@@ -722,7 +722,8 @@ def check_slurm_job_id():
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_red("Not a valid SLURM_JOB_ID.")
         elif slurm_job_id is None:
-            print_red("You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. " +
+            print_red(
+                "You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. "
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a Slurm job."
             )
 
@@ -3115,7 +3116,7 @@ def get_workers_string():
 
         if len(_keys):
             nr_current_workers = len(global_vars["jobs"])
-            percentage = round((nr_current_workers/num_parallel_jobs) * 100)
+            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
             string = f"{_keys} {_values} ({percentage}%/{num_parallel_jobs})"
 
     return string
@@ -3152,7 +3153,7 @@ def get_desc_progress_text(new_msgs=[]):
 
         if is_slurm_job():
             nr_current_workers = len(global_vars["jobs"])
-            percentage = round((nr_current_workers/num_parallel_jobs) * 100)
+            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
 
             this_values = {
                 "nr_current_workers": nr_current_workers,

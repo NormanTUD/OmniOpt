@@ -3142,7 +3142,7 @@ def get_desc_progress_text(new_msgs=[]):
     this_time = time.time()
 
     if count_done_jobs() >= 0:
-        best_params = get_best_params(RESULT_CSV_FILE, "result")
+        best_params = get_best_params(RESULT_CSV_FILE)
         if best_params and "result" in best_params:
             best_result = best_params["result"]
             if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
@@ -3319,7 +3319,7 @@ def execute_evaluation(_params):
     except (SignalUSR, SignalINT, SignalCONT):
         print_red("\n⚠ Detected signal. Will exit.")
         IS_IN_EVALUATE = False
-        end_program(RESULT_CSV_FILE, "result", 1)
+        end_program(RESULT_CSV_FILE, 1)
     except Exception as e:
         tb = traceback.format_exc()
         print(tb)
@@ -3578,7 +3578,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         botorch.exceptions.errors.InputDataError
     ) as e:
         print_red("\n⚠ " + str(e))
-        end_program(RESULT_CSV_FILE, "result", 1)
+        end_program(RESULT_CSV_FILE, 1)
 
     num_new_keys = 0
 
@@ -4801,7 +4801,7 @@ if __name__ == "__main__":
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
                 IS_IN_EVALUATE = False
 
-                end_program(RESULT_CSV_FILE, "result", 1)
+                end_program(RESULT_CSV_FILE, 1)
             except SearchSpaceExhausted:
                 _get_perc = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
@@ -4813,6 +4813,6 @@ if __name__ == "__main__":
                     )
 
                 if _get_perc != 100:
-                    end_program(RESULT_CSV_FILE, "result", 1, 87)
+                    end_program(RESULT_CSV_FILE, 1, 87)
                 else:
-                    end_program(RESULT_CSV_FILE, "result", 1)
+                    end_program(RESULT_CSV_FILE, 1)

@@ -3045,8 +3045,7 @@ def check_orchestrator (stdout_path, trial_index):
     if orchestrator and "errors" in orchestrator:
         try:
             stdout = Path(stdout_path).read_text("UTF-8")
-        except FileNotFoundError as e:
-
+        except FileNotFoundError:
             if stdout_path not in ORCHESTRATE_TODO.keys():
                 ORCHESTRATE_TODO[stdout_path] = trial_index
                 print_red(f"File not found: {stdout_path}, will try again later")

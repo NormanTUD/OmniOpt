@@ -56,7 +56,7 @@ yellow_text "Trying deadcode..."
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
-printf 'Linters test took: %02d:%02d:%02d\n' $hrs $mins $secs
+printf '\nLinters test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No linters errors"

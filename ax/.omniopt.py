@@ -3031,17 +3031,20 @@ def check_orchestrator (stdout_path):
     behavs = []
 
     if orchestrator and "errors" in orchestrator:
-        stdout = Path(stdout_path).read_text("UTF-8")
+        try:
+            stdout = Path(stdout_path).read_text("UTF-8")
 
-        for oc in orchestrator["errors"]:
-            #name = oc["name"]
-            match_strings = oc["match_strings"]
-            behavior = oc["behavior"]
+            for oc in orchestrator["errors"]:
+                #name = oc["name"]
+                match_strings = oc["match_strings"]
+                behavior = oc["behavior"]
 
-            for match_string in match_strings:
-                if match_string.lower() in stdout.lower():
-                    if behavior not in behavs:
-                        behavs.append(behavior)
+                for match_string in match_strings:
+                    if match_string.lower() in stdout.lower():
+                        if behavior not in behavs:
+                            behavs.append(behavior)
+        except FileNotFoundError as e:
+            print_red(f"File not found: {stdout_path}")
 
     return behavs
 

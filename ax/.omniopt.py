@@ -901,13 +901,14 @@ def parse_experiment_parameters():
 
     search_space_reduction_warning = False
 
+    valid_types = ["range", "fixed", "choice"]
+    invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
+
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
         j = 0
         while j < len(this_args):
             name = this_args[j]
-
-            invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
 
             if name in invalid_names:
                 print_red(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
@@ -924,9 +925,6 @@ def parse_experiment_parameters():
             except Exception:
                 print_red("Not enough arguments for --parameter")
                 my_exit(181)
-
-
-            valid_types = ["range", "fixed", "choice"]
 
             if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)

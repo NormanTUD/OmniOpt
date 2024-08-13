@@ -4242,7 +4242,7 @@ def _unidiff_output(expected, actual):
     expected = expected.splitlines(1)
     actual = actual.splitlines(1)
 
-    diff=difflib.unified_diff(expected, actual)
+    diff = difflib.unified_diff(expected, actual)
 
     return ''.join(diff)
 

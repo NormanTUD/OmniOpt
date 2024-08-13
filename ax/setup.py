@@ -16,7 +16,8 @@ site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
 def do_nothing(x):
     pass
-do_nothing(site.ENABLE_USER_SITE)
+
+do_nothing(site.ENABLE_USER_SITE) # to trick linters...
 
 # Warn if we are installing over top of an existing installation. This can
 # cause issues where files that were deleted from a more recent OmniOpt2 are

@@ -932,154 +932,11 @@ def parse_experiment_parameters():
                 my_exit(181)
 
             if param_type == "range":
-                if args.model and args.model == "FACTORIAL":
-                    print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
-                    my_exit(181)
-
-                if len(this_args) != 5 and len(this_args) != 4:
-                    print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
-                    my_exit(181)
-
-                try:
-                    lower_bound = float(this_args[j + 2])
-                except Exception:
-                    print_red(f"\n⚠ {this_args[j + 2]} is not a number")
-                    my_exit(181)
-
-                try:
-                    upper_bound = float(this_args[j + 3])
-                except Exception:
-                    print_red(f"\n⚠ {this_args[j + 3]} is not a number")
-                    my_exit(181)
-
-                if upper_bound == lower_bound:
-                    if lower_bound == 0:
-                        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-                        my_exit(181)
-                    print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
-                    lower_bound = -upper_bound
-
-                if lower_bound > upper_bound:
-                    print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
-                    upper_bound, lower_bound = lower_bound, upper_bound
-
-                skip = 5
-
-                try:
-                    value_type = this_args[j + 4]
-                except Exception:
-                    value_type = "float"
-                    skip = 4
-
-                valid_value_types = ["int", "float"]
-
-                if value_type not in valid_value_types:
-                    valid_value_types_string = ", ".join(valid_value_types)
-                    print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-                    my_exit(181)
-
-                if value_type == "int":
-                    if not helpers.looks_like_int(lower_bound):
-                        print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
-                        lower_bound = math.floor(lower_bound)
-
-                    if not helpers.looks_like_int(upper_bound):
-                        print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
-                        upper_bound = math.ceil(upper_bound)
-
-                old_lower_bound = lower_bound
-                old_upper_bound = upper_bound
-
-                lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
-                upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
-
-                if value_type == "int":
-                    lower_bound = math.floor(lower_bound)
-                    upper_bound = math.ceil(upper_bound)
-
-                if args.continue_previous_job:
-                    if old_lower_bound != lower_bound and found_lower_bound_in_file and old_lower_bound < lower_bound:
-                        print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
-                        search_space_reduction_warning = True
-
-                    if old_upper_bound != upper_bound and found_upper_bound_in_file and old_upper_bound > upper_bound:
-                        print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
-                        search_space_reduction_warning = True
-
-                if args.gridsearch:
-                    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
-
-                    if value_type == "int":
-                        values = [int(value) for value in values]
-                        changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
-                    else:
-                        changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
-
-                    values = sorted(set(values))
-                    values = [str(helpers.to_int_when_possible(value)) for value in values]
-
-                    param = {
-                        "name": name,
-                        "type": "choice",
-                        "is_ordered": True,
-                        "values": values
-                    }
-                else:
-                    param = {
-                        "name": name,
-                        "type": param_type,
-                        "bounds": [lower_bound, upper_bound],
-                        "value_type": value_type
-                    }
-
-                global_vars["parameter_names"].append(name)
-
-                params.append(param)
-
-                j += skip
+                j, params = parse_range_param(params, j, this_args, name, param_type)
             elif param_type == "fixed":
-                if len(this_args) != 3:
-                    print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
-                    my_exit(181)
-
-                value = this_args[j + 2]
-
-                value = value.replace('\r', ' ').replace('\n', ' ')
-
-                param = {
-                    "name": name,
-                    "type": "fixed",
-                    "value": value
-                }
-
-                global_vars["parameter_names"].append(name)
-
-                params.append(param)
-
-                j += 3
+                j, params = parse_fixed_param(params, j, this_args, name, param_type)
             elif param_type == "choice":
-                if len(this_args) != 3:
-                    print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
-                    my_exit(181)
-
-                values = re.split(r'\s*,\s*', str(this_args[j + 2]))
-
-                values[:] = [x for x in values if x != ""]
-
-                values = sort_numerically_or_alphabetically(values)
-
-                param = {
-                    "name": name,
-                    "type": "choice",
-                    "is_ordered": True,
-                    "values": values
-                }
-
-                global_vars["parameter_names"].append(name)
-
-                params.append(param)
-
-                j += 3
+                j, params = parse_choice_param(params, j, this_args, name, param_type)
             else:
                 print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
@@ -1089,6 +946,164 @@ def parse_experiment_parameters():
         print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
+
+def parse_range_param (params, j, this_args, name, param_type):
+    if args.model and args.model == "FACTORIAL":
+        print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
+        my_exit(181)
+
+    if len(this_args) != 5 and len(this_args) != 4:
+        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
+        my_exit(181)
+
+    try:
+        lower_bound = float(this_args[j + 2])
+    except Exception:
+        print_red(f"\n⚠ {this_args[j + 2]} is not a number")
+        my_exit(181)
+
+    try:
+        upper_bound = float(this_args[j + 3])
+    except Exception:
+        print_red(f"\n⚠ {this_args[j + 3]} is not a number")
+        my_exit(181)
+
+    if upper_bound == lower_bound:
+        if lower_bound == 0:
+            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
+            my_exit(181)
+        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+        lower_bound = -upper_bound
+
+    if lower_bound > upper_bound:
+        print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+        upper_bound, lower_bound = lower_bound, upper_bound
+
+    skip = 5
+
+    try:
+        value_type = this_args[j + 4]
+    except Exception:
+        value_type = "float"
+        skip = 4
+
+    valid_value_types = ["int", "float"]
+
+    if value_type not in valid_value_types:
+        valid_value_types_string = ", ".join(valid_value_types)
+        print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+        my_exit(181)
+
+    if value_type == "int":
+        if not helpers.looks_like_int(lower_bound):
+            print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
+            lower_bound = math.floor(lower_bound)
+
+        if not helpers.looks_like_int(upper_bound):
+            print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
+            upper_bound = math.ceil(upper_bound)
+
+    old_lower_bound = lower_bound
+    old_upper_bound = upper_bound
+
+    lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
+    upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
+
+    if value_type == "int":
+        lower_bound = math.floor(lower_bound)
+        upper_bound = math.ceil(upper_bound)
+
+    if args.continue_previous_job:
+        if old_lower_bound != lower_bound and found_lower_bound_in_file and old_lower_bound < lower_bound:
+            print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+            search_space_reduction_warning = True
+
+        if old_upper_bound != upper_bound and found_upper_bound_in_file and old_upper_bound > upper_bound:
+            print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+            search_space_reduction_warning = True
+
+    param = {
+        "name": name,
+        "type": param_type,
+        "bounds": [lower_bound, upper_bound],
+        "value_type": value_type
+    }
+
+    if args.gridsearch:
+        values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
+
+        if value_type == "int":
+            values = [int(value) for value in values]
+            changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
+        else:
+            changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
+
+        values = sorted(set(values))
+        values = [str(helpers.to_int_when_possible(value)) for value in values]
+
+        param = {
+            "name": name,
+            "type": "choice",
+            "is_ordered": True,
+            "values": values
+        }
+
+    global_vars["parameter_names"].append(name)
+
+    params.append(param)
+
+    j += skip
+
+    return j, params
+
+def parse_fixed_param (params, j, this_args, name, param_type):
+    if len(this_args) != 3:
+        print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
+        my_exit(181)
+
+    value = this_args[j + 2]
+
+    value = value.replace('\r', ' ').replace('\n', ' ')
+
+    param = {
+        "name": name,
+        "type": "fixed",
+        "value": value
+    }
+
+    global_vars["parameter_names"].append(name)
+
+    params.append(param)
+
+    j += 3
+
+    return j, params
+
+def parse_choice_param (params, j, this_args, name, param_type):
+    if len(this_args) != 3:
+        print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
+        my_exit(181)
+
+    values = re.split(r'\s*,\s*', str(this_args[j + 2]))
+
+    values[:] = [x for x in values if x != ""]
+
+    values = sort_numerically_or_alphabetically(values)
+
+    param = {
+        "name": name,
+        "type": "choice",
+        "is_ordered": True,
+        "values": values
+    }
+
+    global_vars["parameter_names"].append(name)
+
+    params.append(param)
+
+    j += 3
+
+    return j, params
 
 def replace_parameters_in_string(parameters, input_string):
     print_debug("replace_parameters_in_string")

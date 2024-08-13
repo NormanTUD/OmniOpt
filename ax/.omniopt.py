@@ -2955,8 +2955,16 @@ def finish_previous_jobs(new_msgs):
 
                 elif b == "RestartOnDifferentNode":
                     if hostname_from_out_file:
-                        print_yellow("RestartOnDifferentNode not yet fully implemented")
+                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
                         count_defective_nodes(None, hostname_from_out_file)
+
+                        new_job = self.executor.submit(job.script)
+                        submitted_jobs(1)
+                        #except TypeError as e:
+                        #    print_red(f"Error while trying to submit job: {e}")
+
+                        global_vars["jobs"].append((new_job, trial_index))
+
                     else:
                         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 

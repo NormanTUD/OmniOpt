@@ -2951,21 +2951,21 @@ def finish_previous_jobs(new_msgs):
                         print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
                         count_defective_nodes(None, hostname_from_out_file)
                     else:
-                        print_red("Cannot do ExcludeNode because the host could not be determined")
+                        print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
                 elif b == "RestartOnDifferentNode":
                     if hostname_from_out_file:
                         print_yellow("RestartOnDifferentNode not yet fully implemented")
                         count_defective_nodes(None, hostname_from_out_file)
                     else:
-                        print_red("Cannot do RestartOnDifferentNode because the host could not be determined")
+                        print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
                 elif b == "ExcludeNodeAndRestartAll":
                     if hostname_from_out_file:
                         print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
                         count_defective_nodes(None, hostname_from_out_file)
                     else:
-                        print_red("Cannot do ExcludeNodeAndRestartAll because the host could not be determined")
+                        print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
                 else:
                     print_red(f"Orchestrator: {b} not yet implemented!")

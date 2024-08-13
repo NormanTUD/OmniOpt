@@ -92,7 +92,7 @@ def plot_histograms(dataframe):
 
         for j in range(args.bins):
             color = colormap(j / 9)  # Calculate color based on colormap
-            bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j+1])
+            bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j + 1])
             bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j+1]:.2f}'
             ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
 

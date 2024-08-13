@@ -6,6 +6,8 @@
 import sys
 import platform
 
+ORCHESTRATE_TODO = {}
+
 class SignalUSR (Exception):
     pass
 
@@ -2978,11 +2980,14 @@ def orchestrate_job (job, trial_index):
     stdout_path = stdout_path.rstrip(' ')
 
     print_outfile_analyzed(stdout_path)
-    behavs = check_orchestrator(stdout_path)
 
-    hostname_from_out_file = get_hostname_from_outfile(stdout_path)
+    _orchestrate(stdout_path, trial_index)
 
-    if len(behavs):
+def _orchestrate (stdout_path, trial_index):
+    behavs = check_orchestrator(stdout_path, trial_index)
+
+    if behavs is not None and len(behavs):
+        hostname_from_out_file = get_hostname_from_outfile(stdout_path)
         for behav in behavs:
             if behav == "ExcludeNode":
                 if hostname_from_out_file:
@@ -3033,16 +3038,22 @@ def orchestrate_job (job, trial_index):
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 sys.exit(210)
 
-def check_orchestrator (stdout_path):
+
+def check_orchestrator (stdout_path, trial_index):
     behavs = []
 
     if orchestrator and "errors" in orchestrator:
         try:
             stdout = Path(stdout_path).read_text("UTF-8")
         except FileNotFoundError as e:
-            print_red(f"File not found: {stdout_path}")
 
-            return behavs
+            if stdout_path not in ORCHESTRATE_TODO.keys():
+                ORCHESTRATE_TODO[stdout_path] = trial_index
+                print_red(f"File not found: {stdout_path}, will try again later")
+            else:
+                print_red(f"File not found: {stdout_path}, not trying again")
+
+            return None
 
         for oc in orchestrator["errors"]:
             #name = oc["name"]
@@ -3054,6 +3065,10 @@ def check_orchestrator (stdout_path):
                     if behavior not in behavs:
                         behavs.append(behavior)
 
+    for todo_stdout_file in ORCHESTRATE_TODO.keys():
+        old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
+        if old_behavs is not None:
+            del ORCHESTRATE_TODO[todo_stdout_file]
 
     return behavs
 

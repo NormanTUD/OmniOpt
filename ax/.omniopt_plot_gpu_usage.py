@@ -13,6 +13,8 @@ import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 
+fig = None
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
@@ -66,6 +68,7 @@ def plot_gpu_usage(run_dir):
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns
 
+    global fig
     fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5 * plot_rows))
     if num_plots > 1:
         axs = axs.flatten()  # Flatten the axs array to handle both 1D and 2D subplots

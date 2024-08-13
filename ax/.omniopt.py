@@ -1772,7 +1772,6 @@ def print_best_result(csv_file_path, result_column):
                                                     tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
                                     _iterated_command += f" --save_to_file={tmp_file} "
-                                    #original_print(f"iterated_command: >>{_iterated_command}<<")
                                     plot_command(_iterated_command, tmp_file, _width)
                     else:
                         _command += f" --save_to_file={tmp_file} "

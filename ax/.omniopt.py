@@ -311,7 +311,7 @@ def write_process_info():
         LAST_CPU_MEM_TIME = None
 
 def get_line_info():
-    return (inspect.stack()[1][1], ":", inspect.stack()[1][2],":", inspect.stack()[1][3])
+    return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
 #print(f"sys.path: {sys.path}")
 

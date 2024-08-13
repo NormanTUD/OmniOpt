@@ -97,6 +97,10 @@ def plot_gpu_usage(run_dir):
         axs[j].axis('off')
 
     plt.subplots_adjust(bottom=0.086, hspace=0.35)
+
+    save_to_file_or_show_canvas()
+
+def save_to_file_or_show_canvas ():
     if args.save_to_file:
         _path = os.path.dirname(args.save_to_file)
         if _path:
@@ -106,7 +110,6 @@ def plot_gpu_usage(run_dir):
         except OSError as e:
             print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
             sys.exit(199)
-
     else:
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
         if not args.no_plt_show:

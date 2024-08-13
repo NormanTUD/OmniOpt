@@ -3036,11 +3036,11 @@ def orchestrate_job (job, trial_index):
 def check_orchestrator (stdout_path):
     behavs = []
 
-    if orchestrator and "errors" in orchestrator:
+    if _orchestrator and "errors" in orchestrator:
         try:
             stdout = Path(stdout_path).read_text("UTF-8")
 
-            for oc in orchestrator["errors"]:
+            for oc in _orchestrator["errors"]:
                 #name = oc["name"]
                 match_strings = oc["match_strings"]
                 behavior = oc["behavior"]

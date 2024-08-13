@@ -2955,49 +2955,7 @@ def finish_previous_jobs(new_msgs):
         else:
             pass
 
-        stdout_path = str(job.paths.stdout.resolve())
-
-        print_outfile_analyzed(stdout_path)
-        behavs = check_orchestrator(stdout_path)
-
-        hostname_from_out_file = get_hostname_from_outfile(stdout_path)
-
-        if len(behavs):
-            for b in behavs:
-                if b == "ExcludeNode":
-                    if hostname_from_out_file:
-                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
-
-                elif b == "RestartOnDifferentNode":
-                    if hostname_from_out_file:
-                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
-                        count_defective_nodes(None, hostname_from_out_file)
-
-                        params_from_out_file = get_parameters_from_outfile(stdout_path)
-                        if params_from_out_file:
-                            new_job = executor.submit(evaluate, params_from_out_file)
-                            submitted_jobs(1)
-
-                            global_vars["jobs"].append((new_job, trial_index))
-                        else:
-                            print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
-
-                    else:
-                        print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
-
-                elif b == "ExcludeNodeAndRestartAll":
-                    if hostname_from_out_file:
-                        print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
-
-                else:
-                    print_red(f"Orchestrator: {b} not yet implemented!")
-                    sys.exit(210)
+        orchestrate_job(job, trial_index)
 
     if jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {jobs_finished} job"])
@@ -3005,6 +2963,56 @@ def finish_previous_jobs(new_msgs):
         progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
 
     clean_completed_jobs()
+
+def orchestrate_job (job, trial_index):
+    stdout_path = str(job.paths.stdout.resolve())
+
+    print_outfile_analyzed(stdout_path)
+    behavs = check_orchestrator(stdout_path)
+
+    hostname_from_out_file = get_hostname_from_outfile(stdout_path)
+
+    if len(behavs):
+        for behav in behavs:
+            if behav == "ExcludeNode":
+                if hostname_from_out_file:
+                    print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+                    count_defective_nodes(None, hostname_from_out_file)
+                else:
+                    print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
+
+            elif behav == "RestartOnDifferentNode":
+                if hostname_from_out_file:
+                    print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
+                    count_defective_nodes(None, hostname_from_out_file)
+
+                    params_from_out_file = get_parameters_from_outfile(stdout_path)
+                    if params_from_out_file:
+                        new_job = executor.submit(evaluate, params_from_out_file)
+                        submitted_jobs(1)
+
+                        _trial = ax_client.get_trial(trial_index)
+
+                        _trial.mark_staged(unsafe=True)
+                        _trial.mark_running(unsafe=True, no_runner_required=True)
+
+                        global_vars["jobs"].append((new_job, trial_index))
+                    else:
+                        print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+
+                else:
+                    print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
+
+            elif behav == "ExcludeNodeAndRestartAll":
+                if hostname_from_out_file:
+                    print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
+                    count_defective_nodes(None, hostname_from_out_file)
+                else:
+                    print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
+
+            else:
+                print_red(f"Orchestrator: {behav} not yet implemented!")
+                sys.exit(210)
 
 def check_orchestrator (stdout_path):
     behavs = []

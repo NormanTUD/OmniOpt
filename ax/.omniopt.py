@@ -1677,109 +1677,7 @@ def print_best_result(csv_file_path, result_column):
 
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-        show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
-
-        if os.path.exists(_pd_csv) and show_sixel_graphics:
-            if args.show_sixel_trial_index_result:
-                plot_types = [
-                    {
-                        "type": "trial_index_result",
-                        "min_done_jobs": 2
-                    }
-                ]
-
-            if args.show_sixel_scatter:
-                plot_types.append(
-                    {
-                        "type": "scatter",
-                        "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
-                        "iterate_through": x_y_combinations,
-                        "dpi": 76,
-                        "filename": "plot_%0_%1_%2" # omit file ending
-                    }
-                )
-
-            if args.show_sixel_general:
-                plot_types.append(
-                    {
-                        "type": "general"
-                    }
-                )
-
-            for plot in plot_types:
-                plot_type = plot["type"]
-                min_done_jobs = 1
-
-                if "min_done_jobs" in plot:
-                    min_done_jobs = plot["min_done_jobs"]
-
-                if count_done_jobs() < min_done_jobs:
-                    print_debug(
-                        f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
-                    )
-                    continue
-
-                try:
-                    _tmp = f"{CURRENT_RUN_FOLDER}/plots/"
-                    _width = 1200
-
-                    if "width" in plot:
-                        _width = plot["width"]
-
-                    if not os.path.exists(_tmp):
-                        os.makedirs(_tmp)
-
-                    j = 0
-                    tmp_file = f"{_tmp}/{plot_type}.png"
-                    _fn = ""
-                    _p = []
-                    if "filename" in plot:
-                        _fn = plot['filename']
-
-                    while os.path.exists(tmp_file):
-                        j += 1
-                        tmp_file = f"{_tmp}/{plot_type}_{j}.png"
-
-                    maindir = os.path.dirname(os.path.realpath(__file__))
-
-                    _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
-                    if "dpi" in plot:
-                        _command += " --dpi=" + str(plot["dpi"])
-
-                    if "params" in plot.keys():
-                        if "iterate_through" in plot.keys():
-                            iterate_through = plot["iterate_through"]
-                            if len(iterate_through):
-                                for j in range(0, len(iterate_through)):
-                                    this_iteration = iterate_through[j]
-                                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
-
-                                    j = 0
-                                    tmp_file = f"{_tmp}/{plot_type}.png"
-                                    _fn = ""
-                                    _p = []
-                                    if "filename" in plot:
-                                        _fn = plot['filename']
-                                        if len(this_iteration):
-                                            _p = [plot_type, this_iteration[0], this_iteration[1]]
-                                            if len(_p):
-                                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
-
-                                            while os.path.exists(tmp_file):
-                                                j += 1
-                                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
-                                                if "filename" in plot and len(_p):
-                                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
-
-                                    _iterated_command += f" --save_to_file={tmp_file} "
-                                    plot_command(_iterated_command, tmp_file, _width)
-                    else:
-                        _command += f" --save_to_file={tmp_file} "
-                        plot_command(_command, tmp_file, _width)
-                except Exception as e:
-                    tb = traceback.format_exc()
-                    print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
-                    print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+        show_sixel_graphics(_pd_csv)
 
         SHOWN_END_TABLE = True
     except Exception as e:
@@ -1787,6 +1685,111 @@ def print_best_result(csv_file_path, result_column):
         print_red(f"[print_best_result] Error during print_best_result: {e}, tb: {tb}")
 
     return -1
+
+def show_sixel_graphics (_pd_csv):
+    show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+
+    if os.path.exists(_pd_csv) and show_sixel_graphics:
+        if args.show_sixel_trial_index_result:
+            plot_types = [
+                {
+                    "type": "trial_index_result",
+                    "min_done_jobs": 2
+                }
+            ]
+
+        if args.show_sixel_scatter:
+            plot_types.append(
+                {
+                    "type": "scatter",
+                    "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
+                    "iterate_through": x_y_combinations,
+                    "dpi": 76,
+                    "filename": "plot_%0_%1_%2" # omit file ending
+                }
+            )
+
+        if args.show_sixel_general:
+            plot_types.append(
+                {
+                    "type": "general"
+                }
+            )
+
+        for plot in plot_types:
+            plot_type = plot["type"]
+            min_done_jobs = 1
+
+            if "min_done_jobs" in plot:
+                min_done_jobs = plot["min_done_jobs"]
+
+            if count_done_jobs() < min_done_jobs:
+                print_debug(
+                    f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
+                )
+                continue
+
+            try:
+                _tmp = f"{CURRENT_RUN_FOLDER}/plots/"
+                _width = 1200
+
+                if "width" in plot:
+                    _width = plot["width"]
+
+                if not os.path.exists(_tmp):
+                    os.makedirs(_tmp)
+
+                j = 0
+                tmp_file = f"{_tmp}/{plot_type}.png"
+                _fn = ""
+                _p = []
+                if "filename" in plot:
+                    _fn = plot['filename']
+
+                while os.path.exists(tmp_file):
+                    j += 1
+                    tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+
+                maindir = os.path.dirname(os.path.realpath(__file__))
+
+                _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+                if "dpi" in plot:
+                    _command += " --dpi=" + str(plot["dpi"])
+
+                if "params" in plot.keys():
+                    if "iterate_through" in plot.keys():
+                        iterate_through = plot["iterate_through"]
+                        if len(iterate_through):
+                            for j in range(0, len(iterate_through)):
+                                this_iteration = iterate_through[j]
+                                _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+
+                                j = 0
+                                tmp_file = f"{_tmp}/{plot_type}.png"
+                                _fn = ""
+                                _p = []
+                                if "filename" in plot:
+                                    _fn = plot['filename']
+                                    if len(this_iteration):
+                                        _p = [plot_type, this_iteration[0], this_iteration[1]]
+                                        if len(_p):
+                                            tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
+
+                                        while os.path.exists(tmp_file):
+                                            j += 1
+                                            tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                                            if "filename" in plot and len(_p):
+                                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
+
+                                _iterated_command += f" --save_to_file={tmp_file} "
+                                plot_command(_iterated_command, tmp_file, _width)
+                else:
+                    _command += f" --save_to_file={tmp_file} "
+                    plot_command(_command, tmp_file, _width)
+            except Exception as e:
+                tb = traceback.format_exc()
+                print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
+                print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
 
 def show_end_table_and_save_end_files(csv_file_path, result_column):
     print_debug(f"show_end_table_and_save_end_files({csv_file_path}, {result_column})")

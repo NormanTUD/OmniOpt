@@ -201,8 +201,6 @@ function list_option_for_job {
 		CONTINUED_FROM="$(cat $THISPROJECTDIR/$NUMBER/checkpoint_load_source)"
 	fi
 
-	ERRORCOUNTER=""
-
 	input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
 
 	FAILED_JOBS=$(perl -e '

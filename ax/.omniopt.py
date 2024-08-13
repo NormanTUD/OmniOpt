@@ -3697,7 +3697,6 @@ def _count_done_jobs(csv_file_path):
     results = 0
 
     if not os.path.exists(csv_file_path):
-        print_yellow(f"CSV file does not exist at path: {csv_file_path}")
         return results
 
     df = None
@@ -3747,7 +3746,6 @@ def _count_sobol_steps(csv_file_path):
     sobol_count = 0
 
     if not os.path.exists(csv_file_path):
-        print_yellow(f"CSV file does not exist at path: {csv_file_path}")
         return sobol_count
 
     df = None

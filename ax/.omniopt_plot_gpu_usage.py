@@ -66,7 +66,7 @@ def plot_gpu_usage(run_dir):
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns
 
-    fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5*plot_rows))
+    fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5 * plot_rows))
     if num_plots > 1:
         axs = axs.flatten()  # Flatten the axs array to handle both 1D and 2D subplots
 
@@ -91,7 +91,6 @@ def plot_gpu_usage(run_dir):
         if not args.no_legend:
             _ax.legend(loc='upper right')
 
-
     # Hide empty subplots
     for j in range(num_plots, plot_rows * plot_cols):
         axs[j].axis('off')
@@ -100,7 +99,7 @@ def plot_gpu_usage(run_dir):
 
     save_to_file_or_show_canvas()
 
-def save_to_file_or_show_canvas ():
+def save_to_file_or_show_canvas():
     if args.save_to_file:
         _path = os.path.dirname(args.save_to_file)
         if _path:

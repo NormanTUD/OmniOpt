@@ -2990,7 +2990,7 @@ def orchestrate_job (job, trial_index):
                         print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
                         count_defective_nodes(None, hostname_from_out_file)
                     else:
-                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
+                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again. The job only will be resubmitted.")
 
                     params_from_out_file = get_parameters_from_outfile(stdout_path)
                     if params_from_out_file:

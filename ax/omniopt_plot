@@ -217,6 +217,11 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
+if [[ "$help" -eq 1 ]]; then
+	echo "omniopt_plot: Plot omniopt runs"
+	exit 0
+fi
+
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 	# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")

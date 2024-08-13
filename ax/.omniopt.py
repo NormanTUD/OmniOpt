@@ -3205,7 +3205,7 @@ def is_slurm_job():
         return True
     return False
 
-def _sleep(t):
+def _sleep(t: int):
     if not args.no_sleep:
         print_debug(f"Sleeping {t} second(s) before continuation")
         time.sleep(t)

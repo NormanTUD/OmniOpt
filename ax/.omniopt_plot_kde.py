@@ -117,7 +117,9 @@ def plot_histograms(dataframe):
     warnings.filterwarnings("ignore")
 
     plt.tight_layout()
+    save_to_file_or_show_canvas()
 
+def save_to_file_or_show_canvas():
     if args.save_to_file:
         _path = os.path.dirname(args.save_to_file)
         if _path:

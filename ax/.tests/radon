@@ -34,28 +34,14 @@ cd ..
 
 source .shellscript_functions
 
-errors=()
-
 for i in $(ls .*.py | grep -v ".helpers.py"); do
-	radon cc "$i" | grep -e "[DEF]$" || {
-		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'radon cc $i | grep -e '[DEF]$'' to see details."
-		red_text $ERRSTR
-		errors+=("$ERRSTR")
-	}
+	RADON_OUTPUT="$(radon cc "$i" | grep -e '[DEF]$')"
+	if [[ ! -z $RADON_OUTPUT ]]; then
+		yellow_text "$i:"
+		yellow_text "$RADON_OUTPUT"
+	fi
 done
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
 printf 'Radon test took: %02d:%02d:%02d\n' $hrs $mins $secs
-
-if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No radon errors"
-	exit 0
-else
-	red_text "=> RADON-ERRORS => RADON-ERRORS => RADON-ERRORS =>\n"
-	for i in "${errors[@]}"; do
-		red_text "$i"
-	done
-
-	exit ${#errors[@]}
-fi

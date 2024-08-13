@@ -1617,12 +1617,12 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
-def print_best_result(csv_file_path, result_column):
+def print_best_result(csv_file_path):
     global global_vars
     global SHOWN_END_TABLE
 
     try:
-        best_params = get_best_params(csv_file_path, result_column)
+        best_params = get_best_params(csv_file_path)
 
         best_result = None
 
@@ -1785,8 +1785,8 @@ def show_sixel_graphics(_pd_csv):
                 print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
                 print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
 
-def show_end_table_and_save_end_files(csv_file_path, result_column):
-    print_debug(f"show_end_table_and_save_end_files({csv_file_path}, {result_column})")
+def show_end_table_and_save_end_files(csv_file_path):
+    print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
 
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -1807,7 +1807,7 @@ def show_end_table_and_save_end_files(csv_file_path, result_column):
 
     display_failed_jobs_table()
 
-    best_result_exit = print_best_result(csv_file_path, result_column)
+    best_result_exit = print_best_result(csv_file_path)
 
     if best_result_exit > 0:
         _exit = best_result_exit
@@ -1839,7 +1839,7 @@ def write_worker_usage():
         if is_slurm_job():
             print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
-def end_program(csv_file_path, result_column="result", _force=False, exit_code=None):
+def end_program(csv_file_path, _force=False, exit_code=None):
     global global_vars
     global END_PROGRAM_RAN
 
@@ -1872,13 +1872,13 @@ def end_program(csv_file_path, result_column="result", _force=False, exit_code=N
             print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
-        new_exit = show_end_table_and_save_end_files(csv_file_path, result_column)
+        new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
     except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
-        new_exit = show_end_table_and_save_end_files(csv_file_path, result_column)
+        new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
     except TypeError as e:
@@ -4718,7 +4718,7 @@ def log_nr_of_workers():
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
         sys.exit(199)
 
-def get_best_params(csv_file_path, result_column):
+def get_best_params(csv_file_path):
     results = {
         result_column: None,
         "parameters": {}
@@ -4731,7 +4731,7 @@ def get_best_params(csv_file_path, result_column):
 
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=[result_column], inplace=True)
+        df.dropna(subset=["result"], inplace=True)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
         return results
 
@@ -4740,7 +4740,7 @@ def get_best_params(csv_file_path, result_column):
 
     best_line = None
 
-    result_idx = cols.index(result_column)
+    result_idx = cols.index("result")
 
     best_result = None
 
@@ -4777,8 +4777,8 @@ def get_best_params(csv_file_path, result_column):
             "run_time",
             "program_string"
         ]:
-            if col == result_column:
-                results[result_column] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+            if col == "result":
+                results["result"] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
             else:
                 results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
 

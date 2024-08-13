@@ -26,3 +26,4 @@ deadcode
 pyflakes
 shellcheck-py
 pylint
+bandit

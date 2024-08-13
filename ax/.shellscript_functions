@@ -35,6 +35,7 @@
 		pyflakes
 		shellcheck-py
 		pylint
+		bandit
 	)
 
 	FROZEN=""

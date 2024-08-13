@@ -37,6 +37,7 @@ class SearchSpaceExhausted (Exception):
 
 NR_INSERTED_JOBS = 0
 changed_grid_search_params = {}
+executor = None
 LAST_CPU_MEM_TIME = None
 
 SUPPORTED_MODELS = [
@@ -1340,7 +1341,7 @@ def evaluate(parameters):
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
     try:
-        original_print("parameters:", parameters)
+        original_print(f"Parameters: {json.dumps(parameters)}")
 
         parameters_keys = list(parameters.keys())
         parameters_values = list(parameters.values())
@@ -2812,21 +2813,38 @@ def print_outfile_analyzed(stdout_path):
 
         print_red(out_files_string)
 
+def get_parameters_from_outfile(stdout_path):
+    try:
+        with open(stdout_path, mode='r', encoding="utf-8") as file:
+            for line in file:
+                if line.lower().startswith("parameters: "):
+                    params = line.split(":", 1)[1].strip()
+                    params = json.loads(params)
+                    return params
+        # Wenn keine passende Zeile gefunden wurde, gib None zurück
+        return None
+    except FileNotFoundError:
+        print(f"The file {stdout_path} was not found.")
+        return None
+    except Exception as e:
+        print(f"There was an error: {e}")
+        return None
+
+
 def get_hostname_from_outfile(stdout_path):
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file:
             for line in file:
                 if line.lower().startswith("hostname: "):
-                    # Extrahiere den Hostnamen, indem du den Text nach "Hostname: " nimmst
                     hostname = line.split(":", 1)[1].strip()
                     return hostname
         # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
-        print(f"Die Datei {stdout_path} wurde nicht gefunden.")
+        print(f"The file {stdout_path} was not found.")
         return None
     except Exception as e:
-        print(f"Es gab einen Fehler: {e}")
+        print(f"There was an error: {e}")
         return None
 
 def finish_previous_jobs(new_msgs):
@@ -2943,6 +2961,7 @@ def finish_previous_jobs(new_msgs):
         behavs = check_orchestrator(stdout_path)
 
         hostname_from_out_file = get_hostname_from_outfile(stdout_path)
+        params_from_out_file = get_parameters_from_outfile(stdout_path)
 
         if len(behavs):
             for b in behavs:
@@ -2958,12 +2977,13 @@ def finish_previous_jobs(new_msgs):
                         print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
                         count_defective_nodes(None, hostname_from_out_file)
 
-                        new_job = self.executor.submit(job.script)
-                        submitted_jobs(1)
-                        #except TypeError as e:
-                        #    print_red(f"Error while trying to submit job: {e}")
+                        if params_from_out_file:
+                            new_job = executor.submit(evaluate, params_from_out_file)
+                            submitted_jobs(1)
 
-                        global_vars["jobs"].append((new_job, trial_index))
+                            global_vars["jobs"].append((new_job, trial_index))
+                        else:
+                            print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
                     else:
                         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
@@ -3177,7 +3197,7 @@ def execute_evaluation(_params):
     global global_vars
     global IS_IN_EVALUATE
 
-    trial_index, parameters, trial_counter, executor, next_nr_steps, phase = _params
+    trial_index, parameters, trial_counter, next_nr_steps, phase = _params
 
     _trial = ax_client.get_trial(trial_index)
 
@@ -3451,7 +3471,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
 
     return gs
 
-def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, _progress_bar):
+def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar):
     global random_steps
 
     if next_nr_steps == 0:
@@ -3484,7 +3504,6 @@ def create_and_execute_next_runs(next_nr_steps, executor, phase, _max_eval, _pro
                             trial_index,
                             parameters,
                             i,
-                            executor,
                             next_nr_steps,
                             phase
                         ])
@@ -3570,7 +3589,8 @@ def get_number_of_steps(_max_eval):
 
 def get_executor():
     log_folder = f'{CURRENT_RUN_FOLDER}/single_runs/%j'
-    executor = None
+    global executor
+
     if args.force_local_execution:
         executor = submitit.LocalExecutor(folder=log_folder)
     else:
@@ -3594,8 +3614,6 @@ def get_executor():
 
     if args.exclude:
         print_yellow(f"Excluding the following nodes: {args.exclude}")
-
-    return executor
 
 def append_and_read(file, nr=0):
     try:
@@ -3811,7 +3829,7 @@ def break_run_search (_name, _max_eval, _progress_bar):
 
     return False
 
-def run_search(executor, _progress_bar):
+def run_search(_progress_bar):
     global NR_OF_0_RESULTS
 
     NR_OF_0_RESULTS = 0
@@ -3835,7 +3853,7 @@ def run_search(executor, _progress_bar):
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
 
-            nr_of_items = create_and_execute_next_runs(next_nr_steps, executor, "systematic", max_eval, _progress_bar)
+            nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -4109,7 +4127,7 @@ def main():
 
     print_overview_tables(experiment_parameters, experiment_args)
 
-    executor = get_executor()
+    get_executor()
     searching_for = "minimum" if not args.maximize else "maximum"
 
     load_existing_job_data_into_ax_client()
@@ -4147,7 +4165,7 @@ def main():
 
         update_progress_bar(progress_bar, count_done_jobs())
 
-        run_search(executor, progress_bar)
+        run_search(progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
@@ -4386,8 +4404,8 @@ def run_tests():
         "choice"
     )
     nr_errors += is_equal(
-        "create_and_execute_next_runs(0, None, None, None, None)",
-        create_and_execute_next_runs(0, None, None, None, None),
+        "create_and_execute_next_runs(0, None, None, None)",
+        create_and_execute_next_runs(0, None, None, None),
         0
     )
 

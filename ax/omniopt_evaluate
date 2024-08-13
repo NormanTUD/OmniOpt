@@ -717,11 +717,6 @@ function main {
 	else
 		debug_code "The folder '$PROJECTDIR' does not exist."
 		change_project_dir
-		if [[ $? = 0 ]]; then
-			main
-		else
-			exit $?
-		fi
 		main
 	fi
 }

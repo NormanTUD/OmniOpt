@@ -852,26 +852,6 @@ fi
 
 python_pid=""
 
-JOB_START_TIME=$SLURM_JOB_START_TIME
-JOB_END_TIME=$SLURM_JOB_END_TIME
-
-run_before_end () {
-	if [[ -z "$already_sent_signal" ]]; then
-		if command -v sbatch >/dev/null; then
-			# Weird solution, but signals never reached for some reason, and this... works?
-			sleep_time=$((JOB_END_TIME - JOB_START_TIME - 100))
-			# Überprüfen, ob die Zeitdifferenz positiv ist, um zu vermeiden, dass das Skript im negativen Bereich schläft
-			if [ $sleep_time -gt 0 ]; then
-				sleep "$sleep_time"
-
-				kill_python_if_started "Timeout"
-			else
-				echo "It is recommended that you run this in a slurm job."
-			fi
-		fi
-	fi
-}
-
 #SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 
@@ -969,8 +949,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
 	IFS=$' '
 	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
 	#echo "python3 $SCRIPT_DIR/.omniopt.py $args_string"
-
-	#run_before_end &
 
 	set +e
 	if [[ -z $RUN_WITH_COVERAGE ]]; then

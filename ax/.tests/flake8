@@ -36,9 +36,11 @@ source .shellscript_functions
 
 errors=()
 
+IGNOREME="E501,E302,E265,E128,E305,E261,E126,E124"
+
 for i in $(ls .*.py | grep -v ".helpers.py"); do
-	flake8 --ignore E501,E302,E265,E128,E305,E261,E126,E124 $i || {
-		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'flake8 $i' to see details."
+	flake8 --ignore "$IGNOREME" "$i" || {
+		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'flake8 --ignore $IGNOREME $i' to see details."
 		red_text $ERRSTR
 		errors+=("$ERRSTR")
 	}

@@ -305,7 +305,7 @@
 			fi
 
 			if ! python3 -c 'from distutils.sysconfig import get_makefile_filename as m; from os.path import isfile; import sys ; sys.exit(not isfile(m()))' >/dev/null 2>/dev/null; then
-				red_text "❌python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)"
+				red_text "❌python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)\n"
 				exit 5
 			fi
 

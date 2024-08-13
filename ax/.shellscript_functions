@@ -38,6 +38,7 @@
 		bandit
 		radon
 		vulture
+		flake8
 	)
 
 	FROZEN=""

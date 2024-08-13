@@ -60,6 +60,12 @@ yellow_text "Trying flake8..."
 	errors+=("flake8 failed")
 }
 
+yellow_text "Trying bandit..."
+.tests/bandit || {
+	red_text "bandit failed"
+	errors+=("bandit failed")
+}
+
 yellow_text "Trying shellcheck..."
 .tests/shellcheck || {
 	red_text "shellcheck failed"

@@ -292,6 +292,10 @@
 		_tput el
 	}
 
+	if ! command -v git >/dev/null 2>/dev/null; then
+		red_text "❌git not found. Try installing it with 'sudo apt-get install git' (depending on your distro)"
+	fi
+
 	if ! command -v python3 >/dev/null 2>/dev/null; then
 		red_text "❌python3 not found. Try installing it with 'sudo apt-get install python3' (depending on your distro)"
 	fi

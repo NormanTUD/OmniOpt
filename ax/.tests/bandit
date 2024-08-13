@@ -37,7 +37,7 @@ source .shellscript_functions
 errors=()
 
 for i in $(ls .*.py | grep -v ".helpers.py"); do
-	bandit -ll -q -s B602 $i || {
+	bandit -lll -q -s B602 $i || {
 		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'bandit -lll -q -s B602 $i' to see details."
 		red_text $ERRSTR
 		errors+=("$ERRSTR")

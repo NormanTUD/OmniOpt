@@ -2961,7 +2961,6 @@ def finish_previous_jobs(new_msgs):
         behavs = check_orchestrator(stdout_path)
 
         hostname_from_out_file = get_hostname_from_outfile(stdout_path)
-        params_from_out_file = get_parameters_from_outfile(stdout_path)
 
         if len(behavs):
             for b in behavs:
@@ -2977,6 +2976,7 @@ def finish_previous_jobs(new_msgs):
                         print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
                         count_defective_nodes(None, hostname_from_out_file)
 
+                        params_from_out_file = get_parameters_from_outfile(stdout_path)
                         if params_from_out_file:
                             new_job = executor.submit(evaluate, params_from_out_file)
                             submitted_jobs(1)

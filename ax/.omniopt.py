@@ -159,7 +159,7 @@ try:
 except ModuleNotFoundError as e:
     original_print(f"Base modules could not be loaded: {e}")
     my_exit(31)
-except SignalINT:
+except (KeyboardInterrupt, SignalINT):
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(128 + 2)
 except SignalUSR:

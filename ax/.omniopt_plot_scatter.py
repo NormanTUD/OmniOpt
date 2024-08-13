@@ -74,11 +74,11 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def set_margins ():
+def set_margins():
     print_debug("set_margins()")
-    left  = 0.04
+    left = 0.04
     if args.save_to_file and len(args.allow_axes):
-        left  = 0.1
+        left = 0.1
     right = 0.864
     bottom = 0.171
     top = 0.9
@@ -128,7 +128,7 @@ def set_title(df_filtered, result_column_values, num_entries, _min, _max):
 
     fig.suptitle(title)
 
-def check_args ():
+def check_args():
     print_debug("check_args()")
     global args
 
@@ -142,7 +142,7 @@ def check_args ():
 
     helpers.check_path(args.run_dir)
 
-def check_dir_and_csv (csv_file_path):
+def check_dir_and_csv(csv_file_path):
     print_debug("check_dir_and_csv()")
     if not os.path.isdir(args.run_dir):
         print(f"The path {args.run_dir} does not point to a folder. Must be a folder.")
@@ -170,7 +170,7 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
         if _exit:
             sys.exit(4)
 
-def get_data (csv_file_path, _min, _max, old_headers_string=None):
+def get_data(csv_file_path, _min, _max, old_headers_string=None):
     print_debug("get_data")
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
@@ -217,7 +217,7 @@ def get_data (csv_file_path, _min, _max, old_headers_string=None):
 
 def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
     print_debug("hide_empty_plots()")
-    for i in range(len(parameter_combinations), num_rows*num_cols):
+    for i in range(len(parameter_combinations), num_rows * num_cols):
         row = i // num_cols
         col = i % num_cols
         axs[row, col].set_visible(False)
@@ -246,7 +246,7 @@ def plot_multiple_graphs(_params):
 
                     sys.exit(17)
 
-    for i in range(len(parameter_combinations), num_rows*num_cols):
+    for i in range(len(parameter_combinations), num_rows * num_cols):
         row = i // num_cols
         col = i % num_cols
         axs[row, col].set_visible(False)
@@ -267,7 +267,7 @@ def show_legend(_scatter, axs):
         except Exception as e:
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
-def plot_single_graph (_params):
+def plot_single_graph(_params):
     axs, df_filtered, colors, cmap, norm, non_empty_graphs = _params
     print_debug("plot_single_graph()")
     _data = df_filtered
@@ -304,10 +304,10 @@ def plot_graphs(params):
         print("Wrong values in csv file")
         sys.exit(16)
 
-    c = ["darkred", "red","lightcoral", "palegreen", "green", "darkgreen"]
+    c = ["darkred", "red", "lightcoral", "palegreen", "green", "darkgreen"]
     c = c[::-1]
     v = [0, 0.3, 0.5, 0.7, 0.9, 1]
-    _l = list(zip(v,c))
+    _l = list(zip(v, c))
 
     cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
@@ -318,7 +318,7 @@ def plot_graphs(params):
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
-def get_args ():
+def get_args():
     global args
     parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
 
@@ -420,7 +420,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
 
     return non_empty_graphs
 
-def get_r (df_filtered):
+def get_r(df_filtered):
     print_debug("get_r")
     r = 2
 
@@ -429,7 +429,7 @@ def get_r (df_filtered):
 
     return r
 
-def get_parameter_combinations (df_filtered):
+def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
     r = get_r(df_filtered)
 
@@ -488,7 +488,7 @@ def main():
 
     global fig
 
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(15*num_cols, 7*num_rows))
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
     plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
 

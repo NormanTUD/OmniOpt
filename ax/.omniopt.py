@@ -3597,10 +3597,7 @@ def get_random_steps_from_prev_job():
     if not os.path.exists(prev_step_file):
         return count_sobol_steps()
 
-    return add_to_phase_counter("random", count_sobol_steps() +
-        _count_sobol_steps(f"{args.continue_previous_job}/results.csv"),
-        args.continue_previous_job
-    )
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
 def get_number_of_steps(_max_eval):
     _random_steps = args.num_random_steps

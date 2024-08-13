@@ -233,7 +233,7 @@ while (my $line = <$fh>) {
 }
 
 close $fh;
-' "$input_file" | egrep -v '^\s*0\s*$' | wc -l)
+' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
 
 	error_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
 	if [[ -e "$error_file" ]]; then
@@ -426,7 +426,7 @@ while (my $line = <$fh>) {
 }
 
 close $fh;
-			' "$input_file" | egrep -v '^\s*0\s*$' | wc -l)
+			' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
 
 			exit_code=$?
 			if [[ $exit_code -ne 0 ]]; then

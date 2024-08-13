@@ -67,6 +67,10 @@ while [[ -d $TO_DIR ]]; do
 	TO_DIR=${TO_DIR_BASE}_${TO_DIR_NR}
 done
 
+if ! command -v python3 >/dev/null 2>/dev/null; then
+	echo_red "❌python3 not found. Try installing it with 'sudo apt-get install python3' (depending on your distro)"
+fi
+
 total=0
 CLONECOMMAND="git clone --depth=1 $COPY_FROM $TO_DIR"
 

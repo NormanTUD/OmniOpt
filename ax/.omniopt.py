@@ -4151,12 +4151,10 @@ def main():
     ])
 
     if args.orchestrator_file:
-        orchestrator = parse_orchestrator_file(args.orchestrator_file)
-        print(orchestrator)
-        #if SYSTEM_HAS_SBATCH:
-        #    orchestrator = parse_orchestrator_file(args.orchestrator_file)
-        #else:
-        #    print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
+        if SYSTEM_HAS_SBATCH:
+            orchestrator = parse_orchestrator_file(args.orchestrator_file)
+        else:
+            print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
     gs_hr = human_readable_generation_strategy()
     if gs_hr:

@@ -25,7 +25,10 @@ except ModuleNotFoundError as e:
 def my_exit(_code=0):
     tb = traceback.format_exc()
 
-    print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
+    try: 
+        print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
+    except NameError:
+        print(f"Exiting with error code {_code}. Traceback: {tb}")
 
     time.sleep(5)
 
@@ -65,6 +68,7 @@ console = None
 
 try:
     from rich.console import Console
+
     console = Console(
         force_terminal=True,
         force_interactive=True,

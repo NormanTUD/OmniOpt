@@ -4541,6 +4541,8 @@ def get_first_line_of_file_that_contains_string(i, s):
     return ""
 
 def get_python_errors ():
+    synerr = "Python syntax error detected. Check log file."
+
     return [
         ["ModuleNotFoundError", "Module not found"],
         ["ImportError", "Module not found"],
@@ -4695,8 +4697,6 @@ def get_errors_from_outfile(i):
                 if str(r) in special_exit_codes:
                     _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
                 errors.append(_error)
-
-        synerr = "Python syntax error detected. Check log file."
 
         for search_array in get_python_errors():
             search_for_string = search_array[0]

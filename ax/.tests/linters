@@ -54,6 +54,12 @@ yellow_text "Trying deadcode..."
 	errors+=("deadcode failed")
 }
 
+yellow_text "Trying flake8..."
+.tests/flake8 || {
+	red_text "flake8 failed"
+	errors+=("flake8 failed")
+}
+
 yellow_text "Trying shellcheck..."
 .tests/shellcheck || {
 	red_text "shellcheck failed"

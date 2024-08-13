@@ -67,6 +67,20 @@ while [[ -d $TO_DIR ]]; do
 	TO_DIR=${TO_DIR_BASE}_${TO_DIR_NR}
 done
 
+
+
+if ! command -v curl >/dev/null 2>/dev/null; then
+	red_text "❌curl not found. Try installing it with 'sudo apt-get install curl' (depending on your distro)"
+fi
+
+if ! command -v wget >/dev/null 2>/dev/null; then
+	red_text "❌wget not found. Try installing it with 'sudo apt-get install wget' (depending on your distro)"
+fi
+
+if ! command -v uuidgen >/dev/null 2>/dev/null; then
+	red_text "❌uuidgen not found. Try installing it with 'sudo apt-get install uuid-runtime' (depending on your distro)"
+fi
+
 if ! command -v git >/dev/null 2>/dev/null; then
 	echo_red "❌git not found. Try installing it with 'sudo apt-get install python3' (depending on your distro)"
 fi

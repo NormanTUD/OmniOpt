@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+fig = None
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
@@ -63,6 +65,8 @@ def plot_histograms(dataframe):
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
         sys.exit(42)
+
+    global fix
 
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
     try:

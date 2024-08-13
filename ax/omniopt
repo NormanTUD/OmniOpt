@@ -244,7 +244,8 @@ function remaining_time {
 #SBATCH --signal=B:USR1@200
 
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
-export ORIGINAL_PWD=$(pwd)
+ORIGINAL_PWD="$(pwd)"
+export ORIGINAL_PWD
 
 set -e
 set -o pipefail
@@ -262,7 +263,7 @@ slurmlogpath () {
 }
 
 function calltracer {
-	LINE_AND_FUNCTION=$(caller)
+	LINE_AND_FUNCTION="$(caller)"
 	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
 		red_text "Error occured in file/line: $LINE_AND_FUNCTION"
 	fi

@@ -27,3 +27,4 @@ pyflakes
 shellcheck-py
 pylint
 bandit
+radon

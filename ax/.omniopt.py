@@ -4541,6 +4541,38 @@ def get_first_line_of_file_that_contains_string(i, s):
 
     return ""
 
+def get_python_errors ():
+    return [
+        ["ModuleNotFoundError", "Module not found"],
+        ["ImportError", "Module not found"],
+        ["SyntaxError", synerr],
+        ["NameError", synerr],
+        ["ValueError", synerr],
+        ["TypeError", synerr],
+        ["AssertionError", "Assertion failed"],
+        ["AttributeError", "Attribute Error"],
+        ["EOFError", "End of file Error"],
+        ["IndexError", "Wrong index for array. Check logs"],
+        ["KeyError", "Wrong key for dict"],
+        ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
+        ["MemoryError", "Python memory error detected"],
+        ["NotImplementedError", "Something was not implemented"],
+        ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
+        ["OverflowError", "There was an error with float overflow"],
+        ["RecursionError", "Your program had a recursion error"],
+        ["ReferenceError", "There was an error with a weak reference"],
+        ["RuntimeError", "Something went wrong with your program. Try checking the log."],
+        ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
+        ["TabError", "You used tab instead of spaces in your code"],
+        ["SystemError", "Some error SystemError was found. Check the log."],
+        ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
+        ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
+        ["error: argument", "Wrong argparse argument"],
+        ["error: unrecognized arguments", "Wrong argparse argument"],
+        ["CUDNN_STATUS_INTERNAL_ERROR", "Cuda had a problem. Try to delete ~/.nv and try again."],
+        ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
+    ]
+
 def get_exit_codes():
     return {
         "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
@@ -4667,38 +4699,7 @@ def get_errors_from_outfile(i):
 
         synerr = "Python syntax error detected. Check log file."
 
-        search_for_python_errors = [
-            ["ModuleNotFoundError", "Module not found"],
-            ["ImportError", "Module not found"],
-            ["SyntaxError", synerr],
-            ["NameError", synerr],
-            ["ValueError", synerr],
-            ["TypeError", synerr],
-            ["AssertionError", "Assertion failed"],
-            ["AttributeError", "Attribute Error"],
-            ["EOFError", "End of file Error"],
-            ["IndexError", "Wrong index for array. Check logs"],
-            ["KeyError", "Wrong key for dict"],
-            ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
-            ["MemoryError", "Python memory error detected"],
-            ["NotImplementedError", "Something was not implemented"],
-            ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
-            ["OverflowError", "There was an error with float overflow"],
-            ["RecursionError", "Your program had a recursion error"],
-            ["ReferenceError", "There was an error with a weak reference"],
-            ["RuntimeError", "Something went wrong with your program. Try checking the log."],
-            ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
-            ["TabError", "You used tab instead of spaces in your code"],
-            ["SystemError", "Some error SystemError was found. Check the log."],
-            ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
-            ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
-            ["error: argument", "Wrong argparse argument"],
-            ["error: unrecognized arguments", "Wrong argparse argument"],
-            ["CUDNN_STATUS_INTERNAL_ERROR", "Cuda had a problem. Try to delete ~/.nv and try again."],
-            ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
-        ]
-
-        for search_array in search_for_python_errors:
+        for search_array in get_python_errors():
             search_for_string = search_array[0]
             search_for_error = search_array[1]
 

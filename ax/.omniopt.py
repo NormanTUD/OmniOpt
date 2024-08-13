@@ -4721,7 +4721,7 @@ def log_nr_of_workers():
 
 def get_best_params(csv_file_path):
     results = {
-        result_column: None,
+        "result": None,
         "parameters": {}
     }
 

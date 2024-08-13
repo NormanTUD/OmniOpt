@@ -2976,15 +2976,21 @@ def orchestrate_job (job, trial_index):
         for behav in behavs:
             if behav == "ExcludeNode":
                 if hostname_from_out_file:
-                    print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
-                    count_defective_nodes(None, hostname_from_out_file)
+                    if not is_already_in_defective_nodes(hostname_from_out_file):
+                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+                        count_defective_nodes(None, hostname_from_out_file)
+                    else:
+                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
                 else:
                     print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
             elif behav == "RestartOnDifferentNode":
                 if hostname_from_out_file:
-                    print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
-                    count_defective_nodes(None, hostname_from_out_file)
+                    if not is_already_in_defective_nodes(hostname_from_out_file):
+                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
+                        count_defective_nodes(None, hostname_from_out_file)
+                    else:
+                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
 
                     params_from_out_file = get_parameters_from_outfile(stdout_path)
                     if params_from_out_file:
@@ -3005,8 +3011,11 @@ def orchestrate_job (job, trial_index):
 
             elif behav == "ExcludeNodeAndRestartAll":
                 if hostname_from_out_file:
-                    print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
-                    count_defective_nodes(None, hostname_from_out_file)
+                    if not is_already_in_defective_nodes(hostname_from_out_file):
+                        print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
+                        count_defective_nodes(None, hostname_from_out_file)
+                    else:
+                        print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
                 else:
                     print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
@@ -3917,6 +3926,29 @@ def print_logo():
          ( " ) :
           (|)""
 """)
+
+def is_already_in_defective_nodes (hostname):
+    file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
+
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    if not os.path.isfile(file_path):
+        print_red(f"Error: The file {file_path} does not exist.")
+        return False
+
+    try:
+        # Datei öffnen und Zeilen durchsuchen
+        with open(file_path, "r") as file:
+            for line in file:
+                # Zeilenenden entfernen und auf Übereinstimmung prüfen
+                if line.strip() == hostname:
+                    return True
+    except Exception as e:
+        print_red(f"Error reading the file {file_path}: {e}")
+        return False
+
+    # Wenn keine Übereinstimmung gefunden wurde
+    return False
 
 def count_defective_nodes(file_path=None, entry=None):
     """

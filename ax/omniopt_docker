@@ -3,7 +3,7 @@
 ORIGINAL_ARGS=$*
 SCRIPT_DIR=$(dirname $(realpath $0))
 
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 
 # Default values
 
@@ -131,7 +131,7 @@ _mkdir .logs
 git rev-parse HEAD > git_hash
 
 if groups | grep docker 2>/dev/null >/dev/null; then
-	docker-compose build --build-arg GetMyUsername=`whoami` || {
+	docker-compose build --build-arg GetMyUsername=$(whoami) || {
 		echo "Failed composing container"
 		exit 1
 	}
@@ -142,7 +142,7 @@ if groups | grep docker 2>/dev/null >/dev/null; then
 	}
 else
 	echo "Your user is not in the group docker. Thus, docker-compose builds need sudo. Enter your password, please."
-	sudo docker-compose build --build-arg GetMyUsername=`whoami` || {
+	sudo docker-compose build --build-arg GetMyUsername=$(whoami) || {
 		echo "Failed composing container"
 		exit 1
 	}

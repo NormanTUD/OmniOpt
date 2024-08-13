@@ -54,7 +54,7 @@ if [ ${#errors[@]} -eq 0 ]; then
 else
 	red_text "=> FLAKE8-ERRORS => FLAKE8-ERRORS => FLAKE8-ERRORS =>\n"
 	for i in "${errors[@]}"; do
-		red_text "$i"
+		red_text "$i\n"
 	done
 
 	exit ${#errors[@]}

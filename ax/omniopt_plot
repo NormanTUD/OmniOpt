@@ -2,7 +2,8 @@
 
 ORIGINAL_WHIPTAIL=$WHIPTAIL
 
-export ORIGINAL_PWD=$(pwd)
+ORIGINAL_PWD="$(pwd)"
+export ORIGINAL_PWD
 export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
 export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
 

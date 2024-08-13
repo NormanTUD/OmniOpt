@@ -67,7 +67,9 @@ while [[ -d $TO_DIR ]]; do
 	TO_DIR=${TO_DIR_BASE}_${TO_DIR_NR}
 done
 
-
+if ! command -v base64 >/dev/null 2>/dev/null; then
+	red_text "❌base64 not found. Try installing it with 'sudo apt-get install base64' (depending on your distro)"
+fi
 
 if ! command -v curl >/dev/null 2>/dev/null; then
 	red_text "❌curl not found. Try installing it with 'sudo apt-get install curl' (depending on your distro)"

@@ -325,6 +325,33 @@ function _test_nr_jobs {
 	_test "Testing if there are the right number of jobs in runs/$TESTNAME/$JOBNR/results.csv" "./.tools/phases_overview runs/__main__tests__/$JOBNR/ $NRRAND $NRNONRAND $NRMANUAL" 0
 }
 
+PYTHON_OR_COVERAGE=python3
+
+if [[ -n $RUN_WITH_COVERAGE ]]; then
+	PYTHON_OR_COVERAGE="coverage run -p"
+
+	_cluster=""
+
+	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+		if [[ -n $MYCLUSTER_HOST ]]; then
+			_cluster="_$MYCLUSTER_HOST"
+		fi
+	fi
+
+	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+	ROOT_VENV_DIR=$HOME
+
+	if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+		ROOT_VENV_DIR=$root_venv_dir
+	fi
+
+	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+	source $VENV_DIR/bin/activate
+fi
+
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 _test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 
@@ -342,33 +369,6 @@ _test "Test search space exhaustion" "./omniopt --partition=$partition --experim
 _test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=0 --experiment_name=test_wronggoing_stuff --mem_gb=1 --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD" 203
 
 _test "Test orchestrator" "./.tests/orchestrator" 0
-
-PYTHON_OR_COVERAGE=python3
-
-if [[ ! -z $RUN_WITH_COVERAGE ]]; then
-	PYTHON_OR_COVERAGE="coverage run -p"
-
-	_cluster=""
-
-	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
-		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
-		if [[ ! -z $MYCLUSTER_HOST ]]; then
-			_cluster="_$MYCLUSTER_HOST"
-		fi
-	fi
-
-	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
-
-	ROOT_VENV_DIR=$HOME
-
-	if [[ ! -z $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
-		ROOT_VENV_DIR=$root_venv_dir
-	fi
-
-	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
-
-	source $VENV_DIR/bin/activate
-fi
 
 _test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
 
@@ -475,7 +475,7 @@ else
 	exit ${#errors[@]}
 fi
 
-if [[ ! -z $RUN_WITH_COVERAGE ]]; then
+if [[ -n $RUN_WITH_COVERAGE ]]; then
 	coverage combine
 	coverage xml
 	coverage html

@@ -1584,8 +1584,8 @@ def display_failed_jobs_table():
         print_red(f"Error: {str(e)}")
 
 def plot_command(_command, tmp_file, _width=1300):
-    show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
-    if not show_sixel_graphics:
+    _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
+    if not _show_sixel_graphics:
         return
 
     print_debug(f"command: {_command}")
@@ -1680,9 +1680,9 @@ def print_best_result(csv_file_path):
     return -1
 
 def show_sixel_graphics(_pd_csv):
-    show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+    _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
-    if os.path.exists(_pd_csv) and show_sixel_graphics:
+    if os.path.exists(_pd_csv) and _show_sixel_graphics:
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
         if args.show_sixel_trial_index_result:
             plot_types = [

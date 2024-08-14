@@ -3151,6 +3151,10 @@ def get_desc_progress_text(new_msgs=[]):
             if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
                 worker_percentage_usage.append(this_values)
 
+            workers_strings = get_workers_string()
+            if workers_strings:
+                in_brackets.append(workers_strings)
+
     #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
 
     if args.verbose_tqdm:
@@ -3159,11 +3163,6 @@ def get_desc_progress_text(new_msgs=[]):
 
         if max_eval:
             in_brackets.append(f"max_eval: {max_eval}")
-
-    if SYSTEM_HAS_SBATCH:
-        workers_strings = get_workers_string()
-        if workers_strings:
-            in_brackets.append(workers_strings)
 
     if len(new_msgs):
         for new_msg in new_msgs:

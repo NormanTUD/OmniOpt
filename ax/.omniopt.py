@@ -1478,7 +1478,7 @@ class NpEncoder(json.JSONEncoder):
         return super(NpEncoder, self).default(obj)
 
 def disable_logging():
-    if not args.verbose:
+    if args.verbose:
         return
 
     print_debug("disable_logging()")

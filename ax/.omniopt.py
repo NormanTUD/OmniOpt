@@ -952,14 +952,14 @@ def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
         lower_bound = -upper_bound
 
-def switch_lower_and_upper_if_needed(lower_bound, upper_bound):
+def switch_lower_and_upper_if_needed(name, lower_bound, upper_bound):
     if lower_bound > upper_bound:
         print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
         upper_bound, lower_bound = lower_bound, upper_bound
 
     return lower_bound, upper_bound
 
-def round_lower_and_upper_if_type_is_int (value_type, lower_bound, upper_bound):
+def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
             print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
@@ -990,7 +990,7 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
 
     die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
 
-    lower_bound, upper_bound = switch_lower_and_upper_if_needed(lower_bound, upper_bound)
+    lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
     skip = 5
 
@@ -1689,7 +1689,7 @@ def print_best_result(csv_file_path):
 
     return -1
 
-def get_plot_types (x_y_combinations):
+def get_plot_types(x_y_combinations):
     plot_types = []
 
     if args.show_sixel_trial_index_result:
@@ -1732,7 +1732,6 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
                     j = 0
                     tmp_file = f"{_tmp}/{plot_type}.png"
                     _fn = ""
-                    _p = []
                     if "filename" in plot:
                         _fn = plot['filename']
                         if len(this_iteration):
@@ -1757,7 +1756,7 @@ def show_sixel_graphics(_pd_csv):
 
     if os.path.exists(_pd_csv) and _show_sixel_graphics:
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
-        
+
         plot_types = get_plot_types(x_y_combinations)
 
         for plot in plot_types:
@@ -1784,15 +1783,16 @@ def show_sixel_graphics(_pd_csv):
                     os.makedirs(_tmp)
 
                 j = 0
-                tmp_file = f"{_tmp}/{plot_type}.png"
-                _fn = ""
-                _p = []
+                _fn = plot_type
+
                 if "filename" in plot:
                     _fn = plot['filename']
 
+                tmp_file = f"{_tmp}/{_fn}.png"
+
                 while os.path.exists(tmp_file):
                     j += 1
-                    tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                    tmp_file = f"{_tmp}/{_fn}_{j}.png"
 
                 maindir = os.path.dirname(os.path.realpath(__file__))
 
@@ -3113,7 +3113,7 @@ def get_workers_string():
 
     return string
 
-def get_best_params_str ():
+def get_best_params_str():
     if count_done_jobs() >= 0:
         best_params = get_best_params(RESULT_CSV_FILE)
         if best_params and "result" in best_params:
@@ -3140,8 +3140,6 @@ def get_desc_progress_text(new_msgs=[]):
     current_model = get_current_model()
 
     in_brackets.append(f"{current_model}")
-
-    best_params = None
 
     this_time = time.time()
 
@@ -4622,7 +4620,7 @@ def get_first_line_of_file(file_paths):
 
     return first_line
 
-def check_for_basic_string_errors(file_as_string, first_line, file_paths):
+def check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code):
     errors = []
 
     if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
@@ -4708,7 +4706,7 @@ def get_errors_from_outfile(i):
     if "Result: None" in file_as_string:
         errors.append("Got no result.")
 
-        new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths)
+        new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
         for n in new_errors:
             errors.append(n)
 

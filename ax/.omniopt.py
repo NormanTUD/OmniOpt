@@ -2909,23 +2909,7 @@ def finish_previous_jobs(new_msgs):
                     failed_jobs(1)
 
                 global_vars["jobs"].remove((job, trial_index))
-            except FileNotFoundError as error:
-                print_red(str(error))
-
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        _trial = ax_client.get_trial(trial_index)
-                        _trial.mark_failed()
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-
-                failed_jobs(1)
-                jobs_finished += 1
-
-                global_vars["jobs"].remove((job, trial_index))
-            except submitit.core.utils.UncompletedJobError as error:
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError) as error:
                 print_red(str(error))
 
                 if job:

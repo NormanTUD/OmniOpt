@@ -933,7 +933,7 @@ def check_factorial_range():
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
 
-def check_if_range_types_are_invalid(value_types, valid_value_types):
+def check_if_range_types_are_invalid(value_type, valid_value_types):
     if value_type not in valid_value_types:
         valid_value_types_string = ", ".join(valid_value_types)
         print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
@@ -959,7 +959,7 @@ def switch_lower_and_upper_if_needed(lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
-def round_lower_and_upper_if_type_is_int (lower_bound, upper_bound):
+def round_lower_and_upper_if_type_is_int (value_type, lower_bound, upper_bound):
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
             print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
@@ -1002,12 +1002,12 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
 
     valid_value_types = ["int", "float"]
 
-    check_if_range_types_are_invalid(value_types, valid_value_types)
+    check_if_range_types_are_invalid(value_type, valid_value_types)
 
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
-    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(lower_bound, upper_bound)
+    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
 
     lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
@@ -1720,6 +1720,38 @@ def get_plot_types (x_y_combinations):
 
     return plot_types
 
+def plot_params_to_cli(_command, plot, iterate_through, _tmp, plot_type):
+    if "params" in plot.keys():
+        if "iterate_through" in plot.keys():
+            iterate_through = plot["iterate_through"]
+            if len(iterate_through):
+                for j in range(0, len(iterate_through)):
+                    this_iteration = iterate_through[j]
+                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+
+                    j = 0
+                    tmp_file = f"{_tmp}/{plot_type}.png"
+                    _fn = ""
+                    _p = []
+                    if "filename" in plot:
+                        _fn = plot['filename']
+                        if len(this_iteration):
+                            _p = [plot_type, this_iteration[0], this_iteration[1]]
+                            if len(_p):
+                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
+
+                            while os.path.exists(tmp_file):
+                                j += 1
+                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                                if "filename" in plot and len(_p):
+                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
+
+                    _iterated_command += f" --save_to_file={tmp_file} "
+                    plot_command(_iterated_command, tmp_file, _width)
+    else:
+        _command += f" --save_to_file={tmp_file} "
+        plot_command(_command, tmp_file, _width)
+
 def show_sixel_graphics(_pd_csv):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
@@ -1769,36 +1801,7 @@ def show_sixel_graphics(_pd_csv):
                 if "dpi" in plot:
                     _command += " --dpi=" + str(plot["dpi"])
 
-                if "params" in plot.keys():
-                    if "iterate_through" in plot.keys():
-                        iterate_through = plot["iterate_through"]
-                        if len(iterate_through):
-                            for j in range(0, len(iterate_through)):
-                                this_iteration = iterate_through[j]
-                                _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
-
-                                j = 0
-                                tmp_file = f"{_tmp}/{plot_type}.png"
-                                _fn = ""
-                                _p = []
-                                if "filename" in plot:
-                                    _fn = plot['filename']
-                                    if len(this_iteration):
-                                        _p = [plot_type, this_iteration[0], this_iteration[1]]
-                                        if len(_p):
-                                            tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
-
-                                        while os.path.exists(tmp_file):
-                                            j += 1
-                                            tmp_file = f"{_tmp}/{plot_type}_{j}.png"
-                                            if "filename" in plot and len(_p):
-                                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
-
-                                _iterated_command += f" --save_to_file={tmp_file} "
-                                plot_command(_iterated_command, tmp_file, _width)
-                else:
-                    _command += f" --save_to_file={tmp_file} "
-                    plot_command(_command, tmp_file, _width)
+                plot_params_to_cli(_command, plot, iterate_through, _tmp, plot_type)
             except Exception as e:
                 tb = traceback.format_exc()
                 print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")

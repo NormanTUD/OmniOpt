@@ -56,7 +56,14 @@ if [[ -d $LMOD_DIR ]]; then
 	ml release/24.04 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.9.1
 fi
 
-VENV_DIR=$HOME/.omniopt_test_install_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
+
+ROOT_VENV_DIR=$HOME
+
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+fi
+
+VENV_DIR=$ROOT_VENV_DIR/.omniopt_test_install_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 if [[ ! -d "$VENV_DIR" ]]; then
         green_text "$VENV_DIR not found. Creating virtual environment."
         python3 -m venv $VENV_DIR

@@ -1693,12 +1693,12 @@ def get_plot_types (x_y_combinations):
     plot_types = []
 
     if args.show_sixel_trial_index_result:
-        plot_types.append([
+        plot_types.append(
             {
                 "type": "trial_index_result",
                 "min_done_jobs": 2
             }
-        ])
+        )
 
     if args.show_sixel_scatter:
         plot_types.append(

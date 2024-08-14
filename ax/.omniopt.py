@@ -4720,7 +4720,7 @@ def get_errors_from_outfile(i):
         for n in new_errors:
             errors.append(n)
 
-        new_errors = check_for_python_errors(file_as_string)
+        new_errors = check_for_python_errors(i, file_as_string)
         for n in new_errors:
             errors.append(n)
 

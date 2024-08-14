@@ -4134,8 +4134,6 @@ def main():
 
     disable_logging()
 
-    #set_max_eval(args.max_eval)
-
     if not max_eval:
         print_red("--max_eval needs to be set!")
         sys.exit(19)
@@ -4145,7 +4143,6 @@ def main():
     if args.exclude:
         entries = [entry.strip() for entry in args.exclude.split(',')]
 
-        # Verarbeitung der Einträge
         for entry in entries:
             count_defective_nodes(None, entry)
 
@@ -4202,9 +4199,7 @@ def main():
         prev_steps_nr = get_steps_from_prev_job(args.continue_previous_job)
 
         max_nr_steps = prev_steps_nr + max_nr_steps
-        #set_max_eval(max_nr_steps)
 
-    #set_max_eval(max_eval + NR_INSERTED_JOBS)
     save_global_vars()
 
     write_process_info()

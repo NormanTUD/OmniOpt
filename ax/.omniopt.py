@@ -4596,6 +4596,16 @@ def get_exit_codes():
         "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
     }
 
+def get_base_errors():
+    base_errors = [
+        "Segmentation fault",
+        "Illegal division by zero",
+        "OOM",
+        ["Killed", "Detected kill, maybe OOM or Signal?"]
+    ]
+
+    return base_errors
+
 def get_errors_from_outfile(i):
     print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)
@@ -4640,14 +4650,7 @@ def get_errors_from_outfile(i):
 
             errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
 
-        base_errors = [
-            "Segmentation fault",
-            "Illegal division by zero",
-            "OOM",
-            ["Killed", "Detected kill, maybe OOM or Signal?"]
-        ]
-
-        for err in base_errors:
+        for err in get_base_errors():
             if isinstance(err, list):
                 if err[0] in file_as_string:
                     errors.append(f"{err[0]} {err[1]}")

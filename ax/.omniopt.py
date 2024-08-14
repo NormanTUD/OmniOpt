@@ -4068,6 +4068,15 @@ def parse_orchestrator_file(_f):
 
         return None
 
+def set_orchestrator():
+    global orchestrator
+
+    if args.orchestrator_file:
+        if SYSTEM_HAS_SBATCH:
+            orchestrator = parse_orchestrator_file(args.orchestrator_file)
+        else:
+            print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
+
 def main():
     print_debug("main()")
 
@@ -4083,7 +4092,6 @@ def main():
     global NVIDIA_SMI_LOGS_BASE
     global LOGFILE_DEBUG_GET_NEXT_TRIALS
     global random_steps
-    global orchestrator
 
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
@@ -4165,11 +4173,7 @@ def main():
         minimize_or_maximize
     ])
 
-    if args.orchestrator_file:
-        if SYSTEM_HAS_SBATCH:
-            orchestrator = parse_orchestrator_file(args.orchestrator_file)
-        else:
-            print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
+    set_orchestrator()
 
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
@@ -4184,8 +4188,6 @@ def main():
     searching_for = "minimum" if not args.maximize else "maximum"
 
     load_existing_job_data_into_ax_client()
-
-    print(f"Searching {searching_for}")
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
 

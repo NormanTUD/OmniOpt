@@ -4089,8 +4089,8 @@ def add_exclude_to_defective_nodes():
         for entry in entries:
             count_defective_nodes(None, entry)
 
-def check_max_eval(max_eval):
-    if not max_eval:
+def check_max_eval(_max_eval):
+    if not _max_eval:
         print_red("--max_eval needs to be set!")
         sys.exit(19)
 

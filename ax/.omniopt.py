@@ -2817,7 +2817,6 @@ def load_data_from_existing_run_folders(_paths):
             console.print(table)
 
 def print_outfile_analyzed(stdout_path):
-
     errors = get_errors_from_outfile(stdout_path)
 
     _strs = []

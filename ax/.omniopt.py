@@ -2214,27 +2214,8 @@ def get_type_short(typename):
 
     return typename
 
-def print_overview_tables(experiment_parameters, experiment_args):
-    if not experiment_parameters:
-        print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
-        return
-
-    print_debug("print_overview_tables(experiment_parameters, experiment_args)")
-
-    if not experiment_parameters:
-        print_red("Experiment parameters could not be determined for display")
-
-    min_or_max = "minimize"
-    if args.maximize:
-        min_or_max = "maximize"
-
-    with open(f"{CURRENT_RUN_FOLDER}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
-        print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
-
+def parse_single_experiment_parameter_table(experiment_parameters):
     rows = []
-
-    if "_type" in experiment_parameters:
-        experiment_parameters = experiment_parameters["experiment"]["search_space"]["parameters"]
 
     for param in experiment_parameters:
         _type = ""
@@ -2277,6 +2258,30 @@ def print_overview_tables(experiment_parameters, experiment_args):
         else:
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
+
+    return rows
+
+def print_overview_tables(experiment_parameters, experiment_args):
+    if not experiment_parameters:
+        print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
+        return
+
+    print_debug("print_overview_tables(experiment_parameters, experiment_args)")
+
+    if not experiment_parameters:
+        print_red("Experiment parameters could not be determined for display")
+
+    min_or_max = "minimize"
+    if args.maximize:
+        min_or_max = "maximize"
+
+    with open(f"{CURRENT_RUN_FOLDER}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
+        print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
+
+    if "_type" in experiment_parameters:
+        experiment_parameters = experiment_parameters["experiment"]["search_space"]["parameters"]
+
+    rows = parse_single_experiment_parameter_table(experiment_parameters)
 
     table = Table(header_style="bold", title="Experiment parameters:")
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type"]

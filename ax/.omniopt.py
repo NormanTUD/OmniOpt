@@ -2112,7 +2112,7 @@ def get_experiment_parameters(_params):
 
         experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
-        for state_file in ["done_jobs", "submitted_jobs"]:
+        for state_file in ["submitted_jobs"]:
             old_state_file = f"{continue_previous_job}/state_files/done_jobs"
             new_state_file = f'{CURRENT_RUN_FOLDER}/state_files/done_jobs'
             die_with_47_if_file_doesnt_exists(old_state_file)

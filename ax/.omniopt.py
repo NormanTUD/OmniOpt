@@ -945,10 +945,13 @@ def parse_experiment_parameters():
 
     return params
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
+def check_factorial_range():
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
+
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
+    check_factorial_range()
 
     if len(this_args) != 5 and len(this_args) != 4:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")

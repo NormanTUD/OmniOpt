@@ -1323,16 +1323,7 @@ def write_data_and_headers(data_dict, error_description=""):
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
-def evaluate(parameters):
-    global IS_IN_EVALUATE
-
-    start_nvidia_smi_thread()
-
-    return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
-
-    if args.maximize:
-        return_in_case_of_error = {"result": -VAL_IF_NOTHING_FOUND}
-
+def test_before_evaluate (return_in_case_of_error):
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
         try:
             for i in range(torch.cuda.device_count()):
@@ -1344,6 +1335,23 @@ def evaluate(parameters):
             return return_in_case_of_error
         except Exception:
             pass
+
+    return None
+
+def evaluate(parameters):
+    global IS_IN_EVALUATE
+
+    start_nvidia_smi_thread()
+
+    return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
+
+    if args.maximize:
+        return_in_case_of_error = {"result": -VAL_IF_NOTHING_FOUND}
+
+    _test = test_before_evaluate(return_in_case_of_error)
+
+    if _test is not None:
+        return _test
 
     IS_IN_EVALUATE = True
 

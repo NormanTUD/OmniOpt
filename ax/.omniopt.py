@@ -2031,6 +2031,27 @@ def get_ax_param_representation(data):
 
     return {} # only for linter, never reached because of die
 
+def get_torch_device_if_available(experiment_args):
+    torch_device = None
+    try:
+        cuda_is_available = torch.cuda.is_available()
+
+        if not cuda_is_available or cuda_is_available == 0:
+            print_yellow("No suitable CUDA devices found")
+        else:
+            if torch.cuda.device_count() >= 1:
+                torch_device = torch.cuda.current_device()
+                print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
+            else:
+                print_yellow("No suitable CUDA devices found")
+    except ModuleNotFoundError:
+        print_red("Cannot load torch and thus, cannot use gpus")
+
+    if torch_device:
+        experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+
+    return experiment_args
+
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -2055,23 +2076,11 @@ def get_experiment_parameters(_params):
 
             with open(checkpoint_file, encoding="utf-8") as f:
                 experiment_parameters = json.load(f)
-
-            cuda_is_available = torch.cuda.is_available()
-
-            if not cuda_is_available or cuda_is_available == 0:
-                print_yellow("No suitable CUDA devices found")
-            else:
-                if torch.cuda.device_count() >= 1:
-                    torch_device = torch.cuda.current_device()
-                    if "choose_generation_strategy_kwargs" not in experiment_parameters:
-                        experiment_parameters["choose_generation_strategy_kwargs"] = {}
-                    experiment_parameters["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
-                    print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
-                else:
-                    print_yellow("No suitable CUDA devices found")
         except json.decoder.JSONDecodeError:
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(47)
+
+        experiment_args = get_torch_device_if_available(experiment_args)
 
         if not os.path.exists(checkpoint_parameters_filepath):
             print_red(f"Cannot find {checkpoint_parameters_filepath}")
@@ -2165,20 +2174,7 @@ def get_experiment_parameters(_params):
         if seed:
             experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
 
-        try:
-            cuda_is_available = torch.cuda.is_available()
-
-            if not cuda_is_available or cuda_is_available == 0:
-                print_yellow("No suitable CUDA devices found")
-            else:
-                if torch.cuda.device_count() >= 1:
-                    torch_device = torch.cuda.current_device()
-                    experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
-                    print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
-                else:
-                    print_yellow("No suitable CUDA devices found")
-        except ModuleNotFoundError:
-            print_red("Cannot load torch and thus, cannot use gpus")
+        experiment_args = get_torch_device_if_available(experiment_args)
 
         if experiment_constraints and len(experiment_constraints):
             experiment_args["parameter_constraints"] = []

@@ -66,7 +66,7 @@ def plot_histograms(dataframe):
             print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
         sys.exit(42)
 
-    global fix
+    global fig
 
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
     try:

@@ -930,11 +930,11 @@ def parse_experiment_parameters():
                 my_exit(181)
 
             if param_type == "range":
-                j, params, search_space_reduction_warning = parse_range_param(params, j, this_args, name, param_type, search_space_reduction_warning)
+                j, params, search_space_reduction_warning = parse_range_param(params, j, this_args, name, search_space_reduction_warning)
             elif param_type == "fixed":
-                j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, param_type, search_space_reduction_warning)
+                j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, search_space_reduction_warning)
             elif param_type == "choice":
-                j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, param_type, search_space_reduction_warning)
+                j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, search_space_reduction_warning)
             else:
                 print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
@@ -945,7 +945,7 @@ def parse_experiment_parameters():
 
     return params
 
-def parse_range_param(params, j, this_args, name, param_type, search_space_reduction_warning):
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
@@ -1022,7 +1022,7 @@ def parse_range_param(params, j, this_args, name, param_type, search_space_reduc
 
     param = {
         "name": name,
-        "type": param_type,
+        "type": "range",
         "bounds": [lower_bound, upper_bound],
         "value_type": value_type
     }
@@ -1054,7 +1054,7 @@ def parse_range_param(params, j, this_args, name, param_type, search_space_reduc
 
     return j, params, search_space_reduction_warning
 
-def parse_fixed_param(params, j, this_args, name, param_type, search_space_reduction_warning):
+def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning):
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -1077,7 +1077,7 @@ def parse_fixed_param(params, j, this_args, name, param_type, search_space_reduc
 
     return j, params, search_space_reduction_warning
 
-def parse_choice_param(params, j, this_args, name, param_type, search_space_reduction_warning):
+def parse_choice_param(params, j, this_args, name, search_space_reduction_warning):
     if len(this_args) != 3:
         print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
         my_exit(181)

@@ -2690,6 +2690,29 @@ def get_list_import_as_string(_brackets=True, _comma=False):
 
     return ""
 
+def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result):
+    done_converting = False
+
+    while not done_converting:
+        try:
+            new_old_trial = ax_client.attach_trial(old_arm_parameter)
+
+            ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+
+            already_inserted_param_hashes[hashed_params_result] = 1
+
+            done_converting = True
+            save_pd_csv()
+        except ax.exceptions.core.UnsupportedError as e:
+            parsed_error = parse_parameter_type_error(e)
+
+            if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
+                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
+            elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
+                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
+
 def load_data_from_existing_run_folders(_paths):
     global already_inserted_param_hashes
     global already_inserted_param_data
@@ -2756,27 +2779,7 @@ def load_data_from_existing_run_folders(_paths):
                         #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
                         old_result = {'result': old_result_simple}
 
-                        done_converting = False
-
-                        while not done_converting:
-                            try:
-                                new_old_trial = ax_client.attach_trial(old_arm_parameter)
-
-                                ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
-
-                                already_inserted_param_hashes[hashed_params_result] = 1
-
-                                done_converting = True
-                                save_pd_csv()
-                            except ax.exceptions.core.UnsupportedError as e:
-                                parsed_error = parse_parameter_type_error(e)
-
-                                if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
-                                    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                                    old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
-                                elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
-                                    print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                                    old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
+                        insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result)
                     else:
                         print_debug("Prevented inserting a double entry")
                         already_inserted_param_hashes[hashed_params_result] += 1

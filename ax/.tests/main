@@ -346,7 +346,7 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 
 	if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
 		ROOT_VENV_DIR=$root_venv_dir
-		VENV_DIR=$ROOT_VENV_DIR/
+		VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
 	fi
 
 	source $VENV_DIR/bin/activate

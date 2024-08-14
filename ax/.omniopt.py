@@ -950,6 +950,12 @@ def check_factorial_range():
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
 
+def check_if_range_types_are_invalid(value_types, valid_value_types):
+    if value_type not in valid_value_types:
+        valid_value_types_string = ", ".join(valid_value_types)
+        print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+        my_exit(181)
+
 def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
 
@@ -990,10 +996,10 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
 
     valid_value_types = ["int", "float"]
 
-    if value_type not in valid_value_types:
-        valid_value_types_string = ", ".join(valid_value_types)
-        print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-        my_exit(181)
+    check_if_range_types_are_invalid(value_types, valid_value_types)
+
+    old_lower_bound = lower_bound
+    old_upper_bound = upper_bound
 
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
@@ -1003,9 +1009,6 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
         if not helpers.looks_like_int(upper_bound):
             print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
             upper_bound = math.ceil(upper_bound)
-
-    old_lower_bound = lower_bound
-    old_upper_bound = upper_bound
 
     lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)

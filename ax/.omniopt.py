@@ -4077,19 +4077,19 @@ def set_orchestrator():
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
-def check_if_has_random_steps ():
+def check_if_has_random_steps():
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         my_exit(233)
 
-def add_exclude_to_defective_nodes ():
+def add_exclude_to_defective_nodes():
     if args.exclude:
         entries = [entry.strip() for entry in args.exclude.split(',')]
 
         for entry in entries:
             count_defective_nodes(None, entry)
 
-def check_max_eval (max_eval):
+def check_max_eval(max_eval):
     if not max_eval:
         print_red("--max_eval needs to be set!")
         sys.exit(19)

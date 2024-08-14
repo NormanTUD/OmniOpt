@@ -2109,23 +2109,13 @@ def get_experiment_parameters(_params):
 
         experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
-        done_jobs_file = f"{continue_previous_job}/state_files/done_jobs"
-        done_jobs_file_dest = f'{CURRENT_RUN_FOLDER}/state_files/done_jobs'
-        if not os.path.exists(done_jobs_file):
-            print_red(f"Cannot find {done_jobs_file}")
-            my_exit(47)
+        for state_file in ["done_jobs", "submitted_jobs"]:
+            old_state_file = f"{continue_previous_job}/state_files/done_jobs"
+            new_state_file = f'{CURRENT_RUN_FOLDER}/state_files/done_jobs'
+            die_with_47_if_file_doesnt_exists(old_state_file)
 
-        if not os.path.exists(done_jobs_file_dest):
-            shutil.copy(done_jobs_file, done_jobs_file_dest)
-
-        submitted_jobs_file = f"{continue_previous_job}/state_files/submitted_jobs"
-        submitted_jobs_file_dest = f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs'
-        if not os.path.exists(submitted_jobs_file):
-            print_red(f"Cannot find {submitted_jobs_file}")
-            my_exit(47)
-
-        if not os.path.exists(submitted_jobs_file_dest):
-            shutil.copy(submitted_jobs_file, submitted_jobs_file_dest)
+            if not os.path.exists(new_state_file):
+                shutil.copy(old_state_file, new_state_file)
 
         if parameter:
             for _item in cli_params_experiment_parameters:

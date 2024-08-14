@@ -2075,6 +2075,11 @@ def set_torch_device_to_experiment_args(experiment_args):
 
     return experiment_args
 
+def die_with_47_if_file_doesnt_exists(_file):
+    if not os.path.exists(_file):
+        print_red(f"Cannot find {_file}")
+        my_exit(47)
+
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -2088,9 +2093,8 @@ def get_experiment_parameters(_params):
         checkpoint_file = continue_previous_job + "/state_files/checkpoint.json"
         checkpoint_parameters_filepath = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
 
-        if not os.path.exists(checkpoint_file):
-            print_red(f"{checkpoint_file} not found")
-            my_exit(47)
+        die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
+        die_with_47_if_file_doesnt_exists(checkpoint_file)
 
         try:
             f = open(checkpoint_file, encoding="utf-8")
@@ -2105,12 +2109,8 @@ def get_experiment_parameters(_params):
 
         experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
-        if not os.path.exists(checkpoint_parameters_filepath):
-            print_red(f"Cannot find {checkpoint_parameters_filepath}")
-            my_exit(47)
-
-        done_jobs_file = f"{continue_previous_job}/state_files/submitted_jobs"
-        done_jobs_file_dest = f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs'
+        done_jobs_file = f"{continue_previous_job}/state_files/done_jobs"
+        done_jobs_file_dest = f'{CURRENT_RUN_FOLDER}/state_files/done_jobs'
         if not os.path.exists(done_jobs_file):
             print_red(f"Cannot find {done_jobs_file}")
             my_exit(47)

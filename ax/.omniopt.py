@@ -961,6 +961,33 @@ def check_range_params_length(this_args):
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
         my_exit(181)
 
+def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
+    if upper_bound == lower_bound:
+        if lower_bound == 0:
+            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
+            my_exit(181)
+        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+        lower_bound = -upper_bound
+
+def switch_lower_and_upper_if_needed(lower_bound, upper_bound):
+    if lower_bound > upper_bound:
+        print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+        upper_bound, lower_bound = lower_bound, upper_bound
+
+    return lower_bound, upper_bound
+
+def round_lower_and_upper_if_type_is_int (lower_bound, upper_bound):
+    if value_type == "int":
+        if not helpers.looks_like_int(lower_bound):
+            print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
+            lower_bound = math.floor(lower_bound)
+
+        if not helpers.looks_like_int(upper_bound):
+            print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
+            upper_bound = math.ceil(upper_bound)
+
+    return lower_bound, upper_bound
+
 def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
 
@@ -978,16 +1005,9 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
         print_red(f"\n⚠ {this_args[j + 3]} is not a number")
         my_exit(181)
 
-    if upper_bound == lower_bound:
-        if lower_bound == 0:
-            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-            my_exit(181)
-        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
-        lower_bound = -upper_bound
+    die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
 
-    if lower_bound > upper_bound:
-        print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
-        upper_bound, lower_bound = lower_bound, upper_bound
+    lower_bound, upper_bound = switch_lower_and_upper_if_needed(lower_bound, upper_bound)
 
     skip = 5
 
@@ -1004,14 +1024,7 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
-    if value_type == "int":
-        if not helpers.looks_like_int(lower_bound):
-            print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
-            lower_bound = math.floor(lower_bound)
-
-        if not helpers.looks_like_int(upper_bound):
-            print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
-            upper_bound = math.ceil(upper_bound)
+    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(lower_bound, upper_bound)
 
     lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)

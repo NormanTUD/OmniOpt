@@ -2054,7 +2054,7 @@ def get_ax_param_representation(data):
 
     return {} # only for linter, never reached because of die
 
-def get_torch_device_if_available(experiment_args):
+def set_torch_device_to_experiment_args(experiment_args):
     torch_device = None
     try:
         cuda_is_available = torch.cuda.is_available()
@@ -2103,7 +2103,7 @@ def get_experiment_parameters(_params):
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(47)
 
-        experiment_args = get_torch_device_if_available(experiment_args)
+        experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
         if not os.path.exists(checkpoint_parameters_filepath):
             print_red(f"Cannot find {checkpoint_parameters_filepath}")
@@ -2195,7 +2195,7 @@ def get_experiment_parameters(_params):
         if seed:
             experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
 
-        experiment_args = get_torch_device_if_available(experiment_args)
+        experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
         if experiment_constraints and len(experiment_constraints):
             experiment_args["parameter_constraints"] = []

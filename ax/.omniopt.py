@@ -4636,8 +4636,6 @@ def get_first_line_of_file(file_paths):
 
     return first_line
 
-
-
 def get_errors_from_outfile(i):
     print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)

@@ -1478,6 +1478,9 @@ class NpEncoder(json.JSONEncoder):
         return super(NpEncoder, self).default(obj)
 
 def disable_logging():
+    if not args.verbose:
+        return
+
     print_debug("disable_logging()")
     logging.basicConfig(level=logging.ERROR)
 
@@ -4121,8 +4124,7 @@ def main():
         experiment_parameters = parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
-    if not args.verbose:
-        disable_logging()
+    disable_logging()
 
     #set_max_eval(args.max_eval)
 

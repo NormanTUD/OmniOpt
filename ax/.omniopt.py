@@ -3137,23 +3137,23 @@ def get_desc_progress_text(new_msgs=[]):
                 if str(best_result) != NO_RESULT and best_result is not None:
                     in_brackets.append(f"best result: {best_result_int_if_possible}")
 
-        if is_slurm_job():
-            nr_current_workers = len(global_vars["jobs"])
-            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+    if is_slurm_job():
+        nr_current_workers = len(global_vars["jobs"])
+        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
 
-            this_values = {
-                "nr_current_workers": nr_current_workers,
-                "num_parallel_jobs": num_parallel_jobs,
-                "percentage": percentage,
-                "time": this_time
-            }
+        this_values = {
+            "nr_current_workers": nr_current_workers,
+            "num_parallel_jobs": num_parallel_jobs,
+            "percentage": percentage,
+            "time": this_time
+        }
 
-            if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
-                worker_percentage_usage.append(this_values)
+        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
+            worker_percentage_usage.append(this_values)
 
-            workers_strings = get_workers_string()
-            if workers_strings:
-                in_brackets.append(workers_strings)
+        workers_strings = get_workers_string()
+        if workers_strings:
+            in_brackets.append(workers_strings)
 
     #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
 

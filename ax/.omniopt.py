@@ -1323,7 +1323,7 @@ def write_data_and_headers(data_dict, error_description=""):
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
-def test_before_evaluate (return_in_case_of_error):
+def test_gpu_before_evaluate(return_in_case_of_error):
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
         try:
             for i in range(torch.cuda.device_count()):
@@ -1348,10 +1348,10 @@ def evaluate(parameters):
     if args.maximize:
         return_in_case_of_error = {"result": -VAL_IF_NOTHING_FOUND}
 
-    _test = test_before_evaluate(return_in_case_of_error)
+    _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
 
-    if _test is not None:
-        return _test
+    if _test_gpu is not None:
+        return _test_gpu
 
     IS_IN_EVALUATE = True
 

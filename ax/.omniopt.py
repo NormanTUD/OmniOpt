@@ -4660,13 +4660,7 @@ def get_errors_from_outfile(i):
             else:
                 print_red(f"Wrong type, should be list or string, is {type(err)}")
 
-        if "Can't locate" in file_as_string and "@INC" in file_as_string:
-            errors.append("Perl module not found")
-
         if "/bin/sh" in file_as_string and "not found" in file_as_string:
-            errors.append("Wrong path? File not found")
-
-        if "Datei oder Verzeichnis nicht gefunden" in file_as_string:
             errors.append("Wrong path? File not found")
 
         if len(file_paths) and os.stat(file_paths[0]).st_size == 0:

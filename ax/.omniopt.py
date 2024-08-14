@@ -4191,7 +4191,6 @@ def main():
     print_overview_tables(experiment_parameters, experiment_args)
 
     get_executor()
-    searching_for = "minimum" if not args.maximize else "maximum"
 
     load_existing_job_data_into_ax_client()
 

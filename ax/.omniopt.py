@@ -3127,6 +3127,18 @@ def get_workers_string():
 
     return string
 
+def get_best_params_str ():
+    if count_done_jobs() >= 0:
+        best_params = get_best_params(RESULT_CSV_FILE)
+        if best_params and "result" in best_params:
+            best_result = best_params["result"]
+            if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
+                best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
+
+                if str(best_result) != NO_RESULT and best_result is not None:
+                    return f"best result: {best_result_int_if_possible}"
+    return ""
+
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
     global random_steps
@@ -3147,15 +3159,9 @@ def get_desc_progress_text(new_msgs=[]):
 
     this_time = time.time()
 
-    if count_done_jobs() >= 0:
-        best_params = get_best_params(RESULT_CSV_FILE)
-        if best_params and "result" in best_params:
-            best_result = best_params["result"]
-            if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
-                best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
-
-                if str(best_result) != NO_RESULT and best_result is not None:
-                    in_brackets.append(f"best result: {best_result_int_if_possible}")
+    best_params_str = get_best_params_str()
+    if best_params_str:
+        in_brackets.append(best_params_str)
 
     if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])

@@ -2161,8 +2161,6 @@ def get_experiment_parameters(_params):
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
         ax_client = AxClient.load_from_json_file(tmp_file_path)
-        #helpers.dier(human_readable_generation_strategy())
-        #helpers.dier(tmp_file_path)
 
         os.unlink(tmp_file_path)
 

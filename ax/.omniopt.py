@@ -1684,36 +1684,44 @@ def print_best_result(csv_file_path):
 
     return -1
 
+def get_plot_types (x_y_combinations):
+    plot_types = []
+
+    if args.show_sixel_trial_index_result:
+        plot_types.append([
+            {
+                "type": "trial_index_result",
+                "min_done_jobs": 2
+            }
+        ])
+
+    if args.show_sixel_scatter:
+        plot_types.append(
+            {
+                "type": "scatter",
+                "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
+                "iterate_through": x_y_combinations,
+                "dpi": 76,
+                "filename": "plot_%0_%1_%2" # omit file ending
+            }
+        )
+
+    if args.show_sixel_general:
+        plot_types.append(
+            {
+                "type": "general"
+            }
+        )
+
+    return plot_types
+
 def show_sixel_graphics(_pd_csv):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
     if os.path.exists(_pd_csv) and _show_sixel_graphics:
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
-        if args.show_sixel_trial_index_result:
-            plot_types = [
-                {
-                    "type": "trial_index_result",
-                    "min_done_jobs": 2
-                }
-            ]
-
-        if args.show_sixel_scatter:
-            plot_types.append(
-                {
-                    "type": "scatter",
-                    "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1",
-                    "iterate_through": x_y_combinations,
-                    "dpi": 76,
-                    "filename": "plot_%0_%1_%2" # omit file ending
-                }
-            )
-
-        if args.show_sixel_general:
-            plot_types.append(
-                {
-                    "type": "general"
-                }
-            )
+        
+        plot_types = get_plot_types(x_y_combinations)
 
         for plot in plot_types:
             plot_type = plot["type"]

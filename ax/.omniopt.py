@@ -4082,6 +4082,13 @@ def check_if_has_random_steps ():
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         my_exit(233)
 
+def add_exclude_to_defective_nodes ():
+    if args.exclude:
+        entries = [entry.strip() for entry in args.exclude.split(',')]
+
+        for entry in entries:
+            count_defective_nodes(None, entry)
+
 def check_max_eval (max_eval):
     if not max_eval:
         print_red("--max_eval needs to be set!")
@@ -4146,11 +4153,7 @@ def main():
 
     random_steps, second_step_steps = get_number_of_steps(max_eval)
 
-    if args.exclude:
-        entries = [entry.strip() for entry in args.exclude.split(',')]
-
-        for entry in entries:
-            count_defective_nodes(None, entry)
+    add_exclude_to_defective_nodes()
 
     if args.parameter and len(args.parameter) and args.continue_previous_job and random_steps <= 0:
         print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")

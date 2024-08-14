@@ -1720,7 +1720,7 @@ def get_plot_types (x_y_combinations):
 
     return plot_types
 
-def plot_params_to_cli(_command, plot, _tmp, plot_type):
+def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file):
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
@@ -1801,7 +1801,7 @@ def show_sixel_graphics(_pd_csv):
                 if "dpi" in plot:
                     _command += " --dpi=" + str(plot["dpi"])
 
-                plot_params_to_cli(_command, plot, _tmp, plot_type)
+                plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file)
             except Exception as e:
                 tb = traceback.format_exc()
                 print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")

@@ -239,9 +239,12 @@ for _command in "${_commands[@]}"; do
 	fi
 
 	msg=$(echo "$msg" | sed -e 's#^, ##' -e 's#^#(#' -e 's#$#)#' -e 's#()##')
+	if [[ -n $msg ]]; then
+		msg=" $msg"
+	fi
 
 	PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
-	green_reset_line "$PROGRESSBAR Plot-Tests $possible_plot_type/$this_img $msg"
+	green_reset_line "$PROGRESSBAR Plot-Tests $possible_plot_type/$this_img$msg"
 
 	START_TIME=$SECONDS
 	$_command

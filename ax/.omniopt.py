@@ -4620,18 +4620,10 @@ def get_base_errors():
 
     return base_errors
 
-def get_errors_from_outfile(i):
-    print_debug(f"get_errors_from_outfile({i})")
-    file_as_string = get_file_as_string(i)
-
-    program_code = get_program_code_from_out_file(i)
-    file_paths = find_file_paths(program_code)
-
+def get_first_line_of_file(file_paths):
     first_line = ""
-
-    first_file_as_string = ""
-
     if len(file_paths):
+        first_file_as_string = ""
         try:
             first_file_as_string = get_file_as_string(file_paths[0])
             if isinstance(first_file_as_string, str) and first_file_as_string.strip().isprintable():
@@ -4641,6 +4633,19 @@ def get_errors_from_outfile(i):
 
         if first_file_as_string == "":
             first_line = "#!/bin/bash"
+
+    return first_line
+
+
+
+def get_errors_from_outfile(i):
+    print_debug(f"get_errors_from_outfile({i})")
+    file_as_string = get_file_as_string(i)
+
+    program_code = get_program_code_from_out_file(i)
+    file_paths = find_file_paths(program_code)
+
+    first_line = get_first_line_of_file(file_paths)
 
     errors = []
 

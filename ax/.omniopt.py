@@ -2989,6 +2989,11 @@ def orchestrate_job(job, trial_index):
 
     _orchestrate(stdout_path, trial_index)
 
+    for todo_stdout_file in ORCHESTRATE_TODO.keys():
+        old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
+        if old_behavs is not None:
+            del ORCHESTRATE_TODO[todo_stdout_file]
+
 def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)
 
@@ -3068,11 +3073,6 @@ def check_orchestrator(stdout_path, trial_index):
                 if match_string.lower() in stdout.lower():
                     if behavior not in behavs:
                         behavs.append(behavior)
-
-    for todo_stdout_file in ORCHESTRATE_TODO.keys():
-        old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
-        if old_behavs is not None:
-            del ORCHESTRATE_TODO[todo_stdout_file]
 
     return behavs
 

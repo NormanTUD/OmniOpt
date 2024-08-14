@@ -4653,7 +4653,7 @@ def check_for_basic_string_errors(file_as_string, first_line, file_paths):
 
     return errors
 
-def check_for_python_errors(file_as_string):
+def check_for_python_errors(i, file_as_string):
     errors = []
 
     for search_array in get_python_errors():

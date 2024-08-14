@@ -855,6 +855,7 @@ def get_bound_if_prev_data(_type, _column, _default):
 
     if args.continue_previous_job:
         pd_csv = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
+
         if os.path.exists(pd_csv):
             if _type == "lower":
                 _old_min_col = get_min_column_value(pd_csv, _column, _default)

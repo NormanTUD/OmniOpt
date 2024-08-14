@@ -2033,6 +2033,7 @@ def get_ax_param_representation(data):
 
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
+
     global ax_client
 
     experiment_args = None

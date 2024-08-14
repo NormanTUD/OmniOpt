@@ -956,12 +956,15 @@ def check_if_range_types_are_invalid(value_types, valid_value_types):
         print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
         my_exit(181)
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
-    check_factorial_range()
-
+def check_range_params_length(this_args):
     if len(this_args) != 5 and len(this_args) != 4:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
         my_exit(181)
+
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
+    check_factorial_range()
+
+    check_range_params_length(this_args)
 
     try:
         lower_bound = float(this_args[j + 2])

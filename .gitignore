@@ -10,3 +10,4 @@ logfile.txt
 gui/**/*.swp
 gui/**/*.pl~
 tools/parallel_venv/
+my_venv

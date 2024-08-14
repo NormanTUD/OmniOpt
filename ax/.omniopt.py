@@ -4635,6 +4635,78 @@ def get_first_line_of_file(file_paths):
 
     return first_line
 
+def check_for_basic_string_errors(file_as_string, first_line, file_paths):
+    errors = []
+
+    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
+        errors.append("First line does not seem to be a shebang line: " + first_line)
+
+    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
+        errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
+
+    if "Exec format error" in file_as_string:
+        current_platform = platform.machine()
+        file_output = ""
+
+        if len(file_paths):
+            file_result = execute_bash_code("file " + file_paths[0])
+            if len(file_result) and isinstance(file_result[0], str):
+                file_output = ", " + file_result[0].strip()
+
+        errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
+
+    if "/bin/sh" in file_as_string and "not found" in file_as_string:
+        errors.append("Wrong path? File not found")
+
+    if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
+        errors.append(f"File in {program_code} is empty")
+
+    if len(file_paths) == 0:
+        errors.append(f"No files could be found in your program string: {program_code}")
+
+    return errors
+
+def check_for_python_errors(file_as_string):
+    errors = []
+
+    for search_array in get_python_errors():
+        search_for_string = search_array[0]
+        search_for_error = search_array[1]
+
+        if search_for_string in file_as_string:
+            error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
+            if error_line:
+                errors.append(error_line)
+            else:
+                errors.append(search_for_error)
+
+    return errors
+
+def check_for_non_zero_exit_codes(file_as_string):
+    errors = []
+    for r in range(1, 255):
+        special_exit_codes = get_exit_codes()
+        search_for_exit_code = "Exit-Code: " + str(r) + ","
+        if search_for_exit_code in file_as_string:
+            _error = "Non-zero exit-code detected: " + str(r)
+            if str(r) in special_exit_codes:
+                _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
+            errors.append(_error)
+    return errors
+
+def check_for_base_errors(file_as_string):
+    errors = []
+    for err in get_base_errors():
+        if isinstance(err, list):
+            if err[0] in file_as_string:
+                errors.append(f"{err[0]} {err[1]}")
+        elif isinstance(err, str):
+            if err in file_as_string:
+                errors.append(f"{err} detected")
+        else:
+            print_red(f"Wrong type, should be list or string, is {type(err)}")
+    return errors
+
 def get_errors_from_outfile(i):
     print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)
@@ -4649,61 +4721,21 @@ def get_errors_from_outfile(i):
     if "Result: None" in file_as_string:
         errors.append("Got no result.")
 
-        if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
-            errors.append("First line does not seem to be a shebang line: " + first_line)
+        new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths)
+        for n in new_errors:
+            errors.append(n)
 
-        if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
-            errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
+        new_errors = check_for_base_errors(file_as_string)
+        for n in new_errors:
+            errors.append(n)
 
-        if "Exec format error" in file_as_string:
-            current_platform = platform.machine()
-            file_output = ""
+        new_errors = check_for_non_zero_exit_codes(file_as_string)
+        for n in new_errors:
+            errors.append(n)
 
-            if len(file_paths):
-                file_result = execute_bash_code("file " + file_paths[0])
-                if len(file_result) and isinstance(file_result[0], str):
-                    file_output = ", " + file_result[0].strip()
-
-            errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
-
-        for err in get_base_errors():
-            if isinstance(err, list):
-                if err[0] in file_as_string:
-                    errors.append(f"{err[0]} {err[1]}")
-            elif isinstance(err, str):
-                if err in file_as_string:
-                    errors.append(f"{err} detected")
-            else:
-                print_red(f"Wrong type, should be list or string, is {type(err)}")
-
-        if "/bin/sh" in file_as_string and "not found" in file_as_string:
-            errors.append("Wrong path? File not found")
-
-        if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
-            errors.append(f"File in {program_code} is empty")
-
-        if len(file_paths) == 0:
-            errors.append(f"No files could be found in your program string: {program_code}")
-
-        for r in range(1, 255):
-            special_exit_codes = get_exit_codes()
-            search_for_exit_code = "Exit-Code: " + str(r) + ","
-            if search_for_exit_code in file_as_string:
-                _error = "Non-zero exit-code detected: " + str(r)
-                if str(r) in special_exit_codes:
-                    _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
-                errors.append(_error)
-
-        for search_array in get_python_errors():
-            search_for_string = search_array[0]
-            search_for_error = search_array[1]
-
-            if search_for_string in file_as_string:
-                error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
-                if error_line:
-                    errors.append(error_line)
-                else:
-                    errors.append(search_for_error)
+        new_errors = check_for_python_errors(file_as_string)
+        for n in new_errors:
+            errors.append(n)
 
     return errors
 

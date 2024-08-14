@@ -1765,6 +1765,7 @@ def show_sixel_graphics(_pd_csv):
                 maindir = os.path.dirname(os.path.realpath(__file__))
 
                 _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+
                 if "dpi" in plot:
                     _command += " --dpi=" + str(plot["dpi"])
 
@@ -2802,18 +2803,18 @@ def load_data_from_existing_run_folders(_paths):
 
             path_idx += 1
 
-        headers, rows = extract_headers_and_rows(already_inserted_param_data)
+    headers, rows = extract_headers_and_rows(already_inserted_param_data)
 
-        if headers and rows:
-            table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
+    if headers and rows:
+        table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
 
-            for header in headers:
-                table.add_column(header)
+        for header in headers:
+            table.add_column(header)
 
-            for row in rows:
-                table.add_row(*row)
+        for row in rows:
+            table.add_row(*row)
 
-            console.print(table)
+        console.print(table)
 
 def print_outfile_analyzed(stdout_path):
     errors = get_errors_from_outfile(stdout_path)

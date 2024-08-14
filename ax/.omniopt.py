@@ -1379,7 +1379,6 @@ def evaluate(parameters):
         end_time = int(time.time())
 
         stdout = stdout_stderr_exit_code_signal[0]
-        #stderr = stdout_stderr_exit_code_signal[1]
         exit_code = stdout_stderr_exit_code_signal[2]
         _signal = stdout_stderr_exit_code_signal[3]
 
@@ -1410,7 +1409,6 @@ def evaluate(parameters):
             return {"result": float(result)}
 
         write_data_and_headers(parameters, "No Result")
-
     except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         write_data_and_headers(parameters, "USR1-signal")

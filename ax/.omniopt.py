@@ -1405,11 +1405,7 @@ def evaluate(parameters):
         else:
             print_debug(f"evaluate: CURRENT_RUN_FOLDER {CURRENT_RUN_FOLDER} could not be found")
 
-        if isinstance(result, int):
-            IS_IN_EVALUATE = False
-            return {"result": int(result)}
-
-        if isinstance(result, float):
+        if isinstance(result, (int, float)):
             IS_IN_EVALUATE = False
             return {"result": float(result)}
 

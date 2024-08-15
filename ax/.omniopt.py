@@ -4510,6 +4510,7 @@ def run_tests():
 def get_first_line_of_file_that_contains_string(i, s):
     print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
+        print_debug(f"File {i} not found")
         return ""
 
     f = get_file_as_string(i)

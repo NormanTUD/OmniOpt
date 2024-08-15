@@ -247,6 +247,7 @@
 
 			green_reset_line "${PROGRESSBAR}➤Installing $MODULE..."
 			mkdir -p .pip_logs
+			pip3 install --upgrade pip
 			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> .pip_logs/install_errors || {
 				red_reset_line "❌Failed to install $MODULE. Check .pip_logs/install_errors."
 				exit 3

@@ -870,7 +870,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 fi
 
 set +x
-if [[ -e $SCRIPT_DIR/.shellscript_functions ]]; then
+if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
 	#echo "source $SCRIPT_DIR/.shellscript_functions"
 	source "$SCRIPT_DIR/.shellscript_functions"
 else

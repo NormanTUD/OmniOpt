@@ -559,7 +559,7 @@ if not args.tests:
         load_global_vars(f"{args.continue_previous_job}/state_files/global_vars.json")
 
     if args.parameter is None and args.continue_previous_job is None:
-        print("Either --parameter or --continue_previous_job is required. Both were not found.")
+        original_print("Either --parameter or --continue_previous_job is required. Both were not found.")
         my_exit(19)
     elif not args.run_program and not args.continue_previous_job:
         print("--run_program needs to be defined when --continue_previous_job is not set")
@@ -577,7 +577,7 @@ if not args.tests:
             if os.path.exists(exp_name_file):
                 global_vars["experiment_name"] = get_file_as_string(exp_name_file).strip()
             else:
-                print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
+                original_print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
                 my_exit(19)
 
     if not args.mem_gb:
@@ -760,7 +760,7 @@ def sort_numerically_or_alphabetically(arr):
 def get_program_code_from_out_file(f):
     print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
-        print(f"{f} not found")
+        original_print(f"{f} not found")
         return ""
 
     fs = get_file_as_string(f)
@@ -2848,7 +2848,7 @@ def get_parameters_from_outfile(stdout_path):
         # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
-        print(f"The file {stdout_path} was not found.")
+        original_print(f"The file {stdout_path} was not found.")
         return None
     except Exception as e:
         print(f"There was an error: {e}")
@@ -2864,7 +2864,7 @@ def get_hostname_from_outfile(stdout_path):
         # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
-        print(f"The file {stdout_path} was not found.")
+        original_print(f"The file {stdout_path} was not found.")
         return None
     except Exception as e:
         print(f"There was an error: {e}")
@@ -3672,7 +3672,7 @@ def append_and_read(file, nr=0):
         return anzahl_zeilen
 
     except FileNotFoundError as e:
-        print(f"File not found: {e}")
+        original_print(f"File not found: {e}")
     except (SignalUSR, SignalINT, SignalCONT):
         append_and_read(file, nr)
     except OSError as e:
@@ -4501,7 +4501,7 @@ def run_tests():
 def get_first_line_of_file_that_contains_string(i, s):
     print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
-        print(f"File {i} not found")
+        original_print(f"File {i} not found")
         return ""
 
     f = get_file_as_string(i)

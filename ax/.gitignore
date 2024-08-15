@@ -186,3 +186,5 @@ old_runs
 git_hash
 runs_OLD
 .dont_ask_upgrade_omniopt
+.omniopt_*
+.omniax_*

@@ -2973,6 +2973,7 @@ def finish_previous_jobs(new_msgs):
 
 def orchestrate_job(job, trial_index):
     stdout_path = str(job.paths.stdout.resolve())
+    stderr_path = str(job.paths.stderr.resolve())
 
     stdout_path = stdout_path.replace('\n', ' ').replace('\r', '')
     stdout_path = stdout_path.rstrip('\r\n')
@@ -2980,9 +2981,17 @@ def orchestrate_job(job, trial_index):
     stdout_path = stdout_path.rstrip('\r')
     stdout_path = stdout_path.rstrip(' ')
 
+    stderr_path = stderr_path.replace('\n', ' ').replace('\r', '')
+    stderr_path = stderr_path.rstrip('\r\n')
+    stderr_path = stderr_path.rstrip('\n')
+    stderr_path = stderr_path.rstrip('\r')
+    stderr_path = stderr_path.rstrip(' ')
+
     print_outfile_analyzed(stdout_path)
+    print_outfile_analyzed(stderr_path)
 
     _orchestrate(stdout_path, trial_index)
+    _orchestrate(stderr_path, trial_index)
 
     for todo_stdout_file in ORCHESTRATE_TODO.keys():
         old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])

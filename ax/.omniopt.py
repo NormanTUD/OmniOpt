@@ -1532,7 +1532,8 @@ def disable_logging():
         "ax.service.utils.instantiation",
         "botorch.optim.optimize",
         "linear_operator.utils.cholesky",
-        "ax.modelbridge.transforms.int_to_float"
+        "ax.modelbridge.transforms.int_to_float",
+        "ax.modelbridge.transforms"
     ]
 
     for _module in modules:

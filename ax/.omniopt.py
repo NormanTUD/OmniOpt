@@ -519,7 +519,8 @@ def decode_if_base64(input_str):
 def get_file_as_string(f):
     datafile = ""
     if not os.path.exists(f):
-        print_red(f"{f} not found!")
+        print_debug(f"{f} not found!")
+        return ""
     else:
         with open(f, encoding="utf-8") as _f:
             datafile = _f.readlines()

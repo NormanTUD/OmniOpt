@@ -1281,7 +1281,7 @@ def find_file_paths_and_print_infos(_text, program_code):
 
     return string
 
-def write_data_and_headers(data_dict, error_description=""):
+def write_failed_logs(data_dict, error_description=""):
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
 
@@ -1422,16 +1422,16 @@ def evaluate(parameters):
             IS_IN_EVALUATE = False
             return {"result": float(result)}
 
-        write_data_and_headers(parameters, "No Result")
+        write_failed_logs(parameters, "No Result")
     except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
-        write_data_and_headers(parameters, "USR1-signal")
+        write_failed_logs(parameters, "USR1-signal")
     except SignalCONT:
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
-        write_data_and_headers(parameters, "CONT-signal")
+        write_failed_logs(parameters, "CONT-signal")
     except SignalINT:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
-        write_data_and_headers(parameters, "INT-signal")
+        write_failed_logs(parameters, "INT-signal")
 
     IS_IN_EVALUATE = False
 

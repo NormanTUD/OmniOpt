@@ -521,9 +521,9 @@ def get_file_as_string(f):
     if not os.path.exists(f):
         print_debug(f"{f} not found!")
         return ""
-    else:
-        with open(f, encoding="utf-8") as _f:
-            datafile = _f.readlines()
+
+    with open(f, encoding="utf-8") as _f:
+        datafile = _f.readlines()
 
     return "\n".join(datafile)
 

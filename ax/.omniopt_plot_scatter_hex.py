@@ -169,7 +169,7 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
 def contains_strings(series):
     return series.apply(lambda x: isinstance(x, str)).any()
 
-def get_data(csv_file_path, result_column, _min, _max, old_headers_string=None):
+def get_data(csv_file_path, _min, _max, old_headers_string=None):
     print_debug("get_data")
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
@@ -181,14 +181,14 @@ def get_data(csv_file_path, result_column, _min, _max, old_headers_string=None):
                 return None
 
         if _min is not None:
-            df = df[df[result_column] >= _min]
+            df = df[df["result"] >= _min]
         if _max is not None:
-            df = df[df[result_column] <= _max]
-        if result_column not in df:
+            df = df[df["result"] <= _max]
+        if "result" not in df:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"There was no {result_column} in {csv_file_path}. This may means all tests failed. Cannot continue.")
+                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
-        df.dropna(subset=[result_column], inplace=True)
+        df.dropna(subset=["result"], inplace=True)
 
         columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
         df = df.drop(columns=columns_with_strings)
@@ -209,13 +209,13 @@ def get_data(csv_file_path, result_column, _min, _max, old_headers_string=None):
         sys.exit(7)
 
     try:
-        negative_rows_to_remove = df[df[result_column].astype(str) == '-' + NO_RESULT].index
-        positive_rows_to_remove = df[df[result_column].astype(str) == NO_RESULT].index
+        negative_rows_to_remove = df[df["result"].astype(str) == '-' + NO_RESULT].index
+        positive_rows_to_remove = df[df["result"].astype(str) == NO_RESULT].index
 
         df.drop(negative_rows_to_remove, inplace=True)
         df.drop(positive_rows_to_remove, inplace=True)
     except KeyError:
-        print(f"column named `{result_column}` could not be found in {csv_file_path}.")
+        print(f"column named `result` could not be found in {csv_file_path}.")
         sys.exit(6)
 
     return df
@@ -228,7 +228,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
         axs[row, col].set_visible(False)
 
 def plot_multiple_graphs(_params):
-    non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values = _params
+    non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
     print_debug("plot_multiple_graphs")
     global bins
     for i, (param1, param2) in enumerate(non_empty_graphs):
@@ -273,16 +273,16 @@ def plot_multiple_graphs(_params):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-    show_legend(scatter, axs, result_column)
+    show_legend(scatter, axs)
 
-def show_legend(_scatter, axs, result_column):
+def show_legend(_scatter, axs):
     print_debug("show_legend")
     global args, fig
 
     if not args.no_legend:
         try:
             cbar = fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
-            cbar.set_label(result_column, rotation=270, labelpad=15)
+            cbar.set_label("result", rotation=270, labelpad=15)
 
             cbar.formatter.set_scientific(False)
             cbar.formatter.set_useMathText(False)
@@ -290,7 +290,7 @@ def show_legend(_scatter, axs, result_column):
             print_debug(f"ERROR: show_legend failed with error: {e}")
 
 def plot_single_graph(_params):
-    axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values = _params
+    axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
     print_debug("plot_single_graph()")
     _data = df_filtered
 
@@ -309,14 +309,14 @@ def plot_single_graph(_params):
     else:
         scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
     axs.set_xlabel(non_empty_graphs[0][0])
-    axs.set_ylabel(result_column)
+    axs.set_ylabel("result")
 
     return scatter
 
 def plot_graphs(_params):
-    df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
+    df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
     print_debug("plot_graphs")
-    colors = get_colors(df, result_column)
+    colors = get_colors(df, "result")
 
     if os.path.exists(args.run_dir + "/state_files/maximize"):
         colors = -colors  # Negate colors for maximum result
@@ -336,9 +336,9 @@ def plot_graphs(_params):
     cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
     if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
-        plot_single_graph([axs, df_filtered, cmap, norm, result_column, non_empty_graphs, result_column_values])
+        plot_single_graph([axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values])
     else:
-        plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, result_column, parameter_combinations, num_rows, result_column_values])
+        plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values])
 
     hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
@@ -350,7 +350,6 @@ def get_args():
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
-    parser.add_argument('--result_column', type=str, help='Name of the result column', default="result")
     parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
     parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
@@ -415,13 +414,13 @@ def get_df_filtered(df):
 
     return df_filtered
 
-def get_colors(df, result_column):
+def get_colors(df):
     print_debug("get_colors")
     colors = None
     try:
-        colors = df[result_column]
+        colors = df["result"]
     except KeyError as e:
-        if str(e) == "'" + result_column + "'":
+        if str(e) == "'result'":
             print("Could not find any results")
             sys.exit(3)
         else:
@@ -457,13 +456,13 @@ def get_r(df_filtered):
 
     return r
 
-def get_parameter_combinations(df_filtered, result_column):
+def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
     r = get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()
 
-    del df_filtered_cols[df_filtered_cols.index(result_column)]
+    del df_filtered_cols[df_filtered_cols.index("result")]
 
     parameter_combinations = list(combinations(df_filtered_cols, r))
 
@@ -484,20 +483,19 @@ def use_matplotlib():
 
 def main():
     global args
-    result_column = "result"
 
     use_matplotlib()
 
     csv_file_path = get_csv_file_path()
 
-    df = get_data(csv_file_path, result_column, args.min, args.max)
+    df = get_data(csv_file_path, args.min, args.max)
 
     old_headers_string = ','.join(sorted(df.columns))
 
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
-            prev_run_df = get_data(prev_run_csv_path, result_column, args.min, args.max, old_headers_string)
+            prev_run_df = get_data(prev_run_csv_path, args.min, args.max, old_headers_string)
             if prev_run_df is not None:
                 print(f"Loading {prev_run_csv_path} into the dataset")
                 df = df.merge(prev_run_df, how='outer')
@@ -507,7 +505,7 @@ def main():
 
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
-    parameter_combinations = get_parameter_combinations(df_filtered, result_column)
+    parameter_combinations = get_parameter_combinations(df_filtered)
 
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
@@ -521,7 +519,7 @@ def main():
 
     result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-    plot_graphs([df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+    plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
     if not args.no_legend:
         set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
@@ -566,9 +564,8 @@ def update_graph(event=None, _min=None, _max=None):
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
-        result_column = "result"
         csv_file_path = get_csv_file_path()
-        df = get_data(csv_file_path, result_column, _min, _max)
+        df = get_data(csv_file_path, _min, _max)
 
         old_headers_string = ','.join(sorted(df.columns))
 
@@ -576,7 +573,7 @@ def update_graph(event=None, _min=None, _max=None):
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
                 prev_run_csv_path = prev_run[0] + "/results.csv"
-                prev_run_df = get_data(prev_run_csv_path, result_column, _min, _max, old_headers_string)
+                prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
                 if prev_run_df:
                     df = df.merge(prev_run_df, how='outer')
 
@@ -585,7 +582,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 
-        parameter_combinations = get_parameter_combinations(df_filtered, result_column)
+        parameter_combinations = get_parameter_combinations(df_filtered)
         non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
 
         num_subplots = len(non_empty_graphs)
@@ -601,7 +598,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-        plot_graphs([df, axs, df_filtered, result_column, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+        plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
         set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 

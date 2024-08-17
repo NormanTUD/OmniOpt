@@ -316,7 +316,7 @@ def plot_single_graph(_params):
 def plot_graphs(_params):
     df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
     print_debug("plot_graphs")
-    colors = get_colors(df, "result")
+    colors = get_colors(df)
 
     if os.path.exists(args.run_dir + "/state_files/maximize"):
         colors = -colors  # Negate colors for maximum result

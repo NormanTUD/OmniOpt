@@ -1489,55 +1489,54 @@ def disable_logging():
 
     print_debug("disable_logging()")
     logging.basicConfig(level=logging.ERROR)
-
-    logging.getLogger("ax").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-    logging.getLogger("ax.models.torch.botorch_modular.acquisition").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.transforms").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.transforms.standardize_y").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.torch").setLevel(logging.ERROR)
-    logging.getLogger("ax.service.utils.instantiation").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.dispatch_utils").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.cross_validation").setLevel(logging.ERROR)
-    logging.getLogger("ax.core.experiment").setLevel(logging.ERROR)
-    logging.getLogger("ax.modelbridge.base").setLevel(logging.ERROR)
-
     logging.getLogger().setLevel(logging.ERROR)
-    logging.getLogger("ax").setLevel(logging.ERROR)
-    logging.getLogger("ax.service").setLevel(logging.ERROR)
-    logging.getLogger("ax.service.utils").setLevel(logging.ERROR)
-    logging.getLogger("ax.service.utils.report_utils").setLevel(logging.ERROR)
+
+    set_to_error = [
+
+    ]
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
+
     modules = [
         "ax",
+
         "ax.core.data",
-        "ax.service.utils.report_utils",
-        "ax.modelbridge"
-        "ax.modelbridge.transforms.standardize_y",
-        "botorch.models.utils.assorted",
-        "ax.modelbridge.torch",
-        "ax.models.torch.botorch_modular.acquisition",
-        "ax.modelbridge.cross_validation",
-        "ax.service.utils.best_point",
-        "torch.autograd",
-        "torch.autograd.__init__",
-        "botorch.optim.fit",
         "ax.core.parameter",
-        "ax.service.utils.report_utils",
+        "ax.core.experiment",
+
+        "ax.models.torch.botorch_modular.acquisition",
+
+        "ax.modelbridge"
+        "ax.modelbridge.standardize_y",
+        "ax.modelbridge.base",
+        "ax.modelbridge.transforms.standardize_y",
         "ax.modelbridge.transforms",
         "ax.modelbridge.cross_validation",
-        "ax.service.utils.best_point",
         "ax.modelbridge.dispatch_utils",
-        "ax.service.utils.instantiation",
-        "botorch.optim.optimize",
-        "linear_operator.utils.cholesky",
         "ax.modelbridge.transforms.int_to_float",
         "ax.modelbridge.transforms"
+        "ax.modelbridge.torch",
+
+        "botorch.optim.fit",
+
+        "ax.service",
+        "ax.service.utils",
+        "ax.service.utils.instantiation",
+        "ax.service.utils.report_utils",
+        "ax.service.utils.best_point",
+
+        "botorch.models.utils.assorted",
+        "botorch.optim.optimize",
+
+        "linear_operator.utils.cholesky",
+
+        "torch.autograd",
+        "torch.autograd.__init__",
     ]
 
     for _module in modules:
+        logging.getLogger(_module).setLevel(logging.ERROR)
+
         for _cat in categories:
             warnings.filterwarnings("ignore", category=_cat)
             warnings.filterwarnings("ignore", category=_cat, module=_module)

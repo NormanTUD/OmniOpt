@@ -119,7 +119,7 @@ def flatten_extend(matrix):
 def convert_string_to_number(input_string):
     try:
         assert isinstance(input_string, str), "Input must be a string"
- 
+
         # Replace commas with dots
         input_string = input_string.replace(",", ".")
 

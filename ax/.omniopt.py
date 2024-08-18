@@ -1514,14 +1514,13 @@ def disable_logging():
         "ax.modelbridge.transforms"
         "ax.modelbridge.torch",
 
-        "botorch.optim.fit",
-
         "ax.service",
         "ax.service.utils",
         "ax.service.utils.instantiation",
         "ax.service.utils.report_utils",
         "ax.service.utils.best_point",
 
+        "botorch.optim.fit",
         "botorch.models.utils.assorted",
         "botorch.optim.optimize",
 

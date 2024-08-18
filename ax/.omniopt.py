@@ -1504,14 +1504,13 @@ def disable_logging():
         "ax.models.torch.botorch_modular.acquisition",
 
         "ax.modelbridge"
-        "ax.modelbridge.standardize_y",
         "ax.modelbridge.base",
-        "ax.modelbridge.transforms.standardize_y",
+        "ax.modelbridge.standardize_y",
         "ax.modelbridge.transforms",
+        "ax.modelbridge.transforms.standardize_y",
+        "ax.modelbridge.transforms.int_to_float",
         "ax.modelbridge.cross_validation",
         "ax.modelbridge.dispatch_utils",
-        "ax.modelbridge.transforms.int_to_float",
-        "ax.modelbridge.transforms"
         "ax.modelbridge.torch",
 
         "ax.service",

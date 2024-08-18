@@ -74,14 +74,17 @@ def looks_like_float(x):
 def looks_like_int(x):
     if isinstance(x, bool):
         return False
-    elif isinstance(x, int):
+
+    if isinstance(x, int):
         return True
-    elif isinstance(x, float):
+
+    if isinstance(x, float):
         return x.is_integer()
-    elif isinstance(x, str):
+
+    if isinstance(x, str):
         return bool(re.match(r'^\d+$', x))
-    else:
-        return False
+
+    return False
 
 def looks_like_number (x):
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64

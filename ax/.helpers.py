@@ -188,7 +188,7 @@ def get_result_column_values(df, csv_file_path):
 def check_path(_path):
     global args
     if not os.path.exists(_path):
-        print(f'The folder {args.run_dir} does not exist.')
+        print(f'The folder {_path} does not exist.')
         sys.exit(1)
 
 class bcolors:

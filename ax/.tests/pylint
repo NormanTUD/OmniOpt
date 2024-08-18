@@ -34,6 +34,32 @@ cd ..
 
 source .shellscript_functions
 
+PYLINTRC_FILE=".tools/pylint.rc"
+PYLINTRC_DEST_FILE="$HOME/.pylintrc"
+
+# Temp backup filename
+TEMP_BACKUP_FILE=""
+
+# Check if destination file exists
+if [ -f "$PYLINTRC_DEST_FILE" ]; then
+	if cmp -s "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"; then
+		true
+	else
+		# Determine the next available backup filename
+		i=1
+		while [ -f "$HOME/.pylintrc_$i" ]; do
+			i=$((i + 1))
+		done
+		TEMP_BACKUP_FILE="$HOME/.pylintrc_$i"
+		mv "$PYLINTRC_DEST_FILE" "$TEMP_BACKUP_FILE"
+
+	# Copy the new file to destination
+	cp "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"
+	fi
+else
+	cp "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"
+fi
+
 errors=()
 
 for i in $(ls .*.py | grep -v ".helpers.py"); do
@@ -44,6 +70,11 @@ for i in $(ls .*.py | grep -v ".helpers.py"); do
 		errors+=("$ERRSTR")
 	}
 done
+
+if [ -n "$TEMP_BACKUP_FILE" ]; then
+	mv "$PYLINTRC_DEST_FILE" "${PYLINTRC_DEST_FILE}.new"
+	mv "$TEMP_BACKUP_FILE" "$PYLINTRC_DEST_FILE"
+fi
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

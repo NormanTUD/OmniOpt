@@ -62,14 +62,31 @@ fi
 
 errors=()
 
-for i in $(ls .*.py | grep -v ".helpers.py"); do
-	yellow_text "pylint $i"
-	pylint $i || {
-		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
-		red_text "$ERRSTR\n"
-		errors+=("$ERRSTR")
-	}
-done
+if [ "$#" -gt 0 ]; then
+	# Process passed files
+	for i in "$@"; do
+		if [ -f "$i" ]; then
+			yellow_text "pylint $i"
+			pylint "$i" || {
+				ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
+				red_text "$ERRSTR\n"
+				errors+=("$ERRSTR")
+			}
+		else
+			red_text "File $i not found, skipping."
+		fi
+	done
+else
+	# No parameters passed, process all Python files (as in original script)
+	for i in $(ls .*.py | grep -v ".helpers.py"); do
+		yellow_text "pylint $i"
+		pylint $i || {
+			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
+			red_text "$ERRSTR\n"
+			errors+=("$ERRSTR")
+		}
+	done
+fi
 
 if [ -n "$TEMP_BACKUP_FILE" ]; then
 	mv "$PYLINTRC_DEST_FILE" "${PYLINTRC_DEST_FILE}.new"

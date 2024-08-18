@@ -1,4 +1,3 @@
-import numpy as np
 import platform
 import re
 import os
@@ -7,6 +6,7 @@ import sys
 from pprint import pprint
 import math
 import traceback
+import numpy as np
 
 def check_environment_variable(variable_name):
     try:

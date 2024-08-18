@@ -14,7 +14,9 @@ def check_environment_variable(variable_name):
         if value == "1":
             return True
     except KeyError:
-        return False
+        pass
+
+    return False
 
 if not check_environment_variable("RUN_VIA_RUNSH"):
     print("Must be run via the bash script, cannot be run as standalone.")

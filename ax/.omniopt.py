@@ -1491,10 +1491,6 @@ def disable_logging():
     logging.basicConfig(level=logging.ERROR)
     logging.getLogger().setLevel(logging.ERROR)
 
-    set_to_error = [
-
-    ]
-
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
     modules = [

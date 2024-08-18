@@ -1488,6 +1488,7 @@ def disable_logging():
         return
 
     print_debug("disable_logging()")
+
     logging.basicConfig(level=logging.ERROR)
     logging.getLogger().setLevel(logging.ERROR)
 

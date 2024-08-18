@@ -107,8 +107,7 @@ def to_int_when_possible(val):
             # Formatieren des Floats mit der exakten Anzahl der Dezimalstellen, ohne wissenschaftliche Notation
             formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
             return formatted_value if formatted_value else '0'
-        else:
-            return int(val)
+        return int(val)
     except Exception:
         # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val

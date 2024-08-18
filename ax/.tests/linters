@@ -16,6 +16,16 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
+function _help {
+	exit_code=$?
+
+	echo ".tests/linters"
+	echo "--quick                                  Disable slow tests"
+	echo "--help                                   This help"
+
+	exit $exit_code
+}
+
 VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
 
 ROOT_VENV_DIR=$HOME
@@ -32,15 +42,39 @@ cd $SCRIPT_DIR
 
 cd ..
 
+args=("$@")
+k=0
+quick=0
+
+while [ $k -lt ${#args[@]} ]; do
+	i="${args[k]}"
+
+	case $i in
+		--quick)
+			quick=1
+			;;
+		--help)
+			_help 0
+			;;
+		*)
+			red_text "Unknown parameter $i"
+			exit 2
+			;;
+	esac
+	k=$((k+1))
+done
+
 source .shellscript_functions
 
 errors=()
 
-yellow_text "Trying pylint..."
-.tests/pylint || {
-	red_text "pylint failed"
-	errors+=("pylint failed")
-}
+if [[ "$quick" -eq 0 ]]; then
+	yellow_text "Trying pylint..."
+	.tests/pylint || {
+		red_text "pylint failed"
+		errors+=("pylint failed")
+	}
+fi
 
 yellow_text "Trying pyflakes..."
 .tests/pyflakes || {

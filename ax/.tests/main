@@ -476,7 +476,11 @@ _test "folder structure Documentation" "bash .tests/folder_structure" 0
 _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
 
-_test "Linters" "bash .tests/linters" 0
+if [[ $quick -eq 0 ]]; then
+	_test "Linters" "bash .tests/linters" 0
+else
+	_test "Linters" "bash .tests/linters --quick" 0
+fi
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"

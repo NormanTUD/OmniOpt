@@ -4469,7 +4469,6 @@ def run_tests():
     my_exit(nr_errors)
 
 def get_first_line_of_file_that_contains_string(i, s):
-    print_debug("get_first_line_of_file_that_contains_string")
     if not os.path.exists(i):
         print_debug(f"File {i} not found")
         return ""
@@ -4667,7 +4666,6 @@ def check_for_base_errors(file_as_string):
     return errors
 
 def get_errors_from_outfile(i):
-    print_debug(f"get_errors_from_outfile({i})")
     file_as_string = get_file_as_string(i)
 
     program_code = get_program_code_from_out_file(i)

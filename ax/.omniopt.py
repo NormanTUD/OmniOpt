@@ -3711,8 +3711,6 @@ def _count_done_jobs(csv_file_path):
     with open(csv_file_path, mode='r', encoding="utf-8") as fin:
         __debug += fin.read()
 
-    print_debug(__debug)
-
     _err = False
 
     try:

@@ -44,7 +44,6 @@ class SearchSpaceExhausted (Exception):
 NR_INSERTED_JOBS = 0
 changed_grid_search_params = {}
 executor = None
-LAST_CPU_MEM_TIME = None
 
 SUPPORTED_MODELS = [
     "SOBOL",
@@ -294,22 +293,12 @@ def print_debug(msg):
     _debug(msg)
 
 def write_process_info():
-    global LAST_CPU_MEM_TIME
+    try:
+        ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
 
-    if LAST_CPU_MEM_TIME is None:
-        process.cpu_percent(interval=0.0)
-        LAST_CPU_MEM_TIME = time.time()
-    elif abs(LAST_CPU_MEM_TIME - time.time()) < 1:
-        pass
-    else:
-        try:
-            cpu_usage = process.cpu_percent(interval=1)
-            ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
-
-            print_debug(f"CPU Usage: {cpu_usage}%, RAM Usage: {ram_usage} MB")
-        except Exception as e:
-            print_debug(f"Error retrieving process information: {str(e)}")
-        LAST_CPU_MEM_TIME = None
+        print_debug(f"RAM Usage: {ram_usage} MB")
+    except Exception as e:
+        print_debug(f"Error retrieving process information: {str(e)}")
 
 def get_line_info():
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])

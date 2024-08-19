@@ -746,7 +746,6 @@ def create_folder_and_file(folder):
     return file_path
 
 def sort_numerically_or_alphabetically(arr):
-    print_debug("sort_numerically_or_alphabetically")
     try:
         # Check if all elements can be converted to numbers
         numbers = [float(item) for item in arr]
@@ -759,7 +758,6 @@ def sort_numerically_or_alphabetically(arr):
     return sorted_arr
 
 def get_program_code_from_out_file(f):
-    print_debug(f"get_program_code_from_out_file({f})")
     if not os.path.exists(f):
         original_print(f"{f} not found")
         return ""

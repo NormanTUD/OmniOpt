@@ -1160,11 +1160,11 @@ def execute_bash_code(code):
 
 def get_result(input_string):
     if input_string is None:
-        print("get_result: Input-String is None")
+        print_red("get_result: Input-String is None")
         return None
 
     if not isinstance(input_string, str):
-        print_debug(f"get_result: Type of input_string is not string, but {type(input_string)}")
+        print_red(f"get_result: Type of input_string is not string, but {type(input_string)}")
         return None
 
     try:
@@ -1178,7 +1178,7 @@ def get_result(input_string):
         return None
 
     except Exception as e:
-        print(f"Error extracting the RESULT-string: {e}")
+        print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
 def add_to_csv(file_path, heading, data_line):

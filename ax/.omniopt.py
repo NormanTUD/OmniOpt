@@ -5,6 +5,7 @@
 
 import sys
 import platform
+import os
 
 ORCHESTRATE_TODO = {}
 
@@ -23,6 +24,11 @@ try:
 except ModuleNotFoundError as e:
     print(f"ModuleNotFoundError: {e}")
     sys.exit(31)
+
+def is_slurm_job():
+    if os.environ.get('SLURM_JOB_ID') is not None:
+        return True
+    return False
 
 def my_exit(_code=0):
     tb = traceback.format_exc()
@@ -89,8 +95,6 @@ try:
         from inspect import currentframe, getframeinfo
     with console.status("[bold green]Loading tokenize...") as status:
         import tokenize
-    with console.status("[bold green]Loading os...") as status:
-        import os
     with console.status("[bold green]Loading threading...") as status:
         import threading
     with console.status("[bold green]Loading shutil...") as status:

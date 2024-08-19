@@ -3250,7 +3250,8 @@ def execute_evaluation(_params):
         #    print_red(f"Error while trying to submit job: {e}")
 
         global_vars["jobs"].append((new_job, trial_index))
-        _sleep(1)
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(1)
 
         try:
             _trial.mark_running(no_runner_required=True)
@@ -3870,7 +3871,8 @@ def run_search(_progress_bar):
 
         finish_previous_jobs(["finishing prev jobs"])
 
-        _sleep(1)
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(1)
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
             _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
@@ -3893,7 +3895,8 @@ def run_search(_progress_bar):
 
     while len(global_vars["jobs"]):
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-        _sleep(1)
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(1)
 
     log_what_needs_to_be_logged()
     return False

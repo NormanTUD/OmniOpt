@@ -869,14 +869,7 @@ def parse_experiment_parameters():
     global global_vars
     global changed_grid_search_params
 
-    print_debug("parse_experiment_parameters")
-
-    #if args.continue_previous_job and len(args.parameter):
-    #    print_red("Cannot use --parameter when using --continue_previous_job. Parameters must stay the same.")
-    #    my_exit(53)
-
     params = []
-
     param_names = []
 
     i = 0

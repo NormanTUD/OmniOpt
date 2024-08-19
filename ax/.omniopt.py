@@ -1912,8 +1912,6 @@ def save_checkpoint(trial_nr=0, ee=None):
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
-
-        print_debug("Checkpoint saved")
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 

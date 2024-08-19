@@ -1201,7 +1201,6 @@ def add_to_csv(file_path, heading, data_line):
         csv_writer.writerow(data_line)
 
 def find_file_paths(_text):
-    print_debug("find_file_paths(_text)")
     file_paths = []
 
     if isinstance(_text, str):
@@ -1216,7 +1215,6 @@ def find_file_paths(_text):
     return []
 
 def check_file_info(file_path):
-    print_debug("check_file_info")
     if not os.path.exists(file_path):
         print(f"The file {file_path} does not exist.")
         return ""
@@ -1255,7 +1253,6 @@ def check_file_info(file_path):
     return string
 
 def find_file_paths_and_print_infos(_text, program_code):
-    print_debug("find_file_paths_and_print_infos(_text, {program_code}")
     file_paths = find_file_paths(_text)
 
     if len(file_paths) == 0:

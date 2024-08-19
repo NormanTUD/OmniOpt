@@ -32,7 +32,8 @@ def my_exit(_code=0):
     except NameError:
         print(f"Exiting with error code {_code}. Traceback: {tb}")
 
-    time.sleep(5)
+    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result or args.show_sixel_graphics):
+        time.sleep(5)
 
     print("Exit-Code: " + str(_code))
     sys.exit(_code)

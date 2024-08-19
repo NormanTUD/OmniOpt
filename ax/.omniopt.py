@@ -1103,7 +1103,6 @@ def parse_choice_param(params, j, this_args, name, search_space_reduction_warnin
     return j, params, search_space_reduction_warning
 
 def replace_parameters_in_string(parameters, input_string):
-    print_debug("replace_parameters_in_string")
     try:
         for param_item in parameters:
             input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
@@ -1163,9 +1162,8 @@ def execute_bash_code(code):
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 def get_result(input_string):
-    print_debug("get_result(input_string)")
     if input_string is None:
-        print("Input-String is None")
+        print("get_result: Input-String is None")
         return None
 
     if not isinstance(input_string, str):

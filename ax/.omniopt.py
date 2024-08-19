@@ -1487,8 +1487,6 @@ def disable_logging():
     if args.verbose:
         return
 
-    print_debug("disable_logging()")
-
     logging.basicConfig(level=logging.ERROR)
     logging.getLogger().setLevel(logging.ERROR)
 
@@ -1535,8 +1533,6 @@ def disable_logging():
         for _cat in categories:
             warnings.filterwarnings("ignore", category=_cat)
             warnings.filterwarnings("ignore", category=_cat, module=_module)
-
-    print_debug("disable_logging() done")
 
 def display_failed_jobs_table():
     _console = Console()
@@ -1811,8 +1807,6 @@ def show_end_table_and_save_end_files(csv_file_path):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
-
-    disable_logging()
 
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars

@@ -33,7 +33,7 @@ def my_exit(_code=0):
         print(f"Exiting with error code {_code}. Traceback: {tb}")
 
     if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result or args.show_sixel_graphics):
-        time.sleep(5)
+        _sleep(5)
 
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
@@ -341,7 +341,7 @@ def print_image_to_cli(image_path, width):
 
         # Schreiben der Ausgabe in sys.stdout
         sixel_converter.write(sys.stdout)
-        time.sleep(2)
+        _sleep(2)
     except Exception as e:
         print_debug(
             f"Error converting and resizing image: "
@@ -3514,7 +3514,8 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                             break
 
-                        time.sleep(5)
+                        if is_slurm_job() and not args.force_local_execution:
+                            _sleep(5)
 
                     if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
@@ -3805,7 +3806,8 @@ def execute_nvidia_smi():
                 append_to_nvidia_smi_logs(_file, host, output)
         except Exception as e:
             print(f"An error occurred: {e}")
-        time.sleep(10)
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(10)
 
 def start_nvidia_smi_thread():
     if IS_NVIDIA_SMI_SYSTEM:
@@ -3904,7 +3906,7 @@ def wait_for_jobs_to_complete(_num_parallel_jobs):
         while len(global_vars["jobs"]) > _num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             if is_slurm_job() and not args.force_local_execution:
-                time.sleep(5)
+                _sleep(5)
             clean_completed_jobs()
 
 def print_logo():

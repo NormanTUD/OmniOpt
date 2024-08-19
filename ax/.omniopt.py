@@ -1117,7 +1117,6 @@ def replace_parameters_in_string(parameters, input_string):
         return None
 
 def execute_bash_code(code):
-    print_debug(f"execute_bash_code({code})")
     try:
         result = subprocess.run(
             code,
@@ -1351,7 +1350,6 @@ def evaluate(parameters):
 
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 
-    print_debug(f"evaluate with parameters {parameters}")
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)

@@ -93,8 +93,6 @@ try:
     with console.status("[bold green]Loading inspect...") as status:
         import inspect
         from inspect import currentframe, getframeinfo
-    with console.status("[bold green]Loading tokenize...") as status:
-        import tokenize
     with console.status("[bold green]Loading threading...") as status:
         import threading
     with console.status("[bold green]Loading shutil...") as status:
@@ -241,20 +239,6 @@ def log_what_needs_to_be_logged():
             log_nr_of_workers()
         except Exception:
             pass
-
-def get_nesting_level(caller_frame):
-    filename, caller_lineno, _, _, _ = inspect.getframeinfo(caller_frame)
-    with open(filename, encoding="utf-8") as f:
-        indentation_level = 0
-        for token_record in tokenize.generate_tokens(f.readline):
-            token_type, _, (token_lineno, _), _, _ = token_record
-            if token_lineno > caller_lineno:
-                pass
-            elif token_type == tokenize.INDENT:
-                indentation_level += 1
-            elif token_type == tokenize.DEDENT:
-                indentation_level -= 1
-        return indentation_level
 
 def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
@@ -3689,10 +3673,6 @@ def _count_done_jobs(csv_file_path):
         return results
 
     df = None
-
-    __debug = f"_count_done_jobs({csv_file_path})\n"
-    with open(csv_file_path, mode='r', encoding="utf-8") as fin:
-        __debug += fin.read()
 
     _err = False
 

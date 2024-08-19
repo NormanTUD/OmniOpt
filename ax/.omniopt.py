@@ -3499,8 +3499,6 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     trial_index_to_param = None
     try:
-        print_debug("trying to get trial_index_to_param")
-
         try:
             trial_index_to_param = _get_next_trials()
 

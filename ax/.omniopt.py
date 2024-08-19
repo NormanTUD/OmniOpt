@@ -2844,8 +2844,6 @@ def get_hostname_from_outfile(stdout_path):
         return None
 
 def finish_previous_jobs(new_msgs):
-    print_debug(f"finish_previous_jobs({new_msgs})")
-
     global random_steps
     global ax_client
 
@@ -2863,7 +2861,6 @@ def finish_previous_jobs(new_msgs):
                 result = job.result()
                 raw_result = result
                 result = result["result"]
-                #print_debug(f"Got job result: {result}")
                 jobs_finished += 1
                 if result != VAL_IF_NOTHING_FOUND:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)

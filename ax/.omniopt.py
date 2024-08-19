@@ -3903,7 +3903,8 @@ def wait_for_jobs_to_complete(_num_parallel_jobs):
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > _num_parallel_jobs:
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
-            time.sleep(5)
+            if is_slurm_job() and not args.force_local_execution:
+                time.sleep(5)
             clean_completed_jobs()
 
 def print_logo():

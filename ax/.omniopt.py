@@ -3824,8 +3824,6 @@ def execute_nvidia_smi():
         time.sleep(10)
 
 def start_nvidia_smi_thread():
-    print_debug("start_nvidia_smi_thread()")
-
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()

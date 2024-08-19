@@ -3146,11 +3146,6 @@ def get_desc_progress_text(new_msgs=[]):
 
     return desc
 
-def is_slurm_job():
-    if os.environ.get('SLURM_JOB_ID') is not None:
-        return True
-    return False
-
 def _sleep(t: int):
     if not args.no_sleep:
         time.sleep(t)

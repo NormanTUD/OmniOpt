@@ -691,7 +691,6 @@ signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
 def is_executable_in_path(executable_name):
-    print_debug(f"is_executable_in_path({executable_name})")
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
         if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):

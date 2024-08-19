@@ -2247,8 +2247,6 @@ def print_overview_tables(experiment_parameters, experiment_args):
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
 
-    print_debug("print_overview_tables(experiment_parameters, experiment_args)")
-
     if not experiment_parameters:
         print_red("Experiment parameters could not be determined for display")
 

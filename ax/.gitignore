@@ -188,3 +188,4 @@ runs_OLD
 .dont_ask_upgrade_omniopt
 ../.omniopt_*
 ../.omniax_*
+myscript.prof

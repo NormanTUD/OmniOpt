@@ -304,8 +304,7 @@ def write_process_info():
             cpu_usage = process.cpu_percent(interval=1)
             ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
 
-            print_debug(f"CPU Usage: {cpu_usage}%")
-            print_debug(f"RAM Usage: {ram_usage} MB")
+            print_debug(f"CPU Usage: {cpu_usage}%, RAM Usage: {ram_usage} MB")
         except Exception as e:
             print_debug(f"Error retrieving process information: {str(e)}")
         LAST_CPU_MEM_TIME = None

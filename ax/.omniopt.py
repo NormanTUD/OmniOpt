@@ -1905,8 +1905,6 @@ def save_checkpoint(trial_nr=0, ee=None):
         return
 
     try:
-        print_debug(f"save_checkpoint(trial_nr: {trial_nr}, ee: {ee})")
-
         state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
 
         if not os.path.exists(state_files_folder):
@@ -1920,8 +1918,6 @@ def save_checkpoint(trial_nr=0, ee=None):
         save_checkpoint(trial_nr + 1, e)
 
 def save_pd_csv():
-    #print_debug("save_pd_csv()")
-
     pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
     pd_json = f'{CURRENT_RUN_FOLDER}/state_files/pd.json'
 

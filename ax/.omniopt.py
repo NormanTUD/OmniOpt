@@ -21,6 +21,7 @@ class SignalCONT (Exception):
 try:
     import traceback
     import time
+    from catsay import catsay
 except ModuleNotFoundError as e:
     print(f"ModuleNotFoundError: {e}")
     sys.exit(31)
@@ -3876,17 +3877,7 @@ def wait_for_jobs_to_complete(_num_parallel_jobs):
             clean_completed_jobs()
 
 def print_logo():
-    original_print("""
-   ---------
-  (OmniOpt2!)
-   ---------
-          \\/
-         /\\_/\\
-        ( o.o )
-         > ^ <  ,"",
-         ( " ) :
-          (|)""
-""")
+    catsay("OmniOpt2")
 
 def is_already_in_defective_nodes(hostname):
     file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")

@@ -22,7 +22,6 @@ class SignalCONT (Exception):
 try:
     import traceback
     import time
-    from catsay import catsay
 except ModuleNotFoundError as e:
     print(f"ModuleNotFoundError: {e}")
     sys.exit(31)
@@ -3905,7 +3904,6 @@ def print_logo():
         "Finding the sweet spot in the matrix.",
         "Like a hyperparameter whisperer.",
         "Cooking up some optimization!",
-        "Dialing in the perfection!",
         "Because defaults are for amateurs.",
         "Maximizing the model mojo!",
         "Hyperparameter alchemy in action!",
@@ -3932,7 +3930,14 @@ def print_logo():
 
     spruch = random.choice(sprueche)
 
-    catsay(f"OmniOpt2 - {spruch}")
+    if random.randint(0, 1) == 0 and False:
+        from catsay import catsay
+        catsay(f"OmniOpt2 - {spruch}")
+    else:
+        import cowsay
+        char = random.choice(cowsay.char_names)
+
+        cowsay.char_funcs[char](spruch)
 
 def is_already_in_defective_nodes(hostname):
     file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")

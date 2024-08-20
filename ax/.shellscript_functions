@@ -39,6 +39,7 @@
 		radon
 		vulture
 		flake8
+		cowsay
 	)
 
 	FROZEN=""

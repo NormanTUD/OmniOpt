@@ -30,3 +30,4 @@ bandit
 radon
 vulture
 flake8
+cowsay

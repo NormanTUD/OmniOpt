@@ -386,7 +386,7 @@ _test "Test wrong model name (should fail with 203)" "./omniopt --partition=alph
 
 _test "Test orchestrator" "./.tests/orchestrator" 0
 
-_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 19
+_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
 
 _test "Test OO without needed params" "./omniopt" 19
 

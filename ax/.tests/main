@@ -516,6 +516,44 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	firefox htmlcov/index.html
 fi
 
+# Array nach TestRunTime sortieren (basierend auf der zweiten Spalte)
+IFS=$'\n' sorted_log_times=($(for entry in "${LOG_TIMES[@]}"; do echo "$entry"; done | sort -t',' -k2,2n))
+
+# Initiale Spaltenbreiten setzen
+max_name_length=0
+max_time_length=0
+max_code_length=0
+
+# Maximale Breite jeder Spalte bestimmen
+for entry in "${sorted_log_times[@]}"; do
+    IFS=',' read -r name time code <<< "$entry"
+    [[ ${#name} -gt $max_name_length ]] && max_name_length=${#name}
+    [[ ${#time} -gt $max_time_length ]] && max_time_length=${#time}
+    [[ ${#code} -gt $max_code_length ]] && max_code_length=${#code}
+done
+
+print_table() {
+    first_line=true
+    for entry in "${sorted_log_times[@]}"; do
+        IFS=',' read -r name time code <<< "$entry"
+
+        if $first_line; then
+            printf "| %-${max_name_length}s | %-${max_time_length}s | %-${max_code_length}s |\n" "$name" "$time" "$code"
+            printf "|%s|\n" "$(printf -- '-%.0s' $(seq 1 $((max_name_length + max_time_length + max_code_length + 6 + 2))))"
+            first_line=false
+            continue
+        fi
+
+        if [[ $code -ne 0 && $code =~ ^[0-9]+$ && $code -ge 1 && $code -le 255 ]]; then
+            printf "\033[0;31m"  # Rot
+        fi
+
+        printf "| %-${max_name_length}s | %-${max_time_length}s | %-${max_code_length}s |\033[0m\n" "$name" "$time" "$code"
+    done
+}
+
+print_table
+
 echo "Test took $(displaytime $SECONDS)"
 
 exit ${#errors[@]}

@@ -5,7 +5,12 @@ export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
 
 LOG_TIMES=()
-LOG_TIMES+=("Name,TestRunTime,ExitCode")
+
+unshift() {
+	local -n ary=$1
+	shift
+	ary=("$@" "${ary[@]}")
+}
 
 function displaytime {
 	local T=$1
@@ -520,6 +525,8 @@ fi
 
 # Array nach TestRunTime sortieren (basierend auf der zweiten Spalte)
 IFS=$'\n' sorted_log_times=($(for entry in "${LOG_TIMES[@]}"; do echo "$entry"; done | sort -t',' -k2,2n))
+
+unshift LOG_TIMES "Name,TestRunTime,ExitCode"
 
 # Initiale Spaltenbreiten setzen
 max_name_length=0

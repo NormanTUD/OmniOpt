@@ -235,8 +235,6 @@ function _test {
 	WANTED_EXIT_CODE=$3
 	ALTERNATIVE_OK_EXIT_CODE=$4
 
-	START_TIME=$(date +%s)
-
 	yellow_text "$NAME..."
 
 	if [[ -z $NAME ]]; then
@@ -261,8 +259,10 @@ function _test {
 
 	set +e
 
+	START_TIME=$(date +%s)
 	$COMMAND
 	exit_code=$?
+	END_TIME=$(date +%s)
 
 	set -e
 
@@ -289,7 +289,6 @@ function _test {
 			errors+=($(echo "$ERRORMSG" | base64))
 		fi
 	fi
-	END_TIME=$(date +%s)
 
 	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
 

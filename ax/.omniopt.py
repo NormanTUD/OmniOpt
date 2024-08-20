@@ -3925,6 +3925,9 @@ def print_logo():
         "It’s a hyperparameter life – every tweak counts!",
         "As timeless as Metropolis, but with better optimization.",
         "Adjusting parameters with the precision of a laser-guided squirrel.",
+        "Tuning hyperparameters with the finesse of a cat trying not to knock over the vase.",
+        "Optimizing parameters with the flair of a magician pulling rabbits out of hats.",
+        "Optimizing like a koala climbing a tree—slowly but surely reaching the perfect spot.",
     ]
 
     spruch = random.choice(sprueche)

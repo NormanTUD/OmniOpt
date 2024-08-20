@@ -570,7 +570,7 @@ print_table() {
 		IFS=',' read -r -a fields <<< "$entry"
 		line=""
 		for i in "${!fields[@]}"; do
-			if [[ "${fields[$i]}" != "0" && "${fields[$i]}" =~ ^[0-9]+$ && ${fields[$i]} -ge 1 && ${fields[$i]} -le 255 ]]; then
+			if [[ "${fields[$i]}" != "0" && "${fields[$i]}" =~ ^[0-9]+$ && "${fields[$i]}" -ge 1 && "${fields[$i]}" -le 255 ]]; then
 				printf "\033[0;31m"  # Rot
 			fi
 			line+="| %-${max_lengths[${headers[$i]}]}s "

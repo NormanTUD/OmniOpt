@@ -5,7 +5,7 @@ export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
 
 LOG_TIMES=()
-LOG_TIMES+=("Name,TestRunTime,ExitCode")
+LOG_TIMES+=("Name,TestRunTime,ExitCode,WantedExitCodes")
 
 unshift() {
 	local -n ary=$1       # Referenz auf das Array
@@ -281,7 +281,12 @@ function _test {
 	END_TIME=$(date +%s)
 	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
 
-	LOG_TIMES+=("$NAME,$TEST_RUN_TIME,$exit_code")
+	wanted_exit_codes=$WANTED_EXIT_CODE
+	if [[ -n $ALTERNATIVE_OK_EXIT_CODE ]]; then
+		wanted_exit_codes="$WANTED_EXIT_CODE/$ALTERNATIVE_OK_EXIT_CODE"
+	fi
+
+	LOG_TIMES+=("$NAME,$TEST_RUN_TIME,$exit_code,$wanted_exit_codes")
 
 	set -e
 

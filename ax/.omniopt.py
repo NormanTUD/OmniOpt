@@ -3912,7 +3912,12 @@ def print_logo():
         "Optimizing like it's the Matrix, but I’m the One.",
         "Hyperparameters assemble! (Avengers style)",
         "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
-        "Inception-level optimization: going deeper with every layer."
+        "Inception-level optimization: going deeper with every layer.",
+        "Hyperparameter quest: It's dangerous to go alone, take this!",
+        "Tuning like a Jedi: Feel the force of the optimal values.",
+        "Hyperparameters: As rare as the One Ring.",
+        "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
+        "Like Neo, dodging suboptimal hyperparameters in slow motion."
     ]
 
     spruch = random.choice(sprueche)

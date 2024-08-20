@@ -530,35 +530,54 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 fi
 
 IFS=$'\n' sorted_log_times=("${LOG_TIMES[0]}" $(printf "%s\n" "${LOG_TIMES[@]:1}" | sort -t',' -k2,2n))
+unset IFS
 
-max_name_length=0
-max_time_length=0
-max_code_length=0
+IFS=',' read -r -a headers <<< "${sorted_log_times[0]}"
+num_columns=${#headers[@]}
+
+declare -A max_lengths
+for header in "${headers[@]}"; do
+	max_lengths["$header"]=0
+done
 
 for entry in "${sorted_log_times[@]}"; do
-	IFS=',' read -r name time code <<< "$entry"
-	[[ ${#name} -gt $max_name_length ]] && max_name_length=${#name}
-	[[ ${#time} -gt $max_time_length ]] && max_time_length=${#time}
-	[[ ${#code} -gt $max_code_length ]] && max_code_length=${#code}
+	IFS=',' read -r -a fields <<< "$entry"
+	for i in "${!fields[@]}"; do
+		header="${headers[$i]}"
+		[[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
+	done
 done
 
 print_table() {
-	first_line=true
-	for entry in "${sorted_log_times[@]}"; do
-		IFS=',' read -r name time code <<< "$entry"
+	header_line=""
+	separator_line=""
+	for header in "${headers[@]}"; do
+		header_line+="| %-${max_lengths[$header]}s "
+		separator_line+="|-%-${max_lengths[$header]}s-"
+	done
+	header_line+="|"
+	separator_line+="|"
 
+	printf "$header_line\n" "${headers[@]}"
+	printf "$separator_line\n" $(printf '%.s-' $(seq 1 $num_columns))
+
+	first_line=false
+	for entry in "${sorted_log_times[@]}"; do
 		if $first_line; then
-			printf "| %-${max_name_length}s | %-${max_time_length}s | %-${max_code_length}s |\n" "$name" "$time" "$code"
-			printf "|%s|\n" "$(printf -- '-%.0s' $(seq 1 $((max_name_length + max_time_length + max_code_length + 6 + 2))))"
 			first_line=false
 			continue
 		fi
+		IFS=',' read -r -a fields <<< "$entry"
+		line=""
+		for i in "${!fields[@]}"; do
+			if [[ ${fields[$i]} -ne 0 && ${fields[$i]} =~ ^[0-9]+$ && ${fields[$i]} -ge 1 && ${fields[$i]} -le 255 ]]; then
+				printf "\033[0;31m"  # Rot
+			fi
+			line+="| %-${max_lengths[${headers[$i]}]}s "
+		done
+		line+="| \033[0m"
 
-		if [[ $code -ne 0 && $code =~ ^[0-9]+$ && $code -ge 1 && $code -le 255 ]]; then
-			printf "\033[0;31m"  # Rot
-		fi
-
-		printf "| %-${max_name_length}s | %-${max_time_length}s | %-${max_code_length}s |\033[0m\n" "$name" "$time" "$code"
+		printf "$line\n" "${fields[@]}"
 	done
 }
 

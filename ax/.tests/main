@@ -537,48 +537,61 @@ num_columns=${#headers[@]}
 
 declare -A max_lengths
 for header in "${headers[@]}"; do
-	max_lengths["$header"]=0
+    max_lengths["$header"]=0
 done
 
 for entry in "${sorted_log_times[@]}"; do
-	IFS=',' read -r -a fields <<< "$entry"
-	for i in "${!fields[@]}"; do
-		header="${headers[$i]}"
-		[[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
-	done
+    IFS=',' read -r -a fields <<< "$entry"
+    for i in "${!fields[@]}"; do
+        header="${headers[$i]}"
+        [[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
+    done
 done
 
 print_table() {
-	header_line=""
-	separator_line=""
-	for header in "${headers[@]}"; do
-		header_line+="| %-${max_lengths[$header]}s "
-		separator_line+="|-%-${max_lengths[$header]}s-"
-	done
-	header_line+="|"
-	separator_line+="|"
+        header_line=""
+        separator_line=""
+        for header in "${headers[@]}"; do
+                header_line+="│ ${header}$(printf '%*s' $((max_lengths[$header] - ${#header} + 1)))"
+                separator_line+="│$(for i in $(seq  $((${max_lengths[$header]} + 1))); do printf '─'; done)─"
+        done
 
-	printf "$header_line\n" "${headers[@]}"
-	printf "$separator_line\n" $(printf '%.s-' $(seq 1 $num_columns))
+        header_line+="│"
 
-	first_line=false
-	for entry in "${sorted_log_times[@]}"; do
-		if $first_line; then
-			first_line=false
-			continue
-		fi
-		IFS=',' read -r -a fields <<< "$entry"
-		line=""
-		for i in "${!fields[@]}"; do
-			if [[ "${fields[$i]}" != "0" && "${fields[$i]}" =~ ^[0-9]+$ && "${fields[$i]}" -ge 1 && "${fields[$i]}" -le 255 ]]; then
-				printf "\033[0;31m"  # Rot
-			fi
-			line+="| %-${max_lengths[${headers[$i]}]}s "
-		done
-		line+="| \033[0m"
 
-		printf "$line\n" "${fields[@]}"
-	done
+        border_line="┌${separator_line:1}┐"
+        separator_line="├${separator_line:1}┤"
+
+        separator_line_cut_last=$(echo "$separator_line" | sed -e 's#.$##')
+        end_line="└${separator_line_cut_last:1}┘"
+        end_line=$(echo "$end_line" | sed -e 's#│#┴#g')
+
+        border_line=$(echo "$border_line" | sed -e 's#│#┬#g')
+        separator_line=$(echo "$separator_line" | sed -e 's#│#┼#g')
+
+        printf "%s\n" "$border_line"
+        printf "%s\n" "$header_line"
+        printf "%s\n" "$separator_line"
+
+        i=0
+        for entry in "${sorted_log_times[@]}"; do
+                if [[ $i -gt 0 ]]; then
+                        IFS=',' read -r -a fields <<< "$entry"
+                        line=""
+                        for i in "${!fields[@]}"; do
+                                if [[ ${fields[$i]} =~ ^[0-9]+$ && ${fields[$i]} -ne 0 && ${fields[$i]} -ge 1 && ${fields[$i]} -le 255 ]]; then
+                                        printf "\033[0;31m"  # Rot
+                                fi
+                                line+="│ ${fields[$i]}$(printf '%*s' $((max_lengths[${headers[$i]}] + 1 - ${#fields[$i]})))"
+                        done
+                        line+="│"
+
+                        printf "%s\n\033[0m" "$line"
+                fi
+                i=$(($i+1))
+        done
+
+        printf "%s\n" "$end_line"
 }
 
 print_table

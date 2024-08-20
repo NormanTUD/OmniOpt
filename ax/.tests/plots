@@ -7,6 +7,7 @@ export DONT_INSTALL_MODULES=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export PLOT_TESTS=1
 
+
 function _tput {
 	set +e
 	CHAR=$1
@@ -80,11 +81,17 @@ help=0
 args=("$@")
 k=0
 keep_tmp=0
+quick=0
 
 while [ $k -lt ${#args[@]} ]; do
 	arg="${args[k]}"
 
 	case $arg in
+		--quick)
+			quick=1
+			shift
+			;;
+
 		--keep_tmp)
 			keep_tmp=1
 			shift
@@ -106,6 +113,7 @@ done
 if [[ "$help" -eq "1" ]]; then
 	echo ".tests/plots:"
 	echo "--keep_tmp                            Keep tmp files"
+	echo "--quick                               Disables some slow tests"
 	exit 0
 fi
 
@@ -198,16 +206,18 @@ for projectname in "${test_projects[@]}"; do
 
 					_commands+=("$_command")
 
-					has_min=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--min" | wc -l)
-					has_max=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--max" | wc -l)
+					if [[ $quick -eq 0 ]]; then
+						has_min=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--min" | wc -l)
+						has_max=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--max" | wc -l)
 
 
-					if [[ $has_min -gt 0 ]] && [[ $has_max -gt 0 ]]; then
-						_commands+=("$_command --min=-9999999 --max=9999999")
-					elif [[ $has_min -gt 0 ]]; then
-						_commands+=("$_command --min=-9999999")
-					elif [[ $has_max -gt 0 ]]; then
-						_commands+=("$_command --max=9999999")
+						if [[ $has_min -gt 0 ]] && [[ $has_max -gt 0 ]]; then
+							_commands+=("$_command --min=-9999999 --max=9999999")
+						elif [[ $has_min -gt 0 ]]; then
+							_commands+=("$_command --min=-9999999")
+						elif [[ $has_max -gt 0 ]]; then
+							_commands+=("$_command --max=9999999")
+						fi
 					fi
 				else
 					missing_files_str=$(join_by "," $missing_files)

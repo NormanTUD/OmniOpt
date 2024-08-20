@@ -3937,7 +3937,7 @@ def print_logo():
         import cowsay
         char = random.choice(cowsay.char_names)
 
-        cowsay.char_funcs[char](spruch)
+        cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
 
 def is_already_in_defective_nodes(hostname):
     file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")

@@ -3924,6 +3924,7 @@ def print_logo():
         "Dialing in hyperparameters like a classic noir detective.",
         "It’s a hyperparameter life – every tweak counts!",
         "As timeless as Metropolis, but with better optimization.",
+        "Adjusting parameters with the precision of a laser-guided squirrel.",
     ]
 
     spruch = random.choice(sprueche)

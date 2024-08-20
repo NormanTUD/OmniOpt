@@ -4,6 +4,9 @@ export OO_MAIN_TESTS=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
 
+LOG_TIMES=()
+LOG_TIMES+=("Name,TestRunTime,ExitCode")
+
 function displaytime {
 	local T=$1
 		local D=$((T/60/60/24))
@@ -270,6 +273,9 @@ function _test {
 	$COMMAND
 	exit_code=$?
 	END_TIME=$(date +%s)
+	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
+
+	LOG_TIMES+=("$NAME,$TEST_RUN_TIME,$exit_code")
 
 	set -e
 
@@ -296,8 +302,6 @@ function _test {
 			errors+=($(echo "$ERRORMSG" | base64))
 		fi
 	fi
-
-	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
 
 	echo "Test took $(displaytime $TEST_RUN_TIME) seconds"
 }
@@ -495,7 +499,6 @@ fi
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
-	exit 0
 else
 	red_text "=> ERRORS => ERRORS => ERRORS =>"
 	for i in "${errors[@]}"; do
@@ -503,7 +506,6 @@ else
 		echo ""
 	done
 
-	exit ${#errors[@]}
 fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
@@ -515,3 +517,5 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 fi
 
 echo "Test took $(displaytime $SECONDS)"
+
+exit ${#errors[@]}

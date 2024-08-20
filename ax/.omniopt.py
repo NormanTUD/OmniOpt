@@ -2933,7 +2933,8 @@ def orchestrate_job(job, trial_index):
     _orchestrate(stdout_path, trial_index)
     _orchestrate(stderr_path, trial_index)
 
-    for todo_stdout_file in ORCHESTRATE_TODO.keys():
+    orchestrate_todo_copy = ORCHESTRATE_TODO
+    for todo_stdout_file in orchestrate_todo_copy.keys():
         old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
@@ -3000,7 +3001,8 @@ def check_orchestrator(stdout_path, trial_index):
         try:
             stdout = Path(stdout_path).read_text("UTF-8")
         except FileNotFoundError:
-            if stdout_path not in ORCHESTRATE_TODO.keys():
+            orchestrate_todo_copy = ORCHESTRATE_TODO
+            if stdout_path not in orchestrate_todo_copy.keys():
                 ORCHESTRATE_TODO[stdout_path] = trial_index
                 print_red(f"File not found: {stdout_path}, will try again later")
             else:

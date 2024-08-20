@@ -3917,7 +3917,11 @@ def print_logo():
         "Tuning like a Jedi: Feel the force of the optimal values.",
         "Hyperparameters: As rare as the One Ring.",
         "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
-        "Like Neo, dodging suboptimal hyperparameters in slow motion."
+        "Like Neo, dodging suboptimal hyperparameters in slow motion.",
+        "Hyperparameters: The Hitchcock thriller of machine learning.",
+        "Dialing in hyperparameters like a classic noir detective.",
+        "It’s a hyperparameter life – every tweak counts!",
+        "As timeless as Metropolis, but with better optimization.",
     ]
 
     spruch = random.choice(sprueche)

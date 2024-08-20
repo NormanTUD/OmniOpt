@@ -509,11 +509,13 @@ else
 fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
-	coverage combine
-	coverage xml
-	coverage html
+	if command -v firefox 2>/dev/null >/dev/null; then
+		coverage combine
+		coverage xml
+		coverage html
 
-	firefox htmlcov/index.html
+		firefox htmlcov/index.html
+	fi
 fi
 
 # Array nach TestRunTime sortieren (basierend auf der zweiten Spalte)

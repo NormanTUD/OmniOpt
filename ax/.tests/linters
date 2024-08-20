@@ -74,6 +74,18 @@ if [[ "$quick" -eq 0 ]]; then
 		red_text "pylint failed"
 		errors+=("pylint failed")
 	}
+
+	yellow_text "Trying bandit..."
+	.tests/bandit || {
+		red_text "bandit failed"
+		errors+=("bandit failed")
+	}
+
+	yellow_text "Trying deadcode..."
+	.tests/deadcode || {
+		red_text "deadcode failed"
+		errors+=("deadcode failed")
+	}
 fi
 
 yellow_text "Trying pyflakes..."
@@ -82,22 +94,11 @@ yellow_text "Trying pyflakes..."
 	errors+=("pyflakes failed")
 }
 
-yellow_text "Trying deadcode..."
-.tests/deadcode || {
-	red_text "deadcode failed"
-	errors+=("deadcode failed")
-}
 
 yellow_text "Trying flake8..."
 .tests/flake8 || {
 	red_text "flake8 failed"
 	errors+=("flake8 failed")
-}
-
-yellow_text "Trying bandit..."
-.tests/bandit || {
-	red_text "bandit failed"
-	errors+=("bandit failed")
 }
 
 yellow_text "Trying shellcheck..."

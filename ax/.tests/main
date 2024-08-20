@@ -474,6 +474,7 @@ if [[ "$reallyquick" -eq "0" ]]; then
 		_test "Plot-Tests" "bash .tests/plots --quick" 0
 	fi
 fi
+
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
 _test "help page Documentation" "bash .tests/help_page" 0
 _test "folder structure Documentation" "bash .tests/folder_structure" 0

@@ -179,6 +179,67 @@ except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
+def print_logo():
+    sprueche = [
+        "Fine-tuning like a boss!",
+        "Finding the needle in the hyper haystack!",
+        "Hyperparameters? Nailed it!",
+        "Optimizing with style!",
+        "Dialing in the magic numbers.",
+        "Turning knobs since day one!",
+        "When in doubt, optimize!",
+        "Tuning like a maestro!",
+        "In search of the perfect fit.",
+        "Hyper-sanity check complete!",
+        "Taking parameters to the next level.",
+        "Cracking the code of perfect parameters!",
+        "Turning dials like a DJ!",
+        "In pursuit of the ultimate accuracy!",
+        "May the optimal values be with you.",
+        "Tuning up for success!",
+        "Hyperparam magic, just add data!",
+        "Unlocking the secrets of the grid.",
+        "Tuning: because close enough isn't good enough.",
+        "When it clicks, it sticks!",
+        "Adjusting the dials, one click at a time.",
+        "Finding the sweet spot in the matrix.",
+        "Like a hyperparameter whisperer.",
+        "Cooking up some optimization!",
+        "Because defaults are for amateurs.",
+        "Maximizing the model mojo!",
+        "Hyperparameter alchemy in action!",
+        "Precision tuning, no shortcuts.",
+        "Climbing the hyperparameter mountain... Montana Sacra style!",
+        "Optimizing like it's the Matrix, but I’m the One.",
+        "Hyperparameters assemble! (Avengers style)",
+        "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
+        "Inception-level optimization: going deeper with every layer.",
+        "Hyperparameter quest: It's dangerous to go alone, take this!",
+        "Tuning like a Jedi: Feel the force of the optimal values.",
+        "Hyperparameters: As rare as the One Ring.",
+        "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
+        "Like Neo, dodging suboptimal hyperparameters in slow motion.",
+        "Hyperparameters: The Hitchcock thriller of machine learning.",
+        "Dialing in hyperparameters like a classic noir detective.",
+        "It’s a hyperparameter life – every tweak counts!",
+        "As timeless as Metropolis, but with better optimization.",
+        "Adjusting parameters with the precision of a laser-guided squirrel.",
+        "Tuning hyperparameters with the finesse of a cat trying not to knock over the vase.",
+        "Optimizing parameters with the flair of a magician pulling rabbits out of hats.",
+        "Optimizing like a koala climbing a tree—slowly but surely reaching the perfect spot.",
+    ]
+
+    spruch = random.choice(sprueche)
+
+    if random.randint(0, 1) == 0:
+        catsay(f"OmniOpt2 - {spruch}")
+    else:
+        char = random.choice(cowsay.char_names)
+
+        cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
+
+print_logo()
+
 process = psutil.Process(os.getpid())
 
 global_vars = {}
@@ -3880,65 +3941,6 @@ def wait_for_jobs_to_complete(_num_parallel_jobs):
                 _sleep(5)
             clean_completed_jobs()
 
-def print_logo():
-    sprueche = [
-        "Fine-tuning like a boss!",
-        "Finding the needle in the hyper haystack!",
-        "Hyperparameters? Nailed it!",
-        "Optimizing with style!",
-        "Dialing in the magic numbers.",
-        "Turning knobs since day one!",
-        "When in doubt, optimize!",
-        "Tuning like a maestro!",
-        "In search of the perfect fit.",
-        "Hyper-sanity check complete!",
-        "Taking parameters to the next level.",
-        "Cracking the code of perfect parameters!",
-        "Turning dials like a DJ!",
-        "In pursuit of the ultimate accuracy!",
-        "May the optimal values be with you.",
-        "Tuning up for success!",
-        "Hyperparam magic, just add data!",
-        "Unlocking the secrets of the grid.",
-        "Tuning: because close enough isn't good enough.",
-        "When it clicks, it sticks!",
-        "Adjusting the dials, one click at a time.",
-        "Finding the sweet spot in the matrix.",
-        "Like a hyperparameter whisperer.",
-        "Cooking up some optimization!",
-        "Because defaults are for amateurs.",
-        "Maximizing the model mojo!",
-        "Hyperparameter alchemy in action!",
-        "Precision tuning, no shortcuts.",
-        "Climbing the hyperparameter mountain... Montana Sacra style!",
-        "Optimizing like it's the Matrix, but I’m the One.",
-        "Hyperparameters assemble! (Avengers style)",
-        "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
-        "Inception-level optimization: going deeper with every layer.",
-        "Hyperparameter quest: It's dangerous to go alone, take this!",
-        "Tuning like a Jedi: Feel the force of the optimal values.",
-        "Hyperparameters: As rare as the One Ring.",
-        "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
-        "Like Neo, dodging suboptimal hyperparameters in slow motion.",
-        "Hyperparameters: The Hitchcock thriller of machine learning.",
-        "Dialing in hyperparameters like a classic noir detective.",
-        "It’s a hyperparameter life – every tweak counts!",
-        "As timeless as Metropolis, but with better optimization.",
-        "Adjusting parameters with the precision of a laser-guided squirrel.",
-        "Tuning hyperparameters with the finesse of a cat trying not to knock over the vase.",
-        "Optimizing parameters with the flair of a magician pulling rabbits out of hats.",
-        "Optimizing like a koala climbing a tree—slowly but surely reaching the perfect spot.",
-    ]
-
-    spruch = random.choice(sprueche)
-
-    if random.randint(0, 1) == 0:
-        catsay(f"OmniOpt2 - {spruch}")
-    else:
-        char = random.choice(cowsay.char_names)
-
-        cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
-
 def is_already_in_defective_nodes(hostname):
     file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
 
@@ -4092,8 +4094,6 @@ def check_max_eval(_max_eval):
 
 def main():
     print_debug("main()")
-
-    print_logo()
 
     global RESULT_CSV_FILE
     global ax_client

@@ -3930,7 +3930,7 @@ def print_logo():
 
     spruch = random.choice(sprueche)
 
-    if random.randint(0, 1) == 0 and False:
+    if random.randint(0, 1) == 0:
         from catsay import catsay
         catsay(f"OmniOpt2 - {spruch}")
     else:

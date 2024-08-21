@@ -389,10 +389,10 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	source $VENV_DIR/bin/activate
 fi
 
-if [[ $superquick -eq 0 ]]; then
-	_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-	_test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
+_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
+_test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 
+if [[ $superquick -eq 0 ]]; then
 	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 	_test_nr_jobs 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 

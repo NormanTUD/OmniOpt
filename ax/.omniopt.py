@@ -235,22 +235,18 @@ def print_logo():
         catsay(f"OmniOpt2 - {spruch}")
     else:
         _cn = [
-            'cheese',
             'cow',
             'daemon',
             'dragon',
             'fox',
             'ghostbusters',
             'kitty',
-            'meow',
-            'miki',
             'milk',
             'octopus',
             'pig',
             'stegosaurus',
             'stimpy',
             'trex', 
-            'turkey', 
             'turtle', 
             'tux'
         ]

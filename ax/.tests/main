@@ -5,7 +5,7 @@ export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
 
 LOG_TIMES=()
-LOG_TIMES+=("Name,TestRunTime,ExitCode,WantedExitCodes")
+LOG_TIMES+=("Name,TestRunTime,ExitCode,WantedExitCodes,Failed")
 
 unshift() {
 	local -n ary=$1       # Referenz auf das Array
@@ -286,9 +286,9 @@ function _test {
 		wanted_exit_codes="$WANTED_EXIT_CODE/$ALTERNATIVE_OK_EXIT_CODE"
 	fi
 
-	LOG_TIMES+=("$NAME,$TEST_RUN_TIME,$exit_code,$wanted_exit_codes")
-
 	set -e
+
+	failed_true_false=0
 
 	if [[ -z $ALTERNATIVE_OK_EXIT_CODE ]]; then
 		if [[ "$exit_code" -eq "$WANTED_EXIT_CODE" ]]; then
@@ -300,6 +300,7 @@ function _test {
 		if [[ $(echo $ERRORMSG | wc -c) -gt 2 ]]; then
 			red_text "$ERRORMSG"
 			errors+=($(echo "$ERRORMSG" | base64))
+			failed_true_false=1
 		fi
 	else
 		if [[ "$ALTERNATIVE_OK_EXIT_CODE" -eq "$exit_code" || "$exit_code" -eq "$WANTED_EXIT_CODE" ]]; then
@@ -311,8 +312,11 @@ function _test {
 		if [[ $(echo $ERRORMSG | wc -c) -gt 2 ]]; then
 			red_text "$ERRORMSG"
 			errors+=($(echo "$ERRORMSG" | base64))
+			failed_true_false=1
 		fi
 	fi
+
+	LOG_TIMES+=("$NAME,$TEST_RUN_TIME,$exit_code,$wanted_exit_codes,$failed_true_false")
 
 	echo "Test took $(displaytime $TEST_RUN_TIME) seconds"
 }

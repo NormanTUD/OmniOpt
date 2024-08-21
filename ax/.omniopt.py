@@ -234,7 +234,28 @@ def print_logo():
     if random.randint(0, 1) == 0:
         catsay(f"OmniOpt2 - {spruch}")
     else:
-        char = random.choice(cowsay.char_names)
+        _cn = [
+            'cheese',
+            'cow',
+            'daemon',
+            'dragon',
+            'fox',
+            'ghostbusters',
+            'kitty',
+            'meow',
+            'miki',
+            'milk',
+            'octopus',
+            'pig',
+            'stegosaurus',
+            'stimpy',
+            'trex', 
+            'turkey', 
+            'turtle', 
+            'tux'
+        ]
+
+        char = random.choice(_cn)
 
         cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
 

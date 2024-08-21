@@ -77,6 +77,8 @@ console = None
 
 try:
     from rich.console import Console
+    from catsay import catsay
+    import cowsay
 
     console = Console(
         force_terminal=True,
@@ -3931,10 +3933,8 @@ def print_logo():
     spruch = random.choice(sprueche)
 
     if random.randint(0, 1) == 0:
-        from catsay import catsay
         catsay(f"OmniOpt2 - {spruch}")
     else:
-        import cowsay
         char = random.choice(cowsay.char_names)
 
         cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")

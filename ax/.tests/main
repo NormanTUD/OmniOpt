@@ -494,6 +494,12 @@ if [[ $superquick -eq 0 ]]; then
 			_test "Plot-Tests" "bash .tests/plots --quick" 0
 		fi
 	fi
+
+	if [[ $quick -eq 0 ]]; then
+		_test "Linters" "bash .tests/linters" 0
+	else
+		_test "Linters" "bash .tests/linters --quick" 0
+	fi
 fi
 
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
@@ -502,11 +508,6 @@ _test "folder structure Documentation" "bash .tests/folder_structure" 0
 _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
 
-if [[ $quick -eq 0 ]]; then
-	_test "Linters" "bash .tests/linters" 0
-else
-	_test "Linters" "bash .tests/linters --quick" 0
-fi
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"

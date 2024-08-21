@@ -5,7 +5,7 @@ export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
 
 LOG_TIMES=()
-LOG_TIMES+=("Name,TestRunTime,ExitCode,WantedExitCodes,Failed")
+LOG_TIMES+=("Name,TestRunTime,ExitCode,WantedExitCodes,Success")
 
 unshift() {
 	local -n ary=$1       # Referenz auf das Array

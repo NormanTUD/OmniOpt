@@ -288,7 +288,7 @@ function _test {
 
 	set -e
 
-	failed_true_false="🗸"
+	failed_true_false="✓"
 
 	if [[ -z $ALTERNATIVE_OK_EXIT_CODE ]]; then
 		if [[ "$exit_code" -eq "$WANTED_EXIT_CODE" ]]; then

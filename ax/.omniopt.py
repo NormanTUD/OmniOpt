@@ -246,8 +246,8 @@ def print_logo():
             'pig',
             'stegosaurus',
             'stimpy',
-            'trex', 
-            'turtle', 
+            'trex',
+            'turtle',
             'tux'
         ]
 

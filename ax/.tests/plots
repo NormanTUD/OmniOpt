@@ -7,6 +7,7 @@ export DONT_INSTALL_MODULES=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export PLOT_TESTS=1
 
+test_types_regex=""
 
 function _tput {
 	set +e
@@ -97,6 +98,11 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			;;
 
+		--test_types=*)
+			test_types_regex="${arg#*=}"
+			shift
+			;;
+
 		--help|-h)
 			help=1
 			shift
@@ -151,9 +157,17 @@ cd ..
 
 expected_plot_types=()
 
-for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
-	expected_plot_types+=("$possible_plot_type")
-done
+if [[ -n $test_types_regex ]]; then
+	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
+		if [[ -z "$test_types_regex" ]] || [[ "$possible_plot_type" =~ $test_types_regex ]]; then
+			expected_plot_types+=("$possible_plot_type")
+		fi
+	done
+else
+	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
+		expected_plot_types+=("$possible_plot_type")
+	done
+fi
 
 test_projects=()
 _commands=()

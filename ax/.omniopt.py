@@ -180,6 +180,9 @@ except KeyboardInterrupt:
     my_exit(0)
 
 def print_logo():
+    if os.environ.get('NO_OO_LOGO') is not None:
+        return
+
     sprueche = [
         "Fine-tuning like a boss!",
         "Finding the needle in the hyper haystack!",

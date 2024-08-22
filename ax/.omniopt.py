@@ -820,6 +820,7 @@ def sort_numerically_or_alphabetically(arr):
 
 def get_program_code_from_out_file(f):
     if not os.path.exists(f):
+        print_debug(f"{f} not found")
         original_print(f"{f} not found")
         return ""
 

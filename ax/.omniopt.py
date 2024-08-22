@@ -374,7 +374,7 @@ def log_system_usage():
 
     file_exists = os.path.isfile(csv_file_path)
 
-    with open(csv_file_path, mode='a', newline='') as file:
+    with open(csv_file_path, mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
         if not file_exists:

@@ -299,9 +299,9 @@ run_uuid = uuid.uuid4()
 def set_max_eval(new_max_eval):
     global max_eval
 
-    import traceback
-    print(f"set_max_eval(new_max_eval: {new_max_eval})")
-    traceback.print_stack()
+    #import traceback
+    #print(f"set_max_eval(new_max_eval: {new_max_eval})")
+    #traceback.print_stack()
 
     max_eval = new_max_eval
 

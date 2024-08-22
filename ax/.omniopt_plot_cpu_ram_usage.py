@@ -58,14 +58,17 @@ def update_graph():
         try:
             dataframe = pd.read_csv(args.run_dir + "/cpu_ram_usage.csv")
         except pd.errors.EmptyDataError:
-            print(f"{args.run_dir}/cpu_ram_usage.csv seems to be empty.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"{args.run_dir}/cpu_ram_usage.csv seems to be empty.")
             sys.exit(19)
         except UnicodeDecodeError:
-            print(f"{args.run_dir}/cpu_ram_usage.csv seems to be invalid utf8.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"{args.run_dir}/cpu_ram_usage.csv seems to be invalid utf8.")
             sys.exit(7)
 
         if dataframe.empty:
-            logging.warning("DataFrame is empty after reading.")
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                logging.warning("DataFrame is empty after reading.")
             return
 
         plot_graph(dataframe, args.save_to_file)

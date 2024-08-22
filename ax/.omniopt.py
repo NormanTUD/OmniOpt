@@ -2938,6 +2938,7 @@ def finish_previous_jobs(new_msgs):
                         except Exception as e:
                             print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
+                        orchestrate_job(job, trial_index)
 
                     failed_jobs(1)
 
@@ -2953,6 +2954,7 @@ def finish_previous_jobs(new_msgs):
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
+                    orchestrate_job(job, trial_index)
 
                 failed_jobs(1)
                 jobs_finished += 1
@@ -2971,6 +2973,7 @@ def finish_previous_jobs(new_msgs):
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
+                    orchestrate_job(job, trial_index)
 
                 failed_jobs(1)
                 jobs_finished += 1
@@ -2983,8 +2986,6 @@ def finish_previous_jobs(new_msgs):
             save_pd_csv()
         else:
             pass
-
-        orchestrate_job(job, trial_index)
 
     if jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {jobs_finished} job"])

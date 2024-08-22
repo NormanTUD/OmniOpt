@@ -368,7 +368,7 @@ def log_system_usage():
     if not CURRENT_RUN_FOLDER:
         return
 
-    csv_file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "cpu_ram_usage.csv")
+    csv_file_path = os.path.join(CURRENT_RUN_FOLDER, "cpu_ram_usage.csv")
 
     os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
 

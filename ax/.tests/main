@@ -414,11 +414,11 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 31
 
-	_test "Test OO without needed params" "./omniopt" 19
+	_test "Test OO without needed params (none at all)" "./omniopt" 19
 
-	_test "Test OO without needed params" "./omniopt --parameter" 2
+	_test "Test OO without needed params (only --parameter)" "./omniopt --parameter" 2
 
-	_test "Test OO without needed params" "./omniopt --parameter x range 0 1 float" 19
+	_test "Test OO without needed params (full --parameter)" "./omniopt --parameter x range 0 1 float" 19
 
 	_test "Test OO without needed params" "./omniopt --parameter x range 0 1 float --run_program 'echo'" 19
 

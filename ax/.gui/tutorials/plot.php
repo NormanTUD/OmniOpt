@@ -140,7 +140,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>
 <img src="imgs/3d.png" /><br>
 
-<p>Very similiar to the 2d-scatter plot, but in 3d.</p>
+<p>Plots CPU and RAM usage of the main process of an OmniOpt2 optimization.</p>
 
 <h4 id="3d_options"><tt>--plot_type=3d</tt> Options</h4>
 <pre><?php include("plot_helps/3d.txt"); ?></pre>

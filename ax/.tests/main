@@ -438,13 +438,13 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Non-unique parameter names" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice 123 --parameter x choice 1234" 181
 
-	_test "Invalid range type" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 123 123123 123" 181
+	_test "Invalid range type (wrong type)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 123 123123 123" 181
 
-	_test "Invalid range type" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 0" 181
+	_test "Invalid range type (upper = lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 0" 181
 
-	_test "Invalid range type" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181
+	_test "Invalid range type (mising upper limit and type)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181
 
-	_test "Invalid range type" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 float" 181
+	_test "Invalid range type (missing upper limit)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 float" 181
 
 	_test "Invalid constraint" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=0 --num_random_steps=20 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAleCV5Ig==' --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints 'x + y > 10' --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg==" 19
 

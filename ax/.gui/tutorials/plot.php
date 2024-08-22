@@ -127,6 +127,15 @@ All, except the 3d scatter, support to export your plot to a file.
 <h4 id="general_options"><tt>--plot_type=general</tt> Options</h4>
 <pre><?php include("plot_helps/general.txt"); ?></pre>
 
+<h3 id="cpu_ram_usage">CPU and RAM Usage</h3>
+<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=cpu_ram_usage</code></pre>
+<img src="imgs/cpu_ram_usage.png" /><br>
+
+<p>Very similiar to the 2d-scatter plot, but in 3d.</p>
+
+<h4 id="cpu_ram_usage_options"><tt>--plot_type=cpu_ram_usage</tt> Options</h4>
+<pre><?php include("plot_helps/cpu_ram_usage.txt"); ?></pre>
+
 <h3 id="3d">3d</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>
 <img src="imgs/3d.png" /><br>

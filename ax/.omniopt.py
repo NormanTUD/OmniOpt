@@ -1360,8 +1360,6 @@ def write_failed_logs(data_dict, error_description=""):
                     print_debug(f"Header file created with headers: {headers}")
             except Exception as e:
                 print_red(f"Failed to write header file: {e}")
-        else:
-            print_debug("Header file already exists, skipping header writing.")
 
         # Append data to the data file
         try:

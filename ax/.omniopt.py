@@ -365,6 +365,9 @@ def print_debug(msg):
     _debug(msg)
 
 def log_system_usage():
+    if not current_run_folder:
+        return
+
     csv_file_path = os.path.join(current_run_folder, "state_files", "cpu_ram_usage.csv")
 
     os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)

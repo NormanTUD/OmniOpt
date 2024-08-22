@@ -432,9 +432,9 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Incomplete choice parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice" 181
 
-	_test "Incomplete range parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181
+	_test "Incomplete range parameter (mising upper and lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181
 
-	_test "Incomplete range parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181
+	_test "Incomplete range parameter (missing upper)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181
 
 	_test "Non-unique parameter names" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice 123 --parameter x choice 1234" 181
 

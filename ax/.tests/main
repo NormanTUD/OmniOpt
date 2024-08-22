@@ -502,7 +502,7 @@ if [[ $superquick -eq 0 ]]; then
 	if [[ $quick -eq 0 ]]; then
 		_test "Linters" "bash .tests/linters" 0
 	else
-		_test "Linters" "bash .tests/linters --quick" 0
+		_test "Linters (quick)" "bash .tests/linters --quick" 0
 	fi
 fi
 

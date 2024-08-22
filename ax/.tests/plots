@@ -171,7 +171,7 @@ else
 fi
 
 if [[ ${#expected_plot_types[@]} -eq 0 ]]; then
-	red_text "No options found with --test_types=$test_types_regex"
+	red_text "No plot scripts found with --test_types=$test_types_regex"
 	exit 1
 fi
 

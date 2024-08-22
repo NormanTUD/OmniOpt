@@ -382,8 +382,8 @@ def log_system_usage():
 
         current_time = int(time.time())
 
-        process = psutil.Process(os.getpid())
-        ram_usage_mb = process.memory_info().rss / (1024 * 1024)  # RSS in MB
+        _process = psutil.Process(os.getpid())
+        ram_usage_mb = _process.memory_info().rss / (1024 * 1024)  # RSS in MB
         cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
 
         writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])

@@ -34,7 +34,7 @@ cd ..
 expected_plot_types=()
 
 CURRENT_HELP=$(./omniopt --help)
-CLEANED_HELP=$(echo $CURRENT_HELP | sed -e 's#Usage: omniopt\s*##' -e 's#Example:...omniopt.*##' | sed -e 's#\[##g' -e 's#\]##g' | sed -e 's#\s#\n#g' | grep -- "--" | grep -v -- "---" | egrep -v -- '^\s*--\s*$' | sort | uniq)
+CLEANED_HELP=$(echo $CURRENT_HELP | sed -e 's#Usage: omniopt\s*##' -e 's#Example:...omniopt.*##' | sed -e 's#\[##g' -e 's#\]##g' | sed -e 's#\s#\n#g' | grep -- "--" | grep -v -- "---" | grep -v -- "\.--\." | egrep -v -- '^\s*--\s*$' | sort | uniq)
 
 for help_param in $CLEANED_HELP; do
 	if ! grep "<tt>$help_param.*</tt>" .gui/tutorials/help.php 2>&1 >/dev/null; then

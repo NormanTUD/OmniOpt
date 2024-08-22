@@ -155,6 +155,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>succeeded_jobs</i>: Contains one line for each succeeded job.</li>
 	<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
 	<li><i>original_ax_client_before_loading_tmp_one.json</i>: Required to re-load generation strategy in continued jobs</li>
+	<li><i>cpu_ram_usage.csv</i>: Logs CPU and RAM usage</li>
 </ul>
 
 <h3 id="single_runs"><tt>single_runs</tt></h3>

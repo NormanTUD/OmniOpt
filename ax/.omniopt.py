@@ -364,11 +364,30 @@ def print_debug(msg):
         pass
     _debug(msg)
 
+def log_system_usage():
+    csv_file_path = os.path.join(current_run_folder, "state_files", "cpu_ram_usage.csv")
+
+    os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
+
+    file_exists = os.path.isfile(csv_file_path)
+
+    with open(csv_file_path, mode='a', newline='') as file:
+        writer = csv.writer(file)
+
+        if not file_exists:
+            writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent"])
+
+        current_time = int(time.time())
+
+        process = psutil.Process(os.getpid())
+        ram_usage_mb = process.memory_info().rss / (1024 * 1024)  # RSS in MB
+        cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
+
+        writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
+
 def write_process_info():
     try:
-        ram_usage = process.memory_info().rss / (1024 * 1024)  # in MB
-
-        print_debug(f"RAM Usage: {ram_usage} MB")
+        log_system_usage()
     except Exception as e:
         print_debug(f"Error retrieving process information: {str(e)}")
 

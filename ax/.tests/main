@@ -558,71 +558,87 @@ for entry in "${sorted_log_times[@]}"; do
 done
 
 print_table() {
-	# Define the headers and initialize the lengths for columns
-	headers=("Failed" "Name" "TestRunTime" "ExitCode" "WantedExitCodes" "Success")
-	max_lengths=()
-	for header in "${headers[@]}"; do
-		max_lengths[$header]=${#header}
-	done
+    # Define the headers and initialize the lengths for columns
+    headers=("Failed" "Name" "TestRunTime" "ExitCode" "WantedExitCodes" "Success")
+    display_headers=("Name" "TestRunTime" "ExitCode" "WantedExitCodes" "Success")
+    max_lengths=()
+    for header in "${display_headers[@]}"; do
+        max_lengths[$header]=${#header}
+    done
 
-	# Process the table rows to determine maximum column widths
-	for entry in "${sorted_log_times[@]}"; do
-		IFS=',' read -r -a fields <<< "$entry"
-		for i in "${!fields[@]}"; do
-			if [[ ${#fields[$i]} -gt ${max_lengths[${headers[$i]}]} ]]; then
-				max_lengths[${headers[$i]}]=${#fields[$i]}
-			fi
-		done
-	done
+    # Process the table rows to determine maximum column widths
+    for entry in "${sorted_log_times[@]}"; do
+        IFS=',' read -r -a fields <<< "$entry"
+        for i in "${!fields[@]}"; do
+            # Skip the 'Failed' column
+            if [[ $i -gt 0 ]]; then
+                if [[ ${#fields[$i]} -gt ${max_lengths[${display_headers[$i-1]}]} ]]; then
+                    max_lengths[${display_headers[$i-1]}]=${#fields[$i]}
+                fi
+            fi
+        done
+    done
 
-	# Create the header and separator lines
-	header_line=""
-	separator_line=""
-	for header in "${headers[@]}"; do
-		header_line+="│ ${header}$(printf '%*s' $((max_lengths[$header] - ${#header} + 1)))"
-		separator_line+="│$(for i in $(seq $((max_lengths[$header] + 1))); do printf '─'; done)─"
-	done
+    # Create the header and separator lines
+    header_line=""
+    separator_line=""
+    for header in "${display_headers[@]}"; do
+        header_line+="│ ${header}$(printf '%*s' $((max_lengths[$header] - ${#header} + 1)))"
+        separator_line+="│$(for i in $(seq $((max_lengths[$header] + 1))); do printf '─'; done)─"
+    done
 
-	header_line+="│"
+    header_line+="│"
 
-	border_line="┌${separator_line:1}┐"
-	separator_line="├${separator_line:1}┤"
+    border_line="┌${separator_line:1}┐"
+    separator_line="├${separator_line:1}┤"
 
-	separator_line_cut_last=$(echo "$separator_line" | sed -e 's#.$##')
-	end_line="└${separator_line_cut_last:1}┘"
-	end_line=$(echo "$end_line" | sed -e 's#│#┴#g')
+    separator_line_cut_last=$(echo "$separator_line" | sed -e 's#.$##')
+    end_line="└${separator_line_cut_last:1}┘"
+    end_line=$(echo "$end_line" | sed -e 's#│#┴#g')
 
-	border_line=$(echo "$border_line" | sed -e 's#│#┬#g')
-	separator_line=$(echo "$separator_line" | sed -e 's#│#┼#g')
+    border_line=$(echo "$border_line" | sed -e 's#│#┬#g')
+    separator_line=$(echo "$separator_line" | sed -e 's#│#┼#g')
 
-	# Print the table
-	printf "%s\n" "$border_line"
-	printf "%s\n" "$header_line"
-	printf "%s\n" "$separator_line"
+    # Print the table
+    printf "%s\n" "$border_line"
+    printf "%s\n" "$header_line"
+    printf "%s\n" "$separator_line"
 
-	i=0
-	for entry in "${sorted_log_times[@]}"; do
-		if [[ $i -gt 0 ]]; then
-			IFS=',' read -r -a fields <<< "$entry"
-			line=""
-			for j in "${!fields[@]}"; do
-				# Check for failure and apply color if necessary
-				if [[ $j -eq 0 && ${fields[$j]} -eq 1 ]]; then
-					printf "\033[0;31m"  # Set red color
-				fi
+    i=0
+    for entry in "${sorted_log_times[@]}"; do
+        if [[ $i -gt 0 ]]; then
+            IFS=',' read -r -a fields <<< "$entry"
+            line=""
+            for j in "${!fields[@]}"; do
+                # Skip the 'Failed' column in the output
+                if [[ $j -eq 0 && ${fields[$j]} -eq 1 ]]; then
+                    printf "\033[0;31m"  # Set red color
+                fi
 
-		# Append the field value to the line
-		line+="│ ${fields[$j]}$(printf '%*s' $((max_lengths[${headers[$j]}] + 1 - ${#fields[$j]})))"
-	done
+                # Append the field value to the line if it's not the 'Failed' column
+                if [[ $j -gt 0 ]]; then
+                    line+="│ ${fields[$j]}$(printf '%*s' $((max_lengths[${display_headers[$j-1]}] + 1 - ${#fields[$j]})))"
+                fi
+            done
 
-	line+="│"
-	printf "%s\n\033[0m" "$line"  # Reset color
-		fi
-		i=$(($i+1))
-	done
+            line+="│"
+            printf "%s\n\033[0m" "$line"  # Reset color
+        fi
+        i=$(($i+1))
+    done
 
-	printf "%s\n" "$end_line"
+    printf "%s\n" "$end_line"
 }
+
+# Example invocation
+LOG_TIMES=()
+LOG_TIMES+=("1,folder structure Documentation,0,0,0,✓")
+LOG_TIMES+=("0,Plot Documentation,0,0,0,✓")
+# Add more entries as needed...
+
+sorted_log_times=("${LOG_TIMES[@]}")
+print_table
+
 
 print_table
 

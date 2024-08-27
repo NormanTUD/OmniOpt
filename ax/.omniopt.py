@@ -251,6 +251,7 @@ def print_logo():
     ]
 
     char = random.choice(_cn)
+
     cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
 
 print_logo()

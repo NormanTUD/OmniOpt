@@ -77,7 +77,6 @@ console = None
 
 try:
     from rich.console import Console
-    from catsay import catsay
     import cowsay
 
     console = Console(
@@ -248,15 +247,11 @@ def print_logo():
         'stimpy',
         'trex',
         'turtle',
-        'tux',
-        'catsay'
+        'tux'
     ]
 
     char = random.choice(_cn)
-    if _cn == "catsay":
-        catsay(f"OmniOpt2 - {spruch}")
-    else:
-        cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
+    cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
 
 print_logo()
 

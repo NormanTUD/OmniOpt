@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+while [ ! -d .git ] && [ "$PWD" != "/" ]; do cd ..; done
+
+cd ax
+
+./.tests/main --num_random_steps=1 --max_eval=2 --superquick

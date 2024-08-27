@@ -39,7 +39,6 @@
 		vulture
 		flake8
 		cowsay
-		fabulous
 	)
 
 	FROZEN=""

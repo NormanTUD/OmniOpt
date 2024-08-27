@@ -32,4 +32,3 @@ radon
 vulture
 flake8
 cowsay
-fabulous

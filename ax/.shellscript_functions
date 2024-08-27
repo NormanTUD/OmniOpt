@@ -12,7 +12,6 @@
 		ax
 		ax-platform
 		art
-		catsay
 		tzlocal
 		Rich
 		rich-argparse

@@ -2141,6 +2141,9 @@ def copy_state_files_from_previous_job(continue_previous_job):
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
+def die_something_went_wrong_with_parameters():
+    my_exit(49)
+
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -2261,10 +2264,10 @@ def get_experiment_parameters(_params):
             ax_client.create_experiment(**experiment_args)
         except ValueError as error:
             print_red(f"An error has occured while creating the experiment: {error}")
-            my_exit(49)
+            die_something_went_wrong_with_parameters()
         except TypeError as error:
             print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
-            my_exit(49)
+            die_something_went_wrong_with_parameters()
 
     return ax_client, experiment_parameters, experiment_args
 
@@ -3612,7 +3615,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         except ax.exceptions.core.DataRequiredError as e:
             if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
                 print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
-                sys.exit(233)
+                die_no_random_steps()
             else:
                 print_red(f"Error 2: {e}")
                 return 0
@@ -4116,10 +4119,13 @@ def set_orchestrator():
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
+def die_no_random_steps():
+    my_exit(233)
+
 def check_if_has_random_steps():
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
-        my_exit(233)
+        die_no_random_steps()
 
 def add_exclude_to_defective_nodes():
     if args.exclude:

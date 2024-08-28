@@ -1,0 +1,53 @@
+#!/bin/bash
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+
+errors=()
+
+for plot_file in $(ls .omniopt_plot*.py); do
+	k=0
+	for j in $(cat $plot_file | grep parser.add | sed -e 's#.*add.argument..##' -e 's#".*##' -e "s#'.*##" -e 's#--#args.#'); do
+		COUNT=$(grep "$j" "$plot_file" | wc -l)
+
+		if [[ $COUNT -eq 0 ]]; then
+			if [[ $k == 0 ]]; then
+				yellow_text "$plot_file"
+			fi
+			red_text "Unused arg: $j"
+
+			errors+=("Unused arg: $j in $plot_file")
+		fi
+
+		k=$(($k+1))
+	done
+done
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No find_unused_params_in_plots errors"
+	exit 0
+else
+	echo ""
+	red_text "=> FIND_UNUSED_PARAMS_IN_PLOTS-ERRORS => FIND_UNUSED_PARAMS_IN_PLOTS-ERRORS => FIND_UNUSED_PARAMS_IN_PLOTS-ERRORS =>"
+	for i in "${errors[@]}"; do
+		echo ""
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi
+}

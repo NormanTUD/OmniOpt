@@ -515,6 +515,7 @@ _test "help page Documentation" "bash .tests/help_page" 0
 _test "folder structure Documentation" "bash .tests/folder_structure" 0
 _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
+_test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 
 
 if [ ${#errors[@]} -eq 0 ]; then

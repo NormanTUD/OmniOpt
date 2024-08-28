@@ -35,14 +35,10 @@ function _tput {
 	set +e
 }
 
-function green {
-	echo -ne "${Green}$1${Color_Off}"
-}
-
 function green_reset_line {
 	_tput cr
 	_tput el
-	green "$1"
+	green_text "$1"
 }
 
 generate_progress_bar() {

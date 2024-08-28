@@ -49,7 +49,9 @@ for possible_plot_type in "${expected_plot_types[@]}"; do
 	fn="$possible_plot_type.txt"
 
 	mkdir -p .gui/tutorials/plot_helps/
-	#bash omniopt_plot --plot_type $possible_plot_type --help | grep -- "--" | sed -e 's#^\s*##' -e 's#usage.*\.py.##' -e 's#\]##' | grep -v "expected one argument" | sed -e 's#\s#\n#g' | grep "^\[" | sed -e 's#^\[##g' | sed -e 's#\]##g' | grep -- "^--" > .gui/tutorials/plot_helps/$fn
+	if [[ -n $CREATE_PLOT_HELPS ]]; then
+		bash omniopt_plot --plot_type $possible_plot_type --help | grep -- "--" | sed -e 's#^\s*##' -e 's#usage.*\.py.##' -e 's#\]##' | grep -v "expected one argument" | sed -e 's#\s#\n#g' | grep "^\[" | sed -e 's#^\[##g' | sed -e 's#\]##g' | grep -- "^--" > .gui/tutorials/plot_helps/$fn
+	fi
 
 
 	if ! grep "plot_helps/$fn" .gui/tutorials/plot.php 2>&1 >/dev/null; then

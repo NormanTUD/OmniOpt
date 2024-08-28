@@ -1,5 +1,4 @@
 --min
 --max
 --save_to_file
---darkmode
 --no_plt_show

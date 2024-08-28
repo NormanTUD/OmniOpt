@@ -1,5 +1,8 @@
 #!/bin/bash
 
+RUN_VIA_RUNSH=1
+export RUN_VIA_RUNSH
+
 ORIGINAL_WHIPTAIL=$WHIPTAIL
 
 ORIGINAL_PWD="$(pwd)"
@@ -250,6 +253,9 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
+source "$SCRIPT_DIR/.shellscript_functions"
+source "$SCRIPT_DIR/.general.sh"
+
 if [[ "$help" -eq 1 ]]; then
 	if [[ $plot_type != "menu" ]] && [[ -n $plot_type ]]; then
 		python3 .omniopt_plot_$plot_type.py --help
@@ -431,8 +437,6 @@ fi
 
 cd "$ORIGINAL_PWD"
 
-source "$SCRIPT_DIR/.shellscript_functions"
-source "$SCRIPT_DIR/.general.sh"
 
 if [[ "$plot_type" != "menu" ]]; then
 	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then

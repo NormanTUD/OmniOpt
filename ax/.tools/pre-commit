@@ -19,8 +19,6 @@ if [ -n "$(git status --porcelain)" ]; then
 	run_tests
 fi
 
-#!/bin/bash
-
 # Prüft, ob der aktuelle Branch und der Remote-Branch synchron sind
 git fetch origin > /dev/null 2>&1
 

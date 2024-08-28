@@ -11,7 +11,7 @@ import sys
 import argparse
 import math
 import signal
-from rich.traceback import install
+#from rich.traceback import install
 from rich.pretty import pprint
 
 button = None
@@ -23,7 +23,7 @@ maximum_textbox = None
 minimum_textbox = None
 
 #install(show_locals=True)
-install()
+#install()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -181,10 +181,16 @@ def get_data(csv_file_path, _min, _max, old_headers_string=None):
                 print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers {df_header_string}")
                 return None
 
-        if _min is not None:
-            df = df[df["result"] >= _min]
-        if _max is not None:
-            df = df[df["result"] <= _max]
+        try:
+            if _min is not None:
+                df = df[df["result"] >= _min]
+            if _max is not None:
+                df = df[df["result"] <= _max]
+        except KeyError:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
+            sys.exit(10)
+
         if "result" not in df:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")

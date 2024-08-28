@@ -79,7 +79,12 @@ def update_graph():
             sys.exit(7)
 
         if args.min is not None or args.max is not None:
-            dataframe = filter_data(dataframe, args.min, args.max)
+            try:
+                dataframe = filter_data(dataframe, args.min, args.max)
+            except KeyError:
+                if not os.environ.get("PLOT_TESTS"):
+                    print(f"{args.run_dir}/results.csv seems have no result column.")
+                sys.exit(10)
 
         if dataframe.empty:
             if not os.environ.get("NO_NO_RESULT_ERROR"):

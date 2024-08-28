@@ -63,6 +63,8 @@ function join_by {
 
 export num_random_steps=20
 export nosuccess=0
+args=("$@")
+int_re='^[+-]?[0-9]+$'
 
 for i in $@; do
         case $i in
@@ -131,14 +133,14 @@ which_programs_string=$(join_by , "${which_programs[@]}")
 
 PARTITION="alpha"
 
-NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
+NUMBER_OF_EVALS="${#which_programs[@]}"
 
 cd ..
 cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
 EXPECTED_TO_FAIL=1
 ./omniopt \
-	--partition=alpha \
+	--partition=$PARTITION \
 	--experiment_name=test_orchestrator \
 	--mem_gb=5 \
 	--time=60 \

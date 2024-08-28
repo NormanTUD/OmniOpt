@@ -4,19 +4,19 @@ export OO_MAIN_TESTS=1
 
 int_re='^[+-]?[0-9]+$'
 function echoerr() {
-        echo "$@" 1>&2
+	echo "$@" 1>&2
 }
 
 function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
+	echoerr -e "\e\033[0;33m$1\e[0m"
 }
 
 function red_text {
-        echoerr -e "\e[31m$1\e[0m"
+	echoerr -e "\e[31m$1\e[0m"
 }
 
 function green_text {
-        echoerr -e "\e\033[0;32m$1\e[0m"
+	echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
 
@@ -32,7 +32,7 @@ function calltracer () {
 trap 'calltracer' ERR
 
 function help () {
-        echo "Possible options:"
+	echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
@@ -40,10 +40,10 @@ function help () {
 	echo "  --gridsearch                                       Do gridsearch"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
 	echo "  --time=(INT)                                       Time each subjob should run"
-        echo "  --allow_failure                                    Adds a param to randomly fail"
-        echo "  --help                                             this help"
-        echo "  --debug                                            Enables debug mode (set -x)"
-        exit $1
+	echo "  --allow_failure                                    Adds a param to randomly fail"
+	echo "  --help                                             this help"
+	echo "  --debug                                            Enables debug mode (set -x)"
+	exit $1
 }
 
 NUM_GPUS=0
@@ -73,13 +73,12 @@ while [ $k -lt ${#args[@]} ]; do
 		--allow_failure)
 			allow_failure=1
 			;;
-                --gridsearch)
-                        gridsearch=1
-                        shift
-                        ;;
+		--gridsearch)
+			gridsearch=1
+			shift
+			;;
 
 		--time=*)
-			old_time=$time
 			time="${i#*=}"
 			if ! [[ $time =~ $int_re ]] ; then
 				red_text "error: --time not a INT: $i" >&2
@@ -87,8 +86,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 			;;
 		--time)
-			old_time=$time
-
 			shift
 			k=$((k+1))
 
@@ -99,7 +96,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 			;;
 		--max_eval=*)
-			old_max_eval=$max_eval
 			max_eval="${i#*=}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
 				red_text "error: --max_eval not a INT: $i" >&2
@@ -107,8 +103,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 			;;
 		--max_eval)
-			old_max_eval=$max_eval
-
 			shift
 			k=$((k+1))
 

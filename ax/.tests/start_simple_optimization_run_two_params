@@ -97,7 +97,6 @@ while [ $k -lt ${#args[@]} ]; do
                         ;;
 
 		--time=*)
-			old_time=$time
 			time="${i#*=}"
 			if ! [[ $time =~ $int_re ]] ; then
 				red_text "error: --time not a INT: $i" >&2
@@ -105,8 +104,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 			;;
 		--time)
-			old_time=$time
-
 			shift
 			k=$((k+1))
 
@@ -117,7 +114,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 			;;
 		--max_eval=*)
-			old_max_eval=$max_eval
 			max_eval="${i#*=}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
 				red_text "error: --max_eval not a INT: $i" >&2
@@ -125,8 +121,6 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 			;;
 		--max_eval)
-			old_max_eval=$max_eval
-
 			shift
 			k=$((k+1))
 
@@ -239,6 +233,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--gridsearch \
+			--model=$model \
 			--hide_ascii_plots
 		exit_code=$?
 	else
@@ -259,6 +254,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--follow \
 			--num_random_steps=$num_random_steps \
 			--gridsearch \
+			--model=$model \
 			--hide_ascii_plots
 		exit_code=$?
 	fi
@@ -279,6 +275,7 @@ else
 			--parameter float_param range -100 10 float \
 			--follow \
 			--num_random_steps=$num_random_steps \
+			--model=$model \
 			--hide_ascii_plots
 		exit_code=$?
 	else
@@ -298,6 +295,7 @@ else
 			--parameter fail_or_not choice "0,1" \
 			--follow \
 			--num_random_steps=$num_random_steps \
+			--model=$model \
 			--hide_ascii_plots
 		exit_code=$?
 	fi

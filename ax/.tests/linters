@@ -26,16 +26,6 @@ function _help {
 	exit $exit_code
 }
 
-VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
-
-ROOT_VENV_DIR=$HOME
-
-if [[ ! -z $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
-	ROOT_VENV_DIR=$root_venv_dir
-fi
-
-VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR

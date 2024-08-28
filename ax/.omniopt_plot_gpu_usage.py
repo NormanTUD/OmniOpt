@@ -65,10 +65,7 @@ def plot_gpu_usage(run_dir):
             if file.startswith("gpu_usage_") and file.endswith(".csv"):
                 file_path = os.path.join(root, file)
                 _paths.append(file_path)
-                df = pd.read_csv(
-                    file_path,
-                     names=get_names_array()
-                )
+                df = pd.read_csv(file_path, names=get_names_array())
 
                 df = df.dropna()
                 gpu_data.append(df)

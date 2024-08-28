@@ -26,7 +26,6 @@ BASE=$(git merge-base @ @{u})
 
 if [ "$LOCAL" = "$REMOTE" ]; then
 	# Alles ist aktuell
-	echo "Branch is up to date."
 	exit 0
 elif [ "$LOCAL" = "$BASE" ]; then
 	# Es gibt Änderungen, die gepusht werden müssen

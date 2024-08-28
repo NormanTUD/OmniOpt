@@ -538,10 +538,7 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	fi
 fi
 
-IFS=$'\n' sorted_log_times=("${LOG_TIMES[0]}" $(printf "%s\n" "${LOG_TIMES[@]:1}" | sort -t',' -k2,2n))
-unset IFS
-
-IFS=',' read -r -a headers <<< "${sorted_log_times[0]}"
+IFS=',' read -r -a headers <<< "${LOG_TIMES[0]}"
 num_columns=${#headers[@]}
 
 declare -A max_lengths
@@ -549,7 +546,7 @@ for header in "${headers[@]}"; do
     max_lengths["$header"]=0
 done
 
-for entry in "${sorted_log_times[@]}"; do
+for entry in "${LOG_TIMES[@]}"; do
     IFS=',' read -r -a fields <<< "$entry"
     for i in "${!fields[@]}"; do
         header="${headers[$i]}"
@@ -566,7 +563,7 @@ print_table() {
 	done
 
 	# Process the table rows to determine maximum column widths
-	for entry in "${sorted_log_times[@]}"; do
+	for entry in "${LOG_TIMES[@]}"; do
 		IFS=',' read -r -a fields <<< "$entry"
 		for i in "${!fields[@]}"; do
 			if [[ ${#fields[$i]} -gt ${max_lengths[${headers[$i]}]} ]]; then
@@ -601,7 +598,7 @@ print_table() {
 	printf "%s\n" "$separator_line"
 
 	i=0
-	for entry in "${sorted_log_times[@]}"; do
+	for entry in "${LOG_TIMES[@]}"; do
 		if [[ $i -gt 0 ]]; then
 			IFS=',' read -r -a fields <<< "$entry"
 			line=""

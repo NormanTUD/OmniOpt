@@ -1,7 +1,7 @@
 errors:
   - name: GPUDisconnected
     match_strings:
-      - "AssertionError: ``AmpOptimizerWrapper`` is only available training"
+      - "AssertionError: ``AmpOptimizerWrapper`` is only available"
     behavior: ExcludeNode
 
   - name: Timeout

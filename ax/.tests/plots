@@ -266,6 +266,11 @@ for _command in "${_commands[@]}"; do
 	PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
 	green_reset_line "$PROGRESSBAR Plot-Tests $possible_plot_type/$this_img$msg"
 
+	if [[ -n $SHOW_COMMAND_BEFORE_EXECUTION ]]; then
+		echo ""
+		echo "$_command"
+	fi
+
 	START_TIME=$SECONDS
 	$_command
 	_exit_code=$?

@@ -350,18 +350,13 @@ def get_args():
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--max', type=float, help='Maximum value', default=None)
     parser.add_argument('--min', type=float, help='Minimum value', default=None)
-    parser.add_argument('--delete_temp', help='Delete temp files (useless here)', action='store_true', default=False)
     parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
-    parser.add_argument('--single', help='Print plot to command line', action='store_true', default=False)
-    parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=7)
     parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 
     parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
-    parser.add_argument('--plot_type', action='append', nargs='+', help="Params to be ignored", default=[])
     parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
-    parser.add_argument('--alpha', type=float, help='Transparency of plot bars (useless here)', default=0.5)
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)
 

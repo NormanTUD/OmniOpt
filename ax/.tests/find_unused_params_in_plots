@@ -50,4 +50,3 @@ else
 
 	exit ${#errors[@]}
 fi
-}

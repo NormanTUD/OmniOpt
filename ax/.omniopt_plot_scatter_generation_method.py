@@ -90,6 +90,9 @@ def update_graph():
         if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)
+    except KeyError:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{args.run_dir}/results.csv seems have no result column.")
     except Exception as exception:
         print("An unexpected error occurred: %s" % str(exception))
 

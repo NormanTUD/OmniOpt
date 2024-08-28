@@ -3057,6 +3057,20 @@ def _orchestrate(stdout_path, trial_index):
                 else:
                     print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
+            elif behav == "Restart":
+                params_from_out_file = get_parameters_from_outfile(stdout_path)
+                if params_from_out_file:
+                    new_job = executor.submit(evaluate, params_from_out_file)
+
+                    _trial = ax_client.get_trial(trial_index)
+
+                    _trial.mark_staged(unsafe=True)
+                    _trial.mark_running(unsafe=True, no_runner_required=True)
+
+                    global_vars["jobs"].append((new_job, trial_index))
+                else:
+                    print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+
             elif behav == "RestartOnDifferentNode":
                 if hostname_from_out_file:
                     if not is_already_in_defective_nodes(hostname_from_out_file):
@@ -4066,7 +4080,7 @@ def parse_orchestrator_file(_f):
                     sys.exit(206)
 
                 valid_keys = ['name', 'match_strings', 'behavior']
-                valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode"]
+                valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
                 for x in data["errors"]:
                     if not isinstance(x, dict):

@@ -35,7 +35,7 @@ cd ..
 source .shellscript_functions
 
 for i in $(ls .*.py | grep -v ".helpers.py"); do
-	RADON_OUTPUT="$(radon cc "$i" | grep -e '[DEF]$')"
+	RADON_OUTPUT="$(radon cc "$i" | grep -e '[CDEF]$')"
 	if [[ ! -z $RADON_OUTPUT ]]; then
 		yellow_text "$i:"
 		yellow_text "$RADON_OUTPUT"

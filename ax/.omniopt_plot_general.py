@@ -106,6 +106,16 @@ def plot_graph(dataframe, save_to_file=None):
         if not args.no_plt_show:
             plt.show()
 
+def print_if_not_plot_tests_and_exit(msg, exit_code):
+    if not os.environ.get("PLOT_TESTS"):
+        print(msg)
+    if exit_code is not None:
+        sys.exit(exit_code)
+
+def print_traceback():
+    tb = traceback.format_exc()
+    print(tb)
+
 def update_graph():
     try:
         dataframe = None
@@ -113,20 +123,15 @@ def update_graph():
         try:
             dataframe = pd.read_csv(args.run_dir + "/results.csv")
         except pd.errors.EmptyDataError:
-            if not os.environ.get("PLOT_TESTS"):
-                print(f"{args.run_dir}/results.csv seems to be empty.")
-            sys.exit(19)
+            print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be empty.", 19)
         except UnicodeDecodeError:
-            if not os.environ.get("PLOT_TESTS"):
-                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
-            sys.exit(7)
+            print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
 
         if args.min is not None or args.max is not None:
             dataframe = filter_data(dataframe, args.min, args.max)
 
         if dataframe.empty:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print("No applicable values could be found.")
+            print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
             return
 
         if args.save_to_file:
@@ -141,8 +146,7 @@ def update_graph():
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 
-        tb = traceback.format_exc()
-        print(tb)
+        print_traceback()
 
 if __name__ == "__main__":
     setup_logging()

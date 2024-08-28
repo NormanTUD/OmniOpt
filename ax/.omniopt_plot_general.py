@@ -40,11 +40,14 @@ def parse_arguments():
     return parser.parse_args()
 
 def filter_data(dataframe, min_value=None, max_value=None):
-    if min_value is not None:
-        dataframe = dataframe[dataframe['result'] >= min_value]
-    if max_value is not None:
-        dataframe = dataframe[dataframe['result'] <= max_value]
-    return dataframe
+    try:
+        if min_value is not None:
+            dataframe = dataframe[dataframe['result'] >= min_value]
+        if max_value is not None:
+            dataframe = dataframe[dataframe['result'] <= max_value]
+        return dataframe
+    except KeyError:
+        print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
 
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:

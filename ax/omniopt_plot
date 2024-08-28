@@ -243,11 +243,6 @@ while [ $k -lt ${#args[@]} ]; do
 				done
 			fi
 
-			if [[ "$worked_with_param" -eq 0 ]]; then
-				red_text "Unknown parameter ${args[k]}"
-				help=1
-			fi
-
 			;;
 	esac
 	k=$((k+1))

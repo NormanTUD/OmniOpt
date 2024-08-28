@@ -200,7 +200,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 		--plot_type=*)
 			plot_type="${arg#*=}"
-			args_string+=" --plot_type=$plot_type"
 			shift
 			;;
 
@@ -211,7 +210,6 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 1
 			fi
 			plot_type="${args[k]}"
-			args_string+=" --plot_type=$plot_type"
 			shift
 			shift
 			;;
@@ -236,7 +234,6 @@ while [ $k -lt ${#args[@]} ]; do
 				for expected in "${expected_plot_types[@]}"; do
 					if [[ "$expected" == *"$tmp_run_dir_or_plot_type"* ]]; then
 						plot_type="$expected"
-						args_string+=" --plot_type=$plot_type"
 						worked_with_param=1
 						break
 					fi

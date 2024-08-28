@@ -117,6 +117,8 @@ max=
 run_dir=""
 help=0
 
+args_string=""
+
 args=("$@")
 k=0
 
@@ -126,6 +128,7 @@ while [ $k -lt ${#args[@]} ]; do
 	case $arg in
 		--run_dir=*)
 			run_dir="${arg#*=}"
+			args_string+=" --run_dir=$run_dir"
 			shift
 			;;
 
@@ -136,12 +139,14 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 1
 			fi
 			run_dir="${args[k]}"
+			args_string+=" --run_dir=$run_dir"
 			shift
 			shift
 			;;
 
 		--save_to_file=*)
 			_save_to_file="${arg#*=}"
+			args_string+=" --save_to_file=$_save_to_file"
 			shift
 			;;
 
@@ -152,12 +157,14 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 1
 			fi
 			_save_to_file="${args[k]}"
+			args_string+=" --save_to_file=$_save_to_file"
 			shift
 			shift
 			;;
 
 		--min=*)
 			min="${arg#*=}"
+			args_string+=" --min=$min"
 			shift
 			;;
 
@@ -168,12 +175,14 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 1
 			fi
 			min="${args[k]}"
+			args_string+=" --min=$min"
 			shift
 			shift
 			;;
 
 		--max=*)
 			max="${arg#*=}"
+			args_string+=" --max=$max"
 			shift
 			;;
 
@@ -184,12 +193,14 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 1
 			fi
 			max="${args[k]}"
+			args_string+=" --max=$max"
 			shift
 			shift
 			;;
 
 		--plot_type=*)
 			plot_type="${arg#*=}"
+			args_string+=" --plot_type=$plot_type"
 			shift
 			;;
 
@@ -200,6 +211,7 @@ while [ $k -lt ${#args[@]} ]; do
 				exit 1
 			fi
 			plot_type="${args[k]}"
+			args_string+=" --plot_type=$plot_type"
 			shift
 			shift
 			;;
@@ -214,10 +226,21 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			;;
 		*)
-			tmp_run_dir="${args[k]}"
-			if [[ -d $tmp_run_dir ]]; then
-				run_dir=$tmp_run_dir
+			tmp_run_dir_or_plot_type="${args[k]}"
+			if [[ -d $tmp_run_dir_or_plot_type ]]; then
+				run_dir=$tmp_run_dir_or_plot_type
+				args_string+=" --run_dir=$run_dir"
+			else
+				for expected in "${expected_plot_types[@]}"; do
+					if [[ "$expected" == *"$tmp_run_dir_or_plot_type"* ]]; then
+						plot_type="$expected"
+						args_string+=" --plot_type=$plot_type"
+						break
+					fi
+				done
 			fi
+
+
 			;;
 	esac
 	k=$((k+1))
@@ -249,7 +272,11 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 fi
 
 if ! echo "$run_dir" | grep "^/" 2>/dev/null >/dev/null && [[ -n $run_dir ]]; then
-	run_dir="$ORIGINAL_PWD/$run_dir"
+	if [[ -d docker_user_dir ]]; then
+		run_dir="$ORIGINAL_PWD/docker_user_dir/$run_dir"
+	else
+		run_dir="$ORIGINAL_PWD/$run_dir"
+	fi
 fi
 
 function menu {
@@ -340,18 +367,18 @@ function menu {
 
 		if [[ -z $min ]] && [[ -z $max ]]; then
 			#echo "Neither min nor max were set"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $*
+			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string
 		elif [[ -z $min ]] && [[ -n $max ]]; then 
 			echo "min was not set but max ($max)"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $* --max="$max "
+			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --max="$max "
 			exit $?
 		elif [[ -n $min ]] && [[ -z $max ]]; then 
 			echo "min ($min) was set but max was not"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $* --min="$min"
+			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --min="$min"
 			exit $?
 		else
 			echo "min ($min) and max ($max) were set"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $* --max="$min" -max="$max"
+			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --max="$min" -max="$max"
 			exit $?
 		fi
 
@@ -419,31 +446,14 @@ fi
 set +e
 export WHIPTAIL=1
 
-if [[ "$_save_to_file" == "0" ]]; then
-	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		OUTPUT=$(python3 "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" $* 2>&1)
-		exit_code=$?
-	else
-		OUTPUT=$(coverage run -p "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" $* 2>&1)
-		exit_code=$?
-	fi
+if [[ -z $RUN_WITH_COVERAGE ]]; then
+	OUTPUT=$(eval "python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py $args_string" 2>&1)
+	exit_code=$?
 else
-	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		if [[ -d docker_user_dir ]]; then
-			OUTPUT=$(python3 "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="docker_user_dir/$_save_to_file" $* 2>&1)
-		else
-			OUTPUT=$(python3 "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="$_save_to_file" $* 2>&1)
-		fi
-		exit_code=$?
-	else
-		if [[ -d docker_user_dir ]]; then
-			OUTPUT=$(coverage run -p "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="docker_user_dir/$_save_to_file" $* 2>&1)
-		else
-			OUTPUT=$(coverage run -p "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" --run_dir "$run_dir" --save_to_file="$_save_to_file" $* 2>&1)
-		fi
-		exit_code=$?
-	fi
+	OUTPUT=$(eval "coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py $args_string" 2>&1)
+	exit_code=$?
 fi
+
 set -e
 
 if [[ "$exit_code" -ne "0" ]]; then

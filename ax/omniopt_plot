@@ -228,16 +228,13 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		*)
 			tmp_run_dir_or_plot_type="${args[k]}"
-			worked_with_param=0
 			if [[ -d $tmp_run_dir_or_plot_type ]]; then
 				run_dir=$tmp_run_dir_or_plot_type
 				args_string+=" --run_dir=$run_dir"
-				worked_with_param=1
 			else
 				for expected in "${expected_plot_types[@]}"; do
 					if [[ "$expected" == *"$tmp_run_dir_or_plot_type"* ]]; then
 						plot_type="$expected"
-						worked_with_param=1
 						break
 					fi
 				done

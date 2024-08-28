@@ -47,11 +47,11 @@ csv_titles_on_or_off () {
 	echo "$result"
 }
 
-readarray -t titles < <(cat $CSVFILE | head -n1 | sed -e 's/,/\n/g' | egrep -v '^\s*$')
+readarray -t titles < <(cat $CSVFILE | head -n1 | sed -e 's/,/\n/g' | grep -ev '^\s*$')
 
 if [[ ${#titles[@]} -eq 1 ]]; then
-    error_message "Only one column ($titles) found. Need at least two."
-    exit 1
+	error_message "Only one column ($titles) found. Need at least two."
+	exit 1
 fi
 
 options=()
@@ -59,52 +59,58 @@ for i in "${titles[@]}"; do
         options+=("$i" "" "$(csv_titles_on_or_off $i)")
 done
 
-eval `resize`
+eval $(resize)
 chosen_option=$(whiptail --title "Choose CSV-titles to plot" --checklist "Check/uncheck the titles you want to plot with the spacebar and press enter" $LINES $COLUMNS $(( $LINES - 8 )) "${options[@]}" 3>&1 1>&2 2>&3)
-if [[ "$?" == 0 ]]; then
-    export enabled_titles=$(echo $chosen_option | sed -e 's/" "/,/g' | sed -e 's/"//g')
+exit_code=$?
 
-    python3 .tools/create_parallel_plot.py $CSVFILE $OUTPUTPATH
-    if [[ "$?" -eq "0" ]]; then
-        echo "Creating $OUTPUTPATH seemed to be succesful"
-        if [[ -z $DONTSTARTFIREFOX ]]; then
-            eval `resize`
+if [[ "$exit_code" == 0 ]]; then
+	enabled_titles=$(echo "$chosen_option" | sed -e 's/" "/,/g' | sed -e 's/"//g')
+	export enabled_titles
 
-            POSSIBLE_OPTIONS=(
-                    "webserver" "Start Webserver"
-                    "path" "Show the path of the file so you can copy it to your local machine"
-            )
+	python3 .tools/create_parallel_plot.py $CSVFILE $OUTPUTPATH
+	exit_code=$?
 
-            if [[ $DISPLAY ]]; then
-                POSSIBLE_OPTIONS+=("firefox" "Start firefox on taurus (might be slow)")
-            fi
+	if [[ "$exit_code" -eq "0" ]]; then
+		echo "Creating $OUTPUTPATH seemed to be succesful"
+		if [[ -z $DONTSTARTFIREFOX ]]; then
+			eval $(resize)
 
-            CHOSEN=$(whiptail --title "What to do?" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "${POSSIBLE_OPTIONS[@]}" 3>&1 1>&2 2>&3)
+			POSSIBLE_OPTIONS=(
+				"webserver" "Start Webserver"
+				"path" "Show the path of the file so you can copy it to your local machine"
+			)
 
-            if [[ "$?" == 0 ]]; then
-                if [ $CHOSEN == "webserver" ]; then
-                    spin_up_temporary_webserver $(dirname $OUTPUTPATH) "plot.html"
-                elif [ $CHOSEN == "firefox" ]; then
-                    firefox $OUTPUTPATH
-                else
-                    CUSTOM_TEXT="The file is available under\n$(pwd)/$OUTPUTPATH"
-                    if [[ $DISPLAY ]]; then
-                        zenity --info --width=800 --height=600 --text "$CUSTOM_TEXT"
-                    else
-                        whiptail --title "File path" --msgbox "$CUSTOM_TEXT" $LINES $COLUMNS $(( $LINES - 8 ))
-                    fi
-                fi
-            else
-                echo_green "OK, cancelling parallel plot"
-                exit 0
-            fi
-        else
-            echo "Path: $OUTPUTPATH"
-        fi
-    else
-        echo "Creating $OUTPUTPATH seems to have failed"
-    fi
+			if [[ $DISPLAY ]]; then
+				POSSIBLE_OPTIONS+=("firefox" "Start firefox on taurus (might be slow)")
+			fi
+
+			CHOSEN=$(whiptail --title "What to do?" --menu "Choose an option" $LINES $COLUMNS $(( $LINES - 8 )) "${POSSIBLE_OPTIONS[@]}" 3>&1 1>&2 2>&3)
+			exit_code=$?
+
+			if [[ "$exit_code" == 0 ]]; then
+				if [ $CHOSEN == "webserver" ]; then
+					spin_up_temporary_webserver $(dirname $OUTPUTPATH) "plot.html"
+				elif [ $CHOSEN == "firefox" ]; then
+					firefox $OUTPUTPATH
+				else
+					CUSTOM_TEXT="The file is available under\n$(pwd)/$OUTPUTPATH"
+					if [[ $DISPLAY ]]; then
+						zenity --info --width=800 --height=600 --text "$CUSTOM_TEXT"
+					else
+						whiptail --title "File path" --msgbox "$CUSTOM_TEXT" $LINES $COLUMNS $(( $LINES - 8 ))
+					fi
+				fi
+			else
+				echo_green "OK, cancelling parallel plot"
+				exit 0
+			fi
+		else
+			echo "Path: $OUTPUTPATH"
+		fi
+	else
+		echo "Creating $OUTPUTPATH seems to have failed"
+	fi
 else
-    echo_green "Ok, cancelling parallel plot"
-    exit 0
+	echo_green "Ok, cancelling parallel plot"
+	exit 0
 fi

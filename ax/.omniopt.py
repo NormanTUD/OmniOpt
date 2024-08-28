@@ -3527,9 +3527,6 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
         # 1. Initialization step (does not require pre-existing data and is well-suited for
         # initial sampling of the search space)
 
-        #print(f"!!! get_generation_strategy: random_steps == {random_steps}")
-        #min_trials_observed=max(min(0, _max_eval, random_steps), random_steps + NR_INSERTED_JOBS),
-
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,
@@ -3558,39 +3555,14 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
 
-    #print("get_generation_strategy: Second step")
-
-    #print(f"_steps.append(")
-    #print(f"    GenerationStep(")
-    #print(f"        model={chosen_non_random_model},")
-    #print(f"        num_trials=-1, # No limitation on how many trials should be produced from this step")
-    #print(f"        max_parallelism={_num_parallel_jobs} * 2, # Max parallelism for this step")
-    #print(f"        #model_kwargs=seed: {seed}, # Any kwargs you want passed into the model")
-    #print(f"        #enforce_num_trials=True,")
-    #print(f"        model_gen_kwargs='enforce_num_arms': True, # Any kwargs you want passed to `modelbridge.gen`")
-    #print(f"        # More on parallelism vs. required samples in BayesOpt:")
-    #print(f"        # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials")
-    #print(f"    )")
-    #print(f")")
-
-    #_nr_trials = _max_eval - random_steps + nr_of_imported_jobs
-
-    #if _nr_trials <= 0:
-    #    _nr_trials = -1
-
     _nr_trials = -1
-    #print(f"_nr_trials: {_nr_trials}")
 
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,
-            num_trials=_nr_trials, # No limitation on how many trials should be produced from this step
-            max_parallelism=_num_parallel_jobs * 2, # Max parallelism for this step
-            #model_kwargs={"seed": seed}, # Any kwargs you want passed into the model
-            #enforce_num_trials=True,
-            model_gen_kwargs={'enforce_num_arms': True}, # Any kwargs you want passed to `modelbridge.gen`
-            # More on parallelism vs. required samples in BayesOpt:
-            # https://ax.dev/docs/bayesopt.html#tradeoff-between-parallelism-and-total-number-of-trials
+            num_trials=_nr_trials,
+            max_parallelism=_num_parallel_jobs * 2,
+            model_gen_kwargs={'enforce_num_arms': True}
         )
     )
 

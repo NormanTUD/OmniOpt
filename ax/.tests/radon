@@ -20,7 +20,7 @@ VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_clus
 
 ROOT_VENV_DIR=$HOME
 
-if [[ ! -z $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
 	ROOT_VENV_DIR=$root_venv_dir
 fi
 
@@ -36,7 +36,7 @@ source .shellscript_functions
 
 for i in $(ls .*.py | grep -v ".helpers.py"); do
 	RADON_OUTPUT="$(radon cc "$i" | grep -e '[DEF]$')"
-	if [[ ! -z $RADON_OUTPUT ]]; then
+	if [[ -n $RADON_OUTPUT ]]; then
 		yellow_text "$i:"
 		yellow_text "$RADON_OUTPUT"
 	fi

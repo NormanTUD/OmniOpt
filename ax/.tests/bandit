@@ -16,6 +16,14 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+	if [[ -n $MYCLUSTER_HOST ]]; then
+		_cluster="_$MYCLUSTER_HOST"
+	fi
+fi
 VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
 
 ROOT_VENV_DIR=$HOME

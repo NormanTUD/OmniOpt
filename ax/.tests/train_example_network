@@ -78,6 +78,10 @@ function join_by {
 	fi
 }
 
+int_re='^[+-]?[0-9]+$'
+
+args=("$@")
+
 for i in $@; do
         case $i in
 		--num_random_steps=*)

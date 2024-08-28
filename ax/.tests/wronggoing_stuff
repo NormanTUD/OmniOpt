@@ -64,6 +64,10 @@ function join_by {
 export num_random_steps=20
 export nosuccess=0
 
+args=("$@")
+
+int_re='^[+-]?[0-9]+$'
+
 for i in $@; do
         case $i in
 		--num_random_steps=*)
@@ -156,7 +160,7 @@ which_programs_string=$(join_by , "${which_programs[@]}")
 
 PARTITION="alpha"
 
-NUMBER_OF_EVALS=$(echo "${#which_programs[@]}")
+NUMBER_OF_EVALS="${#which_programs[@]}"
 
 cd ..
 cd ..

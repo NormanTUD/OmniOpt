@@ -94,7 +94,7 @@ nodes that have running jobs on it with ssh.</tt>
 2024/06/01 11:27:25.361, NVIDIA A100-SXM4-40GB, 00000000:8B:00.0, 545.23.08, P0, 4, 4, 43, 3 %, 0 %, 40960 MiB, 666 MiB, 39671 MiB
 2024/06/01 11:27:25.376, NVIDIA A100-SXM4-40GB, 00000000:3B:00.0, 545.23.08, P0, 4, 4, 44, 1 %, 0 %, 40960 MiB, 910 MiB, 39427 MiB</pre>
 
-<h4 id="job_infos"><tt>job_infos.txt</tt></h4>
+<h4 id="job_infos"><tt>job_infos.csv</tt></h4>
 
 <p>This is similiar to the <tt>results.csv</tt>, but contains a little other info, i.e. the hostname the execution ran on and the full path that is run, also start- and endtime of execution and the exit code and signal that the job ended with.</p>
 

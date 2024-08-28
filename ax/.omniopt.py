@@ -1406,6 +1406,24 @@ def test_gpu_before_evaluate(return_in_case_of_error):
 
     return None
 
+def extract_info(data):
+    # Listen für Namen und Werte
+    names = []
+    values = []
+
+    # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
+    pattern = re.compile(r'\s*OO-Info:\s*(\w+):\s*(.+)\s*$', re.IGNORECASE)
+
+    # Gehe durch jede Zeile im String
+    for line in data.splitlines():
+        match = pattern.search(line)
+        if match:
+            names.append("OO_Info_" + match.group(1))
+            values.append(match.group(2))
+
+    return names, values
+
+
 def evaluate(parameters):
     global IS_IN_EVALUATE
 
@@ -1464,10 +1482,12 @@ def evaluate(parameters):
 
         result = get_result(stdout)
 
+        extra_vars_names, extra_vars_values = extract_info(stdout)
+
         original_print(f"Result: {result}")
 
-        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname"]
-        values = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname()]
+        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names]
+        values = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values]
 
         original_print(f"EXIT_CODE: {exit_code}")
 

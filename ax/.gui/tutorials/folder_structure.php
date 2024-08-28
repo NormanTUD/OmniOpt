@@ -108,6 +108,12 @@ nodes that have running jobs on it with ssh.</tt>
 1719298882,1719298920,38,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.1230122183514759 --epochs=6 --validation_split=0.07228925675153733 --width=72 --height=72 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,72,0.07228925675153733,0.1230122183514759,6,1.639097,0,None,arbeitsrechner
 1719298921,1719298947,26,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.08336016669869424 --epochs=3 --validation_split=0.04752136580646038 --width=74 --height=74 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,74,0.04752136580646038,0.08336016669869424,3,1.6279,0,None,arbeitsrechner</pre>
 
+
+<p>To add custom lines to this file, for example for analyzing certain parts of your program, you can print this to the standard output:</p>
+<pre><code class="language-python">print("OO-Info: outputname: 123")</code></pre>
+
+This will add the column <tt>OO_Info_outputname</tt> to the <tt>job_infos.csv</tt>, and each line will have it's own output values then.
+
 <h4 id="oo_errors"><tt>oo_errors.txt</tt></h4>
 
 <p>This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or non-existant.</p>

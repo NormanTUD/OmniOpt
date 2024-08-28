@@ -360,15 +360,17 @@ printf "\nPlot test took: %02d:%02d:%02d\n" $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No plot errors"
-	exit 0
 else
 	echo ""
 	red_text "=> PLOT-ERRORS => PLOT-ERRORS => PLOT-ERRORS =>"
 	for i in "${errors[@]}"; do
 		echo ""
 		red_text "$i"
+		echo ""
 	done
 
-	exit ${#errors[@]}
 fi
+
+echo ""
+exit ${#errors[@]}
 }

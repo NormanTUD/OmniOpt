@@ -64,7 +64,7 @@ def plot_histograms(dataframe):
     num_rows = 1
     num_cols = num_plots
 
-    num_rows, num_cols = get_num_rows_cols()
+    num_rows, num_cols = get_num_rows_cols(num_plots, num_rows, num_cols)
 
     if num_rows == 0 or num_cols == 0:
         if not os.environ.get("NO_NO_RESULT_ERROR"):

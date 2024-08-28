@@ -49,6 +49,13 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
+def get_num_rows_cols(num_plots, num_rows, num_cols):
+    if num_plots > 1:
+        num_rows = int(num_plots ** 0.5)
+        num_cols = int(math.ceil(num_plots / num_rows))
+
+    return num_rows, num_cols
+
 def plot_histograms(dataframe):
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
@@ -57,9 +64,7 @@ def plot_histograms(dataframe):
     num_rows = 1
     num_cols = num_plots
 
-    if num_plots > 1:
-        num_rows = int(num_plots ** 0.5)
-        num_cols = int(math.ceil(num_plots / num_rows))
+    num_rows, num_cols = get_num_rows_cols()
 
     if num_rows == 0 or num_cols == 0:
         if not os.environ.get("NO_NO_RESULT_ERROR"):

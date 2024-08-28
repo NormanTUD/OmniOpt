@@ -27,7 +27,32 @@ spec.loader.exec_module(helpers)
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+def get_names_array():
+    return [
+        "timestamp",
+        "name",
+        "pci.bus_id",
+        "driver_version",
+        "pstate",
+        "pcie.link.gen.max",
+        "pcie.link.gen.current",
+        "temperature.gpu",
+        "utilization.gpu [%]",
+        "utilization.memory [%]",
+        "memory.total [MiB]",
+        "memory.free [MiB]",
+        "memory.used [MiB]"
+    ]
+
+def print_if_not_plot_tests_and_exit(msg, exit_code):
+    if not os.environ.get("PLOT_TESTS"):
+        print(msg)
+    if exit_code is not None:
+        sys.exit(exit_code)
+
 def plot_gpu_usage(run_dir):
+    global fig
+
     gpu_data = []
     num_plots = 0
     plot_rows = 2
@@ -40,35 +65,28 @@ def plot_gpu_usage(run_dir):
             if file.startswith("gpu_usage_") and file.endswith(".csv"):
                 file_path = os.path.join(root, file)
                 _paths.append(file_path)
-                df = pd.read_csv(file_path,
-                                 names=["timestamp", "name", "pci.bus_id", "driver_version", "pstate",
-                                        "pcie.link.gen.max", "pcie.link.gen.current", "temperature.gpu",
-                                        "utilization.gpu [%]", "utilization.memory [%]", "memory.total [MiB]",
-                                        "memory.free [MiB]", "memory.used [MiB]"])
+                df = pd.read_csv(
+                    file_path,
+                     names=get_names_array()
+                )
+
                 df = df.dropna()
                 gpu_data.append(df)
                 num_plots += 1
                 gpu_data_len += len(df)
 
     if len(_paths) == 0:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
-            print(f"No gpu_usage_*.csv files could be found in {run_dir}")
-        sys.exit(10)
+        print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
 
     if not gpu_data:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
-            print("No GPU usage data found.")
-        sys.exit(44)
+        print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
 
     if gpu_data_len < 1:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
-            print(f"No valid GPU usage data foundf (len = {gpu_data_len}).")
-        sys.exit(19)
+        print_if_not_plot_tests_and_exit(f"No valid GPU usage data foundf (len = {gpu_data_len}).", 19)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns
 
-    global fig
     fig, axs = plt.subplots(plot_rows, plot_cols, figsize=(10, 5 * plot_rows))
     if num_plots > 1:
         axs = axs.flatten()  # Flatten the axs array to handle both 1D and 2D subplots

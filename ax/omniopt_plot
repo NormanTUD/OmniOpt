@@ -242,7 +242,7 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 	exit 99
 fi
 
-if ! echo "$run_dir" | grep "^/" 2>/dev/null >/dev/null; then
+if ! echo "$run_dir" | grep "^/" 2>/dev/null >/dev/null && [[ -n $run_dir ]]; then
 	run_dir="$ORIGINAL_PWD/$run_dir"
 fi
 

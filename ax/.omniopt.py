@@ -2348,6 +2348,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
     if not experiment_parameters:
         print_red("Experiment parameters could not be determined for display")
+        return
 
     min_or_max = "minimize"
     if args.maximize:

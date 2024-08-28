@@ -14,6 +14,11 @@ while [ ! -d .git ] && [ "$PWD" != "/" ]; do cd ..; done
 
 cd ax
 
+if [ -n "$(git status --porcelain)" ]; then
+	echo "There are uncommitted changes."
+	run_tests
+fi
+
 #!/bin/bash
 
 # Prüft, ob der aktuelle Branch und der Remote-Branch synchron sind

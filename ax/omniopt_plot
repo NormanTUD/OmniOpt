@@ -213,6 +213,12 @@ while [ $k -lt ${#args[@]} ]; do
 			set -x
 			shift
 			;;
+		*)
+			tmp_run_dir="${args[k]}"
+			if [[ -d $tmp_run_dir ]]; then
+				run_dir=$tmp_run_dir
+			fi
+			;;
 	esac
 	k=$((k+1))
 done

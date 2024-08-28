@@ -491,7 +491,7 @@ def print_red(text):
             with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(text)
         except FileNotFoundError as e:
-            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run.")
+            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
             sys.exit(99)
 
 def print_green(text):

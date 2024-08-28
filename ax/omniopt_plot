@@ -218,7 +218,7 @@ while [ $k -lt ${#args[@]} ]; do
 done
 
 if [[ "$help" -eq 1 ]]; then
-	if [[ $plot_type != "menu" ]] && [[ ! -z $plot_type ]]; then
+	if [[ $plot_type != "menu" ]] && [[ -n $plot_type ]]; then
 		python3 .omniopt_plot_$plot_type.py --help
 	else
 		echo "omniopt_plot: Plot omniopt runs"

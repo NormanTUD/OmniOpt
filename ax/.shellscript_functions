@@ -6,15 +6,15 @@
 
 	install_those=()
 
-	if [ ! -f "requirements.txt" ]; then
-		echo "Die Datei requirements.txt existiert nicht."
+	if [ ! -f "$SCRIPT_DIR/requirements.txt" ]; then
+		echo "Die Datei $SCRIPT_DIR/requirements.txt existiert nicht."
 		exit 1
 	fi
 
 	while IFS= read -r line
 	do
 		install_those+=("$line")
-	done < "requirements.txt"
+	done < "$SCRIPT_DIR/requirements.txt"
 
 	FROZEN=""
 

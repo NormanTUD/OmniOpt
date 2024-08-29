@@ -75,6 +75,16 @@ already_inserted_param_data = []
 
 console = None
 
+import importlib.util
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
+
 try:
     from rich.console import Console
     import cowsay
@@ -105,8 +115,6 @@ try:
         import json
     with console.status("[bold green]Loading itertools...") as status:
         from itertools import combinations
-    with console.status("[bold green]Loading importlib...") as status:
-        import importlib.util
     with console.status("[bold green]Loading signal...") as status:
         import signal
     with console.status("[bold green]Loading datetime...") as status:
@@ -393,16 +401,6 @@ def get_line_info():
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
 #print(f"sys.path: {sys.path}")
-
-with console.status("[bold green]Loading helpers-module...") as status:
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    helpers_file = f"{script_dir}/.helpers.py"
-    spec = importlib.util.spec_from_file_location(
-        name="helpers",
-        location=helpers_file,
-    )
-    helpers = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helpers)
 
 def print_image_to_cli(image_path, width):
     print("")

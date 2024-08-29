@@ -37,22 +37,26 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y xterm whiptail python3-dev
-    - name: Upgrading pip
-      run: |
-        pip install --no-cache-dir --upgrade pip
-    - name: Installing setuptools
-      run: |
-        pip install --no-cache-dir setuptools
-    - name: Upgrading wheel
-      run: |
-        pip install --no-cache-dir pip wheel
-    - name: Purging pip cache
-      run: |
-        pip cache purge
     - name: Creating virtualenv
       run: |
         python3 -mvenv /home/runner/.omniax_x86_64_Python_3.10.12
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+    - name: Upgrading pip
+      run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+        pip install --no-cache-dir --upgrade pip
+    - name: Installing setuptools
+      run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+        pip install --no-cache-dir setuptools
+    - name: Upgrading wheel
+      run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+        pip install --no-cache-dir pip wheel
+    - name: Purging pip cache
+      run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+        pip cache purge
     - name: Install multidict
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate

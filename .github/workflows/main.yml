@@ -53,7 +53,7 @@ jobs:
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install numpy
-    - name: Install numpy
+    - name: Install ax
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install ax

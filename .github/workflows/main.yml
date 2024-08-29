@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main  # oder 'master', je nach Ihrem Branch-Namen
+      - main
   pull_request:
     branches:
       - main
@@ -16,13 +16,40 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Main test
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache custom directory
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/.omniax_x86_64_Python_3.10.12
+        key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-omniax-
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install xterm
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xterm
+
+    - name: Run your script
       run: |
         ./ax/.tests/main --num_random_steps=1 --max_eval=2 --quick
-      id: run_script
 
     - name: Create a new version
-      if: ${{ success() }}  # nur ausführen, wenn das vorherige Step erfolgreich war
+      if: ${{ success() }}
       run: |
         echo "Creating new version..."
         git tag v2.0.${{ github.run_number }}

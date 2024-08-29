@@ -152,8 +152,6 @@ else:
     print("Not enough parameters")
     sys.exit(1)
 
-
-print(code)
 tree = ast.parse(code)
 checker = UndefinedVariableChecker()
 checker.visit(tree)
@@ -161,4 +159,3 @@ checker.visit(tree)
 # Fehler ausgeben
 for error in checker.errors:
     print(error)
-

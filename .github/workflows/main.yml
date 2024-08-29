@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main  # oder 'master', je nach Ihrem Branch-Namen
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Main test
+      run: |
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --quick
+      id: run_script
+
+    - name: Create a new version
+      if: ${{ success() }}  # nur ausführen, wenn das vorherige Step erfolgreich war
+      run: |
+        echo "Creating new version..."
+        git tag v2.0.${{ github.run_number }}
+        git push origin --tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

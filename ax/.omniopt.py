@@ -11,6 +11,8 @@ import importlib.util
 import argparse
 from rich_argparse import RichHelpFormatter
 
+original_print = print
+
 SUPPORTED_MODELS = [
     "SOBOL",
     "GPEI",
@@ -119,18 +121,36 @@ debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can
 
 args = parser.parse_args()
 
-if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
-    print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
-    my_exit(203)
+def _debug(msg, _lvl=0, ee=None):
+    if _lvl > 3:
+        original_print(f"Cannot write _debug, error: {ee}")
+        sys.exit(193)
 
-if args.num_parallel_jobs:
-    num_parallel_jobs = args.num_parallel_jobs
+    try:
+        with open(logfile, mode='a', encoding="utf-8") as f:
+            original_print(msg, file=f)
+    except FileNotFoundError:
+        print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
+    except Exception as e:
+        original_print("_debug: Error trying to write log file: " + str(e))
 
+        _debug(msg, _lvl + 1, e)
 
+def print_debug(msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    #nl = get_nesting_level(inspect.currentframe().f_back)
+    #_tabs = "\t" * nl
+    _tabs = ""
+    msg = f"{time_str}:{_tabs}{msg}"
+    if args.debug:
+        print(msg)
 
-def _sleep(t: int):
-    if not args.no_sleep:
-        time.sleep(t)
+    try:
+        _debug(f"{time_str}: {get_functions_stack_array()}")
+    except Exception:
+        pass
+    _debug(msg)
 
 def my_exit(_code=0):
     tb = traceback.format_exc()
@@ -146,6 +166,19 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
+if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
+    print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
+    my_exit(203)
+
+if args.num_parallel_jobs:
+    num_parallel_jobs = args.num_parallel_jobs
+
+
+
+def _sleep(t: int):
+    if not args.no_sleep:
+        time.sleep(t)
+
 class SearchSpaceExhausted (Exception):
     pass
 
@@ -154,7 +187,6 @@ changed_grid_search_params = {}
 executor = None
 
 NR_OF_0_RESULTS = 0
-original_print = print
 
 orchestrator = None
 double_hashes = []
@@ -411,22 +443,6 @@ def log_what_needs_to_be_logged():
         except Exception:
             pass
 
-def _debug(msg, _lvl=0, ee=None):
-    if _lvl > 3:
-        original_print(f"Cannot write _debug, error: {ee}")
-        sys.exit(193)
-
-    try:
-        with open(logfile, mode='a', encoding="utf-8") as f:
-            original_print(msg, file=f)
-    except FileNotFoundError:
-        print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
-        sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
-        original_print("_debug: Error trying to write log file: " + str(e))
-
-        _debug(msg, _lvl + 1, e)
-
 def get_functions_stack_array():
     stack = inspect.stack()
     function_names = []
@@ -435,21 +451,6 @@ def get_functions_stack_array():
             if frame_info.function != "wrapper":
                 function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
     return "Function stack: " + (" -> ".join(function_names) + ":")
-
-def print_debug(msg):
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #nl = get_nesting_level(inspect.currentframe().f_back)
-    #_tabs = "\t" * nl
-    _tabs = ""
-    msg = f"{time_str}:{_tabs}{msg}"
-    if args.debug:
-        print(msg)
-
-    try:
-        _debug(f"{time_str}: {get_functions_stack_array()}")
-    except Exception:
-        pass
-    _debug(msg)
 
 def log_system_usage():
     if not CURRENT_RUN_FOLDER:

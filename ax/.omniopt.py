@@ -7,6 +7,7 @@ import sys
 import platform
 import os
 import random
+import importlib.util
 
 ORCHESTRATE_TODO = {}
 
@@ -75,7 +76,6 @@ already_inserted_param_data = []
 
 console = None
 
-import importlib.util
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(

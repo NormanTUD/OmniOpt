@@ -3,14 +3,14 @@ name: CI
 on:
   push:
     branches:
-      - main  # oder 'master', je nach Ihrem Branch-Namen
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
 
     steps:
     - name: Checkout code
@@ -22,7 +22,7 @@ jobs:
       id: run_script
 
     - name: Create a new version
-      if: ${{ success() }}  # nur ausführen, wenn das vorherige Step erfolgreich war
+      if: ${{ success() }}
       run: |
         echo "Creating new version..."
         git tag v2.0.${{ github.run_number }}

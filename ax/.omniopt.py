@@ -68,8 +68,8 @@ class SignalCONT (Exception):
 try:
     import traceback
     import time
-except ModuleNotFoundError as e:
-    print(f"ModuleNotFoundError: {e}")
+except ModuleNotFoundError as ee:
+    print(f"ModuleNotFoundError: {ee}")
     sys.exit(31)
 
 def is_slurm_job():
@@ -194,8 +194,8 @@ try:
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
             from submitit import LocalJob, DebugJob
-except ModuleNotFoundError as e:
-    original_print(f"Base modules could not be loaded: {e}")
+except ModuleNotFoundError as ee:
+    original_print(f"Base modules could not be loaded: {ee}")
     my_exit(31)
 except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
@@ -276,8 +276,8 @@ try:
         logging.basicConfig(level=logging.ERROR)
     with console.status("[bold green]Loading tqdm...") as status:
         from tqdm import tqdm
-except ModuleNotFoundError as e:
-    original_print(f"Base modules could not be loaded: {e}")
+except ModuleNotFoundError as ee:
+    original_print(f"Base modules could not be loaded: {ee}")
     my_exit(31)
 except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
@@ -295,8 +295,8 @@ except KeyboardInterrupt:
 LOG_DIR = ".logs"
 try:
     Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
-except Exception as e:
-    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(e))
+except Exception as ee:
+    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
 
 LOG_I = 0
 logfile = f'{LOG_DIR}/{LOG_I}'
@@ -324,9 +324,9 @@ def print_red(text):
             helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
             sys.exit(99)
 
-def _debug(msg, _lvl=0, ee=None):
+def _debug(msg, _lvl=0, eee=None):
     if _lvl > 3:
-        original_print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {eee}")
         sys.exit(193)
 
     try:
@@ -733,12 +733,12 @@ def print_image_to_cli(image_path, width):
             f"{str(e)}, width: {width}, image_path: {image_path}"
         )
 
-def log_message_to_file(_logfile, message, _lvl=0, ee=None):
+def log_message_to_file(_logfile, message, _lvl=0, eee=None):
     assert _logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
 
     if _lvl > 3:
-        original_print(f"Cannot write _debug, error: {ee}")
+        original_print(f"Cannot write _debug, error: {eee}")
         return
 
     try:
@@ -752,20 +752,20 @@ def log_message_to_file(_logfile, message, _lvl=0, ee=None):
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
-def _log_trial_index_to_param(trial_index, _lvl=0, ee=None):
-    log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, ee)
+def _log_trial_index_to_param(trial_index, _lvl=0, eee=None):
+    log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, eee)
 
-def _debug_worker_creation(msg, _lvl=0, ee=None):
-    log_message_to_file(logfile_worker_creation_logs, msg, _lvl, ee)
+def _debug_worker_creation(msg, _lvl=0, eee=None):
+    log_message_to_file(logfile_worker_creation_logs, msg, _lvl, eee)
 
-def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, ee=None):
-    log_message_to_file(_file, result, _lvl, ee)
+def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None):
+    log_message_to_file(_file, result, _lvl, eee)
 
-def _debug_get_next_trials(msg, _lvl=0, ee=None):
-    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, ee)
+def _debug_get_next_trials(msg, _lvl=0, eee=None):
+    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, eee)
 
-def _debug_progressbar(msg, _lvl=0, ee=None):
-    log_message_to_file(logfile_progressbar, msg, _lvl, ee)
+def _debug_progressbar(msg, _lvl=0, eee=None):
+    log_message_to_file(logfile_progressbar, msg, _lvl, eee)
 
 def print_green(text):
     helpers.print_color("green", text)
@@ -2285,10 +2285,10 @@ def end_program(csv_file_path, _force=False, exit_code=None):
 
     my_exit(_exit)
 
-def save_checkpoint(trial_nr=0, ee=None):
+def save_checkpoint(trial_nr=0, eee=None):
     if trial_nr > 3:
-        if ee:
-            print("Error during saving checkpoint: " + str(ee))
+        if eee:
+            print("Error during saving checkpoint: " + str(eee))
         else:
             print("Error during saving checkpoint")
         return

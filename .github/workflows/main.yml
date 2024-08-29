@@ -39,7 +39,10 @@ jobs:
         sudo apt-get install -y xterm whiptail
     - name: Upgrading pip
       run: |
-        pip install --upgrade pip "setuptools<58.3.0"
+        pip install --no-cache-dir --upgrade pip "setuptools<58.3.0"
+    - name: Purging pip cache
+      run: |
+        pip cache purge
     - name: Creating virtualenv
       run: |
         python3 -mvenv /home/runner/.omniax_x86_64_Python_3.10.12
@@ -47,19 +50,19 @@ jobs:
     - name: Install torch
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install torch
+        pip install --no-cache-dir torch
     - name: Install numpy
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install numpy
+        pip install --no-cache-dir numpy
     - name: Install ax
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install ax
+        pip install --no-cache-dir ax
     - name: Install ax-platform
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install ax-platform
+        pip install --no-cache-dir ax-platform
 
     - name: main test script
       run: |

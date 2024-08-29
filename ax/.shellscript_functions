@@ -4,42 +4,7 @@
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 	cd "$SCRIPT_DIR"
 
-	install_those=(
-		setuptools
-		wheel
-		"numpy<=1.26.4"
-		"python-dateutil<=2.8.1"
-		ax
-		ax-platform
-		art
-		tzlocal
-		Rich
-		rich-argparse
-		sixel
-		scikit-learn
-		submitit
-		plotext
-		matplotlib
-		Pyarrow
-		textual
-		tqdm
-		plotille
-		seaborn
-		pyvista
-		pytz
-		pyqt5
-		psutil
-		coverage
-		deadcode
-		pyflakes
-		shellcheck-py
-		pylint
-		bandit
-		radon
-		vulture
-		flake8
-		cowsay
-	)
+	install_those=()
 
 	if [ ! -f "requirements.txt" ]; then
 		echo "Die Datei requirements.txt existiert nicht."

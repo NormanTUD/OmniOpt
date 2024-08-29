@@ -36,7 +36,7 @@ jobs:
     - name: Install xterm and whiptail
       run: |
         sudo apt-get update
-        sudo apt-get install -y xterm whiptail
+        sudo apt-get install -y xterm whiptail python3-dev
     - name: Upgrading pip
       run: |
         pip install --no-cache-dir --upgrade pip "setuptools<58.3.0"

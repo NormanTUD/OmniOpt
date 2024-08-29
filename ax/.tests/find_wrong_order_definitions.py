@@ -3,6 +3,11 @@
 import sys
 import os
 import ast
+from pprint import pprint
+
+def dier (msg):
+    pprint(msg)
+    sys.exit(10)
 
 class UndefinedVariableChecker(ast.NodeVisitor):
     def __init__(self):
@@ -138,7 +143,7 @@ class UndefinedVariableChecker(ast.NodeVisitor):
 
 if len(sys.argv) > 1:
     if os.path.exists(sys.argv[1]):
-        with open(sys.argv[0], 'r') as file:
+        with open(sys.argv[1], 'r') as file:
             code = file.read()
     else:
         print(f"File '{sys.argv[1]}' does not exist")
@@ -147,7 +152,8 @@ else:
     print("Not enough parameters")
     sys.exit(1)
 
-# Den eingelesenen Code parsen und analysieren
+
+print(code)
 tree = ast.parse(code)
 checker = UndefinedVariableChecker()
 checker.visit(tree)

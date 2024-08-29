@@ -37,6 +37,18 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
+    - name: Install torch
+      run: |
+        pip install torch
+    - name: Install numpy
+      run: |
+        pip install numpy
+    - name: Install numpy
+      run: |
+        pip install ax
+    - name: Install ax-platform
+      run: |
+        pip install ax-platform
 
     - name: Install xterm
       run: |

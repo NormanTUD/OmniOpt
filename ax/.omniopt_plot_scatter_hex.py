@@ -236,6 +236,9 @@ def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
     print_debug("plot_multiple_graphs")
     global bins
+
+    scatter = None
+
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
@@ -317,6 +320,21 @@ def plot_single_graph(_params):
     axs.set_ylabel("result")
 
     return scatter
+
+def get_colors(df):
+    print_debug("get_colors")
+    colors = None
+    try:
+        colors = df["result"]
+    except KeyError as e:
+        if str(e) == "'result'":
+            print("Could not find any results")
+            sys.exit(3)
+        else:
+            print(f"Key-Error: {e}")
+            sys.exit(8)
+
+    return colors
 
 def plot_graphs(_params):
     df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
@@ -413,21 +431,6 @@ def get_df_filtered(df):
     df_filtered = df.drop(columns=columns_to_remove)
 
     return df_filtered
-
-def get_colors(df):
-    print_debug("get_colors")
-    colors = None
-    try:
-        colors = df["result"]
-    except KeyError as e:
-        if str(e) == "'result'":
-            print("Could not find any results")
-            sys.exit(3)
-        else:
-            print(f"Key-Error: {e}")
-            sys.exit(8)
-
-    return colors
 
 def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     print_debug("get_non_empty_graphs")

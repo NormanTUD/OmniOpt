@@ -33,7 +33,9 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 
 # Install from repo
 
+```command
 `pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2`
+```
 
 # Exit-Codes
 

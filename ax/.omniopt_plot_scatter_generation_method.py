@@ -33,6 +33,8 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
+args = parse_arguments()
+
 def filter_data(dataframe, min_value=None, max_value=None):
     if min_value is not None:
         dataframe = dataframe[dataframe['result'] >= min_value]
@@ -98,7 +100,6 @@ def update_graph():
 
 if __name__ == "__main__":
     setup_logging()
-    args = parse_arguments()
 
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")

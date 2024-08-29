@@ -62,8 +62,8 @@ try:
     from matplotlib.widgets import Button, TextBox
 
     from itertools import combinations
-except ModuleNotFoundError as e:
-    print(f"Error: {e}")
+except ModuleNotFoundError as ee:
+    print(f"Error: {ee}")
     sys.exit(244)
 
 # Get shell variables or use default values

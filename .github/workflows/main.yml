@@ -47,15 +47,19 @@ jobs:
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
     - name: Install torch
       run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install torch
     - name: Install numpy
       run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install numpy
     - name: Install numpy
       run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install ax
     - name: Install ax-platform
       run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install ax-platform
 
     - name: main test script

@@ -24,6 +24,8 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
+args = parse_arguments()
+
 def plot_graph(dataframe, save_to_file=None):
     plt.figure(figsize=(12, 8))
 
@@ -82,7 +84,6 @@ def update_graph():
 
 if __name__ == "__main__":
     setup_logging()
-    args = parse_arguments()
 
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")

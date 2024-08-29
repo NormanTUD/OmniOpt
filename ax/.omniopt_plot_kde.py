@@ -39,6 +39,8 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
+args = parse_arguments()
+
 def get_num_rows_cols(num_plots, num_rows, num_cols):
     if num_plots > 1:
         num_rows = int(num_plots ** 0.5)
@@ -160,7 +162,6 @@ def update_graph():
 
 if __name__ == "__main__":
     setup_logging()
-    args = parse_arguments()
 
     if not args.alpha:
         logging.error("--alpha cannot be left unset.")

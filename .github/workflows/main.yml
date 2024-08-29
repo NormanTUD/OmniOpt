@@ -33,13 +33,13 @@ jobs:
         key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-omniax-
-    - name: Install xterm
+    - name: Install xterm and whiptail
       run: |
         sudo apt-get update
-        sudo apt-get install -y xterm
+        sudo apt-get install -y xterm whiptail
     - name: Upgrading pip
       run: |
-        pip install --upgrade pip setuptools<58.3.0 
+        pip install --upgrade pip "setuptools<58.3.0"
     - name: Creating virtualenv
       run: |
         python3 -mvenv /home/runner/.omniax_x86_64_Python_3.10.12

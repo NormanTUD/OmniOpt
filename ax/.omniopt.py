@@ -898,6 +898,7 @@ def get_min_column_value(pd_csv, column, _default):
         raise
 
 def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
+    found_in_file = False
     if os.path.exists(pd_csv):
         if _type == "lower":
             _old_min_col = get_min_column_value(pd_csv, _column, _default)
@@ -920,7 +921,7 @@ def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
     else:
         print_red(f"{pd_csv} was not found")
 
-    return ret_val
+    return ret_val, found_in_file
 
 def get_bound_if_prev_data(_type, _column, _default):
     ret_val = _default
@@ -932,11 +933,11 @@ def get_bound_if_prev_data(_type, _column, _default):
         for prev_run in prev_runs:
             pd_csv = f"{prev_run}/{PD_CSV_FILENAME}"
 
-            ret_val = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
+            ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
     if args.continue_previous_job:
         pd_csv = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
 
-        ret_val = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
+        ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
 
     return round(ret_val, 4), found_in_file
 

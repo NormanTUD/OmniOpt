@@ -5,7 +5,7 @@ import os
 import ast
 from pprint import pprint
 
-def dier (msg):
+def dier(msg):
     pprint(msg)
     sys.exit(10)
 
@@ -98,6 +98,13 @@ class UndefinedVariableChecker(ast.NodeVisitor):
                 self.defined_vars.add(node.id)
             elif isinstance(node, (ast.Call, ast.Attribute)):
                 self.generic_visit(node)
+
+    def visit_Lambda(self, node):
+        for arg in node.args.args:
+            self.defined_vars.add(arg.arg)
+        current_defined_vars = self.defined_vars.copy()
+        self.generic_visit(node)
+        self.defined_vars = current_defined_vars
 
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load) and node.id not in self.defined_vars:

@@ -80,7 +80,7 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --quick
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --reallyquick
 
     - name: Create a new version
       if: ${{ success() }}

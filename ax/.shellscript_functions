@@ -41,6 +41,16 @@
 		cowsay
 	)
 
+	if [ ! -f "requirements.txt" ]; then
+		echo "Die Datei requirements.txt existiert nicht."
+		exit 1
+	fi
+
+	while IFS= read -r line
+	do
+		install_those+=("$line")
+	done < "requirements.txt"
+
 	FROZEN=""
 
 	function displaytime {

@@ -10,6 +10,35 @@ import random
 import importlib.util
 import argparse
 from rich_argparse import RichHelpFormatter
+from pathlib import Path
+import datetime
+import inspect
+from inspect import currentframe, getframeinfo
+
+PD_CSV_FILENAME = "results.csv"
+worker_percentage_usage = []
+IS_IN_EVALUATE = False
+END_PROGRAM_RAN = False
+ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
+ax_client = None
+TIME_NEXT_TRIALS_TOOK = []
+CURRENT_RUN_FOLDER = None
+RUN_FOLDER_NUMBER = 0
+RESULT_CSV_FILE = None
+SHOWN_END_TABLE = False
+max_eval = None
+random_steps = None
+progress_bar = None
+SUM_OF_VALUES_FOR_TQDM = 0
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 original_print = print
 
@@ -121,6 +150,38 @@ debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can
 
 args = parser.parse_args()
 
+LOG_DIR = ".logs"
+try:
+    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+except Exception as e:
+    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(e))
+
+LOG_I = 0
+logfile = f'{LOG_DIR}/{LOG_I}'
+logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
+while os.path.exists(logfile):
+    LOG_I = LOG_I + 1
+    logfile = f'{LOG_DIR}/{LOG_I}'
+
+logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
+logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
+logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
+logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
+LOGFILE_DEBUG_GET_NEXT_TRIALS = None
+
+NVIDIA_SMI_LOGS_BASE = None
+
+def print_red(text):
+    helpers.print_color("red", text)
+
+    if CURRENT_RUN_FOLDER:
+        try:
+            with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
+                myfile.write(text)
+        except FileNotFoundError as e:
+            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
+            sys.exit(99)
+
 def _debug(msg, _lvl=0, ee=None):
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {ee}")
@@ -137,6 +198,15 @@ def _debug(msg, _lvl=0, ee=None):
 
         _debug(msg, _lvl + 1, e)
 
+def get_functions_stack_array():
+    stack = inspect.stack()
+    function_names = []
+    for frame_info in stack[1:]:
+        if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
+            if frame_info.function != "wrapper":
+                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
+    return "Function stack: " + (" -> ".join(function_names) + ":")
+
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     #nl = get_nesting_level(inspect.currentframe().f_back)
@@ -152,6 +222,10 @@ def print_debug(msg):
         pass
     _debug(msg)
 
+def _sleep(t: int):
+    if not args.no_sleep:
+        time.sleep(t)
+
 def my_exit(_code=0):
     tb = traceback.format_exc()
 
@@ -166,16 +240,138 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
+def append_and_read(file, nr=0, recursion=0):
+    try:
+        with open(file, mode='a+', encoding="utf-8") as f:
+            f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
+            nr_lines = len(f.readlines())
+
+            if nr == 1:
+                f.write('1\n')
+
+        return nr_lines
+
+    except FileNotFoundError as e:
+        original_print(f"File not found: {e}")
+    except (SignalUSR, SignalINT, SignalCONT):
+        if recursion:
+            print_red(f"Recursion error in append_and_read.")
+            sys.exit(199)           
+        append_and_read(file, nr, recursion + 1)
+    except OSError as e:
+        print_red(f"OSError: {e}. This may happen on unstable file systems.")
+        sys.exit(199)
+    except Exception as e:
+        print(f"Error editing the file: {e}")
+
+    return 0
+
+def _count_sobol_steps(csv_file_path):
+    sobol_count = 0
+
+    if not os.path.exists(csv_file_path):
+        return sobol_count
+
+    df = None
+
+    _err = False
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
+        df.dropna(subset=["result"], inplace=True)
+    except KeyError:
+        _err = True
+    except pd.errors.EmptyDataError:
+        _err = True
+    except pd.errors.ParserError as e:
+        print_red(f"Error reading CSV file 2: {str(e)}")
+        _err = True
+    except UnicodeDecodeError as e:
+        print_red(f"Error reading CSV file 3: {str(e)}")
+        _err = True
+    except Exception as e:
+        print_red(f"Error reading CSV file 4: {str(e)}")
+        _err = True
+
+    if _err:
+        return 0
+
+    assert df is not None, "DataFrame should not be None after reading CSV file"
+    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
+
+    sobol_rows = df[df["generation_method"] == "Sobol"]
+    sobol_count = len(sobol_rows)
+
+    return sobol_count
+
+def save_pd_csv():
+    pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
+    pd_json = f'{CURRENT_RUN_FOLDER}/state_files/pd.json'
+
+    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    if ax_client is None:
+        return pd_csv
+
+    try:
+        pd_frame = ax_client.get_trials_data_frame()
+
+        pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
+        #pd_frame.to_json(pd_json)
+
+        json_snapshot = ax_client.to_json_snapshot()
+
+        with open(pd_json, mode='w', encoding="utf-8") as json_file:
+            json.dump(json_snapshot, json_file, indent=4)
+
+        save_experiment(ax_client.experiment, f"{CURRENT_RUN_FOLDER}/state_files/ax_client.experiment.json")
+
+        #print_debug("pd.{csv,json} saved")
+    except SignalUSR as e:
+        raise SignalUSR(str(e)) from e
+    except SignalCONT as e:
+        raise SignalCONT(str(e)) from e
+    except SignalINT as e:
+        raise SignalINT(str(e)) from e
+    except Exception as e:
+        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+
+    return pd_csv
+
+
+
+def count_sobol_steps():
+    csv_file_path = save_pd_csv()
+
+    return _count_sobol_steps(csv_file_path)
+
+def add_to_phase_counter(phase, nr=0, run_folder=""):
+    if run_folder == "":
+        run_folder = CURRENT_RUN_FOLDER
+    return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
+
+
+
+def get_random_steps_from_prev_job():
+    if not args.continue_previous_job:
+        return count_sobol_steps()
+
+    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
+
+    if not os.path.exists(prev_step_file):
+        return count_sobol_steps()
+
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
+
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
     my_exit(203)
 
 if args.num_parallel_jobs:
     num_parallel_jobs = args.num_parallel_jobs
-
-def _sleep(t: int):
-    if not args.no_sleep:
-        time.sleep(t)
 
 class SearchSpaceExhausted (Exception):
     pass
@@ -194,15 +390,6 @@ already_inserted_param_data = []
 
 console = None
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file = f"{script_dir}/.helpers.py"
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=helpers_file,
-)
-helpers = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(helpers)
-
 try:
     from rich.console import Console
     import cowsay
@@ -220,9 +407,6 @@ try:
         import psutil
     with console.status("[bold green]Loading uuid...") as status:
         import uuid
-    with console.status("[bold green]Loading inspect...") as status:
-        import inspect
-        from inspect import currentframe, getframeinfo
     with console.status("[bold green]Loading threading...") as status:
         import threading
     with console.status("[bold green]Loading shutil...") as status:
@@ -235,16 +419,12 @@ try:
         from itertools import combinations
     with console.status("[bold green]Loading signal...") as status:
         import signal
-    with console.status("[bold green]Loading datetime...") as status:
-        import datetime
     with console.status("[bold green]Loading difflib...") as status:
         import difflib
     with console.status("[bold green]Loading warnings...") as status:
         import warnings
     with console.status("[bold green]Loading pandas...") as status:
         import pandas as pd
-    with console.status("[bold green]Loading pathlib...") as status:
-        from pathlib import Path
     with console.status("[bold green]Loading os...") as status:
         from os import listdir
         from os.path import isfile, join
@@ -393,21 +573,6 @@ global_vars["parameter_names"] = []
 
 # max_eval usw. in unterordner
 # grid ausblenden
-PD_CSV_FILENAME = "results.csv"
-worker_percentage_usage = []
-IS_IN_EVALUATE = False
-END_PROGRAM_RAN = False
-ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
-ax_client = None
-TIME_NEXT_TRIALS_TOOK = []
-CURRENT_RUN_FOLDER = None
-RUN_FOLDER_NUMBER = 0
-RESULT_CSV_FILE = None
-SHOWN_END_TABLE = False
-max_eval = None
-random_steps = None
-progress_bar = None
-SUM_OF_VALUES_FOR_TQDM = 0
 
 main_pid = os.getpid()
 
@@ -422,33 +587,19 @@ def set_max_eval(new_max_eval):
 
     max_eval = new_max_eval
 
-def log_what_needs_to_be_logged():
-    if "write_worker_usage" in globals():
-        try:
-            write_worker_usage()
-        except Exception:
-            pass
+def write_worker_usage():
+    if len(worker_percentage_usage):
+        csv_filename = f'{CURRENT_RUN_FOLDER}/worker_usage.csv'
 
-    if "write_process_info" in globals():
-        try:
-            write_process_info()
-        except Exception:
-            pass
+        csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
-    if "log_nr_of_workers" in globals():
-        try:
-            log_nr_of_workers()
-        except Exception:
-            pass
-
-def get_functions_stack_array():
-    stack = inspect.stack()
-    function_names = []
-    for frame_info in stack[1:]:
-        if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
-            if frame_info.function != "wrapper":
-                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
-    return "Function stack: " + (" -> ".join(function_names) + ":")
+        with open(csv_filename, mode='w', encoding="utf-8", newline='') as csvfile:
+            csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+            for row in worker_percentage_usage:
+                csv_writer.writerow(row)
+    else:
+        if is_slurm_job():
+            print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
 def log_system_usage():
     if not CURRENT_RUN_FOLDER:
@@ -479,6 +630,50 @@ def write_process_info():
     except Exception as e:
         print_debug(f"Error retrieving process information: {str(e)}")
 
+def log_nr_of_workers():
+    try:
+        write_process_info()
+    except Exception as e:
+        print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
+
+    if "jobs" not in global_vars:
+        print_debug("log_nr_of_workers: Could not find jobs in global_vars")
+        return
+
+    nr_of_workers = len(global_vars["jobs"])
+
+    if not nr_of_workers:
+        return
+
+    try:
+        with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
+            f.write(str(nr_of_workers) + "\n")
+    except FileNotFoundError:
+        print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
+        sys.exit(99)
+    except OSError as e:
+        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
+        sys.exit(199)
+
+def log_what_needs_to_be_logged():
+    if "write_worker_usage" in globals():
+        try:
+            write_worker_usage()
+        except Exception:
+            pass
+
+    if "write_process_info" in globals():
+        try:
+            write_process_info()
+        except Exception:
+            pass
+
+    if "log_nr_of_workers" in globals():
+        try:
+            log_nr_of_workers()
+        except Exception:
+            pass
+
 def get_line_info():
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
@@ -505,29 +700,6 @@ def print_image_to_cli(image_path, width):
             f"Error converting and resizing image: "
             f"{str(e)}, width: {width}, image_path: {image_path}"
         )
-
-with console.status("[bold green]Defining creating .logs dir if it doesn't exist...") as status:
-    LOG_DIR = ".logs"
-    try:
-        Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
-    except Exception as e:
-        original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(e))
-
-with console.status("[bold green]Defining variables...") as status:
-    LOG_I = 0
-    logfile = f'{LOG_DIR}/{LOG_I}'
-    logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-    while os.path.exists(logfile):
-        LOG_I = LOG_I + 1
-        logfile = f'{LOG_DIR}/{LOG_I}'
-
-    logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-    logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
-    logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
-    logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
-    LOGFILE_DEBUG_GET_NEXT_TRIALS = None
-
-    NVIDIA_SMI_LOGS_BASE = None
 
 def log_message_to_file(_logfile, message, _lvl=0, ee=None):
     assert _logfile is not None, "Logfile path must be provided."
@@ -563,27 +735,11 @@ def _debug_get_next_trials(msg, _lvl=0, ee=None):
 def _debug_progressbar(msg, _lvl=0, ee=None):
     log_message_to_file(logfile_progressbar, msg, _lvl, ee)
 
-def print_red(text):
-    helpers.print_color("red", text)
-
-    if CURRENT_RUN_FOLDER:
-        try:
-            with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
-                myfile.write(text)
-        except FileNotFoundError as e:
-            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
-            sys.exit(99)
-
 def print_green(text):
     helpers.print_color("green", text)
 
 def print_yellow(text):
     helpers.print_color("yellow", text)
-
-def add_to_phase_counter(phase, nr=0, run_folder=""):
-    if run_folder == "":
-        run_folder = CURRENT_RUN_FOLDER
-    return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
 def decode_if_base64(input_str):
     try:
@@ -941,87 +1097,6 @@ def get_bound_if_prev_data(_type, _column, _default):
 
     return round(ret_val, 4), found_in_file
 
-def parse_experiment_parameters():
-    global global_vars
-    global changed_grid_search_params
-
-    params = []
-    param_names = []
-
-    i = 0
-
-    search_space_reduction_warning = False
-
-    valid_types = ["range", "fixed", "choice"]
-    invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
-
-    while args.parameter and i < len(args.parameter):
-        this_args = args.parameter[i]
-        j = 0
-        while j < len(this_args):
-            name = this_args[j]
-
-            if name in invalid_names:
-                print_red(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
-                my_exit(181)
-
-            if name in param_names:
-                print_red(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!")
-                my_exit(181)
-
-            param_names.append(name)
-
-            try:
-                param_type = this_args[j + 1]
-            except Exception:
-                print_red("Not enough arguments for --parameter")
-                my_exit(181)
-
-            if param_type not in valid_types:
-                valid_types_string = ', '.join(valid_types)
-                print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
-                my_exit(181)
-
-            if param_type == "range":
-                j, params, search_space_reduction_warning = parse_range_param(params, j, this_args, name, search_space_reduction_warning)
-            elif param_type == "fixed":
-                j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, search_space_reduction_warning)
-            elif param_type == "choice":
-                j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, search_space_reduction_warning)
-            else:
-                print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
-                my_exit(181)
-        i += 1
-
-    if search_space_reduction_warning:
-        print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
-
-    return params
-
-def check_factorial_range():
-    if args.model and args.model == "FACTORIAL":
-        print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
-        my_exit(181)
-
-def check_if_range_types_are_invalid(value_type, valid_value_types):
-    if value_type not in valid_value_types:
-        valid_value_types_string = ", ".join(valid_value_types)
-        print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-        my_exit(181)
-
-def check_range_params_length(this_args):
-    if len(this_args) != 5 and len(this_args) != 4:
-        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
-        my_exit(181)
-
-def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
-    if upper_bound == lower_bound:
-        if lower_bound == 0:
-            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-            my_exit(181)
-        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
-        lower_bound = -upper_bound
-
 def switch_lower_and_upper_if_needed(name, lower_bound, upper_bound):
     if lower_bound > upper_bound:
         print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
@@ -1040,6 +1115,8 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
             upper_bound = math.ceil(upper_bound)
 
     return lower_bound, upper_bound
+
+
 
 def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
@@ -1177,6 +1254,89 @@ def parse_choice_param(params, j, this_args, name, search_space_reduction_warnin
     j += 3
 
     return j, params, search_space_reduction_warning
+
+
+
+def parse_experiment_parameters():
+    global global_vars
+    global changed_grid_search_params
+
+    params = []
+    param_names = []
+
+    i = 0
+
+    search_space_reduction_warning = False
+
+    valid_types = ["range", "fixed", "choice"]
+    invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
+
+    while args.parameter and i < len(args.parameter):
+        this_args = args.parameter[i]
+        j = 0
+        while j < len(this_args):
+            name = this_args[j]
+
+            if name in invalid_names:
+                print_red(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
+                my_exit(181)
+
+            if name in param_names:
+                print_red(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!")
+                my_exit(181)
+
+            param_names.append(name)
+
+            try:
+                param_type = this_args[j + 1]
+            except Exception:
+                print_red("Not enough arguments for --parameter")
+                my_exit(181)
+
+            if param_type not in valid_types:
+                valid_types_string = ', '.join(valid_types)
+                print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
+                my_exit(181)
+
+            if param_type == "range":
+                j, params, search_space_reduction_warning = parse_range_param(params, j, this_args, name, search_space_reduction_warning)
+            elif param_type == "fixed":
+                j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, search_space_reduction_warning)
+            elif param_type == "choice":
+                j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, search_space_reduction_warning)
+            else:
+                print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
+                my_exit(181)
+        i += 1
+
+    if search_space_reduction_warning:
+        print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
+
+    return params
+
+def check_factorial_range():
+    if args.model and args.model == "FACTORIAL":
+        print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
+        my_exit(181)
+
+def check_if_range_types_are_invalid(value_type, valid_value_types):
+    if value_type not in valid_value_types:
+        valid_value_types_string = ", ".join(valid_value_types)
+        print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
+        my_exit(181)
+
+def check_range_params_length(this_args):
+    if len(this_args) != 5 and len(this_args) != 4:
+        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
+        my_exit(181)
+
+def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
+    if upper_bound == lower_bound:
+        if lower_bound == 0:
+            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
+            my_exit(181)
+        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+        lower_bound = -upper_bound
 
 def replace_parameters_in_string(parameters, input_string):
     try:
@@ -1390,6 +1550,46 @@ def write_failed_logs(data_dict, error_description=""):
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
+def count_defective_nodes(file_path=None, entry=None):
+    """
+    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
+    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
+    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
+    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
+    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
+    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
+    '{CURRENT_RUN_FOLDER}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
+    """
+    # Standardpfad für die Datei, wenn keiner angegeben ist
+    if file_path is None:
+        file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
+
+    # Sicherstellen, dass das Verzeichnis existiert
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    try:
+        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
+        with open(file_path, mode='a+', encoding="utf-8") as file:
+            file.seek(0)  # Zurück zum Anfang der Datei
+            lines = file.readlines()
+
+            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
+            entries = [line.strip() for line in lines]
+
+            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
+            if entry is not None and entry not in entries:
+                file.write(entry + '\n')
+                entries.append(entry)
+
+        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
+        return sorted(set(entries))
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+        return []
+
+
+
 def test_gpu_before_evaluate(return_in_case_of_error):
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
         try:
@@ -1421,7 +1621,6 @@ def extract_info(data):
             values.append(match.group(2))
 
     return names, values
-
 
 def evaluate(parameters):
     global IS_IN_EVALUATE
@@ -1699,6 +1898,123 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
+def get_best_params(csv_file_path):
+    results = {
+        "result": None,
+        "parameters": {}
+    }
+
+    if not os.path.exists(csv_file_path):
+        return results
+
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
+        df.dropna(subset=["result"], inplace=True)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
+        return results
+
+    cols = df.columns.tolist()
+    nparray = df.to_numpy()
+
+    best_line = None
+
+    result_idx = cols.index("result")
+
+    best_result = None
+
+    for i in range(0, len(nparray)):
+        this_line = nparray[i]
+        this_line_result = this_line[result_idx]
+
+        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
+            this_line_result = float(this_line_result)
+
+        if type(this_line_result) in [float, int]:
+            if best_result is None:
+                best_line = this_line
+                best_result = this_line_result
+            elif args.maximize and this_line_result >= best_result:
+                best_line = this_line
+                best_result = this_line_result
+            elif not args.maximize and this_line_result <= best_result:
+                best_line = this_line
+                best_result = this_line_result
+
+    if best_line is None:
+        print_debug("Could not determine best result")
+        return results
+
+    for i in range(0, len(cols)):
+        col = cols[i]
+        if col not in [
+            "start_time",
+            "end_time",
+            "hostname",
+            "signal",
+            "exit_code",
+            "run_time",
+            "program_string"
+        ]:
+            if col == "result":
+                results["result"] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+            else:
+                results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+
+    return results
+
+def _count_done_jobs(csv_file_path):
+    results = 0
+
+    if not os.path.exists(csv_file_path):
+        return results
+
+    df = None
+
+    _err = False
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
+        df.dropna(subset=["result"], inplace=True)
+    except KeyError:
+        _err = True
+    except pd.errors.EmptyDataError:
+        _err = True
+    except pd.errors.ParserError as e:
+        print_red(f"Error reading CSV file 2: {str(e)}")
+        _err = True
+    except UnicodeDecodeError as e:
+        print_red(f"Error reading CSV file 3: {str(e)}")
+        _err = True
+    except Exception as e:
+        print_red(f"Error reading CSV file 4: {str(e)}")
+        _err = True
+
+    if _err:
+        return 1
+
+    assert df is not None, "DataFrame should not be None after reading CSV file"
+    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
+
+    completed_rows = df[df["trial_status"] == "COMPLETED"]
+    completed_rows_count = len(completed_rows)
+
+    return completed_rows_count
+
+def failed_jobs(nr=0):
+    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/failed_jobs', nr)
+
+def count_done_jobs():
+    csv_file_path = save_pd_csv()
+
+    return _count_done_jobs(csv_file_path)
+
 def print_best_result(csv_file_path):
     global global_vars
     global SHOWN_END_TABLE
@@ -1917,20 +2233,6 @@ def show_end_table_and_save_end_files(csv_file_path):
 
     return _exit
 
-def write_worker_usage():
-    if len(worker_percentage_usage):
-        csv_filename = f'{CURRENT_RUN_FOLDER}/worker_usage.csv'
-
-        csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
-
-        with open(csv_filename, mode='w', encoding="utf-8", newline='') as csvfile:
-            csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            for row in worker_percentage_usage:
-                csv_writer.writerow(row)
-    else:
-        if is_slurm_job():
-            print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
-
 def end_program(csv_file_path, _force=False, exit_code=None):
     global global_vars
     global END_PROGRAM_RAN
@@ -2011,43 +2313,6 @@ def save_checkpoint(trial_nr=0, ee=None):
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
-
-def save_pd_csv():
-    pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
-    pd_json = f'{CURRENT_RUN_FOLDER}/state_files/pd.json'
-
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
-
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    if ax_client is None:
-        return pd_csv
-
-    try:
-        pd_frame = ax_client.get_trials_data_frame()
-
-        pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
-        #pd_frame.to_json(pd_json)
-
-        json_snapshot = ax_client.to_json_snapshot()
-
-        with open(pd_json, mode='w', encoding="utf-8") as json_file:
-            json.dump(json_snapshot, json_file, indent=4)
-
-        save_experiment(ax_client.experiment, f"{CURRENT_RUN_FOLDER}/state_files/ax_client.experiment.json")
-
-        #print_debug("pd.{csv,json} saved")
-    except SignalUSR as e:
-        raise SignalUSR(str(e)) from e
-    except SignalCONT as e:
-        raise SignalCONT(str(e)) from e
-    except SignalINT as e:
-        raise SignalINT(str(e)) from e
-    except Exception as e:
-        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
-
-    return pd_csv
 
 def get_tmp_file_from_json(experiment_args):
     _tmp_dir = "/tmp"
@@ -2158,6 +2423,98 @@ def copy_state_files_from_previous_job(continue_previous_job):
 
 def die_something_went_wrong_with_parameters():
     my_exit(49)
+
+def check_equation(variables, equation):
+    print_debug(f"check_equation({variables}, {equation})")
+
+    _errors = []
+
+    if not (">=" in equation or "<=" in equation):
+        _errors.append(f"check_equation({variables}, {equation}): if not ('>=' in equation or '<=' in equation)")
+
+    comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
+    if comparer_at_beginning:
+        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
+
+    comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
+    if comparer_at_end:
+        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
+
+    if len(_errors):
+        for er in _errors:
+            print_red(er)
+
+        return False
+
+    equation = equation.replace("\\*", "*")
+    equation = equation.replace(" * ", "*")
+
+    equation = equation.replace(">=", " >= ")
+    equation = equation.replace("<=", " <= ")
+
+    equation = re.sub(r'\s+', ' ', equation)
+    #equation = equation.replace("", "")
+
+    regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
+    result_array = re.split(regex_pattern, equation)
+    result_array = [item for item in result_array if item.strip()]
+
+    parsed = []
+    parsed_order = []
+
+    comparer_found = False
+
+    for item in result_array:
+        if item in ["+", "*", "-", "/"]:
+            parsed_order.append("operator")
+            parsed.append({
+                "type": "operator",
+                "value": item
+            })
+        elif item in [">=", "<="]:
+            if comparer_found:
+                print("There is already one comparision operator! Cannot have more than one in an equation!")
+                return False
+            comparer_found = True
+
+            parsed_order.append("comparer")
+            parsed.append({
+                "type": "comparer",
+                "value": item
+            })
+        elif re.match(r'^\d+$', item):
+            parsed_order.append("number")
+            parsed.append({
+                "type": "number",
+                "value": item
+            })
+        elif item in variables:
+            parsed_order.append("variable")
+            parsed.append({
+                "type": "variable",
+                "value": item
+            })
+        else:
+            print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
+            return False
+
+    parsed_order_string = ";".join(parsed_order)
+
+    number_or_variable = "(?:(?:number|variable);*)"
+    number_or_variable_and_operator = f"(?:{number_or_variable};operator;*)"
+    comparer = "(?:comparer;)"
+    equation_part = f"{number_or_variable_and_operator}*{number_or_variable}"
+
+    regex_order = f"^{equation_part}{comparer}{equation_part}$"
+
+    order_check = re.match(regex_order, parsed_order_string)
+
+    if order_check:
+        return equation
+
+    return False
+
+
 
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
@@ -2413,96 +2770,6 @@ def print_overview_tables(experiment_parameters, experiment_args):
         with open(f"{CURRENT_RUN_FOLDER}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
-def check_equation(variables, equation):
-    print_debug(f"check_equation({variables}, {equation})")
-
-    _errors = []
-
-    if not (">=" in equation or "<=" in equation):
-        _errors.append(f"check_equation({variables}, {equation}): if not ('>=' in equation or '<=' in equation)")
-
-    comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
-    if comparer_at_beginning:
-        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
-
-    comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
-    if comparer_at_end:
-        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
-
-    if len(_errors):
-        for er in _errors:
-            print_red(er)
-
-        return False
-
-    equation = equation.replace("\\*", "*")
-    equation = equation.replace(" * ", "*")
-
-    equation = equation.replace(">=", " >= ")
-    equation = equation.replace("<=", " <= ")
-
-    equation = re.sub(r'\s+', ' ', equation)
-    #equation = equation.replace("", "")
-
-    regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
-    result_array = re.split(regex_pattern, equation)
-    result_array = [item for item in result_array if item.strip()]
-
-    parsed = []
-    parsed_order = []
-
-    comparer_found = False
-
-    for item in result_array:
-        if item in ["+", "*", "-", "/"]:
-            parsed_order.append("operator")
-            parsed.append({
-                "type": "operator",
-                "value": item
-            })
-        elif item in [">=", "<="]:
-            if comparer_found:
-                print("There is already one comparision operator! Cannot have more than one in an equation!")
-                return False
-            comparer_found = True
-
-            parsed_order.append("comparer")
-            parsed.append({
-                "type": "comparer",
-                "value": item
-            })
-        elif re.match(r'^\d+$', item):
-            parsed_order.append("number")
-            parsed.append({
-                "type": "number",
-                "value": item
-            })
-        elif item in variables:
-            parsed_order.append("variable")
-            parsed.append({
-                "type": "variable",
-                "value": item
-            })
-        else:
-            print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
-            return False
-
-    parsed_order_string = ";".join(parsed_order)
-
-    number_or_variable = "(?:(?:number|variable);*)"
-    number_or_variable_and_operator = f"(?:{number_or_variable};operator;*)"
-    comparer = "(?:comparer;)"
-    equation_part = f"{number_or_variable_and_operator}*{number_or_variable}"
-
-    regex_order = f"^{equation_part}{comparer}{equation_part}$"
-
-    order_check = re.match(regex_order, parsed_order_string)
-
-    if order_check:
-        return equation
-
-    return False
-
 def update_progress_bar(_progress_bar, nr):
     #import traceback
     #print(f"update_progress_bar(_progress_bar, {nr})")
@@ -2517,6 +2784,157 @@ def update_progress_bar(_progress_bar, nr):
         return
 
     _progress_bar.update(nr)
+
+def get_current_model():
+    global ax_client
+
+    if ax_client:
+        gs_model = ax_client.generation_strategy.model
+
+        if gs_model:
+            return str(gs_model.model)
+
+    return "initializing"
+
+def get_best_params_str():
+    if count_done_jobs() >= 0:
+        best_params = get_best_params(RESULT_CSV_FILE)
+        if best_params and "result" in best_params:
+            best_result = best_params["result"]
+            if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
+                best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
+
+                if str(best_result) != NO_RESULT and best_result is not None:
+                    return f"best result: {best_result_int_if_possible}"
+    return ""
+
+def state_from_job(job):
+    job_string = f'{job}'
+    match = re.search(r'state="([^"]+)"', job_string)
+
+    state = None
+
+    if match:
+        state = match.group(1).lower()
+    else:
+        state = f"{state}"
+
+    return state
+
+
+
+def get_workers_string():
+    string = ""
+
+    string_keys = []
+    string_values = []
+
+    stats = {}
+
+    for job, _ in global_vars["jobs"][:]:
+        state = state_from_job(job)
+
+        if state not in stats.keys():
+            stats[state] = 0
+        stats[state] += 1
+
+    for key in stats.keys():
+        if args.abbreviate_job_names:
+            string_keys.append(key.lower()[0])
+        else:
+            string_keys.append(key.lower())
+        string_values.append(str(stats[key]))
+
+    if len(string_keys) and len(string_values):
+        _keys = "/".join(string_keys)
+        _values = "/".join(string_values)
+
+        if len(_keys):
+            nr_current_workers = len(global_vars["jobs"])
+            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+            string = f"{_keys} {_values} ({percentage}%/{num_parallel_jobs})"
+
+    return string
+
+def submitted_jobs(nr=0):
+    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+
+    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs', nr)
+
+def get_desc_progress_text(new_msgs=[]):
+    global global_vars
+    global random_steps
+    global max_eval
+
+    desc = ""
+
+    in_brackets = []
+
+    if failed_jobs():
+        in_brackets.append(f"{helpers.bcolors.red}failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
+
+    current_model = get_current_model()
+
+    in_brackets.append(f"{current_model}")
+
+    this_time = time.time()
+
+    best_params_str = get_best_params_str()
+    if best_params_str:
+        in_brackets.append(best_params_str)
+
+    if is_slurm_job():
+        nr_current_workers = len(global_vars["jobs"])
+        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+
+        this_values = {
+            "nr_current_workers": nr_current_workers,
+            "num_parallel_jobs": num_parallel_jobs,
+            "percentage": percentage,
+            "time": this_time
+        }
+
+        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
+            worker_percentage_usage.append(this_values)
+
+        workers_strings = get_workers_string()
+        if workers_strings:
+            in_brackets.append(workers_strings)
+
+    #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
+
+    if args.verbose_tqdm:
+        if submitted_jobs():
+            in_brackets.append(f"total submitted: {submitted_jobs()}")
+
+        if max_eval:
+            in_brackets.append(f"max_eval: {max_eval}")
+
+    if len(new_msgs):
+        for new_msg in new_msgs:
+            if new_msg:
+                in_brackets.append(new_msg)
+
+    if len(in_brackets):
+        in_brackets_clean = []
+
+        for item in in_brackets:
+            if item:
+                in_brackets_clean.append(item)
+
+        if in_brackets_clean:
+            desc += f"{', '.join(in_brackets_clean)}"
+
+    def capitalized_string(s):
+        return s[0].upper() + s[1:] if s else ""
+    desc = capitalized_string(desc)
+
+    return desc
+
+
 
 def progressbar_description(new_msgs=[]):
     desc = get_desc_progress_text(new_msgs)
@@ -2601,6 +3019,74 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
+def simulate_load_data_from_existing_run_folders(_paths):
+    _counter = 0
+
+    path_idx = 0
+    for this_path in _paths:
+        this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
+
+        if not os.path.exists(this_path_json):
+            print_red(f"{this_path_json} does not exist, cannot load data from it")
+            return 0
+
+        old_experiments = load_experiment(this_path_json)
+
+        old_trials = old_experiments.trials
+
+        trial_idx = 0
+        for old_trial_index in old_trials:
+            trial_idx += 1
+
+            old_trial = old_trials[old_trial_index]
+            trial_status = old_trial.status
+            trial_status_str = trial_status.__repr__
+
+            print_debug(f"trial_status_str: {trial_status_str}")
+
+            if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
+                continue
+
+            old_arm_parameter = old_trial.arm.parameters
+
+            old_result_simple = None
+            try:
+                tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
+                tmp_old_res_list = list(set(list(tmp_old_res)))
+
+                if len(tmp_old_res_list) == 1:
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+                    old_result_simple = float(tmp_old_res_list[0])
+                else:
+                    print_debug(
+                        f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs."
+                    )
+                    old_result_simple = None
+            except Exception:
+                pass
+
+            if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+                _counter += 1
+
+        path_idx += 1
+
+    return _counter
+
+
+
+def get_nr_of_imported_jobs():
+    nr_jobs = 0
+
+    if args.load_previous_job_data:
+        for this_path in args.load_previous_job_data:
+            nr_jobs += simulate_load_data_from_existing_run_folders(this_path)
+
+    if args.continue_previous_job:
+        nr_jobs += simulate_load_data_from_existing_run_folders([args.continue_previous_job])
+
+    return nr_jobs
+
+
 def load_existing_job_data_into_ax_client():
     global NR_INSERTED_JOBS
 
@@ -2675,59 +3161,6 @@ def extract_headers_and_rows(data_list):
     except Exception as e:
         print(f"An error occured: {e}")
         return None, None
-
-def simulate_load_data_from_existing_run_folders(_paths):
-    _counter = 0
-
-    path_idx = 0
-    for this_path in _paths:
-        this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
-
-        if not os.path.exists(this_path_json):
-            print_red(f"{this_path_json} does not exist, cannot load data from it")
-            return 0
-
-        old_experiments = load_experiment(this_path_json)
-
-        old_trials = old_experiments.trials
-
-        trial_idx = 0
-        for old_trial_index in old_trials:
-            trial_idx += 1
-
-            old_trial = old_trials[old_trial_index]
-            trial_status = old_trial.status
-            trial_status_str = trial_status.__repr__
-
-            print_debug(f"trial_status_str: {trial_status_str}")
-
-            if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
-                continue
-
-            old_arm_parameter = old_trial.arm.parameters
-
-            old_result_simple = None
-            try:
-                tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
-                tmp_old_res_list = list(set(list(tmp_old_res)))
-
-                if len(tmp_old_res_list) == 1:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-                    old_result_simple = float(tmp_old_res_list[0])
-                else:
-                    print_debug(
-                        f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs."
-                    )
-                    old_result_simple = None
-            except Exception:
-                pass
-
-            if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
-                _counter += 1
-
-        path_idx += 1
-
-    return _counter
 
 def get_list_import_as_string(_brackets=True, _comma=False):
     _str = []
@@ -2871,6 +3304,245 @@ def load_data_from_existing_run_folders(_paths):
             table.add_row(*row)
 
         console.print(table)
+
+def get_first_line_of_file(file_paths):
+    first_line = ""
+    if len(file_paths):
+        first_file_as_string = ""
+        try:
+            first_file_as_string = get_file_as_string(file_paths[0])
+            if isinstance(first_file_as_string, str) and first_file_as_string.strip().isprintable():
+                first_line = first_file_as_string.split('\n')[0]
+        except UnicodeDecodeError:
+            pass
+
+        if first_file_as_string == "":
+            first_line = "#!/bin/bash"
+
+    return first_line
+
+def check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code):
+    errors = []
+
+    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
+        errors.append("First line does not seem to be a shebang line: " + first_line)
+
+    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
+        errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
+
+    if "Exec format error" in file_as_string:
+        current_platform = platform.machine()
+        file_output = ""
+
+        if len(file_paths):
+            file_result = execute_bash_code("file " + file_paths[0])
+            if len(file_result) and isinstance(file_result[0], str):
+                file_output = ", " + file_result[0].strip()
+
+        errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
+
+    if "/bin/sh" in file_as_string and "not found" in file_as_string:
+        errors.append("Wrong path? File not found")
+
+    if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
+        errors.append(f"File in {program_code} is empty")
+
+    if len(file_paths) == 0:
+        errors.append(f"No files could be found in your program string: {program_code}")
+
+    return errors
+
+def get_base_errors():
+    base_errors = [
+        "Segmentation fault",
+        "Illegal division by zero",
+        "OOM",
+        ["Killed", "Detected kill, maybe OOM or Signal?"]
+    ]
+
+    return base_errors
+
+
+
+def check_for_base_errors(file_as_string):
+    errors = []
+    for err in get_base_errors():
+        if isinstance(err, list):
+            if err[0] in file_as_string:
+                errors.append(f"{err[0]} {err[1]}")
+        elif isinstance(err, str):
+            if err in file_as_string:
+                errors.append(f"{err} detected")
+        else:
+            print_red(f"Wrong type, should be list or string, is {type(err)}")
+    return errors
+
+def get_exit_codes():
+    return {
+        "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
+        "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable or it was compiled for a different platform",
+        "127": "Command Not Found - Usually this is returned when the file you tried to call was not found",
+        "128": "Invalid Exit Argument - Exit status out of range",
+        "129": "Hangup - Termination by the SIGHUP signal",
+        "130": "Script Terminated by Control-C - Termination by Ctrl+C",
+        "131": "Quit - Termination by the SIGQUIT signal",
+        "132": "Illegal Instruction - Termination by the SIGILL signal",
+        "133": "Trace/Breakpoint Trap - Termination by the SIGTRAP signal",
+        "134": "Aborted - Termination by the SIGABRT signal",
+        "135": "Bus Error - Termination by the SIGBUS signal",
+        "136": "Floating Point Exception - Termination by the SIGFPE signal",
+        "137": "Out of Memory - Usually this is done by the SIGKILL signal. May mean that the job has run out of memory",
+        "138": "Killed by SIGUSR1 - Termination by the SIGUSR1 signal",
+        "139": "Segmentation Fault - Usually this is done by the SIGSEGV signal. May mean that the job had a segmentation fault",
+        "140": "Killed by SIGUSR2 - Termination by the SIGUSR2 signal",
+        "141": "Pipe Error - Termination by the SIGPIPE signal",
+        "142": "Alarm - Termination by the SIGALRM signal",
+        "143": "Terminated by SIGTERM - Termination by the SIGTERM signal",
+        "144": "Terminated by SIGSTKFLT - Termination by the SIGSTKFLT signal",
+        "145": "Terminated by SIGCHLD - Termination by the SIGCHLD signal",
+        "146": "Terminated by SIGCONT - Termination by the SIGCONT signal",
+        "147": "Terminated by SIGSTOP - Termination by the SIGSTOP signal",
+        "148": "Terminated by SIGTSTP - Termination by the SIGTSTP signal",
+        "149": "Terminated by SIGTTIN - Termination by the SIGTTIN signal",
+        "150": "Terminated by SIGTTOU - Termination by the SIGTTOU signal",
+        "151": "Terminated by SIGURG - Termination by the SIGURG signal",
+        "152": "Terminated by SIGXCPU - Termination by the SIGXCPU signal",
+        "153": "Terminated by SIGXFSZ - Termination by the SIGXFSZ signal",
+        "154": "Terminated by SIGVTALRM - Termination by the SIGVTALRM signal",
+        "155": "Terminated by SIGPROF - Termination by the SIGPROF signal",
+        "156": "Terminated by SIGWINCH - Termination by the SIGWINCH signal",
+        "157": "Terminated by SIGIO - Termination by the SIGIO signal",
+        "158": "Terminated by SIGPWR - Termination by the SIGPWR signal",
+        "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
+    }
+
+
+
+def check_for_non_zero_exit_codes(file_as_string):
+    errors = []
+    for r in range(1, 255):
+        special_exit_codes = get_exit_codes()
+        search_for_exit_code = "Exit-Code: " + str(r) + ","
+        if search_for_exit_code in file_as_string:
+            _error = "Non-zero exit-code detected: " + str(r)
+            if str(r) in special_exit_codes:
+                _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
+            errors.append(_error)
+    return errors
+
+def get_python_errors():
+    synerr = "Python syntax error detected. Check log file."
+
+    return [
+        ["ModuleNotFoundError", "Module not found"],
+        ["ImportError", "Module not found"],
+        ["SyntaxError", synerr],
+        ["NameError", synerr],
+        ["ValueError", synerr],
+        ["TypeError", synerr],
+        ["AssertionError", "Assertion failed"],
+        ["AttributeError", "Attribute Error"],
+        ["EOFError", "End of file Error"],
+        ["IndexError", "Wrong index for array. Check logs"],
+        ["KeyError", "Wrong key for dict"],
+        ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
+        ["MemoryError", "Python memory error detected"],
+        ["NotImplementedError", "Something was not implemented"],
+        ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
+        ["OverflowError", "There was an error with float overflow"],
+        ["RecursionError", "Your program had a recursion error"],
+        ["ReferenceError", "There was an error with a weak reference"],
+        ["RuntimeError", "Something went wrong with your program. Try checking the log."],
+        ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
+        ["TabError", "You used tab instead of spaces in your code"],
+        ["SystemError", "Some error SystemError was found. Check the log."],
+        ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
+        ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
+        ["error: argument", "Wrong argparse argument"],
+        ["error: unrecognized arguments", "Wrong argparse argument"],
+        ["CUDNN_STATUS_INTERNAL_ERROR", "Cuda had a problem. Try to delete ~/.nv and try again."],
+        ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
+    ]
+
+def get_first_line_of_file_that_contains_string(i, s):
+    if not os.path.exists(i):
+        print_debug(f"File {i} not found")
+        return ""
+
+    f = get_file_as_string(i)
+
+    lines = ""
+    get_lines_until_end = False
+
+    for line in f.split("\n"):
+        if s in line:
+            if get_lines_until_end:
+                lines += line
+            else:
+                line = line.strip()
+                if line.endswith("(") and "raise" in line:
+                    get_lines_until_end = True
+                    lines += line
+                else:
+                    return line
+    if lines != "":
+        return lines
+
+    return ""
+
+
+
+
+def check_for_python_errors(i, file_as_string):
+    errors = []
+
+    for search_array in get_python_errors():
+        search_for_string = search_array[0]
+        search_for_error = search_array[1]
+
+        if search_for_string in file_as_string:
+            error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
+            if error_line:
+                errors.append(error_line)
+            else:
+                errors.append(search_for_error)
+
+    return errors
+
+
+
+
+def get_errors_from_outfile(i):
+    file_as_string = get_file_as_string(i)
+
+    program_code = get_program_code_from_out_file(i)
+    file_paths = find_file_paths(program_code)
+
+    first_line = get_first_line_of_file(file_paths)
+
+    errors = []
+
+    if "Result: None" in file_as_string:
+        errors.append("Got no result.")
+
+        new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
+        for n in new_errors:
+            errors.append(n)
+
+        new_errors = check_for_base_errors(file_as_string)
+        for n in new_errors:
+            errors.append(n)
+
+        new_errors = check_for_non_zero_exit_codes(file_as_string)
+        for n in new_errors:
+            errors.append(n)
+
+        new_errors = check_for_python_errors(i, file_as_string)
+        for n in new_errors:
+            errors.append(n)
+
+    return errors
+
 
 def print_outfile_analyzed(stdout_path):
     errors = get_errors_from_outfile(stdout_path)
@@ -3033,6 +3705,36 @@ def finish_previous_jobs(new_msgs):
 
     clean_completed_jobs()
 
+def check_orchestrator(stdout_path, trial_index):
+    behavs = []
+
+    if orchestrator and "errors" in orchestrator:
+        try:
+            stdout = Path(stdout_path).read_text("UTF-8")
+        except FileNotFoundError:
+            orchestrate_todo_copy = ORCHESTRATE_TODO
+            if stdout_path not in orchestrate_todo_copy.keys():
+                ORCHESTRATE_TODO[stdout_path] = trial_index
+                print_red(f"File not found: {stdout_path}, will try again later")
+            else:
+                print_red(f"File not found: {stdout_path}, not trying again")
+
+            return None
+
+        for oc in orchestrator["errors"]:
+            #name = oc["name"]
+            match_strings = oc["match_strings"]
+            behavior = oc["behavior"]
+
+            for match_string in match_strings:
+                if match_string.lower() in stdout.lower():
+                    if behavior not in behavs:
+                        behavs.append(behavior)
+
+    return behavs
+
+
+
 def orchestrate_job(job, trial_index):
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
@@ -3060,6 +3762,31 @@ def orchestrate_job(job, trial_index):
         old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
+
+def is_already_in_defective_nodes(hostname):
+    file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
+
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    if not os.path.isfile(file_path):
+        print_red(f"Error: The file {file_path} does not exist.")
+        return False
+
+    try:
+        # Datei öffnen und Zeilen durchsuchen
+        with open(file_path, mode="r", encoding="utf-8") as file:
+            for line in file:
+                # Zeilenenden entfernen und auf Übereinstimmung prüfen
+                if line.strip() == hostname:
+                    return True
+    except Exception as e:
+        print_red(f"Error reading the file {file_path}: {e}")
+        return False
+
+    # Wenn keine Übereinstimmung gefunden wurde
+    return False
+
+
 
 def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)
@@ -3129,162 +3856,6 @@ def _orchestrate(stdout_path, trial_index):
             else:
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 sys.exit(210)
-
-def check_orchestrator(stdout_path, trial_index):
-    behavs = []
-
-    if orchestrator and "errors" in orchestrator:
-        try:
-            stdout = Path(stdout_path).read_text("UTF-8")
-        except FileNotFoundError:
-            orchestrate_todo_copy = ORCHESTRATE_TODO
-            if stdout_path not in orchestrate_todo_copy.keys():
-                ORCHESTRATE_TODO[stdout_path] = trial_index
-                print_red(f"File not found: {stdout_path}, will try again later")
-            else:
-                print_red(f"File not found: {stdout_path}, not trying again")
-
-            return None
-
-        for oc in orchestrator["errors"]:
-            #name = oc["name"]
-            match_strings = oc["match_strings"]
-            behavior = oc["behavior"]
-
-            for match_string in match_strings:
-                if match_string.lower() in stdout.lower():
-                    if behavior not in behavs:
-                        behavs.append(behavior)
-
-    return behavs
-
-def state_from_job(job):
-    job_string = f'{job}'
-    match = re.search(r'state="([^"]+)"', job_string)
-
-    state = None
-
-    if match:
-        state = match.group(1).lower()
-    else:
-        state = f"{state}"
-
-    return state
-
-def get_workers_string():
-    string = ""
-
-    string_keys = []
-    string_values = []
-
-    stats = {}
-
-    for job, _ in global_vars["jobs"][:]:
-        state = state_from_job(job)
-
-        if state not in stats.keys():
-            stats[state] = 0
-        stats[state] += 1
-
-    for key in stats.keys():
-        if args.abbreviate_job_names:
-            string_keys.append(key.lower()[0])
-        else:
-            string_keys.append(key.lower())
-        string_values.append(str(stats[key]))
-
-    if len(string_keys) and len(string_values):
-        _keys = "/".join(string_keys)
-        _values = "/".join(string_values)
-
-        if len(_keys):
-            nr_current_workers = len(global_vars["jobs"])
-            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-            string = f"{_keys} {_values} ({percentage}%/{num_parallel_jobs})"
-
-    return string
-
-def get_best_params_str():
-    if count_done_jobs() >= 0:
-        best_params = get_best_params(RESULT_CSV_FILE)
-        if best_params and "result" in best_params:
-            best_result = best_params["result"]
-            if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
-                best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
-
-                if str(best_result) != NO_RESULT and best_result is not None:
-                    return f"best result: {best_result_int_if_possible}"
-    return ""
-
-def get_desc_progress_text(new_msgs=[]):
-    global global_vars
-    global random_steps
-    global max_eval
-
-    desc = ""
-
-    in_brackets = []
-
-    if failed_jobs():
-        in_brackets.append(f"{helpers.bcolors.red}failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
-
-    current_model = get_current_model()
-
-    in_brackets.append(f"{current_model}")
-
-    this_time = time.time()
-
-    best_params_str = get_best_params_str()
-    if best_params_str:
-        in_brackets.append(best_params_str)
-
-    if is_slurm_job():
-        nr_current_workers = len(global_vars["jobs"])
-        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-
-        this_values = {
-            "nr_current_workers": nr_current_workers,
-            "num_parallel_jobs": num_parallel_jobs,
-            "percentage": percentage,
-            "time": this_time
-        }
-
-        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
-            worker_percentage_usage.append(this_values)
-
-        workers_strings = get_workers_string()
-        if workers_strings:
-            in_brackets.append(workers_strings)
-
-    #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
-
-    if args.verbose_tqdm:
-        if submitted_jobs():
-            in_brackets.append(f"total submitted: {submitted_jobs()}")
-
-        if max_eval:
-            in_brackets.append(f"max_eval: {max_eval}")
-
-    if len(new_msgs):
-        for new_msg in new_msgs:
-            if new_msg:
-                in_brackets.append(new_msg)
-
-    if len(in_brackets):
-        in_brackets_clean = []
-
-        for item in in_brackets:
-            if item:
-                in_brackets_clean.append(item)
-
-        if in_brackets_clean:
-            desc += f"{', '.join(in_brackets_clean)}"
-
-    def capitalized_string(s):
-        return s[0].upper() + s[1:] if s else ""
-    desc = capitalized_string(desc)
-
-    return desc
 
 def save_state_files():
     global global_vars
@@ -3408,16 +3979,38 @@ def execute_evaluation(_params):
 
     return trial_counter
 
-def get_current_model():
-    global ax_client
+def succeeded_jobs(nr=0):
+    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
 
-    if ax_client:
-        gs_model = ax_client.generation_strategy.model
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
 
-        if gs_model:
-            return str(gs_model.model)
+    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/succeeded_jobs', nr)
 
-    return "initializing"
+def break_run_search(_name, _max_eval, _progress_bar):
+    if succeeded_jobs() > _max_eval:
+        print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
+        return True
+
+    if _progress_bar.total < submitted_jobs():
+        print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
+        return True
+
+    if count_done_jobs() >= _max_eval:
+        print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}")
+        return True
+
+    if submitted_jobs() > _max_eval:
+        print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}")
+        return True
+
+    if abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
+        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0")
+        return True
+
+    return False
+
+
 
 def _get_next_trials():
     global global_vars
@@ -3491,18 +4084,6 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
     requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval - submitted_jobs())
 
     return requested
-
-def get_nr_of_imported_jobs():
-    nr_jobs = 0
-
-    if args.load_previous_job_data:
-        for this_path in args.load_previous_job_data:
-            nr_jobs += simulate_load_data_from_existing_run_folders(this_path)
-
-    if args.continue_previous_job:
-        nr_jobs += simulate_load_data_from_existing_run_folders([args.continue_previous_job])
-
-    return nr_jobs
 
 def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     global random_steps
@@ -3638,16 +4219,6 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     return num_new_keys
 
-def get_random_steps_from_prev_job():
-    if not args.continue_previous_job:
-        return count_sobol_steps()
-
-    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
-
-    if not os.path.exists(prev_step_file):
-        return count_sobol_steps()
-
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
 def get_number_of_steps(_max_eval):
     _random_steps = args.num_random_steps
@@ -3710,37 +4281,6 @@ def get_executor():
     if args.exclude:
         print_yellow(f"Excluding the following nodes: {args.exclude}")
 
-def append_and_read(file, nr=0):
-    try:
-        with open(file, mode='a+', encoding="utf-8") as f:
-            f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
-            anzahl_zeilen = len(f.readlines())
-
-            if nr == 1:
-                f.write('1\n')
-
-        return anzahl_zeilen
-
-    except FileNotFoundError as e:
-        original_print(f"File not found: {e}")
-    except (SignalUSR, SignalINT, SignalCONT):
-        append_and_read(file, nr)
-    except OSError as e:
-        print_red(f"OSError: {e}. This may happen on unstable file systems.")
-        sys.exit(199)
-    except Exception as e:
-        print(f"Error editing the file: {e}")
-
-    return 0
-
-def failed_jobs(nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
-
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/failed_jobs', nr)
-
 def get_steps_from_prev_job(prev_job, nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
 
@@ -3749,14 +4289,6 @@ def get_steps_from_prev_job(prev_job, nr=0):
 
     return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
 
-def succeeded_jobs(nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
-
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/succeeded_jobs', nr)
-
 def submitted_jobs(nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
 
@@ -3764,92 +4296,6 @@ def submitted_jobs(nr=0):
         os.makedirs(state_files_folder)
 
     return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs', nr)
-
-def count_done_jobs():
-    csv_file_path = save_pd_csv()
-
-    return _count_done_jobs(csv_file_path)
-
-def _count_done_jobs(csv_file_path):
-    results = 0
-
-    if not os.path.exists(csv_file_path):
-        return results
-
-    df = None
-
-    _err = False
-
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
-    except KeyError:
-        _err = True
-    except pd.errors.EmptyDataError:
-        _err = True
-    except pd.errors.ParserError as e:
-        print_red(f"Error reading CSV file 2: {str(e)}")
-        _err = True
-    except UnicodeDecodeError as e:
-        print_red(f"Error reading CSV file 3: {str(e)}")
-        _err = True
-    except Exception as e:
-        print_red(f"Error reading CSV file 4: {str(e)}")
-        _err = True
-
-    if _err:
-        return 1
-
-    assert df is not None, "DataFrame should not be None after reading CSV file"
-    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
-
-    completed_rows = df[df["trial_status"] == "COMPLETED"]
-    completed_rows_count = len(completed_rows)
-
-    return completed_rows_count
-
-def count_sobol_steps():
-    csv_file_path = save_pd_csv()
-
-    return _count_sobol_steps(csv_file_path)
-
-def _count_sobol_steps(csv_file_path):
-    sobol_count = 0
-
-    if not os.path.exists(csv_file_path):
-        return sobol_count
-
-    df = None
-
-    _err = False
-
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
-    except KeyError:
-        _err = True
-    except pd.errors.EmptyDataError:
-        _err = True
-    except pd.errors.ParserError as e:
-        print_red(f"Error reading CSV file 2: {str(e)}")
-        _err = True
-    except UnicodeDecodeError as e:
-        print_red(f"Error reading CSV file 3: {str(e)}")
-        _err = True
-    except Exception as e:
-        print_red(f"Error reading CSV file 4: {str(e)}")
-        _err = True
-
-    if _err:
-        return 0
-
-    assert df is not None, "DataFrame should not be None after reading CSV file"
-    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
-
-    sobol_rows = df[df["generation_method"] == "Sobol"]
-    sobol_count = len(sobol_rows)
-
-    return sobol_count
 
 def execute_nvidia_smi():
     if not IS_NVIDIA_SMI_SYSTEM:
@@ -3890,29 +4336,6 @@ def start_nvidia_smi_thread():
         nvidia_smi_thread.start()
         return nvidia_smi_thread
     return None
-
-def break_run_search(_name, _max_eval, _progress_bar):
-    if succeeded_jobs() > _max_eval:
-        print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
-        return True
-
-    if _progress_bar.total < submitted_jobs():
-        print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
-        return True
-
-    if count_done_jobs() >= _max_eval:
-        print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}")
-        return True
-
-    if submitted_jobs() > _max_eval:
-        print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}")
-        return True
-
-    if abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
-        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0")
-        return True
-
-    return False
 
 def run_search(_progress_bar):
     global NR_OF_0_RESULTS
@@ -3983,67 +4406,6 @@ def wait_for_jobs_to_complete(_num_parallel_jobs):
             if is_slurm_job() and not args.force_local_execution:
                 _sleep(5)
             clean_completed_jobs()
-
-def is_already_in_defective_nodes(hostname):
-    file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
-
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    if not os.path.isfile(file_path):
-        print_red(f"Error: The file {file_path} does not exist.")
-        return False
-
-    try:
-        # Datei öffnen und Zeilen durchsuchen
-        with open(file_path, mode="r", encoding="utf-8") as file:
-            for line in file:
-                # Zeilenenden entfernen und auf Übereinstimmung prüfen
-                if line.strip() == hostname:
-                    return True
-    except Exception as e:
-        print_red(f"Error reading the file {file_path}: {e}")
-        return False
-
-    # Wenn keine Übereinstimmung gefunden wurde
-    return False
-
-def count_defective_nodes(file_path=None, entry=None):
-    """
-    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
-    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
-    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
-    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
-    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
-    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
-    '{CURRENT_RUN_FOLDER}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
-    """
-    # Standardpfad für die Datei, wenn keiner angegeben ist
-    if file_path is None:
-        file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
-
-    # Sicherstellen, dass das Verzeichnis existiert
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    try:
-        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
-        with open(file_path, mode='a+', encoding="utf-8") as file:
-            file.seek(0)  # Zurück zum Anfang der Datei
-            lines = file.readlines()
-
-            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
-            entries = [line.strip() for line in lines]
-
-            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
-            if entry is not None and entry not in entries:
-                file.write(entry + '\n')
-                entries.append(entry)
-
-        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
-        return sorted(set(entries))
-
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
-        return []
 
 def human_readable_generation_strategy():
     generation_strategy_str = str(ax_client.generation_strategy)
@@ -4294,16 +4656,32 @@ def print_diff(i, o):
     if isinstance(i, str) or isinstance(o, str):
         print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
+def _is_equal(name, _input, output):
+    _equal_types = [
+        int, str, float, bool
+    ]
+    for equal_type in _equal_types:
+        if type(_input) is equal_type and type(output) and _input != output:
+            print_red(f"Failed test (1): {name}")
+            return 1
+
+    if type(_input) is not type(output):
+        print_red(f"Failed test (4): {name}")
+        return 1
+
+    if isinstance(_input, bool) and _input != output:
+        print_red(f"Failed test (6): {name}")
+        return 1
+
+    if (output is None and _input is not None) or (output is not None and _input is None):
+        print_red(f"Failed test (7): {name}")
+        return 1
+
+    print_green(f"Test OK: {name}")
+    return 0
+
 def is_equal(n, i, o):
     r = _is_equal(n, i, o)
-
-    if r:
-        print_diff(i, o)
-
-    return r
-
-def is_not_equal(n, i, o):
-    r = _is_not_equal(n, i, o)
 
     if r:
         print_diff(i, o)
@@ -4330,29 +4708,13 @@ def _is_not_equal(name, _input, output):
     print_green(f"Test OK: {name}")
     return 0
 
-def _is_equal(name, _input, output):
-    _equal_types = [
-        int, str, float, bool
-    ]
-    for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) and _input != output:
-            print_red(f"Failed test (1): {name}")
-            return 1
+def is_not_equal(n, i, o):
+    r = _is_not_equal(n, i, o)
 
-    if type(_input) is not type(output):
-        print_red(f"Failed test (4): {name}")
-        return 1
+    if r:
+        print_diff(i, o)
 
-    if isinstance(_input, bool) and _input != output:
-        print_red(f"Failed test (6): {name}")
-        return 1
-
-    if (output is None and _input is not None) or (output is not None and _input is None):
-        print_red(f"Failed test (7): {name}")
-        return 1
-
-    print_green(f"Test OK: {name}")
-    return 0
+    return r
 
 def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_yellow(f"Test suite: {_program_name}")
@@ -4533,325 +4895,6 @@ def run_tests():
         nr_errors += find_path_res
 
     my_exit(nr_errors)
-
-def get_first_line_of_file_that_contains_string(i, s):
-    if not os.path.exists(i):
-        print_debug(f"File {i} not found")
-        return ""
-
-    f = get_file_as_string(i)
-
-    lines = ""
-    get_lines_until_end = False
-
-    for line in f.split("\n"):
-        if s in line:
-            if get_lines_until_end:
-                lines += line
-            else:
-                line = line.strip()
-                if line.endswith("(") and "raise" in line:
-                    get_lines_until_end = True
-                    lines += line
-                else:
-                    return line
-    if lines != "":
-        return lines
-
-    return ""
-
-def get_python_errors():
-    synerr = "Python syntax error detected. Check log file."
-
-    return [
-        ["ModuleNotFoundError", "Module not found"],
-        ["ImportError", "Module not found"],
-        ["SyntaxError", synerr],
-        ["NameError", synerr],
-        ["ValueError", synerr],
-        ["TypeError", synerr],
-        ["AssertionError", "Assertion failed"],
-        ["AttributeError", "Attribute Error"],
-        ["EOFError", "End of file Error"],
-        ["IndexError", "Wrong index for array. Check logs"],
-        ["KeyError", "Wrong key for dict"],
-        ["KeyboardInterrupt", "Program was cancelled using CTRL C"],
-        ["MemoryError", "Python memory error detected"],
-        ["NotImplementedError", "Something was not implemented"],
-        ["OSError", "Something fundamentally went wrong in your program. Maybe the disk is full or a file was not found."],
-        ["OverflowError", "There was an error with float overflow"],
-        ["RecursionError", "Your program had a recursion error"],
-        ["ReferenceError", "There was an error with a weak reference"],
-        ["RuntimeError", "Something went wrong with your program. Try checking the log."],
-        ["IndentationError", "There is something wrong with the intendation of your python code. Check the logs and your code."],
-        ["TabError", "You used tab instead of spaces in your code"],
-        ["SystemError", "Some error SystemError was found. Check the log."],
-        ["UnicodeError", "There was an error regarding unicode texts or variables in your code"],
-        ["ZeroDivisionError", "Your program tried to divide by zero and crashed"],
-        ["error: argument", "Wrong argparse argument"],
-        ["error: unrecognized arguments", "Wrong argparse argument"],
-        ["CUDNN_STATUS_INTERNAL_ERROR", "Cuda had a problem. Try to delete ~/.nv and try again."],
-        ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
-    ]
-
-def get_exit_codes():
-    return {
-        "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
-        "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable or it was compiled for a different platform",
-        "127": "Command Not Found - Usually this is returned when the file you tried to call was not found",
-        "128": "Invalid Exit Argument - Exit status out of range",
-        "129": "Hangup - Termination by the SIGHUP signal",
-        "130": "Script Terminated by Control-C - Termination by Ctrl+C",
-        "131": "Quit - Termination by the SIGQUIT signal",
-        "132": "Illegal Instruction - Termination by the SIGILL signal",
-        "133": "Trace/Breakpoint Trap - Termination by the SIGTRAP signal",
-        "134": "Aborted - Termination by the SIGABRT signal",
-        "135": "Bus Error - Termination by the SIGBUS signal",
-        "136": "Floating Point Exception - Termination by the SIGFPE signal",
-        "137": "Out of Memory - Usually this is done by the SIGKILL signal. May mean that the job has run out of memory",
-        "138": "Killed by SIGUSR1 - Termination by the SIGUSR1 signal",
-        "139": "Segmentation Fault - Usually this is done by the SIGSEGV signal. May mean that the job had a segmentation fault",
-        "140": "Killed by SIGUSR2 - Termination by the SIGUSR2 signal",
-        "141": "Pipe Error - Termination by the SIGPIPE signal",
-        "142": "Alarm - Termination by the SIGALRM signal",
-        "143": "Terminated by SIGTERM - Termination by the SIGTERM signal",
-        "144": "Terminated by SIGSTKFLT - Termination by the SIGSTKFLT signal",
-        "145": "Terminated by SIGCHLD - Termination by the SIGCHLD signal",
-        "146": "Terminated by SIGCONT - Termination by the SIGCONT signal",
-        "147": "Terminated by SIGSTOP - Termination by the SIGSTOP signal",
-        "148": "Terminated by SIGTSTP - Termination by the SIGTSTP signal",
-        "149": "Terminated by SIGTTIN - Termination by the SIGTTIN signal",
-        "150": "Terminated by SIGTTOU - Termination by the SIGTTOU signal",
-        "151": "Terminated by SIGURG - Termination by the SIGURG signal",
-        "152": "Terminated by SIGXCPU - Termination by the SIGXCPU signal",
-        "153": "Terminated by SIGXFSZ - Termination by the SIGXFSZ signal",
-        "154": "Terminated by SIGVTALRM - Termination by the SIGVTALRM signal",
-        "155": "Terminated by SIGPROF - Termination by the SIGPROF signal",
-        "156": "Terminated by SIGWINCH - Termination by the SIGWINCH signal",
-        "157": "Terminated by SIGIO - Termination by the SIGIO signal",
-        "158": "Terminated by SIGPWR - Termination by the SIGPWR signal",
-        "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
-    }
-
-def get_base_errors():
-    base_errors = [
-        "Segmentation fault",
-        "Illegal division by zero",
-        "OOM",
-        ["Killed", "Detected kill, maybe OOM or Signal?"]
-    ]
-
-    return base_errors
-
-def get_first_line_of_file(file_paths):
-    first_line = ""
-    if len(file_paths):
-        first_file_as_string = ""
-        try:
-            first_file_as_string = get_file_as_string(file_paths[0])
-            if isinstance(first_file_as_string, str) and first_file_as_string.strip().isprintable():
-                first_line = first_file_as_string.split('\n')[0]
-        except UnicodeDecodeError:
-            pass
-
-        if first_file_as_string == "":
-            first_line = "#!/bin/bash"
-
-    return first_line
-
-def check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code):
-    errors = []
-
-    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
-        errors.append("First line does not seem to be a shebang line: " + first_line)
-
-    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
-        errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
-
-    if "Exec format error" in file_as_string:
-        current_platform = platform.machine()
-        file_output = ""
-
-        if len(file_paths):
-            file_result = execute_bash_code("file " + file_paths[0])
-            if len(file_result) and isinstance(file_result[0], str):
-                file_output = ", " + file_result[0].strip()
-
-        errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
-
-    if "/bin/sh" in file_as_string and "not found" in file_as_string:
-        errors.append("Wrong path? File not found")
-
-    if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
-        errors.append(f"File in {program_code} is empty")
-
-    if len(file_paths) == 0:
-        errors.append(f"No files could be found in your program string: {program_code}")
-
-    return errors
-
-def check_for_python_errors(i, file_as_string):
-    errors = []
-
-    for search_array in get_python_errors():
-        search_for_string = search_array[0]
-        search_for_error = search_array[1]
-
-        if search_for_string in file_as_string:
-            error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
-            if error_line:
-                errors.append(error_line)
-            else:
-                errors.append(search_for_error)
-
-    return errors
-
-def check_for_non_zero_exit_codes(file_as_string):
-    errors = []
-    for r in range(1, 255):
-        special_exit_codes = get_exit_codes()
-        search_for_exit_code = "Exit-Code: " + str(r) + ","
-        if search_for_exit_code in file_as_string:
-            _error = "Non-zero exit-code detected: " + str(r)
-            if str(r) in special_exit_codes:
-                _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
-            errors.append(_error)
-    return errors
-
-def check_for_base_errors(file_as_string):
-    errors = []
-    for err in get_base_errors():
-        if isinstance(err, list):
-            if err[0] in file_as_string:
-                errors.append(f"{err[0]} {err[1]}")
-        elif isinstance(err, str):
-            if err in file_as_string:
-                errors.append(f"{err} detected")
-        else:
-            print_red(f"Wrong type, should be list or string, is {type(err)}")
-    return errors
-
-def get_errors_from_outfile(i):
-    file_as_string = get_file_as_string(i)
-
-    program_code = get_program_code_from_out_file(i)
-    file_paths = find_file_paths(program_code)
-
-    first_line = get_first_line_of_file(file_paths)
-
-    errors = []
-
-    if "Result: None" in file_as_string:
-        errors.append("Got no result.")
-
-        new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
-        for n in new_errors:
-            errors.append(n)
-
-        new_errors = check_for_base_errors(file_as_string)
-        for n in new_errors:
-            errors.append(n)
-
-        new_errors = check_for_non_zero_exit_codes(file_as_string)
-        for n in new_errors:
-            errors.append(n)
-
-        new_errors = check_for_python_errors(i, file_as_string)
-        for n in new_errors:
-            errors.append(n)
-
-    return errors
-
-def log_nr_of_workers():
-    try:
-        write_process_info()
-    except Exception as e:
-        print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
-
-    if "jobs" not in global_vars:
-        print_debug("log_nr_of_workers: Could not find jobs in global_vars")
-        return
-
-    nr_of_workers = len(global_vars["jobs"])
-
-    if not nr_of_workers:
-        return
-
-    try:
-        with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
-            f.write(str(nr_of_workers) + "\n")
-    except FileNotFoundError:
-        print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
-        sys.exit(99)
-    except OSError as e:
-        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
-        sys.exit(199)
-
-def get_best_params(csv_file_path):
-    results = {
-        "result": None,
-        "parameters": {}
-    }
-
-    if not os.path.exists(csv_file_path):
-        return results
-
-    df = None
-
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
-    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
-        return results
-
-    cols = df.columns.tolist()
-    nparray = df.to_numpy()
-
-    best_line = None
-
-    result_idx = cols.index("result")
-
-    best_result = None
-
-    for i in range(0, len(nparray)):
-        this_line = nparray[i]
-        this_line_result = this_line[result_idx]
-
-        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
-            this_line_result = float(this_line_result)
-
-        if type(this_line_result) in [float, int]:
-            if best_result is None:
-                best_line = this_line
-                best_result = this_line_result
-            elif args.maximize and this_line_result >= best_result:
-                best_line = this_line
-                best_result = this_line_result
-            elif not args.maximize and this_line_result <= best_result:
-                best_line = this_line
-                best_result = this_line_result
-
-    if best_line is None:
-        print_debug("Could not determine best result")
-        return results
-
-    for i in range(0, len(cols)):
-        col = cols[i]
-        if col not in [
-            "start_time",
-            "end_time",
-            "hostname",
-            "signal",
-            "exit_code",
-            "run_time",
-            "program_string"
-        ]:
-            if col == "result":
-                results["result"] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
-            else:
-                results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
-
-    return results
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

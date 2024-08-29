@@ -51,14 +51,6 @@ jobs:
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir multidict
-    - name: Install torch
-      run: |
-        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install --no-cache-dir torch
-    - name: Install numpy
-      run: |
-        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install --no-cache-dir numpy
     - name: Install ax
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
@@ -67,6 +59,14 @@ jobs:
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir ax-platform
+    - name: Install torch
+      run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+        pip install --no-cache-dir torch
+    - name: Install numpy
+      run: |
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
+        pip install --no-cache-dir numpy
 
     - name: main test script
       run: |

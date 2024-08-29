@@ -54,7 +54,7 @@ jobs:
     - name: Install ax
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
-        pip install --no-cache-dir ax
+        pip install --no-cache-dir --verbose ax
     - name: Install ax-platform
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate

@@ -52,7 +52,6 @@ minimum_textbox = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-
 try:
     import pandas as pd
     from matplotlib.colors import LinearSegmentedColormap
@@ -230,6 +229,9 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
 
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
+
+    scatter = None
+
     print_debug("plot_multiple_graphs")
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
@@ -292,6 +294,21 @@ def plot_single_graph(_params):
     axs.set_ylabel("result")
 
     return scatter
+
+def get_colors(df):
+    print_debug("get_colors")
+    colors = None
+    try:
+        colors = df["result"]
+    except KeyError as e:
+        if str(e) == "'result'":
+            print("Could not find any results")
+            sys.exit(3)
+        else:
+            print(f"Key-Error: {e}")
+            sys.exit(8)
+
+    return colors
 
 def plot_graphs(params):
     print_debug("plot_graphs")
@@ -380,21 +397,6 @@ def get_df_filtered(df):
     df_filtered = df.drop(columns=columns_to_remove)
 
     return df_filtered
-
-def get_colors(df):
-    print_debug("get_colors")
-    colors = None
-    try:
-        colors = df["result"]
-    except KeyError as e:
-        if str(e) == "'result'":
-            print("Could not find any results")
-            sys.exit(3)
-        else:
-            print(f"Key-Error: {e}")
-            sys.exit(8)
-
-    return colors
 
 def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     print_debug("get_non_empty_graphs")

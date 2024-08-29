@@ -224,8 +224,12 @@
 			mkdir -p .pip_logs
 			export PIP_DISABLE_PIP_VERSION_CHECK=1
 			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> .pip_logs/install_errors || {
-				red_reset_line "❌Failed to install $MODULE. Check .pip_logs/install_errors."
-				exit 3
+				if [[ "$MODULE" == *">="* || "$MODULE" == *"<="* || "$MODULE" == *"<"* || "$MODULE" == *"=="* ]]; then
+					ppip "$MODULES_WITHOUT_VERSIONS" "$AS_REQUIREMENT_OF" "$NUMBER_OF_MAIN_MODULES"
+				else
+					red_reset_line "❌Failed to install $MODULE. Check .pip_logs/install_errors."
+					exit 3
+				fi
 			}
 
 			FROZEN=$(pip list --format=freeze)

@@ -9,11 +9,11 @@ import os
 import random
 import importlib.util
 import argparse
-from rich_argparse import RichHelpFormatter
 from pathlib import Path
 import datetime
 import inspect
 from inspect import currentframe, getframeinfo
+from rich_argparse import RichHelpFormatter
 
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
@@ -149,6 +149,20 @@ debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table o
 debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
 
 args = parser.parse_args()
+
+def my_exit(_code=0):
+    tb = traceback.format_exc()
+
+    try:
+        print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
+    except NameError:
+        print(f"Exiting with error code {_code}. Traceback: {tb}")
+
+    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
+        _sleep(5)
+
+    print("Exit-Code: " + str(_code))
+    sys.exit(_code)
 
 try:
     console = None
@@ -354,20 +368,6 @@ def _sleep(t: int):
     if not args.no_sleep:
         time.sleep(t)
 
-def my_exit(_code=0):
-    tb = traceback.format_exc()
-
-    try:
-        print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-    except NameError:
-        print(f"Exiting with error code {_code}. Traceback: {tb}")
-
-    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
-        _sleep(5)
-
-    print("Exit-Code: " + str(_code))
-    sys.exit(_code)
-
 def append_and_read(file, nr=0, recursion=0):
     try:
         with open(file, mode='a+', encoding="utf-8") as f:
@@ -383,8 +383,8 @@ def append_and_read(file, nr=0, recursion=0):
         original_print(f"File not found: {e}")
     except (SignalUSR, SignalINT, SignalCONT):
         if recursion:
-            print_red(f"Recursion error in append_and_read.")
-            sys.exit(199)           
+            print_red("Recursion error in append_and_read.")
+            sys.exit(199)
         append_and_read(file, nr, recursion + 1)
     except OSError as e:
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
@@ -4251,14 +4251,6 @@ def get_steps_from_prev_job(prev_job, nr=0):
         os.makedirs(state_files_folder)
 
     return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
-
-def submitted_jobs(nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
-
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs', nr)
 
 def execute_nvidia_smi():
     if not IS_NVIDIA_SMI_SYSTEM:

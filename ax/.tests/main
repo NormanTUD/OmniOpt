@@ -411,8 +411,6 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test orchestrator" "./.tests/orchestrator" 0
 
-	_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
-
 	_test "Test OO without needed params (none at all)" "./omniopt" 19
 
 	_test "Test OO without needed params (only --parameter)" "./omniopt --parameter" 2
@@ -496,6 +494,8 @@ if [[ $superquick -eq 0 ]]; then
 		else
 			_test "Plot-Tests --quick" "bash .tests/plots --quick" 0
 		fi
+
+		_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
 	fi
 
 	if [[ $quick -eq 0 ]]; then

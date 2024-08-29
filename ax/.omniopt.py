@@ -173,8 +173,6 @@ if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
 if args.num_parallel_jobs:
     num_parallel_jobs = args.num_parallel_jobs
 
-
-
 def _sleep(t: int):
     if not args.no_sleep:
         time.sleep(t)

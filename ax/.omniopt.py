@@ -32,6 +32,10 @@ def is_slurm_job():
         return True
     return False
 
+def _sleep(t: int):
+    if not args.no_sleep:
+        time.sleep(t)
+
 def my_exit(_code=0):
     tb = traceback.format_exc()
 
@@ -3283,10 +3287,6 @@ def get_desc_progress_text(new_msgs=[]):
     desc = capitalized_string(desc)
 
     return desc
-
-def _sleep(t: int):
-    if not args.no_sleep:
-        time.sleep(t)
 
 def save_state_files():
     global global_vars

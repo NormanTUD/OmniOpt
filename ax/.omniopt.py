@@ -341,8 +341,6 @@ def save_pd_csv():
 
     return pd_csv
 
-
-
 def count_sobol_steps():
     csv_file_path = save_pd_csv()
 
@@ -352,8 +350,6 @@ def add_to_phase_counter(phase, nr=0, run_folder=""):
     if run_folder == "":
         run_folder = CURRENT_RUN_FOLDER
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
-
-
 
 def get_random_steps_from_prev_job():
     if not args.continue_previous_job:
@@ -1116,8 +1112,6 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
-
-
 def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
 
@@ -1254,8 +1248,6 @@ def parse_choice_param(params, j, this_args, name, search_space_reduction_warnin
     j += 3
 
     return j, params, search_space_reduction_warning
-
-
 
 def parse_experiment_parameters():
     global global_vars
@@ -1587,8 +1579,6 @@ def count_defective_nodes(file_path=None, entry=None):
     except Exception as e:
         print(f"Ein Fehler ist aufgetreten: {e}")
         return []
-
-
 
 def test_gpu_before_evaluate(return_in_case_of_error):
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
@@ -2514,8 +2504,6 @@ def check_equation(variables, equation):
 
     return False
 
-
-
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -2821,8 +2809,6 @@ def state_from_job(job):
 
     return state
 
-
-
 def get_workers_string():
     string = ""
 
@@ -2933,8 +2919,6 @@ def get_desc_progress_text(new_msgs=[]):
     desc = capitalized_string(desc)
 
     return desc
-
-
 
 def progressbar_description(new_msgs=[]):
     desc = get_desc_progress_text(new_msgs)
@@ -3072,8 +3056,6 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
     return _counter
 
-
-
 def get_nr_of_imported_jobs():
     nr_jobs = 0
 
@@ -3085,7 +3067,6 @@ def get_nr_of_imported_jobs():
         nr_jobs += simulate_load_data_from_existing_run_folders([args.continue_previous_job])
 
     return nr_jobs
-
 
 def load_existing_job_data_into_ax_client():
     global NR_INSERTED_JOBS
@@ -3362,8 +3343,6 @@ def get_base_errors():
 
     return base_errors
 
-
-
 def check_for_base_errors(file_as_string):
     errors = []
     for err in get_base_errors():
@@ -3415,8 +3394,6 @@ def get_exit_codes():
         "158": "Terminated by SIGPWR - Termination by the SIGPWR signal",
         "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
     }
-
-
 
 def check_for_non_zero_exit_codes(file_as_string):
     errors = []
@@ -3490,9 +3467,6 @@ def get_first_line_of_file_that_contains_string(i, s):
 
     return ""
 
-
-
-
 def check_for_python_errors(i, file_as_string):
     errors = []
 
@@ -3508,9 +3482,6 @@ def check_for_python_errors(i, file_as_string):
                 errors.append(search_for_error)
 
     return errors
-
-
-
 
 def get_errors_from_outfile(i):
     file_as_string = get_file_as_string(i)
@@ -3542,7 +3513,6 @@ def get_errors_from_outfile(i):
             errors.append(n)
 
     return errors
-
 
 def print_outfile_analyzed(stdout_path):
     errors = get_errors_from_outfile(stdout_path)
@@ -3733,8 +3703,6 @@ def check_orchestrator(stdout_path, trial_index):
 
     return behavs
 
-
-
 def orchestrate_job(job, trial_index):
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
@@ -3785,8 +3753,6 @@ def is_already_in_defective_nodes(hostname):
 
     # Wenn keine Übereinstimmung gefunden wurde
     return False
-
-
 
 def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)
@@ -4010,8 +3976,6 @@ def break_run_search(_name, _max_eval, _progress_bar):
 
     return False
 
-
-
 def _get_next_trials():
     global global_vars
 
@@ -4218,7 +4182,6 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         pass
 
     return num_new_keys
-
 
 def get_number_of_steps(_max_eval):
     _random_steps = args.num_random_steps

@@ -33,10 +33,18 @@ jobs:
         key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-omniax-
-
-    - name: Install dependencies
+    - name: Install xterm
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xterm
+    - name: Upgrading pip
       run: |
         pip install --upgrade pip
+        
+    - name: Creating virtualenv
+      run: |
+        python3 -mvenv /home/runner/.omniax_x86_64_Python_3.10.12
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
     - name: Install torch
       run: |
         pip install torch
@@ -50,12 +58,7 @@ jobs:
       run: |
         pip install ax-platform
 
-    - name: Install xterm
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y xterm
-
-    - name: Run your script
+    - name: main test script
       run: |
         ./ax/.tests/main --num_random_steps=1 --max_eval=2 --quick
 

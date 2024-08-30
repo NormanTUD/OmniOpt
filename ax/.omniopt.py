@@ -552,7 +552,6 @@ def print_logo():
         "Inception-level optimization: going deeper with every layer.",
         "Hyperparameter quest: It's dangerous to go alone, take this!",
         "Tuning like a Jedi: Feel the force of the optimal values.",
-        "Hyperparameters: As rare as the One Ring.",
         "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
         "Like Neo, dodging suboptimal hyperparameters in slow motion.",
         "Hyperparameters: The Hitchcock thriller of machine learning.",

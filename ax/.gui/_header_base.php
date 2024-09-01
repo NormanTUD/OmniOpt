@@ -334,7 +334,7 @@
 					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
 				}
 			?>
-			<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" /></a>
+			<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" /></a>
 			<br>
 			<span style="display: inline-flex;">
 				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search"></input>

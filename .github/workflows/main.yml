@@ -48,7 +48,7 @@ jobs:
     - name: Install xterm and whiptail
       run: |
         sudo apt-get update
-        sudo apt-get install -y xterm whiptail python${{ matrix.python-version }}-dev
+        sudo apt-get install -y xterm whiptail python3-dev
 
     - name: Creating virtualenv
       run: |

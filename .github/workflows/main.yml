@@ -26,13 +26,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    - name: Cache custom directory
+    - name: omniopt-venv
       uses: actions/cache@v3
       with:
         path: /home/runner/.omniax_x86_64_Python_3.10.12
         key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-omniax-
+    - name: omniopt-test-venv
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/.omniopt_test_install_x86_64_Python_3.10.12
+        key: ${{ runner.os }}-omniax-test-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-omniax-test
     - name: Install xterm and whiptail
       run: |
         sudo apt-get update

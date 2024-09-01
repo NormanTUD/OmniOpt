@@ -11,9 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, 3.10]
 
     steps:
     - name: Checkout code
@@ -28,82 +25,67 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-
     - name: omniopt-venv
       uses: actions/cache@v3
       with:
-        path: /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}
-        key: ${{ runner.os }}-omniax-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        path: /home/runner/.omniax_x86_64_Python_3.10.12
+        key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-omniax-${{ matrix.python-version }}-
-
+          ${{ runner.os }}-omniax-
     - name: omniopt-test-venv
       uses: actions/cache@v3
       with:
-        path: /home/runner/.omniopt_test_install_x86_64_Python_${{ matrix.python-version }}
-        key: ${{ runner.os }}-omniax-test-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        path: /home/runner/.omniopt_test_install_x86_64_Python_3.10.12
+        key: ${{ runner.os }}-omniax-test-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-omniax-test-${{ matrix.python-version }}-
-
+          ${{ runner.os }}-omniax-test
     - name: Install xterm and whiptail
       run: |
         sudo apt-get update
         sudo apt-get install -y xterm whiptail python3-dev
-
     - name: Creating virtualenv
       run: |
-        python3 -m venv /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
-
+        python3 -mvenv /home/runner/.omniax_x86_64_Python_3.10.12
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
     - name: Upgrading pip
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir --upgrade pip
-
     - name: Installing setuptools
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir setuptools
-
     - name: Upgrading wheel
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir pip wheel
-
     - name: Purging pip cache
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip cache purge
-
     - name: Install multidict
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir multidict
-
     - name: Install ax
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir --verbose ax
-
     - name: Install ax-platform
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir ax-platform
-
     - name: Install torch
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir torch
-
     - name: Install numpy
       run: |
-        source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
+        source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir numpy
-
     - name: main test script
       run: |
         ./ax/.tests/main --num_random_steps=1 --max_eval=2
-
     - name: Create a new version
       if: ${{ success() }}
       run: |
@@ -112,3 +94,4 @@ jobs:
         git push origin --tags
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        

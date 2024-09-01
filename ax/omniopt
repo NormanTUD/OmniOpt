@@ -738,11 +738,11 @@ if [[ -n $new_git_hash ]]; then
 	git_hash=$new_git_hash
 fi
 
-current_version=$(git describe --tags --abbrev=0)
+current_tag=$(git describe --tags --abbrev=0)
 
 if [[ -z "$SLURM_JOB_ID" ]]; then
-	if [[ -n $current_version ]]; then
-		echo "Current git-hash: $git_hash ($current_version)"
+	if [[ -n $current_tag ]]; then
+		echo "Current git-hash: $git_hash ($current_tag)"
 	else
 		echo "Current git-hash: $git_hash"
 	fi

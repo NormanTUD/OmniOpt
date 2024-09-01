@@ -166,11 +166,11 @@ def my_exit(_code=0):
     sys.exit(_code)
 
 console = None
+ci_env = os.getenv("CI", "false").lower() == "true"
 
 try:
     from rich.console import Console
 
-    ci_env = os.getenv("CI", "false").lower() == "true"
 
     console = Console(
         force_interactive=True,
@@ -2134,6 +2134,10 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
 
 def show_sixel_graphics(_pd_csv):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+
+    if ci_env:
+        print("Not printing sixel graphics in CI")
+        return
 
     if os.path.exists(_pd_csv) and _show_sixel_graphics:
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))

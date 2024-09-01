@@ -164,15 +164,18 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
+console = None
+
 try:
-    console = None
     from rich.console import Console
 
+    ci_env = os.getenv("CI", "false").lower() == "true"
+
     console = Console(
-        force_terminal=True,
         force_interactive=True,
         soft_wrap=True,
-        color_system="256"
+        color_system="256",
+        force_terminal=not ci_env
     )
 
     if not args.tests:
@@ -1803,8 +1806,6 @@ def disable_logging():
             warnings.filterwarnings("ignore", category=_cat, module=_module)
 
 def display_failed_jobs_table():
-    _console = Console()
-
     failed_jobs_folder = f"{CURRENT_RUN_FOLDER}/failed_logs"
     header_file = os.path.join(failed_jobs_folder, "headers.csv")
     parameters_file = os.path.join(failed_jobs_folder, "parameters.csv")

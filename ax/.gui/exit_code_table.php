@@ -37,6 +37,7 @@
 				203 => "Unsupported --model.",
 				206 => "Invalid orchestrator file.",
 				210 => "Unknown orchestrator mode",
+				211 => "Git checkout failed (--checkout_to_latest_tested_version)",
 				233 => "No random steps set.",
 				243 => "Job was not found in squeue anymore, it may got cancelled before it ran."
 			]);

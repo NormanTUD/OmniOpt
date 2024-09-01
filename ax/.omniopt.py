@@ -126,6 +126,7 @@ optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive ze
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
 optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
 optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
+optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
 
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)

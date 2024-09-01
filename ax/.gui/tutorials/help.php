@@ -75,6 +75,11 @@
 			<td colspan="3">Optional</td>
 		</tr>
 		<tr>
+			<td><tt>--checkout_to_latest_tested_version</tt></td>
+			<td>Automatically checkout to latest version that was tested in the CI pipeline</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
 			<td><tt>--exclude "taurusi8009,taurusi8010"</tt></td>
 			<td>A comma seperated list of values of excluded nodes.</td>
 			<td><tt>None</tt></td>

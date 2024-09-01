@@ -1806,6 +1806,8 @@ def disable_logging():
             warnings.filterwarnings("ignore", category=_cat, module=_module)
 
 def display_failed_jobs_table():
+    _console = Console()
+
     failed_jobs_folder = f"{CURRENT_RUN_FOLDER}/failed_logs"
     header_file = os.path.join(failed_jobs_folder, "headers.csv")
     parameters_file = os.path.join(failed_jobs_folder, "parameters.csv")
@@ -1850,7 +1852,7 @@ def display_failed_jobs_table():
                 added_rows.add(row_tuple)
 
         # Print the table to the console
-        _console.print(table)
+        console.print(table)
     except Exception as e:
         print_red(f"Error: {str(e)}")
 

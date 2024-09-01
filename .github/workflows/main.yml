@@ -10,7 +10,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, centos-latest, debian-latest]
 
     steps:
     - name: Checkout code
@@ -39,10 +42,19 @@ jobs:
         key: ${{ runner.os }}-omniax-test-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-omniax-test
-    - name: Install xterm and whiptail
+    - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y xterm whiptail python3-dev
+        if [[ $RUNNER_OS == 'Linux' ]]; then
+          if grep -q '^ID=ubuntu' /etc/os-release; then
+            sudo apt-get update
+            sudo apt-get install -y xterm whiptail python3-dev
+          elif grep -q '^ID=centos' /etc/os-release; then
+            sudo yum install -y xterm whiptail python3-devel
+          elif grep -q '^ID=debian' /etc/os-release; then
+            sudo apt-get update
+            sudo apt-get install -y xterm whiptail python3-dev
+          fi
+        fi
     - name: Creating virtualenv
       run: |
         python3 -mvenv /home/runner/.omniax_x86_64_Python_3.10.12

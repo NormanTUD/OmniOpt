@@ -740,11 +740,19 @@ fi
 
 set +e
 current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
+commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
 set -e
 
 if [[ -z "$SLURM_JOB_ID" ]]; then
 	if [[ -n $current_tag ]]; then
-		echo "Current git-hash: $git_hash (version: $current_tag)"
+		if [[ -n $tag_commit_hash ]] && [[ -z $commits_since_tag ]]; then
+			echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
+		elif [[ -n $tag_commit_hash ]] && [[ -n $commits_since_tag ]]; then
+			echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
+		else
+			echo "Current git-hash: $git_hash (version: $current_tag)"
+		fi
 	else
 		echo "Current git-hash: $git_hash"
 	fi

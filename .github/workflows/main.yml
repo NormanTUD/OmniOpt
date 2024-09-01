@@ -52,7 +52,7 @@ jobs:
 
     - name: Creating virtualenv
       run: |
-        python${{ matrix.python-version }} -m venv /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}
+        python3-m venv /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}
         source /home/runner/.omniax_x86_64_Python_${{ matrix.python-version }}/bin/activate
 
     - name: Upgrading pip

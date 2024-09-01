@@ -739,6 +739,7 @@ if [[ -n $new_git_hash ]]; then
 fi
 
 set +e
+git fetch --tags 2>/dev/null >/dev/null
 current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
 tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
 commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)

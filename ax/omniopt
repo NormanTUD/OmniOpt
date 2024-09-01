@@ -738,7 +738,9 @@ if [[ -n $new_git_hash ]]; then
 	git_hash=$new_git_hash
 fi
 
-current_tag=$(git describe --tags --abbrev=0)
+set +e
+current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+set -e
 
 if [[ -z "$SLURM_JOB_ID" ]]; then
 	if [[ -n $current_tag ]]; then

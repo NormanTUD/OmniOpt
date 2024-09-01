@@ -754,6 +754,8 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 			else
 				echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
 			fi
+
+			red_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
 		else
 			echo "Current git-hash: $git_hash (version: $current_tag)"
 		fi

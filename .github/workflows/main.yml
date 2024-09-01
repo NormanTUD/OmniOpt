@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-  steps:
+    steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -25,7 +25,6 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-
     - name: omniopt-venv
       uses: actions/cache@v3
       with:
@@ -84,11 +83,9 @@ jobs:
       run: |
         source /home/runner/.omniax_x86_64_Python_3.10.12/bin/activate
         pip install --no-cache-dir numpy
-
     - name: main test script
       run: |
         ./ax/.tests/main --num_random_steps=1 --max_eval=2
-
     - name: Create a new version
       if: ${{ success() }}
       run: |
@@ -97,3 +94,4 @@ jobs:
         git push origin --tags
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        

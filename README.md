@@ -1,6 +1,10 @@
 # What is OmniOpt?
 
+# CI Status for OmniOpt2
+
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
+
+# Old OmniOpt
 
 OmniOpt is a hyperparameter minimizer tool. This means you can give it a program that accepts hyperparameters as
 parameters via the command-line, like

@@ -1852,7 +1852,7 @@ def display_failed_jobs_table():
                 added_rows.add(row_tuple)
 
         # Print the table to the console
-        console.print(table)
+        _console.print(table)
     except Exception as e:
         print_red(f"Error: {str(e)}")
 

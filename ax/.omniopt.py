@@ -3972,7 +3972,7 @@ def break_run_search(_name, _max_eval, _progress_bar):
     ]
 
     for condition_func, debug_msg in conditions:
-        if not _ret and condition_func():
+        if condition_func():
             print_debug(f"breaking {_name}: {debug_msg}")
             _ret = True
 

@@ -365,6 +365,7 @@ def print_debug(msg):
         _debug(f"{time_str}: {get_functions_stack_array()}")
     except Exception:
         pass
+
     _debug(msg)
 
 def _sleep(t: int):

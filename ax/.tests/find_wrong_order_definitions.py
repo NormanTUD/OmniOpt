@@ -163,6 +163,5 @@ tree = ast.parse(code)
 checker = UndefinedVariableChecker()
 checker.visit(tree)
 
-# Fehler ausgeben
 for error in checker.errors:
     print(error)

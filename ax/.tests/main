@@ -340,8 +340,6 @@ if [[ "$quick" -eq "0" ]]; then
 	bash .tests/example_network/install.sh
 fi
 
-_test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
-
 export DONT_INSTALL_MODULES=1
 
 if [[ -d "runs/$TESTNAME" ]]; then
@@ -403,8 +401,17 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	source $VENV_DIR/bin/activate
 fi
 
+_test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
+
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 _test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
+
+_test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
+_test "help page Documentation" "bash .tests/help_page" 0
+_test "folder structure Documentation" "bash .tests/folder_structure" 0
+_test "state_files Documentation" "bash ./.tests/state_files" 0
+_test "php_files syntax check" "bash .tests/php_files" 0
+_test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 
 if [[ $superquick -eq 0 ]]; then
 	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
@@ -516,13 +523,6 @@ if [[ $superquick -eq 0 ]]; then
 	fi
 fi
 
-_test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
-_test "help page Documentation" "bash .tests/help_page" 0
-_test "folder structure Documentation" "bash .tests/folder_structure" 0
-_test "state_files Documentation" "bash ./.tests/state_files" 0
-_test "php_files syntax check" "bash .tests/php_files" 0
-_test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
-
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No errors"
@@ -549,15 +549,15 @@ IFS=',' read -r -a headers <<< "${LOG_TIMES[0]}"
 
 declare -A max_lengths
 for header in "${headers[@]}"; do
-    max_lengths["$header"]=0
+	max_lengths["$header"]=0
 done
 
 for entry in "${LOG_TIMES[@]}"; do
-    IFS=',' read -r -a fields <<< "$entry"
-    for i in "${!fields[@]}"; do
-        header="${headers[$i]}"
-        [[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
-    done
+	IFS=',' read -r -a fields <<< "$entry"
+	for i in "${!fields[@]}"; do
+		header="${headers[$i]}"
+		[[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
+	done
 done
 
 print_table() {

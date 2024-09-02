@@ -60,7 +60,6 @@ jobs:
           brew install postgresql
           brew install xterm
           brew install newt
-          xcode-select --install
         fi
     - name: Creating virtualenv
       run: |

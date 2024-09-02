@@ -2899,11 +2899,12 @@ def get_desc_progress_text(new_msgs=[]):
 
     #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
 
-    if submitted_jobs():
-        in_brackets.append(f"total submitted: {submitted_jobs()}")
+    if args.verbose_tqdm:
+        if submitted_jobs():
+            in_brackets.append(f"total submitted: {submitted_jobs()}")
 
-        if max_eval:
-            in_brackets.append(f"max_eval: {max_eval}")
+            if max_eval:
+                in_brackets.append(f"max_eval: {max_eval}")
 
     if len(new_msgs):
         for new_msg in new_msgs:

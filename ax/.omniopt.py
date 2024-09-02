@@ -4000,7 +4000,8 @@ def break_run_search(_name, _max_eval, _progress_bar):
             print_debug(f"breaking {_name}: {debug_msg}")
             _ret = True
 
-    #show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
+    if args.verbose:
+        show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     return _ret
 

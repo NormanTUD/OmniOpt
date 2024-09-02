@@ -271,6 +271,7 @@
 		<script src="<?php print $dir_path; ?>/prism.js"></script>
 		<script src="<?php print $dir_path; ?>/search.js"></script>
 		<script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
+		<script src="<?php print $dir_path; ?>/darkmode.js"></script>
 <?php
 		if(!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 ?>
@@ -317,8 +318,8 @@
 	</head>
 	<body>
 		<div id="scads_bar">
-			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
-			<a href="index.php"><img height=73 src="<?php print $dir_path; ?>/logo.png" /></a>
+			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
+			<a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" /></a>
 			<?php
 				include("searchable_php_files.php");
 
@@ -334,7 +335,7 @@
 					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
 				}
 			?>
-			<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" /></a>
+			<a class="invert_in_dark_mode" target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" /></a>
 			<br>
 			<span style="display: inline-flex;">
 				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search"></input>

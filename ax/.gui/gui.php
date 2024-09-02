@@ -843,6 +843,7 @@
 				updateOptions(optionCell.firstChild);
 
 				newRow.classList.add('parameterRow');
+				newRow.classList.add('invert_in_dark_mode');
 				optionCell.firstChild.classList.add('optionSelect');
 				valueCell.firstChild.classList.add('valueInput');
 
@@ -884,7 +885,7 @@
 						return str.replace(/'/g, "&#039;");
 					}
 
-					left_side_content += `<a class='tooltip' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
+					left_side_content += `<a class='tooltip invert_in_dark_mode' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
 				}
 
 				var labelCell = $("<td class='left_side'>").html(left_side_content);
@@ -952,7 +953,7 @@
 				}
 
 				if (item.id !== "partition") {
-					valueCell.append($(`<div class='error_element' id="${item.id}_error"></div>`));
+					valueCell.append($(`<div class='error_element invert_in_dark_mode' id="${item.id}_error"></div>`));
 				}
 
 				if (item.info) {
@@ -971,7 +972,7 @@
 					create_table_row(table, tbody, item)
 				});
 
-				tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add Parameter</button></td><td colspan='2'></td></tr>");
+				tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter invert_in_dark_mode' id='main_add_row_button'>Add Parameter</button></td><td colspan='2'></td></tr>");
 
 				var hidden_table = $("#hidden_config_table");
 				var hidden_tbody = hidden_table.find("tbody");
@@ -1131,6 +1132,8 @@
 				input_to_time_picker("worker_timeout")
 
 				$('.tooltip').tooltipster();
+
+				apply_theme_based_on_system_preferences();
 			});
 
 			function copy_to_clipboard(text) {
@@ -1205,7 +1208,7 @@
 				<tr>
 					<td class='half_width_td'>
 						<table id="config_table" border="1">
-							<thead>
+							<thead class="invert_in_dark_mode">
 								<tr>
 									<th>Option</th>
 									<th colspan="2">Value</th>
@@ -1213,9 +1216,9 @@
 							</thead>
 							<tbody></tbody>
 						</table>
-						<button onclick='$("#hidden_config_table").toggle()' class='add_parameter' id='main_add_row_button'>Show additional parameters</button>
+						<button onclick='$("#hidden_config_table").toggle()' class='add_parameter invert_in_dark_mode' id='main_add_row_button'>Show additional parameters</button>
 						<table id="hidden_config_table" border="1" style="display: none">
-							<thead>
+							<thead class="invert_in_dark_mode">
 								<tr>
 									<th>Option</th>
 									<th colspan="2">Value</th>

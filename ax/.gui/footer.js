@@ -64,7 +64,6 @@ function generateTOC() {
 	}
 }
 
-
 $(document).ready(function() {
 	Prism.highlightAll();
 	generateTOC();

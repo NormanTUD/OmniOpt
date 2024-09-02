@@ -79,6 +79,7 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps for this test"
 	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
+        echo "  --exit_on_first_error                              Exit on first error"
         echo "  --help                                             This help"
         echo "  --run_with_coverage                                Allows to use coverage instead of python3 for coverage testing unit test coverage"
         echo "  --quick                                            Only run quick tests"
@@ -99,6 +100,7 @@ num_random_steps=$num_parallel_jobs
 superquick=0
 reallyquick=0
 quick=0
+exit_on_first_error=0
 
 args=("$@")
 k=0
@@ -191,6 +193,10 @@ while [ $k -lt ${#args[@]} ]; do
 		--help*)
 			help 1
 			;;
+		--exit_on_first_error)
+			exit_on_first_error=1
+			;;
+
 		--superquick)
 			superquick=1
 			reallyquick=1
@@ -245,6 +251,11 @@ function _test {
 	COMMAND=$2
 	WANTED_EXIT_CODE=$3
 	ALTERNATIVE_OK_EXIT_CODE=$4
+
+	if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
+		yellow_text "Skipping $NAME because of --exit_on_first_error and one test failed..."
+		return
+	fi
 
 	yellow_text "$NAME..."
 

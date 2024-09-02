@@ -340,8 +340,6 @@ if [[ "$quick" -eq "0" ]]; then
 	bash .tests/example_network/install.sh
 fi
 
-export DONT_INSTALL_MODULES=1
-
 if [[ -d "runs/$TESTNAME" ]]; then
 	yellow_text "Deleting old runs/$TESTNAME..."
 	if [[ -d runs/$TESTNAME ]]; then
@@ -402,6 +400,8 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 fi
 
 _test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
+
+export DONT_INSTALL_MODULES=1
 
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 _test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0

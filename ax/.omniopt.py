@@ -366,7 +366,7 @@ def print_debug(msg):
     except Exception:
         pass
 
-    _debug(msg)
+    _debug("\t" + msg)
 
 def _sleep(t: int):
     if not args.no_sleep:

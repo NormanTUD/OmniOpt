@@ -4109,8 +4109,8 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,
-            num_trials=_nr_trials,
-            max_parallelism=_num_parallel_jobs * 2,
+            num_trials=max_eval - min(_num_parallel_jobs, random_steps),
+            max_parallelism=_num_parallel_jobs,
             #model_kwargs={"seed": seed},
             model_gen_kwargs={'enforce_num_arms': True}
         )

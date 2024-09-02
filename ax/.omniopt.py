@@ -3965,7 +3965,7 @@ def break_run_search(_name, _max_eval, _progress_bar):
         return True
 
     if _progress_bar.total < submitted_jobs():
-        print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} <= submitted_jobs() {submitted_jobs()}")
+        print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} < submitted_jobs() {submitted_jobs()}")
         return True
 
     if count_done_jobs() >= _max_eval:

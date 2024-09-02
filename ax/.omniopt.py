@@ -4812,6 +4812,8 @@ def run_tests():
     nr_errors += is_equal("parse_parameter_type_error(None)", parse_parameter_type_error(None), None)
     nr_errors += is_equal(f"parse_parameter_type_error(example_parse_parameter_type_error)", parse_parameter_type_error(example_parse_parameter_type_error), example_parse_parameter_type_error_result)
 
+    nr_errors += is_equal("get_hostname_from_outfile(None)", get_hostname_from_outfile(None), None)
+
     nr_errors += is_equal("get_result(123)", get_result(123), None)
     nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
     nr_errors += is_equal("helpers.looks_like_float(10)", helpers.looks_like_float(10), True)

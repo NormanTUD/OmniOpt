@@ -103,8 +103,8 @@ jobs:
       if: ${{ success() }}
       run: |
         echo "Creating new version..."
-        git tag v2.0.${{ github.run_number }}
-        git push origin --tags
+        git tag v2.0.${{ github.run_number }} || true
+        git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: "marvinpinto/action-automatic-releases@latest"

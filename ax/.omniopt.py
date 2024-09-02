@@ -3961,31 +3961,33 @@ def succeeded_jobs(nr=0):
     return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/succeeded_jobs', nr)
 
 def break_run_search(_name, _max_eval, _progress_bar):
-    if succeeded_jobs() > _max_eval:
+    _ret = False
+
+    if not _ret and succeeded_jobs() > _max_eval:
         print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
-        return True
+        _ret = True
 
-    if _progress_bar.total < submitted_jobs():
+    if not _ret and _progress_bar.total < submitted_jobs():
         print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} < submitted_jobs() {submitted_jobs()}")
-        return True
+        _ret = True
 
-    if count_done_jobs() >= _max_eval:
+    if not _ret and count_done_jobs() >= _max_eval:
         print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}")
-        return True
+        _ret = True
 
-    if submitted_jobs() > _max_eval:
+    if not _ret and submitted_jobs() > _max_eval:
         print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}")
-        return True
+        _ret = True
 
-    if abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
+    if not _ret and abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
         print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0")
-        return True
+        _ret = True
 
-    if SUM_OF_VALUES_FOR_TQDM > max_eval:
+    if not _ret and SUM_OF_VALUES_FOR_TQDM > max_eval:
         print_debug(f"breaking {_name}: if SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {max_eval}")
-        return True
+        _ret = True
 
-    return False
+    return _ret
 
 def _get_next_trials():
     global global_vars

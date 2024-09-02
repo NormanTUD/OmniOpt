@@ -3981,6 +3981,10 @@ def break_run_search(_name, _max_eval, _progress_bar):
         print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0")
         return True
 
+    if SUM_OF_VALUES_FOR_TQDM > max_eval:
+        print_debug(f"breaking {_name}: if SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {max_eval}")
+        return True
+
     return False
 
 def _get_next_trials():

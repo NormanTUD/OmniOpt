@@ -4806,7 +4806,7 @@ def run_tests():
     example_parse_parameter_type_error_result = {
         "parameter_name": "xxx",
         "current_type": "int",
-        "expected_type": "float" 
+        "expected_type": "float"
     }
 
     nr_errors += is_equal("parse_parameter_type_error(None)", parse_parameter_type_error(None), None)

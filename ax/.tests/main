@@ -426,9 +426,9 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=1 --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD --follow" 203
 
-	_test "Test OO without needed params (none at all)" "./omniopt" 19
+	_test "Test OO without needed params (none at all)" "./omniopt" 19 104
 
-	_test "Test OO without needed params (only --parameter)" "./omniopt --parameter" 2
+	_test "Test OO without needed params (only --parameter)" "./omniopt --parameter" 2 104
 
 	_test "Test OO without needed params (full --parameter)" "./omniopt --parameter x range 0 1 float" 19
 

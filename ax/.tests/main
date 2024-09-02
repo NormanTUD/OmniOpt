@@ -424,7 +424,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test search space exhaustion" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=20 --num_parallel_jobs=5 --gpus=$NUM_GPUS --num_random_steps=10 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
 
-	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=1 --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD" 203
+	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=1 --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD --follow" 203
 
 	_test "Test orchestrator" "./.tests/orchestrator" 0
 

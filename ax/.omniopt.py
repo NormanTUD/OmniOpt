@@ -3102,7 +3102,7 @@ def parse_parameter_type_error(error_message):
     error_message = str(error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
-        pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected  <class '(?P<expected_type>\w+)'>."
+        pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
         match = re.search(pattern, error_message)
 
         # Asserting the match is found
@@ -4796,7 +4796,22 @@ def run_tests():
     nr_errors += is_equal("nr equal nr", 1, 1)
     nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
+    nr_errors += is_equal("helpers.convert_string_to_number('123.123')", helpers.convert_string_to_number('123.123'), 123.123)
+    nr_errors += is_equal("helpers.convert_string_to_number('1')", helpers.convert_string_to_number('1'), 1)
+    nr_errors += is_equal("helpers.convert_string_to_number('-1')", helpers.convert_string_to_number('-1'), -1)
+    nr_errors += is_equal("helpers.convert_string_to_number(None)", helpers.convert_string_to_number(None), None)
     nr_errors += is_equal("get_result(None)", get_result(None), None)
+
+    example_parse_parameter_type_error = f"Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>."
+    example_parse_parameter_type_error_result = {
+        "parameter_name": "xxx",
+        "current_type": "int",
+        "expected_type": "float" 
+    }
+
+    nr_errors += is_equal("parse_parameter_type_error(None)", parse_parameter_type_error(None), None)
+    nr_errors += is_equal(f"parse_parameter_type_error(example_parse_parameter_type_error)", parse_parameter_type_error(example_parse_parameter_type_error), example_parse_parameter_type_error_result)
+
     nr_errors += is_equal("get_result(123)", get_result(123), None)
     nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
     nr_errors += is_equal("helpers.looks_like_float(10)", helpers.looks_like_float(10), True)

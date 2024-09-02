@@ -3963,12 +3963,12 @@ def break_run_search(_name, _max_eval, _progress_bar):
     _ret = False
 
     conditions = [
-        (lambda: succeeded_jobs() >= _max_eval + 1, f"succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}"),
-        (lambda: submitted_jobs() >= _progress_bar.total + 1, f"_progress_bar.total {_progress_bar.total} < submitted_jobs() {submitted_jobs()}"),
-        (lambda: count_done_jobs() >= _max_eval, f"count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}"),
-        (lambda: submitted_jobs() >= _max_eval + 1, f"submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}"),
-        (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0"),
-        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}")
+        (lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= max_eval {_max_eval} + 1"),
+        (lambda: submitted_jobs() >= _progress_bar.total + 1, f"2. submitted_jobs() {submitted_jobs()} >= _progress_bar.total {_progress_bar.total} + 1"),
+        (lambda: count_done_jobs() >= _max_eval, f"3. count_done_jobs() {count_done_jobs()} >= max_eval {_max_eval} "),
+        (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {_max_eval} + 1"),
+        (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"),
+        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}")
     ]
 
     for condition_func, debug_msg in conditions:

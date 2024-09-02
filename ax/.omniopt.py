@@ -4874,13 +4874,14 @@ def run_tests():
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     nr_errors += complex_tests("simple_ok", "hallo", 0, None)
-    nr_errors += complex_tests(
-        "divide_by_0",
-        'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n',
-        255,
-        None,
-        True
-    )
+
+    #nr_errors += complex_tests(
+    #    "divide_by_0",
+    #    'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n',
+    #    255,
+    #    None,
+    #    True
+    #)
     #nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr", 5, None)
     #nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)

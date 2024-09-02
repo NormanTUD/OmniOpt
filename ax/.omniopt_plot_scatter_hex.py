@@ -341,6 +341,10 @@ def plot_graphs(_params):
     print_debug("plot_graphs")
     colors = get_colors(df)
 
+    if colors is None:
+        print_debug("colors is None. Cannot plot.")
+        sys.exit(3)
+
     if os.path.exists(args.run_dir + "/state_files/maximize"):
         colors = -colors  # Negate colors for maximum result
 

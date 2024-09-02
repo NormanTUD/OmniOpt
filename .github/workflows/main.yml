@@ -98,7 +98,7 @@ jobs:
         pip install --no-cache-dir numpy
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error
     - name: Create a new version
       if: ${{ success() }}
       run: |

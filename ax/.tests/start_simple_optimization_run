@@ -34,7 +34,7 @@ trap 'calltracer' ERR
 function help () {
 	echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
-	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
+	echo "  --num_parallel_jobs (INT)                          Number of max parallel workers for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
@@ -226,7 +226,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
+			--num_parallel_jobs $num_parallel_jobs \
 			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
@@ -249,7 +249,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
+			--num_parallel_jobs $num_parallel_jobs \
 			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
@@ -275,7 +275,7 @@ else
 			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
+			--num_parallel_jobs $num_parallel_jobs \
 			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
@@ -297,7 +297,7 @@ else
 			--time=$time \
 			--worker_timeout=5 \
 			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
+			--num_parallel_jobs $num_parallel_jobs \
 			--gpus=$NUM_GPUS \
 			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \

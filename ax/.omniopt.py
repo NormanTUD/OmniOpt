@@ -3962,29 +3962,19 @@ def succeeded_jobs(nr=0):
 def break_run_search(_name, _max_eval, _progress_bar):
     _ret = False
 
-    if not _ret and succeeded_jobs() > _max_eval:
-        print_debug(f"breaking {_name}: succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}")
-        _ret = True
+    conditions = [
+        (lambda: succeeded_jobs() >= _max_eval + 1, f"succeeded_jobs() {succeeded_jobs()} > max_eval {_max_eval}"),
+        (lambda: submitted_jobs() >= _progress_bar.total + 1, f"_progress_bar.total {_progress_bar.total} < submitted_jobs() {submitted_jobs()}"),
+        (lambda: count_done_jobs() >= _max_eval, f"count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}"),
+        (lambda: submitted_jobs() >= _max_eval + 1, f"submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}"),
+        (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0"),
+        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}")
+    ]
 
-    if not _ret and _progress_bar.total < submitted_jobs():
-        print_debug(f"breaking {_name}: _progress_bar.total {_progress_bar.total} < submitted_jobs() {submitted_jobs()}")
-        _ret = True
-
-    if not _ret and count_done_jobs() >= _max_eval:
-        print_debug(f"breaking {_name}: count_done_jobs() {count_done_jobs()} > max_eval {_max_eval}")
-        _ret = True
-
-    if not _ret and submitted_jobs() > _max_eval:
-        print_debug(f"breaking {_name}: submitted_jobs() {submitted_jobs()} > max_eval {_max_eval}")
-        _ret = True
-
-    if not _ret and abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS) <= 0:
-        print_debug(f"breaking {_name}: if abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS}) <= 0")
-        _ret = True
-
-    if not _ret and SUM_OF_VALUES_FOR_TQDM > max_eval:
-        print_debug(f"breaking {_name}: if SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {max_eval}")
-        _ret = True
+    for condition_func, debug_msg in conditions:
+        if not _ret and condition_func():
+            print_debug(f"breaking {_name}: {debug_msg}")
+            _ret = True
 
     return _ret
 

@@ -1010,6 +1010,8 @@ else
 	exit_code=""
 	sbatch_command=""
 
+	set +e
+
 	if [[ $gpus -ne 0 ]]; then
 		if [[ -z $account ]]; then
 			if [[ -z $reservation ]]; then
@@ -1055,6 +1057,8 @@ else
 			fi
 		fi
 	fi
+
+	set -e
 
 	started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
 

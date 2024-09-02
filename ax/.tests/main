@@ -500,7 +500,7 @@ if [[ $superquick -eq 0 ]]; then
 			rm -rf runs/$TESTNAME/
 		fi
 
-		_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0
+		_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0 87
 		#_test_nr_jobs 0 $num_random_steps $((20-$num_random_steps)) 0
 
 		_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 87

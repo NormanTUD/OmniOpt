@@ -13,7 +13,6 @@ from pathlib import Path
 import datetime
 import inspect
 from inspect import currentframe, getframeinfo
-from rich_argparse import RichHelpFormatter
 
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
@@ -68,6 +67,7 @@ class SignalCONT (Exception):
 try:
     import traceback
     import time
+    from rich_argparse import RichHelpFormatter
 except ModuleNotFoundError as ee:
     print(f"ModuleNotFoundError: {ee}")
     sys.exit(31)

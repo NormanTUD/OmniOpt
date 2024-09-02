@@ -171,7 +171,6 @@ ci_env = os.getenv("CI", "false").lower() == "true"
 try:
     from rich.console import Console
 
-
     console = Console(
         force_interactive=True,
         soft_wrap=True,

@@ -59,7 +59,7 @@ jobs:
           echo "Detected Mac"
           brew install postgresql
           brew install xterm
-          brew install whiptail
+          brew install newt
           brew install python3-dev
         fi
     - name: Creating virtualenv

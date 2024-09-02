@@ -414,6 +414,12 @@ _test "php_files syntax check" "bash .tests/php_files" 0
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 
 if [[ $superquick -eq 0 ]]; then
+	if [[ $quick -eq 0 ]]; then
+		_test "Linters" "bash .tests/linters" 0
+	else
+		_test "Linters (quick)" "bash .tests/linters --quick" 0
+	fi
+
 	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 	_test_nr_jobs 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
@@ -515,12 +521,6 @@ if [[ $superquick -eq 0 ]]; then
 		fi
 
 		#_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
-	fi
-
-	if [[ $quick -eq 0 ]]; then
-		_test "Linters" "bash .tests/linters" 0
-	else
-		_test "Linters (quick)" "bash .tests/linters --quick" 0
 	fi
 fi
 

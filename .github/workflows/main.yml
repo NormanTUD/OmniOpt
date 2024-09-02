@@ -60,7 +60,6 @@ jobs:
           brew install postgresql
           brew install xterm
           brew install newt
-          brew install python3-dev
         fi
     - name: Creating virtualenv
       run: |

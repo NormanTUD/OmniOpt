@@ -4104,7 +4104,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     # 2. Bayesian optimization step (requires data obtained from previous phase and learns
     # from all data available at the time of each new candidate generation call)
 
-    _nr_trials = -1
+    #_nr_trials = -1
 
     _steps.append(
         GenerationStep(

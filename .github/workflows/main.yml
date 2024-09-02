@@ -32,14 +32,14 @@ jobs:
     - name: omniopt-venv
       uses: actions/cache@v3
       with:
-        path: $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')
+        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
         key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-omniax-
     - name: omniopt-test-venv
       uses: actions/cache@v3
       with:
-        path: $HOME/.omniopt_test_install_x86_64_Python_$(python3 --version | sed -e 's#Python ##')
+        path: $HOME/.omniopt_test_install_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
         key: ${{ runner.os }}-omniax-test-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-omniax-test
@@ -63,48 +63,28 @@ jobs:
         fi
     - name: Creating virtualenv
       run: |
-        python3 -mvenv $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
 
         if command -v brew; then
           pip install psycopg2-binary
         fi
     - name: Upgrading pip
       run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir --upgrade pip
     - name: Installing setuptools
       run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir setuptools
     - name: Upgrading wheel
       run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir pip wheel
-    - name: Purging pip cache
-      run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-        pip cache purge
     - name: Install multidict
       run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir multidict
-    - name: Install ax
-      run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-        pip install --no-cache-dir --verbose ax
-    - name: Install ax-platform
-      run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-        pip install --no-cache-dir ax-platform
-    - name: Install torch
-      run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-        pip install --no-cache-dir torch
-    - name: Install numpy
-      run: |
-        source $HOME/.omniax_x86_64_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-        pip install --no-cache-dir numpy
     - name: main test script
       run: |
         ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error

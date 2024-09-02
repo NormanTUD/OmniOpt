@@ -1,5 +1,6 @@
 setuptools
 wheel
+multidict
 numpy<=1.26.4
 python-dateutil<=2.8.1
 ax

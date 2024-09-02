@@ -318,7 +318,7 @@
 	</head>
 	<body>
 		<div id="scads_bar">
-			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
+			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
 			<a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" /></a>
 			<?php
 				include("searchable_php_files.php");

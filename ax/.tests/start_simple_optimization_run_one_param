@@ -217,40 +217,40 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
 			--send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=$TESTNAME \
+			--partition $PARTITION \
+			--experiment_name $TESTNAME \
 			--mem_gb=5 \
-			--time=$time \
+			--time $time \
 			--worker_timeout=5 \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
+			--max_eval $max_eval \
+			--num_parallel_jobs $num_parallel_jobs \
+			--gpus $NUM_GPUS \
+			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--follow \
-			--num_random_steps=$num_random_steps \
+			--num_random_steps $num_random_steps \
 			--gridsearch \
-			--model=$model \
+			--model $model \
 			--hide_ascii_plots
 		exit_code=$?
 	else
 		./omniopt \
 			--send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=$TESTNAME \
+			--partition $PARTITION \
+			--experiment_name $TESTNAME \
 			--mem_gb=5 \
-			--time=$time \
+			--time $time \
 			--worker_timeout=5 \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--max_eval $max_eval \
+			--num_parallel_jobs $num_parallel_jobs \
+			--gpus $NUM_GPUS \
+			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter fail_or_not choice "0,1" \
 			--follow \
-			--num_random_steps=$num_random_steps \
+			--num_random_steps $num_random_steps \
 			--gridsearch \
-			--model=$model \
+			--model $model \
 			--hide_ascii_plots
 		exit_code=$?
 	fi
@@ -258,37 +258,37 @@ else
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
 			--send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=$TESTNAME \
+			--partition $PARTITION \
+			--experiment_name $TESTNAME \
 			--mem_gb=5 \
-			--time=$time \
+			--time $time \
 			--worker_timeout=5 \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
+			--max_eval $max_eval \
+			--num_parallel_jobs $num_parallel_jobs \
+			--gpus $NUM_GPUS \
+			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--follow \
-			--num_random_steps=$num_random_steps \
+			--num_random_steps $num_random_steps \
 			--hide_ascii_plots
 		exit_code=$?
 	else
 		./omniopt \
 			--send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=$TESTNAME \
+			--partition $PARTITION \
+			--experiment_name $TESTNAME \
 			--mem_gb=5 \
-			--time=$time \
+			--time $time \
 			--worker_timeout=5 \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--max_eval $max_eval \
+			--num_parallel_jobs $num_parallel_jobs \
+			--gpus $NUM_GPUS \
+			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter fail_or_not choice "0,1" \
 			--follow \
-			--num_random_steps=$num_random_steps \
-			--model=$model \
+			--num_random_steps $num_random_steps \
+			--model $model \
 			--hide_ascii_plots
 		exit_code=$?
 	fi

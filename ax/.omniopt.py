@@ -3959,6 +3959,31 @@ def succeeded_jobs(nr=0):
 
     return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/succeeded_jobs', nr)
 
+def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret):
+    table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
+
+    headers = ["Variable", "Value"]
+    table.add_column(headers[0])
+    table.add_column(headers[1])
+
+    rows = [
+        ("succeeded_jobs()", succeeded_jobs()),
+        ("submitted_jobs()", submitted_jobs()),
+        ("count_done_jobs()", count_done_jobs()),
+        ("_max_eval", _max_eval),
+        ("_progress_bar.total", _progress_bar.total),
+        ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
+        ("SUM_OF_VALUES_FOR_TQDM", SUM_OF_VALUES_FOR_TQDM),
+        ("_ret", _ret)
+    ]
+
+    for row in rows:
+        table.add_row(str(row[0]), str(row[1]))
+
+    console.print(table)
+
+
+
 def break_run_search(_name, _max_eval, _progress_bar):
     _ret = False
 
@@ -3976,32 +4001,7 @@ def break_run_search(_name, _max_eval, _progress_bar):
             print_debug(f"breaking {_name}: {debug_msg}")
             _ret = True
 
-    # Create a table with Rich's Table module
-    table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
-
-    # Define headers
-    headers = ["Variable", "Value"]
-    table.add_column(headers[0])
-    table.add_column(headers[1])
-
-    # Define rows with variable names and their current values
-    rows = [
-        ("succeeded_jobs()", succeeded_jobs()),
-        ("submitted_jobs()", submitted_jobs()),
-        ("count_done_jobs()", count_done_jobs()),
-        ("_max_eval", _max_eval),
-        ("_progress_bar.total", _progress_bar.total),
-        ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
-        ("SUM_OF_VALUES_FOR_TQDM", SUM_OF_VALUES_FOR_TQDM),
-        ("_ret", _ret)
-    ]
-
-    # Add rows to the table
-    for row in rows:
-        table.add_row(str(row[0]), str(row[1]))
-
-    # Print the table to the console
-    console.print(table)
+    show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     return _ret
 

@@ -3982,8 +3982,6 @@ def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     console.print(table)
 
-
-
 def break_run_search(_name, _max_eval, _progress_bar):
     _ret = False
 

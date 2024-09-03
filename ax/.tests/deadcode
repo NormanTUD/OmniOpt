@@ -17,7 +17,7 @@ function green_text {
 }
 
 current_python_version=$(python3 --version | sed -e 's#Python ##')
-if [[ "$current_python_version" -eq "3.8.10" ]]; then
+if [[ "$current_python_version" == "3.8.10" ]]; then
 	red_text "deadcode cannot be run with $current_python_version"
 	exit 0
 fi

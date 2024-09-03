@@ -743,6 +743,10 @@ if [[ -n $new_git_hash ]]; then
 	git_hash=$new_git_hash
 fi
 
+if [[ -n $mem_gb ]]; then
+	main_process_gb=$mem_gb
+fi
+
 set +e
 trap - ERR
 git fetch --tags 2>/dev/null >/dev/null

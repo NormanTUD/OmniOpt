@@ -399,6 +399,9 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	source $VENV_DIR/bin/activate
 fi
 
+yellow_text "Python-Version:"
+python3 --version
+
 _test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
 
 export DONT_INSTALL_MODULES=1

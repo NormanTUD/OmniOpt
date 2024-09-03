@@ -101,6 +101,7 @@ superquick=0
 reallyquick=0
 quick=0
 exit_on_first_error=0
+mem_gb=4
 
 args=("$@")
 k=0
@@ -121,6 +122,26 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			;;
+
+		--mem_gb=*)
+			mem_gb="${i#*=}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--mem_gb)
+			shift
+			k=$((k+1))
+
+			mem_gb="${args[k]}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+
 		--num_random_steps)
 			shift
 			k=$((k+1))
@@ -406,7 +427,7 @@ _test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name
 
 export DONT_INSTALL_MODULES=1
 
-_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
+_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval --mem_gb=$mem_gb" 0
 _test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
@@ -423,17 +444,17 @@ if [[ $superquick -eq 0 ]]; then
 		_test "Linters (quick)" "bash .tests/linters --quick" 0
 	fi
 
-	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
+	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
 	_test_nr_jobs 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
-	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float" 0
+	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float" 0
 	_test_nr_jobs 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
 
-	_test "--load_previous_job_data test" "./omniopt --partition=alpha --experiment_name=__main__tests__ --mem_gb=5 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps=1 --model=BOTORCH_MODULAR --auto_exclude_defective_hosts --hide_ascii_plots --load_previous_job_data runs/__main__tests__/0 --follow" 0
+	_test "--load_previous_job_data test" "./omniopt --partition=alpha --experiment_name=__main__tests__ --mem_gb=$mem_gb --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps=1 --model=BOTORCH_MODULAR --auto_exclude_defective_hosts --hide_ascii_plots --load_previous_job_data runs/__main__tests__/0 --follow" 0
 
-	_test "Test search space exhaustion" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=20 --num_parallel_jobs=5 --gpus=$NUM_GPUS --num_random_steps=10 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
+	_test "Test search space exhaustion" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=20 --num_parallel_jobs=5 --gpus=$NUM_GPUS --num_random_steps=10 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
 
-	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=1 --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD --follow" 203
+	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=$mem_gb --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD --follow" 203
 
 	_test "Test OO without needed params (none at all)" "./omniopt" 19 104
 
@@ -467,14 +488,14 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Invalid range type (missing upper limit)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 float" 181 104
 
-	_test "Invalid constraint" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=0 --num_random_steps=20 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAleCV5Ig==' --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints 'x + y > 10' --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg==" 19
+	_test "Invalid constraint" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=0 --num_random_steps=20 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAleCV5Ig==' --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints 'x + y > 10' --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg==" 19
 
-	_test "Valid constraint and seed" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=4 --num_parallel_jobs=2 --gpus=0 --num_random_steps=2 --run_program=ZWNobyAiUkVTVUxUOiAleCV5Ig== --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints x + y >= 10 --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlM0QlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg== --seed 1234 --verbose_tqdm --show_sixel_general --show_sixel_scatter --show_sixel_trial_index_result" 0
+	_test "Valid constraint and seed" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=4 --num_parallel_jobs=2 --gpus=0 --num_random_steps=2 --run_program=ZWNobyAiUkVTVUxUOiAleCV5Ig== --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints x + y >= 10 --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlM0QlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg== --seed 1234 --verbose_tqdm --show_sixel_general --show_sixel_scatter --show_sixel_trial_index_result" 0
 
 	if command -v sbatch 2>/dev/null >/dev/null; then
 		#excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')
 
-		#_test "Test search space exhaustion (sbatch, with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
+		#_test "Test search space exhaustion (sbatch, with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
 
 		true
 	else
@@ -482,16 +503,16 @@ if [[ $superquick -eq 0 ]]; then
 	fi
 
 	if [[ "$reallyquick" -eq "0" ]]; then
-		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps" 0 87
-		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
+		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0
 
-		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps" 0
+		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0
 
-		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps" 0 87
+		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 
 		if [[ "$quick" -eq "0" ]]; then
 			for model_name in $(echo "SOBOL GPEI SAASBO FULLYBAYESIAN LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do
-				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name" 0
+				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
 			done
 		fi
 
@@ -500,8 +521,8 @@ if [[ $superquick -eq 0 ]]; then
 			rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 		fi
 
-		_test "Continue non-existing job" "bash omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --mem_gb 1 --time 30 --follow --gpus $NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps --max_eval=$max_eval" 105
-		_test "Trying to run 0 random steps (should fail)" "bash omniopt --partition=$PARTITION --experiment_name=$TESTNAME --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus $NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0 --follow" 233
+		_test "Continue non-existing job" "bash omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --mem_gb $mem_gb --time 30 --follow --gpus $NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps --max_eval=$max_eval" 105
+		_test "Trying to run 0 random steps (should fail)" "bash omniopt --partition=$PARTITION --experiment_name=$TESTNAME --mem_gb=$mem_gb --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus $NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0 --follow" 233
 
 		TESTNAME="test_wronggoing_stuff"
 		yellow_text "Deleting runs/$TESTNAME/..."

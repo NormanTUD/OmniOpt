@@ -34,6 +34,7 @@ trap 'calltracer' ERR
 function help () {
 	echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
+	echo "  --mem_gb=(INT)                                     Mem in GB (0 for all)"
 	echo "  --num_parallel_jobs (INT)                          Number of max parallel workers for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
@@ -63,6 +64,7 @@ allow_failure=0
 num_random_steps=$num_parallel_jobs
 time=60
 model=BOTORCH_MODULAR
+mem_gb=4
 
 args=("$@")
 k=0
@@ -76,6 +78,25 @@ while [ $k -lt ${#args[@]} ]; do
 		--gridsearch)
 			gridsearch=1
 			shift
+			;;
+
+		--mem_gb=*)
+			mem_gb="${i#*=}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
+
+			;;
+		--mem_gb)
+			shift
+			k=$((k+1))
+
+			mem_gb="${args[k]}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
 			;;
 
 		--time=*)
@@ -221,7 +242,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
-			--mem_gb=5 \
+			--mem_gb=$mem_gb \
 			--time $time \
 			--worker_timeout=5 \
 			--max_eval $max_eval \
@@ -244,7 +265,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
-			--mem_gb=5 \
+			--mem_gb=$mem_gb \
 			--time $time \
 			--worker_timeout=5 \
 			--max_eval $max_eval \
@@ -270,7 +291,7 @@ else
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
-			--mem_gb=5 \
+			--mem_gb=$mem_gb \
 			--time $time \
 			--worker_timeout=5 \
 			--max_eval $max_eval \
@@ -292,7 +313,7 @@ else
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
-			--mem_gb=5 \
+			--mem_gb=$mem_gb \
 			--time $time \
 			--worker_timeout=5 \
 			--max_eval $max_eval \

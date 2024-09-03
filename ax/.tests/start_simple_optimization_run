@@ -214,7 +214,6 @@ fi
 PARTITION="alpha"
 TESTNAME=__main__tests__
 
-
 if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"
 	if [[ "$allow_failure" -eq "0" ]]; then

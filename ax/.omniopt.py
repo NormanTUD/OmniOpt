@@ -849,7 +849,7 @@ if not args.tests:
                 original_print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
                 my_exit(19)
 
-    if not args.mem_gb:
+    if args.mem_gb is None:
         print("--mem_gb needs to be set")
         my_exit(19)
 
@@ -875,7 +875,7 @@ if not args.tests:
         print("Missing --time parameter. Cannot continue.")
         sys.exit(19)
 
-    if not args.mem_gb:
+    if args.mem_gb is None:
         if not args.continue_previous_job:
             print("--mem_gb needs to be set")
         else:

@@ -16,6 +16,12 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
+current_python_version=$(python3 --version | sed -e 's#Python ##')
+if [[ "$current_python_version" -eq "3.8.10" ]]; then
+	red_text "deadcode cannot be run with $current_python_version"
+	exit 0
+fi
+
 _cluster=""
 
 if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then

@@ -91,6 +91,9 @@
 				echo " $current_tag";
 			}
 ?>
+			<span style="display: inline-grid;">
+				Dark-Mode? <input type="checkbox" id="darkmode" name="darkmode">
+			</span>
 			<br>
 			<span style="display: inline-flex;">
 				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search"></input>

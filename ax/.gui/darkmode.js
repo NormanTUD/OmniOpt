@@ -55,6 +55,18 @@ function apply_theme_based_on_system_preferences() {
 	}
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+	var darkModeCheckbox = document.getElementById('darkmode');
+
+	darkModeCheckbox.addEventListener('change', function() {
+		if (darkModeCheckbox.checked) {
+			enable_dark_mode();
+		} else {
+			enable_light_mode();
+		}
+	});
+});
+
 // Listen for changes to the system color scheme preferences
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
 	if(!get_cookie("theme")) {

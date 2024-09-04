@@ -269,7 +269,7 @@
 				exit(0);
 			} else {
 				if (count($empty_files)) {
-					implode(", ", $empty_files);
+					$empty_files_string = implode(", ", $empty_files);
 					echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
 				} else {
 					echo "Error sharing the job. No Files were found. \n";

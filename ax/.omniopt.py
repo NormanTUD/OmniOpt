@@ -4649,22 +4649,22 @@ def _is_equal(name, _input, output):
     for equal_type in _equal_types:
         if type(_input) is equal_type and type(output) and _input != output:
             print_red(f"Failed test (1): {name}")
-            return 1
+            return True
 
     if type(_input) is not type(output):
         print_red(f"Failed test (4): {name}")
-        return 1
+        return True
 
     if isinstance(_input, bool) and _input != output:
         print_red(f"Failed test (6): {name}")
-        return 1
+        return True
 
     if (output is None and _input is not None) or (output is not None and _input is None):
         print_red(f"Failed test (7): {name}")
-        return 1
+        return True
 
     print_green(f"Test OK: {name}")
-    return 0
+    return False
 
 def is_equal(n, i, o):
     r = _is_equal(n, i, o)
@@ -4681,18 +4681,18 @@ def _is_not_equal(name, _input, output):
     for equal_type in _equal_types:
         if isinstance(_input, equal_type) and isinstance(output, equal_type) and _input == output:
             print_red(f"Failed test (1): {name}")
-            return 1
+            return True
 
     if isinstance(_input, bool) and _input == output:
         print_red(f"Failed test (2): {name}")
-        return 1
+        return True
 
     if not (output is not None and _input is not None):
         print_red(f"Failed test (3): {name}")
-        return 1
+        return True
 
     print_green(f"Test OK: {name}")
-    return 0
+    return False
 
 def is_not_equal(n, i, o):
     r = _is_not_equal(n, i, o)

@@ -1,12 +1,14 @@
+import math
+import os
 import platform
 import re
-import os
-from importlib.metadata import version
 import sys
-from pprint import pprint
-import math
 import traceback
+from importlib.metadata import version
+from pprint import pprint
+
 import numpy as np
+
 
 def check_environment_variable(variable_name):
     try:

@@ -6,15 +6,16 @@
 # TEST_OUTPUT_MUST_CONTAIN: Got
 # TEST_OUTPUT_MUST_CONTAIN: Requested
 
+import argparse
+import importlib.util
 import os
 import signal
-import importlib.util
-import traceback
 import sys
+import traceback
 from datetime import datetime
-import argparse
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"

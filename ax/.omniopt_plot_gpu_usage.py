@@ -5,13 +5,14 @@
 # TEST_OUTPUT_MUST_CONTAIN: GPU Usage
 # TEST_OUTPUT_MUST_CONTAIN: Time
 
-import os
-import sys
-import importlib.util
-import signal
 import argparse
-import pandas as pd
+import importlib.util
+import os
+import signal
+import sys
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--run_dir', type=str, help='Directory where to search for CSV files')

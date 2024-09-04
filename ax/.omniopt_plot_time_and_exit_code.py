@@ -6,14 +6,15 @@
 # TEST_OUTPUT_MUST_CONTAIN: Result over Time
 
 import argparse
-import os
-import sys
 import importlib.util
+import os
 import signal
+import sys
 from datetime import datetime
-import seaborn as sns
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 from tzlocal import get_localzone
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)

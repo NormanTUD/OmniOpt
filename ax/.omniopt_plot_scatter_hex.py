@@ -5,14 +5,16 @@
 # TEST_OUTPUT_MUST_CONTAIN: result
 
 
-import traceback
-import os
-import importlib.util
-import sys
 import argparse
+import importlib.util
 import math
+import os
 import signal
+import sys
+import traceback
+
 from rich.pretty import pprint
+
 #from rich.traceback import install
 
 #install(show_locals=True)
@@ -53,15 +55,13 @@ fig = None
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 try:
-    import pandas as pd
-    from matplotlib.colors import LinearSegmentedColormap
+    from itertools import combinations
 
     import matplotlib
     import matplotlib.pyplot as plt
-
+    import pandas as pd
+    from matplotlib.colors import LinearSegmentedColormap
     from matplotlib.widgets import Button, TextBox
-
-    from itertools import combinations
 except ModuleNotFoundError as ee:
     print(f"Error: {ee}")
     sys.exit(244)

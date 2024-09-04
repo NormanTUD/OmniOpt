@@ -3,16 +3,16 @@
 # Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
 # Geht, aber was ist mit continued runs?
 
-import sys
-import platform
-import os
-import random
-import importlib.util
 import argparse
-from pathlib import Path
 import datetime
+import importlib.util
 import inspect
+import os
+import platform
+import random
+import sys
 from inspect import currentframe, getframeinfo
+from pathlib import Path
 
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
@@ -65,8 +65,9 @@ class SignalCONT (Exception):
     pass
 
 try:
-    import traceback
     import time
+    import traceback
+
     from rich_argparse import RichHelpFormatter
 except ModuleNotFoundError as ee:
     print(f"ModuleNotFoundError: {ee}")
@@ -184,19 +185,20 @@ try:
         with console.status("[bold green]Loading numpy...") as status:
             import numpy as np
         with console.status("[bold green]Loading ax...") as status:
-            import ax.modelbridge.generation_node
             import ax
-            from ax.service.ax_client import AxClient, ObjectiveProperties
             import ax.exceptions.core
-            from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
+            import ax.modelbridge.generation_node
+            from ax.modelbridge.generation_strategy import (GenerationStep,
+                                                            GenerationStrategy)
             from ax.modelbridge.registry import Models
-            from ax.storage.json_store.save import save_experiment
+            from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.storage.json_store.load import load_experiment
+            from ax.storage.json_store.save import save_experiment
         with console.status("[bold green]Loading botorch...") as status:
             import botorch
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
-            from submitit import LocalJob, DebugJob
+            from submitit import DebugJob, LocalJob
 except ModuleNotFoundError as ee:
     original_print(f"Base modules could not be loaded: {ee}")
     my_exit(31)

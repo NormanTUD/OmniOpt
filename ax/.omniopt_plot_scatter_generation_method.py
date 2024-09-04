@@ -2,13 +2,14 @@
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: generation_method
 
+import argparse
+import importlib.util
+import logging
 import os
 import sys
-import argparse
-import logging
-import importlib.util
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
 script_dir = os.path.dirname(os.path.realpath(__file__))

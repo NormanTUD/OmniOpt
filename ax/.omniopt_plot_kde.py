@@ -3,17 +3,18 @@
 # TEST_OUTPUT_MUST_CONTAIN: Histogram for
 # TEST_OUTPUT_MUST_CONTAIN: Count
 
-import os
-import importlib.util
-import math
-import warnings
-import sys
 import argparse
+import importlib.util
 import logging
+import math
+import os
+import sys
 import traceback
+import warnings
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 fig = None
 

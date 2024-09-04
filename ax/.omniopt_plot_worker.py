@@ -4,15 +4,15 @@
 # TEST_OUTPUT_MUST_CONTAIN: Number of Current Workers
 # TEST_OUTPUT_MUST_CONTAIN: Worker Usage Plot
 
-import os
-from datetime import timezone
-import importlib.util
-import traceback
-import sys
-from datetime import datetime
 import argparse
-import pandas as pd
+import importlib.util
+import os
+import sys
+import traceback
+from datetime import datetime, timezone
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"

@@ -4,15 +4,16 @@
 # TEST_OUTPUT_MUST_CONTAIN: Trial Index
 # TEST_OUTPUT_MUST_CONTAIN: Result
 
-import os
-import sys
-import signal
 import argparse
 import logging
+import os
+import signal
+import sys
 import traceback
+
 import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 

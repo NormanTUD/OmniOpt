@@ -767,7 +767,7 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 				echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
 			fi
 
-			if [[ "$tag_commit_hash" != "$git_hash" ]]; then
+			if [[ "$commits_since_tag" -gt 0 ]]; then
 				if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
 					yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
 					git checkout $tag_commit_hash >/dev/null || {

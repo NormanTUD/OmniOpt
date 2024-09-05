@@ -4814,7 +4814,6 @@ def run_tests():
 
     nr_errors += is_equal("nr equal nr", 1, 1)
 
-    example_parse_parameter_type_error = "Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>."
     example_parse_parameter_type_error_result = {
         "parameter_name": "xxx",
         "current_type": "int",
@@ -4828,7 +4827,7 @@ def run_tests():
         ["helpers.convert_string_to_number(None)", None],
         ["get_result(None)", None],
         ["parse_parameter_type_error(None)", None],
-        ["parse_parameter_type_error(example_parse_parameter_type_error)", example_parse_parameter_type_error_result],
+        ["parse_parameter_type_error(\"Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>.\")", example_parse_parameter_type_error_result],
         ["get_hostname_from_outfile(None)", None],
         ["get_result(123)", None],
         ["get_result('RESULT: 10')", 10.0],

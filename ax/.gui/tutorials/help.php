@@ -298,6 +298,11 @@
 			<td><tt>False</tt></td>
 		</tr>
 		<tr>
+			<td><tt>--run_tests_that_fail_on_taurus</tt></td>
+			<td>Run tests on Taurus that usually fail</td>
+			<td><tt>False</tt></td>
+		</tr>
+		<tr>
 			<td><tt>--show_worker_percentage_table_at_end</tt></td>
 			<td>Show a table of percentage of usage of max worker over time.</td>
 			<td><tt>False</tt></td>

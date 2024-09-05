@@ -149,6 +149,7 @@ debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation
 debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
 debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
 debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
+debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
 
 args = parser.parse_args()
 
@@ -4793,11 +4794,11 @@ def run_tests():
 
     nr_errors = 0
 
-    if not SYSTEM_HAS_SBATCH:
+    if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:
         nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
         nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
     else:
-        print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed")
+        print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
 
     nr_errors += is_not_equal("nr equal string", 1, "1")
 

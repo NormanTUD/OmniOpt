@@ -4803,16 +4803,19 @@ def run_tests():
     else:
         print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
 
-    nr_errors += is_not_equal("nr equal string", 1, "1")
+    not_equal = [
+        ["nr equal strings", 1, "1"],
+        ["unequal strings", "hallo", "welt"]
+    ]
+
+    for _item in not_equal:
+        _name = _item[0]
+        _should_be = _item[1]
+        _is = _item[2]
+
+        nr_errors += is_not_equal(_name, _should_be, _is)
 
     nr_errors += is_equal("nr equal nr", 1, 1)
-    nr_errors += is_not_equal("unequal strings", "hallo", "welt")
-
-    nr_errors += is_equal("helpers.convert_string_to_number('123.123')", helpers.convert_string_to_number('123.123'), 123.123)
-    nr_errors += is_equal("helpers.convert_string_to_number('1')", helpers.convert_string_to_number('1'), 1)
-    nr_errors += is_equal("helpers.convert_string_to_number('-1')", helpers.convert_string_to_number('-1'), -1)
-    nr_errors += is_equal("helpers.convert_string_to_number(None)", helpers.convert_string_to_number(None), None)
-    nr_errors += is_equal("get_result(None)", get_result(None), None)
 
     example_parse_parameter_type_error = "Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>."
     example_parse_parameter_type_error_result = {
@@ -4821,19 +4824,32 @@ def run_tests():
         "expected_type": "float"
     }
 
-    nr_errors += is_equal("parse_parameter_type_error(None)", parse_parameter_type_error(None), None)
-    nr_errors += is_equal("parse_parameter_type_error(example_parse_parameter_type_error)", parse_parameter_type_error(example_parse_parameter_type_error), example_parse_parameter_type_error_result)
+    equal = [
+        ["helpers.convert_string_to_number('123.123')", 123.123],
+        ["helpers.convert_string_to_number('1')", 1],
+        ["helpers.convert_string_to_number('-1')", -1],
+        ["helpers.convert_string_to_number(None)", None],
+        ["get_result(None)", None],
+        ["parse_parameter_type_error(None)", None],
+        ["parse_parameter_type_error(example_parse_parameter_type_error)", example_parse_parameter_type_error_result],
+        ["get_hostname_from_outfile(None)", None],
+        ["get_result(123)", None],
+        ["get_result('RESULT: 10')", 10.0],
+        ["helpers.looks_like_float(10)", True],
+        ["helpers.looks_like_float('hallo')", False],
+        ["helpers.looks_like_int('hallo')", False],
+        ["helpers.looks_like_int('1')", True],
+        ["helpers.looks_like_int(False)", False],
+        ["helpers.looks_like_int(True)", False]
+    ]
 
-    nr_errors += is_equal("get_hostname_from_outfile(None)", get_hostname_from_outfile(None), None)
+    for _item in equal:
+        _name = _item[0]
+        _should_be = _item[1]
 
-    nr_errors += is_equal("get_result(123)", get_result(123), None)
-    nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
-    nr_errors += is_equal("helpers.looks_like_float(10)", helpers.looks_like_float(10), True)
-    nr_errors += is_equal("helpers.looks_like_float('hallo')", helpers.looks_like_float('hallo'), False)
-    nr_errors += is_equal("helpers.looks_like_int('hallo')", helpers.looks_like_int('hallo'), False)
-    nr_errors += is_equal("helpers.looks_like_int('1')", helpers.looks_like_int('1'), True)
-    nr_errors += is_equal("helpers.looks_like_int(False)", helpers.looks_like_int(False), False)
-    nr_errors += is_equal("helpers.looks_like_int(True)", helpers.looks_like_int(True), False)
+        nr_errors += is_equal(_name, eval(_name), _should_be)
+
+
     nr_errors += is_equal(
         "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")",
         replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"),

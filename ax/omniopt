@@ -3,6 +3,7 @@
 checkout_to_latest_tested_version=0
 debug=0
 main_process_gb=4
+run_tests_that_fail_on_taurus=0
 
 function echoerr {
 	echo "$@" 1>&2
@@ -689,6 +690,10 @@ while [ $k -lt ${#args[@]} ]; do
 			checkout_to_latest_tested_version=1
 			;;
 
+		--run_tests_that_fail_on_taurus)
+			tests=1
+			;;
+
 		--tests)
 			tests=1
 			;;
@@ -940,13 +945,27 @@ if [[ "$help" -eq "1" ]]; then
 fi
 
 if [[ "$tests" -eq "1" ]]; then
-	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+	exit_code=0
+	if [[ $run_tests_that_fail_on_taurus -eq 0 ]]; then
+		if [[ -z $RUN_WITH_COVERAGE ]]; then
+			python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+			exit_code=$?
+		else
+			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
+			coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+			exit_code=$?
+		fi
 	else
-		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-		coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+		if [[ -z $RUN_WITH_COVERAGE ]]; then
+			python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
+			exit_code=$?
+		else
+			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
+			coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
+			exit_code=$?
+		fi
 	fi
-	exit $?
+	exit $exit_code
 fi
 
 kill_tail_when_squeue_job_empty () {

@@ -121,7 +121,7 @@
 	}
 
 	if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-		myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4
+		myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
 
 		if [[ $(uname -m) == "ppc64le" ]]; then
 			myml GCC/12.2.0 OpenBLAS/0.3.21
@@ -223,7 +223,6 @@
 			green_reset_line "${PROGRESSBAR}➤Installing $MODULE..."
 			mkdir -p .pip_logs
 			export PIP_DISABLE_PIP_VERSION_CHECK=1
-			pip install --upgrade pip 2>/dev/null >/dev/null
 			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> .pip_logs/install_errors || {
 				if [[ "$MODULE" == *">="* || "$MODULE" == *"<="* || "$MODULE" == *"<"* || "$MODULE" == *"=="* ]]; then
 					ppip "$MODULES_WITHOUT_VERSIONS" "$AS_REQUIREMENT_OF" "$NUMBER_OF_MAIN_MODULES"

@@ -4793,6 +4793,12 @@ def run_tests():
 
     nr_errors = 0
 
+    if not SYSTEM_HAS_SBATCH:
+        nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
+        nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
+    else:
+        print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed")
+
     nr_errors += is_not_equal("nr equal string", 1, "1")
 
     nr_errors += is_equal("nr equal nr", 1, 1)
@@ -4885,11 +4891,9 @@ def run_tests():
         True
     )
     nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr", 5, None)
-    #nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
     nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
     nr_errors += complex_tests("exit_code_stdout", "STDERR", 5, None, False)
     nr_errors += complex_tests("no_chmod_x", "Permission denied", 126, None, True)
-    #nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
     nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr", 5, None, True)
     nr_errors += complex_tests("module_not_found", "ModuleNotFoundError", 1, None, True)
 

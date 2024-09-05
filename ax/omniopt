@@ -691,7 +691,7 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 		--run_tests_that_fail_on_taurus)
-			tests=1
+			run_tests_that_fail_on_taurus=1
 			;;
 
 		--tests)

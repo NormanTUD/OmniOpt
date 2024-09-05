@@ -4790,9 +4790,6 @@ def test_find_paths(program_code):
 def run_tests():
     global global_vars
 
-    #print_image_to_cli(".tools/slimer.png", 300)
-    #print_image_to_cli(".tools/slimer2.png", 300)
-
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0

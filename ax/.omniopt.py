@@ -4734,6 +4734,9 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
 
     stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
+    print("stdout_stderr_exit_code_signal:")
+    print(stdout_stderr_exit_code_signal)
+
     stdout = stdout_stderr_exit_code_signal[0]
     stderr = stdout_stderr_exit_code_signal[1]
     exit_code = stdout_stderr_exit_code_signal[2]

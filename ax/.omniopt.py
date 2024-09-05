@@ -4852,7 +4852,6 @@ def run_tests():
 
         nr_errors += is_equal(_name, eval(_name), _should_be)
 
-
     nr_errors += is_equal(
         "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")",
         replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"),

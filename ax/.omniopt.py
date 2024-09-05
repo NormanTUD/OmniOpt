@@ -4840,7 +4840,13 @@ def run_tests():
         ["helpers.looks_like_int('hallo')", False],
         ["helpers.looks_like_int('1')", True],
         ["helpers.looks_like_int(False)", False],
-        ["helpers.looks_like_int(True)", False]
+        ["helpers.looks_like_int(True)", False],
+        ["_count_sobol_steps('/etc/idontexist')", 0],
+        ["_count_done_jobs('/etc/idontexist')", 0],
+        ["get_program_code_from_out_file('/etc/doesntexist')", ""],
+        ["get_type_short('RangeParameter')", "range"],
+        ["get_type_short('ChoiceParameter')", "choice"],
+        ["create_and_execute_next_runs(0, None, None, None)", 0]
     ]
 
     for _item in equal:
@@ -4868,36 +4874,6 @@ def run_tests():
             "evaluate({'x': -0.05})",
             json.dumps(evaluate({'x': -0.05})),
             json.dumps({'result': -0.05})
-    )
-
-    nr_errors += is_equal(
-        "_count_sobol_steps('/etc/idontexist')",
-        _count_sobol_steps("/etc/idontexist"),
-        0
-    )
-
-    nr_errors += is_equal(
-        "_count_done_jobs('/etc/idontexist')",
-        _count_done_jobs("/etc/idontexist"),
-        0
-    )
-
-    nr_errors += is_equal(
-        "get_program_code_from_out_file('/etc/doesntexist')",
-        get_program_code_from_out_file("/etc/doesntexist"),
-        ""
-    )
-
-    nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
-    nr_errors += is_equal(
-        "get_type_short('ChoiceParameter')",
-        get_type_short("ChoiceParameter"),
-        "choice"
-    )
-    nr_errors += is_equal(
-        "create_and_execute_next_runs(0, None, None, None)",
-        create_and_execute_next_runs(0, None, None, None),
-        0
     )
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):

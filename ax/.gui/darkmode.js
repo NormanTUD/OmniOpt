@@ -29,6 +29,8 @@ function enable_dark_mode() {
 	$('img').css('filter', 'invert(1)');
 
 	set_cookie("theme", "dark");
+
+	$("#darkmode").prop("checked", true);
 }
 
 function enable_light_mode() {
@@ -37,6 +39,8 @@ function enable_light_mode() {
 	$('img').css('filter', 'invert(0)');
 
 	set_cookie("theme", "light");
+
+	$("#darkmode").prop("checked", false);
 }
 
 function apply_theme_based_on_system_preferences() {

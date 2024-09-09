@@ -70,7 +70,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_hex</code></pre>
 <img src="imgs/scatter_hex.png" /><br>
 
-<p>Similiar to scatter plot, but here many runs are grouped into hexagonal subspaces of the parameter combinations, and the groups are coloured by their average result, and as such you can see an approximation of the function space. This allows you to quickly grasp 'good' areas of your hyperparameter space.</p>
+<p>Similar to scatter plot, but here many runs are grouped into hexagonal subspaces of the parameter combinations, and the groups are coloured by their average result, and as such you can see an approximation of the function space. This allows you to quickly grasp 'good' areas of your hyperparameter space.</p>
 
 <h4 id="scatter_hex_options"><tt>--plot_type=scatter_hex</tt> Options</h4>
 <pre><?php include("plot_helps/scatter_hex.txt"); ?></pre>
@@ -79,7 +79,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_generation_method</code></pre>
 <img src="imgs/scatter_generation_method.png" /><br>
 
-<p>This is similiar to the scatter plot, but also shows you which generation method (i.e. SOBOL, BoTorch, ...) is responsible for creating that point, and how the generation methods are scattered over each axis of the hyperparameter optimization problem. Thus, you can see how many runs have been tried and where exactly.</p>
+<p>This is similar to the scatter plot, but also shows you which generation method (i.e. SOBOL, BoTorch, ...) is responsible for creating that point, and how the generation methods are scattered over each axis of the hyperparameter optimization problem. Thus, you can see how many runs have been tried and where exactly.</p>
 
 <h4 id="scatter_generation_method_options"><tt>--plot_type=scatter_generation_method</tt> Options</h4>
 <pre><?php include("plot_helps/scatter_generation_method.txt"); ?></pre>
@@ -131,7 +131,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=cpu_ram_usage</code></pre>
 <img src="imgs/cpu_ram_usage.png" /><br>
 
-<p>Very similiar to the 2d-scatter plot, but in 3d.</p>
+<p>Very similar to the 2d-scatter plot, but in 3d.</p>
 
 <h4 id="cpu_ram_usage_options"><tt>--plot_type=cpu_ram_usage</tt> Options</h4>
 <pre><?php include("plot_helps/cpu_ram_usage.txt"); ?></pre>

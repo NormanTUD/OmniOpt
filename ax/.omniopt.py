@@ -1,8 +1,5 @@
 #!/bin/env python3
 
-# Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
-# Geht, aber was ist mit continued runs?
-
 import argparse
 import datetime
 import importlib.util
@@ -100,7 +97,7 @@ required.add_argument('--run_program', action='append', nargs='+', help='A progr
 required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
 required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 
-required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
+required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
 required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
 optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
@@ -121,7 +118,7 @@ optional.add_argument('--follow', help='Automatically follow log file of sbatch'
 optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
 optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
 optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
-optional.add_argument('--exclude', help='A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
+optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
 optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
 optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
 optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
@@ -1585,16 +1582,6 @@ def write_failed_logs(data_dict, error_description=""):
         print_red(f"Unexpected error: {e}")
 
 def count_defective_nodes(file_path=None, entry=None):
-    """
-    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
-    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
-    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
-    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
-    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
-    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
-    '{CURRENT_RUN_FOLDER}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
-    """
-    # Standardpfad für die Datei, wenn keiner angegeben ist
     if file_path is None:
         file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
 
@@ -1602,20 +1589,16 @@ def count_defective_nodes(file_path=None, entry=None):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     try:
-        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
         with open(file_path, mode='a+', encoding="utf-8") as file:
             file.seek(0)  # Zurück zum Anfang der Datei
             lines = file.readlines()
 
-            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
             entries = [line.strip() for line in lines]
 
-            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
             if entry is not None and entry not in entries:
                 file.write(entry + '\n')
                 entries.append(entry)
 
-        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
         return sorted(set(entries))
 
     except Exception as e:
@@ -1638,7 +1621,6 @@ def test_gpu_before_evaluate(return_in_case_of_error):
     return None
 
 def extract_info(data):
-    # Listen für Namen und Werte
     names = []
     values = []
 
@@ -3562,7 +3544,6 @@ def get_parameters_from_outfile(stdout_path):
                     params = line.split(":", 1)[1].strip()
                     params = json.loads(params)
                     return params
-        # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
         original_print(f"The file {stdout_path} was not found.")
@@ -3578,7 +3559,6 @@ def get_hostname_from_outfile(stdout_path):
                 if line.lower().startswith("hostname: "):
                     hostname = line.split(":", 1)[1].strip()
                     return hostname
-        # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
         original_print(f"The file {stdout_path} was not found.")
@@ -3751,17 +3731,14 @@ def is_already_in_defective_nodes(hostname):
         return False
 
     try:
-        # Datei öffnen und Zeilen durchsuchen
         with open(file_path, mode="r", encoding="utf-8") as file:
             for line in file:
-                # Zeilenenden entfernen und auf Übereinstimmung prüfen
                 if line.strip() == hostname:
                     return True
     except Exception as e:
         print_red(f"Error reading the file {file_path}: {e}")
         return False
 
-    # Wenn keine Übereinstimmung gefunden wurde
     return False
 
 def _orchestrate(stdout_path, trial_index):
@@ -4097,10 +4074,6 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
         set_max_eval(max(1, random_steps))
 
     if random_steps >= 1:
-        # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
-        # 1. Initialization step (does not require pre-existing data and is well-suited for
-        # initial sampling of the search space)
-
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,

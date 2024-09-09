@@ -20,7 +20,7 @@ IGNORE_PATTERNS = [
     r'^palegreen$', r'^darkgreen$', r'^min$', r'^max$', r'^Gridsize$', r'^Params$', r'^Min$', r'^Max$', r'^darktheme$',
     r'^TkAgg$', r'^dataset$', r'^subscriptable$', r'^csv$', r'^CSV$', r'^Timestamp$', r'^timestamp$', r'^pstate$',
     r'^Num$', r'^num$', r'^dir$', r'^botorch$', r'^venv$', r'^seaborn$', r'^psutil$', r'^numpy$', r'^matplotlib$',
-    r'^tqdm$', r'^submitit$', r'^hostname$', r'^[A-Z]{2,}$', r'^[a-z]{1,2}$'
+    r'^tqdm$', r'^submitit$', r'^hostname$', r'^[A-Z]{2,}$', r'^[a-z]{1,2}$',
 ]
 
 def is_ignored(word):
@@ -68,6 +68,7 @@ def analyze_file(filepath, progress, task_id):
     incorrect_words = []
     for i, string in enumerate(strings):
         words = string.split()
+        words = list(set(words))
         for word in words:
             if is_valid_word(word) and not is_ignored(word):
                 if spell.correction(word) != word:

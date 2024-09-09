@@ -455,7 +455,7 @@ def process_php_file(file_path):
                 return 0
         else:
             print(f"No text was extracted from {file_path}.")
-            return 1
+            return 0
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
         return 1

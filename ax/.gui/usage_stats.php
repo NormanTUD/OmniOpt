@@ -361,18 +361,17 @@ function display_statistics($stats) {
 
     $data_filepath = 'stats/usage_statistics.csv';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $params = $_POST;
-        if (validate_parameters($params)) {
-            append_to_csv($params, $data_filepath);
-        }
-    }
-    if (validate_csv($data_filepath)) {
-        $data = array_map('str_getcsv', file($data_filepath));
-        array_shift($data); // Remove header row
+	if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+		$params = $_POST;
+		if (validate_parameters($params)) {
+			append_to_csv($params, $data_filepath);
+		}
+	}
+	if (validate_csv($data_filepath)) {
+		$data = array_map('str_getcsv', file($data_filepath));
+		array_shift($data); // Remove header row
 
-        list($developer_ids, $test_ids, $regular_data) = filter_data($data);
-
+		list($developer_ids, $test_ids, $regular_data) = filter_data($data);
 ?>
 <br>
 	<div id="tabs">

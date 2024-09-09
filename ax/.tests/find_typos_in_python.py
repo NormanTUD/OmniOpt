@@ -2,10 +2,10 @@ import sys
 import ast
 import argparse
 import re
+from pprint import pprint
 from spellchecker import SpellChecker
 from rich.progress import Progress
 from rich.console import Console
-from pprint import pprint
 
 def dier(msg):
     pprint(msg)
@@ -160,14 +160,14 @@ def extract_strings_from_ast(node):
     """Extract all string literals from the AST."""
     if isinstance(node, ast.Str):
         return [node.s]
-    elif isinstance(node, ast.Constant) and isinstance(node.value, str):  # For Python 3.8+
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):  # For Python 3.8+
         return [node.value]
-    elif isinstance(node, (ast.List, ast.Tuple)):
+    if isinstance(node, (ast.List, ast.Tuple)):
         strings = []
         for element in node.elts:
             strings.extend(extract_strings_from_ast(element))
         return strings
-    elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
         return extract_strings_from_ast(node.left) + extract_strings_from_ast(node.right)
     return []
 
@@ -227,4 +227,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

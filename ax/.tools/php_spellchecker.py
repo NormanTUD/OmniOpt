@@ -7,13 +7,13 @@ import emoji
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
 IGNORED_PATTERNS = [
     r'linux',
-    r'slurm',
     r'dark-mode.',
     r'python3',
-    r'botorch',
     r'botorch-modular',
+    r'^v2\d*',
     r'omniopt2',
     r'slurm',
+    r'botorch',
     r'omniopt2',
     r'\d+',
     r'https?://\S+',

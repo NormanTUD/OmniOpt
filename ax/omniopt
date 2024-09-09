@@ -779,6 +779,11 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 						red_text "Failed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
 						exit 211
 					}
+
+					bash omniopt $*
+					exit_code=$?
+
+					exit $exit_code
 				else
 					yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
 					yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."

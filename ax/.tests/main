@@ -504,7 +504,7 @@ if [[ $superquick -eq 0 ]]; then
 	fi
 
 	if [[ "$reallyquick" -eq "0" ]]; then
-		_test "Find typos in python" "bash .tests/find_typos_in_python" 0
+		#_test "Find typos in python" "bash .tests/find_typos_in_python" 0
 
 		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0

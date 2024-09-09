@@ -1,6 +1,8 @@
-from bs4 import BeautifulSoup
+import os
 import sys
 import re
+import subprocess
+from bs4 import BeautifulSoup
 from spellchecker import SpellChecker
 import emoji
 
@@ -18,27 +20,27 @@ IGNORED_PATTERNS = [
     r'gpus',
     r'mem_gb',
     r'tutorialshelp',
-    r'homes3811141reposomnioptaxguiusage_statsphp364',
+    r'homes\d+/repos/omnioptaxgui/usage_stats.php\d*',
     r'errorexception',
     r'regex',
     r'errorno',
     r'max',
     r'min',
     r'runtime',
-    r's3811141',
+    r's\d+',
     r'hyperparameter',
-    r'dark-mode.',
+    r'dark-mode',
     r'python3',
     r'botorch-modular',
     r'^v2\d*',
     r'omniopt2',
     r'slurm',
     r'botorch',
-    r'omniopt2',
+    r'omniopt',
     r'\d+',
     r'https?://\S+',
-    r'\b[A-Z]{2,}\b',
-    r'\b[A-Za-z0-9_-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}\b'
+    r'\b[A-Z]{2,}\b',  # Abkürzungen
+    r'\b[A-Za-z0-9_-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}\b'  # E-Mails
 ]
 
 def extract_visible_text_from_html(html_content):
@@ -83,36 +85,73 @@ def check_spelling(text):
             cleaned_word_parts = clean_word(word)
             for part in cleaned_word_parts:
                 part_no_emoji = filter_emojis(part)
-                if part_no_emoji and not any(re.match(pattern, part_no_emoji) for pattern in IGNORED_PATTERNS):
+                if part_no_emoji and not any(re.fullmatch(pattern, part_no_emoji) for pattern in IGNORED_PATTERNS):
                     filtered_words.append(part_no_emoji)
 
         # Find words that are misspelled
         misspelled = spell.unknown(filtered_words)
 
-        return misspelled
+        return sorted(misspelled)  # Sort the misspelled words alphabetically
     except Exception as e:
         print(f"Error checking spelling: {e}")
         return None
 
-if __name__ == "__main__":
-    # Read HTML input from stdin (e.g., from PHP output)
-    html_content = sys.stdin.read()
+def process_php_file(file_path):
+    try:
+        # Execute the PHP file and capture the output
+        result = subprocess.run(['php', file_path], capture_output=True, text=True)
+        html_content = result.stdout
 
-    # Extract the visible text from HTML content
-    extracted_text = extract_visible_text_from_html(html_content)
+        # Extract the visible text from HTML content
+        extracted_text = extract_visible_text_from_html(html_content)
 
-    if extracted_text:
-        # Perform spell check on the extracted text
-        misspelled_words = check_spelling(extracted_text)
+        if extracted_text:
+            # Perform spell check on the extracted text
+            misspelled_words = check_spelling(extracted_text)
 
-        if misspelled_words:
-            print("Misspelled words:")
-            print(", ".join(misspelled_words))
-            sys.exit(len(misspelled_words))  # Exit with the number of misspelled words
+            if misspelled_words:
+                print(f"Misspelled words in {file_path}:")
+                print(", ".join(misspelled_words))
+                return len(misspelled_words)
+            else:
+                print(f"\nNo misspelled words found in {file_path}.")
+                return 0
         else:
-            print("\nNo misspelled words found.")
-            sys.exit(0)  # Exit with 0 if no misspellings were found
+            print(f"No text was extracted from {file_path}.")
+            return 1
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
+        return 1
+
+def process_directory(directory_path):
+    total_errors = 0
+    # Walk through the directory and process each .php file
+    for root, _, files in os.walk(directory_path):
+        for file in files:
+            if file.endswith(".php"):
+                file_path = os.path.join(root, file)
+                print(f"========================\nProcessing: {file_path}")
+                errors = process_php_file(file_path)
+                total_errors += errors
+    return total_errors
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python php_spellcheck.py <file_or_directory>")
+        sys.exit(1)
+
+    input_path = sys.argv[1]
+
+    if os.path.isfile(input_path):
+        # If it's a single file, process it directly
+        total_errors = process_php_file(input_path)
+    elif os.path.isdir(input_path):
+        # If it's a directory, process all PHP files recursively
+        total_errors = process_directory(input_path)
     else:
-        print("No text was extracted.")
-        sys.exit(1)  # Exit with 1 if no text was extracted
+        print(f"{input_path} is not a valid file or directory.")
+        sys.exit(1)
+
+    # Exit with the total number of errors found
+    sys.exit(total_errors)
 

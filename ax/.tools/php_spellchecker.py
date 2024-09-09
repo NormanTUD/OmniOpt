@@ -7,6 +7,7 @@ import emoji
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
 IGNORED_PATTERNS = [
     r'linux',
+    r'hyperparameter',
     r'dark-mode.',
     r'python3',
     r'botorch-modular',

@@ -33,3 +33,6 @@ radon
 vulture
 flake8
 cowsay
+beautifulsoup4
+pyspellchecker
+emoji

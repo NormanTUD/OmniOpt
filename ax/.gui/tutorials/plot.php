@@ -49,7 +49,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 
 <ul>
-	<li><i>Distribution of Run Time</i>: This shouws you how many jobs had which runtime. The <i>y</i>-Axis shows you the number of jobs in one specific time-bin, while the <i>x</i>-axis shows you the number of seconds that the jobs in those bins ran.</li>
+	<li><i>Distribution of Run Time</i>: This shows you how many jobs had which runtime. The <i>y</i>-Axis shows you the number of jobs in one specific time-bin, while the <i>x</i>-axis shows you the number of seconds that the jobs in those bins ran.</li>
 	<li><i>Result over Time</i>: This shows you a distribution of results and when they were started and the results attained, so you can find out how long jobs took and how well their results were. </li>
 	<li><i>Run Time Distribution by Exit Code</i>: Every job as an exit code and a run time, and this shows you a violin plot of the runtimes and exit-code distribution of a job. It may be helpful when larger jobs fail to find out how long they need until they fail.</li>
 	<li><i>Run Time by Hostname</i>: Shows a boxplot of runtime by each hostname where it ran on. Useful to detect nodes that may execute code slower than other codes or to find out which nodes larger models were scheduled to.</li>
@@ -112,7 +112,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <p>The <tt>general</tt>-plot shows you general info about your job. It consists of four subgraphs:</p>
 
 <ul>
-	<li><i>Results by Generation Method</i>: This shows the different generation methods, SOBOL meaning random step, and BoTorch being the model that is executed after the first random steps. The <i>y</i>-value is the Result. Most values are inside the blue box, little dots outside are considered outliars. Usually, you can see that the nonrandom model has far better results than the first random evaluations.</li>
+	<li><i>Results by Generation Method</i>: This shows the different generation methods, SOBOL meaning random step, and BoTorch being the model that is executed after the first random steps. The <i>y</i>-value is the Result. Most values are inside the blue box, little dots outside are considered outliers. Usually, you can see that the nonrandom model has far better results than the first random evaluations.</li>
 	<li><i>Distribution of job status</i>: How many jobs were run and in which status they were. Different status include:</li>
 	<ul>
 		<li><i>COMPLETED</i>: That means the job has completed and has a result</li>

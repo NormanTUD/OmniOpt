@@ -21,8 +21,13 @@ fi
 
 source $VENV_DIR/bin/activate
 
-python3 .tools/php_spellchecker.py .gui/
+exit_code=0
 
-exit_code=$?
+if command -v php 2>/dev/null >/dev/null; then
+	python3 .tools/php_spellchecker.py .gui/
+	exit_code=$?
+else
+	echo "Warning: PHP is not installed. Cann run php_spellchecker"
+fi
 
 exit $exit_code

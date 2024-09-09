@@ -1,0 +1,28 @@
+#!/bin/bash
+
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+	if [[ -n $MYCLUSTER_HOST ]]; then
+		_cluster="_$MYCLUSTER_HOST"
+	fi
+fi
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+ROOT_VENV_DIR=$HOME
+VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+fi
+
+source $VENV_DIR/bin/activate
+
+python3 .tools/php_spellchecker.py .gui/
+
+exit_code=$?
+
+exit $exit_code

@@ -9,6 +9,8 @@ import emoji
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
 IGNORED_PATTERNS = [
     r'^linux$',
+    r'^publically$',
+    r'^omniopt_share$',
     r'^cd$',
     r'^send_anonymized_usage_stats$',
     r'^elif$',
@@ -245,7 +247,7 @@ def process_php_file(file_path):
                 print(", ".join(misspelled_words))
                 return len(misspelled_words)
             else:
-                print(f"\nNo misspelled words found in {file_path}.")
+                print(f"No misspelled words found in {file_path}.")
                 return 0
         else:
             print(f"No text was extracted from {file_path}.")
@@ -261,7 +263,7 @@ def process_directory(directory_path):
         for file in files:
             if file.endswith(".php"):
                 file_path = os.path.join(root, file)
-                print(f"========================\nProcessing: {file_path}")
+                print(f"========================\nProcessing: {file_path}\n")
                 errors = process_php_file(file_path)
                 total_errors += errors
     return total_errors

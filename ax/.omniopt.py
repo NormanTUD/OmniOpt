@@ -469,7 +469,7 @@ def save_pd_csv():
     except SignalINT as e:
         raise SignalINT(str(e)) from e
     except Exception as e:
-        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     return pd_csv
 
@@ -717,17 +717,13 @@ def get_line_info():
 def print_image_to_cli(image_path, width):
     print("")
     try:
-        # Einlesen des Bildes um die Dimensionen zu erhalten
         image = Image.open(image_path)
         original_width, original_height = image.size
 
-        # Berechnen der proportionalen Höhe
         height = int((original_height / original_width) * width)
 
-        # Erstellen des SixelConverters mit den neuen Dimensionen
         sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
 
-        # Schreiben der Ausgabe in sys.stdout
         sixel_converter.write(sys.stdout)
         _sleep(2)
     except Exception as e:
@@ -1602,7 +1598,7 @@ def count_defective_nodes(file_path=None, entry=None):
         return sorted(set(entries))
 
     except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
+        print(f"An error has occurred: {e}")
         return []
 
 def test_gpu_before_evaluate(return_in_case_of_error):
@@ -2615,10 +2611,10 @@ def get_experiment_parameters(_params):
         try:
             ax_client.create_experiment(**experiment_args)
         except ValueError as error:
-            print_red(f"An error has occured while creating the experiment: {error}")
+            print_red(f"An error has occurred while creating the experiment: {error}")
             die_something_went_wrong_with_parameters()
         except TypeError as error:
-            print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
+            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             die_something_went_wrong_with_parameters()
 
     return ax_client, experiment_parameters, experiment_args
@@ -3132,7 +3128,7 @@ def extract_headers_and_rows(data_list):
 
         return headers, rows
     except Exception as e:
-        print(f"An error occured: {e}")
+        print(f"An error occurred: {e}")
         return None, None
 
 def get_list_import_as_string(_brackets=True, _comma=False):

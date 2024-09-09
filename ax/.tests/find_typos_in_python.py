@@ -22,6 +22,35 @@ IGNORE_PATTERNS = [
     r'^coolwarm$',
     r'^DataFrame$',
     r'^darkred$',
+    r'^dev$',
+    r'^devgabe$',
+    r'^resultscsv$',
+    r'^Ymd$',
+    r'^levelnames$',
+    r'^helperspy$',
+    r'^utf$',
+    r'^dataframe$',
+    r'^dont$',
+    r'^GPUUsage$',
+    r'^Nr$',
+    r'^temperaturegpu$',
+    r'^darkmode$',
+    r'^HexScatter$',
+    r'^sshconnection$',
+    r'^textfile$',
+    r'^RunDirs$',
+    r'^gridsize$',
+    r'^bubblesize$',
+    r'^len$',
+    r'^utilizationgpu$',
+    r'^pcielinkgencurrent$',
+    r'^pcielinkgenmax$',
+    r'^utilizationmemory$',
+    r'^HMSf$',
+    r'^memorytotal$',
+    r'^MiB$',
+    r'^memoryfree$',
+    r'^memoryused$',
     r'^php$',
     r'^Norman$',
     r'^Koch$',
@@ -154,7 +183,7 @@ def is_ignored(word):
 
 def is_valid_word(word):
     """Check if the word contains only alphanumeric characters (ignores anything with special characters)."""
-    return re.match(r'^[a-zA-Z]{3,}$', word) is not None
+    return re.match(r'^[a-zA-Z]{1,}$', word) is not None
 
 def extract_strings_from_ast(node):
     """Extract all string literals from the AST."""
@@ -170,6 +199,10 @@ def extract_strings_from_ast(node):
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
         return extract_strings_from_ast(node.left) + extract_strings_from_ast(node.right)
     return []
+
+def clean_word(word):
+    # Entfernt alle nicht-alphabetischen Zeichen und behält nur "a-zA-Z"
+    return re.sub(r'[^a-zA-Z_]', '', word)
 
 def analyze_file(filepath, progress, task_id):
     """Analyze a Python file and check the spelling of string literals."""
@@ -187,19 +220,24 @@ def analyze_file(filepath, progress, task_id):
     progress.update(task_id, total=len(strings))
 
     # Process the strings
-    incorrect_words = []
+    possibly_incorrect_words = []
     strings = list(set(strings))
     for i, string in enumerate(strings):
         words = string.split()
         for word in words:
-            if is_valid_word(word) and not is_ignored(word):
-                if spell.correction(word) != word:
-                    incorrect_words.append(word)
-
+            word = clean_word(word)
+            if is_valid_word(word):
+                if not is_ignored(word):
+                    if spell.correction(word) != word:
+                        possibly_incorrect_words.append(word)
+            #    else:
+            #        print(f"Ignored word: {word}")
+            #else:
+            #    print(f"Invalid word: {word}")
         # Update the progress bar as each string is processed
         progress.advance(task_id)
 
-    return incorrect_words
+    return possibly_incorrect_words
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze Python scripts and check the spelling of string literals.')
@@ -216,10 +254,10 @@ def main():
             task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
 
             # Analyze the file and show real-time progress
-            incorrect_words = analyze_file(filepath, progress, task_id)
-            if incorrect_words:
+            possibly_incorrect_words = analyze_file(filepath, progress, task_id)
+            if possibly_incorrect_words:
                 typo_files += 1
-                console.print(f"[red]Unknown or misspelled words in {filepath}: {incorrect_words}")
+                console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")
 
     sys.exit(typo_files)
 

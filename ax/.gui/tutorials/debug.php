@@ -12,7 +12,7 @@ the run. OmniOpt2 will tell you many things when it detects errors there.</p>
 
 <p>If you don't find anything useful in the <tt>.stdout</tt>-file, look into the 
 <tt>runs/my_experiment/0/single_runs/</tt>-folder. It contains the outputs of each
-worker in seperate directories. It looks something like this:</p>
+worker in separate directories. It looks something like this:</p>
 
 <pre>
 submitit INFO (2024-07-08 17:34:57,444) - Starting with JobEnvironment(job_id=2387026, hostname=thinkpad44020211128, local_rank=0(1), node=0(1), global_rank=0(1))

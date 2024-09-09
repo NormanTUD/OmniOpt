@@ -7,14 +7,14 @@
 
 <h2 id="what_are_exit_codes">What are exit-codes?</h2>
 
-<p>Each program on Linux, after it runs, returns a value to the operating system to tell if it has succeeded and if not, what error may have occured.</p>
+<p>Each program on Linux, after it runs, returns a value to the operating system to tell if it has succeeded and if not, what error may have occurred.</p>
 
 <p>0 means 'everything was fine', every other value (possible is 1-255) mean 'something went wrong' and you can assign errors or groups of errors
 to one exit code. This is what OmniOpt2 extensively does, to make scripting it easier.</p>
 
 <h2 id="exit_code_groups">Exit code groups in OmniOpt</h2>
 
-<p>Depending on the error, if any, occured, OmniOpt2 ends with the following exit codes:</p>
+<p>Depending on the error, if any, occurred, OmniOpt2 ends with the following exit codes:</p>
 
 <?php
 	$GLOBALS["HIDE_SUBZERO"] = true; 

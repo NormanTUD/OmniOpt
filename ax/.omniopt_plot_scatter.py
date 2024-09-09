@@ -321,7 +321,7 @@ def plot_graphs(params):
         sys.exit(3)
 
     if os.path.exists(args.run_dir + "/maximize"):
-        colors = -colors  # Negate colors for maximum result
+        colors = -1*colors  # Negate colors for maximum result
 
     norm = None
     try:

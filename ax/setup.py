@@ -26,7 +26,7 @@ overlay_warning = False
 if "install" in sys.argv:
     lib_paths = [get_python_lib()]
     if lib_paths[0].startswith("/usr/lib/"):
-        print("You need to be in a virtuel environment or something similiar to install this package")
+        print("You need to be in a virtual environment or something similar to install this package")
     for lib_path in lib_paths:
         existing_path = os.path.abspath(os.path.join(lib_path, "omniopt2"))
         if os.path.exists(existing_path):

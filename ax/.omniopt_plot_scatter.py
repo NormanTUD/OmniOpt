@@ -456,7 +456,7 @@ def use_matplotlib():
         if not args.save_to_file:
             matplotlib.use('TkAgg')
     except Exception:
-        print("An error occured while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
+        print("An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
         sys.exit(33)
 
 def main():

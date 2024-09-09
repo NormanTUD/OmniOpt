@@ -9,6 +9,13 @@ import emoji
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
 IGNORED_PATTERNS = [
     r'linux',
+    r'stderr',
+    r'stdout',
+    r'orchestratoryaml',
+    r'assertionerror',
+    r'2019b',
+    r'add_argument',
+    r'args',
     r'checkout_to_latest_tested_version',
     r'test_wronggoing_stuff',
     r'squeue',

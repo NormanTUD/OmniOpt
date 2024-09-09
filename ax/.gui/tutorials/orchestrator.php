@@ -38,7 +38,7 @@ errors:
 <p>This configuration file does the following. When a job ends, and in the output the string...</p>
 
 <ul>
-	<li>... <tt>AssertionError: ``AmpOptimizerWrapper`` is onlny available</tt> appears, it will exclude that node from all future executions inside the current and all continued jobs from it</li>
+	<li>... <tt>AssertionError: ``AmpOptimizerWrapper`` is only available</tt> appears, it will exclude that node from all future executions inside the current and all continued jobs from it</li>
 	<li>... <tt>Timeout</tt> appears, it will exclude that node from all future executions inside the current and all continued jobs from it, and restart the job on the list of nodes on that partition excluding the one that ran this timeout job</li>
 	<li>... <tt>StartAgain</tt> appears, it will restart that job (may end up on the same node)</li>
 	<li>... <tt>Read/Write failure</tt> appears, it will exclude the node the job started on and restart it on a different node</li>

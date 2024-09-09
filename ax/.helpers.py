@@ -228,6 +228,7 @@ def print_color(color, text):
         print(text)
 
 def check_python_version():
+    # python3 version
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.12.3", "3.12.4", "3.12.5", "3.12.6"]
     if python_version not in supported_versions:

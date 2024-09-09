@@ -26,7 +26,7 @@
 ?>
 	<p><i>OmniOpt2</i> allows you to easily optimize complex hyperparameter configurations. It is based on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.dev">BoTorch</a></p>
 
-	<p>You can run <i>OmniOpt2</i> on any linux that has <tt>python3</tt> and some basic neccessities. If something is missing that cannot be installed, it will tell you how to install it.</p>
+	<p>You can run <i>OmniOpt2</i> on any linux that has <tt>python3</tt> and some basic necessities. If something is missing that cannot be installed, it will tell you how to install it.</p>
 
 	<p>If the system you run it on has Slurm installed, it will use it to parallelize as you set the settings. If you run it locally without slurm, they will simply run sequentially.</p>
 

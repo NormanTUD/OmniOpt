@@ -220,8 +220,6 @@ def main():
             if incorrect_words:
                 typo_files += 1
                 console.print(f"[red]Unknown or misspelled words in {filepath}: {incorrect_words}")
-            else:
-                console.print(f"[green]No misspelled words found in {filepath}")
 
     sys.exit(typo_files)
 

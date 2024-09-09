@@ -63,11 +63,11 @@ learning_rate = float(sys.argv[2])
 model_name = sys.argv[3]
 
 if epochs <= 0:
-print("Error: Number of epochs must be positive")
-sys.exit(1)
+	print("Error: Number of epochs must be positive")
+	sys.exit(1)
 if not 0 < learning_rate < 1:
-print("Error: Learning rate must be between 0 and 1")
-sys.exit(2)
+	print("Error: Learning rate must be between 0 and 1")
+	sys.exit(2)
 print(f"Running with epochs={epochs}, learning_rate={learning_rate}, model_name={model_name}")
 
 # Your code here
@@ -98,11 +98,11 @@ parser.add_argument("model_name", type=str, help="Name of the model")
 args = parser.parse_args()
 
 if args.epochs <= 0:
-print("Error: Number of epochs must be positive")
-sys.exit(1)
+	print("Error: Number of epochs must be positive")
+	sys.exit(1)
 if not 0 < args.learning_rate < 1:
-print("Error: Learning rate must be between 0 and 1")
-sys.exit(2)
+	print("Error: Learning rate must be between 0 and 1")
+	sys.exit(2)
 
 print(f"Running with epochs={args.epochs}, learning_rate={args.learning_rate}, model_name={args.model_name}")
 

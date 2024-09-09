@@ -186,8 +186,7 @@ try:
             import ax
             import ax.exceptions.core
             import ax.modelbridge.generation_node
-            from ax.modelbridge.generation_strategy import (GenerationStep,
-                                                            GenerationStrategy)
+            from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
             from ax.modelbridge.registry import Models
             from ax.service.ax_client import AxClient, ObjectiveProperties
             from ax.storage.json_store.load import load_experiment

@@ -11,7 +11,6 @@ def dier(msg):
     pprint(msg)
     sys.exit(10)
 
-
 # Initialize spellchecker with English dictionary
 spell = SpellChecker(language='en')
 
@@ -50,7 +49,7 @@ def extract_strings_from_ast(node):
         return extract_strings_from_ast(node.left) + extract_strings_from_ast(node.right)
     return []
 
-def analyze_file(filepath):
+def analyze_file(filepath, progress, task_id):
     """Analyze a Python file and check the spelling of string literals."""
     with open(filepath, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -62,14 +61,20 @@ def analyze_file(filepath):
     for node in ast.walk(tree):
         strings.extend(extract_strings_from_ast(node))
 
+    # Update the total number of string literals in the progress bar
+    progress.update(task_id, total=len(strings))
+
     # Process the strings
     incorrect_words = []
-    for string in strings:
+    for i, string in enumerate(strings):
         words = string.split()
         for word in words:
             if is_valid_word(word) and not is_ignored(word):
                 if spell.correction(word) != word:
                     incorrect_words.append(word)
+
+        # Update the progress bar as each string is processed
+        progress.advance(task_id)
 
     return incorrect_words
 
@@ -82,19 +87,18 @@ def main():
     typo_files = 0
 
     # Progress bar setup with Rich
-    with Progress(console=console, transient=True) as progress:
-        task = progress.add_task("[green]Analyzing files...", total=len(args.files))
-
-        # Process each file
+    with Progress(console=console, transient=True, auto_refresh=True) as progress:
         for filepath in args.files:
-            progress.update(task, description=f"[cyan]Analyzing {filepath}")
-            incorrect_words = analyze_file(filepath)
+            # Each progress bar disappears once 100% complete
+            task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
+
+            # Analyze the file and show real-time progress
+            incorrect_words = analyze_file(filepath, progress, task_id)
             if incorrect_words:
                 typo_files += 1
                 console.print(f"[red]Unknown or misspelled words in {filepath}: {incorrect_words}")
             else:
                 console.print(f"[green]No misspelled words found in {filepath}.")
-            progress.advance(task)
 
     sys.exit(typo_files)
 

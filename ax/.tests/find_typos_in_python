@@ -1,0 +1,37 @@
+#!/bin/bash
+
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+	if [[ -n $MYCLUSTER_HOST ]]; then
+		_cluster="_$MYCLUSTER_HOST"
+	fi
+fi
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+ROOT_VENV_DIR=$HOME
+VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+fi
+
+source $VENV_DIR/bin/activate
+
+exit_code=0
+
+if command -v python3 2>/dev/null >/dev/null; then
+	python3 .tests/find_typos_in_python.py .*.py
+	exit_code=$?
+else
+	echo "Warning: PHP is not installed. Cann run php_spellchecker"
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+exit $exit_code

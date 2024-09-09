@@ -436,6 +436,7 @@ _test "folder structure Documentation" "bash .tests/folder_structure" 0
 _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
 _test "Find typos in gui" "bash .tests/find_typos_in_gui .gui" 0
+_test "Find typos in python" "bash .tests/find_typos_in_python" 0
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 
 if [[ $superquick -eq 0 ]]; then

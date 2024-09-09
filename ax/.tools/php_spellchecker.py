@@ -40,6 +40,10 @@ IGNORED_PATTERNS = [
     r'^plot_typetime_and_exit_code$',
     r'^plot_typeget_next_trials$',
     r'^hostname$',
+    r'^excludenodeandrestartall$',
+    r'^match_strings$',
+    r'^gui$',
+    r'^csv$',
     r'^exclude_params$',
     r'^cpu$',
     r'^darkmode$',
@@ -134,7 +138,7 @@ def check_spelling(text):
             cleaned_word_parts = clean_word(word)
             for part in cleaned_word_parts:
                 part_no_emoji = filter_emojis(part)
-                if part_no_emoji and not any(re.fullmatch(pattern, part_no_emoji) for pattern in IGNORED_PATTERNS):
+                if part_no_emoji and not any(re.fullmatch(pattern, part_no_emoji, flags=re.IGNORECASE) for pattern in IGNORED_PATTERNS):
                     filtered_words.append(part_no_emoji)
 
         # Find words that are misspelled

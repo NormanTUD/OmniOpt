@@ -36,7 +36,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <h3 id="trial_index_result">Plot trial index/result</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=trial_index_result</code></pre>
 <img src="imgs/trial_index_result.png" /><br>
-<p>The trial-index is a continous number that, for each run that is completed, is increased. Using it as <i>x</i>-axis allows you to trace how the results developed over time. Usually, the result should go down (at minimization runs) over time, though it may spike out a bit.</p>
+<p>The trial-index is a continuous number that, for each run that is completed, is increased. Using it as <i>x</i>-axis allows you to trace how the results developed over time. Usually, the result should go down (at minimization runs) over time, though it may spike out a bit.</p>
 
 <h4 id="trial_index_result_options"><tt>--plot_type=trial_index_result</tt> Options</h4>
 <pre><?php include("plot_helps/trial_index_result.txt"); ?></pre>

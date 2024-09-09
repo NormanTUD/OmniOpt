@@ -24,7 +24,7 @@
 <p>Possible options:</p>
 
 <table>
-	<tr>
+	<tr class="invert_in_dark_mode">
 		<th>Option</th>
 		<th>Meaning</th>
 	</tr>

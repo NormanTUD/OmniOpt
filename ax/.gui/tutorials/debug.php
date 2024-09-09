@@ -55,7 +55,7 @@ this output for errors. Here, you'd see Slurm Errors for your job.</p>
 
 <table>
 	<thead>
-		<tr>
+		<tr class="invert_in_dark_mode">
 			<th>Exit Code</th>
 			<th>Description</th>
 		</tr>

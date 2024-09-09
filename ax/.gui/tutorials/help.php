@@ -9,14 +9,14 @@
 
 	<table>
 	<thead>
-		<tr>
-		<th>Parameter</th>
-		<th>Description</th>
-		<th>Default Value</th>
+		<tr class="invert_in_dark_mode">
+			<th>Parameter</th>
+			<th>Description</th>
+			<th>Default Value</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr class="section-header">
+		<tr class="section-header invert_in_dark_mode">
 			<td colspan="3">Required Arguments</td>
 		</tr>
 		<tr>
@@ -54,7 +54,7 @@
 			<td>Amount of RAM for each worker in GB.</td>
 			<td><tt>1</tt></td>
 		</tr>
-		<tr class="section-header">
+		<tr class="section-header invert_in_dark_mode">
 			<td colspan="3">Required Arguments That Allow A Choice</td>
 		</tr>
 		<tr>
@@ -71,7 +71,7 @@
 			<td>Continue from a previous checkpoint, use run-dir as argument.</td>
 			<td>-</td>
 		</tr>
-		<tr class="section-header">
+		<tr class="section-header invert_in_dark_mode">
 			<td colspan="3">Optional</td>
 		</tr>
 		<tr>
@@ -201,7 +201,7 @@
 			<td>An orchestrator file.</td>
 			<td><tt>None</tt></td>
 		</tr>
-		<tr class="section-header">
+		<tr class="section-header invert_in_dark_mode">
 			<td colspan="3">Slurm</td>
 		</tr>
 		<tr>
@@ -265,7 +265,7 @@
 			<td><tt>1</tt></td>
 		</tr>
 		<tr>
-			<tr class="section-header">
+			<tr class="section-header invert_in_dark_mode">
 			<td colspan="3">Installing</td>
 		</tr>
 		<tr>
@@ -274,7 +274,7 @@
 			<td><tt>local</tt></td>
 		</tr>
 		<tr>
-			<tr class="section-header">
+			<tr class="section-header invert_in_dark_mode">
 			<td colspan="3">Debug</td>
 		</tr>
 		<tr>

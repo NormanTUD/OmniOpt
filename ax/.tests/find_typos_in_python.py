@@ -3,9 +3,11 @@ import ast
 import argparse
 import re
 from spellchecker import SpellChecker
+from rich.progress import Progress
+from rich.console import Console
 from pprint import pprint
 
-def dier (msg):
+def dier(msg):
     pprint(msg)
     sys.exit(10)
 
@@ -13,46 +15,13 @@ def dier (msg):
 # Initialize spellchecker with English dictionary
 spell = SpellChecker(language='en')
 
-# Regex patterns to ignore specific cases (you can modify these if needed)
+# Regex patterns to ignore specific cases
 IGNORE_PATTERNS = [
-    r'^\d+$',
-    r'^runtime$',
-    r'^Hostname$',
-    r'^coolwarm$',
-    r'^DataFrame$',
-    r'^darkred$',
-    r'^lightcoral$',
-    r'^palegreen$',
-    r'^darkgreen$',
-    r'^min$',
-    r'^max$',
-    r'^Gridsize$',
-    r'^Params$',
-    r'^Min$',
-    r'^Max$',
-    r'^darktheme$',
-    r'^TkAgg$',
-    r'^dataset$',
-    r'^subscriptable$',
-    r'^csv$',
-    r'^CSV$',
-    r'^Timestamp$',
-    r'^timestamp$',
-    r'^pstate$',
-    r'^Num$',
-    r'^num$',
-    r'^dir$',
-    r'^botorch$',
-    r'^venv$',
-    r'^seaborn$',
-    r'^psutil$',
-    r'^numpy$',
-    r'^matplotlib$',
-    r'^tqdm$',
-    r'^submitit$',
-    r'^hostname$',
-    r'^[A-Z]{2,}$',
-    r'^[a-z]{1,2}$'
+    r'^\d+$', r'^runtime$', r'^Hostname$', r'^coolwarm$', r'^DataFrame$', r'^darkred$', r'^lightcoral$',
+    r'^palegreen$', r'^darkgreen$', r'^min$', r'^max$', r'^Gridsize$', r'^Params$', r'^Min$', r'^Max$', r'^darktheme$',
+    r'^TkAgg$', r'^dataset$', r'^subscriptable$', r'^csv$', r'^CSV$', r'^Timestamp$', r'^timestamp$', r'^pstate$',
+    r'^Num$', r'^num$', r'^dir$', r'^botorch$', r'^venv$', r'^seaborn$', r'^psutil$', r'^numpy$', r'^matplotlib$',
+    r'^tqdm$', r'^submitit$', r'^hostname$', r'^[A-Z]{2,}$', r'^[a-z]{1,2}$'
 ]
 
 def is_ignored(word):
@@ -78,7 +47,6 @@ def extract_strings_from_ast(node):
             strings.extend(extract_strings_from_ast(element))
         return strings
     elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
-        # For concatenated strings like "Hello " + "World"
         return extract_strings_from_ast(node.left) + extract_strings_from_ast(node.right)
     return []
 
@@ -97,12 +65,9 @@ def analyze_file(filepath):
     # Process the strings
     incorrect_words = []
     for string in strings:
-        # Split the string by spaces
         words = string.split()
         for word in words:
-            # Only consider words that contain alphanumeric characters and match the regex
             if is_valid_word(word) and not is_ignored(word):
-                # Check the spelling
                 if spell.correction(word) != word:
                     incorrect_words.append(word)
 
@@ -113,14 +78,25 @@ def main():
     parser.add_argument('files', metavar='FILE', nargs='+', help='The Python files to analyze.')
     args = parser.parse_args()
 
-    # Process each file
-    for filepath in args.files:
-        print(f'Analyzing file: {filepath}')
-        incorrect_words = analyze_file(filepath)
-        if incorrect_words:
-            print(f'Unknown or misspelled words in {filepath}: {incorrect_words}')
-        else:
-            print(f'No misspelled words found in {filepath}.')
+    console = Console()
+    typo_files = 0
+
+    # Progress bar setup with Rich
+    with Progress(console=console, transient=True) as progress:
+        task = progress.add_task("[green]Analyzing files...", total=len(args.files))
+
+        # Process each file
+        for filepath in args.files:
+            progress.update(task, description=f"[cyan]Analyzing {filepath}")
+            incorrect_words = analyze_file(filepath)
+            if incorrect_words:
+                typo_files += 1
+                console.print(f"[red]Unknown or misspelled words in {filepath}: {incorrect_words}")
+            else:
+                console.print(f"[green]No misspelled words found in {filepath}.")
+            progress.advance(task)
+
+    sys.exit(typo_files)
 
 if __name__ == '__main__':
     main()

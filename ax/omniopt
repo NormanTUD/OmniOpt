@@ -267,7 +267,7 @@ slurmlogpath () {
 function calltracer {
 	LINE_AND_FUNCTION="$(caller)"
 	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
-		red_text "Error occured in file/line: $LINE_AND_FUNCTION"
+		red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
 	fi
 
 	echo ""

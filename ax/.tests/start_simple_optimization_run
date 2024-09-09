@@ -24,7 +24,7 @@ function calltracer () {
 	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
 		yellow_text "Git status hash:"
 		git rev-parse HEAD
-		red_text 'Error occured in file/line:'
+		red_text 'Error occurred in file/line:'
 		caller
 	fi
 }

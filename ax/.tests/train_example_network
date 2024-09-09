@@ -38,7 +38,7 @@ set -o pipefail
 function calltracer () {
 	yellow_text "Git status hash:"
 	git rev-parse HEAD
-        red_text 'Error occured in file/line:'
+        red_text 'Error occurred in file/line:'
         caller
 }
 

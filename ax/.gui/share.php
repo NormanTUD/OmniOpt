@@ -90,18 +90,15 @@
 			exit(1);
 		}
 
-		// Überprüfen, ob der aktuelle Benutzer Schreibrechte hat
-		// Hier muss die Logik eingefügt werden, um den aktuellen Benutzer und seine Berechtigungen zu überprüfen
-		// Beispiel: $currentUserId = getCurrentUserId(); // Funktion zur Ermittlung der Benutzer-ID
-		// Beispiel: $currentUserGroup = getCurrentUserGroup(); // Funktion zur Ermittlung der Gruppenzugehörigkeit
+		$currentUserId = getCurrentUserId(); // Funktion zur Ermittlung der Benutzer-ID
+		$currentUserGroup = getCurrentUserGroup(); // Funktion zur Ermittlung der Gruppenzugehörigkeit
 
 		// Annahme: $currentUserId und $currentUserGroup sind die aktuellen Werte des Benutzers
 		// Annahme: Die Berechtigungen werden entsprechend geprüft, ob der Benutzer Schreibrechte hat
 
-		// Beispiel für Berechtigungsüberprüfung
-		// if (!hasWritePermission($path, $currentUserId, $currentUserGroup)) {
-		//     exit("Benutzer hat keine Schreibrechte für diesen Ordner.");
-		// }
+		if (!hasWritePermission($path, $currentUserId, $currentUserGroup)) {
+			dier("Benutzer hat keine Schreibrechte für diesen Ordner.");
+		}
 	}
 
 	// Funktion zum Löschen alter Ordner

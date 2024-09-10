@@ -7,7 +7,7 @@
 
 <h2 id="what_are_automated_tests">What are automated tests?</h2>
 
-<p>A large part of the source code of OmniOpt2 is to make sure that everything works as expected. This code executes real test cases and looks at the results to check if they are as expected. Many things in OmniOpt2 get tested automatically to see if they work properly. All test related files are in the folder <tt>.tests</tt>.</p>
+<p>A large part of the source code of OmniOpt2 is to make sure that everything works as expected. This code executes real test cases and looks at the results to check if they are as expected. Many things in OmniOpt2 get tested automatically to see if they work properly. All test related files are in the folder <samp>.tests</samp>.</p>
 
 <h2 id="why_run_these">Why would I want to run those?</h2>
 
@@ -29,27 +29,27 @@
 		<th>Meaning</th>
 	</tr>
 	<tr>
-		<td><tt>--max_eval=(INT)</tt></td>
+		<td><samp>--max_eval=(INT)</samp></td>
 		<td>How many evaluations should be tried for each test (the lower, the faster)</td>
 	</tr>
 	<tr>
-		<td><tt>--num_random_steps=(INT)</tt></td>
+		<td><samp>--num_random_steps=(INT)</samp></td>
 		<td>Number of random steps that should be tried (the lower, the faster)</td>
 	</tr>
 	<tr>
-		<td><tt>--num_parallel_jobs=(INT)</tt></td>
+		<td><samp>--num_parallel_jobs=(INT)</samp></td>
 		<td>How many parallel jobs should be started (ignored on non-sbatch-systems)</td>
 	</tr>
 	<tr>
-		<td><tt>--gpus=(INT)</tt></td>
+		<td><samp>--gpus=(INT)</samp></td>
 		<td>How many GPUs you want for each worker/need to allocate an sbatch job</td>
 	</tr>
 	<tr>
-		<td><tt>--quick</tt></td>
+		<td><samp>--quick</samp></td>
 		<td>Only runs quick tests (faster)</td>
 	</tr>
 	<tr>
-		<td><tt>--reallyquick</tt></td>
+		<td><samp>--reallyquick</samp></td>
 		<td>Only runs really quick tests (fastest)</td>
 	</tr>
 </table>
@@ -59,7 +59,7 @@
 <p>When this succeeds without any errors, you can be reasonably sure that OmniOpt2 will properly do the following things under normal circumstances:</p>
 
 <ul>
-	<li>Run a simple run (one random step and 2 steps in total, so both model, <tt>SOBOL</tt> and <tt>BOTORCH_MODULAR</tt> get tested)</li>
+	<li>Run a simple run (one random step and 2 steps in total, so both model, <samp>SOBOL</samp> and <samp>BOTORCH_MODULAR</samp> get tested)</li>
 	<li>Continue a run</li>
 	<li>Continue an already continued run</li>
 	<li>Test the of the number of results for all these jobs</li>

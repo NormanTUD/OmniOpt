@@ -109,7 +109,7 @@
 				{ label: "Send anonymized usage statistics?", id: "send_anonymized_usage_stats", type: "checkbox", value: 1, "help": "This contains the time the job was started and ended, it's exit code, and runtime-uuid to count the number of unique runs and a 'user-id', which is a hashed output of /etc/machine-id and some other values, but cannot be traced back to any specific user." },
 				{ label: "Automatically checkout to latest checked version", id: "checkout_to_latest_tested_version", type: "checkbox", value: 1, "help": "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs." },
 				//{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 0, "info": "May not be supported on all terminals.", "help": "This will use the module sixel to try to print your the results to the command line. If this doesn't work for you, please disable it. It has no effect on the results of OmniOpt2." },
-				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.php">this tutorial</a> to learn about the <code>run.sh</code>-file', "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
+				{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg invert_in_dark_mode">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="run_sh.php">this tutorial</a> to learn about the <code>run.sh</code>-file', "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
 			];
 
 			var hiddenTableData = [
@@ -1233,12 +1233,12 @@
 
 							<p class="no_linebreak">Run this to install OmniOpt2 and run this command. First time installation may take up to 30 minutes.</p>
 
-							<div class="dark_code_bg">
+							<div class="dark_code_bg invert_in_dark_mode">
 								<code id="curl_command_highlighted"></code>
 								<code style="display: none" id="curl_command"></code>
 							</div>
-							<div id="copytoclipboard_curl"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
-							<div id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
+							<div class="invert_in_dark_mode" id="copytoclipboard_curl"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
+							<div class="invert_in_dark_mode" id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
 
 							<br>
 							<br>
@@ -1247,12 +1247,12 @@
 
 							<p class="no_linebreak">Run this when you already have OmniOpt2 installed.</p>
 
-							<div class="dark_code_bg">
+							<div class="dark_code_bg invert_in_dark_mode">
 								<code id="command_element_highlighted"></code>
 								<code style="display: none" id="command_element"></code>
 							</div>
-							<div id="copytoclipboard_main"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
-							<div id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
+							<div class="invert_in_dark_mode" id="copytoclipboard_main"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
+							<div class="invert_in_dark_mode" id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
 						</div>
 						<div id="warnings" style="display: none"></div>
 					</td>

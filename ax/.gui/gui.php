@@ -688,7 +688,6 @@
 
 					if(warn_msg.length) {
 						$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show();
-						log("warn_msg:", warn_msg);
 						//set_row_background_color_red_color($($(".parameterRow")[i]));
 					} else {
 						$($(".parameterError")[i]).html("").hide();
@@ -860,7 +859,7 @@
 
 				newRow.classList.add('parameterRow');
 				optionCell.firstChild.classList.add('optionSelect');
-				valueCell.firstChild.classList.add('valueInput');
+				//valueCell.firstChild.classList.add('valueInput');
 
 				update_command();
 			}

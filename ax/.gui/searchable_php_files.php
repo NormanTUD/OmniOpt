@@ -1,7 +1,7 @@
 <?php
 	include_once("_functions.php");
 
-	$files = array(
+	$GLOBALS["files"] = array(
 		"tutorials" => array(
 			"name" => "Tutorials and Help",
 			"entries" => array(

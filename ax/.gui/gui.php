@@ -136,10 +136,10 @@
 						<ul>
 							<li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
 							<li>SOBOL: Random search</li>
-							<li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: ???</li>
+							<li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: Uses Expected Improvement based on a Gaussian Process model to choose the next evaluation point.</li>
 							<li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
 							<li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
-							<li>FULLYBAYESIAN: ???</li>
+							<li>FULLYBAYESIAN: Considers the full uncertainty of the Bayesian model in the optimization process</li>
 							<!--<li>LEGACY_BOTORCH: ???</li>-->
 							<li>UNIFORM: Random (uniformly distributed)</li>
 							<li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>

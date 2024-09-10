@@ -26,6 +26,8 @@ function get_cookie(name) {
 }
 
 function enable_dark_mode() {
+	$("#themeSelect").val("dark");
+
 	$('html').css('filter', 'invert(1)');
 	$('.invert_in_dark_mode').css('filter', 'invert(1)');
 	$('img').css('filter', 'invert(1)');
@@ -33,20 +35,18 @@ function enable_dark_mode() {
 
 	set_cookie("theme", "dark");
 
-	$("#darkmode").prop("checked", true);
-
 	theme = "dark";
 }
 
 function enable_light_mode() {
+	$("#themeSelect").val("light");
+
 	$('html').css('filter', '');
 	$('.invert_in_dark_mode').css('filter', '');
 	$('img').css('filter', 'invert(0)');
 	$('.share_graph').css('filter', 'invert(0)');
 
 	set_cookie("theme", "light");
-
-	$("#darkmode").prop("checked", false);
 
 	theme = "light";
 }
@@ -68,10 +68,21 @@ function apply_theme_based_on_system_preferences() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-	var darkModeCheckbox = document.getElementById('darkmode');
+	var themeSelect = document.getElementById('themeSelect');
 
-	darkModeCheckbox.addEventListener('change', function() {
-		if (darkModeCheckbox.checked) {
+	// Setze das aktuelle Thema beim Laden der Seite
+	var currentTheme = get_cookie("theme");
+	if (currentTheme) {
+		themeSelect.value = currentTheme;
+		if (currentTheme === "dark") {
+			enable_dark_mode();
+		} else {
+			enable_light_mode();
+		}
+	}
+
+	themeSelect.addEventListener('change', function() {
+		if (themeSelect.value === 'dark') {
 			enable_dark_mode();
 		} else {
 			enable_light_mode();

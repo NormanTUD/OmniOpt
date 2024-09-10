@@ -68,6 +68,7 @@
 		<div id="scads_bar">
 			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo" /></a>
 			<a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo" /></a>
+			<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge" /></a>
 <?php
 				include("searchable_php_files.php");
 
@@ -82,16 +83,19 @@
 					$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
 					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
 				}
-?>
-			<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge" /></a>
-<?php
-			$current_tag = get_current_tag();
+				$current_tag = get_current_tag();
 
-			if($current_tag) {
-				echo " $current_tag, ";
-			}
+				if($current_tag) {
+					echo " $current_tag, ";
+				}
 ?>
-			<span style="display: inline-grid;">Dark-Mode?&nbsp;<input type="checkbox" id="darkmode" name="darkmode"></span>
+			<span style="display: inline-grid;">
+				<select id="themeSelect" name="theme">
+					<option value="light">Light Mode</option>
+					<option value="dark">Dark Mode</option>
+				</select>
+			</span>
+
 			<br>
 			<span style="display: inline-flex;">
 				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search" />

@@ -154,14 +154,14 @@
 		$unique_sbatch = array_unique($has_sbatch);
 		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
 
-		echo "<div id='$element_id-exit-codes' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runs' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runtimes' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
-		echo "<div id='$element_id-exit-code-pie' style='height: 400px;'></div>";
-		echo "<div id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
-		echo "<div id='$element_id-runtime-box' style='height: 400px;'></div>";
-		echo "<div id='$element_id-top-users' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-exit-codes' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runs' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runtimes' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-exit-code-pie' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runtime-box' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-top-users' style='height: 400px;'></div>";
 
 		if ($show_sbatch_plot) {
 			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
@@ -270,14 +270,14 @@
 				name: 'Top Users by Number of Jobs'
 			};
 
-			Plotly.newPlot('$element_id-exit-codes', [exitCodePlot], {title: 'Exit Codes'});
-			Plotly.newPlot('$element_id-runs', [userPlot], {title: 'Runs per User'});
-			Plotly.newPlot('$element_id-runtimes', [runtimePlot], {title: 'Runtimes'});
-			Plotly.newPlot('$element_id-runtime-vs-exit-code', [runtimeVsExitCodePlot], {title: 'Runtime vs Exit Code'});
-			Plotly.newPlot('$element_id-exit-code-pie', [exitCodePie], {title: 'Exit Code Distribution'});
-			Plotly.newPlot('$element_id-avg-runtime-bar', [avgRuntimeBar], {title: 'Average Runtime per Exit Code'});
-			Plotly.newPlot('$element_id-runtime-box', [runtimeBox], {title: 'Runtime Distribution'});
-			Plotly.newPlot('$element_id-top-users', [topUserBar], {title: 'Top Users by Number of Jobs'});
+			Plotly.newPlot('$element_id-exit-codes', [exitCodePlot], {title: 'Exit Codes', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-runs', [userPlot], {title: 'Runs per User', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-runtimes', [runtimePlot], {title: 'Runtimes', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-runtime-vs-exit-code', [runtimeVsExitCodePlot], {title: 'Runtime vs Exit Code', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-exit-code-pie', [exitCodePie], {title: 'Exit Code Distribution', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-avg-runtime-bar', [avgRuntimeBar], {title: 'Average Runtime per Exit Code', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-runtime-box', [runtimeBox], {title: 'Runtime Distribution', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+			Plotly.newPlot('$element_id-top-users', [topUserBar], {title: 'Top Users by Number of Jobs', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
 
 			if ($show_sbatch_plot) {
 				var sbatchPlot = {
@@ -285,7 +285,7 @@
 					type: 'histogram',
 					name: 'Runs with and without sbatch'
 				};
-				Plotly.newPlot('$element_id-sbatch', [sbatchPlot], {title: 'Runs with and without sbatch'});
+				Plotly.newPlot('$element_id-sbatch', [sbatchPlot], {title: 'Runs with and without sbatch', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
 			}
 			</script>
 		";

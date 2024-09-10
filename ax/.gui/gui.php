@@ -528,6 +528,12 @@
 				return [command, errors, warnings]
 			}
 
+			function set_row_background_color_red_color(_row) {
+				log("_row:", _row);
+				console.trace();
+				$(_row).css("background-color", "#ffabab").addClass("invert_in_dark_mode");
+			}
+
 			function update_command() {
 				set_min_max();
 
@@ -572,8 +578,10 @@
 						$($(".parameterRow")[i]).css("background-color", "#e57373")
 					} else if(parameterName.match(/^[a-zA-Z_]+$/)) {
 						if (option === "range") {
-							var minValue = parseFloat($(this).find(".minValue").val());
-							var maxValue = parseFloat($(this).find(".maxValue").val());
+							var $this = $(this);
+							//log("$this.find('.minValue').val():", $this.find(".minValue").val());
+							var minValue = parseFloat($this.find(".minValue").val());
+							var maxValue = parseFloat($this.find(".maxValue").val());
 
 							var numberType = $($(".parameterRow")[i]).find(".numberTypeSelect").val();
 
@@ -582,6 +590,8 @@
 							}
 
 							var is_ok = true;
+
+							//log("minValue:", minValue);
 
 							if(isNaN(minValue)) {
 								warn_msg.push("<i>minValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
@@ -623,8 +633,6 @@
 
 								if(!choiceValues.match(/./)) {
 									warn_msg.push("Values are missing.");
-
-									$($(".parameterRow")[i]).css("background-color", "#ffabab")
 								}
 							} else {
 								warn_msg.push(`choiceValues not defined.`);
@@ -645,12 +653,9 @@
 								warn_msg.push("<i>Value</i> is missing.");
 							} else if(!fixedValue.match(/./)) {
 								warn_msg.push("<i>Value</i> is missing.");
-
-								$($(".parameterRow")[i]).css("background-color", "#ffabab")
 							} else if(!fixedValue.match(/^[a-zA-Z0-9,_]+$/)) {
 								warn_msg.push("Invalid values. Must match Regex /[a-zA-Z0-9,_]/.");
 
-								$($(".parameterRow")[i]).css("background-color", "#ffabab")
 							}
 						}
 
@@ -659,27 +664,23 @@
 							parameter_names.push(parameterName);
 
 							if(!warn_msg.length) {
-								$($(".parameterRow")[i]).css("background-color", "")
+								$($(".parameterRow")[i]).css("background-color", "");
 							}
 						} else {
 							if(!parameterName) {
 								warn_msg.push("No parameter name");
 							}
-
-							$($(".parameterRow")[i]).css("background-color", "#ffabab")
 						}
 					} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
 						warn_msg.push("Name contains invalid characters. Must be all-letters.");
-
-						$($(".parameterRow")[i]).css("background-color", "#ffabab")
 					} else {
 						warn_msg.push("<i>Name</i> is missing.");
-
-						$($(".parameterRow")[i]).css("background-color", "#ffabab")
 					}
 
 					if(warn_msg.length) {
 						$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show();
+						log("warn_msg:", warn_msg);
+						//set_row_background_color_red_color($($(".parameterRow")[i]));
 					} else {
 						$($(".parameterError")[i]).html("").hide();
 					}
@@ -733,11 +734,11 @@
 
 						base_url = base_url.replace(_re_, "");
 
-						base_url = base_url.replace(/^file:\//, "/")
-							base_url = base_url.replace(/^\/\//, "/")
+						base_url = base_url.replace(/^file:\//, "/");
+						base_url = base_url.replace(/^\/\//, "/");
 					}
-					base_url = base_url.replace(/\/index.php/, "")
-					base_url = base_url.replace(/\/gui.php/, "")
+					base_url = base_url.replace(/\/index.php/, "");
+					base_url = base_url.replace(/\/gui.php/, "");
 
 					var curl_command = "";
 
@@ -820,7 +821,7 @@
 					</table>`;
 				}
 
-				valueCell.innerHTML += "<div style='display: none' class='error_element parameterError'></div>"
+				valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>"
 
 				update_command();
 			}
@@ -843,7 +844,6 @@
 				updateOptions(optionCell.firstChild);
 
 				newRow.classList.add('parameterRow');
-				newRow.classList.add('invert_in_dark_mode');
 				optionCell.firstChild.classList.add('optionSelect');
 				valueCell.firstChild.classList.add('valueInput');
 

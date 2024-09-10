@@ -1,3 +1,5 @@
+var theme = "light";
+
 function set_cookie(name, value, days = 365) {
 	var expires = "";
 	if (days) {
@@ -31,6 +33,8 @@ function enable_dark_mode() {
 	set_cookie("theme", "dark");
 
 	$("#darkmode").prop("checked", true);
+
+	theme = "dark";
 }
 
 function enable_light_mode() {
@@ -41,6 +45,8 @@ function enable_light_mode() {
 	set_cookie("theme", "light");
 
 	$("#darkmode").prop("checked", false);
+
+	theme = "light";
 }
 
 function apply_theme_based_on_system_preferences() {

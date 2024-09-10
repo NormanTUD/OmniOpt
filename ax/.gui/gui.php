@@ -7,8 +7,8 @@
 				var $parent = $($input).parent()
 
 				if (
-					$parent.find(".time_picker_container").length || 
-					$parent.find(".time_picker_minutes").length || 
+					$parent.find(".time_picker_container").length ||
+					$parent.find(".time_picker_minutes").length ||
 					$parent.find(".time_picker_hours").length
 				) {
 					log(".time_picker_minutes or .time_picker_hours already found. Not reinstantiating for id " + input_id)
@@ -26,7 +26,7 @@
 
 				var $div = $(`
 					<div class='time_picker_container'>
-						<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours, 
+						<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
 						<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
 					</div>
 				`);
@@ -122,16 +122,16 @@
 				{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: 'Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.', "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
 				{ label: "Model", id: "model", type: "select", value: "",
 					options: [
-						{ "text": "BOTORCH_MODULAR", "value":  "BOTORCH_MODULAR" },
-						{ "text": "SOBOL", "value":  "SOBOL" },
-						{ "text": "GPEI", "value":  "GPEI" },
-						{ "text": "FACTORIAL", "value":  "FACTORIAL" },
-						{ "text": "SAASBO", "value":  "SAASBO" },
-						{ "text": "FULLYBAYESIAN", "value":  "FULLYBAYESIAN" },
-						//{ "text": "LEGACY_BOTORCH", "value":  "LEGACY_BOTORCH" },
-						{ "text": "UNIFORM", "value":  "UNIFORM" },
-						{ "text": "BO_MIXED", "value":  "BO_MIXED" }
-					], "required": true, 
+						{ "text": "BOTORCH_MODULAR", "value": "BOTORCH_MODULAR" },
+						{ "text": "SOBOL", "value": "SOBOL" },
+						{ "text": "GPEI", "value": "GPEI" },
+						{ "text": "FACTORIAL", "value": "FACTORIAL" },
+						{ "text": "SAASBO", "value": "SAASBO" },
+						{ "text": "FULLYBAYESIAN", "value": "FULLYBAYESIAN" },
+						//{ "text": "LEGACY_BOTORCH", "value": "LEGACY_BOTORCH" },
+						{ "text": "UNIFORM", "value": "UNIFORM" },
+						{ "text": "BO_MIXED", "value": "BO_MIXED" }
+					], "required": true,
 					info: `
 						<ul>
 							<li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
@@ -148,9 +148,9 @@
 					"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 				},
 				{ label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
-					{ "text": "Locally or on a HPC system", "value":  "local" },
-					{ "text": "Docker", "value":  "docker" }
-					], "required": true, 
+					{ "text": "Locally or on a HPC system", "value": "local" },
+					{ "text": "Docker", "value": "docker" }
+					], "required": true,
 					info: `Changes the curl-command and how omniopt is installed and executed.`,
 					"help": "If set to docker, it will run in a local docker container."
 				},
@@ -774,51 +774,57 @@
 				}
 
 				if (selectedOption === 'range') {
-					valueCell.innerHTML = `<table>
-						<tr>
-							<td>Name:</td>
-							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
-						</tr>
-						<tr>
-							<td>Min:</td>
-							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='number' class='minValue'></td>
-						</tr>
-						<tr>
-							<td>Max:</td>
-							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='number' class='maxValue'></td>
-						</tr>
-						<tr>
-							<td>Type:</td>
-							<td>
-								<select  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
-									<option value="float">Float</option>
-									<option value="int">Integer</option>
-								</select>
-							</td>
-						</tr>
-				    </table>`;
+					valueCell.innerHTML = `
+						<table>
+							<tr>
+								<td>Name:</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+							</tr>
+							<tr>
+								<td>Min:</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='minValue'></td>
+							</tr>
+							<tr>
+								<td>Max:</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='maxValue'></td>
+							</tr>
+							<tr>
+								<td>Type:</td>
+								<td>
+									<select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
+										<option value="float">Float</option>
+										<option value="int">Integer</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+					`;
 				} else if (selectedOption === 'choice') {
-					valueCell.innerHTML = `<table>
-						<tr>
-							<td>Name:</td>
-							<td><input  onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
-						</tr>
-						<tr>
-							<td>Values (comma separated):</td>
-							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='text' class='choiceValues'></td>
-						</tr>
-					</table>`;
+					valueCell.innerHTML = `
+						<table>
+							<tr>
+								<td>Name:</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+							</tr>
+							<tr>
+								<td>Values (comma separated):</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='choiceValues'></td>
+							</tr>
+						</table>
+					`;
 				} else if (selectedOption === 'fixed') {
-					valueCell.innerHTML = `<table>
-						<tr>
-							<td>Name:</td>
-							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}"  type='text' class='parameterName'></td>
-						</tr>
-						<tr>
-							<td>Value:</td>
-							<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()"  type='text' class='fixedValue'></td>
-						</tr>
-					</table>`;
+					valueCell.innerHTML = `
+						<table>
+							<tr>
+								<td>Name:</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+							</tr>
+							<tr>
+								<td>Value:</td>
+								<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='fixedValue'></td>
+							</tr>
+						</table>
+					`;
 				}
 
 				valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>"
@@ -914,7 +920,18 @@
 
 					valueCell.append($select);
 				} else if (item.type === "textarea") {
-					var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
+					var input = $("<textarea>").attr({
+						id: item.id,
+							type: item.type,
+							value: item.value,
+							placeholder: item.placeholder,
+							min: item.min,
+							max: item.max,
+							autocomplete: 'off',
+							autocorrect: 'off',
+							autocapitalize: 'off',
+							spellcheck: 'false'
+					});
 					$(input).css({"width": "95%", "height": "95%"});
 
 					if (item.type === "checkbox") {
@@ -1150,8 +1167,8 @@
 				copy_to_clipboard(serialized);
 
 				$('#copied_main').show();
-				setTimeout(function() { 
-					$('#copied_main').fadeOut(); 
+				setTimeout(function() {
+					$('#copied_main').fadeOut();
 				}, 5000);
 			}
 
@@ -1160,8 +1177,8 @@
 				copy_to_clipboard(serialized);
 
 				$('#copied_curl').show();
-				setTimeout(function() { 
-					$('#copied_curl').fadeOut(); 
+				setTimeout(function() {
+					$('#copied_curl').fadeOut();
 				}, 5000);
 			}
 
@@ -1170,18 +1187,18 @@
 					function callback() {
 						var horde = gremlins.createHorde({
 							species: [
-							      gremlins.species.clicker(),
-							      gremlins.species.toucher(),
-							      gremlins.species.formFiller(),
-							      gremlins.species.scroller(),
-							      gremlins.species.typer()
-							      ],
+								gremlins.species.clicker(),
+								gremlins.species.toucher(),
+								gremlins.species.formFiller(),
+								gremlins.species.scroller(),
+								gremlins.species.typer()
+							],
 							mogwais: [
-							      gremlins.mogwais.alert(),
-							      gremlins.mogwais.gizmo()
+								gremlins.mogwais.alert(),
+								gremlins.mogwais.gizmo()
 							],
 							strategies: [
-							      gremlins.strategies.distribution()
+								gremlins.strategies.distribution()
 							]
 						});
 

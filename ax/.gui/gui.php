@@ -370,7 +370,7 @@
 					if(item.required) {
 						var this_error = "Field '" + item.label + "' is required.";
 						$("#" + item.id + "_error").html(this_error).show();
-						$("#" + item.id).css("background-color", "#FFCCCC").addClass("invert_in_dark_mode");
+						$("#" + item.id).css("background-color", "#FFCCCC");
 
 						errors.push(this_error);
 					}

@@ -10,6 +10,13 @@ import emoji
 IGNORED_PATTERNS = [
     r'^linux$',
     r'^publically$',
+    r'^homerunnerworkomnioptomnioptaxguisharephp2$',
+    r'^homenormanreposomnioptaxguiguiphp2$',
+    r'^homenormanreposomnioptaxguiindexphp25$',
+    r'^homerunnerworkomnioptomnioptaxguitutorialsphp2$',
+    r'^homenormanreposomnioptaxguisharephp2$',
+    r'^homenormanreposomnioptaxgui_header_basephp86$',
+    r'^homenormanreposomnioptaxguitutorialsphp2$',
     r'^omniopt_share$',
     r'^hpc$',
     r'^save_to_file$',

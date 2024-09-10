@@ -1,5 +1,6 @@
 #!/bin/bash
 
+{
 checkout_to_latest_tested_version=0
 debug=0
 main_process_gb=4
@@ -1260,3 +1261,4 @@ else
 	echo "Invalid exit-code >$exit_code< detected!"
 	myexit 3
 fi
+}

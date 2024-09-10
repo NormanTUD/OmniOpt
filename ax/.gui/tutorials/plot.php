@@ -1,6 +1,3 @@
-<?php
-	include("_header_base.php");
-?>
 <h1>Plot your results</h1>
 
 <div id="toc"></div>

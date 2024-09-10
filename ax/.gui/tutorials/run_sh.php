@@ -1,6 +1,3 @@
-<?php
-	include("_header_base.php");
-?>
 <h1>Create <samp>run.sh</samp>-file &amp; modify your program</h1>
 
 <div id="toc"></div>

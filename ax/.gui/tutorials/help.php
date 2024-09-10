@@ -1,6 +1,3 @@
-<?php
-	include("_header_base.php");
-?>
 <h1><samp>--help</samp></h1>
 
 <div id="toc"></div>

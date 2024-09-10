@@ -18,7 +18,7 @@ Then, <samp>cd</samp> into your OmniOpt2 directory. Assuming you have already ra
 
 You will be presented by a menu like this:<br>
 
-<img src="imgs/plot_overview.png" /><br>
+<img alt="Plot-Overview" src="imgs/plot_overview.png" /><br>
 
 Use your arrow keys to navigate to the plot type you like, and then press enter.
 
@@ -35,7 +35,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="trial_index_result">Plot trial index/result</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=trial_index_result</code></pre>
-<img src="imgs/trial_index_result.png" /><br>
+<img alt="Trial-Index-Result" src="imgs/trial_index_result.png" /><br>
 <p>The trial-index is a continuous number that, for each run that is completed, is increased. Using it as <i>x</i>-axis allows you to trace how the results developed over time. Usually, the result should go down (at minimization runs) over time, though it may spike out a bit.</p>
 
 <h4 id="trial_index_result_options"><samp>--plot_type=trial_index_result</samp> Options</h4>
@@ -43,7 +43,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="time_and_exit_code">Plot time and exit code infos</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=time_and_exit_code</code></pre>
-<img src="imgs/time_and_exit_code.png" /><br>
+<img alt="Time-and-exit-Code" src="imgs/time_and_exit_code.png" /><br>
 
 <p>This graph has 4 subgraphs that show different information regarding the job runtime, it's results and it's exit codes.</p>
 
@@ -60,7 +60,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="scatter">Scatter</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter</code></pre>
-<img src="imgs/scatter.png" /><br>
+<img alt="Scatter" src="imgs/scatter.png" /><br>
 <p>The scatter plot shows you all 2d combinations of the hyperparameter space and, for each evaluation, a dot is printed. The color of the dot depends on the result value of this specific run. The lower, the greener, and the higher, the more red they are. Thus, you can see how many results were attained and how they were, and where they have been searched.</p>
 
 <h4 id="scatter_options"><samp>--plot_type=scatter</samp> Options</h4>
@@ -68,7 +68,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="hex_scatter">Hex-Scatter</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_hex</code></pre>
-<img src="imgs/scatter_hex.png" /><br>
+<img alt="Scatter-Hex" src="imgs/scatter_hex.png" /><br>
 
 <p>Similar to scatter plot, but here many runs are grouped into hexagonal subspaces of the parameter combinations, and the groups are coloured by their average result, and as such you can see an approximation of the function space. This allows you to quickly grasp 'good' areas of your hyperparameter space.</p>
 
@@ -77,7 +77,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter_generation_method</code></pre>
-<img src="imgs/scatter_generation_method.png" /><br>
+<img alt="Scatter-Generation-Method" src="imgs/scatter_generation_method.png" /><br>
 
 <p>This is similar to the scatter plot, but also shows you which generation method (i.e. SOBOL, BoTorch, ...) is responsible for creating that point, and how the generation methods are scattered over each axis of the hyperparameter optimization problem. Thus, you can see how many runs have been tried and where exactly.</p>
 
@@ -86,7 +86,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="kde">KDE</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=kde</code></pre>
-<img src="imgs/kde.png" /><br>
+<img alt="KDE (Kernel Density Estimation)" src="imgs/kde.png" /><br>
 
 <p>Kernel-Density-Estimation-Plots, short <i>KDE</i>-Plots, group different runs into so-called bins by their result range and parameter range.</p>
 
@@ -99,7 +99,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="get_next_trials">get_next_trials got/requested</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=get_next_trials</code></pre>
-<img src="imgs/get_next_trials.png" /><br>
+<img alt="Get next trials" src="imgs/get_next_trials.png" /><br>
 <p>Each time the <samp>ax_client.get_next_trials()</samp>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt for debugging, but still, I included it here.</p>
 
 <h4 id="get_next_trials_options"><samp>--plot_type=get_next_trials</samp> Options</h4>
@@ -108,7 +108,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <h3 id="general">General job infos</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=general</code></pre>
 
-<img src="imgs/general.png" /><br>
+<img alt="General" src="imgs/general.png" /><br>
 <p>The <samp>general</samp>-plot shows you general info about your job. It consists of four subgraphs:</p>
 
 <ul>
@@ -129,7 +129,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="cpu_ram_usage">CPU and RAM Usage</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=cpu_ram_usage</code></pre>
-<img src="imgs/cpu_ram_usage.png" /><br>
+<img alt="CPU-Ram-Usage" src="imgs/cpu_ram_usage.png" /><br>
 
 <p>Very similar to the 2d-scatter plot, but in 3d.</p>
 
@@ -138,7 +138,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="3d">3d</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>
-<img src="imgs/3d.png" /><br>
+<img alt="3d" src="imgs/3d.png" /><br>
 
 <p>Plots CPU and RAM usage of the main process of an OmniOpt2 optimization.</p>
 
@@ -147,7 +147,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="gpu_usage">GPU usage</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=gpu_usage</code></pre>
-<img src="imgs/gpu_usage.png" /><br>
+<img alt="GPU-Usage" src="imgs/gpu_usage.png" /><br>
 <p>Shows the workload of different GPUs on all nodes that jobs of an evaluation has run on over time.</p>
 
 <h4 id="gpu_usage_options"><samp>--plot_type=gpu_usage</samp> Options</h4>
@@ -155,7 +155,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h3 id="worker">Worker usage</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=worker</code></pre>
-<img src="imgs/worker_usage.png" /><br>
+<img alt="Worker" src="imgs/worker_usage.png" /><br>
 <h4 id="worker_options"><samp>--plot_type=worker</samp> Options</h4>
 <pre><?php include("plot_helps/worker.txt"); ?></pre>
 

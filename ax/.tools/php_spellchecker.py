@@ -13,6 +13,8 @@ IGNORED_PATTERNS = [
     r'^homerunnerworkomnioptomnioptaxguisharephp2$',
     r'^homenormanreposomnioptaxguiguiphp2$',
     r'^homenormanreposomnioptaxguiindexphp25$',
+    r'^homerunnerworkomnioptomnioptaxguiindexphp25$',
+    r'^homerunnerworkomnioptomnioptaxguiguiphp2$',
     r'^homerunnerworkomnioptomnioptaxguitutorialsphp2$',
     r'^homenormanreposomnioptaxguisharephp2$',
     r'^homenormanreposomnioptaxgui_header_basephp86$',

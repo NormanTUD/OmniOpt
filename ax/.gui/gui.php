@@ -1213,7 +1213,7 @@
 			}
 		</script>
 		<div id="loader">
-			<img alt="Loading..." src="loading.gif" />
+			<div class="spinner"></div>
 			<br>
 			<h2>Loading...</h2>
 		</div>

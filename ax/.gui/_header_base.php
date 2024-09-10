@@ -74,14 +74,18 @@
 
 				$current_file = basename($_SERVER["PHP_SELF"]);
 
-				foreach ($files as $fn => $n) {
+				foreach ($GLOBALS["files"] as $fn => $n) {
 					if (is_array($n)) {
 						$n = $n["name"];
 					}
 
 					$tab_is_active = preg_match("/^$fn.php/", $current_file);
 					$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
+					$_link = "$dir_path/$fn.php";
+					if(!file_exists($_link)) {
+						dier("Coult not find $_link");
+					}
+					echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
 				}
 				$current_tag = get_current_tag();
 

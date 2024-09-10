@@ -738,12 +738,6 @@
 		print_script_and_folder("");
 	}
 ?>
-<script>
-	if(current_folder) {
-		log(`Creating breadcrumb from current_folder: ${current_folder}`);
-		//createBreadcrumb(current_folder);
-	}
-</script>
 </div>
 </body>
 </html>

@@ -1199,7 +1199,7 @@
 			}
 		</script>
 		<div id="loader">
-			<img src="loading.gif" />
+			<img alt="Loading..." src="loading.gif" />
 			<br>
 			<h2>Loading...</h2>
 		</div>

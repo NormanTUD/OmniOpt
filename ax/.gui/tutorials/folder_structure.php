@@ -5,16 +5,16 @@
 
 <div id="toc"></div>
 
-<h2 id="runs_folder"><tt>runs</tt>-folder</h2>
+<h2 id="runs_folder"><samp>runs</samp>-folder</h2>
 
-<p>For every experiment you do, there will be a new folder created inside the <tt>runs</tt>-folder in your OmniOpt2-installation.</p>
+<p>For every experiment you do, there will be a new folder created inside the <samp>runs</samp>-folder in your OmniOpt2-installation.</p>
 
-<p>Each of these has a subfolder for each run that the experiment with that name was run. For example, if you run the experiment <tt>my_experiment</tt>
-twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt> exist.
+<p>Each of these has a subfolder for each run that the experiment with that name was run. For example, if you run the experiment <samp>my_experiment</samp>
+twice, the paths <samp>runs/my_experiment/0</samp> and <samp>runs/my_experiment/1</samp> exist.
 
-<h3 id="runs_folder">Single files</h3>
+<h3 id="single_files">Single files</h3>
 
-<h4 id="best_result"><tt>best_result.txt</tt></h4>
+<h4 id="best_result"><samp>best_result.txt</samp></h4>
 
 <p>This file contains an ANSI-table that shows you the best result and the parameters resulted in that result.</p>
 
@@ -27,7 +27,7 @@ twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt>
 └──────────────────┴──────────────────┴───────────────┴────────┴──────────┘
 </pre>
 
-<h4 id="results_csv"><tt>results.csv</tt></h4>
+<h4 id="results_csv"><samp>results.csv</samp></h4>
 
 <p>This file contains infos about every evaluation in this run, that is, it's number, the algorithm that craeted that point, its parameters, and it's result.</p>
 
@@ -43,9 +43,9 @@ twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt>
 8,8_0,COMPLETED,Sobol,1.618417,87,0.0058464851230382925,0.016544286970980468,7
 9,9_0,COMPLETED,Sobol,1.627581,76,0.0673203308135271,0.08200951679609716,5</pre>
 
-<h4 id="get_next_trials"><tt>get_next_trials.csv</tt></h4>
+<h4 id="get_next_trials"><samp>get_next_trials.csv</samp></h4>
 
-<p>A CSV file that contains the current time, the number of jobs <tt>ax_client.get_next_trials()</tt> got and the number it requested to get.</p>
+<p>A CSV file that contains the current time, the number of jobs <samp>ax_client.get_next_trials()</samp> got and the number it requested to get.</p>
 
 <pre>2024-06-25 08:55:46,1,20
 2024-06-25 08:56:41,2,20
@@ -54,7 +54,7 @@ twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt>
 2024-06-25 08:59:54,15,20
 ...</pre>
 
-<h4 id="worker_usage"><tt>worker_usage.csv</tt></h4>
+<h4 id="worker_usage"><samp>worker_usage.csv</samp></h4>
 
 <p>This contains the unix-timestamp, the number of workers requested, the number of workers got and the percentage of numbers got in respective to the number requested.</p>
 
@@ -76,12 +76,12 @@ twice, the paths <tt>runs/my_experiment/0</tt> and <tt>runs/my_experiment/1</tt>
 1717234044.1203723,20,9,45
 1717234046.1940708,20,9,45</pre>
 
-<h4 id="gpu_usage">GPU-usage-files (<tt>gpu_usage_*.csv</tt>)</h4>
+<h4 id="gpu_usage">GPU-usage-files (<samp>gpu_usage_*.csv</samp>)</h4>
 
-<p>GPU usage files. They are the output of <tt>nvidia-smi</tt> and are periodically taken, when you run on a system with SLURM that allows you to connect to
-nodes that have running jobs on it with ssh.</tt>
+<p>GPU usage files. They are the output of <samp>nvidia-smi</samp> and are periodically taken, when you run on a system with SLURM that allows you to connect to
+nodes that have running jobs on it with ssh.</p>
 
-<p>Header line is omitted, but is: <tt>timestamp, name, pci.bus_id, driver_version, pstate, pcie.link.gen.max, pcie.link.gen.current, temperature.gpu, utilization.gpu [%], utilization.memory [%], memory.total [MiB], memory.free [MiB], memory.used [MiB]</tt>.</p>
+<p>Header line is omitted, but is: <samp>timestamp, name, pci.bus_id, driver_version, pstate, pcie.link.gen.max, pcie.link.gen.current, temperature.gpu, utilization.gpu [%], utilization.memory [%], memory.total [MiB], memory.free [MiB], memory.used [MiB]</samp>.</p>
 
 <p>It may looks something like this:</p>
 
@@ -94,9 +94,9 @@ nodes that have running jobs on it with ssh.</tt>
 2024/06/01 11:27:25.361, NVIDIA A100-SXM4-40GB, 00000000:8B:00.0, 545.23.08, P0, 4, 4, 43, 3 %, 0 %, 40960 MiB, 666 MiB, 39671 MiB
 2024/06/01 11:27:25.376, NVIDIA A100-SXM4-40GB, 00000000:3B:00.0, 545.23.08, P0, 4, 4, 44, 1 %, 0 %, 40960 MiB, 910 MiB, 39427 MiB</pre>
 
-<h4 id="job_infos"><tt>job_infos.csv</tt></h4>
+<h4 id="job_infos"><samp>job_infos.csv</samp></h4>
 
-<p>This is similiar to the <tt>results.csv</tt>, but contains a little other info, i.e. the hostname the execution ran on and the full path that is run, also start- and endtime of execution and the exit code and signal that the job ended with.</p>
+<p>This is similiar to the <samp>results.csv</samp>, but contains a little other info, i.e. the hostname the execution ran on and the full path that is run, also start- and endtime of execution and the exit code and signal that the job ended with.</p>
 
 <pre>start_time,end_time,run_time,program_string,width_and_height,validation_split,learning_rate,epochs,result,exit_code,signal,hostname
 1719298546,1719298600,54,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.20240612381696702 --epochs=7 --validation_split=0.021625286340713503 --width=71 --height=71 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,71,0.021625286340713503,0.20240612381696702,7,1.690072,0,None,arbeitsrechner
@@ -112,13 +112,13 @@ nodes that have running jobs on it with ssh.</tt>
 <p>To add custom lines to this file, for example for analyzing certain parts of your program, you can print this to the standard output:</p>
 <pre><code class="language-python">print("OO-Info: outputname: 123")</code></pre>
 
-This will add the column <tt>OO_Info_outputname</tt> to the <tt>job_infos.csv</tt>, and each line will have it's own output values then.
+This will add the column <samp>OO_Info_outputname</samp> to the <samp>job_infos.csv</samp>, and each line will have it's own output values then.
 
-<h4 id="oo_errors"><tt>oo_errors.txt</tt></h4>
+<h4 id="oo_errors"><samp>oo_errors.txt</samp></h4>
 
 <p>This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or non-existant.</p>
 
-<h4 id="parameters"><tt>parameters.txt</tt></h4>
+<h4 id="parameters"><samp>parameters.txt</samp></h4>
 
 <p>This file contains the parameter search space definition in a simple table. Example:
 
@@ -133,7 +133,7 @@ This will add the column <tt>OO_Info_outputname</tt> to the <tt>job_infos.csv</t
 └──────────────────┴───────┴─────────────┴─────────────┴────────┴────────────┘
 </pre>
 
-<h3 id="state_files"><tt>state_files</tt></h3>
+<h3 id="state_files"><samp>state_files</samp></h3>
 
 These files store some states used mainly to continue jobs. Not all of these files may be present.
 
@@ -151,20 +151,20 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>mem_gb </i>: The amount of Memory allocated per worker (in GB)</li>
 	<li><i>minimize </i>: If it exists, it means, the job was about to minimize</li>
 	<li><i>maximize </i>: If it exists, it means, the job was about to maximize</li>
-	<li><i>pd.json</i>: Contains data to restore the <tt>ax_client</tt></li>
+	<li><i>pd.json</i>: Contains data to restore the <samp>ax_client</samp></li>
 	<li><i>phase_random_steps</i>: How many random steps have been generated</li>
 	<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>
 	<li><i>run.sh</i>: A bash-file that allows you to re-run this program</li>
 	<li><i>submitted_jobs</i>: The number of submitted jobs</li>
 	<li><i>time</i>: The time this job-sbatch has allocated</li>
-	<li><i>defective_nodes</i>: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires <tt>--auto_exclude_defective_hosts</tt> to be set.</li>
+	<li><i>defective_nodes</i>: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires <samp>--auto_exclude_defective_hosts</samp> to be set.</li>
 	<li><i>succeeded_jobs</i>: Contains one line for each succeeded job.</li>
 	<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
 	<li><i>original_ax_client_before_loading_tmp_one.json</i>: Required to re-load generation strategy in continued jobs</li>
 	<li><i>cpu_ram_usage.csv</i>: Logs CPU and RAM usage</li>
 </ul>
 
-<h3 id="single_runs"><tt>single_runs</tt></h3>
+<h3 id="single_runs"><samp>single_runs</samp></h3>
 
 <p>This contains one folder for each subjob (i.e. single evaluation) that ran. Locally, it starts at a random number. On systems with SLURM, the folder names are the SLURM IDs.</p>
 

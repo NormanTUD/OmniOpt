@@ -200,7 +200,7 @@
 	function print_url($content) {
 		$content = htmlentities($content);
 		if (preg_match("/^https?:\/\//", $content)) {
-			print "<a target='_blank' href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
+			echo "<a target='_blank' href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
 
 			return 1;
 		}
@@ -337,10 +337,10 @@
 					continue;
 				}
 
-				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 ?>
 				<script>
-					var results_csv_json = <?php print $jsonData ?>;
+					var results_csv_json = <?php echo $jsonData ?>;
 
 					plot_all_possible(results_csv_json);
 				</script>
@@ -355,7 +355,7 @@
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
 				preg_match("/worker_usage\.csv$/", $file)
@@ -369,10 +369,10 @@
 					continue;
 				}
 
-				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 ?>
 				<script>
-					var worker_usage_csv = convertToIntAndFilter(<?php print $jsonData ?>.map(Object.values));
+					var worker_usage_csv = convertToIntAndFilter(<?php echo $jsonData ?>.map(Object.values));
 
 					plotLineChart(worker_usage_csv);
 				</script>
@@ -390,7 +390,7 @@
 					continue;
 				}
 				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
-				print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
 				preg_match("/state_files/", $file) ||
@@ -402,12 +402,12 @@
 			) {
 				// do nothing
 			} else {
-				print "<h2 class='error'>Unknown file type $file</h2>";
+				echo "<h2 class='error'>Unknown file type $file</h2>";
 			}
 		}
 
 		if($shown_data == 0) {
-			print "<h2>No visualizable data could be found</h2>";
+			echo "<h2>No visualizable data could be found</h2>";
 		}
 	}
 
@@ -462,10 +462,8 @@
 	}
 
 	function print_script_and_folder ($folder) {
-		print "<script>createBreadcrumb('./$folder');</script>\n";
+		echo "<script>createBreadcrumb('./$folder');</script>\n";
 	}
-
-
 
 	if ($user_id !== null && $experiment_name !== null) {
 		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
@@ -556,7 +554,7 @@
 		<script src='plotly-latest.min.js'></script>
 		<script src='share.js'></script>
 		<script src='share_graphs.js'></script>
-		<link href="<?php print $dir_path; ?>/share.css" rel="stylesheet" />
+		<link href="<?php echo $dir_path; ?>/share.css" rel="stylesheet" />
 
 		<div id="breadcrumb"></div>
 <?php

@@ -534,6 +534,13 @@
 				$(_row).css("background-color", "#ffabab").addClass("invert_in_dark_mode");
 			}
 
+			function is_invalid_parameter_name(name) {
+				if(name.startsWith("OO_Info_")) {
+					return true;
+				}
+				return false;
+			}
+
 			function update_command() {
 				set_min_max();
 
@@ -673,6 +680,8 @@
 						}
 					} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
 						warn_msg.push("Name contains invalid characters. Must be all-letters.");
+					} else if(is_invalid_parameter_name(parameterName)) {
+						warn_msg.push("Name is or contains a reserved keyword.");
 					} else {
 						warn_msg.push("<i>Name</i> is missing.");
 					}

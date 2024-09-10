@@ -7,11 +7,11 @@
 
 <h2 id="debug">How to find errors in my runs?</h2>
 
-<p>OmniOpt2 saves many logs in the <a target="_blank" href="folder_structure.php"><tt>run</tt>-folder</a>. First, check the <tt>.stdout</tt>-file of
+<p>OmniOpt2 saves many logs in the <a target="_blank" href="folder_structure.php"><samp>run</samp>-folder</a>. First, check the <samp>.stdout</samp>-file of
 the run. OmniOpt2 will tell you many things when it detects errors there.</p>
 
-<p>If you don't find anything useful in the <tt>.stdout</tt>-file, look into the 
-<tt>runs/my_experiment/0/single_runs/</tt>-folder. It contains the outputs of each
+<p>If you don't find anything useful in the <samp>.stdout</samp>-file, look into the 
+<samp>runs/my_experiment/0/single_runs/</samp>-folder. It contains the outputs of each
 worker in separate directories. It looks something like this:</p>
 
 <pre>
@@ -43,12 +43,12 @@ submitit INFO (2024-07-08 17:34:57,477) - Job completed successfully
 submitit INFO (2024-07-08 17:34:57,477) - Exiting after successful completion
 </pre>
 
-<p>The output (stdout and stderr) of your job is after the <tt>stdout:</tt> and before the <tt>EXIT_CODE: 0</tt>. Check
+<p>The output (stdout and stderr) of your job is after the <samp>stdout:</samp> and before the <samp>EXIT_CODE: 0</samp>. Check
 this output for errors. Here, you'd see Slurm Errors for your job.</p>
 
 <p>Also check the exit-code. Some exit codes have special meanings, like 137, have special meaning. See this table for special exit codes:</p>
 
-<p>The code between <tt>DEBUG INFOS START:</tt> and <tt>DEBUG INFOS END</tt> contains info about the string of the command that is about to be executed. It is searched for file paths and the permissions, owner and so on of the file is displayed. This is useful to check for seeing if scripts you call really have the <tt>x</tt>-flag, or are readable and so on. All pathlike structures will be searched and only printed here if they link to a valid file.</p>
+<p>The code between <samp>DEBUG INFOS START:</samp> and <samp>DEBUG INFOS END</samp> contains info about the string of the command that is about to be executed. It is searched for file paths and the permissions, owner and so on of the file is displayed. This is useful to check for seeing if scripts you call really have the <samp>x</samp>-flag, or are readable and so on. All pathlike structures will be searched and only printed here if they link to a valid file.</p>
 
 
 <p>If, for example, you have error code 137, that means you likely ran out of RAM and need to increase the amount of RAM for your workers.</p>

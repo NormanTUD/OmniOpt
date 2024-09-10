@@ -29,6 +29,7 @@ function enable_dark_mode() {
 	$('html').css('filter', 'invert(1)');
 	$('.invert_in_dark_mode').css('filter', 'invert(1)');
 	$('img').css('filter', 'invert(1)');
+	$('.share_graph').css('filter', 'invert(1)');
 
 	set_cookie("theme", "dark");
 
@@ -41,6 +42,7 @@ function enable_light_mode() {
 	$('html').css('filter', '');
 	$('.invert_in_dark_mode').css('filter', '');
 	$('img').css('filter', 'invert(0)');
+	$('.share_graph').css('filter', 'invert(0)');
 
 	set_cookie("theme", "light");
 

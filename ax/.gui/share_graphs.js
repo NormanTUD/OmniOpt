@@ -75,7 +75,9 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 	var layoutParallel = {
 		title: 'Parallel Coordinates Plot',
 		width: 1200,
-		height: 800
+		height: 800,
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
 
 	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
@@ -126,7 +128,9 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 							xaxis: { title: _paramKeys[i] },
 							yaxis: { title: _paramKeys[j] },
 							zaxis: { title: _paramKeys[k] }
-						}
+						},
+						paper_bgcolor: 'rgba(0,0,0,0)',
+						plot_bgcolor: 'rgba(0,0,0,0)'
 					};
 
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:1200px;height:800px;'></div>`);
@@ -164,7 +168,9 @@ function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultVal
 			var layout2d = {
 				title: `Scatter Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
 				xaxis: { title: _paramKeys[i] },
-				yaxis: { title: _paramKeys[j] }
+				yaxis: { title: _paramKeys[j] },
+				paper_bgcolor: 'rgba(0,0,0,0)',
+				plot_bgcolor: 'rgba(0,0,0,0)'
 			};
 
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
@@ -216,7 +222,9 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 						xaxis: { title: _paramKeys[i] },
 						yaxis: { title: _paramKeys[j] },
 						width: 1200,
-						height: 800
+						height: 800,
+						paper_bgcolor: 'rgba(0,0,0,0)',
+						plot_bgcolor: 'rgba(0,0,0,0)'
 					};
 
 					var new_plot_div = $(`<div class='share_graph hexbin-plot' id='hexbin-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
@@ -314,13 +322,16 @@ function plotLineChart(data) {
 			title: 'Nr. Worker'
 		},
 		width: 1200,
-		height: 800
+		height: 800,
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
 
 	var new_plot_div = document.createElement('div');
 	new_plot_div.id = 'line-plot';
 	new_plot_div.style.width = '1200px';
 	new_plot_div.style.height = '800px';
+	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
 	document.body.appendChild(new_plot_div);
 	
 	// Erstelle das Diagramm

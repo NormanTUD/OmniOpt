@@ -929,18 +929,7 @@
 
 					valueCell.append($select);
 				} else if (item.type === "textarea") {
-					var input = $("<textarea>").attr({
-						id: item.id,
-							type: item.type,
-							value: item.value,
-							placeholder: item.placeholder,
-							min: item.min,
-							max: item.max,
-							autocomplete: 'off',
-							autocorrect: 'off',
-							autocapitalize: 'off',
-							spellcheck: 'false'
-					});
+					var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 					$(input).css({"width": "95%", "height": "95%"});
 
 					if (item.type === "checkbox") {

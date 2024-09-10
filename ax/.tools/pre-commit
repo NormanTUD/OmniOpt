@@ -1,47 +1,13 @@
 #!/bin/bash
 
-run_tests () {
-	./.tests/main --num_random_steps=1 --max_eval=2 --superquick
-
-	exit_code=$?
-
-	exit $exit_code
-}
-
 set -e
 
-# Gehe in das Git-Root-Verzeichnis, falls notwendig
+if [[ ! -z $NO_TESTS ]]; then
+	exit 0
+fi
+
 while [ ! -d .git ] && [ "$PWD" != "/" ]; do cd ..; done
 
 cd ax
 
-# Überprüfen, ob uncommittete Änderungen existieren
-if [ -n "$(git status --porcelain)" ]; then
-	echo "There are uncommitted changes."
-	run_tests
-fi
-
-# Prüft, ob der aktuelle Branch und der Remote-Branch synchron sind
-git fetch origin > /dev/null 2>&1
-
-# Prüft den Zustand der Branches
-LOCAL=$(git rev-parse @)
-REMOTE=$(git rev-parse @{u})
-BASE=$(git merge-base @ @{u})
-
-if [ "$LOCAL" = "$REMOTE" ]; then
-	# Alles ist aktuell
-	exit 0
-elif [ "$LOCAL" = "$BASE" ]; then
-	# Es gibt Änderungen, die gepusht werden müssen
-	echo "There are changes to push."
-	run_tests
-elif [ "$REMOTE" = "$BASE" ]; then
-	# Der lokale Branch ist weiter als der Remote-Branch, muss gepusht werden
-	echo "There are changes to push."
-	run_tests
-else
-	# Es gibt nicht gepushte Änderungen und der Branch hat auch entfernte Commits
-	echo "Diverged commits detected."
-	run_tests
-fi
+./.tests/main --num_random_steps=1 --max_eval=2 --superquick

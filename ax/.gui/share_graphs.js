@@ -78,7 +78,7 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 		height: 800
 	};
 
-	var new_plot_div = $(`<div class='parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
+	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
 	$('body').append(new_plot_div);
 	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 }
@@ -129,7 +129,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						}
 					};
 
-					var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:1200px;height:800px;'></div>`);
+					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:1200px;height:800px;'></div>`);
 					$('body').append(new_plot_div);
 					Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
 				}
@@ -167,7 +167,7 @@ function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultVal
 				yaxis: { title: _paramKeys[j] }
 			};
 
-			var new_plot_div = $(`<div class='scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
+			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
 			$('body').append(new_plot_div);
 			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d], layout2d);
 		}
@@ -219,7 +219,7 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 						height: 800
 					};
 
-					var new_plot_div = $(`<div class='hexbin-plot' id='hexbin-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
+					var new_plot_div = $(`<div class='share_graph hexbin-plot' id='hexbin-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
 					$('body').append(new_plot_div);
 					Plotly.newPlot(`hexbin-plot-${i}_${j}`, [traceHexbin], layoutHexbin);
 				} catch (error) {

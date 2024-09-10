@@ -1,0 +1,46 @@
+.textarea_csv {
+	width: 80%;
+	height: 150px;
+}
+.scatter-plot {
+	width: 1200px;
+	width: 800px;
+}
+
+.box-shadow {
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+	transition: 0.3s;
+}
+
+.box-shadow:hover {
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+
+#breadcrumb {
+	font-size: 2.7vw;
+	padding: 10px;
+}
+
+.breadcrumb_nav {
+	background-color: #fafafa;
+	text-decoration: none;
+	color: black;
+	border: 1px groove darkblue;
+	border-radius: 5px;
+	margin: 3px;
+	padding: 3px;
+	height: 3vw;
+	display: inline-block;
+	min-height: 30px;
+	font-size: calc(12px + 1.5vw);;
+}
+
+.box-shadow {
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+	transition: 0.3s;
+}
+
+.box-shadow:hover {
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}

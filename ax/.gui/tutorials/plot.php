@@ -22,7 +22,7 @@ You will be presented by a menu like this:<br>
 
 Use your arrow keys to navigate to the plot type you like, and then press enter.
 
-<h3 id="plot-overview">Plot directly</h3>
+<h3 id="plot-directly">Plot directly</h3>
 If you know what plot you want, you can directly plot it by using:
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter # change plot_type accordingly</code></pre>
 

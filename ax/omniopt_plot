@@ -10,6 +10,87 @@ export ORIGINAL_PWD
 export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
 export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
 
+levenshtein() {
+	local str1="$1"
+	local str2="$2"
+	local len1=${#str1}
+	local len2=${#str2}
+	local d i j cost
+
+    # Create the distance matrix
+    declare -A matrix
+    for ((i=0; i<=len1; i++)); do
+	    matrix[$i,0]=$i
+    done
+    for ((j=0; j<=len2; j++)); do
+	    matrix[0,$j]=$j
+    done
+
+    # Fill in the matrix
+    for ((i=1; i<=len1; i++)); do
+	    for ((j=1; j<=len2; j++)); do
+		    if [[ "${str1:i-1:1}" == "${str2:j-1:1}" ]]; then
+			    cost=0
+		    else
+			    cost=1
+		    fi
+		    matrix[$i,$j]=$((
+		    $(min $((matrix[$((i-1)),$j]+1)) $((matrix[$i,$((j-1))]+1)) $((matrix[$((i-1)),$((j-1))]+cost)))
+		    ))
+	    done
+    done
+
+    # Return the Levenshtein distance
+    echo "${matrix[$len1,$len2]}"
+}
+
+min() {
+	local min=$1
+	for n in "$@"; do
+		((n < min)) && min=$n
+	done
+	echo "$min"
+}
+
+find_closest_match() {
+	local input="$1"
+	local exact_matches=()
+	local closest=""
+	local closest_dist=-1
+	local dist
+
+	for expected in "${expected_plot_types[@]}"; do
+		if [[ "$expected" == *"$input"* ]]; then
+			exact_matches+=("$expected")
+		fi
+	done
+
+	if [[ ${#exact_matches[@]} -eq 1 ]]; then
+		echo "Found exact substring match: ${exact_matches[0]}" >&2
+		echo "${exact_matches[0]}"
+		return
+	fi
+
+	if [[ ${#exact_matches[@]} -gt 1 ]]; then
+		echo "Multiple exact substring matches found: ${exact_matches[*]}" >&2
+	else
+		# No exact substring match found, proceed with Levenshtein
+		echo "No exact substring match found, proceeding with Levenshtein distance..." >&2
+	fi
+
+	for expected in "${expected_plot_types[@]}"; do
+		dist=$(levenshtein "$input" "$expected")
+		if [[ $closest_dist -eq -1 || $dist -lt $closest_dist ]]; then
+			closest_dist=$dist
+			closest="$expected"
+		fi
+	done
+
+	echo "Closest match using Levenshtein: $closest (Distance: $closest_dist)" >&2
+
+	echo "$closest"
+}
+
 if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""
 	echo "========================================================================"
@@ -228,17 +309,14 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		*)
 			tmp_run_dir_or_plot_type="${args[k]}"
+
 			if [[ -d $tmp_run_dir_or_plot_type ]]; then
 				run_dir=$tmp_run_dir_or_plot_type
 				args_string+=" --run_dir=$run_dir"
 			else
-				for expected in "${expected_plot_types[@]}"; do
-					if [[ "$expected" == *"$tmp_run_dir_or_plot_type"* ]]; then
-						plot_type="$expected"
-						break
-					fi
-				done
+				plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
 			fi
+
 
 			;;
 	esac

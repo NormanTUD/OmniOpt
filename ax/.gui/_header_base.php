@@ -7,7 +7,7 @@
 	}
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<title>OmniOpt2</title>

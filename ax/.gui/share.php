@@ -7,6 +7,21 @@
 	ini_set('display_errors', 1);
 
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")."://".(isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost")."/".$_SERVER["SCRIPT_NAME"]);
+	$sharesPath = './shares/';
+
+	$user_id = $_GET['user_id'] ?? null;
+	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
+	$experiment_name = $_GET['experiment_name'] ?? null;
+
+	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url"];
+	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt"];
+
+	$GLOBALS["time_start"] = microtime(true);
+
+	function die_with_time() {
+		$time_end = microtime(true);
+		dier("Runtime: ".abs($time_end - $GLOBALS["time_start"]));
+	}
 
 	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");
@@ -44,7 +59,6 @@
 		return $jsonData;
 	}
 
-
 	function loadCsvToJson($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
@@ -79,10 +93,6 @@
 		exit(1);
 	}
 
-	// Pfad zum shares-Verzeichnis
-	$sharesPath = './shares/'; // Hier den richtigen Pfad einfügen
-
-	// Funktion zum Überprüfen der Berechtigungen
 	function checkPermissions($path, $user_id) {
 		// Überprüfen, ob der Ordner existiert und dem aktuellen Benutzer gehört
 		if (!file_exists($path) || !is_dir($path)) {
@@ -101,7 +111,6 @@
 		}
 	}
 
-	// Funktion zum Löschen alter Ordner
 	function deleteOldFolders($path) {
 		$threshold = strtotime('-30 days');
 
@@ -115,7 +124,6 @@
 		}
 	}
 
-	// Rekursive Löschfunktion für Ordner und deren Inhalte
 	function deleteFolder($folder) {
 		$files = array_diff(scandir($folder), array('.', '..'));
 
@@ -126,7 +134,6 @@
 		return rmdir($folder);
 	}
 
-	// Funktion zum Erstellen eines neuen Ordners
 	function createNewFolder($path, $user_id, $experiment_name) {
 		$i = 0;
 		do {
@@ -137,15 +144,6 @@
 		mkdir($newFolder, 0777, true); // Rechte 0777 für volle Zugriffsberechtigungen setzen
 		return $newFolder;
 	}
-
-	// Verarbeitung von GET- und POST-Parametern
-	$user_id = $_GET['user_id'] ?? null;
-	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
-	$experiment_name = $_GET['experiment_name'] ?? null;
-
-	// Parameter per POST entgegennehmen
-	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url"];
-	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt"];
 
 	function searchForHashFile($directory, $new_upload_md5, $userFolder) {
 		$files = glob($directory);
@@ -192,98 +190,6 @@
 			warn("The provided path does not match the expected pattern: $found_hash_file_dir");
 			return [null, null, null];
 		}
-	}
-
-
-	// Erstelle neuen Ordner basierend auf den Parametern
-	if ($user_id !== null && $experiment_name !== null) {
-		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
-		$run_id = preg_replace("/.*\//", "", $userFolder);
-
-		$added_files = 0;
-
-		$num_offered_files = 0;
-		$new_upload_md5_string = "";
-
-		$offered_files = [];
-		$i = 0;
-		foreach ($acceptable_files as $acceptable_file) {
-			$offered_files[$acceptable_file] = array(
-				"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
-				"filename" => $acceptable_file_names[$i]
-			);
-			$i++;
-		}
-
-		foreach ($offered_files as $offered_file) {
-			$filename = $offered_file["filename"];
-			$file = $offered_file["file"];
-			if($file) {
-				$content = file_get_contents($file);
-				$new_upload_md5_string = $new_upload_md5_string . "$filename=$content";
-				$num_offered_files++;
-			}
-		}
-
-		if ($num_offered_files == 0) {
-			print("Error sharing job. No offered files could be found");
-			exit(1);
-		}
-
-		$project_md5 = hash('md5', $new_upload_md5_string);
-
-		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
-
-		$found_hash_file = $found_hash_file_data[0];
-		$found_hash_file_dir = $found_hash_file_data[1];
-
-		if($found_hash_file) {
-			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
-			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
-			exit(0);
-		} else {
-			foreach ($offered_files as $offered_file) {
-				$file = $offered_file["file"];
-				$filename = $offered_file["filename"];
-				if ($file && file_exists($file)) {
-					$content = file_get_contents($file);
-					$content_encoding = mb_detect_encoding($content);
-					if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-						if(filesize($file)) {
-							move_uploaded_file($file, "$userFolder/$filename");
-							$added_files++;
-						} else {
-							$empty_files[] = $filename;
-						}
-					} else {
-						dier("$filename: \$content was not ASCII, but $content_encoding");
-					}
-				}
-			}
-
-			if ($added_files) {
-				echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
-				exit(0);
-			} else {
-				if (count($empty_files)) {
-					$empty_files_string = implode(", ", $empty_files);
-					echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
-				} else {
-					echo "Error sharing the job. No Files were found. \n";
-				}
-				exit(1);
-			}
-		}
-	} else {
-		include("_header_base.php");
-?>
-	<script src='plotly-latest.min.js'></script>
-	<script src='share.js'></script>
-	<script src='share_graphs.js'></script>
-	<link href="<?php print $dir_path; ?>/share.css" rel="stylesheet" />
-
-	<div id="breadcrumb"></div>
-<?php
 	}
 
 	function remove_ansi_colors ($contents) {
@@ -559,6 +465,98 @@
 		print "<script>createBreadcrumb('./$folder');</script>\n";
 	}
 
+
+
+	if ($user_id !== null && $experiment_name !== null) {
+		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
+		$run_id = preg_replace("/.*\//", "", $userFolder);
+
+		$added_files = 0;
+
+		$num_offered_files = 0;
+		$new_upload_md5_string = "";
+
+		$offered_files = [];
+		$i = 0;
+		foreach ($acceptable_files as $acceptable_file) {
+			$offered_files[$acceptable_file] = array(
+				"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
+				"filename" => $acceptable_file_names[$i]
+			);
+			$i++;
+		}
+
+		foreach ($offered_files as $offered_file) {
+			$filename = $offered_file["filename"];
+			$file = $offered_file["file"];
+			if($file) {
+				$content = file_get_contents($file);
+				$new_upload_md5_string = $new_upload_md5_string . "$filename=$content";
+				$num_offered_files++;
+			}
+		}
+
+		if ($num_offered_files == 0) {
+			print("Error sharing job. No offered files could be found");
+			exit(1);
+		}
+
+		$project_md5 = hash('md5', $new_upload_md5_string);
+
+		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
+
+		$found_hash_file = $found_hash_file_data[0];
+		$found_hash_file_dir = $found_hash_file_data[1];
+
+		if($found_hash_file) {
+			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
+			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
+			exit(0);
+		} else {
+			foreach ($offered_files as $offered_file) {
+				$file = $offered_file["file"];
+				$filename = $offered_file["filename"];
+				if ($file && file_exists($file)) {
+					$content = file_get_contents($file);
+					$content_encoding = mb_detect_encoding($content);
+					if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+						if(filesize($file)) {
+							move_uploaded_file($file, "$userFolder/$filename");
+							$added_files++;
+						} else {
+							$empty_files[] = $filename;
+						}
+					} else {
+						dier("$filename: \$content was not ASCII, but $content_encoding");
+					}
+				}
+			}
+
+			if ($added_files) {
+				echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+				exit(0);
+			} else {
+				if (count($empty_files)) {
+					$empty_files_string = implode(", ", $empty_files);
+					echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
+				} else {
+					echo "Error sharing the job. No Files were found. \n";
+				}
+				exit(1);
+			}
+		}
+	} else {
+		include("_header_base.php");
+?>
+		<script src='plotly-latest.min.js'></script>
+		<script src='share.js'></script>
+		<script src='share_graphs.js'></script>
+		<link href="<?php print $dir_path; ?>/share.css" rel="stylesheet" />
+
+		<div id="breadcrumb"></div>
+<?php
+	}
+
 	// Liste aller Unterordner anzeigen
 	if (isset($_GET["user"]) && !isset($_GET["experiment"])) {
 		$user = $_GET["user"];
@@ -566,7 +564,6 @@
 			print("Invalid user path");
 			exit(1);
 		}
-
 
 		$user = preg_replace("/.*\//", "", $user);
 

@@ -1207,7 +1207,7 @@
 			<table>
 				<tr>
 					<td class='half_width_td'>
-						<table id="config_table" border="1">
+						<table id="config_table">
 							<thead class="invert_in_dark_mode">
 								<tr>
 									<th>Option</th>
@@ -1217,7 +1217,7 @@
 							<tbody></tbody>
 						</table>
 						<button onclick='$("#hidden_config_table").toggle()' class='add_parameter invert_in_dark_mode' id='main_add_row_button'>Show additional parameters</button>
-						<table id="hidden_config_table" border="1" style="display: none">
+						<table id="hidden_config_table" style="display: none">
 							<thead class="invert_in_dark_mode">
 								<tr>
 									<th>Option</th>

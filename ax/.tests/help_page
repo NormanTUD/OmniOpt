@@ -37,7 +37,7 @@ CURRENT_HELP=$(./omniopt --help)
 CLEANED_HELP=$(echo $CURRENT_HELP | sed -e 's#Usage: omniopt\s*##' -e 's#Example:...omniopt.*##' | sed -e 's#\[##g' -e 's#\]##g' | sed -e 's#\s#\n#g' | grep -- "--" | grep -v -- "---" | grep -Ev -- '^\s*--\s*$' | sort | uniq)
 
 for help_param in $CLEANED_HELP; do
-	if ! grep "<tt>$help_param.*</tt>" .gui/tutorials/help.php 2>&1 >/dev/null; then
+	if ! grep "<samp>$help_param.*</samp>" .gui/tutorials/help.php 2>&1 >/dev/null; then
 		errmsg="Help parameter $help_param does not appear in .gui/tutorials/help.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
@@ -46,7 +46,7 @@ for help_param in $CLEANED_HELP; do
 	fi
 done
 
-GUI_PARAMS=$(cat .gui/tutorials/help.php | grep "<tt>--" | sed -e 's#.*--#--#' -e 's#\s\w*<.*##' -e 's#<.*##' | sed -e 's#\s.*##')
+GUI_PARAMS=$(cat .gui/tutorials/help.php | grep "<samp>--" | sed -e 's#.*--#--#' -e 's#\s\w*<.*##' -e 's#<.*##' | sed -e 's#\s.*##')
 
 for gui_param in $GUI_PARAMS; do
 	if ! echo "$CLEANED_HELP" | grep -- "$gui_param" 2>&1 >/dev/null; then

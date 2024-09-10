@@ -747,3 +747,6 @@
 		//createBreadcrumb(current_folder);
 	}
 </script>
+</div>
+</body>
+</html>

@@ -10,9 +10,9 @@ There are many plots available and multiple options to show them. Here's a brief
 <h2 id="plot-over-x11">Plot over X11</h2>
 <h3 id="plot-overview">Plot from overview</h3>
 
-To plot over X11, make sure you are connected with <tt>ssh -X user@login2.barnard.hpc.tu-dresden.de</tt> (of course, use the HPC system you wish instead of barnard, if applicable, and change it to your user).
+To plot over X11, make sure you are connected with <samp>ssh -X user@login2.barnard.hpc.tu-dresden.de</samp> (of course, use the HPC system you wish instead of barnard, if applicable, and change it to your user).
 
-Then, <tt>cd</tt> into your OmniOpt2 directory. Assuming you have already ran an OmniOpt-run and the results are in <tt>runs/my_experiment/0</tt>, run this:
+Then, <samp>cd</samp> into your OmniOpt2 directory. Assuming you have already ran an OmniOpt-run and the results are in <samp>runs/my_experiment/0</samp>, run this:
 
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0</code></pre>
 
@@ -31,14 +31,14 @@ All, except the 3d scatter, support to export your plot to a file.
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.</code></pre>
 
 <h2 id="plot-types">Plot types</h2>
-<p>There are many different plot types, some of which can only be shown on jobs that ran on Taurus, or jobs with more than a specific number of results or parameters. If you run the <tt>omniopt_plot</tt>-script, it will automatically show you plots that are readily available.</p>
+<p>There are many different plot types, some of which can only be shown on jobs that ran on Taurus, or jobs with more than a specific number of results or parameters. If you run the <samp>omniopt_plot</samp>-script, it will automatically show you plots that are readily available.</p>
 
 <h3 id="trial_index_result">Plot trial index/result</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=trial_index_result</code></pre>
 <img src="imgs/trial_index_result.png" /><br>
 <p>The trial-index is a continuous number that, for each run that is completed, is increased. Using it as <i>x</i>-axis allows you to trace how the results developed over time. Usually, the result should go down (at minimization runs) over time, though it may spike out a bit.</p>
 
-<h4 id="trial_index_result_options"><tt>--plot_type=trial_index_result</tt> Options</h4>
+<h4 id="trial_index_result_options"><samp>--plot_type=trial_index_result</samp> Options</h4>
 <pre><?php include("plot_helps/trial_index_result.txt"); ?></pre>
 
 <h3 id="time_and_exit_code">Plot time and exit code infos</h3>
@@ -55,7 +55,7 @@ All, except the 3d scatter, support to export your plot to a file.
 	<li><i>Run Time by Hostname</i>: Shows a boxplot of runtime by each hostname where it ran on. Useful to detect nodes that may execute code slower than other codes or to find out which nodes larger models were scheduled to.</li>
 </ul>
 
-<h4 id="time_and_exit_code_options"><tt>--plot_type=time_and_exit_code</tt> Options</h4>
+<h4 id="time_and_exit_code_options"><samp>--plot_type=time_and_exit_code</samp> Options</h4>
 <pre><?php include("plot_helps/time_and_exit_code.txt"); ?></pre>
 
 <h3 id="scatter">Scatter</h3>
@@ -63,7 +63,7 @@ All, except the 3d scatter, support to export your plot to a file.
 <img src="imgs/scatter.png" /><br>
 <p>The scatter plot shows you all 2d combinations of the hyperparameter space and, for each evaluation, a dot is printed. The color of the dot depends on the result value of this specific run. The lower, the greener, and the higher, the more red they are. Thus, you can see how many results were attained and how they were, and where they have been searched.</p>
 
-<h4 id="scatter_options"><tt>--plot_type=scatter</tt> Options</h4>
+<h4 id="scatter_options"><samp>--plot_type=scatter</samp> Options</h4>
 <pre><?php include("plot_helps/scatter.txt"); ?></pre>
 
 <h3 id="hex_scatter">Hex-Scatter</h3>
@@ -72,7 +72,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <p>Similar to scatter plot, but here many runs are grouped into hexagonal subspaces of the parameter combinations, and the groups are coloured by their average result, and as such you can see an approximation of the function space. This allows you to quickly grasp 'good' areas of your hyperparameter space.</p>
 
-<h4 id="scatter_hex_options"><tt>--plot_type=scatter_hex</tt> Options</h4>
+<h4 id="scatter_hex_options"><samp>--plot_type=scatter_hex</samp> Options</h4>
 <pre><?php include("plot_helps/scatter_hex.txt"); ?></pre>
 
 <h3 id="scatter_generation_method">Scatter-Generation-Method</h3>
@@ -81,7 +81,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <p>This is similar to the scatter plot, but also shows you which generation method (i.e. SOBOL, BoTorch, ...) is responsible for creating that point, and how the generation methods are scattered over each axis of the hyperparameter optimization problem. Thus, you can see how many runs have been tried and where exactly.</p>
 
-<h4 id="scatter_generation_method_options"><tt>--plot_type=scatter_generation_method</tt> Options</h4>
+<h4 id="scatter_generation_method_options"><samp>--plot_type=scatter_generation_method</samp> Options</h4>
 <pre><?php include("plot_helps/scatter_generation_method.txt"); ?></pre>
 
 <h3 id="kde">KDE</h3>
@@ -94,22 +94,22 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <p>These graphs thus show you, which parameter range yields which results, and how many of them have been tried, and how 'good' they were, i.e. closer to the minimum (green).</p>
 
-<h4 id="kde_options"><tt>--plot_type=kde</tt> Options</h4>
+<h4 id="kde_options"><samp>--plot_type=kde</samp> Options</h4>
 <pre><?php include("plot_helps/kde.txt"); ?></pre>
 
 <h3 id="get_next_trials">get_next_trials got/requested</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=get_next_trials</code></pre>
 <img src="imgs/get_next_trials.png" /><br>
-<p>Each time the <tt>ax_client.get_next_trials()</tt>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt for debugging, but still, I included it here.</p>
+<p>Each time the <samp>ax_client.get_next_trials()</samp>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt for debugging, but still, I included it here.</p>
 
-<h4 id="get_next_trials_options"><tt>--plot_type=get_next_trials</tt> Options</h4>
+<h4 id="get_next_trials_options"><samp>--plot_type=get_next_trials</samp> Options</h4>
 <pre><?php include("plot_helps/get_next_trials.txt"); ?></pre>
 
 <h3 id="general">General job infos</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=general</code></pre>
 
 <img src="imgs/general.png" /><br>
-<p>The <tt>general</tt>-plot shows you general info about your job. It consists of four subgraphs:</p>
+<p>The <samp>general</samp>-plot shows you general info about your job. It consists of four subgraphs:</p>
 
 <ul>
 	<li><i>Results by Generation Method</i>: This shows the different generation methods, SOBOL meaning random step, and BoTorch being the model that is executed after the first random steps. The <i>y</i>-value is the Result. Most values are inside the blue box, little dots outside are considered outliers. Usually, you can see that the nonrandom model has far better results than the first random evaluations.</li>
@@ -124,7 +124,7 @@ All, except the 3d scatter, support to export your plot to a file.
 	<li><i>Distribution of Results by Generation Method</i>: This puts different results into so-called bins, i.e. groups of results in a certain range, and plots colored bar charts that tell you where how many results have been found by which method.</li>
 </ul>
 
-<h4 id="general_options"><tt>--plot_type=general</tt> Options</h4>
+<h4 id="general_options"><samp>--plot_type=general</samp> Options</h4>
 <pre><?php include("plot_helps/general.txt"); ?></pre>
 
 <h3 id="cpu_ram_usage">CPU and RAM Usage</h3>
@@ -133,7 +133,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <p>Very similar to the 2d-scatter plot, but in 3d.</p>
 
-<h4 id="cpu_ram_usage_options"><tt>--plot_type=cpu_ram_usage</tt> Options</h4>
+<h4 id="cpu_ram_usage_options"><samp>--plot_type=cpu_ram_usage</samp> Options</h4>
 <pre><?php include("plot_helps/cpu_ram_usage.txt"); ?></pre>
 
 <h3 id="3d">3d</h3>
@@ -142,7 +142,7 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <p>Plots CPU and RAM usage of the main process of an OmniOpt2 optimization.</p>
 
-<h4 id="3d_options"><tt>--plot_type=3d</tt> Options</h4>
+<h4 id="3d_options"><samp>--plot_type=3d</samp> Options</h4>
 <pre><?php include("plot_helps/3d.txt"); ?></pre>
 
 <h3 id="gpu_usage">GPU usage</h3>
@@ -150,13 +150,13 @@ All, except the 3d scatter, support to export your plot to a file.
 <img src="imgs/gpu_usage.png" /><br>
 <p>Shows the workload of different GPUs on all nodes that jobs of an evaluation has run on over time.</p>
 
-<h4 id="gpu_usage_options"><tt>--plot_type=gpu_usage</tt> Options</h4>
+<h4 id="gpu_usage_options"><samp>--plot_type=gpu_usage</samp> Options</h4>
 <pre><?php include("plot_helps/gpu_usage.txt"); ?></pre>
 
 <h3 id="worker">Worker usage</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=worker</code></pre>
 <img src="imgs/worker_usage.png" /><br>
-<h4 id="worker_options"><tt>--plot_type=worker</tt> Options</h4>
+<h4 id="worker_options"><samp>--plot_type=worker</samp> Options</h4>
 <pre><?php include("plot_helps/worker.txt"); ?></pre>
 
 Shows the amount of requested workers, and the amount of real workers over time.

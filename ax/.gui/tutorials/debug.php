@@ -4,7 +4,7 @@
 
 <h2 id="debug">How to find errors in my runs?</h2>
 
-<p>OmniOpt2 saves many logs in the <a target="_blank" href="folder_structure.php"><samp>run</samp>-folder</a>. First, check the <samp>.stdout</samp>-file of
+<p>OmniOpt2 saves many logs in the <a target="_blank" href="tutorials.php?tutorial=folder_structure"><samp>run</samp>-folder</a>. First, check the <samp>.stdout</samp>-file of
 the run. OmniOpt2 will tell you many things when it detects errors there.</p>
 
 <p>If you don't find anything useful in the <samp>.stdout</samp>-file, look into the 

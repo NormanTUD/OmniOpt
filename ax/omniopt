@@ -101,14 +101,14 @@ function myexit {
 function get_anon_user_id {
 	user_groups="$"user=$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)"" 
 	fixed_iv=$(echo -n "$user_groups" | sha512sum | cut -c1-32)
-	encrypted=$(echo -n "$user_groups" | openssl enc -aes-256-cbc -a -pass pass:"$(echo "$user_groups" | sha512sum | rev | sha512sum)" -iv "$fixed_iv" -nosalt -pbkdf2)
+	encrypted=$(echo -n "$user_groups" | openssl enc -aes-256-cbc -a -pass pass:"$(echo "$(groups | tr ' ' '\n' | sort | sha512sum)-$USER" | sha512sum | rev | sha512sum)" -iv "$fixed_iv" -nosalt -pbkdf2)
 	echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32
 }
 
 function send_status_report {
 	exit_code=$1
 
-	if [[ $SEND_USAGE_STATS -eq "1" ]] && [[ -z $SLURM_JOB_ID ]]; then
+	if [[ $SEND_USAGE_STATS -eq "1" ]]; then
 		BASEURL="https://imageseg.scads.de/omniax"
 
 		if [[ -e "$HOME/.oo_base_url" ]]; then

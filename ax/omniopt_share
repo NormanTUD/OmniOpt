@@ -56,6 +56,17 @@ for available_file in $(ls "$RUN_DIR/state_files"); do
 	fi
 done
 
+for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$"); do 
+	out_and_err_files=()
+	for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
+		_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
+		if echo "$_file" | grep -qE "\.(out|err)$"; then
+			filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
+			curl_options+=("-F" "$filename_on_server=@$_file")
+		fi
+	done
+done
+
 eval "$(resize)"
 user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
 

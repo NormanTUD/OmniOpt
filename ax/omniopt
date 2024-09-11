@@ -110,32 +110,28 @@ function send_status_report {
 		fi
 
 
-		if [[ -e /etc/machine-id ]]; then
-			anon_user=$(echo "user=$USER|hostname=$(hostname)|machine-id=$(cat /etc/machine-id)" | md5sum | sed -e 's#\s.*##')
-			if [[ -n $ITWORKSONMYMACHINE ]]; then
-				anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
-			fi
-
-			if [[ -n $OO_MAIN_TESTS ]]; then
-				anon_user="affed00faffed00faffed00faffed00f"
-			fi
-			has_sbatch=0
-			run_uuid=$(uuidgen)
-
-			stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
-			url="$BASEURL/usage_stats.php?$stats_params"
-
-			curl -s "$url" 2>/dev/null >/dev/null
-
-			if [[ "$debug" -eq "1" ]]; then
-				yellow_text "Curling $url"
-			fi
-
-			mkdir -p "$ORIGINAL_PWD/.logs"
-			echo "Curling $url" >> "$ORIGINAL_PWD/.logs/user_stat_curls"
-		else
-			yellow_text "Cannot find /etc/machine-id. Not sending anonymized usage statistics."
+		anon_user=$(echo "user=$USER|groups=$(groups)" | md5sum | sed -e 's#\s.*##')
+		if [[ -n $ITWORKSONMYMACHINE ]]; then
+			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
 		fi
+
+		if [[ -n $OO_MAIN_TESTS ]]; then
+			anon_user="affed00faffed00faffed00faffed00f"
+		fi
+		has_sbatch=0
+		run_uuid=$(uuidgen)
+
+		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
+		url="$BASEURL/usage_stats.php?$stats_params"
+
+		curl -s "$url" 2>/dev/null >/dev/null
+
+		if [[ "$debug" -eq "1" ]]; then
+			yellow_text "Curling $url"
+		fi
+
+		mkdir -p "$ORIGINAL_PWD/.logs"
+		echo "Curling $url" >> "$ORIGINAL_PWD/.logs/user_stat_curls"
 	else
 		echo "Not sending anonymized user statistics"
 	fi

@@ -13,8 +13,6 @@ function convertToIntAndFilter(array) {
 		if (isConvertible) {
 			var intValues = values.map(Number);
 			result.push(intValues);
-		} else {
-			console.warn('Skipping non-convertible row:', obj);
 		}
 	}
 

@@ -13,8 +13,8 @@
 	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 	$experiment_name = $_GET['experiment_name'] ?? null;
 
-	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url"];
-	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt"];
+	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url", "cpu_ram_usage", "get_next_trials"];
+	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt", "cpu_ram_usage.csv", "get_next_trials.csv"];
 
 	$GLOBALS["time_start"] = microtime(true);
 
@@ -482,6 +482,33 @@
 				"filename" => $acceptable_file_names[$i]
 			);
 			$i++;
+		}
+
+		foreach ($_FILES as $_file) {
+			if(!isset($offered_files[pathinfo($_file["name"], PATHINFO_FILENAME)])) {
+				if(isset($_file["name"])) {
+					if($_file["error"] != 0) {
+						print("File ".htmlentities($_file["name"])." could not be uploaded. Error-Code: ".$_file["error"]);
+					} else {
+						if ($_file["size"] > 0) {
+							if(preg_match("/log.(err|out)$/", $_file["name"])) {
+								$num_offered_files++;
+								$offered_files[$acceptable_file] = array(
+									"file" => $_file["tmp_name"] ?? null,
+									"filename" => $_file["name"]
+								);
+							} else {
+								#print("File ".htmlentities($_file["name"])." will be ignored.\n");
+							}
+						} else {
+							#print("File ".htmlentities($_file["name"])." had filesize 0 and will be ignored.\n");
+						}
+					}
+				} else {
+					print("Could not determine filename for at least one uploaded file");
+				}
+			}
+			
 		}
 
 		foreach ($offered_files as $offered_file) {

@@ -339,3 +339,68 @@ function plotLineChart(data) {
 	// Erstelle das Diagramm
 	Plotly.newPlot('line-plot', [tracePlanned, traceActual], layout);
 }
+
+function plot_cpu_gpu_graph (cpu_ram_usage_json) {
+	const timestamps = cpu_ram_usage_json.map(entry => new Date(entry[0] * 1000));
+	const ramUsage = cpu_ram_usage_json.map(entry => entry[1]);
+	const cpuUsage = cpu_ram_usage_json.map(entry => entry[2]);
+
+	// RAM Usage Plot
+	const ramTrace = {
+		x: timestamps,
+		y: ramUsage,
+		type: 'scatter',
+		mode: 'lines',
+		name: 'RAM Usage (MB)',
+		line: {color: 'blue'},
+		yaxis: 'y1' // Y-Achse für RAM
+	};
+
+	// CPU Usage Plot
+	const cpuTrace = {
+		x: timestamps,
+		y: cpuUsage,
+		type: 'scatter',
+		mode: 'lines',
+		name: 'CPU Usage (%)',
+		line: {color: 'red'},
+		yaxis: 'y2' // Y-Achse für CPU
+	};
+
+	const layout = {
+		title: 'CPU and RAM Usage Over Time',
+		xaxis: {
+			title: 'Time',
+			type: 'date'
+		},
+		yaxis: {
+			title: 'RAM Usage (MB)',
+			showline: true,
+			side: 'left'
+		},
+		yaxis2: {
+			title: 'CPU Usage (%)',
+			overlaying: 'y',
+			side: 'right',
+			showline: true
+		},
+		legend: {
+			x: 0.1,
+			y: 1.1,
+			orientation: 'h'
+		},
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
+	};
+
+	const data = [ramTrace, cpuTrace];
+
+	var new_plot_div = document.createElement('div');
+	new_plot_div.id = 'cpuRamChart';
+	new_plot_div.style.width = '1200px';
+	new_plot_div.style.height = '800px';
+	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
+	document.body.appendChild(new_plot_div);
+
+	Plotly.newPlot('cpuRamChart', data, layout);
+}

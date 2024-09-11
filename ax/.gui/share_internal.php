@@ -375,12 +375,11 @@
 					continue;
 				}
 
-				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 ?>
 				<script>
-					var worker_usage_csv = convertToIntAndFilter(<?php echo $jsonData ?>.map(Object.values));
+					var cpu_ram_usage_json = convertToIntAndFilter(<?php echo $jsonData ?>.map(Object.values));
 
-					plotLineChart(worker_usage_csv);
+					plot_cpu_gpu_graph(cpu_ram_usage_json);
 				</script>
 <?php
 			} else if (

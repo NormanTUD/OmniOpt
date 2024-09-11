@@ -94,6 +94,9 @@ fi
 
 set -e
 url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
+if [[ -n $DEBUG ]]; then
+	echo "DEBUG: curl -s ${curl_options[@]} $url"
+fi
 CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
 exit_code=$?
 

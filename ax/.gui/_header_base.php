@@ -1,4 +1,5 @@
 <?php
+	include_once("test_apache_php_config.php");
 	include_once("_functions.php");
 
 	$dir_path = ".";

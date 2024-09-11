@@ -605,9 +605,13 @@
 		show_run($run_folder);
 	} else {
 		$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
-		foreach ($user_subfolders as $user) {
-			$user = preg_replace("/.*\//", "", $user);
-			echo "<a href=\"share.php?user=$user\">$user</a><br>";
+		if(count($user_subfolders)) {
+			foreach ($user_subfolders as $user) {
+				$user = preg_replace("/.*\//", "", $user);
+				echo "<a href=\"share.php?user=$user\">$user</a><br>";
+			}
+		} else {
+			echo "No users found";
 		}
 		print("<!-- startpage -->");
 		print_script_and_folder("");

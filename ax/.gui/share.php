@@ -37,7 +37,9 @@
 				},
 				error: function() {
 					// Fehlerbehandlung, falls die Anfrage fehlschlägt
-					console.error('Fehler beim Laden des Inhalts.');
+					console.error('Error loading the content.');
+					$('#loading_screen').hide();
+					$('#share_main').html('Error loading the requested content!').show();
 				}
 			});
 		});

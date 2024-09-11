@@ -321,7 +321,13 @@
 			}
 		}
 
+		$out_or_err_files = [];
+
 		foreach ($run_files as $file) {
+			if(preg_match("/\/\.\.\/?/", $file)) {
+				print("Invalid file ".htmlentities($file)." detected. It will be ignored.");
+			}
+
 			if (preg_match("/results\.csv$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -401,8 +407,55 @@
 				preg_match("/ui_url\.txt$/", $file)
 			) {
 				// do nothing
+			} else if (
+				preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)
+			) {
+				$out_or_err_files[] = $file;
 			} else {
 				echo "<h2 class='error'>Unknown file type $file</h2>";
+			}
+		}
+
+		if(count($out_or_err_files)) {
+			if(count($out_or_err_files) == 1) {
+				$_file = $out_or_err_files[0];
+				if(file_exists($_file)) {
+					$content = file_get_contents($_file);
+					echo "<h2>".preg_replace("/.*\/+/", "", $_file)."</h2>";
+					print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				}
+			} else {
+?>
+				<div id="out_files_tabs">
+					<ul>
+<?php
+						foreach($out_or_err_files as $out_or_err_file) {
+							$_hash = hash('md5', $out_or_err_file);
+?>
+							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/.*\/+/", "", $out_or_err_file); ?></a></li>
+<?php
+						}
+?>
+					</ul>
+<?php
+						foreach($out_or_err_files as $out_or_err_file) {
+							$_hash = hash('md5', $out_or_err_file);
+							$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+?>
+							<div id="<?php print $_hash; ?>">
+								<textarea readonly class='textarea_csv'><?php print htmlentities($content); ?></textarea>
+							</div>
+<?php
+						}
+?>
+					</div>
+
+				<script>
+					$(function() {
+						$("#out_files_tabs").tabs();
+					});
+				</script>
+<?php
 			}
 		}
 

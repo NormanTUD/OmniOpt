@@ -136,7 +136,7 @@ slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the n
 slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
 slurm.add_argument('--account', help='Account to be used', type=str, default=None)
 slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
+#slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
 
 installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
@@ -4230,7 +4230,7 @@ def get_executor():
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
-        tasks_per_node=args.tasks_per_node,
+        #tasks_per_node=args.tasks_per_node,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,

@@ -256,11 +256,6 @@
 				<td>Number of GPUs.</td>
 				<td><samp>0</samp></td>
 			</tr>
-			<tr>
-				<td><samp>--tasks_per_node TASKS_PER_NODE</samp></td>
-				<td>Number of tasks per node.</td>
-				<td><samp>1</samp></td>
-			</tr>
 			<tr class="section-header invert_in_dark_mode">
 				<td colspan="3">Installing</td>
 			</tr>

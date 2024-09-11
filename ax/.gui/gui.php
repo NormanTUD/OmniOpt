@@ -114,7 +114,7 @@
 
 			var hiddenTableData = [
 				{ label: "CPUs per Task", id: "cpus_per_task", type: "number", value: 1, placeholder: "CPUs per Task", min: 1, max: 10, "help": "How many CPUs should be assigned to each task (for workers)" },
-				{ label: "Tasks per node", id: "tasks_per_node", type: "number", value: 1, placeholder: "ntasks", min: 1, "help": "How many tasks should be assigned for each allocated node (for workers)" },
+				{ label: "Number of nodes", id: "nodes_per_job", type: "number", value: 1, placeholder: "tasks", min: 1, "help": "How many nodes (for each worker)" },
 				{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.", required: false },
 				{ label: "Verbose", id: "verbose", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
 				{ label: "Debug", id: "debug", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },

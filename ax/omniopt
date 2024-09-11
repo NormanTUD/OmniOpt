@@ -110,7 +110,7 @@ function send_status_report {
 		fi
 
 
-		anon_user=$(echo "user=$USER|groups=$(groups)" | sha512sum | rev | sha512sum | sed -e 's#\s.*##')
+		anon_user=$(echo "user=$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##')
 		if [[ -n $ITWORKSONMYMACHINE ]]; then
 			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
 		fi

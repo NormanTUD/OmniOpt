@@ -59,9 +59,11 @@ done
 for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do 
 	for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
 		_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
-		if echo "$_file" | grep -qE "\.(out|err)$"; then
-			filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
-			curl_options+=("-F" "$filename_on_server=@$_file")
+		if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
+			if echo "$_file" | grep -qE "\.(out|err)$"; then
+				filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
+				curl_options+=("-F" "$filename_on_server=@$_file")
+			fi
 		fi
 	done
 done

@@ -538,6 +538,8 @@
 			$i++;
 		}
 
+		dier($_FILES);
+
 		foreach ($_FILES as $_file) {
 			if(preg_match("/log.(err|out)$/", $_file["name"])) {
 				$_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);

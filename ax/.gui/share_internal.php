@@ -426,6 +426,7 @@
 				}
 			} else {
 ?>
+				<h2 id='single_run_files'>Single run output files</h2>
 				<div id="out_files_tabs">
 					<ul>
 <?php
@@ -538,30 +539,33 @@
 		}
 
 		foreach ($_FILES as $_file) {
-			if(!isset($offered_files[pathinfo($_file["name"], PATHINFO_FILENAME)])) {
-				if(isset($_file["name"])) {
-					if($_file["error"] != 0) {
-						print("File ".htmlentities($_file["name"])." could not be uploaded. Error-Code: ".$_file["error"]);
-					} else {
-						if ($_file["size"] > 0) {
-							if(preg_match("/log.(err|out)$/", $_file["name"])) {
+			if(preg_match("/log.(err|out)$/", $_file["name"])) {
+				$_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);
+				if(!isset($offered_files[$_file_without_ending])) {
+					if(isset($_file["name"])) {
+						if($_file["error"] != 0) {
+							print("File ".htmlentities($_file["name"])." could not be uploaded. Error-Code: ".$_file["error"]);
+						} else {
+							if ($_file["size"] > 0) {
 								$num_offered_files++;
-								$offered_files[$acceptable_file] = array(
+								$offered_files[$_file_without_ending] = array(
 									"file" => $_file["tmp_name"] ?? null,
 									"filename" => $_file["name"]
 								);
+
 							} else {
-								#print("File ".htmlentities($_file["name"])." will be ignored.\n");
+								#print("File ".htmlentities($_file["name"])." had filesize 0 and will be ignored.\n");
 							}
-						} else {
-							#print("File ".htmlentities($_file["name"])." had filesize 0 and will be ignored.\n");
 						}
+					} else {
+						print("Could not determine filename for at least one uploaded file");
 					}
 				} else {
-					print("Could not determine filename for at least one uploaded file");
+					print("$_file_without_ending coulnd't be found in \$offered_files\n");
 				}
+			} else {
+				#print("File ".htmlentities($_file["name"])." will be ignored.\n");
 			}
-			
 		}
 
 		foreach ($offered_files as $offered_file) {

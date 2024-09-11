@@ -67,8 +67,13 @@ for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$"); do
 	done
 done
 
-eval "$(resize)"
-user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+
+if [[ -z $NO_WHIPTAIL ]]; then
+	eval "$(resize)"
+	user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+else
+	user_id=$USER
+fi
 
 exitstatus=$?
 if [ $exitstatus = 0 ]; then

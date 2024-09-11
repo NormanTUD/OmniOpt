@@ -433,7 +433,7 @@
 						foreach($out_or_err_files as $out_or_err_file) {
 							$_hash = hash('md5', $out_or_err_file);
 ?>
-							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/.*\/+/", "", $out_or_err_file); ?></a></li>
+							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)); ?></a></li>
 <?php
 						}
 ?>

@@ -369,7 +369,6 @@
 				$jsonData = loadCsvToJson($file);
 				$content = remove_ansi_colors(file_get_contents($file));
 
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
 				if($jsonData == "[]") {
 					echo "Data is empty";
 					continue;

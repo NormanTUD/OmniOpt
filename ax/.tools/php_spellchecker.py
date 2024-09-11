@@ -11,8 +11,17 @@ IGNORED_PATTERNS = [
     r'^linux$',
     r'^publically$',
     r'^homerunnerworkomnioptomnioptaxguisharephp2$',
+    r'^homes3811141reposomnioptaxguiguiphp2$',
+    r'^homes3811141reposomnioptaxgui_header_basephp86$',
+    r'^homes3811141reposomnioptaxguitutorialsphp2$',
+    r'^homes3811141reposomnioptaxguitutorialsphp$',
+    r'^homes3811141reposomnioptaxguisharephp$',
+    r'^homes3811141reposomnioptaxguisharephp2$',
     r'^homenormanreposomnioptaxguiguiphp2$',
+    r'^homes3811141reposomnioptaxguiguiphp$',
     r'^homenormanreposomnioptaxguiindexphp25$',
+    r'^homes3811141reposomnioptaxguiindexphp$',
+    r'^homes3811141reposomnioptaxguiindexphp25$',
     r'^homerunnerworkomnioptomnioptaxguiindexphp25$',
     r'^homerunnerworkomnioptomnioptaxguiguiphp2$',
     r'^homerunnerworkomnioptomnioptaxguitutorialsphp2$',
@@ -456,7 +465,7 @@ def process_php_file(file_path):
             misspelled_words = check_spelling(extracted_text)
 
             if misspelled_words:
-                print(f"Misspelled words in {file_path}:")
+                print(f"!!!!! Misspelled words in {file_path}:")
                 print(", ".join(misspelled_words))
                 return len(misspelled_words)
             else:

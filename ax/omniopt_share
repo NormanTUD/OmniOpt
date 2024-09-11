@@ -77,7 +77,7 @@ fi
 
 
 set -e
-url="$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name"
+url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
 CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
 exit_code=$?
 

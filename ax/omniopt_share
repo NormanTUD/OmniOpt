@@ -42,21 +42,21 @@ experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*$##g' -e 's#.*/##')
 
 curl_options=()
 
-for available_file in $(ls "$RUN_DIR"); do 
+for available_file in $(ls "$RUN_DIR" 2>/dev/null); do 
 	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
 	if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
 		curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
 	fi
 done
 
-for available_file in $(ls "$RUN_DIR/state_files"); do 
+for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do 
 	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
 	if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
 		curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
 	fi
 done
 
-for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$"); do 
+for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do 
 	for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
 		_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
 		if echo "$_file" | grep -qE "\.(out|err)$"; then

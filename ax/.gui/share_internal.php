@@ -442,11 +442,9 @@
 
 							$ok_or_error = $ok;
 
-							$result_regex = "/(^\s*RESULT:\s*\d+(\.\d+)?\s*$)/i";
-
-							if(!preg_match($result_regex, $content)) {
+							if(!checkForResult($content)) {
 								$ok_or_error = $error;
-								dier("content does not match regex >>$result_regex<<:\n\n$content");
+								dier("content does not contain result:\n$content");
 							}
 
 ?>
@@ -535,6 +533,20 @@
 
 	function print_script_and_folder ($folder) {
 		echo "<script>createBreadcrumb('./$folder');</script>\n";
+	}
+
+	function checkForResult($content) {
+		// Regulärer Ausdruck, der nach "RESULT: " gefolgt von einer Zahl sucht (int, negativ, float)
+		$pattern = '/RESULT:\s*(-?\d+(\.\d+)?)/';
+
+		// Überprüfe, ob der String mit dem Muster übereinstimmt
+		if (preg_match($pattern, $content, $matches)) {
+			// Wenn ein Treffer gefunden wurde, gibt $matches[1] die Zahl zurück
+			return $matches[1];
+		} else {
+			// Kein Treffer gefunden
+			return false;
+		}
 	}
 
 	if ($user_id !== null && $experiment_name !== null) {

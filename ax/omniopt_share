@@ -57,7 +57,6 @@ for available_file in $(ls "$RUN_DIR/state_files"); do
 done
 
 for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$"); do 
-	out_and_err_files=()
 	for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
 		_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
 		if echo "$_file" | grep -qE "\.(out|err)$"; then

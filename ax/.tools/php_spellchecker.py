@@ -428,7 +428,7 @@ def extract_visible_text_from_html(html_content):
 
 def clean_word(word):
     # Remove punctuation and split hyphenated words
-    word = re.sub(r'[^\w\s-]', '', word)  # Remove punctuation except hyphen
+    word = re.sub(r'[^\w\s/-]', '', word)  # Remove punctuation except hyphen
     return word.split('-')  # Split on hyphens to check each part separately
 
 def filter_emojis(text):
@@ -449,7 +449,7 @@ def check_spelling(text):
             cleaned_word_parts = clean_word(word)
             for part in cleaned_word_parts:
                 part_no_emoji = filter_emojis(part)
-                if part_no_emoji and not any(re.fullmatch(pattern, part_no_emoji, flags=re.IGNORECASE) for pattern in IGNORED_PATTERNS):
+                if part_no_emoji and not any(re.fullmatch(pattern, part_no_emoji, flags=re.IGNORECASE) for pattern in IGNORED_PATTERNS) and "/" not in word:
                     filtered_words.append(part_no_emoji)
 
         # Find words that are misspelled

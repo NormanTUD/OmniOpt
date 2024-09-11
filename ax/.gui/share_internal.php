@@ -364,6 +364,26 @@
 				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
+				preg_match("/cpu_ram_usage\.csv$/", $file)
+			) {
+				$jsonData = loadCsvToJson($file);
+				$content = remove_ansi_colors(file_get_contents($file));
+
+				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				if($jsonData == "[]") {
+					echo "Data is empty";
+					continue;
+				}
+
+				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+?>
+				<script>
+					var worker_usage_csv = convertToIntAndFilter(<?php echo $jsonData ?>.map(Object.values));
+
+					plotLineChart(worker_usage_csv);
+				</script>
+<?php
+			} else if (
 				preg_match("/worker_usage\.csv$/", $file)
 			) {
 				$jsonData = loadCsvToJson($file);

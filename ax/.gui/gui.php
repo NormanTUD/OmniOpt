@@ -186,8 +186,7 @@
 				},
 
 				"barnard": {
-					//"number_of_workers": 100,
-					"number_of_workers": 40,
+					"number_of_workers": 100,
 					"computation_time": 168 * 60,
 					"max_number_of_gpus": 0,
 					"min_number_of_gpus": 0,

@@ -38,7 +38,7 @@ if [[ ! -d "$RUN_DIR" ]]; then
 	exit 1
 fi
 
-experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*$##g' -e 's#.*/##')
+experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
 
 curl_options=()
 

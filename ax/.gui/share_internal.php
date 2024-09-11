@@ -430,18 +430,32 @@
 				<div id="out_files_tabs">
 					<ul>
 <?php
+						$ok = "&#9989;";
+						$error = "&#10060;";
+
+
+
 						foreach($out_or_err_files as $out_or_err_file) {
-							$_hash = hash('md5', $out_or_err_file);
+							$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+
+							$_hash = hash('md5', $content);
+
+							$ok_or_error = $ok;
+
+							if(!preg_match("/^RESULT:\s*\d+(\.\d+)?\s*$/", $content)) {
+								$ok_or_error = $error;
+							}
 ?>
-							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)); ?></a></li>
+							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)); ?><?php print $ok_or_error; ?></a></li>
 <?php
 						}
 ?>
 					</ul>
 <?php
 						foreach($out_or_err_files as $out_or_err_file) {
-							$_hash = hash('md5', $out_or_err_file);
 							$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+
+							$_hash = hash('md5', $content);
 ?>
 							<div id="<?php print $_hash; ?>">
 								<textarea readonly class='textarea_csv'><?php print htmlentities($content); ?></textarea>

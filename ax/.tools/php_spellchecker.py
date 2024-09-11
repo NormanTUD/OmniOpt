@@ -11,6 +11,7 @@ IGNORED_PATTERNS = [
     r'^linux$',
     r'^publically$',
     r'^homerunnerworkomnioptomnioptaxguisharephp2$',
+    r'^etcphp81cliphpini$',
     r'^100m$',
     r'^2m$',
     r'^8m$',

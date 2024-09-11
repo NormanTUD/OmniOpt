@@ -442,9 +442,13 @@
 
 							$ok_or_error = $ok;
 
-							if(!preg_match("/^RESULT:\s*\d+(\.\d+)?\s*$/", $content)) {
+							$result_regex = "/(^\s*RESULT:\s*\d+(\.\d+)?\s*$)/i";
+
+							if(!preg_match($result_regex, $content)) {
 								$ok_or_error = $error;
+								dier("content does not match regex >>$result_regex<<:\n\n$content");
 							}
+
 ?>
 							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)); ?><?php print $ok_or_error; ?></a></li>
 <?php

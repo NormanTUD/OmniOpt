@@ -448,7 +448,7 @@
 							}
 
 ?>
-							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)); ?><?php print $ok_or_error; ?></a></li>
+							<li><a href="#<?php print $_hash; ?>"><?php print preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)); ?><span class="invert_in_dark_mode"><?php print $ok_or_error; ?></span></a></li>
 <?php
 						}
 ?>

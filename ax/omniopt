@@ -98,6 +98,13 @@ function myexit {
 	exit $CODE
 }
 
+function get_anon_user_id {
+	user_groups="$"user=$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)"" 
+	fixed_iv=$(echo -n "$user_groups" | sha512sum | cut -c1-32)
+	encrypted=$(echo -n "$user_groups" | openssl enc -aes-256-cbc -a -pass pass:"$(echo "$user_groups" | sha512sum | rev | sha512sum)" -iv "$fixed_iv" -nosalt -pbkdf2)
+	echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32
+}
+
 function send_status_report {
 	exit_code=$1
 
@@ -110,7 +117,7 @@ function send_status_report {
 		fi
 
 
-		anon_user=$(echo "user=$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32)
+		anon_user=$(get_anon_user_id)
 		if [[ -n $ITWORKSONMYMACHINE ]]; then
 			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
 		fi

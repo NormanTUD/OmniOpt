@@ -3,6 +3,7 @@
 DEBUG=0
 update=0
 folders_to_share=()
+username=$USER
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -42,25 +43,34 @@ function help {
 	echo "  --help                                             This help"
 	echo "  --update                                           Update a job that had this run-UUID previously"
 	echo "  --debug                                            Enable debug options"
+	echo "  --username=$USER                                   Specify username (with or without = sign)"
 
 	exit $exit_code
 }
 
+
 for arg in "$@"; do
-	if [ "$arg" == "--debug" ]; then
-		DEBUG=1
-		set -x
-	elif [ "$arg" == "--help" ]; then
-		help 0
-	elif [ "$arg" == "--update" ]; then
-		update=1
-	elif [ -d "$arg" ]; then
-		if [[ -d $arg ]]; then
-			folders_to_share+=("$arg")
-		else
-			red_text "Cannot share $arg: folder not found"
-		fi
-	fi
+        if [ "$arg" == "--debug" ]; then
+                DEBUG=1
+                set -x
+        elif [ "$arg" == "--help" ]; then
+                help 0
+        elif [ "$arg" == "--update" ]; then
+                update=1
+        elif [[ "$arg" == --username=* ]]; then
+                # Handle the case where username is provided with `=`
+                username="${arg#--username=}"
+                DONT_ASK_USERNAME=1
+        elif [ -d "$arg" ]; then
+                if [[ -d $arg ]]; then
+                        folders_to_share+=("$arg")
+                else
+                        red_text "Cannot share $arg: folder not found"
+                fi
+        else
+                red_text "Invalid option $arg"
+                help 1
+        fi
 done
 
 source "$SCRIPT_DIR/.shellscript_functions"
@@ -112,11 +122,11 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		done
 
 		if [[ "$k" -eq "0" ]]; then
-			if [[ -z $NO_WHIPTAIL ]]; then
+			if [[ -z $DONT_ASK_USERNAME ]]; then
 				eval "$(resize)"
-				user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+				user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$username" --title "What should be your user name?" 3>&1 1>&2 2>&3)
 			else
-				user_id=$USER
+				user_id=$username
 			fi
 		fi
 

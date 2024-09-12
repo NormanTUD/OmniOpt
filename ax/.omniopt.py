@@ -3805,6 +3805,29 @@ def _orchestrate(stdout_path, trial_index):
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 sys.exit(210)
 
+def write_run_uuid_to_file():
+    try:
+        # Definieren des Dateipfads
+        file_path = f"{CURRENT_RUN_FOLDER}/state_files/run_uuid"
+
+        # Verzeichnisse erstellen, falls sie nicht existieren
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        # Öffnen der Datei im Schreibmodus
+        with open(file_path, 'w') as file:
+            file.write(run_uuid)
+
+        # Erfolgreiche Rückgabe
+        return True
+
+    except Exception as e:
+        # Fehlerbehandlung
+        print(f"Ein Fehler ist aufgetreten: {e}")
+
+        # Rückgabe von False im Fehlerfall
+        return False
+
+
 def save_state_files():
     global global_vars
 
@@ -4485,6 +4508,8 @@ def main():
     RESULT_CSV_FILE = create_folder_and_file(f"{CURRENT_RUN_FOLDER}")
 
     save_state_files()
+
+    write_run_uuid_to_file()
 
     print(f"[yellow]Run-folder[/yellow]: [underline]{CURRENT_RUN_FOLDER}[/underline]")
     if args.continue_previous_job:

@@ -33,6 +33,7 @@ IGNORED_PATTERNS = [
     r'^homes3811141reposomnioptaxguisharephp$',
     r'^homes3811141reposomnioptaxguisharephp2$',
     r'^homenormanreposomnioptaxguiguiphp2$',
+    r'^run_uuid$',
     r'^homes3811141reposomnioptaxguiguiphp$',
     r'^homenormanreposomnioptaxguiindexphp25$',
     r'^homes3811141reposomnioptaxguiindexphp$',

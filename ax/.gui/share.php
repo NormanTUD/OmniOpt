@@ -1,7 +1,7 @@
 <?php
 	include("_header_base.php");
 ?>
-	<div style="visibility: none" id="countdown"></div>
+	<div style="visibility: hidden" id="countdown"></div>
 	<div id="loading_screen">
 		<center>
 			<br>
@@ -52,10 +52,11 @@
 		countdownInterval = setInterval(function() {
 			countdown--;
 			if (countdown <= 0) {
-				$('#countdown').hide();
+				$('#countdown').css("visibility", "hidden");
 				clearInterval(countdownInterval);
 			} else {
 				$('#countdown').text('Next update in ' + countdown + ' seconds');
+				$('#countdown').css("visibility", "visible");
 			}
 		}, 1000);
 	}
@@ -67,11 +68,10 @@
 
 		if (updateInterval) {
 			var interval = parseInt(updateInterval, 10) * 1000; // Umwandlung in Millisekunden
-			updateCountdown(interval); // Startet den Countdown
+			updateCountdown(interval);
 			setInterval(function() {
-				$('.spinner').show(); // Spinner anzeigen
-				load_content(); // Ruft den Inhalt ab
-				updateCountdown(interval); // Aktualisiert den Countdown
+				load_content();
+				updateCountdown(interval);
 			}, interval);
 		}
 	});

@@ -31,7 +31,7 @@
 			"results.csv" => "Results",
 			"parameters.txt" => "Parameter",
 			"get_next_trials.csv" => "Next trial requested/got",
-			"worker_usage.csv" => "Number of workers (time, requested, got, percentage)"
+			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
 		);
 
 		if(isset($names[$replaced_file])) {

@@ -128,6 +128,14 @@ function send_status_report {
 		has_sbatch=0
 		run_uuid=$(uuidgen)
 
+		if [[ -z $git_hash ]]; then
+			git_hash=$(git rev-parse HEAD)
+		fi
+
+		if [[ -z $exit_code ]]; then
+			exit_code="-1"
+		fi
+
 		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
 		url="$BASEURL/usage_stats.php?$stats_params"
 
@@ -138,11 +146,15 @@ function send_status_report {
 		fi
 
 		mkdir -p "$ORIGINAL_PWD/.logs"
-		echo "Curling $url" >> "$ORIGINAL_PWD/.logs/user_stat_curls"
+		echo "Curling $url"
 	else
 		echo "Not sending anonymized user statistics"
 	fi
 }
+
+#SEND_USAGE_STATS=1
+#send_status_report
+#exit
 
 if command -v sbatch 2>/dev/null >/dev/null; then
 	has_sbatch=1

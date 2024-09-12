@@ -50,6 +50,7 @@ IGNORE_PATTERNS = [
     r'^ControlC$',
     r'^CONTsignal$',
     r'^CONTSignal$',
+    r'^liveshare$',
     r'^coolwarm$',
     r'^CPUs$',
     r'^csv$',

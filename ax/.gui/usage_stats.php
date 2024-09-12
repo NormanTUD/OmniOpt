@@ -56,17 +56,16 @@
 			'has_sbatch' => '/^[01]$/',
 			'run_uuid' => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
 			'git_hash' => '/^[0-9a-f]{40}$/',
-			'exit_code' => '/^\d{1,3}$/',
+			'exit_code' => '/^-?\d{1,3}$/',
 			'runtime' => '/^\d+(\.\d+)?$/'
 		];
 
 		foreach ($required_params as $param) {
 			if (!isset($params[$param])) {
-				return false;
+				dier("$param is not set");
 			}
 			if (!preg_match($patterns[$param], $params[$param])) {
-				log_error("Invalid format for parameter: $param");
-				return false;
+				dier("Invalid format for parameter: $param");
 			}
 		}
 
@@ -86,23 +85,25 @@
 	}
 
 	function append_to_csv($params, $filepath) {
-		assert(is_array($params), "Parameters should be an array");
-		assert(is_string($filepath), "Filepath should be a string");
+		if (validate_parameters($params)) {
+			assert(is_array($params), "Parameters should be an array");
+			assert(is_string($filepath), "Filepath should be a string");
 
-		$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];
-		$file_exists = file_exists($filepath);
-		$params["time"] = time();
+			$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];
+			$file_exists = file_exists($filepath);
+			$params["time"] = time();
 
-		try {
-			$file = fopen($filepath, 'a');
-			if (!$file_exists) {
-				fputcsv($file, $headers);
+			try {
+				$file = fopen($filepath, 'a');
+				if (!$file_exists) {
+					fputcsv($file, $headers);
+				}
+				fputcsv($file, $params);
+				fclose($file);
+			} catch (Exception $e) {
+				log_error("Failed to write to CSV: " . $e->getMessage(). ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
+				exit(1);
 			}
-			fputcsv($file, $params);
-			fclose($file);
-		} catch (Exception $e) {
-			log_error("Failed to write to CSV: " . $e->getMessage(). ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
-			exit(1);
 		}
 	}
 
@@ -364,12 +365,10 @@
 
 	$data_filepath = 'stats/usage_statistics.csv';
 
-	if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-		$params = $_POST;
-		if (validate_parameters($params)) {
-			append_to_csv($params, $data_filepath);
-		}
+	if (isset($_SERVER["REQUEST_METHOD"])) {
+		append_to_csv($_GET, $data_filepath);
 	}
+
 	if (validate_csv($data_filepath)) {
 		$data = array_map('str_getcsv', file($data_filepath));
 		array_shift($data); // Remove header row

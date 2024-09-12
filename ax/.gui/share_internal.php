@@ -754,7 +754,7 @@
 				}
 
 				if ($added_files) {
-					echo "Run was successfully updated. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+					echo "Run was successfully updated. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 					exit(0);
 				} else {
 					if (count($empty_files)) {

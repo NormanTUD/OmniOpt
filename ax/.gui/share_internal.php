@@ -618,8 +618,15 @@
 		}
 	}
 
+	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
+	$uuid_folder = findFileByUUID($update_uuid);
+
 	if ($user_id !== null && $experiment_name !== null) {
-		$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
+		if(!$uuid_folder) {
+			$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
+		} else {
+			$userFolder = $uuid_folder;
+		}
 		$run_id = preg_replace("/.*\//", "", $userFolder);
 
 		$added_files = 0;
@@ -684,8 +691,6 @@
 
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
-
 		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];
@@ -696,8 +701,6 @@
 			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 			exit(0);
 		} else {
-			$uuid_folder = findFileByUUID($update_uuid);
-
 			if(!$uuid_folder || !is_dir($uuid_folder)) {
 				foreach ($offered_files as $offered_file) {
 					$file = $offered_file["file"];

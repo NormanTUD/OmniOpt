@@ -1,7 +1,10 @@
 #!/bin/bash
 
+DEBUG=0
+update=0
+folders_to_share=()
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source "$SCRIPT_DIR/.shellscript_functions"
 
 function join_by {
 	local d=${1-} f=${2-}
@@ -28,85 +31,141 @@ function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
 
-if [[ -z $RUN_DIR ]]; then
-	red_text "Parameter for RUN_DIR is not set"
-	exit 1
-fi
+function help {
+	exit_code=$1
 
-if [[ ! -d "$RUN_DIR" ]]; then
-	red_text "$RUN_DIR does not exist"
-	exit 1
-fi
+	echo "OmniOpt share - Share your hyperparameter optimization results with others. Options:"
+	echo ""
+	echo "Example:"
+	echo "  bash omniopt_share runs/my_experiment/0"
+	echo ""
+	echo "  --help                                             This help"
+	echo "  --update                                           Update a job that had this run-UUID previously"
+	echo "  --debug                                            Enable debug options"
 
-experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
+	exit $exit_code
+}
 
-curl_options=()
-
-for available_file in $(ls "$RUN_DIR" 2>/dev/null); do 
-	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-	if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
-		curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
+for arg in "$@"; do
+	if [ "$arg" == "--debug" ]; then
+		DEBUG=1
+		set -x
+	elif [ "$arg" == "--help" ]; then
+		help 0
+	elif [ "$arg" == "--update" ]; then
+		update=1
+	elif [ -d "$arg" ]; then
+		if [[ -d $arg ]]; then
+			folders_to_share+=("$arg")
+		else
+			red_text "Cannot share $arg: folder not found"
+		fi
 	fi
 done
 
-for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do 
-	available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-	if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
-		curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
-	fi
-done
+source "$SCRIPT_DIR/.shellscript_functions"
 
-for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do 
-	for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
-		_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
-		if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
-			if echo "$_file" | grep -qE "\.(out|err)$"; then
-				filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
-				curl_options+=("-F" "$filename_on_server=@$_file")
+k=0
+for RUN_DIR in "${folders_to_share[@]}"; do
+	ok=1
+
+	if [[ -z $RUN_DIR ]]; then
+		red_text "Parameter for RUN_DIR is not set\n"
+		ok=0
+	fi
+
+	if [[ ! -d "$RUN_DIR" ]]; then
+		red_text "$RUN_DIR does not exist\n"
+		ok=0
+	fi
+
+
+	if [[ "$ok" -eq "1" ]]; then
+		experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
+
+		curl_options=()
+
+		for available_file in $(ls "$RUN_DIR" 2>/dev/null); do 
+			available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+			if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
+				curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
+			fi
+		done
+
+		for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do 
+			available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+			if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
+				curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
+			fi
+		done
+
+		for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do 
+			for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
+				_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
+				if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
+					if echo "$_file" | grep -qE "\.(out|err)$"; then
+						filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
+						curl_options+=("-F" "$filename_on_server=@$_file")
+					fi
+				fi
+			done
+		done
+
+		if [[ "$k" -eq "0" ]]; then
+			if [[ -z $NO_WHIPTAIL ]]; then
+				eval "$(resize)"
+				user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+			else
+				user_id=$USER
 			fi
 		fi
-	done
-done
 
+		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+			true
+		else
+		    yellow_text "You cancelled sharing."
+		    exit 0
+		fi
 
-if [[ -z $NO_WHIPTAIL ]]; then
-	eval "$(resize)"
-	user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$USER" --title "What should be your user name?" 3>&1 1>&2 2>&3)
-else
-	user_id=$USER
-fi
+		BASEURL="https://imageseg.scads.de/omniax"
 
-exitstatus=$?
-if [ $exitstatus = 0 ]; then
-	true
-else
-    yellow_text "You cancelled sharing."
-    exit 0
-fi
-
-BASEURL="https://imageseg.scads.de/omniax"
-
-if [[ -e "$HOME/.oo_base_url" ]]; then
-	BASEURL=$(cat "$HOME/.oo_base_url")
-	yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
-fi
+		if [[ -e "$HOME/.oo_base_url" ]]; then
+			BASEURL=$(cat "$HOME/.oo_base_url")
+			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
+		fi
 
 
 
-set -e
-url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
-if [[ -n $DEBUG ]]; then
-	echo "DEBUG: curl -s ${curl_options[@]} $url"
-fi
-CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
-exit_code=$?
+		set -e
 
-if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
-	red_text "$CURL_OUTPUT"
-	if [[ $exit_code -ne 0 ]]; then
-		echo "Curling $url failed"
-		exit $exit_code
+		url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
+
+		if [[ "$update" -eq "1" ]]; then
+			if [[ -e $RUN_DIR/state_files/run_uuid ]]; then
+				run_uuid=$(cat $RUN_DIR/state_files/run_uuid)
+				url="$url&update_uuid=$run_uuid"
+			else
+				red_text "Cannot find file $RUN_DIR/state_files/run_uuid: Cannot update.\n"
+				exit 1
+			fi
+		fi
+
+		if [[ $DEBUG -eq 1 ]]; then
+			echo "DEBUG: curl -s ${curl_options[@]} $url"
+		fi
+		CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
+		exit_code=$?
+
+		if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
+			red_text "$CURL_OUTPUT"
+			if [[ $exit_code -ne 0 ]]; then
+				echo "Curling $url failed"
+				exit $exit_code
+			fi
+		else
+			green_text "$CURL_OUTPUT"
+		fi
 	fi
-else
-	green_text "$CURL_OUTPUT"
-fi
+	k=$(($k+1))
+done

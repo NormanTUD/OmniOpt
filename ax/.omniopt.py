@@ -10,7 +10,9 @@ import random
 import sys
 from inspect import currentframe, getframeinfo
 from pathlib import Path
+import uuid
 
+run_uuid = uuid.uuid4()
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
 IS_IN_EVALUATE = False
@@ -219,8 +221,6 @@ try:
         import yaml
     with console.status("[bold green]Loading psutil...") as status:
         import psutil
-    with console.status("[bold green]Loading uuid...") as status:
-        import uuid
     with console.status("[bold green]Loading threading...") as status:
         import threading
     with console.status("[bold green]Loading shutil...") as status:
@@ -609,8 +609,6 @@ global_vars["parameter_names"] = []
 # grid ausblenden
 
 main_pid = os.getpid()
-
-run_uuid = uuid.uuid4()
 
 def set_max_eval(new_max_eval):
     global max_eval

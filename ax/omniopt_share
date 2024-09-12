@@ -117,24 +117,28 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			fi
 		done
 
-		for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do 
-			available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-			if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
-				curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
-			fi
-		done
-
-		for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do 
-			for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
-				_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
-				if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
-					if echo "$_file" | grep -qE "\.(out|err)$"; then
-						filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
-						curl_options+=("-F" "$filename_on_server=@$_file")
-					fi
+		if [[ -d "$RUN_DIR/state_files" ]]; then
+			for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do 
+				available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+				if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
+					curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
 				fi
 			done
-		done
+		fi
+
+		if [[ -d "$RUN_DIR/single_runs" ]]; then
+			for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do 
+				for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
+					_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
+					if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
+						if echo "$_file" | grep -qE "\.(out|err)$"; then
+							filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
+							curl_options+=("-F" "$filename_on_server=@$_file")
+						fi
+					fi
+				done
+			done
+		fi
 
 		if [[ "$k" -eq "0" ]]; then
 			if [[ -z $DONT_ASK_USERNAME ]]; then

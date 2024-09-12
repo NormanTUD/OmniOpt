@@ -439,7 +439,7 @@ def _count_sobol_steps(csv_file_path):
 
 def run_live_share_command():
     if not CURRENT_RUN_FOLDER:
-        return
+        return "", ""
 
     try:
         # Environment variable USER
@@ -454,13 +454,14 @@ def run_live_share_command():
         result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # Return stdout and stderr
-        return result.stdout, result.stderr
+        return str(result.stdout), str(result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e}")
-        return "", e.stderr
+        print(f"Command failed with error: {e}, stderr: {e.stderr}")
+        return "", str(e.stderr)
     except Exception as e:
         print(f"An error occurred: {e}")
-        return "", ""
+
+    return "", ""
 
 def live_share():
     global shown_live_share_counter

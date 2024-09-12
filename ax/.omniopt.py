@@ -447,11 +447,11 @@ def run_live_share_command():
         if _user is None:
             raise ValueError("Environment variable 'USER' not found.")
 
-        # Bash command
-        command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
+        _command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
 
-        # Execute the command and capture stdout and stderr
-        result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print_debug(f"run_live_share_command: {_command}")
+
+        result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # Return stdout and stderr
         return result.stdout, result.stderr

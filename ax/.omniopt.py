@@ -12,7 +12,7 @@ from inspect import currentframe, getframeinfo
 from pathlib import Path
 import uuid
 
-run_uuid = uuid.uuid4()
+run_uuid = str(uuid.uuid4())
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
 IS_IN_EVALUATE = False
@@ -3805,26 +3805,19 @@ def _orchestrate(stdout_path, trial_index):
 
 def write_run_uuid_to_file():
     try:
-        # Definieren des Dateipfads
         file_path = f"{CURRENT_RUN_FOLDER}/state_files/run_uuid"
+        print(file_path)
 
-        # Verzeichnisse erstellen, falls sie nicht existieren
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-        # Öffnen der Datei im Schreibmodus
         with open(file_path, 'w') as file:
             file.write(run_uuid)
 
-        # Erfolgreiche Rückgabe
         return True
-
     except Exception as e:
-        # Fehlerbehandlung
-        print(f"Ein Fehler ist aufgetreten: {e}")
+        print(f"An error occurred: {e}")
 
-        # Rückgabe von False im Fehlerfall
         return False
-
 
 def save_state_files():
     global global_vars

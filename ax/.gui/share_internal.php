@@ -473,7 +473,7 @@
 				preg_match("/single_runs/", $file) ||
 				preg_match("/gpu_usage/", $file) ||
 				preg_match("/hash\.md5$/", $file) ||
-				preg_match("/ui_url\.txt$/", $file)
+				preg_match("/ui_url\.txt$/", $file) ||
 				preg_match("/run_uuid$/", $file)
 			) {
 				// do nothing

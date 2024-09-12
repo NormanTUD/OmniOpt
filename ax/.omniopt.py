@@ -13,6 +13,7 @@ from pathlib import Path
 import uuid
 
 run_uuid = str(uuid.uuid4())
+shown_live_share_counter = 0
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
 IS_IN_EVALUATE = False
@@ -127,6 +128,7 @@ optional.add_argument('--disable_search_space_exhaustion_detection', help='Disab
 optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
 optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
 optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
+optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
 
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)
@@ -434,6 +436,47 @@ def _count_sobol_steps(csv_file_path):
     sobol_count = len(sobol_rows)
 
     return sobol_count
+
+def run_live_share_command():
+    if not CURRENT_RUN_FOLDER:
+        return
+
+    try:
+        # Environment variable USER
+        _user = os.getenv('USER')
+        if _user is None:
+            raise ValueError("Environment variable 'USER' not found.")
+
+        # Bash command
+        command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
+
+        # Execute the command and capture stdout and stderr
+        result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        # Return stdout and stderr
+        return result.stdout, result.stderr
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with error: {e}")
+        return None, e.stderr
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None, None
+
+def live_share():
+    global shown_live_share_counter
+
+    if not args.live_share:
+        return
+
+    if not CURRENT_RUN_FOLDER:
+        return
+
+    stdout, stderr = run_live_share_command()
+
+    if shown_live_share_counter == 0 and stderr:
+        print(stderr, end="")
+
+    shown_live_share_counter = shown_live_share_counter + 1
 
 def save_pd_csv():
     pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
@@ -3658,6 +3701,8 @@ def finish_previous_jobs(new_msgs):
 
     clean_completed_jobs()
 
+    live_share()
+
 def check_orchestrator(stdout_path, trial_index):
     behavs = []
 
@@ -4587,6 +4632,8 @@ def main():
 
     write_process_info()
 
+    live_share()
+
     with tqdm(total=max_eval, disable=False) as _progress_bar:
         write_process_info()
         global progress_bar
@@ -4716,27 +4763,32 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         f"{program_path_with_program} 1 2 3 45"
     )
 
-    stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
+    try:
+        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
-    print("stdout_stderr_exit_code_signal:")
-    print(stdout_stderr_exit_code_signal)
+        print("stdout_stderr_exit_code_signal:")
+        print(stdout_stderr_exit_code_signal)
 
-    stdout = stdout_stderr_exit_code_signal[0]
-    stderr = stdout_stderr_exit_code_signal[1]
-    exit_code = stdout_stderr_exit_code_signal[2]
-    _signal = stdout_stderr_exit_code_signal[3]
+        stdout = stdout_stderr_exit_code_signal[0]
+        stderr = stdout_stderr_exit_code_signal[1]
+        exit_code = stdout_stderr_exit_code_signal[2]
+        _signal = stdout_stderr_exit_code_signal[3]
 
-    res = get_result(stdout)
+        res = get_result(stdout)
 
-    if res_is_none:
-        nr_errors += is_equal(f"{_program_name} res is None", None, res)
-    else:
-        nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int)))
-    nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
-    nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
-    nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
+        if res_is_none:
+            nr_errors += is_equal(f"{_program_name} res is None", None, res)
+        else:
+            nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int)))
+        nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
+        nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
+        nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
 
-    return nr_errors
+        return nr_errors
+    except Exception as e:
+        print_red(f"Error complex_tests: {e}")
+
+        return 1
 
 def get_files_in_dir(mypath):
     print_debug("get_files_in_dir")

@@ -73,6 +73,7 @@ IGNORED_PATTERNS = [
     r'^show_sixel_scatter$',
     r'^show_worker_percentage_table_at_end$',
     r'^slurm_signal_delay_s$',
+    r'^live_share$',
     r'^bo_mixed$',
     r'^botorch_modular$',
     r'^cpus_per_task$',

@@ -72,6 +72,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--live_share</samp></td>
+				<td>Automatically live-share the current optimization run automatically</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--checkout_to_latest_tested_version</samp></td>
 				<td>Automatically checkout to latest version that was tested in the CI pipeline</td>
 				<td><samp>False</samp></td>

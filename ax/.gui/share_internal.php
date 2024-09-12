@@ -754,7 +754,7 @@
 				}
 
 				if ($added_files) {
-					echo "Run was successfully updated. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
+					echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update_interval=30 for a live-trace.\n";
 					exit(0);
 				} else {
 					if (count($empty_files)) {

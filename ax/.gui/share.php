@@ -2,14 +2,6 @@
 	include("_header_base.php");
 ?>
 	<div style="visibility: hidden" id="countdown"></div>
-	<div id="loading_screen">
-		<center>
-			<br>
-			Loading OmniOpt-Share...<br>
-			<br>
-			<div class="spinner"></div>
-		</center>
-	</div>
 	<div id="share_main" style="display: none">
 	</div>
 </div>
@@ -23,24 +15,27 @@
 		return results === null ? '' : decodeURIComponent(results[1]);
 	}
 
-	function load_content() {
+	function load_content(msg) {
 		var queryString = window.location.search;
 		var requestUrl = 'share_internal.php' + queryString;
 
+		showSpinnerOverlay(msg);
+
 		$.ajax({
-		url: requestUrl,
+			url: requestUrl,
 			method: 'GET',
 			success: function(response) {
 				if (response != last_load_content) {
-					$('#share_main').html(response);
-					$('#loading_screen').hide();
-					$('#share_main').show();
+					$('#share_main').html(response).show();
 					last_load_content = response;
 				}
+				removeSpinnerOverlay();
 			},
 			error: function() {
+				showSpinnerOverlay(msg);
 				console.error('Error loading the content.');
 				$('#share_main').html('Error loading the requested content!').show();
+				removeSpinnerOverlay();
 			}
 		});
 	}
@@ -55,14 +50,13 @@
 				$('#countdown').css("visibility", "hidden");
 				clearInterval(countdownInterval);
 			} else {
-				$('#countdown').text('Next update in ' + countdown + ' seconds');
-				$('#countdown').css("visibility", "visible");
+				$('#countdown').text('Next update in ' + countdown + ' seconds').css("visibility", "visible");
 			}
 		}, 1000);
 	}
 
 	$(document).ready(function() {
-		load_content();
+		load_content("Loading OmniOpt-Share...");
 
 		var updateInterval = getParameterByName('update_interval');
 
@@ -70,7 +64,7 @@
 			var interval = parseInt(updateInterval, 10) * 1000; // Umwandlung in Millisekunden
 			updateCountdown(interval);
 			setInterval(function() {
-				load_content();
+				load_content("Reloading content...");
 				updateCountdown(interval);
 			}, interval);
 		}

@@ -457,10 +457,10 @@ def run_live_share_command():
         return result.stdout, result.stderr
     except subprocess.CalledProcessError as e:
         print(f"Command failed with error: {e}")
-        return None, e.stderr
+        return "", e.stderr
     except Exception as e:
         print(f"An error occurred: {e}")
-        return None, None
+        return "", ""
 
 def live_share():
     global shown_live_share_counter

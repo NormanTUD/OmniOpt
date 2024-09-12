@@ -144,9 +144,6 @@ function send_status_report {
 		if [[ "$debug" -eq "1" ]]; then
 			yellow_text "Curling $url"
 		fi
-
-		mkdir -p "$ORIGINAL_PWD/.logs"
-		echo "Curling $url"
 	else
 		echo "Not sending anonymized user statistics"
 	fi
@@ -265,6 +262,11 @@ export CUDA_DEVICE_ORDER=PCI_BUS_ID
 ORIGINAL_PWD="$(pwd)"
 export ORIGINAL_PWD
 
+mkdir -p "$ORIGINAL_PWD/.logs" || {
+	red_text "Failed: mkdir -p $ORIGINAL_PWD/.logs"
+	exit 1
+}
+
 set -e
 set -o pipefail
 
@@ -276,7 +278,7 @@ function mycd {
 
 slurmlogpath () {
 	if command -v scontrol 2>/dev/null >/dev/null; then
-		scontrol show job "$1" | grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn} StdOut | sed -e 's/^\s*StdOut=//'
+		scontrol show job "$1" | grep StdOut | sed -e 's/^\s*StdOut=//'
 	fi
 }
 

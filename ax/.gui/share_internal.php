@@ -93,6 +93,40 @@
 		exit(1);
 	}
 
+	function findFileByUUID($uuid) {
+		$baseDir = 'shares/';
+
+		function searchDirectory($dir, $uuid) {
+			$files = array_diff(scandir($dir), ['.', '..']);
+
+			foreach ($files as $file) {
+				$path = $dir . DIRECTORY_SEPARATOR . $file;
+
+				// Wenn es ein Verzeichnis ist, rekursiv weitersuchen
+				if (is_dir($path)) {
+					$result = searchDirectory($path, $uuid);
+					if ($result !== null) {
+						return $result;
+					}
+				} elseif (basename($path) === "run_uuid") {
+					// Wenn es eine Datei ist und die Datei heißt wie die UUID, geben wir den Pfad zurück (ohne den letzten Teil)
+					return dirname($path);
+				}
+			}
+
+			// Wenn nichts gefunden wurde, null zurückgeben
+			return null;
+		}
+
+		$result = searchDirectory($baseDir, $uuid);
+
+		if ($result !== null) {
+			return $result;
+		}
+
+		return null;
+	}
+
 	function checkPermissions($path, $user_id) {
 		// Überprüfen, ob der Ordner existiert und dem aktuellen Benutzer gehört
 		if (!file_exists($path) || !is_dir($path)) {
@@ -650,46 +684,84 @@
 
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
+		$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
+
 		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
 
-		if($found_hash_file) {
+		if($found_hash_file && is_null($update_uuid)) {
 			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
 			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 			exit(0);
 		} else {
-			foreach ($offered_files as $offered_file) {
-				$file = $offered_file["file"];
-				$filename = $offered_file["filename"];
-				if ($file && file_exists($file)) {
-					$content = file_get_contents($file);
-					$content_encoding = mb_detect_encoding($content);
-					if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-						if(filesize($file)) {
-							move_uploaded_file($file, "$userFolder/$filename");
-							$added_files++;
+			$uuid_folder = findFileByUUID($update_uuid);
+
+			if(!$uuid_folder || !is_dir($uuid_folder)) {
+				foreach ($offered_files as $offered_file) {
+					$file = $offered_file["file"];
+					$filename = $offered_file["filename"];
+					if ($file && file_exists($file)) {
+						$content = file_get_contents($file);
+						$content_encoding = mb_detect_encoding($content);
+						if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+							if(filesize($file)) {
+								move_uploaded_file($file, "$userFolder/$filename");
+								$added_files++;
+							} else {
+								$empty_files[] = $filename;
+							}
 						} else {
-							$empty_files[] = $filename;
+							dier("$filename: \$content was not ASCII, but $content_encoding");
 						}
-					} else {
-						dier("$filename: \$content was not ASCII, but $content_encoding");
 					}
 				}
-			}
 
-			if ($added_files) {
-				echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
-				exit(0);
-			} else {
-				if (count($empty_files)) {
-					$empty_files_string = implode(", ", $empty_files);
-					echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
+				if ($added_files) {
+					echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+					exit(0);
 				} else {
-					echo "Error sharing the job. No Files were found. \n";
+					if (count($empty_files)) {
+						$empty_files_string = implode(", ", $empty_files);
+						echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
+					} else {
+						echo "Error sharing the job. No Files were found. \n";
+					}
+					exit(1);
 				}
-				exit(1);
+			} else {
+				foreach ($offered_files as $offered_file) {
+					$file = $offered_file["file"];
+					$filename = $offered_file["filename"];
+					if ($file && file_exists($file)) {
+						$content = file_get_contents($file);
+						$content_encoding = mb_detect_encoding($content);
+						if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+							if(filesize($file)) {
+								move_uploaded_file($file, "$uuid_folder/$filename");
+								$added_files++;
+							} else {
+								$empty_files[] = $filename;
+							}
+						} else {
+							dier("$filename: \$content was not ASCII, but $content_encoding");
+						}
+					}
+				}
+
+				if ($added_files) {
+					echo "Run was successfully updated. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+					exit(0);
+				} else {
+					if (count($empty_files)) {
+						$empty_files_string = implode(", ", $empty_files);
+						echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
+					} else {
+						echo "Error sharing the job. No Files were found. \n";
+					}
+					exit(1);
+				}
 			}
 		}
 	} else {

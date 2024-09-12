@@ -405,17 +405,6 @@
 <?php
 				$shown_data += 1;
 			} else if (
-				preg_match("/parameters\.txt$/", $file)
-			) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-				print_header_file($file);
-				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
-				$shown_data += 1;
-			} else if (
 				preg_match("/cpu_ram_usage\.csv$/", $file)
 			) {
 				$jsonData = loadCsvToJson($file);
@@ -470,10 +459,22 @@
 					plotLineChart(worker_usage_csv);
 				</script>
 <?php
+			} else if(
+				preg_match("/parameters\.txt$/", $file) ||
+				preg_match("/best_result\.txt$/", $file)
+			) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				$content_encoding = mb_detect_encoding($content);
+				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+					continue;
+				}
+
+				print_header_file($file);
+				echo "<pre>".htmlentities($content)."</pre>";
+				$shown_data += 1;
 			} else if (
 				preg_match("/evaluation_errors\.log$/", $file) || 
 				preg_match("/oo_errors\.txt$/", $file) ||
-				preg_match("/best_result\.txt$/", $file) ||
 				preg_match("/get_next_trials/", $file) ||
 				preg_match("/job_infos\.csv$/", $file)
 			) {

@@ -23,6 +23,24 @@
 		dier("Runtime: ".abs($time_end - $GLOBALS["time_start"]));
 	}
 
+	function print_header_file ($file) {
+		$replaced_file = preg_replace("/.*\//", "", $file);
+
+		$names = array(
+			"best_result.txt" => "Best results",
+			"results.csv" => "Results",
+			"parameters.txt" => "Parameter",
+			"get_next_trials.csv" => "Next trial requested/got",
+			"worker_usage.csv" => "Number of workers (time, requested, got, percentage)"
+		);
+
+		if(isset($names[$replaced_file])) {
+			echo "<h2>".$names[$replaced_file]." (<samp>$replaced_file</samp>)</h2>";
+		} else {
+			echo "<h2>".$replaced_file."</h2>";
+		}
+	}
+
 	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
@@ -371,7 +389,7 @@
 
 				$jsonData = loadCsvToJsonByResult($file);
 
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				print_header_file($file);
 				if($jsonData == "[]") {
 					echo "Data is empty";
 					continue;
@@ -394,7 +412,7 @@
 				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
 					continue;
 				}
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				print_header_file($file);
 				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
@@ -438,7 +456,7 @@
 				$jsonData = loadCsvToJson($file);
 				$content = remove_ansi_colors(file_get_contents($file));
 
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+				print_header_file($file);
 				if($jsonData == "[]") {
 					echo "Data is empty";
 					continue;
@@ -464,7 +482,8 @@
 				if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
 					continue;
 				}
-				echo "<h2>".preg_replace("/.*\//", "", $file)."</h2>";
+
+				print_header_file($file);
 				echo "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				$shown_data += 1;
 			} else if (
@@ -491,7 +510,7 @@
 				$_file = $out_or_err_files[0];
 				if(file_exists($_file)) {
 					$content = file_get_contents($_file);
-					echo "<h2>".preg_replace("/.*\/+/", "", $_file)."</h2>";
+					print_header_file($_file);
 					print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				}
 			} else {

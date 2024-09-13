@@ -113,7 +113,11 @@
 
 	function findMatchingUUIDRunFolder(string $targetUUID): ?string {
 		// Glob-Muster, um alle passenden Dateien zu finden
-		$files = glob('shares/**/state_files/run_uuid');
+
+		$glob_str = './shares/*/*/*/run_uuid';
+		$files = glob($glob_str);
+		#dier($glob_str);
+		#dier($files);
 
 		foreach ($files as $file) {
 			// Dateiinhalt lesen und Whitespace (Leerzeichen, Newlines, Tabs) entfernen
@@ -122,7 +126,7 @@
 			// Überprüfen, ob die UUID übereinstimmt
 			if ($fileContent === $targetUUID) {
 				// Ordnerpfad ohne 'state_files/run_uuid' zurückgeben
-				return dirname(dirname($file));  // Zwei Ebenen zurück gehen
+				return dirname($file);  // Zwei Ebenen zurück gehen
 			}
 		}
 

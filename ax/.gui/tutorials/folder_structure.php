@@ -26,7 +26,7 @@ twice, the paths <samp>runs/my_experiment/0</samp> and <samp>runs/my_experiment/
 
 <h4 id="results_csv"><samp>results.csv</samp></h4>
 
-<p>This file contains infos about every evaluation in this run, that is, it's number, the algorithm that craeted that point, its parameters, and it's result.</p>
+<p>This file contains infos about every evaluation in this run, that is, it's number, the algorithm that created that point, its parameters, and it's result.</p>
 
 <pre>trial_index,arm_name,trial_status,generation_method,result,width_and_height,validation_split,learning_rate,epochs
 0,0_0,COMPLETED,Sobol,1.690072,71,0.021625286340713503,0.20240612381696702,7
@@ -93,7 +93,7 @@ nodes that have running jobs on it with ssh.</p>
 
 <h4 id="job_infos"><samp>job_infos.csv</samp></h4>
 
-<p>This is similiar to the <samp>results.csv</samp>, but contains a little other info, i.e. the hostname the execution ran on and the full path that is run, also start- and endtime of execution and the exit code and signal that the job ended with.</p>
+<p>This is similar to the <samp>results.csv</samp>, but contains a little other info, i.e. the hostname the execution ran on and the full path that is run, also start- and endtime of execution and the exit code and signal that the job ended with.</p>
 
 <pre>start_time,end_time,run_time,program_string,width_and_height,validation_split,learning_rate,epochs,result,exit_code,signal,hostname
 1719298546,1719298600,54,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.20240612381696702 --epochs=7 --validation_split=0.021625286340713503 --width=71 --height=71 --dense=8 --dense_units=16 --conv=16 --conv_filters=16,71,0.021625286340713503,0.20240612381696702,7,1.690072,0,None,arbeitsrechner
@@ -113,7 +113,7 @@ This will add the column <samp>OO_Info_outputname</samp> to the <samp>job_infos.
 
 <h4 id="oo_errors"><samp>oo_errors.txt</samp></h4>
 
-<p>This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or non-existant.</p>
+<p>This file, if it exists, contains a list of potential errors OmniOpt2 encountered during the run. If no errors were found, it may be empty or nonexistent.</p>
 
 <h4 id="parameters"><samp>parameters.txt</samp></h4>
 

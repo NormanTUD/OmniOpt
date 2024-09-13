@@ -1,72 +1,95 @@
 <?php
-	include("_header_base.php");
+        include("_header_base.php");
 ?>
-	<div style="visibility: hidden" id="countdown"></div>
-	<div id="share_main" style="display: none">
-	</div>
+        <div style="visibility: hidden" id="countdown"></div>
+        <div id="share_main" style="display: none"></div>
 </div>
 <script>
-	var last_load_content = "";
-	var countdownInterval;
+        var last_load_content = "";
+        var last_hash = "";
+        var countdownInterval;
 
-	function getParameterByName(name) {
-		var regex = new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)');
-		var results = regex.exec(window.location.search);
-		return results === null ? '' : decodeURIComponent(results[1]);
-	}
+        function getParameterByName(name) {
+                var regex = new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)');
+                var results = regex.exec(window.location.search);
+                return results === null ? '' : decodeURIComponent(results[1]);
+        }
 
-	function load_content(msg) {
-		var queryString = window.location.search;
-		var requestUrl = 'share_internal.php' + queryString;
+        function load_content(msg) {
+                var queryString = window.location.search;
+                var requestUrl = 'share_internal.php' + queryString;
 
-		showSpinnerOverlay(msg);
+                showSpinnerOverlay(msg);
 
-		$.ajax({
-			url: requestUrl,
-			method: 'GET',
-			success: function(response) {
-				if (response != last_load_content) {
-					$('#share_main').html(response).show();
-					last_load_content = response;
-				}
-				removeSpinnerOverlay();
-			},
-			error: function() {
-				showSpinnerOverlay(msg);
-				console.error('Error loading the content.');
-				$('#share_main').html('Error loading the requested content!').show();
-				removeSpinnerOverlay();
-			}
-		});
-	}
+                $.ajax({
+                        url: requestUrl,
+                        method: 'GET',
+                        success: function(response) {
+                                if (response != last_load_content) {
+                                        $('#share_main').html(response).show();
+                                        last_load_content = response;
+                                }
+                                removeSpinnerOverlay();
+                        },
+                        error: function() {
+                                showSpinnerOverlay(msg);
+                                console.error('Error loading the content.');
+                                $('#share_main').html('Error loading the requested content!').show();
+                                removeSpinnerOverlay();
+                        }
+                });
+        }
 
-	function updateCountdown(interval) {
-		var countdown = interval / 1000; // Interval in Sekunden
-		$('#countdown').text('Next update in ' + countdown + ' seconds').show();
+        function fetchHashAndUpdateContent(interval) {
+                var hashUrl = window.location + '&get_hash_only=1';
 
-		countdownInterval = setInterval(function() {
-			countdown--;
-			if (countdown <= 0) {
-				$('#countdown').css("visibility", "hidden");
-				clearInterval(countdownInterval);
-			} else {
-				$('#countdown').text('Next update in ' + countdown + ' seconds').css("visibility", "visible");
-			}
-		}, 1000);
-	}
+                $.ajax({
+                        url: hashUrl,
+                        method: 'GET',
+                        success: function(response) {
+                                var newHash = response.trim(); // Ensure no extra spaces or newlines
 
-	$(document).ready(function() {
-		load_content("Loading OmniOpt-Share...");
+                                if (newHash !== last_hash) {
+                                        console.log('Hash changed, reloading content.');
+                                        last_hash = newHash;
+                                        load_content("Reloading content...");
+                                } else {
+                                        console.log('Hash unchanged, no reload necessary.');
+                                }
+                        },
+                        error: function() {
+                                console.error('Error fetching the hash.');
+                        }
+                });
+        }
 
-		var updateInterval = getParameterByName('update_interval');
+        function updateCountdown(interval) {
+                var countdown = interval / 1000; // Interval in seconds
+                $('#countdown').text('Next update in ' + countdown + ' seconds').show();
 
-		if (updateInterval) {
-			var interval = parseInt(updateInterval, 10) * 1000; // Umwandlung in Millisekunden
-			updateCountdown(interval);
-			setInterval(function() {
-				load_content("Reloading content...");
-				updateCountdown(interval);
-			}, interval);
-		}
-	});
+                countdownInterval = setInterval(function() {
+                        countdown--;
+                        if (countdown <= 0) {
+                                $('#countdown').css("visibility", "hidden");
+                                clearInterval(countdownInterval);
+                        } else {
+                                $('#countdown').text('Next update in ' + countdown + ' seconds').css("visibility", "visible");
+                        }
+                }, 1000);
+        }
+
+        $(document).ready(function() {
+                load_content("Loading OmniOpt-Share...");
+
+                var auto_update = getParameterByName('update');
+
+		if (auto_update) {
+                        var interval = parseInt(1, 10) * 1000; // Convert to milliseconds
+                        updateCountdown(interval);
+                        setInterval(function() {
+                                fetchHashAndUpdateContent(interval);
+                                updateCountdown(interval);
+                        }, interval);
+                }
+        });
 </script>

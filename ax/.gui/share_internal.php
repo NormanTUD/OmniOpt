@@ -4,8 +4,6 @@
 		throw new \ErrorException($message, $severity, $severity, $file, $line);
 	});
 
-	$default_interval = 30;
-
 	ini_set('display_errors', 1);
 
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")."://".(isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost")."/".$_SERVER["SCRIPT_NAME"]);
@@ -19,6 +17,53 @@
 	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt", "cpu_ram_usage.csv", "get_next_trials.csv", "run_uuid"];
 
 	$GLOBALS["time_start"] = microtime(true);
+
+	function calculateDirectoryHash($directory) {
+		// Überprüfen, ob der Ordner existiert und lesbar ist
+		if (!is_dir($directory) || !is_readable($directory)) {
+			return false; // Fehler, Ordner existiert nicht oder ist nicht lesbar
+		}
+
+		// Rekursive Funktion zum Abrufen aller Dateien im Ordner und Unterordnern
+		function getFilesRecursive($dir) {
+			$files = [];
+			$dirIterator = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+			$iterator = new RecursiveIteratorIterator($dirIterator, RecursiveIteratorIterator::SELF_FIRST);
+
+			foreach ($iterator as $file) {
+				if ($file->isFile()) {
+					$files[] = $file->getPathname();
+				}
+			}
+
+			// Alphabetisch sortieren
+			sort($files);
+			return $files;
+		}
+
+		// Alle Dateien im Ordner und Unterordner holen
+		$files = getFilesRecursive($directory);
+
+		// Falls keine Dateien gefunden wurden
+		if (empty($files)) {
+			return false; // Keine Dateien im Ordner
+		}
+
+		$combinedHashes = '';
+
+		// Für jede Datei den SHA256-Hash berechnen und an die Hash-Liste anhängen
+		foreach ($files as $file) {
+			$fileContent = file_get_contents($file);
+			if ($fileContent === false) {
+				return false; // Fehler beim Lesen der Datei
+			}
+
+			$combinedHashes .= hash('sha256', $fileContent);
+		}
+
+		// Endgültigen SHA256-Hash des kombinierten Hash-Strings berechnen
+		return hash('sha256', $combinedHashes);
+	}
 
 	function die_with_time() {
 		$time_end = microtime(true);
@@ -738,7 +783,7 @@
 
 				if ($added_files) {
 					if(isset($_GET["update"])) {
-						echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update_interval=$default_interval for a live-trace.\n";
+						echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n";
 					} else {
 						echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
 					}
@@ -773,7 +818,7 @@
 				}
 
 				if ($added_files) {
-					echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update_interval=$default_interval for a live-trace.\n";
+					echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n";
 					exit(0);
 				} else {
 					if (count($empty_files)) {
@@ -793,14 +838,16 @@
 		if(preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
 			$dir_path = "..";
 		}
+		if(!isset($_GET["get_hash_only"])) {
 ?>
-		<script src='plotly-latest.min.js'></script>
-		<script src='share.js'></script>
-		<script src='share_graphs.js'></script>
-		<link href="<?php echo $dir_path; ?>/share.css" rel="stylesheet" />
+			<script src='plotly-latest.min.js'></script>
+			<script src='share.js'></script>
+			<script src='share_graphs.js'></script>
+			<link href="<?php echo $dir_path; ?>/share.css" rel="stylesheet" />
 
-		<div id="breadcrumb"></div>
+			<div id="breadcrumb"></div>
 <?php
+		}
 	}
 
 	// Liste aller Unterordner anzeigen
@@ -834,6 +881,7 @@
 	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
 		$user = $_GET["user"];
 		$experiment_name = $_GET["experiment"];
+
 		show_run_selection($sharesPath, $user, $experiment_name);
 		print("<!-- $user/$experiment_name/ -->");
 		print_script_and_folder("$user/$experiment_name/");
@@ -843,9 +891,16 @@
 		$run_nr = $_GET["run_nr"];
 
 		$run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
-		print("<!-- $user/$experiment_name/$run_nr -->");
-		print_script_and_folder("$user/$experiment_name/$run_nr");
-		show_run($run_folder);
+		if(isset($_GET["get_hash_only"])) {
+			echo calculateDirectoryHash($run_folder);
+
+			exit(0);
+		} else {
+			print("<!-- $user/$experiment_name/$run_nr -->");
+
+			print_script_and_folder("$user/$experiment_name/$run_nr");
+			show_run($run_folder);
+		}
 	} else {
 		$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
 		if(count($user_subfolders)) {
@@ -856,6 +911,7 @@
 		} else {
 			echo "No users found";
 		}
+
 		print("<!-- startpage -->");
 		print_script_and_folder("");
 	}

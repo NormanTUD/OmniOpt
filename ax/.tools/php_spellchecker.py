@@ -308,7 +308,8 @@ def process_directory(directory_path):
     with ThreadPoolExecutor() as executor, Progress(
         TextColumn("[bold blue]Processing:[/bold blue] {task.fields[filename]}"),
         BarColumn(),
-        TextColumn("[progress.percentage]{task.percentage:>3.0f}%")
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        transient=True
     ) as progress:
         task = progress.add_task("Processing files", total=len(php_files), filename="")
 

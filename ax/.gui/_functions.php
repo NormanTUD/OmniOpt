@@ -69,7 +69,6 @@
 	}
 
 	function get_current_tag () {
-		return "";
 		$url = "https://api.github.com/repos/NormanTUD/OmniOpt/tags";
 		$tagName = getFirstTagName($url);
 

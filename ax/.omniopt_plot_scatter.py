@@ -17,11 +17,11 @@ from rich.pretty import pprint
 
 button = None
 
-textbox_minimum = None
-textbox_maximum = None
+TEXTBOX_MINIMUM = None
+TEXTBOX_MAXIMUM = None
 
-maximum_textbox = None
-minimum_textbox = None
+MAXIMUM_TEXTBOX = None
+MINIMUM_TEXTBOX = None
 
 #install(show_locals=True)
 #install()
@@ -48,8 +48,8 @@ def print_debug(msg):
         pprint(msg)
 
 fig = None
-maximum_textbox = None
-minimum_textbox = None
+MAXIMUM_TEXTBOX = None
+MINIMUM_TEXTBOX = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -530,14 +530,14 @@ def update_graph(event=None, _min=None, _max=None):
     if event: # only for fooling pylint...
         pass
 
-    global fig, ax, button, maximum_textbox, minimum_textbox, args
+    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     try:
-        if minimum_textbox and helpers.looks_like_float(minimum_textbox.text):
-            _min = helpers.convert_string_to_number(minimum_textbox.text)
+        if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
+            _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
 
-        if maximum_textbox and helpers.looks_like_float(maximum_textbox.text):
-            _max = helpers.convert_string_to_number(maximum_textbox.text)
+        if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
+            _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
@@ -568,7 +568,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         # Clear the figure, but keep the widgets
         for widget in fig.axes:
-            if widget not in [button.ax, maximum_textbox.ax, minimum_textbox.ax]:
+            if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
                 widget.remove()
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
@@ -585,7 +585,7 @@ def update_graph(event=None, _min=None, _max=None):
 
 def create_widgets():
     print_debug("create_widgets()")
-    global button, maximum_textbox, minimum_textbox, args
+    global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     # Create a Button and set its position
     button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
@@ -602,17 +602,17 @@ def create_widgets():
     if helpers.looks_like_float(args.min):
         min_string = str(args.min)
 
-    global textbox_minimum
-    global textbox_maximum
+    global TEXTBOX_MINIMUM
+    global TEXTBOX_MAXIMUM
 
-    global maximum_textbox
-    global minimum_textbox
+    global MAXIMUM_TEXTBOX
+    global MINIMUM_TEXTBOX
 
-    textbox_minimum = plt.axes([0.2, 0.025, 0.1, 0.04])
-    minimum_textbox = TextBox(textbox_minimum, 'Minimum result:', initial=min_string)
+    TEXTBOX_MINIMUM = plt.axes([0.2, 0.025, 0.1, 0.04])
+    MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
 
-    textbox_maximum = plt.axes([0.5, 0.025, 0.1, 0.04])
-    maximum_textbox = TextBox(textbox_maximum, 'Maximum result:', initial=max_string)
+    TEXTBOX_MAXIMUM = plt.axes([0.5, 0.025, 0.1, 0.04])
+    MAXIMUM_TEXTBOX = TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
 if __name__ == "__main__":
     try:

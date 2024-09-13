@@ -111,37 +111,22 @@
 		exit(1);
 	}
 
-	function findFileByUUID($uuid) {
-		$baseDir = 'shares/';
+	function findMatchingUUIDRunFolder(string $targetUUID): ?string {
+		// Glob-Muster, um alle passenden Dateien zu finden
+		$files = glob('shares/**/state_files/run_uuid');
 
-		function searchDirectory($dir, $uuid) {
-			$files = array_diff(scandir($dir), ['.', '..']);
+		foreach ($files as $file) {
+			// Dateiinhalt lesen und Whitespace (Leerzeichen, Newlines, Tabs) entfernen
+			$fileContent = preg_replace('/\s+/', '', file_get_contents($file));
 
-			foreach ($files as $file) {
-				$path = $dir . DIRECTORY_SEPARATOR . $file;
-
-				// Wenn es ein Verzeichnis ist, rekursiv weitersuchen
-				if (is_dir($path)) {
-					$result = searchDirectory($path, $uuid);
-					if ($result !== null) {
-						return $result;
-					}
-				} elseif (basename($path) === "run_uuid") {
-					// Wenn es eine Datei ist und die Datei heißt wie die UUID, geben wir den Pfad zurück (ohne den letzten Teil)
-					return dirname($path);
-				}
+			// Überprüfen, ob die UUID übereinstimmt
+			if ($fileContent === $targetUUID) {
+				// Ordnerpfad ohne 'state_files/run_uuid' zurückgeben
+				return dirname(dirname($file));  // Zwei Ebenen zurück gehen
 			}
-
-			// Wenn nichts gefunden wurde, null zurückgeben
-			return null;
 		}
 
-		$result = searchDirectory($baseDir, $uuid);
-
-		if ($result !== null) {
-			return $result;
-		}
-
+		// Wenn keine Übereinstimmung gefunden wurde, null zurückgeben
 		return null;
 	}
 
@@ -640,7 +625,10 @@
 	}
 
 	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
-	$uuid_folder = findFileByUUID($update_uuid);
+	$uuid_folder = null;
+	if($update_uuid) {
+		$uuid_folder = findMatchingUUIDRunFolder($update_uuid);
+	}
 
 	if ($user_id !== null && $experiment_name !== null) {
 		if(!$uuid_folder) {

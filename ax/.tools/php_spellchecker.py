@@ -232,7 +232,6 @@ IGNORED_PATTERNS = [
     r'^sigpwr$',
     r'^sigvtalrm$',
     r'^choice_param1$',
-    r'^dont$',
     r'^homenormanreposomnioptax$',
     r'^hostnamethinkpad44020211128$',
     r'^jobenvironmentjob_id2387026$',
@@ -264,7 +263,6 @@ IGNORED_PATTERNS = [
     r'^stderr$',
     r'^stdout$',
     r'^orchestratoryaml$',
-    r'^assertionerror$',
     r'^2019b$',
     r'^add_argument$',
     r'^args$',
@@ -336,6 +334,7 @@ IGNORED_PATTERNS = [
     r'^sysexit2$',
     r'^printfresult$',
     r'^scriptpy$',
+    r'^assertionerror$',
     r'^sysargv3$',
     r'^typefloat$',
     r'^typeint$',
@@ -436,8 +435,11 @@ def extract_visible_text_from_html(html_content):
 
 def clean_word(word):
     # Remove punctuation and split hyphenated words
-    word = re.sub(r'[^\w\s/-]', '', word)  # Remove punctuation except hyphen
+    word = re.sub(r'[^\w\s/-_]', '', word)  # Remove punctuation except hyphen
     return word.split('-')  # Split on hyphens to check each part separately
+
+def is_valid_word(word):
+    return word.isalpha()
 
 def filter_emojis(text):
     # Remove emojis and other non-alphanumeric characters
@@ -456,9 +458,9 @@ def check_spelling(text):
         for word in words:
             cleaned_word_parts = clean_word(word)
             for part in cleaned_word_parts:
-                part_no_emoji = filter_emojis(part)
-                if part_no_emoji and not any(re.fullmatch(pattern, part_no_emoji, flags=re.IGNORECASE) for pattern in IGNORED_PATTERNS) and "/" not in word:
-                    filtered_words.append(part_no_emoji)
+                word = filter_emojis(part)
+                if word and not any(re.fullmatch(pattern, word, flags=re.IGNORECASE) for pattern in IGNORED_PATTERNS) and "/" not in word and is_valid_word(word):
+                    filtered_words.append(word)
 
         # Find words that are misspelled
         misspelled = spell.unknown(filtered_words)
@@ -508,22 +510,25 @@ def process_directory(directory_path):
     return total_errors
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python php_spellcheck.py <file_or_directory>")
-        sys.exit(1)
+    total_errors = 0
+    try:
+        if len(sys.argv) != 2:
+            print("Usage: python php_spellcheck.py <file_or_directory>")
+            sys.exit(1)
 
-    input_path = sys.argv[1]
+        input_path = sys.argv[1]
 
-    if os.path.isfile(input_path):
-        # If it's a single file, process it directly
-        total_errors = process_php_file(input_path)
-    elif os.path.isdir(input_path):
-        # If it's a directory, process all PHP files recursively
-        total_errors = process_directory(input_path)
-    else:
-        print(f"{input_path} is not a valid file or directory.")
-        sys.exit(1)
+        if os.path.isfile(input_path):
+            # If it's a single file, process it directly
+            total_errors = process_php_file(input_path)
+        elif os.path.isdir(input_path):
+            # If it's a directory, process all PHP files recursively
+            total_errors = process_directory(input_path)
+        else:
+            print(f"{input_path} is not a valid file or directory.")
+            sys.exit(1)
 
-    # Exit with the total number of errors found
+        # Exit with the total number of errors found
+    except KeyboardInterrupt:
+        print("You pressed CTRL c. Script will be cancelled.")
     sys.exit(total_errors)
-

@@ -400,42 +400,7 @@ def append_and_read(file, nr=0, recursion=0):
     return 0
 
 def _count_sobol_steps(csv_file_path):
-    sobol_count = 0
-
-    if not os.path.exists(csv_file_path):
-        return sobol_count
-
-    df = None
-
-    _err = False
-
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
-    except KeyError:
-        _err = True
-    except pd.errors.EmptyDataError:
-        _err = True
-    except pd.errors.ParserError as e:
-        print_red(f"Error reading CSV file 2: {str(e)}")
-        _err = True
-    except UnicodeDecodeError as e:
-        print_red(f"Error reading CSV file 3: {str(e)}")
-        _err = True
-    except Exception as e:
-        print_red(f"Error reading CSV file 4: {str(e)}")
-        _err = True
-
-    if _err:
-        return 0
-
-    assert df is not None, "DataFrame should not be None after reading CSV file"
-    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
-
-    sobol_rows = df[df["generation_method"] == "Sobol"]
-    sobol_count = len(sobol_rows)
-
-    return sobol_count
+    return _count_sobol_or_completed(csv_file_path, "Sobol")
 
 def run_live_share_command():
     if not CURRENT_RUN_FOLDER:
@@ -1979,11 +1944,15 @@ def get_best_params(csv_file_path):
 
     return results
 
-def _count_done_jobs(csv_file_path):
-    results = 0
+def _count_sobol_or_completed(csv_file_path, _type):
+    if _type not in ["Sobol", "COMPLETED"]:
+        print_red(f"_type is not in Sobol or COMPLETED, but is {_type}")
+        return 0
+
+    count = 0
 
     if not os.path.exists(csv_file_path):
-        return results
+        return count
 
     df = None
 
@@ -2007,15 +1976,18 @@ def _count_done_jobs(csv_file_path):
         _err = True
 
     if _err:
-        return 1
+        return 0
 
     assert df is not None, "DataFrame should not be None after reading CSV file"
     assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
-    completed_rows = df[df["trial_status"] == "COMPLETED"]
-    completed_rows_count = len(completed_rows)
+    rows = df[df["generation_method"] == _type]
+    count = len(rows)
 
-    return completed_rows_count
+    return count
+
+def _count_done_jobs(csv_file_path):
+    return _count_sobol_or_completed(csv_file_path, "COMPLETED")
 
 def failed_jobs(nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"

@@ -653,7 +653,7 @@
 
 		foreach ($experiment_subfolders as $run_nr) {
 			$run_nr = preg_replace("/.*\//", "", $run_nr);
-			echo "<a href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr\">$run_nr</a><br>";
+			echo "<a class='share_link' href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr\">$run_nr</a><br>";
 		}
 	}
 
@@ -873,7 +873,7 @@
 		} else {
 			foreach ($experiment_subfolders as $experiment) {
 				$experiment = preg_replace("/.*\//", "", $experiment);
-				echo "<a href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>";
+				echo "<a class='share_link' href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>";
 			}
 			print("<!-- $user/$experiment_name/ -->");
 			print_script_and_folder("$user/$experiment_name/");
@@ -906,7 +906,7 @@
 		if(count($user_subfolders)) {
 			foreach ($user_subfolders as $user) {
 				$user = preg_replace("/.*\//", "", $user);
-				echo "<a href=\"share.php?user=$user\">$user</a><br>";
+				echo "<a class='share_link' href=\"share.php?user=$user\">$user</a><br>";
 			}
 		} else {
 			echo "No users found";

@@ -48,3 +48,21 @@
 .share_graph {
 	display: block;
 }
+
+.share_link {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #007BFF; /* Farbe des Buttons */
+	color: white;
+	text-decoration: none;
+	border-radius: 5px; /* Abgerundete Ecken */
+	font-family: Arial, sans-serif;
+	font-size: 16px;
+	text-align: center;
+	cursor: pointer;
+	transition: background-color 0.3s ease; /* Glatte Übergänge */
+}
+
+.share_link:hover {
+	background-color: #0056b3; /* Hover-Farbe */
+}

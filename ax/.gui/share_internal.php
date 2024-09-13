@@ -4,6 +4,8 @@
 		throw new \ErrorException($message, $severity, $severity, $file, $line);
 	});
 
+	$default_interval = 30;
+
 	ini_set('display_errors', 1);
 
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")."://".(isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost")."/".$_SERVER["SCRIPT_NAME"]);
@@ -735,7 +737,11 @@
 				}
 
 				if ($added_files) {
-					echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+					if(isset($_GET["update"])) {
+						echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update_interval=$default_interval for a live-trace.\n";
+					} else {
+						echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
+					}
 					exit(0);
 				} else {
 					if (count($empty_files)) {
@@ -767,7 +773,7 @@
 				}
 
 				if ($added_files) {
-					echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update_interval=30 for a live-trace.\n";
+					echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update_interval=$default_interval for a live-trace.\n";
 					exit(0);
 				} else {
 					if (count($empty_files)) {

@@ -57,7 +57,7 @@ if [[ ! -z $systematic_phase ]]; then
 		red_text "Number of nonrandom steps is wrong, should be $systematic_phase, is $NR_NONRANDOM"
 		errors+=("Number of nonrandom steps is wrong, should be $systematic_phase, is $NR_NONRANDOM")
 	elif [[ $NR_NONRANDOM -gt $systematic_phase ]]; then
-		red_text "Nonfatal: Too many jobs for nonrandom phase $random_phase, is $NR_RANDOM"
+		red_text "Nonfatal: Too many jobs for nonrandom phase $systematic_phase, is $NR_NONRANDOM"
 	else
 		green_text "Number of nonrandom steps OK"
 	fi
@@ -68,7 +68,7 @@ if [[ ! -z $manual ]]; then
 		red_text "Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL"
 		errors+=("Number of steps 'manual' is wrong, should be $manual, is $NR_MANUAL")
 	elif [[ $NR_MANUAL -gt $manual ]]; then
-		red_text "Nonfatal: Too many jobs for nonrandom phase $random_phase, is $NR_RANDOM"
+		red_text "Nonfatal: Too many jobs for manual phase $manual, is $NR_MANUAL"
 	else
 		green_text "Number of manual steps OK"
 	fi

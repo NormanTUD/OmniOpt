@@ -42,8 +42,8 @@ for state_file in "${state_files[@]}"; do
 		errmsg="State file $state_file does not appear in .gui/tutorials/folder_structure.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
-	else
-		green_text "$state_file does appear in .gui/tutorials/folder_structure.php"
+	#else
+	#	green_text "$state_file does appear in .gui/tutorials/folder_structure.php"
 	fi
 done
 

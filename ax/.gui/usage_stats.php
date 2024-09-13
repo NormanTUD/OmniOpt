@@ -365,7 +365,7 @@
 
 	$data_filepath = 'stats/usage_statistics.csv';
 
-	if (isset($_SERVER["REQUEST_METHOD"])) {
+	if (isset($_SERVER["REQUEST_METHOD"]) && isset($_GET["anon_user"])) {
 		append_to_csv($_GET, $data_filepath);
 	}
 

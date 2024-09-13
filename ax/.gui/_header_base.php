@@ -104,6 +104,7 @@
 
 			<br>
 			<span style="display: inline-flex;">
+				<img src="images/search.svg" height=32 />
 				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search" />
 				<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
 			</span>

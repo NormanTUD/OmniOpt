@@ -41,8 +41,8 @@ for help_param in $CLEANED_HELP; do
 		errmsg="Help parameter $help_param does not appear in .gui/tutorials/help.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
-	else
-		green_text "Help parameter $help_param does appear in .gui/tutorials/help.php"
+	#else
+	#	green_text "Help parameter $help_param does appear in .gui/tutorials/help.php"
 	fi
 done
 
@@ -53,8 +53,8 @@ for gui_param in $GUI_PARAMS; do
 		errmsg="Help parameter $gui_param does appear in .gui/tutorials/help.php but not in ./omniopt --help"
 		red_text "$errmsg"
 		errors+=("$errmsg")
-	else
-		green_text "Help parameter $gui_param does appear in ./omniopt --help and .gui/tutorials/help.php"
+	#else
+		#green_text "Help parameter $gui_param does appear in ./omniopt --help and .gui/tutorials/help.php"
 	fi
 done
 

@@ -50,8 +50,51 @@ IGNORE_PATTERNS = [
     'DJ',
     'dont',
     'dpi',
+    'memoryfree',
+    'HMSf',
+    'pcielinkgencurrent',
+    'memorytotal',
+    'memoryused',
+    'utilizationgpu',
+    'utilizationmemory',
     'env',
+    'resultscsv',
+    'pcielinkgenmax',
+    'temperaturegpu',
+    'subprocess',
+    'stat',
+    'axservice',
+    'omnioptpy',
+    'axserviceutils',
+    'botorchoptimfit',
+    'torchautograd',
+    'axcoreexperiment',
+    'axmodelbridgetransforms',
+    'headerscsv',
     'EOFError',
+    'axserviceutilsinstantiation',
+    'png',
+    'df',
+    'shutil',
+    'plotpy',
+    'botorchmodelsutilsassorted',
+    'os',
+    'axcoredata',
+    'axmodelbridgeaxmodelbridgebase',
+    'botorchoptimoptimize',
+    'axcoreparameter',
+    'richtable',
+    'yaml',
+    'axmodelbridgetorch',
+    'parameterscsv',
+    'ie',
+    'difflib',
+    'pformat',
+    'VALUEVALUEVALUE',
+    'PIL',
+    'richpretty',
+    'itertools',
+    'json',
     'etcpasswd',
     'evaluatex',
     'ExcludeNode',
@@ -240,7 +283,9 @@ def extract_strings_from_ast(node):
 
 def clean_word(word):
     # Entfernt alle nicht-alphabetischen Zeichen und behält nur "a-zA-Z"
-    return re.sub(r'[^a-zA-Z\._/-]', '', word)
+    after = re.sub(r'[^a-zA-Z0-9_/\-]', '', word)
+
+    return after
 
 def analyze_file(filepath, progress, task_id):
     """Analyze a Python file and check the spelling of string literals."""

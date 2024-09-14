@@ -3825,7 +3825,6 @@ def _orchestrate(stdout_path, trial_index):
 def write_run_uuid_to_file():
     try:
         file_path = f"{CURRENT_RUN_FOLDER}/state_files/run_uuid"
-        print(file_path)
 
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 

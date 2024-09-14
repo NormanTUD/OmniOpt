@@ -236,7 +236,9 @@
 
 			PROGRESSBAR=$(generate_progress_bar "$NUMBER_OF_MAIN_MODULES")
 
-			green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
+			if [[ -z $CI ]]; then
+				green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully"
+			fi
 		fi
 		set -e
 	}

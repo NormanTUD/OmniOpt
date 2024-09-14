@@ -2426,11 +2426,11 @@ def check_equation(variables, equation):
 
     comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
     if comparer_at_beginning:
-        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
+        _errors.append(f"The restraints {equation} contained comparison operator like <=, >= at at the beginning. This is not a valid equation.")
 
     comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
     if comparer_at_end:
-        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
+        _errors.append(f"The restraints {equation} contained comparison operator like <=, >= at at the end. This is not a valid equation.")
 
     if len(_errors):
         for er in _errors:
@@ -2465,7 +2465,7 @@ def check_equation(variables, equation):
             })
         elif item in [">=", "<="]:
             if comparer_found:
-                print("There is already one comparision operator! Cannot have more than one in an equation!")
+                print("There is already one comparison operator! Cannot have more than one in an equation!")
                 return False
             comparer_found = True
 

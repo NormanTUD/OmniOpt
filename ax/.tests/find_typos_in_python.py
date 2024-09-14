@@ -240,7 +240,7 @@ def extract_strings_from_ast(node):
 
 def clean_word(word):
     # Entfernt alle nicht-alphabetischen Zeichen und behält nur "a-zA-Z"
-    return re.sub(r'[^a-zA-Z\._-]', '', word)
+    return re.sub(r'[^a-zA-Z\._/-]', '', word)
 
 def analyze_file(filepath, progress, task_id):
     """Analyze a Python file and check the spelling of string literals."""

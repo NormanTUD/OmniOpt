@@ -72,6 +72,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--disable_tqdm</samp></td>
+				<td>Disable the TQDM progress bar</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--live_share</samp></td>
 				<td>Automatically live-share the current optimization run automatically</td>
 				<td><samp>False</samp></td>

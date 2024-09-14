@@ -264,7 +264,9 @@
 			for key in "${!install_those[@]}"; do
 				install_this=${install_those[$key]}
 				PROGRESSBAR=$(generate_progress_bar "$MAX_NR")
-				green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
+				if [[ -z $CI ]]; then
+					green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
+				fi
 				ppip "$install_this" "-" "$MAX_NR"
 			done
 

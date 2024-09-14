@@ -129,6 +129,7 @@ optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job nam
 optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
 optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
 optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
+optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
 
 slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
 slurm.add_argument('--time', help='Time for the main job', default="", type=str)
@@ -4609,7 +4610,7 @@ def main():
 
     disable_tqdm = False
 
-    if ci_env:
+    if ci_env or args.disable_tqdm:
         disable_tqdm = True
 
     with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:

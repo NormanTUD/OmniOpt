@@ -50,7 +50,7 @@ SUPPORTED_MODELS = [
     "LEGACY_BOTORCH",
     "BOTORCH_MODULAR",
     "UNIFORM",
-    "BO_MIXED"
+    "BO_MIXED",
 ]
 
 ORCHESTRATE_TODO = {}
@@ -4607,7 +4607,12 @@ def main():
 
     live_share()
 
-    with tqdm(total=max_eval, disable=False) as _progress_bar:
+    disable_tqdm = False
+
+    if ci_env:
+        disable_tqdm = True
+
+    with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar

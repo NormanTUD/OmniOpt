@@ -4457,12 +4457,10 @@ def parse_orchestrator_file(_f, _test=False):
                 return data
             except Exception as e:
                 print(f"Error while parse_experiment_parameters({_f}): {e}")
-
-                return None
     else:
         print_red(f"{_f} could not be found")
 
-        return None
+    return None
 
 def set_orchestrator():
     global orchestrator

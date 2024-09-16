@@ -4905,6 +4905,15 @@ def run_tests():
         is_equal("test_find_paths failed", True, False)
         nr_errors += find_path_res
 
+    orchestrator_yaml = ".tests/example_orchestrator_config.yaml"
+
+    if os.path.exists(orchestrator_yaml):
+        _is = json.dumps(parse_orchestrator_file(orchestrator_yaml))
+        should_be = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
+        nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
+    else:
+        nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
+
     my_exit(nr_errors)
 
 if __name__ == "__main__":

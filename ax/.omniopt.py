@@ -4407,7 +4407,13 @@ def human_readable_generation_strategy():
 
     return None
 
-def parse_orchestrator_file(_f):
+def die_orchestrator_exit_code_206(_test):
+    if _test:
+        print_yellow("Not exiting, because _test was True")
+    else:
+        my_exit(206)
+
+def parse_orchestrator_file(_f, _test=False):
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -4415,7 +4421,7 @@ def parse_orchestrator_file(_f):
 
                 if "errors" not in data:
                     print_red(f"{_f} file does not contain key 'errors'")
-                    sys.exit(206)
+                    die_orchestrator_exit_code_206(_test)
 
                 valid_keys = ['name', 'match_strings', 'behavior']
                 valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
@@ -4423,28 +4429,28 @@ def parse_orchestrator_file(_f):
                 for x in data["errors"]:
                     if not isinstance(x, dict):
                         print_red(f"Entry is not of type dict but {type(x)}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if set(x.keys()) != set(valid_keys):
                         print_red(f"{x.keys()} does not match {valid_keys}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if x["behavior"] not in valid_behaviours:
                         print_red(f"behavior-entry {x['behavior']} is not in valid_behaviours: {', '.join(valid_behaviours)}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if not isinstance(x["name"], str):
                         print_red(f"name-entry is not string but {type(x['name'])}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if not isinstance(x["match_strings"], list):
                         print_red(f"name-entry is not list but {type(x['match_strings'])}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     for y in x["match_strings"]:
                         if not isinstance(y, str):
                             print_red("x['match_strings'] is not a string but {type(x['match_strings'])}")
-                            sys.exit(206)
+                            die_orchestrator_exit_code_206(_test)
 
                 #helpers.dier(data)
 
@@ -4908,7 +4914,7 @@ def run_tests():
     orchestrator_yaml = ".tests/example_orchestrator_config.yaml"
 
     if os.path.exists(orchestrator_yaml):
-        _is = json.dumps(parse_orchestrator_file(orchestrator_yaml))
+        _is = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
         should_be = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
         nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
     else:

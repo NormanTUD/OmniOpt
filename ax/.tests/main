@@ -496,7 +496,7 @@ if [[ $superquick -eq 0 ]]; then
 	if command -v sbatch 2>/dev/null >/dev/null; then
 		#excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')
 
-		#_test "Test search space exhaustion (sbatch, with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
+		_test "Test search space exhaustion (sbatch, with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
 
 		true
 	else
@@ -547,7 +547,7 @@ if [[ $superquick -eq 0 ]]; then
 			_test "Plot-Tests --quick" "bash .tests/plots --quick" 0
 		fi
 
-		#_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
+		_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
 	fi
 fi
 

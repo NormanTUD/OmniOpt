@@ -4206,8 +4206,6 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
     except (
         botorch.exceptions.errors.ModelFittingError,
         ax.exceptions.core.SearchSpaceExhausted,
-        ax.exceptions.core.DataRequiredError,
-        botorch.exceptions.errors.InputDataError
     ) as e:
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 1)

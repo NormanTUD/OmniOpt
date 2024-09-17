@@ -4104,7 +4104,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     if _max_eval is None:
         set_max_eval(max(1, random_steps))
 
-    if random_steps >= 1:
+    if random_steps >= 1 and nr_of_imported_jobs < random_steps:
         _steps.append(
             GenerationStep(
                 model=Models.SOBOL,

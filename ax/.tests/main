@@ -588,9 +588,10 @@ for entry in "${LOG_TIMES[@]}"; do
 		header="${headers[$i]}"
 		if [[ -z "${headers[$i]}" ]]; then
 			echo "Fehler: Kein Header für Index $i gefunden"
+		else
+			max_lengths["$header"]=${max_lengths["$header"]:-0}
+			[[ ${#fields[$i]} -gt ${max_lengths["$header"]} ]] && max_lengths["$header"]=${#fields[$i]}
 		fi
-		max_lengths["$header"]=${max_lengths["$header"]:-0}
-		[[ ${#fields[$i]} -gt ${max_lengths["$header"]} ]] && max_lengths["$header"]=${#fields[$i]}
 	done          
 done
 

@@ -272,7 +272,7 @@ def is_valid_word(word):
 def extract_strings_from_ast(node):
     """Extract all string literals from the AST."""
     if isinstance(node, ast.Str):
-        return [node.s]
+        return [node.value]
     if isinstance(node, ast.Constant) and isinstance(node.value, str):  # For Python 3.8+
         return [node.value]
     if isinstance(node, (ast.List, ast.Tuple)):

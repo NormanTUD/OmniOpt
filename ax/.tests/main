@@ -582,6 +582,8 @@ for header in "${headers[@]}"; do
 	max_lengths["$header"]=0
 done
 
+set -x
+echo "LOG_TIMES: ${LOG_TIMES[@]}"
 for entry in "${LOG_TIMES[@]}"; do                     
 	IFS=',' read -r -a fields <<< "$entry"                   
 	for i in "${!fields[@]}"; do    
@@ -594,6 +596,7 @@ for entry in "${LOG_TIMES[@]}"; do
 		fi
 	done          
 done
+set +x
 
 print_table() {
 	# Define the headers and initialize the lengths for columns

@@ -2962,7 +2962,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
     try:
         matching_rows = df
-        print_debug(matching_rows)
+        #print_debug(matching_rows)
 
         for param, value in params.items():
             if param in df.columns:
@@ -2996,8 +2996,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
             print_debug("No matching rows found after all filters applied")
             return None
 
-        print_debug("Matching rows found")
-        print_debug(matching_rows)
+        #print_debug("Matching rows found")
+        #print_debug(matching_rows)
         return matching_rows
     except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")

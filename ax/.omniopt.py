@@ -12,6 +12,7 @@ from inspect import currentframe, getframeinfo
 from pathlib import Path
 import uuid
 
+jobs_finished = 0
 run_uuid = str(uuid.uuid4())
 shown_live_share_counter = 0
 PD_CSV_FILENAME = "results.csv"
@@ -3580,11 +3581,12 @@ def get_hostname_from_outfile(stdout_path):
 def finish_previous_jobs(new_msgs):
     global random_steps
     global ax_client
+    global jobs_finished
+
+    this_jobs_finished = 0
 
     #print("jobs in finish_previous_jobs:")
     #print(jobs)
-
-    jobs_finished = 0
 
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
@@ -3594,7 +3596,7 @@ def finish_previous_jobs(new_msgs):
                 result = job.result()
                 raw_result = result
                 result = result["result"]
-                jobs_finished += 1
+                this_jobs_finished += 1
                 if result != VAL_IF_NOTHING_FOUND:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
@@ -3638,7 +3640,7 @@ def finish_previous_jobs(new_msgs):
                     orchestrate_job(job, trial_index)
 
                 failed_jobs(1)
-                jobs_finished += 1
+                this_jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
             except ax.exceptions.core.UserInputError as error:
@@ -3657,7 +3659,7 @@ def finish_previous_jobs(new_msgs):
                     orchestrate_job(job, trial_index)
 
                 failed_jobs(1)
-                jobs_finished += 1
+                this_jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
 
@@ -3668,10 +3670,12 @@ def finish_previous_jobs(new_msgs):
         else:
             pass
 
-    if jobs_finished == 1:
-        progressbar_description([*new_msgs, f"finished {jobs_finished} job"])
-    elif jobs_finished > 0:
-        progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
+    if this_jobs_finished == 1:
+        progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
+    elif this_jobs_finished > 0:
+        progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
+
+    jobs_finished += this_jobs_finished
 
     clean_completed_jobs()
 
@@ -3999,7 +4003,8 @@ def break_run_search(_name, _max_eval, _progress_bar):
         (lambda: count_done_jobs() >= _max_eval, f"3. count_done_jobs() {count_done_jobs()} >= max_eval {_max_eval}"),
         (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {_max_eval} + 1"),
         (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"),
-        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}")
+        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}"),
+        (lambda: jobs_finished >= _max_eval, f"7. jobs_finished {jobs_finished} >= _max_eval {_max_eval}")
     ]
 
     for condition_func, debug_msg in conditions:
@@ -4134,7 +4139,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,
-            num_trials=-1,
+            num_trials=min(_max_eval, _max_eval - max(_num_parallel_jobs, random_steps)),
             max_parallelism=_num_parallel_jobs,
             #model_kwargs={"seed": seed},
             model_gen_kwargs={'enforce_num_arms': True}

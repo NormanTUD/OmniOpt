@@ -351,7 +351,7 @@ for _command in "${_commands[@]}"; do
 done
 PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
 
-green_reset_line "$PROGRESSBAR $i tests ran, ${#errors[@]} failed"
+green_reset_line "$PROGRESSBAR $i tests ran, ${#errors[@]} failed\n"
 
 
 secs=$SECONDS
@@ -359,7 +359,7 @@ hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-min
 printf "\nPlot test took: %02d:%02d:%02d\n" $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No plot errors"
+	green_text "No plot errors\n"
 else
 	echo ""
 	red_text "=> PLOT-ERRORS => PLOT-ERRORS => PLOT-ERRORS =>"

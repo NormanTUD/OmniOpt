@@ -4003,8 +4003,7 @@ def break_run_search(_name, _max_eval, _progress_bar):
         (lambda: count_done_jobs() >= _max_eval, f"3. count_done_jobs() {count_done_jobs()} >= max_eval {_max_eval}"),
         (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {_max_eval} + 1"),
         (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"),
-        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}"),
-        (lambda: jobs_finished >= _max_eval, f"7. jobs_finished {jobs_finished} >= _max_eval {_max_eval}")
+        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}")
     ]
 
     for condition_func, debug_msg in conditions:
@@ -4160,46 +4159,48 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     trial_index_to_param = None
     try:
-        try:
-            trial_index_to_param = _get_next_trials()
+        trial_index_to_param = _get_next_trials()
 
-            if trial_index_to_param:
-                i = 1
-                for trial_index, parameters in trial_index_to_param.items():
+        if trial_index_to_param:
+            i = 1
+            for trial_index, parameters in trial_index_to_param.items():
+                if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                    break
+
+                while len(global_vars["jobs"]) > num_parallel_jobs:
+                    finish_previous_jobs(["finishing prev jobs"])
+
                     if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         break
 
-                    while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(["finishing prev jobs"])
+                    if is_slurm_job() and not args.force_local_execution:
+                        _sleep(5)
 
-                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                            break
+                if jobs_finished >= _max_eval:
+                    break
 
-                        if is_slurm_job() and not args.force_local_execution:
-                            _sleep(5)
-
-                    if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                        execute_evaluation([
-                            trial_index,
-                            parameters,
-                            i,
-                            next_nr_steps,
-                            phase
-                        ])
-                        i += 1
-                    else:
-                        break
-        except botorch.exceptions.errors.InputDataError as e:
-            print_red(f"Error 1: {e}")
+                if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                    progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                    execute_evaluation([
+                        trial_index,
+                        parameters,
+                        i,
+                        next_nr_steps,
+                        phase
+                    ])
+                    i += 1
+                else:
+                    break
+    except botorch.exceptions.errors.InputDataError as e:
+        print_red(f"Error 1: {e}")
+        return 0
+    except ax.exceptions.core.DataRequiredError as e:
+        if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
+            print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
+            die_no_random_steps()
+        else:
+            print_red(f"Error 2: {e}")
             return 0
-        except ax.exceptions.core.DataRequiredError as e:
-            if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-                print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
-                die_no_random_steps()
-            else:
-                print_red(f"Error 2: {e}")
-                return 0
     except RuntimeError as e:
         print_red("\n⚠ " + str(e))
     except (
@@ -4337,13 +4338,16 @@ def run_search(_progress_bar):
     log_what_needs_to_be_logged()
     write_process_info()
 
-    while submitted_jobs() <= max_eval:
+    while submitted_jobs() <= max_eval and jobs_finished <= max_eval:
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
         finish_previous_jobs([])
 
         if break_run_search("run_search", max_eval, _progress_bar):
+            break
+
+        if jobs_finished >= max_eval:
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)

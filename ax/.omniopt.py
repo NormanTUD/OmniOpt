@@ -4138,7 +4138,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
     _steps.append(
         GenerationStep(
             model=chosen_non_random_model,
-            num_trials=min(_max_eval, _max_eval - max(_num_parallel_jobs, random_steps)),
+            num_trials=-1,
             max_parallelism=_num_parallel_jobs,
             #model_kwargs={"seed": seed},
             model_gen_kwargs={'enforce_num_arms': True}
@@ -4176,7 +4176,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                     if is_slurm_job() and not args.force_local_execution:
                         _sleep(5)
 
-                if jobs_finished >= _max_eval:
+                if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
                     break
 
                 if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
@@ -4336,7 +4336,7 @@ def run_search(_progress_bar):
     log_what_needs_to_be_logged()
     write_process_info()
 
-    while submitted_jobs() <= max_eval and jobs_finished <= max_eval:
+    while submitted_jobs() <= max_eval:
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
 
@@ -4345,7 +4345,7 @@ def run_search(_progress_bar):
         if break_run_search("run_search", max_eval, _progress_bar):
             break
 
-        if jobs_finished >= max_eval:
+        if (jobs_finished - NR_INSERTED_JOBS) >= max_eval:
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)

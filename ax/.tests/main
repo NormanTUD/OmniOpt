@@ -582,12 +582,16 @@ for header in "${headers[@]}"; do
 	max_lengths["$header"]=0
 done
 
-for entry in "${LOG_TIMES[@]}"; do
-	IFS=',' read -r -a fields <<< "$entry"
-	for i in "${!fields[@]}"; do
+for entry in "${LOG_TIMES[@]}"; do                     
+	IFS=',' read -r -a fields <<< "$entry"                   
+	for i in "${!fields[@]}"; do    
 		header="${headers[$i]}"
-		[[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
-	done
+		if [[ -z "${headers[$i]}" ]]; then
+			echo "Fehler: Kein Header für Index $i gefunden"
+		fi
+		max_lengths["$header"]=${max_lengths["$header"]:-0}
+		[[ ${#fields[$i]} -gt ${max_lengths["$header"]} ]] && max_lengths["$header"]=${#fields[$i]}
+	done          
 done
 
 print_table() {

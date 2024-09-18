@@ -27,11 +27,8 @@
 	}
 
 	if ($user_id !== null && $experiment_name !== null) {
-		if(!$uuid_folder) {
-			$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
-		} else {
-			$userFolder = $uuid_folder;
-		}
+		$user_folder = get_user_folder($uuid_folder);
+
 		$run_id = preg_replace("/.*\//", "", $userFolder);
 
 		$added_files = 0;
@@ -195,71 +192,7 @@
 		}
 	}
 
-	// Liste aller Unterordner anzeigen
-	if (isset($_GET["user"]) && !isset($_GET["experiment"])) {
-		$user = $_GET["user"];
-		if(preg_match("/\.\./", $user)) {
-			print("Invalid user path");
-			exit(1);
-		}
-
-		$user = preg_replace("/.*\//", "", $user);
-
-		$experiment_subfolders = glob("$sharesPath/$user/*", GLOB_ONLYDIR);
-		if (count($experiment_subfolders) == 0) {
-			print("Did not find any experiments for $sharesPath/$user/*");
-			exit(0);
-		} else if (count($experiment_subfolders) == 1) {
-			show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
-			$this_experiment_name = "$experiment_subfolders[0]";
-			$this_experiment_name = preg_replace("/.*\//", "", $this_experiment_name);
-			print("<!-- $user/$experiment_name/$this_experiment_name -->");
-			print_script_and_folder("$user/$experiment_name/$this_experiment_name");
-		} else {
-			foreach ($experiment_subfolders as $experiment) {
-				$experiment = preg_replace("/.*\//", "", $experiment);
-				echo "<a class='share_link' href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>";
-			}
-			print("<!-- $user/$experiment_name/ -->");
-			print_script_and_folder("$user/$experiment_name/");
-		}
-	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
-		$user = $_GET["user"];
-		$experiment_name = $_GET["experiment"];
-
-		show_run_selection($sharesPath, $user, $experiment_name);
-		print("<!-- $user/$experiment_name/ -->");
-		print_script_and_folder("$user/$experiment_name/");
-	} else if (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
-		$user = $_GET["user"];
-		$experiment_name = $_GET["experiment"];
-		$run_nr = $_GET["run_nr"];
-
-		$run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
-		if(isset($_GET["get_hash_only"])) {
-			echo calculateDirectoryHash($run_folder);
-
-			exit(0);
-		} else {
-			print("<!-- $user/$experiment_name/$run_nr -->");
-
-			print_script_and_folder("$user/$experiment_name/$run_nr");
-			show_run($run_folder);
-		}
-	} else {
-		$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
-		if(count($user_subfolders)) {
-			foreach ($user_subfolders as $user) {
-				$user = preg_replace("/.*\//", "", $user);
-				echo "<a class='share_link' href=\"share.php?user=$user\">$user</a><br>";
-			}
-		} else {
-			echo "No users found";
-		}
-
-		print("<!-- startpage -->");
-		print_script_and_folder("");
-	}
+	show_dir_view_or_plot($sharesPath, $experiment_name);
 ?>
 </div>
 </body>

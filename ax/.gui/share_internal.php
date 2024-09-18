@@ -86,9 +86,7 @@
 			exit(1);
 		}
 
-		$project_md5 = hash('md5', $new_upload_md5_string);
-
-		move_files_if_not_already_there();
+		move_files_if_not_already_there($new_upload_md5_string);
 	} else {
 		include_once("_functions.php");
 

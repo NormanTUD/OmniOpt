@@ -774,7 +774,9 @@
 		}
 	}
 
-	function move_files_if_not_already_there () {
+	function move_files_if_not_already_there ($new_upload_md5_string) {
+		$project_md5 = hash('md5', $new_upload_md5_string);
+
 		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];

@@ -49,7 +49,7 @@
 	display: block;
 }
 
-.share_link {
+._share_link {
 	display: inline-block;
 	padding: 10px 20px;
 	background-color: #007BFF; /* Farbe des Buttons */
@@ -63,6 +63,6 @@
 	transition: background-color 0.3s ease; /* Glatte Übergänge */
 }
 
-.share_link:hover {
+._share_link:hover {
 	background-color: #0056b3; /* Hover-Farbe */
 }

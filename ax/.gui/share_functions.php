@@ -789,9 +789,21 @@
 			exit(0);
 		} else {
 			if(!$uuid_folder || !is_dir($uuid_folder)) {
-				move_files($offered_files, $added_files, $userFolder, 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n', 'Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n');
+				move_files(
+					$offered_files,
+					$added_files,
+					$userFolder,
+					"See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n",
+					"Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n"
+				);
 			} else {
-				move_files($offered_files, $added_files, $uuid_folder, 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n', 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n');
+				move_files(
+					$offered_files,
+					$added_files,
+					$uuid_folder,
+					"See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n",
+					"See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n"
+				);
 			}
 		}
 	}

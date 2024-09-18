@@ -34,15 +34,12 @@
 		$num_offered_files = 0;
 		$new_upload_md5_string = "";
 
-		$offered_files = [];
 		$i = 0;
-		foreach ($acceptable_files as $acceptable_file) {
-			$offered_files[$acceptable_file] = array(
-				"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
-				"filename" => $acceptable_file_names[$i]
-			);
-			$i++;
-		}
+
+		$offered_files_i = get_offered_files($acceptable_files, $acceptable_file_names, $i);
+		$offered_files = $offered_files_i[0];
+		$i = $offered_files_i[1];
+
 
 		foreach ($_FILES as $_file) {
 			if(preg_match("/log.(err|out)$/", $_file["name"])) {
@@ -84,7 +81,7 @@
 			exit(1);
 		}
 
-		move_files_if_not_already_there($new_upload_md5_string);
+		move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder);
 	} else {
 		include_once("_functions.php");
 

@@ -774,7 +774,7 @@
 		}
 	}
 
-	function move_files_if_not_already_there ($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files) {
+	function move_files_if_not_already_there ($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder) {
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
@@ -794,5 +794,17 @@
 				move_files($offered_files, $empty_files, $added_files, $uuid_folder, 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n', 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n');
 			}
 		}
+	}
+
+	function get_offered_files ($acceptable_files, $acceptable_file_names, $i) {
+		foreach ($acceptable_files as $acceptable_file) {
+			$offered_files[$acceptable_file] = array(
+				"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,
+				"filename" => $acceptable_file_names[$i]
+			);
+			$i++;
+		}
+
+		return [$offered_files, $i];
 	}
 ?>

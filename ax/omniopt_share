@@ -45,7 +45,7 @@ function help {
 	echo "  --update                                           Update a job that had this run-UUID previously"
 	echo "  --debug                                            Enable debug options"
 	echo "  --no_color                                         Disables color output"
-	echo "  --username=$USER                                   Specify username (with or without = sign)"
+	echo "  --username=s3811141                                Specify username (with or without = sign)"
 
 	exit $exit_code
 }

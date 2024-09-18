@@ -758,9 +758,9 @@
 
 		if ($added_files) {
 			if(isset($_GET["update"])) {
-				echo $msgUpdate;
+				eval('echo "$msgUpdate";');
 			} else {
-				echo $msg;
+				eval('echo "$msg";');
 			}
 			exit(0);
 		} else {

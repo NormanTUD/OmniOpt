@@ -734,7 +734,9 @@
 	}
 
 
-	function move_files ($offered_files, $empty_files, $added_files, $userFolder) {
+	function move_files ($offered_files, $empty_files, $added_files, $userFolder, $msgUpdate, $msg) {
+		$empty_files = [];
+
 		foreach ($offered_files as $offered_file) {
 			$file = $offered_file["file"];
 			$filename = $offered_file["filename"];
@@ -754,6 +756,21 @@
 			}
 		}
 
-		return [$empty_files, $added_files];
+		if ($added_files) {
+			if(isset($_GET["update"])) {
+				echo $msgUpdate;
+			} else {
+				echo $msg;
+			}
+			exit(0);
+		} else {
+			if (count($empty_files)) {
+				$empty_files_string = implode(", ", $empty_files);
+				echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
+			} else {
+				echo "Error sharing the job. No Files were found. \n";
+			}
+			exit(1);
+		}
 	}
 ?>

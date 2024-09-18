@@ -99,47 +99,9 @@
 			exit(0);
 		} else {
 			if(!$uuid_folder || !is_dir($uuid_folder)) {
-				$empty_files = [];
-
-				$empty_files_and_added_files = move_files($offered_files, $empty_files, $added_files, $userFolder);
-
-				$empty_files = $empty_files_and_added_files[0];
-				$added_files = $empty_files_and_added_files[1];
-
-				if ($added_files) {
-					if(isset($_GET["update"])) {
-						echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n";
-					} else {
-						echo "Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n";
-					}
-					exit(0);
-				} else {
-					if (count($empty_files)) {
-						$empty_files_string = implode(", ", $empty_files);
-						echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
-					} else {
-						echo "Error sharing the job. No Files were found. \n";
-					}
-					exit(1);
-				}
+				move_files($offered_files, $empty_files, $added_files, $userFolder, 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n', 'Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n');
 			} else {
-				$empty_files_and_added_files = move_files($offered_files, $empty_files, $added_files, $uuid_folder);
-
-				$empty_files = $empty_files_and_added_files[0];
-				$added_files = $empty_files_and_added_files[1];
-
-				if ($added_files) {
-					echo "See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n";
-					exit(0);
-				} else {
-					if (count($empty_files)) {
-						$empty_files_string = implode(", ", $empty_files);
-						echo "Error sharing the job. The following files were empty: $empty_files_string. \n";
-					} else {
-						echo "Error sharing the job. No Files were found. \n";
-					}
-					exit(1);
-				}
+				move_files($offered_files, $empty_files, $added_files, $uuid_folder, 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n', 'See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n');
 			}
 		}
 	} else {

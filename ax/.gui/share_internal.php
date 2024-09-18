@@ -31,8 +31,6 @@
 
 		$run_id = preg_replace("/.*\//", "", $userFolder);
 
-		$added_files = 0;
-
 		$num_offered_files = 0;
 		$new_upload_md5_string = "";
 

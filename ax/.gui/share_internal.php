@@ -106,6 +106,3 @@
 
 	show_dir_view_or_plot($sharesPath, $experiment_name);
 ?>
-</div>
-</body>
-</html>

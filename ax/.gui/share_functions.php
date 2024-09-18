@@ -639,7 +639,7 @@
 	}
 
 	function print_script_and_folder ($folder) {
-		echo "<script>createBreadcrumb('./$folder');</script>\n";
+		echo "\n<script>createBreadcrumb('./$folder');</script>\n";
 	}
 
 	function checkForResult($content) {

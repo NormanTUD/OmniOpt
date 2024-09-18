@@ -101,7 +101,7 @@
 			if(!$uuid_folder || !is_dir($uuid_folder)) {
 				$empty_files = [];
 
-				$empty_files_and_added_files = move_files_if_no_uuid($offered_files, $empty_files, $added_files, $userFolder);
+				$empty_files_and_added_files = move_files($offered_files, $empty_files, $added_files, $userFolder);
 
 				$empty_files = $empty_files_and_added_files[0];
 				$added_files = $empty_files_and_added_files[1];
@@ -123,7 +123,7 @@
 					exit(1);
 				}
 			} else {
-				$empty_files_and_added_files = move_files_if_no_uuid($offered_files, $empty_files, $added_files, $uuid_folder);
+				$empty_files_and_added_files = move_files($offered_files, $empty_files, $added_files, $uuid_folder);
 
 				$empty_files = $empty_files_and_added_files[0];
 				$added_files = $empty_files_and_added_files[1];

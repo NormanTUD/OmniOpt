@@ -734,7 +734,7 @@
 	}
 
 
-	function move_files_if_no_uuid ($offered_files, $empty_files, $added_files, $userFolder) {
+	function move_files ($offered_files, $empty_files, $added_files, $userFolder) {
 		foreach ($offered_files as $offered_file) {
 			$file = $offered_file["file"];
 			$filename = $offered_file["filename"];

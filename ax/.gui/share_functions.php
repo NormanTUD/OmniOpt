@@ -656,12 +656,14 @@
 		}
 	}
 
-	function get_user_folder ($_uuid_folder) {
+	function get_user_folder ($sharesPath, $_uuid_folder, $user_id, $experiment_name) {
 		if(!$_uuid_folder) {
 			$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
 		} else {
 			$userFolder = $_uuid_folder;
 		}
+
+		return $userFolder;
 	}
 
 	function show_dir_view_or_plot($sharesPath, $experiment_name) {
@@ -731,4 +733,27 @@
 		}
 	}
 
+
+	function move_files_if_no_uuid ($offered_files, $empty_files, $added_files, $userFolder) {
+		foreach ($offered_files as $offered_file) {
+			$file = $offered_file["file"];
+			$filename = $offered_file["filename"];
+			if ($file && file_exists($file)) {
+				$content = file_get_contents($file);
+				$content_encoding = mb_detect_encoding($content);
+				if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+					if(filesize($file)) {
+						move_uploaded_file($file, "$userFolder/$filename");
+						$added_files++;
+					} else {
+						$empty_files[] = $filename;
+					}
+				} else {
+					dier("$filename: \$content was not ASCII, but $content_encoding");
+				}
+			}
+		}
+
+		return [$empty_files, $added_files];
+	}
 ?>

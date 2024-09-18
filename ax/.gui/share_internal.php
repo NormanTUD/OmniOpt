@@ -27,7 +27,7 @@
 	}
 
 	if ($user_id !== null && $experiment_name !== null) {
-		$user_folder = get_user_folder($uuid_folder);
+		$userFolder = get_user_folder($sharesPath, $uuid_folder, $user_id, $experiment_name);
 
 		$run_id = preg_replace("/.*\//", "", $userFolder);
 
@@ -60,9 +60,6 @@
 									"file" => $_file["tmp_name"] ?? null,
 									"filename" => $_file["name"]
 								);
-
-							} else {
-								#print("File ".htmlentities($_file["name"])." had filesize 0 and will be ignored.\n");
 							}
 						}
 					} else {
@@ -71,8 +68,6 @@
 				} else {
 					print("$_file_without_ending coulnd't be found in \$offered_files\n");
 				}
-			} else {
-				#print("File ".htmlentities($_file["name"])." will be ignored.\n");
 			}
 		}
 
@@ -104,24 +99,12 @@
 			exit(0);
 		} else {
 			if(!$uuid_folder || !is_dir($uuid_folder)) {
-				foreach ($offered_files as $offered_file) {
-					$file = $offered_file["file"];
-					$filename = $offered_file["filename"];
-					if ($file && file_exists($file)) {
-						$content = file_get_contents($file);
-						$content_encoding = mb_detect_encoding($content);
-						if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-							if(filesize($file)) {
-								move_uploaded_file($file, "$userFolder/$filename");
-								$added_files++;
-							} else {
-								$empty_files[] = $filename;
-							}
-						} else {
-							dier("$filename: \$content was not ASCII, but $content_encoding");
-						}
-					}
-				}
+				$empty_files = [];
+
+				$empty_files_and_added_files = move_files_if_no_uuid($offered_files, $empty_files, $added_files, $userFolder);
+
+				$empty_files = $empty_files_and_added_files[0];
+				$added_files = $empty_files_and_added_files[1];
 
 				if ($added_files) {
 					if(isset($_GET["update"])) {

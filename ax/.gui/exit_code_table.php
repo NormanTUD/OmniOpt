@@ -44,7 +44,7 @@
                     ]
                 );
 
-                if(!array_key_exists("HIDE_SUBZERO", $GLOBALS)) {
+                if (!array_key_exists("HIDE_SUBZERO", $GLOBALS)) {
                     array_unshift(
                         $exit_code_info, [
                         "-1" => "No proper Exit code found",

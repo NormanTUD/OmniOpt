@@ -11,20 +11,20 @@
     $BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")."://".(isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost")."/".$_SERVER["SCRIPT_NAME"]);
     $sharesPath = './shares/';
 
-    if(getenv("share_path")) {
+    if (getenv("share_path")) {
         $sharesPath = getenv("share_path");
 
-        if(!is_dir("share_path")) {
+        if (!is_dir("share_path")) {
             print("Share dir $sharesPath could not be found!");
             exit(1);
         }
 
-        if(preg_match("/^\//", $sharesPath)) {
+        if (preg_match("/^\//", $sharesPath)) {
             print("Absolute path is not allowed.");
             exit(2);
         }
 
-        if(preg_match("/\.\./", $sharesPath)) {
+        if (preg_match("/\.\./", $sharesPath)) {
             print("It is not allowed to traverse upwards.");
             exit(2);
         }
@@ -45,7 +45,7 @@
 
     $update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
     $uuid_folder = null;
-    if($update_uuid) {
+    if ($update_uuid) {
         $uuid_folder = findMatchingUUIDRunFolder($update_uuid);
     }
 
@@ -65,11 +65,11 @@
 
 
         foreach ($_FILES as $_file) {
-            if(preg_match("/log.(err|out)$/", $_file["name"])) {
+            if (preg_match("/log.(err|out)$/", $_file["name"])) {
                 $_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);
-                if(!isset($offered_files[$_file_without_ending])) {
-                    if(isset($_file["name"])) {
-                        if($_file["error"] != 0) {
+                if (!isset($offered_files[$_file_without_ending])) {
+                    if (isset($_file["name"])) {
+                        if ($_file["error"] != 0) {
                                print("File ".htmlentities($_file["name"])." could not be uploaded. Error-Code: ".$_file["error"]);
                         } else {
                             if ($_file["size"] > 0) {
@@ -92,7 +92,7 @@
         foreach ($offered_files as $offered_file) {
             $filename = $offered_file["filename"];
             $file = $offered_file["file"];
-            if($file) {
+            if ($file) {
                 $content = file_get_contents($file);
                 $new_upload_md5_string = $new_upload_md5_string . "$filename=$content";
                 $num_offered_files++;
@@ -109,10 +109,10 @@
         include_once "_functions.php";
 
         $dir_path = ".";
-        if(preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+        if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
             $dir_path = "..";
         }
-        if(!isset($_GET["get_hash_only"])) {
+        if (!isset($_GET["get_hash_only"])) {
             ?>
             <script src='plotly-latest.min.js'></script>
             <script src='share.js'></script>

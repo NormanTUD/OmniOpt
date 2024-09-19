@@ -216,7 +216,7 @@ if (isset($_GET['regex'])) {
     $output = [];
 
 foreach ($php_files as $file_path) {
-    if($file_path != "share.php" && $file_path != "usage_stats.php") {
+    if ($file_path != "share.php" && $file_path != "usage_stats.php") {
         $file_content = read_file_content($file_path);
         if ($file_content !== false) {
             $html_content = extract_html_from_php($file_content);
@@ -225,7 +225,7 @@ foreach ($php_files as $file_path) {
             $search_results = search_text_with_context($text_lines, $regex);
             if (!empty($search_results)) {
                 foreach ($search_results as $result) {
-                    if($result["line"]) {
+                    if ($result["line"]) {
                         $entry = [
                         'content' => $result['line']
                         ];

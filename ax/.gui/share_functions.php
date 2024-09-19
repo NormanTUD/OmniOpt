@@ -66,7 +66,7 @@ function get_header_file($file)
     "worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
     );
 
-    if(isset($names[$replaced_file])) {
+    if (isset($names[$replaced_file])) {
         return "<h2>".$names[$replaced_file]." (<samp>$replaced_file</samp>)</h2>";
     } else {
         return "<h2>".$replaced_file."</h2>";
@@ -92,7 +92,7 @@ function loadCsvToJsonByResult($file)
         $result_column_id = array_search("result", $headers);
 
         while (($row = fgetcsv($fileHandle)) !== false) {
-            if($row[$result_column_id]) {
+            if ($row[$result_column_id]) {
                   $csvData[] = array_combine($headers, $row);
             }
         }
@@ -345,10 +345,10 @@ function convertStringToHtmlTable($inputString)
 
     foreach ($tableData as $rowIndex => $row) {
         $thisRow = $tableData[$rowIndex];
-        if($rowIndex > 0) {
-            if(!$skip_next_row && isset($tableData[$rowIndex + 1])) {
+        if ($rowIndex > 0) {
+            if (!$skip_next_row && isset($tableData[$rowIndex + 1])) {
                 $nextRow = $tableData[$rowIndex + 1];
-                if(count($thisRow) > count($nextRow)) {
+                if (count($thisRow) > count($nextRow)) {
                     $next_row_keys = array_keys($nextRow);
 
                     foreach ($next_row_keys as $nrk) {
@@ -404,10 +404,10 @@ function show_run($folder)
 
     $file = "";
 
-    if(file_exists("$folder/ui_url.txt")) {
+    if (file_exists("$folder/ui_url.txt")) {
         $content = remove_ansi_colors(file_get_contents("$folder/ui_url.txt"));
         $content_encoding = mb_detect_encoding($content);
-        if(($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+        if (($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
             $shown_data += print_url($content);
         }
     }
@@ -415,21 +415,21 @@ function show_run($folder)
     $out_or_err_files = [];
 
     foreach ($run_files as $file) {
-        if(preg_match("/\/\.\.\/?/", $file)) {
+        if (preg_match("/\/\.\.\/?/", $file)) {
             print("Invalid file ".htmlentities($file)." detected. It will be ignored.");
         }
 
         if (preg_match("/results\.csv$/", $file)) {
             $content = remove_ansi_colors(file_get_contents($file));
             $content_encoding = mb_detect_encoding($content);
-            if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+            if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
                   continue;
             }
 
             $jsonData = loadCsvToJsonByResult($file);
 
             $html .= get_header_file($file);
-            if($jsonData == "[]") {
+            if ($jsonData == "[]") {
                 $html .= "Data is empty";
                 continue;
             }
@@ -443,7 +443,7 @@ function show_run($folder)
             $jsonData = loadCsvToJson($file);
             $content = remove_ansi_colors(file_get_contents($file));
 
-            if($jsonData == "[]") {
+            if ($jsonData == "[]") {
                 $html .= "Data is empty";
                 continue;
             }
@@ -455,19 +455,19 @@ function show_run($folder)
             $content = remove_ansi_colors(file_get_contents($file));
 
             $html .= get_header_file($file);
-            if($jsonData == "[]") {
+            if ($jsonData == "[]") {
                 $html .= "Data is empty";
                 continue;
             }
 
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
             $html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
-        } else if(preg_match("/parameters\.txt$/", $file) 
+        } else if (preg_match("/parameters\.txt$/", $file) 
             || preg_match("/best_result\.txt$/", $file)
         ) {
             $content = remove_ansi_colors(file_get_contents($file));
             $content_encoding = mb_detect_encoding($content);
-            if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+            if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
                 continue;
             }
 
@@ -481,7 +481,7 @@ function show_run($folder)
         ) {
             $content = remove_ansi_colors(file_get_contents($file));
             $content_encoding = mb_detect_encoding($content);
-            if(!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+            if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
                 continue;
             }
 
@@ -505,10 +505,10 @@ function show_run($folder)
         }
     }
 
-    if(count($out_or_err_files)) {
-        if(count($out_or_err_files) == 1) {
+    if (count($out_or_err_files)) {
+        if (count($out_or_err_files) == 1) {
             $_file = $out_or_err_files[0];
-            if(file_exists($_file)) {
+            if (file_exists($_file)) {
                 $content = file_get_contents($_file);
                 get_header_file($_file);
                 print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
@@ -527,7 +527,7 @@ function show_run($folder)
 
                   $ok_or_error = $ok;
 
-                if(!checkForResult($content)) {
+                if (!checkForResult($content)) {
                     $ok_or_error = $error;
                 }
 
@@ -552,7 +552,7 @@ function show_run($folder)
         }
     }
 
-    if($shown_data == 0) {
+    if ($shown_data == 0) {
         $html .= "<h2>No visualizable data could be found</h2>";
     }
 
@@ -633,7 +633,7 @@ function checkForResult($content)
 
 function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name)
 {
-    if(!$_uuid_folder) {
+    if (!$_uuid_folder) {
         $userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
     } else {
         $userFolder = $_uuid_folder;
@@ -646,7 +646,7 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
 {
     if (isset($_GET["user"]) && !isset($_GET["experiment"])) {
         $user = $_GET["user"];
-        if(preg_match("/\.\./", $user)) {
+        if (preg_match("/\.\./", $user)) {
             print("Invalid user path");
             exit(1);
         }
@@ -684,7 +684,7 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
         $run_nr = $_GET["run_nr"];
 
         $run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
-        if(isset($_GET["get_hash_only"])) {
+        if (isset($_GET["get_hash_only"])) {
             echo calculateDirectoryHash($run_folder);
 
             exit(0);
@@ -696,7 +696,7 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
         }
     } else {
         $user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
-        if(count($user_subfolders)) {
+        if (count($user_subfolders)) {
             foreach ($user_subfolders as $user) {
                  $user = preg_replace("/.*\//", "", $user);
                  echo "<a class='share_link' href=\"share.php?user=$user\">$user</a><br>\n";
@@ -721,8 +721,8 @@ function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg)
         if ($file && file_exists($file)) {
             $content = file_get_contents($file);
             $content_encoding = mb_detect_encoding($content);
-            if($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-                if(filesize($file)) {
+            if ($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+                if (filesize($file)) {
                     move_uploaded_file($file, "$userFolder/$filename");
                     $added_files++;
                 } else {
@@ -735,7 +735,7 @@ function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg)
     }
 
     if ($added_files) {
-        if(isset($_GET["update"])) {
+        if (isset($_GET["update"])) {
             eval('echo "$msgUpdate";');
         } else {
             eval('echo "$msg";');
@@ -762,12 +762,12 @@ function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $
     $found_hash_file = $found_hash_file_data[0];
     $found_hash_file_dir = $found_hash_file_data[1];
 
-    if($found_hash_file && is_null($update_uuid)) {
+    if ($found_hash_file && is_null($update_uuid)) {
         list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
         echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
         exit(0);
     } else {
-        if(!$uuid_folder || !is_dir($uuid_folder)) {
+        if (!$uuid_folder || !is_dir($uuid_folder)) {
             move_files(
                 $offered_files,
                 $added_files,

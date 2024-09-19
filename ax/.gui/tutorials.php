@@ -23,8 +23,8 @@ function get_first_heading_content($file_path)
 
 if (isset($_GET["tutorial"])) {
     $tutorial_file = $_GET["tutorial"];
-    if(preg_match("/^[a-z_]+$/", $tutorial_file)) {
-        if(file_exists("tutorials/$tutorial_file.php")) {
+    if (preg_match("/^[a-z_]+$/", $tutorial_file)) {
+        if (file_exists("tutorials/$tutorial_file.php")) {
             $tutorial_file = "$tutorial_file.php";
         }
     }
@@ -45,7 +45,7 @@ if (isset($_GET["tutorial"])) {
     <?php
     $files = scandir('tutorials/');
     foreach($files as $file) {
-        if($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
+        if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
             $name = $file;
 
             $heading_content = get_first_heading_content("tutorials/$file");

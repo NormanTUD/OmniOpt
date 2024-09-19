@@ -404,17 +404,17 @@ if (validate_csv($data_filepath)) {
         <div id="tabs">
             <ul>
     <?php
-    if(count($regular_data)) {
+    if (count($regular_data)) {
         ?>
                     <li><a href="#regular_data">Regular Users</a></li>
         <?php
     }
-    if(count($test_ids)) {
+    if (count($test_ids)) {
         ?>
                     <li><a href="#test_ids">Tests</a></li>
         <?php
     }
-    if(count($developer_ids)) {
+    if (count($developer_ids)) {
         ?>
                     <li><a href="#developer_ids">Developer</a></li>
         <?php
@@ -423,7 +423,7 @@ if (validate_csv($data_filepath)) {
             <li><a href="#exit_codes">Exit-Codes</a></li>
         </ul>
     <?php
-    if(count($regular_data)) {
+    if (count($regular_data)) {
         ?>
             <div id="regular_data">
         <?php
@@ -434,7 +434,7 @@ if (validate_csv($data_filepath)) {
         <?php
     }
 
-    if(count($test_ids)) {
+    if (count($test_ids)) {
         ?>
             <div id="test_ids">
         <?php
@@ -445,7 +445,7 @@ if (validate_csv($data_filepath)) {
         <?php
     }
 
-    if(count($developer_ids)) {
+    if (count($developer_ids)) {
 
         ?>
             <div id="developer_ids">

@@ -3,7 +3,7 @@
     require_once "_functions.php";
 
     $dir_path = ".";
-if(preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
     $dir_path = "..";
 }
 ?>
@@ -23,7 +23,7 @@ if(preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
         <script src="<?php print $dir_path; ?>/main.js"></script>
         <link href="<?php print $dir_path; ?>/style.css" rel="stylesheet" />
 <?php
-if(!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
+if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
     ?>
             <link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
     <?php
@@ -35,9 +35,9 @@ if(!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
             document.onkeypress = function (e) {
                 e = e || window.event;
 
-                if(document.activeElement == $("body")[0]) {
+                if (document.activeElement == $("body")[0]) {
                     var keycode = e.keyCode;
-                    if(keycode >= 97 && keycode <= 122 || keycode == 45) {
+                    if (keycode >= 97 && keycode <= 122 || keycode == 45) {
                         e.preventDefault();
                         $("#search").val("");
                         $("#search").val(String.fromCharCode(e.keyCode));
@@ -81,17 +81,18 @@ foreach ($GLOBALS["files"] as $fn => $n) {
          $n = $n["name"];
     }
 
-        $tab_is_active = preg_match("/^$fn.php/", $current_file);
-        $tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-        $_link = "$dir_path/$fn.php";
-    if(!file_exists($_link)) {
+    $tab_is_active = preg_match("/^$fn.php/", $current_file);
+    $tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
+    $_link = "$dir_path/$fn.php";
+
+    if ( !file_exists($_link)) {
         dier("Coult not find $_link");
     }
         echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
 }
                 $current_tag = get_current_tag();
 
-if($current_tag) {
+if ($current_tag) {
     echo " $current_tag, ";
 }
 ?>

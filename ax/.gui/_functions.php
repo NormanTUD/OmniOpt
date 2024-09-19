@@ -1,5 +1,5 @@
 <?php
-if(!function_exists("dier")) {
+if (!function_exists("dier")) {
     function dier($data, $enable_html = 0, $exception = 0)
     {
         $source_data = debug_backtrace()[0];
@@ -10,7 +10,7 @@ if(!function_exists("dier")) {
         ob_start();
         print_r($data);
         $buffer = ob_get_clean();
-        if($enable_html) {
+        if ($enable_html) {
             $print .= $buffer;
         } else {
             $print .= htmlentities($buffer);
@@ -24,7 +24,7 @@ if(!function_exists("dier")) {
         }
             $print .= "</pre>\n";
 
-        if(!$exception) {
+        if (!$exception) {
             print $print;
             exit();
         } else {
@@ -47,7 +47,7 @@ function getFirstTagName($url)
     $response = curl_exec($ch);
 
     // Fehlerbehandlung, falls cURL fehlschlägt
-    if(curl_errno($ch)) {
+    if (curl_errno($ch)) {
         curl_close($ch);
         return null; // cURL-Fehler
     }

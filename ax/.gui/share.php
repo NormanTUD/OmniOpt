@@ -1,5 +1,5 @@
 <?php
-        include("_header_base.php");
+        require "_header_base.php";
 ?>
         <div style="visibility: hidden" id="countdown"></div>
         <div id="share_main" style="display: none"></div>
@@ -83,7 +83,7 @@
 
                 var auto_update = getParameterByName('update');
 
-		if (auto_update) {
+        if (auto_update) {
                         var interval = parseInt(1, 10) * 1000; // Convert to milliseconds
                         updateCountdown(interval);
                         setInterval(function() {

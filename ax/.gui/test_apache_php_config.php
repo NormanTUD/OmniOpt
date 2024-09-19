@@ -1,6 +1,7 @@
 <?php
-function myprint($arg) {
-	print("$arg<br>\n");
+function myprint($arg)
+{
+    print("$arg<br>\n");
 }
 
 // Mindestanforderungen festlegen
@@ -9,18 +10,19 @@ $required_upload_max_filesize = 32 * 1024 * 1024; // 100M in Bytes
 $required_max_file_uploads = 10000;
 
 // Funktion zum Konvertieren von PHP-Einstellungen in Bytes
-function convertToBytes($val) {
+function convertToBytes($val)
+{
     $val = trim($val);
     $last = strtolower($val[strlen($val) - 1]);
     $val = (int)$val;
 
     switch ($last) {
-        case 'g':
-            $val *= 1024;
-        case 'm':
-            $val *= 1024;
-        case 'k':
-            $val *= 1024;
+    case 'g':
+        $val *= 1024;
+    case 'm':
+        $val *= 1024;
+    case 'k':
+        $val *= 1024;
     }
 
     return $val;

@@ -540,8 +540,6 @@
 						$ok = "&#9989;";
 						$error = "&#10060;";
 
-
-
 						foreach($out_or_err_files as $out_or_err_file) {
 							$content = remove_ansi_colors(file_get_contents($out_or_err_file));
 
@@ -560,18 +558,18 @@
 ?>
 					</ul>
 <?php
-						foreach($out_or_err_files as $out_or_err_file) {
-							$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+					foreach($out_or_err_files as $out_or_err_file) {
+						$content = remove_ansi_colors(file_get_contents($out_or_err_file));
 
-							$_hash = hash('md5', $content);
+						$_hash = hash('md5', $content);
 ?>
-							<div id="<?php print $_hash; ?>">
-								<textarea readonly class='textarea_csv'><?php print htmlentities($content); ?></textarea>
-							</div>
+						<div id="<?php print $_hash; ?>">
+							<textarea readonly class='textarea_csv'><?php print htmlentities($content); ?></textarea>
+						</div>
 <?php
-						}
+					}
 ?>
-					</div>
+				</div>
 
 				<script>
 					$(function() {

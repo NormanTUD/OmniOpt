@@ -130,6 +130,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)',
 
+						showlegend: true,
 						legend: {
 							x: 0.1,
 							y: 1.1,
@@ -146,19 +147,26 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 	}
 }
 
-function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	// 2D Scatter Plot
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
 			var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
 			var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
 
-			function color_curried (value) {
-				return getColor(value, minResult, maxResult)
+			function color_curried(value) {
+				return getColor(value, minResult, maxResult);
 			}
 
 			var colors = resultValues.map(color_curried);
 
+			// Create a custom colorscale from the unique values of resultValues and their corresponding colors
+			var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
+			var customColorscale = uniqueValues.map(value => {
+				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
+			});
+
+			// Scatter Plot Trace
 			var trace2d = {
 				x: xValues,
 				y: yValues,
@@ -169,23 +177,38 @@ function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultVal
 				}
 			};
 
+			// Dummy Trace for Color Legend with Custom Colorscale
+			var colorScaleTrace = {
+				x: [null], // Dummy data
+				y: [null], // Dummy data
+				type: 'scatter',
+				mode: 'markers',
+				marker: {
+					color: [minResult, maxResult],
+					colorscale: customColorscale,
+					cmin: minResult,
+					cmax: maxResult,
+					showscale: true, // Show the color scale
+					colorbar: {
+						title: 'Result Values',
+						titleside: 'right'
+					}
+				},
+				hoverinfo: 'none' // Hide hover info for this trace
+			};
+
 			var layout2d = {
 				title: `Scatter Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
 				xaxis: { title: _paramKeys[i] },
 				yaxis: { title: _paramKeys[j] },
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)',
-
-				legend: {
-					x: 0.1,
-					y: 1.1,
-					orientation: 'h'
-				},
+				showlegend: false // We use the colorbar instead of a traditional legend
 			};
 
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
 			$('body').append(new_plot_div);
-			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d], layout2d);
+			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d, colorScaleTrace], layout2d);
 		}
 	}
 }
@@ -338,6 +361,7 @@ function plotLineChart(data) {
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
 
+		showlegend: true,
 		legend: {
 			x: 0.1,
 			y: 1.1,
@@ -400,6 +424,8 @@ function plot_cpu_gpu_graph (cpu_ram_usage_json) {
 			side: 'right',
 			showline: true
 		},
+
+		showlegend: true,
 		legend: {
 			x: 0.1,
 			y: 1.1,

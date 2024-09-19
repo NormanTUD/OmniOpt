@@ -1,0 +1,80 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+if ! command -v phpcs 2>/dev/null >/dev/null; then
+	if ! command -v composer 2>/dev/null >/dev/null; then
+		composer global require squizlabs/php_codesniffer --dev
+	else
+		red_text "Cannot install php_codesniffer without composer being installed."
+		exit 0
+	fi
+fi
+
+
+errors=()
+
+BASECOMMAND="phpcs --standard=PSR12 --exclude=Squiz.Commenting.FileComment,Generic.Files.LineLength,PSR2.ControlStructures.SwitchDeclaration,PSR12.Files.FileHeader -n -s"
+
+if [ "$#" -gt 0 ]; then
+	# Process passed files
+	for i in "$@"; do
+		if [ -f "$i" ]; then
+			yellow_text "$BASECOMMAND $i"
+			eval "$BASECOMMAND $i" || {
+				ERRSTR="Failed linting $i: Run '$BASECOMMAND $i' to see details."
+				red_text "$ERRSTR\n"
+				errors+=("$ERRSTR")
+			}
+		else
+			red_text "File $i not found, skipping."
+		fi
+	done
+else
+	# No parameters passed, process all Python files (as in original script)
+	for i in $(ls .gui/*/**.php); do
+		yellow_text "$BASECOMMAND $i"
+		eval "$BASECOMMAND $i" || {
+			ERRSTR="Failed linting $i: Run '$BASECOMMAND $i' to see details."
+			red_text "$ERRSTR\n"
+			errors+=("$ERRSTR")
+		}
+	done
+fi
+
+
+secs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'phpcs test took: %02d:%02d:%02d\n' $hrs $mins $secs
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No phpcs errors"
+	exit 0
+else
+	red_text "=> PHPCS-ERRORS => PHPCS-ERRORS => PHPCS-ERRORS =>\n"
+	for i in "${errors[@]}"; do
+		red_text "$i\n"
+	done
+
+	exit ${#errors[@]}
+fi

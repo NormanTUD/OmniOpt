@@ -48,18 +48,16 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev
-          elif grep -q '^ID=centos' /etc/os-release; then
-            sudo yum install -y xterm whiptail python3-devel
-          elif grep -q '^ID=debian' /etc/os-release; then
-            sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip 
+            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          else
+            echo "Invalid OS for pipeline. Only works with Ubuntu"
+            exit 1
           fi
         else
-          echo "Detected Mac"
-          brew install postgresql
-          brew install xterm
-          brew install newt
+            echo "Invalid OS detected"
+            exit 2
         fi
     - name: Creating virtualenv
       run: |

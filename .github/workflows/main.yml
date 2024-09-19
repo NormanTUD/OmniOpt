@@ -29,20 +29,6 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: omniopt-venv
-      uses: actions/cache@v3
-      with:
-        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-omniax-
-    - name: omniopt-test-venv
-      uses: actions/cache@v3
-      with:
-        path: $HOME/.omniopt_test_install_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: ${{ runner.os }}-omniax-test-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-omniax-test
     - name: Install dependencies
       run: |
         if [[ $RUNNER_OS == 'Linux' ]]; then

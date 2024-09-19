@@ -90,7 +90,7 @@ function scan_share_directories($output, $root_dir, $regex_pattern)
                   // Check if the run directory name matches the regex pattern
                 if (preg_match($regex_pattern, $run_path, $matches)) {
                     $parsedPath = parsePath($run_path);
-                    $url = "share.php?user=".$parsedPath['user']."&experiment=".$parsedPath['directory']."&run_nr=".$parsedPath['file'];
+                    $url = "share.php?user=" . $parsedPath['user'] . "&experiment=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
                     $entry = [
                     'link' => $url,
                     'content' => "OmniOpt-Share: $run_path"
@@ -241,8 +241,7 @@ foreach ($php_files as $file_path) {
     }
 }
 
-    $output = scan_share_directories($output, "shares", $regex);
+$output = scan_share_directories($output, "shares", $regex);
 
-    header('Content-Type: application/json');
-    echo json_encode($output);
-?>
+header('Content-Type: application/json');
+echo json_encode($output);

@@ -51,7 +51,7 @@ function calculateDirectoryHash($directory)
 function die_with_time()
 {
     $time_end = microtime(true);
-    dier("Runtime: ".abs($time_end - $GLOBALS["time_start"]));
+    dier("Runtime: " . abs($time_end - $GLOBALS["time_start"]));
 }
 
 function get_header_file($file)
@@ -67,9 +67,9 @@ function get_header_file($file)
     );
 
     if (isset($names[$replaced_file])) {
-        return "<h2>".$names[$replaced_file]." (<samp>$replaced_file</samp>)</h2>";
+        return "<h2>" . $names[$replaced_file] . " (<samp>$replaced_file</samp>)</h2>";
     } else {
-        return "<h2>".$replaced_file."</h2>";
+        return "<h2>" . $replaced_file . "</h2>";
     }
 }
 
@@ -143,7 +143,7 @@ function warn($message)
 
 function dier($msg)
 {
-    print("<pre>".print_r($msg, true)."</pre>");
+    print("<pre>" . print_r($msg, true) . "</pre>");
     exit(1);
 }
 
@@ -352,7 +352,7 @@ function convertStringToHtmlTable($inputString)
                     $next_row_keys = array_keys($nextRow);
 
                     foreach ($next_row_keys as $nrk) {
-                        $thisRow[$nrk] .= " ".$nextRow[$nrk];
+                        $thisRow[$nrk] .= " " . $nextRow[$nrk];
                     }
 
                     $skip_next_row = true;
@@ -399,7 +399,7 @@ function show_run($folder)
     $run_files = glob("$folder/*");
 
     $html = "";
-        
+
     $shown_data = 0;
 
     $file = "";
@@ -416,7 +416,7 @@ function show_run($folder)
 
     foreach ($run_files as $file) {
         if (preg_match("/\/\.\.\/?/", $file)) {
-            print("Invalid file ".htmlentities($file)." detected. It will be ignored.");
+            print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
         }
 
         if (preg_match("/results\.csv$/", $file)) {
@@ -438,8 +438,7 @@ function show_run($folder)
             $html .= "<script>var results_csv_json = $jsonData; plot_all_possible(results_csv_json);</script>";
 
             $shown_data += 1;
-        } else if (preg_match("/cpu_ram_usage\.csv$/", $file)
-        ) {
+        } elseif (preg_match("/cpu_ram_usage\.csv$/", $file)) {
             $jsonData = loadCsvToJson($file);
             $content = remove_ansi_colors(file_get_contents($file));
 
@@ -449,7 +448,7 @@ function show_run($folder)
             }
 
             $html .= "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
-        } else if (preg_match("/worker_usage\.csv$/", $file)
+        } elseif (preg_match("/worker_usage\.csv$/", $file)
         ) {
             $jsonData = loadCsvToJson($file);
             $content = remove_ansi_colors(file_get_contents($file));
@@ -462,7 +461,7 @@ function show_run($folder)
 
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
             $html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
-        } else if (preg_match("/parameters\.txt$/", $file) 
+        } elseif (preg_match("/parameters\.txt$/", $file)
             || preg_match("/best_result\.txt$/", $file)
         ) {
             $content = remove_ansi_colors(file_get_contents($file));
@@ -472,11 +471,11 @@ function show_run($folder)
             }
 
             $html .= get_header_file($file);
-            $html .= "<pre>".htmlentities($content)."</pre>";
+            $html .= "<pre>" . htmlentities($content) . "</pre>";
             $shown_data += 1;
-        } else if (preg_match("/evaluation_errors\.log$/", $file)  
-            || preg_match("/oo_errors\.txt$/", $file) 
-            || preg_match("/get_next_trials/", $file) 
+        } elseif (preg_match("/evaluation_errors\.log$/", $file)
+            || preg_match("/oo_errors\.txt$/", $file)
+            || preg_match("/get_next_trials/", $file)
             || preg_match("/job_infos\.csv$/", $file)
         ) {
             $content = remove_ansi_colors(file_get_contents($file));
@@ -488,16 +487,16 @@ function show_run($folder)
             $html .= get_header_file($file);
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
             $shown_data += 1;
-        } else if (preg_match("/state_files/", $file) 
-            || preg_match("/failed_logs/", $file) 
-            || preg_match("/single_runs/", $file) 
-            || preg_match("/gpu_usage/", $file) 
-            || preg_match("/hash\.md5$/", $file) 
-            || preg_match("/ui_url\.txt$/", $file) 
+        } elseif (preg_match("/state_files/", $file)
+            || preg_match("/failed_logs/", $file)
+            || preg_match("/single_runs/", $file)
+            || preg_match("/gpu_usage/", $file)
+            || preg_match("/hash\.md5$/", $file)
+            || preg_match("/ui_url\.txt$/", $file)
             || preg_match("/run_uuid$/", $file)
         ) {
                 // do nothing
-        } else if (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)
+        } elseif (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)
         ) {
                 $out_or_err_files[] = $file;
         } else {
@@ -520,7 +519,7 @@ function show_run($folder)
             $ok = "&#9989;";
             $error = "&#10060;";
 
-            foreach($out_or_err_files as $out_or_err_file) {
+            foreach ($out_or_err_files as $out_or_err_file) {
                   $content = remove_ansi_colors(file_get_contents($out_or_err_file));
 
                   $_hash = hash('md5', $content);
@@ -531,15 +530,15 @@ function show_run($folder)
                     $ok_or_error = $error;
                 }
 
-                $html .= "<li><a href='#$_hash'>".preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file))."<span class='invert_in_dark_mode'>$ok_or_error</span></a></li>";
+                $html .= "<li><a href='#$_hash'>" . preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)) . "<span class='invert_in_dark_mode'>$ok_or_error</span></a></li>";
             }
             $html .= "</ul>";
-            foreach($out_or_err_files as $out_or_err_file) {
+            foreach ($out_or_err_files as $out_or_err_file) {
                 $content = remove_ansi_colors(file_get_contents($out_or_err_file));
 
                 $_hash = hash('md5', $content);
                 $html .= "<div id='$_hash'>";
-                $html .= "<textarea readonly class='textarea_csv'>".htmlentities($content)."</textarea>";
+                $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
                 $html .= "</div>";
             }
             $html .= "</div>";
@@ -595,7 +594,7 @@ function show_run_selection($sharesPath, $user, $experiment_name)
     if (count($experiment_subfolders) == 0) {
         echo "No runs found in $folder_glob";
         exit(1);
-    } else if (count($experiment_subfolders) == 1) {
+    } elseif (count($experiment_subfolders) == 1) {
         $user_dir = preg_replace("/^\.\//", "", preg_replace("/\/\/*/", "/", preg_replace("/\.\/shares\//", "./", $experiment_subfolders[0])));
 
         print_script_and_folder($user_dir);
@@ -657,7 +656,7 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
         if (count($experiment_subfolders) == 0) {
             print("Did not find any experiments for $sharesPath/$user/*");
             exit(0);
-        } else if (count($experiment_subfolders) == 1) {
+        } elseif (count($experiment_subfolders) == 1) {
             show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
             $this_experiment_name = "$experiment_subfolders[0]";
             $this_experiment_name = preg_replace("/.*\//", "", $this_experiment_name);
@@ -671,14 +670,14 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
             print("<!-- $user/$experiment_name/ -->");
             print_script_and_folder("$user/$experiment_name/");
         }
-    } else if (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
+    } elseif (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
          $user = $_GET["user"];
          $experiment_name = $_GET["experiment"];
 
          show_run_selection($sharesPath, $user, $experiment_name);
          print("<!-- $user/$experiment_name/ -->");
          print_script_and_folder("$user/$experiment_name/");
-    } else if (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
+    } elseif (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
         $user = $_GET["user"];
         $experiment_name = $_GET["experiment"];
         $run_nr = $_GET["run_nr"];
@@ -799,4 +798,3 @@ function get_offered_files($acceptable_files, $acceptable_file_names, $i)
 
     return [$offered_files, $i];
 }
-?>

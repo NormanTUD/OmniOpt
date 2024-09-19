@@ -107,7 +107,7 @@ function append_to_csv($params, $filepath)
             fputcsv($file, $params);
             fclose($file);
         } catch (Exception $e) {
-            log_error("Failed to write to CSV: " . $e->getMessage(). ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
+            log_error("Failed to write to CSV: " . $e->getMessage() . ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
             exit(1);
         }
     }
@@ -236,8 +236,8 @@ function display_plots($data, $title, $element_id)
 			var runtimeCount = {};
 
 			for (var i = 0; i < exit_codes_$element_id.length; i++) {
-				var code = exit_codes_".$element_id."[i];
-				var runtime = runtimes_".$element_id."[i];
+				var code = exit_codes_" . $element_id . "[i];
+				var runtime = runtimes_" . $element_id . "[i];
 				if (!(code in runtimeSum)) {
 					runtimeSum[code] = 0;
 					runtimeCount[code] = 0;
@@ -307,7 +307,7 @@ function calculate_statistics($data)
     $failed_jobs = count(
         array_filter(
             $data, function ($row) {
-                return intval($row[4]) != 0; 
+                return intval($row[4]) != 0;
             }
         )
     );
@@ -323,7 +323,7 @@ function calculate_statistics($data)
 
     $successful_runtimes = array_filter(
         $data, function ($row) {
-            return intval($row[4]) == 0; 
+            return intval($row[4]) == 0;
         }
     );
     $successful_runtimes = array_map('floatval', array_column($successful_runtimes, 5));
@@ -333,7 +333,7 @@ function calculate_statistics($data)
 
     $failed_runtimes = array_filter(
         $data, function ($row) {
-            return intval($row[4]) != 0; 
+            return intval($row[4]) != 0;
         }
     );
     $failed_runtimes = array_map('floatval', array_column($failed_runtimes, 5));
@@ -446,7 +446,6 @@ if (validate_csv($data_filepath)) {
     }
 
     if (count($developer_ids)) {
-
         ?>
             <div id="developer_ids">
         <?php

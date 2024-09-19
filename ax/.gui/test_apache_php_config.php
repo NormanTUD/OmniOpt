@@ -46,4 +46,3 @@ if ($current_upload_max_filesize < $required_upload_max_filesize) {
 if ($current_max_file_uploads < $required_max_file_uploads) {
     myprint("Message: max_file_uploads is too small. Required: 10000, Current: " . ini_get('max_file_uploads') . ". Config File: " . $ini_file);
 }
-?>

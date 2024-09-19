@@ -44,7 +44,7 @@ if (isset($_GET["tutorial"])) {
         <ul>
     <?php
     $files = scandir('tutorials/');
-    foreach($files as $file) {
+    foreach ($files as $file) {
         if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
             $name = $file;
 

@@ -8,7 +8,7 @@
 
     ini_set('display_errors', 1);
 
-    $BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")."://".(isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost")."/".$_SERVER["SCRIPT_NAME"]);
+    $BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
     $sharesPath = './shares/';
 
     if (getenv("share_path")) {
@@ -70,7 +70,7 @@
                 if (!isset($offered_files[$_file_without_ending])) {
                     if (isset($_file["name"])) {
                         if ($_file["error"] != 0) {
-                               print("File ".htmlentities($_file["name"])." could not be uploaded. Error-Code: ".$_file["error"]);
+                               print("File " . htmlentities($_file["name"]) . " could not be uploaded. Error-Code: " . $_file["error"]);
                         } else {
                             if ($_file["size"] > 0) {
                                 $num_offered_files++;

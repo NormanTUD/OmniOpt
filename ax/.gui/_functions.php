@@ -3,7 +3,7 @@ if (!function_exists("dier")) {
     function dier($data, $enable_html = 0, $exception = 0)
     {
         $source_data = debug_backtrace()[0];
-        @$source = 'Aufgerufen von <b>'.debug_backtrace()[1]['file'].'</b>::<i>'.debug_backtrace()[1]['function'].'</i>, line '.htmlentities($source_data['line'])."<br>\n";
+        @$source = 'Aufgerufen von <b>' . debug_backtrace()[1]['file'] . '</b>::<i>' . debug_backtrace()[1]['function'] . '</i>, line ' . htmlentities($source_data['line']) . "<br>\n";
         $print = $source;
 
         $print .= "<pre>\n";
@@ -77,4 +77,3 @@ function get_current_tag()
 
     return $tagName;
 }
-?>

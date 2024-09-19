@@ -85,7 +85,7 @@ foreach ($GLOBALS["files"] as $fn => $n) {
     $tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
     $_link = "$dir_path/$fn.php";
 
-    if ( !file_exists($_link)) {
+    if (!file_exists($_link)) {
         dier("Coult not find $_link");
     }
         echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";

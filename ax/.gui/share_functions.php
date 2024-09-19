@@ -470,7 +470,7 @@ function show_run($folder)
             $html .= get_header_file($file);
             $html .= "<pre>" . htmlentities($content) . "</pre>";
             $shown_data += 1;
-	} elseif (
+        } elseif (
             preg_match("/evaluation_errors\.log$/", $file)
             || preg_match("/oo_errors\.txt$/", $file)
             || preg_match("/get_next_trials/", $file)
@@ -485,7 +485,7 @@ function show_run($folder)
             $html .= get_header_file($file);
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
             $shown_data += 1;
-	} elseif (
+        } elseif (
             preg_match("/state_files/", $file)
             || preg_match("/failed_logs/", $file)
             || preg_match("/single_runs/", $file)
@@ -495,8 +495,7 @@ function show_run($folder)
             || preg_match("/run_uuid$/", $file)
         ) {
                 // do nothing
-        } elseif (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)
-        ) {
+        } elseif (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
                 $out_or_err_files[] = $file;
         } else {
             $html .= "<h2 class='error'>Unknown file type $file</h2>";

@@ -8,7 +8,7 @@
                 $exit_code_info = [];
 
                 array_unshift(
-                   $exit_code_info,
+                    $exit_code_info,
                     [
                     0 => "Seems to have worked properly",
                     "2" => "Loading of Environment failed",
@@ -47,7 +47,8 @@
 
                 if (!array_key_exists("HIDE_SUBZERO", $GLOBALS)) {
                     array_unshift(
-                        $exit_code_info, [
+                        $exit_code_info,
+                        [
                         "-1" => "No proper Exit code found",
                         ]
                     );

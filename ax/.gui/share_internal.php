@@ -9,6 +9,27 @@
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")."://".(isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost")."/".$_SERVER["SCRIPT_NAME"]);
 	$sharesPath = './shares/';
 
+	if(getenv("share_path")) {
+		$sharesPath = getenv("share_path");
+
+		if(!is_dir("share_path")) {
+			print("Share dir $sharesPath could not be found!");
+			exit(1);
+		}
+
+		if(preg_match("/^\//", $sharesPath)) {
+			print("Absolute path is not allowed.");
+			exit(2);
+		}
+
+		if(preg_match("/\.\./", $sharesPath)) {
+			print("It is not allowed to traverse upwards.");
+			exit(2);
+		}
+
+		print("Using sharesPath $sharesPath");
+	}
+
 	$user_id = $_GET['user_id'] ?? null;
 	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 	$experiment_name = $_GET['experiment_name'] ?? null;

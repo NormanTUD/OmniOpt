@@ -14,8 +14,8 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 <p>Depending on the error, if any, occurred, OmniOpt2 ends with the following exit codes:</p>
 
 <?php
-	$GLOBALS["HIDE_SUBZERO"] = true; 
-	include("exit_code_table.php");
+    $GLOBALS["HIDE_SUBZERO"] = true;
+    require "exit_code_table.php";
 ?>
 
 <h2 id="how_to_script_omniopt">How to script OmniOpt2 with exit codes</h2>
@@ -28,9 +28,9 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 exit_code=$? # Special bash variable
 
 if [[ $exit_code -eq 0 ]]; then
-	./omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
+    ./omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
 elif [[ $exit_code -eq 87 ]]; then # 87 = Search space exhausted
-	echo "The search space was exhausted. Trying further will not find new points."
-	# OmniOpt call for expanded search space here
+    echo "The search space was exhausted. Trying further will not find new points."
+    # OmniOpt call for expanded search space here
 fi
 </code></pre>

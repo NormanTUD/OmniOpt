@@ -470,7 +470,8 @@ function show_run($folder)
             $html .= get_header_file($file);
             $html .= "<pre>" . htmlentities($content) . "</pre>";
             $shown_data += 1;
-        } elseif (preg_match("/evaluation_errors\.log$/", $file)
+	} elseif (
+            preg_match("/evaluation_errors\.log$/", $file)
             || preg_match("/oo_errors\.txt$/", $file)
             || preg_match("/get_next_trials/", $file)
             || preg_match("/job_infos\.csv$/", $file)
@@ -484,7 +485,8 @@ function show_run($folder)
             $html .= get_header_file($file);
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
             $shown_data += 1;
-        } elseif (preg_match("/state_files/", $file)
+	} elseif (
+            preg_match("/state_files/", $file)
             || preg_match("/failed_logs/", $file)
             || preg_match("/single_runs/", $file)
             || preg_match("/gpu_usage/", $file)

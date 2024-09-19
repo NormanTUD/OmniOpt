@@ -306,7 +306,8 @@ function calculate_statistics($data)
     $total_jobs = count($data);
     $failed_jobs = count(
         array_filter(
-            $data, function ($row) {
+            $data,
+            function ($row) {
                 return intval($row[4]) != 0;
             }
         )
@@ -322,7 +323,8 @@ function calculate_statistics($data)
     $median_runtime = $total_jobs > 0 ? (count($runtimes) % 2 == 0 ? ($runtimes[count($runtimes) / 2 - 1] + $runtimes[count($runtimes) / 2]) / 2 : $runtimes[floor(count($runtimes) / 2)]) : 0;
 
     $successful_runtimes = array_filter(
-        $data, function ($row) {
+        $data,
+        function ($row) {
             return intval($row[4]) == 0;
         }
     );
@@ -332,7 +334,8 @@ function calculate_statistics($data)
     $median_success_runtime = !empty($successful_runtimes) ? (count($successful_runtimes) % 2 == 0 ? ($successful_runtimes[count($successful_runtimes) / 2 - 1] + $successful_runtimes[count($successful_runtimes) / 2]) / 2 : $successful_runtimes[floor(count($successful_runtimes) / 2)]) : 0;
 
     $failed_runtimes = array_filter(
-        $data, function ($row) {
+        $data,
+        function ($row) {
             return intval($row[4]) != 0;
         }
     );

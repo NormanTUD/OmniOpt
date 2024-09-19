@@ -22,13 +22,18 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
-MAIN_DIR="$HOME/.config/composer/vendor/bin"
+MAIN_DIR="/tmp/composer_data/"
 
 mkdir -p $MAIN_DIR
 
 PATH="$PATH:$MAIN_DIR"
 PATH="$PATH:$HOME/.composer/vendor/bin"
 PATH="$PATH:/usr/local/bin/"
+
+if ! command -v php 2>/dev/null >/dev/null; then
+	red_text "php is not installed. Cannot continue."
+	exit 255
+fi
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then
 	curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php

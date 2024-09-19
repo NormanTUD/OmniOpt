@@ -551,7 +551,6 @@
 
 							if(!checkForResult($content)) {
 								$ok_or_error = $error;
-								dier("content does not contain result:\n$content");
 							}
 
 ?>

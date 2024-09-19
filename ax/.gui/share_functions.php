@@ -448,8 +448,7 @@ function show_run($folder)
             }
 
             $html .= "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
-        } elseif (preg_match("/worker_usage\.csv$/", $file)
-        ) {
+        } elseif (preg_match("/worker_usage\.csv$/", $file)) {
             $jsonData = loadCsvToJson($file);
             $content = remove_ansi_colors(file_get_contents($file));
 
@@ -461,9 +460,7 @@ function show_run($folder)
 
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
             $html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
-        } elseif (preg_match("/parameters\.txt$/", $file)
-            || preg_match("/best_result\.txt$/", $file)
-        ) {
+        } elseif (preg_match("/parameters\.txt$/", $file) || preg_match("/best_result\.txt$/", $file)) {
             $content = remove_ansi_colors(file_get_contents($file));
             $content_encoding = mb_detect_encoding($content);
             if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {

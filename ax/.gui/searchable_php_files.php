@@ -20,4 +20,3 @@
         "share" => "Share",
         "usage_stats" => "Statistics"
     );
-    ?>

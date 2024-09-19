@@ -30,14 +30,31 @@ PATH="$PATH:$MAIN_DIR"
 PATH="$PATH:$HOME/.composer/vendor/bin"
 PATH="$PATH:/usr/local/bin/"
 
+if ! command -v curl 2>/dev/null >/dev/null; then
+	red_text "curl is not installed. Cannot continue."
+	exit 255
+fi
+
+if ! command -v sudo 2>/dev/null >/dev/null; then
+	red_text "sudo is not installed. Cannot continue."
+	exit 255
+fi
+
 if ! command -v php 2>/dev/null >/dev/null; then
 	red_text "php is not installed. Cannot continue."
 	exit 255
 fi
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then
-	curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-	sudo php /tmp/composer-setup.php --install-dir=$MAIN_DIR --filename=composer
+	curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php || {
+		red_text "Failed: curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
+		exit 255
+	}
+
+	sudo php /tmp/composer-setup.php --install-dir=$MAIN_DIR --filename=composer || {
+		red_text "sudo php /tmp/composer-setup.php --install-dir=$MAIN_DIR --filename=composer"
+		exit 255
+	}
 
 	if ! command -v composer 2>/dev/null >/dev/null; then
 		red_text "Cannot install php_codesniffer without composer being installed."

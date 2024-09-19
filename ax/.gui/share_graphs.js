@@ -448,3 +448,18 @@ function plot_cpu_gpu_graph (cpu_ram_usage_json) {
 
 	Plotly.newPlot('cpuRamChart', data, layout);
 }
+
+function replaceZeroWithNull(arr) {
+	// Überprüfen, ob arr ein Array ist
+	if (Array.isArray(arr)) {
+		for (let i = 0; i < arr.length; i++) {
+			// Wenn das aktuelle Element ein Array ist, rekursiv aufrufen
+			if (Array.isArray(arr[i])) {
+				replaceZeroWithNull(arr[i]);
+			} else if (arr[i] === 0) {
+				// Wenn das aktuelle Element 0 ist, durch null ersetzen
+				arr[i] = null;
+			}
+		}
+	}
+};

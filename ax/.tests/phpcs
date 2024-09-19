@@ -24,6 +24,7 @@ function green_text {
 
 PATH="$PATH:$HOME/.config/composer/vendor/bin"
 PATH="$PATH:$HOME/.composer/vendor/bin"
+PATH="$PATH:/usr/local/bin/"
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then
 	if ! command -v composer 2>/dev/null >/dev/null; then

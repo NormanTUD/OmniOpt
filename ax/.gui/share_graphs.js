@@ -128,7 +128,13 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 							zaxis: { title: _paramKeys[k] }
 						},
 						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)'
+						plot_bgcolor: 'rgba(0,0,0,0)',
+
+						legend: {
+							x: 0.1,
+							y: 1.1,
+							orientation: 'h'
+						},
 					};
 
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:1200px;height:800px;'></div>`);
@@ -168,7 +174,13 @@ function scatter (_paramKeys, _results_csv_json, minResult, maxResult, resultVal
 				xaxis: { title: _paramKeys[i] },
 				yaxis: { title: _paramKeys[j] },
 				paper_bgcolor: 'rgba(0,0,0,0)',
-				plot_bgcolor: 'rgba(0,0,0,0)'
+				plot_bgcolor: 'rgba(0,0,0,0)',
+
+				legend: {
+					x: 0.1,
+					y: 1.1,
+					orientation: 'h'
+				},
 			};
 
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
@@ -324,7 +336,13 @@ function plotLineChart(data) {
 		width: 1200,
 		height: 800,
 		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		plot_bgcolor: 'rgba(0,0,0,0)',
+
+		legend: {
+			x: 0.1,
+			y: 1.1,
+			orientation: 'h'
+		},
 	};
 
 	var new_plot_div = document.createElement('div');

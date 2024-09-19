@@ -28,19 +28,19 @@ PATH="$PATH:/usr/local/bin/"
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then
 	if ! command -v composer 2>/dev/null >/dev/null; then
-		composer global require squizlabs/php_codesniffer --dev || {
-			red_text "Failed to install squizlabs/php_codesniffer"
-			exit 0
-		}
-	else
 		red_text "Cannot install php_codesniffer without composer being installed."
-		exit 0
+		exit 255
 	fi
+
+	composer global require squizlabs/php_codesniffer --dev || {
+		red_text "Failed to install squizlabs/php_codesniffer"
+		exit 255
+	}
 fi
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then
 	echo "phpcs was installed, but still could not be found"
-	exit 0
+	exit 255
 fi
 
 errors=()
@@ -80,12 +80,11 @@ printf 'phpcs test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
 	green_text "No phpcs errors"
-	exit 0
 else
 	red_text "=> PHPCS-ERRORS => PHPCS-ERRORS => PHPCS-ERRORS =>\n"
 	for i in "${errors[@]}"; do
 		red_text "$i\n"
 	done
-
-	exit ${#errors[@]}
 fi
+
+exit ${#errors[@]}

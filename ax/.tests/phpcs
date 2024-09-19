@@ -22,11 +22,18 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
-PATH="$PATH:$HOME/.config/composer/vendor/bin"
+MAIN_DIR="$HOME/.config/composer/vendor/bin"
+
+mkdir -p $MAIN_DIR
+
+PATH="$PATH:$MAIN_DIR"
 PATH="$PATH:$HOME/.composer/vendor/bin"
 PATH="$PATH:/usr/local/bin/"
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then
+	curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+	php /tmp/composer-setup.php --install-dir=$MAIN_DIR --filename=composer
+
 	if ! command -v composer 2>/dev/null >/dev/null; then
 		red_text "Cannot install php_codesniffer without composer being installed."
 		exit 255
@@ -34,8 +41,8 @@ if ! command -v phpcs 2>/dev/null >/dev/null; then
 
 	composer global require squizlabs/php_codesniffer --dev || {
 		red_text "Failed to install squizlabs/php_codesniffer"
-		exit 255
-	}
+			exit 255
+		}
 fi
 
 if ! command -v phpcs 2>/dev/null >/dev/null; then

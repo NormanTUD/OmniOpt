@@ -317,6 +317,8 @@ function plot_all_possible (_results_csv_json) {
 	//hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 
 	apply_theme_based_on_system_preferences();
+
+	$("#out_files_tabs").tabs();
 }
 
 function convertUnixTimeToReadable(unixTime) {

@@ -354,7 +354,7 @@ function _test {
 
 	LOG_TIMES+=("$failed,$NAME,$TEST_RUN_TIME,$exit_code,$wanted_exit_codes,$failed_true_false")
 
-	echo "Test took $(displaytime $TEST_RUN_TIME) seconds"
+	echo "Test took $(displaytime $TEST_RUN_TIME)"
 }
 
 PARTITION="alpha"

@@ -663,7 +663,7 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
         } else {
             foreach ($experiment_subfolders as $experiment) {
                 $experiment = preg_replace("/.*\//", "", $experiment);
-                echo "<a class='share_link' href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>\n";
+                echo "<a class='_share_link' href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>\n";
             }
             print("<!-- $user/$experiment_name/ -->");
             print_script_and_folder("$user/$experiment_name/");
@@ -696,7 +696,7 @@ function show_dir_view_or_plot($sharesPath, $experiment_name)
         if (count($user_subfolders)) {
             foreach ($user_subfolders as $user) {
                  $user = preg_replace("/.*\//", "", $user);
-                 echo "<a class='share_link' href=\"share.php?user=$user\">$user</a><br>\n";
+                 echo "<a class='_share_link' href=\"share.php?user=$user\">$user</a><br>\n";
             }
         } else {
             echo "No users found";

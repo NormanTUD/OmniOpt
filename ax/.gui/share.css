@@ -61,6 +61,7 @@
 	text-align: center;
 	cursor: pointer;
 	transition: background-color 0.3s ease; /* Glatte Übergänge */
+	margin: 10px;
 }
 
 ._share_link:hover {

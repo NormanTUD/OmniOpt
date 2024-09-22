@@ -100,7 +100,7 @@
         }
 
         if ($num_offered_files == 0) {
-            print("Error sharing job. No offered files could be found");
+            print("Error sharing job. No offered files could be found.");
             exit(1);
         }
 
@@ -125,4 +125,3 @@
     }
 
     show_dir_view_or_plot($sharesPath, $experiment_name);
-    ?>

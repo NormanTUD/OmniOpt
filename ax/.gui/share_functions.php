@@ -75,39 +75,42 @@ function get_header_file($file)
 
 function loadCsvToJsonByResult($file)
 {
-    assert(file_exists($file), "CSV file does not exist.");
+	assert(file_exists($file), "CSV file does not exist.");
 
-    $csvData = [];
-    try {
-        $fileHandle = fopen($file, "r");
-        assert($fileHandle !== false, "Failed to open the file.");
+	$csvData = [];
+	try {
+		$fileHandle = fopen($file, "r");
+		assert($fileHandle !== false, "Failed to open the file.");
 
-        $headers = fgetcsv($fileHandle);
-        assert($headers !== false, "Failed to read the headers.");
+		$headers = fgetcsv($fileHandle);
+		assert($headers !== false, "Failed to read the headers.");
 
-        if (!$headers) {
-            return json_encode($csvData);
-        }
+		if (!$headers) {
+			return json_encode($csvData);
+		}
 
-        $result_column_id = array_search("result", $headers);
+		$result_column_id = array_search("result", $headers);
 
-        while (($row = fgetcsv($fileHandle)) !== false) {
-            if ($row[$result_column_id]) {
-                  $csvData[] = array_combine($headers, $row);
-            }
-        }
+		while (($row = fgetcsv($fileHandle)) !== false) {
+			if ($row[$result_column_id]) {
+				while (count($row) < count($headers)) {
+					$row[] = "None";
+				}
+				$csvData[] = array_combine($headers, $row);
+			}
+		}
 
-        fclose($fileHandle);
-    } catch (Exception $e) {
-        print("Error reading CSV: " . $e->getMessage());
-        warn("Ensure the CSV file is correctly formatted.");
-        throw $e;
-    }
+		fclose($fileHandle);
+	} catch (Exception $e) {
+		print("Error reading CSV: " . $e->getMessage());
+		warn("Ensure the CSV file is correctly formatted.");
+		throw $e;
+	}
 
-    $jsonData = json_encode($csvData);
-    assert($jsonData !== false, "Failed to encode JSON.");
+	$jsonData = json_encode($csvData);
+	assert($jsonData !== false, "Failed to encode JSON.");
 
-    return $jsonData;
+	return $jsonData;
 }
 
 function loadCsvToJson($file)

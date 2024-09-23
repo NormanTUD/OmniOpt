@@ -426,16 +426,16 @@ function show_run($folder)
                   continue;
             }
 
-            $jsonData = loadCsvToJsonByResult($file);
+            $resultsCsvJson = loadCsvToJsonByResult($file);
 
             $html .= get_header_file($file);
-            if ($jsonData == "[]") {
+            if ($resultsCsvJson == "[]") {
                 $html .= "Data is empty";
                 continue;
             }
 
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
-            $html .= "<script>var results_csv_json = $jsonData; plot_all_possible(results_csv_json);</script>";
+            $html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
 
             $shown_data += 1;
         } elseif (preg_match("/cpu_ram_usage\.csv$/", $file)) {
@@ -474,7 +474,6 @@ function show_run($folder)
             preg_match("/evaluation_errors\.log$/", $file)
             || preg_match("/oo_errors\.txt$/", $file)
             || preg_match("/get_next_trials/", $file)
-            || preg_match("/job_infos\.csv$/", $file)
         ) {
             $content = remove_ansi_colors(file_get_contents($file));
             $content_encoding = mb_detect_encoding($content);
@@ -484,6 +483,25 @@ function show_run($folder)
 
             $html .= get_header_file($file);
             $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+            $shown_data += 1;
+	} elseif (preg_match("/job_infos\.csv$/", $file)) {
+            $content = remove_ansi_colors(file_get_contents($file));
+            $content_encoding = mb_detect_encoding($content);
+            if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+                  continue;
+            }
+
+            $resultsCsvJson = loadCsvToJsonByResult($file);
+
+            $html .= get_header_file($file);
+            if ($resultsCsvJson == "[]") {
+                $html .= "Data is empty";
+                continue;
+            }
+
+            $html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+            $html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
+
             $shown_data += 1;
         } elseif (
             preg_match("/state_files/", $file)

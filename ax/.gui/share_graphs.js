@@ -300,9 +300,39 @@ function createHexbinData(data, minResult, maxResult) {
 	};
 }
 
+function plot_parallel_plot (_results_csv_json) {
+	// Extract parameter names
+	var paramKeys = Object.keys(_results_csv_json[0]).filter(function(key) {
+		return ![
+			'trial_index',
+			'arm_name',
+			'trial_status',
+			'generation_method',
+			'result',
+			'start_time',
+			'end_time',
+			'program_string',
+			'hostname',
+			'signal',
+			'exit_code'
+		].includes(key);
+	});
+
+	// Get result values for color mapping
+	var resultValues = _results_csv_json.map(function(row) { return parseFloat(row.result); });
+	var minResult = Math.min.apply(null, resultValues);
+	var maxResult = Math.max.apply(null, resultValues);
+
+	parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+
+	apply_theme_based_on_system_preferences();
+
+	$("#out_files_tabs").tabs();
+}
+
 function plot_all_possible (_results_csv_json) {
 	// Extract parameter names
-	var paramKeys = Object.keys(results_csv_json[0]).filter(function(key) {
+	var paramKeys = Object.keys(_results_csv_json[0]).filter(function(key) {
 		return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
 	});
 
@@ -311,9 +341,9 @@ function plot_all_possible (_results_csv_json) {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	scatter(paramKeys, results_csv_json, minResult, maxResult, resultValues);
-	scatter_3d(paramKeys, results_csv_json, minResult, maxResult, resultValues);
-	parallel_plot(paramKeys, results_csv_json, minResult, maxResult, resultValues);
+	scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+	scatter_3d(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+	//parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 	//hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 
 	apply_theme_based_on_system_preferences();

@@ -54,7 +54,6 @@
 	padding: 10px 20px;
 	background-color: #DDD;
 	color: white;
-	text-decoration: none;
 	border-radius: 5px; /* Abgerundete Ecken */
 	font-family: Arial, sans-serif;
 	font-size: 16px;
@@ -62,6 +61,7 @@
 	cursor: pointer;
 	transition: background-color 0.3s ease; /* Glatte Übergänge */
 	margin: 10px;
+	text-decoration: underline dotted;
 }
 
 ._share_link:hover {

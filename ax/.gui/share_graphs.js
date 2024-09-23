@@ -75,7 +75,8 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 		width: 1200,
 		height: 800,
 		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		plot_bgcolor: 'rgba(0,0,0,0)',
+		showlegend: false
 	};
 
 	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);

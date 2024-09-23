@@ -61,7 +61,7 @@
 	cursor: pointer;
 	transition: background-color 0.3s ease; /* Glatte Übergänge */
 	margin: 10px;
-	text-decoration: underline dotted;
+	text-decoration: none !important;
 }
 
 ._share_link:hover {

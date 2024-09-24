@@ -431,8 +431,6 @@ function plot_cpu_gpu_graph(cpu_ram_usage_json) {
 	const timestamps_ram = cpu_ram_usage_json.map(entry => new Date(entry[0] * 1000));
 	const ramUsage = cpu_ram_usage_json.map(entry => entry[1]);
 
-	log(cpuUsage);
-
 	// RAM Usage Plot
 	const ramTrace = {
 		x: timestamps_ram,
@@ -440,7 +438,7 @@ function plot_cpu_gpu_graph(cpu_ram_usage_json) {
 		type: 'scatter',
 		mode: 'lines',
 		name: 'RAM Usage (MB)',
-		line: { color: 'blue' },
+		line: { color: 'lightblue' },
 		yaxis: 'y1'
 	};
 
@@ -451,7 +449,7 @@ function plot_cpu_gpu_graph(cpu_ram_usage_json) {
 		type: 'scatter',
 		mode: 'lines',
 		name: 'CPU Usage (%)',
-		line: { color: 'red' },
+		line: { color: 'orange' },
 		yaxis: 'y2'
 	};
 

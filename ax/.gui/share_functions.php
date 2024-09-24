@@ -620,7 +620,7 @@
 				$_file = $out_or_err_files[0];
 				if (file_exists($_file)) {
 					$content = file_get_contents($_file);
-					$html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+					$html .= "<pre class='stdout_file'>" . htmlentities($content) . "\n</pre>";
 				}
 			} else {
 				$html .= "<div id='single_run_files_container'>\n";
@@ -649,7 +649,7 @@
 
 					$_hash = hash('md5', $content);
 					$html .= "<div id='$_hash'>";
-					$html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+					$html .= "<pre class='stdout_file'>" . htmlentities($content) . "\n</pre>";
 					$html .= "</div>";
 				}
 				$html .= "</div>";

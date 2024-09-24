@@ -672,15 +672,12 @@
 		}
 
 		$html .= "<div id='scatter_plot_2d_container'>";
-		$html .= "2d-scatter-plot plot could not be plotted.";
 		$html .= "</div>";
 
 		$html .= "<div id='scatter_plot_3d_container'>";
-		$html .= "3d-scatter-plot plot could not be plotted.";
 		$html .= "</div>";
 
 		$html .= "<div id='parallel_plot_container'>";
-		$html .= "Parallel plot could not be plotted.";
 		$html .= "</div>";
 
 		if(count($html_parts)) {

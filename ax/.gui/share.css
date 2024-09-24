@@ -70,5 +70,6 @@
 
 .stdout_file {
 	background-color: black;
-	color: white;
+	color: lightgreen;
+	overflow: auto;
 }

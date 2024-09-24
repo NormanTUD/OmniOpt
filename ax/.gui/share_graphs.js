@@ -51,8 +51,6 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 			return {
 				range: [0, uniqueValues.length - 1],
 				label: key,
-				tickvals: valueIndices,
-				ticktext: uniqueValues,
 				values: valueIndices
 			};
 		}

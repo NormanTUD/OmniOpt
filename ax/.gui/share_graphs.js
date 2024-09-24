@@ -86,7 +86,8 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 	};
 
 	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-	$('body').append(new_plot_div);
+	$('#parallel_plot_container').html(new_plot_div);
+
 	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 }
 
@@ -146,7 +147,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					};
 
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-					$('body').append(new_plot_div);
+					$('#scatter_plot_3d_container').html(new_plot_div);
 					Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
 				}
 			}

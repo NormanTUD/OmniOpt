@@ -460,6 +460,10 @@
 
 				$tab_headers[] = array("id" => $_hash, "header" => $header);
 
+				$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
+
+				$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
+
 				$this_html = "";
 				if ($resultsCsvJson == "[]") {
 					$this_html .= "Data is empty";
@@ -614,7 +618,7 @@
 				$_file = $out_or_err_files[0];
 				if (file_exists($_file)) {
 					$content = file_get_contents($_file);
-					print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+					$html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				}
 			} else {
 				$html .= "<div id='single_run_files_container'>\n";
@@ -657,6 +661,14 @@
 				$html .= "</div>";
 			}
 		}
+
+		$html .= "<div id='scatter_plot_3d_container'>";
+		$html .= "3d-scatter-plot plot could not be plotted.";
+		$html .= "</div>";
+
+		$html .= "<div id='parallel_plot_container'>";
+		$html .= "Parallel plot could not be plotted.";
+		$html .= "</div>";
 
 		if(count($html_parts)) {
 			foreach ($html_parts as $id => $html_part) {

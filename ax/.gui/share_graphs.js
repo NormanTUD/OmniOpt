@@ -137,7 +137,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)',
 
-						showlegend: true,
+						showlegend: false,
 						legend: {
 							x: 0.1,
 							y: 1.1,

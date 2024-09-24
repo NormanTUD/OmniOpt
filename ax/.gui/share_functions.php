@@ -472,12 +472,12 @@
 					continue;
 				}
 
-				#$this_html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
 				$this_html .= "<script>\n";
 				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
 				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
 				$this_html .= "    plot_parallel_plot(job_infos_csv);\n";
-				$this_html .= "    create_table_from_csv_data(results_csv_bare, '$_hash', 'results_csv_nice_table');\n";
+				#$this_html .= "    create_table_from_csv_data(results_csv_bare, '$_hash', 'results_csv_nice_table');\n";
 				$this_html .= "</script>";
 
 				$this_html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
@@ -490,7 +490,7 @@
 				$content = remove_ansi_colors(file_get_contents($file));
 
 				if (!$jsonData == "[]") {
-					echo "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
+					$html_parts["cpu_ram_usage"] = "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
 				}
 			} elseif (preg_match("/worker_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);

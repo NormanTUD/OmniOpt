@@ -626,7 +626,7 @@
 				$html .= "<div id='single_run_files_container'>\n";
 				$html .= "<h2 id='single_run_files'>Single run output files</h2>";
 				$html .= '<div id="out_files_tabs">';
-				$html .= '<ul>';
+				$html .= '<ul style="max-height: 200px; overflow: auto;">';
 				$ok = "&#9989;";
 				$error = "&#10060;";
 

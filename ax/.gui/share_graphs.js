@@ -419,31 +419,40 @@ function plotLineChart(data) {
 	Plotly.newPlot('line-plot', [tracePlanned, traceActual], layout);
 }
 
-function plot_cpu_gpu_graph (cpu_ram_usage_json) {
-	const timestamps = cpu_ram_usage_json.map(entry => new Date(entry[0] * 1000));
+function plot_cpu_gpu_graph(cpu_ram_usage_json) {
+	// Initialize arrays to store valid values
+	const validCpuEntries = cpu_ram_usage_json.filter(entry => entry[2] !== null && entry[2] !== undefined);
+
+	// Filtered timestamps and CPU usage data
+	const timestamps_cpu = validCpuEntries.map(entry => new Date(entry[0] * 1000));
+	const cpuUsage = validCpuEntries.map(entry => entry[2]);
+
+	// RAM data remains the same
+	const timestamps_ram = cpu_ram_usage_json.map(entry => new Date(entry[0] * 1000));
 	const ramUsage = cpu_ram_usage_json.map(entry => entry[1]);
-	const cpuUsage = cpu_ram_usage_json.map(entry => entry[2]);
+
+	log(cpuUsage);
 
 	// RAM Usage Plot
 	const ramTrace = {
-		x: timestamps,
+		x: timestamps_ram,
 		y: ramUsage,
 		type: 'scatter',
 		mode: 'lines',
 		name: 'RAM Usage (MB)',
-		line: {color: 'blue'},
-		yaxis: 'y1' // Y-Achse für RAM
+		line: { color: 'blue' },
+		yaxis: 'y1'
 	};
 
 	// CPU Usage Plot
 	const cpuTrace = {
-		x: timestamps,
+		x: timestamps_cpu,
 		y: cpuUsage,
 		type: 'scatter',
 		mode: 'lines',
 		name: 'CPU Usage (%)',
-		line: {color: 'red'},
-		yaxis: 'y2' // Y-Achse für CPU
+		line: { color: 'red' },
+		yaxis: 'y2'
 	};
 
 	const layout = {
@@ -463,7 +472,6 @@ function plot_cpu_gpu_graph (cpu_ram_usage_json) {
 			side: 'right',
 			showline: true
 		},
-
 		showlegend: true,
 		legend: {
 			x: 0.1,

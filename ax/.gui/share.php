@@ -29,6 +29,7 @@
                                         $('#share_main').html(response).show();
                                         last_load_content = response;
                                 }
+				initializeTextareas();
                                 removeSpinnerOverlay();
                         },
                         error: function() {
@@ -78,18 +79,18 @@
                 }, 1000);
         }
 
-        $(document).ready(function() {
-                load_content("Loading OmniOpt-Share...");
+	$(document).ready(function() {
+		load_content("Loading OmniOpt-Share...");
 
-                var auto_update = getParameterByName('update');
+		var auto_update = getParameterByName('update');
 
-        if (auto_update) {
-                        var interval = parseInt(1, 10) * 1000; // Convert to milliseconds
-                        updateCountdown(interval);
-                        setInterval(function() {
-                                fetchHashAndUpdateContent(interval);
-                                updateCountdown(interval);
-                        }, interval);
-                }
-        });
+		if (auto_update) {
+			var interval = parseInt(1, 10) * 1000; // Convert to milliseconds
+			updateCountdown(interval);
+			setInterval(function() {
+				fetchHashAndUpdateContent(interval);
+				updateCountdown(interval);
+			}, interval);
+		}
+	});
 </script>

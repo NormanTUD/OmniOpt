@@ -29,6 +29,34 @@ function parsePathAndGenerateLink(path) {
 	}
 }
 
+function adjustTextareaHeight(textarea) {
+	try {
+		textarea.style.height = 'auto'; // Setzt die Höhe zurück, damit die Scroll-Höhe korrekt ermittelt wird
+		textarea.style.height = textarea.scrollHeight + 'px'; // Passt die Höhe basierend auf der Scroll-Höhe an
+	} catch (error) {
+		console.error("Fehler beim Anpassen der Textarea-Höhe:", error);
+	}
+}
+
+/**
+ * Findet alle Textareas auf der Seite und passt ihre Höhe basierend auf dem Inhalt an.
+ */
+function initializeTextareas() {
+	const textareas = document.querySelectorAll('textarea');
+
+	if (textareas.length === 0) {
+		console.warn("Keine Textareas auf der Seite gefunden.");
+		return;
+	}
+
+	textareas.forEach(textarea => {
+		adjustTextareaHeight(textarea); // Initiale Anpassung
+
+		// Setzt ein Event-Listener, um die Höhe bei der Eingabe dynamisch anzupassen
+		textarea.addEventListener('input', () => adjustTextareaHeight(textarea));
+	});
+}
+
 function createBreadcrumb(currentFolderPath) {
 	var breadcrumb = document.getElementById('breadcrumb');
 	breadcrumb.innerHTML = '';

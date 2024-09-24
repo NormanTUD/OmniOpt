@@ -29,7 +29,7 @@
                                         $('#share_main').html(response).show();
                                         last_load_content = response;
                                 }
-				initializeTextareas();
+
                                 removeSpinnerOverlay();
                         },
                         error: function() {

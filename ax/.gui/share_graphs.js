@@ -1,3 +1,11 @@
+function get_width() {
+	return Math.max(1200, parseInt(0.95 * window.innerWidth));
+}
+
+function get_height() {
+	return Math.max(800, 0.9 * window.innerHeight)
+}
+
 function isIntegerOrFloat(value) {
 	return /^\d+(\.\d*)?$/.test(value);
 }
@@ -70,14 +78,14 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 
 	var layoutParallel = {
 		title: 'Parallel Coordinates Plot',
-		width: 1200,
-		height: 800,
+		width: get_width(),
+		height: get_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
 		showlegend: false
 	};
 
-	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:1200px;height:800px;'></div>`);
+	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 	$('body').append(new_plot_div);
 	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 }
@@ -111,8 +119,8 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 
 					var layout3d = {
 						title: `3D Scatter Plot: ${_paramKeys[i]} vs ${_paramKeys[j]} vs ${_paramKeys[k]}`,
-						width: 1200,
-						height: 800,
+						width: get_width(),
+						height: get_height(),
 						autosize: false,
 						margin: {
 							l: 50,
@@ -137,7 +145,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						},
 					};
 
-					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:1200px;height:800px;'></div>`);
+					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 					$('body').append(new_plot_div);
 					Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
 				}
@@ -205,7 +213,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				showlegend: false // We use the colorbar instead of a traditional legend
 			};
 
-			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
+			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 			$('body').append(new_plot_div);
 			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d, colorScaleTrace], layout2d);
 		}
@@ -253,13 +261,13 @@ function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, result
 						title: `Contour Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
 						xaxis: { title: _paramKeys[i] },
 						yaxis: { title: _paramKeys[j] },
-						width: 1200,
-						height: 800,
+						width: get_width(),
+						height: get_height(),
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)'
 					};
 
-					var new_plot_div = $(`<div class='share_graph hexbin-plot' id='hexbin-plot-${i}_${j}' style='width:1200px;height:800px;'></div>`);
+					var new_plot_div = $(`<div class='share_graph hexbin-plot' id='hexbin-plot-${i}_${j}' style='width: ${get_width()}px;height:${get_height()}px;'></div>`);
 					$('body').append(new_plot_div);
 					Plotly.newPlot(`hexbin-plot-${i}_${j}`, [traceHexbin], layoutHexbin);
 				} catch (error) {
@@ -387,8 +395,8 @@ function plotLineChart(data) {
 		yaxis: {
 			title: 'Nr. Worker'
 		},
-		width: 1200,
-		height: 800,
+		width: get_width(),
+		height: get_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
 
@@ -402,8 +410,8 @@ function plotLineChart(data) {
 
 	var new_plot_div = document.createElement('div');
 	new_plot_div.id = 'line-plot';
-	new_plot_div.style.width = '1200px';
-	new_plot_div.style.height = '800px';
+	new_plot_div.style.width = get_width() + 'px';
+	new_plot_div.style.height = get_height() + 'px';
 	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
 	document.body.appendChild(new_plot_div);
 	
@@ -470,8 +478,8 @@ function plot_cpu_gpu_graph (cpu_ram_usage_json) {
 
 	var new_plot_div = document.createElement('div');
 	new_plot_div.id = 'cpuRamChart';
-	new_plot_div.style.width = '1200px';
-	new_plot_div.style.height = '800px';
+	new_plot_div.style.width = get_width() + 'px';
+	new_plot_div.style.height = get_height() + 'px';
 	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
 	document.body.appendChild(new_plot_div);
 

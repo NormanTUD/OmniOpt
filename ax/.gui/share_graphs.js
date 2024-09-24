@@ -215,7 +215,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			};
 
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-			$('body').append(new_plot_div);
+			$('#scatter_plot_2d_container').html(new_plot_div);
 			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d, colorScaleTrace], layout2d);
 		}
 	}
@@ -353,7 +353,7 @@ function plot_all_possible (_results_csv_json) {
 	scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 	scatter_3d(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
 	//parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
-	//hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+	//hex_scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues); // TODO: hex_scatter is not in a tab yet...
 
 	apply_theme_based_on_system_preferences();
 

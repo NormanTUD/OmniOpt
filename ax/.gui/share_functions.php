@@ -462,6 +462,8 @@
 
 				$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
 
+				$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
+
 				$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
 
 				$this_html = "";
@@ -661,6 +663,10 @@
 				$html .= "</div>";
 			}
 		}
+
+		$html .= "<div id='scatter_plot_2d_container'>";
+		$html .= "2d-scatter-plot plot could not be plotted.";
+		$html .= "</div>";
 
 		$html .= "<div id='scatter_plot_3d_container'>";
 		$html .= "3d-scatter-plot plot could not be plotted.";

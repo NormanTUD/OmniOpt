@@ -313,6 +313,7 @@ function plot_parallel_plot (_results_csv_json) {
 		return ![
 			'trial_index',
 			'arm_name',
+			'run_time',
 			'trial_status',
 			'generation_method',
 			'result',

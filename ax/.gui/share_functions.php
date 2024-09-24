@@ -1,4 +1,21 @@
 <?php
+	function removeHTags($string) {
+		// Regex to match all h1 to h6 tags
+		$pattern = '/<\/?h[1-6][^>]*>/i';
+
+		// Replace the tags with an empty string
+		$cleanedString = preg_replace($pattern, '', $string);
+
+		// Check for errors during the replacement process
+		if ($cleanedString === null) {
+			// In case of an error, log the issue and return the original string
+			error_log("Error removing H-tags from the string.");
+			return $string;
+		}
+
+		return $cleanedString;
+	}
+
 	function calculateDirectoryHash($directory)
 	{
 		// Überprüfen, ob der Ordner existiert und lesbar ist
@@ -417,6 +434,12 @@
 
 		$out_or_err_files = [];
 
+		$tab_headers = array();
+
+		$out_files_already_in_tab = 0;
+
+		$html_parts = [];
+
 		foreach ($run_files as $file) {
 			if (preg_match("/\/\.\.\/?/", $file)) {
 				print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
@@ -431,38 +454,52 @@
 
 				$resultsCsvJson = loadCsvToJsonByResult($file);
 
-				$html .= get_header_file($file);
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
 				if ($resultsCsvJson == "[]") {
-					$html .= "Data is empty";
+					$this_html .= "Data is empty";
 					continue;
 				}
 
-				$html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
-				$html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
+				$this_html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				$this_html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
+
+				$html_parts[$_hash] = $this_html;
 
 				$shown_data += 1;
 			} elseif (preg_match("/cpu_ram_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);
 				$content = remove_ansi_colors(file_get_contents($file));
 
-				if ($jsonData == "[]") {
-					$html .= "Data is empty";
-					continue;
+				if (!$jsonData == "[]") {
+					echo "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
 				}
-
-				$html .= "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
 			} elseif (preg_match("/worker_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);
 				$content = remove_ansi_colors(file_get_contents($file));
 
-				$html .= get_header_file($file);
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
+
 				if ($jsonData == "[]") {
-					$html .= "Data is empty";
+					$this_html .= "Data is empty";
 					continue;
 				}
 
-				$html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
-				$html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
+				$this_html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
+
+				$html_parts[$_hash] = $this_html;
 			} elseif (preg_match("/parameters\.txt$/", $file) || preg_match("/best_result\.txt$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -470,8 +507,18 @@
 					continue;
 				}
 
-				$html .= get_header_file($file);
-				$html .= "<pre>" . htmlentities($content) . "</pre>";
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
+
+				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
+
+				$html_parts[$_hash] = $this_html;
+
 				$shown_data += 1;
 			} elseif (
 				preg_match("/evaluation_errors\.log$/", $file)
@@ -484,8 +531,18 @@
 					continue;
 				}
 
-				$html .= get_header_file($file);
-				$html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
+
+				$this_html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+
+				$html_parts[$_hash] = $this_html;
+
 				$shown_data += 1;
 			} elseif (preg_match("/job_infos\.csv$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
@@ -496,14 +553,22 @@
 
 				$resultsCsvJson = loadCsvToJsonByResult($file);
 
-				$html .= get_header_file($file);
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
+
 				if ($resultsCsvJson == "[]") {
-					$html .= "Data is empty";
-					continue;
+					$this_html .= "Data is empty";
+				} else {
+					$this_html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
+					$this_html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
 				}
 
-				$html .= "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
-				$html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
+				$html_parts[$_hash] = $this_html;
 
 				$shown_data += 1;
 			} elseif (
@@ -517,10 +582,31 @@
 			) {
 				// do nothing
 			} elseif (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
+				if(!$out_files_already_in_tab) {
+					$tab_headers[] = array("id" => 'single_run_files_container', "header" => "Out-Files");
+					$out_files_already_in_tab = 1;
+				}
+
 				$out_or_err_files[] = $file;
 			} else {
-				$html .= "<h2 class='error'>Unknown file type $file</h2>";
+				$_hash = hash("md5", $file);
+
+				$this_html .= "<h2 class='error'>Unknown file type $file</h2>";
+
+				$tab_headers[] = array("id" => $_hash, "header" => "Out-Files");
+
+				$html_parts[$file] = $this_html;
 			}
+		}
+
+		if(count($tab_headers)) {
+			$html .= "<div id='main_tabbed'>\n";
+			$html .= "<ul>\n";
+			foreach ($tab_headers as $header) {
+				$cleaned_header = removeHTags($header["header"]);
+				$html .= "<li><a href='#" . $header["id"] . "'>$cleaned_header</a></li>\n";
+			}
+			$html .= "</ul>\n";
 		}
 
 		if (count($out_or_err_files)) {
@@ -528,10 +614,10 @@
 				$_file = $out_or_err_files[0];
 				if (file_exists($_file)) {
 					$content = file_get_contents($_file);
-					get_header_file($_file);
 					print "<textarea readonly class='textarea_csv'>" . htmlentities($content) . "</textarea>";
 				}
 			} else {
+				$html .= "<div id='single_run_files_container'>\n";
 				$html .= "<h2 id='single_run_files'>Single run output files</h2>";
 				$html .= '<div id="out_files_tabs">';
 				$html .= '<ul>';
@@ -564,10 +650,24 @@
 
 				$html .= "<script>";
 				$html .= "$(function() {";
-				$html .= '$("#out_files_tabs").tabs();';
+				$html .= '    $("#out_files_tabs").tabs();';
+				$html .= '    $("#main_tabbed").tabs();';
 				$html .= "});";
 				$html .= "</script>";
+				$html .= "</div>";
 			}
+		}
+
+		if(count($html_parts)) {
+			foreach ($html_parts as $id => $html_part) {
+				$html .= "<div id='$id'>";
+				$html .= $html_part;
+				$html .= "</div>";
+			}
+		}
+
+		if(count($tab_headers)) {
+			$html .= "</div>\n";
 		}
 
 		if ($shown_data == 0) {

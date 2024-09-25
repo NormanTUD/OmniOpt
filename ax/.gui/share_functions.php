@@ -82,6 +82,7 @@
 		$names = array(
 			"best_result.txt" => "Best results",
 			"results.csv" => "Results",
+			"job_infos.csv" => "Job-Infos",
 			"parameters.txt" => "Parameter",
 			"get_next_trials.csv" => "Next trial requested/got",
 			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"

@@ -30,6 +30,8 @@
                                         last_load_content = response;
                                 }
 
+				initialize_autotables();
+
                                 removeSpinnerOverlay();
                         },
                         error: function() {

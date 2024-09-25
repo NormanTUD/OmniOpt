@@ -1,6 +1,6 @@
 <?php
 	function copy_button($name_to_search_for) {
-		return "<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, \"$name_to_search_for\")'>📋 Copy to clipboard</button>";
+		return "<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, \"$name_to_search_for\")'>📋 Copy raw data to clipboard</button>";
 	}
 
 	function removeHTags($string) {
@@ -477,7 +477,7 @@
 					continue;
 				}
 
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 				$this_html .= copy_button("stdout_file");
 				$this_html .= "<script>\n";
 				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
@@ -515,7 +515,7 @@
 					continue;
 				}
 
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 				$this_html .= copy_button("stdout_file");
 				$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
 
@@ -559,7 +559,7 @@
 
 				$this_html = "";
 
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 				$this_html .= copy_button("stdout_file");
 
 				$html_parts[$_hash] = $this_html;
@@ -585,7 +585,7 @@
 				if ($resultsCsvJson == "[]") {
 					$this_html .= "Data is empty";
 				} else {
-					$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+					$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 					$this_html .= copy_button("stdout_file");
 					$this_html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
 				}

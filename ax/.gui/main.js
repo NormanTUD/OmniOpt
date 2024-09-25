@@ -5,19 +5,19 @@ function showSpinnerOverlay(text) {
 	}
 
 	// Erstelle das Overlay
-	const overlay = document.createElement('div');
+	var overlay = document.createElement('div');
 	overlay.id = 'spinner-overlay';
 
 	// Erstelle den Container für den Spinner und den Text
-	const container = document.createElement('div');
+	var container = document.createElement('div');
 	container.id = 'spinner-container';
 
 	// Erstelle den Spinner
-	const spinner = document.createElement('div');
+	var spinner = document.createElement('div');
 	spinner.classList.add('spinner');
 
 	// Erstelle den Text
-	const spinnerText = document.createElement('div');
+	var spinnerText = document.createElement('div');
 	spinnerText.id = 'spinner-text';
 	spinnerText.innerText = text;
 
@@ -34,7 +34,7 @@ function showSpinnerOverlay(text) {
 
 function removeSpinnerOverlay() {
 	// Überprüfe, ob das Overlay existiert
-	const overlay = document.getElementById('spinner-overlay');
+	var overlay = document.getElementById('spinner-overlay');
 	if (overlay) {
 		overlay.remove(); // Entferne das Overlay
 	}
@@ -67,9 +67,112 @@ function find_closest_element_behind_and_copy_content_to_clipboard (clicked_elem
 
 	var oldText = $(clicked_element).text();
 
-	$(clicked_element).text("✅Copied to clipboard");
+	$(clicked_element).text("✅Raw data copied to clipboard");
 
 	setTimeout(() => {
 		$(clicked_element).text(oldText);
 	}, 1000);
+}
+
+function parse_csv(csv) {
+    try {
+        var rows = csv.trim().split('\n').map(row => row.split(','));
+        return rows;
+    } catch (error) {
+        console.error("Error parsing CSV:", error);
+        return [];
+    }
+}
+
+function create_table_from_csv_data(csvData, table_container, new_table_id, optionalColumnTitles = null) {
+	// Parse CSV data
+	var data = parse_csv(csvData);
+	var tableContainer = document.getElementById(table_container);
+
+	if (!tableContainer) {
+		console.error(`Table container "${table_container}" not found`);
+		return;
+	}
+
+	// Create table element
+	var table = document.createElement('table');
+	$(table).addClass('display').attr('id', new_table_id);
+
+	// Create header row
+	var thead = document.createElement('thead');
+	var headRow = document.createElement('tr');
+	headRow.classList.add('invert_in_dark_mode');
+
+	var headers = optionalColumnTitles ? optionalColumnTitles : data[0];
+
+	headers.forEach(header => {
+		var th = document.createElement('th');
+		th.textContent = header.trim();
+		headRow.appendChild(th);
+	});
+
+	thead.appendChild(headRow);
+	table.appendChild(thead);
+
+	// Create body rows
+	var tbody = document.createElement('tbody');
+	var startRow = optionalColumnTitles ? 0 : 1; // Start at row 0 if optional titles provided
+
+	data.slice(startRow).forEach(row => {
+		var tr = document.createElement('tr');
+		row.forEach(cell => {
+			var td = document.createElement('td');
+			td.textContent = cell.trim();
+			tr.appendChild(td);
+		});
+		tbody.appendChild(tr);
+	});
+
+	table.appendChild(tbody);
+	tableContainer.appendChild(table);
+
+	// Hide the raw CSV data and add a button for toggling visibility
+	var rawDataElement = document.createElement('pre');
+	rawDataElement.textContent = csvData;
+	rawDataElement.style.display = 'none'; // Initially hide raw data
+
+	var toggleButton = document.createElement('button');
+	toggleButton.textContent = 'Show Raw Data';
+
+	toggleButton.addEventListener('click', function() {
+		if (rawDataElement.style.display === 'none') {
+			rawDataElement.style.display = 'block';
+			toggleButton.textContent = 'Hide Raw Data';
+		} else {
+			rawDataElement.style.display = 'none';
+			toggleButton.textContent = 'Show Raw Data';
+		}
+	});
+
+	// Append the button and raw data element under the table
+	tableContainer.appendChild(toggleButton);
+	tableContainer.appendChild(rawDataElement);
+
+	// Activate DataTables
+	$(document).ready(function() {
+		$(`#${new_table_id}`).DataTable({
+			"ordering": true,  // Enable sorting on all columns
+			"paging": false    // Show all entries on one page (no pagination)
+		});
+	});
+}
+
+function initialize_autotables() {
+	$('.autotable').each(function(index) {
+		var csvText = $(this).text().trim();
+		var tableContainer = $(this).parent();
+
+		$(this).hide();
+
+		create_table_from_csv_data(
+			csvText, 
+			tableContainer.attr('id'), 
+			`autotable_${index}`
+		);
+	});
 }

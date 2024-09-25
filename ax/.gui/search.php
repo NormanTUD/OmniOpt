@@ -122,34 +122,33 @@
 		}
 	}
 
-	function extract_html_from_php($file_content)
+	function extract_html_from_php($filename)
 	{
-		// Implodiere den Dateiinhaltsarray in eine String-Variable
-		$imploded_file_contents = implode("\n", $file_content);
+		// Überprüfen, ob die Datei existiert
+		if (!file_exists($filename)) {
+			return 'Fehler: Datei existiert nicht.';
+		}
 
-		// Starte das Output Buffering, um den ausgeführten PHP-Output zu puffern
+		// Initialisiere den Befehl zum Ausführen der PHP-Datei
+		$command = escapeshellcmd("php $filename");
+
+		// Starte die Ausgabe-Pufferung, um den Output des Systemaufrufs zu erfassen
 		ob_start();
 
 		try {
-			// Erstelle eine anonyme Funktion, um den PHP-Code innerhalb einer Funktion auszuführen
-			$extract_html = function() use ($imploded_file_contents) {
-				// eval kann hier sicher genutzt werden, da der Code aus der PHP-Datei stammt
-				eval('?>' . $imploded_file_contents);
-			};
+			// Führe den Systemaufruf aus, um die PHP-Datei auszuführen
+			passthru($command, $return_var);
 
-			// Führe den Code aus
-			$extract_html();
+			// Erfasse den gesamten Output des Systemaufrufs
+			$output = ob_get_clean();
 
-			// Erfasse den gepufferten Inhalt
-			$html_content = ob_get_clean();
-
-			// Überprüfe, ob der Puffer erfolgreich ausgelesen wurde
-			if ($html_content === false) {
-				throw new Exception('Fehler beim Abrufen des gepufferten Inhalts.');
+			// Überprüfen, ob die Ausführung erfolgreich war
+			if ($return_var !== 0) {
+				throw new Exception('Fehler beim Ausführen des PHP-Skripts.');
 			}
 
 			// Entferne <head> und dessen Inhalt aus dem HTML-Code
-			$html_content = preg_replace("/<head>.*<\/head>/is", "", $html_content);
+			$html_content = preg_replace("/<head>.*<\/head>/is", "", $output);
 
 			// Gib den bereinigten HTML-Inhalt zurück
 			return $html_content;
@@ -160,6 +159,7 @@
 			return 'Fehler: ' . $e->getMessage();
 		}
 	}
+
 
 
 	// Funktion zum Entfernen von HTML-Tags
@@ -249,7 +249,7 @@
 		if ($file_path != "share.php" && $file_path != "usage_stats.php") {
 			$file_content = read_file_content($file_path);
 			if ($file_content !== false) {
-				$html_content = extract_html_from_php($file_content);
+				$html_content = extract_html_from_php($file_path);
 				$text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
 
 				$search_results = search_text_with_context($text_lines, $regex);

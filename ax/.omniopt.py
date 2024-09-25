@@ -1880,7 +1880,7 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
-def get_best_params_from_csv(csv_file_path):
+def get_best_params_from_csv(csv_file_path, maximize):
     results = {
         "result": None,
         "parameters": {}
@@ -1915,14 +1915,18 @@ def get_best_params_from_csv(csv_file_path):
 
         if type(this_line_result) in [float, int]:
             if best_result is None:
-                best_line = this_line
-                best_result = this_line_result
-            elif args.maximize and this_line_result >= best_result:
-                best_line = this_line
-                best_result = this_line_result
-            elif not args.maximize and this_line_result <= best_result:
-                best_line = this_line
-                best_result = this_line_result
+                if this_line is not None and len(this_line) > 0:
+                    best_line = this_line
+                    best_result = this_line_result
+
+            if maximize:
+                if this_line_result >= best_result:
+                    best_line = this_line
+                    best_result = this_line_result
+            else:
+                if this_line_result <= best_result:
+                    best_line = this_line
+                    best_result = this_line_result
 
     if best_line is None:
         print_debug("Could not determine best result")
@@ -1949,7 +1953,7 @@ def get_best_params_from_csv(csv_file_path):
 def get_best_params():
     csv_file_path = save_pd_csv()
 
-    return get_best_params_from_csv(csv_file_path)
+    return get_best_params_from_csv(csv_file_path, args.maximize)
 
 def _count_sobol_or_completed(csv_file_path, _type):
     if _type not in ["Sobol", "COMPLETED"]:

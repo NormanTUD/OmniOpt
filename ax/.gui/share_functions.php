@@ -1,4 +1,8 @@
 <?php
+	function copy_button($name_to_search_for) {
+		return "<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, \"$name_to_search_for\")'>📋 Copy to clipboard</button>";
+	}
+
 	function removeHTags($string) {
 		// Regex to match all h1 to h6 tags
 		$pattern = '/<\/?h[1-6][^>]*>/i';
@@ -473,6 +477,7 @@
 				}
 
 				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+				$this_html .= copy_button("stdout_file");
 				$this_html .= "<script>\n";
 				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
 				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
@@ -510,6 +515,7 @@
 				}
 
 				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+				$this_html .= copy_button("stdout_file");
 				$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
 
 				$html_parts[$_hash] = $this_html;
@@ -553,6 +559,7 @@
 				$this_html = "";
 
 				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+				$this_html .= copy_button("stdout_file");
 
 				$html_parts[$_hash] = $this_html;
 
@@ -578,6 +585,7 @@
 					$this_html .= "Data is empty";
 				} else {
 					$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
+					$this_html .= copy_button("stdout_file");
 					$this_html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
 				}
 
@@ -628,6 +636,7 @@
 				if (file_exists($_file)) {
 					$content = file_get_contents($_file);
 					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
+					$html .= copy_button("stdout_file");
 				}
 			} else {
 				$html .= "<div id='single_run_files_container'>\n";
@@ -657,6 +666,7 @@
 					$_hash = hash('md5', $content);
 					$html .= "<div id='$_hash'>";
 					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
+					$html .= copy_button("stdout_file");
 					$html .= "</div>";
 				}
 				$html .= "</div>";

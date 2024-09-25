@@ -39,3 +39,37 @@ function removeSpinnerOverlay() {
 		overlay.remove(); // Entferne das Overlay
 	}
 }
+
+function copy_to_clipboard(text) {
+	var dummy = document.createElement("textarea");
+	document.body.appendChild(dummy);
+	dummy.value = text;
+	dummy.select();
+	document.execCommand("copy");
+	document.body.removeChild(dummy);
+}
+
+function find_closest_element_behind_and_copy_content_to_clipboard (clicked_element, element_to_search_for_class) {
+	var prev_element = $(clicked_element).prev();
+
+	while (!$(clicked_element).prev().hasClass(element_to_search_for_class)) {
+		prev_element = $(clicked_element).prev();
+
+		if(!prev_element) {
+			console.error(`Could not find ${element_to_search_for_class} from clicked_element:`, clicked_element);
+			return;
+		}
+	}
+
+	var found_element_text = $(prev_element).text();
+
+	copy_to_clipboard(found_element_text);
+
+	var oldText = $(clicked_element).text();
+
+	$(clicked_element).text("✅Copied to clipboard");
+
+	setTimeout(() => {
+		$(clicked_element).text(oldText);
+	}, 2000);
+}

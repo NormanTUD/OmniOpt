@@ -4957,6 +4957,8 @@ def run_tests():
 
     nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _expected_best_result_maximize, _best_results_from_example_file_maximize)
 
+    _print_best_result(_example_csv_file, False)
+
     my_exit(nr_errors)
 
 if __name__ == "__main__":

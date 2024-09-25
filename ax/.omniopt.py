@@ -2057,7 +2057,7 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
         table.add_column("result")
 
         row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
-        row = [*row_without_result, str(best_result)][3:]
+        row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
 
         table.add_row(*row)
 

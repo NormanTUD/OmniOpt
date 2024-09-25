@@ -225,8 +225,9 @@
 	}
 
 	// Überprüfen und Validieren des regulären Ausdrucks
-	if (isset($_GET['regex'])) {
-		$regex = $_GET['regex'];
+	if (isset($_GET['regex']) || getenv("regex")) {
+		$regex = isset($_GET['regex']) ? $_GET['regex'] : getenv("regex");
+
 		// Hinzufügen von "/" Begrenzer, wenn nicht vorhanden
 		if (substr($regex, 0, 1) !== '/') {
 			$regex = '/' . $regex;

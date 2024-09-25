@@ -429,6 +429,7 @@ yellow_text "Python-Version:"
 python3 --version
 
 #_test "php linter" ".tests/phpcs" 0 255
+_test "php_search" ".tests/php_search" 0 255
 
 _test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
 
@@ -571,7 +572,6 @@ else
 		red_text "$(echo $i | base64 --decode)"
 		echo ""
 	done
-
 fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then

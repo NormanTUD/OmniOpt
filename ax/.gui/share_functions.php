@@ -472,7 +472,7 @@
 					continue;
 				}
 
-				$this_html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
 				$this_html .= "<script>\n";
 				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
 				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
@@ -509,7 +509,7 @@
 					continue;
 				}
 
-				$this_html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
 				$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
 
 				$html_parts[$_hash] = $this_html;
@@ -552,7 +552,7 @@
 
 				$this_html = "";
 
-				$this_html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
 
 				$html_parts[$_hash] = $this_html;
 
@@ -577,7 +577,7 @@
 				if ($resultsCsvJson == "[]") {
 					$this_html .= "Data is empty";
 				} else {
-					$this_html .= "<pre class='stdout_file'>" . htmlentities($content) . "</pre>";
+					$this_html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "</pre>";
 					$this_html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
 				}
 
@@ -627,7 +627,7 @@
 				$_file = $out_or_err_files[0];
 				if (file_exists($_file)) {
 					$content = file_get_contents($_file);
-					$html .= "<pre class='stdout_file'>" . htmlentities($content) . "\n</pre>";
+					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
 				}
 			} else {
 				$html .= "<div id='single_run_files_container'>\n";
@@ -656,7 +656,7 @@
 
 					$_hash = hash('md5', $content);
 					$html .= "<div id='$_hash'>";
-					$html .= "<pre class='stdout_file'>" . htmlentities($content) . "\n</pre>";
+					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
 					$html .= "</div>";
 				}
 				$html .= "</div>";

@@ -2017,12 +2017,12 @@ def count_done_jobs():
 
     return _count_done_jobs(csv_file_path)
 
-def print_best_result():
+def _print_best_result(csv_file_path, maximize):
     global global_vars
     global SHOWN_END_TABLE
 
     try:
-        best_params = get_best_params()
+        best_params = get_best_params_from_csv(csv_file_path, maximize)
 
         best_result = None
 
@@ -2075,9 +2075,14 @@ def print_best_result():
         SHOWN_END_TABLE = True
     except Exception as e:
         tb = traceback.format_exc()
-        print_red(f"[print_best_result] Error during print_best_result: {e}, tb: {tb}")
+        print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
 
     return -1
+
+def print_best_result():
+    csv_file_path = save_pd_csv()
+
+    return _print_best_result(csv_file_path, args.maximize)
 
 def get_plot_types(x_y_combinations):
     plot_types = []

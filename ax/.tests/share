@@ -1,0 +1,59 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+cd .gui
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+if ! command -v php 2>/dev/null >/dev/null; then
+	red_text "Cannot run share-test when PHP is not installed!"
+	exit 255
+fi
+
+ERRORS=()
+
+export share_path=./_share_test_case/
+
+php_share_internal_startpage=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##')
+expected_share_internal_startpage="Using sharesPath ./_share_test_case/ <script src='plotly-latest.min.js'></script> <script src='share.js'></script> <script src='share_graphs.js'></script> <link href=\"./share.css\" rel=\"stylesheet\" /> <div id=\"breadcrumb\"></div> <a class='_share_link' href=\"share.php?user=test_user&share_path=./_share_test_case/\">test_user</a><br> <script>createBreadcrumb('./');</script>"
+
+if [[ "$php_share_internal_startpage" == $expected_share_internal_startpage ]]; then
+	green_text "php .gui/share_internal.php _share_test_case"
+else
+	error_msg="php .gui/share_internal.php failed. Got: $php_share_internal_startpage, expected: $expected_share_internal_startpage"
+	red_text "$error_msg"
+	ERRORS+=("$error_msg")
+fi
+
+export share_path=./_share_test_case/
+
+if [ ${#ERRORS[@]} -eq 0 ]; then
+	green_text "No errors"
+else
+	red_text "=> ERRORS => ERRORS => ERRORS =>"
+	for i in "${ERRORS[@]}"; do
+		red_text "$i"
+		echo ""
+	done
+fi
+
+exit ${#ERRORS[@]}

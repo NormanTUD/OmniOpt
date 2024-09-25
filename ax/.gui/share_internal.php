@@ -68,7 +68,7 @@
 		}
 
 		$run_id = preg_replace("/.*\//", "", $userFolder);
-		if(!run_id && getenv("run_id")) {
+		if(!$run_id && getenv("run_id")) {
 			$run_id = getenv("run_id");
 		}
 

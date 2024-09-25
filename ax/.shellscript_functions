@@ -7,7 +7,7 @@
 	install_those=()
 
 	if [ ! -f "$SCRIPT_DIR/requirements.txt" ]; then
-		echo "Die Datei $SCRIPT_DIR/requirements.txt existiert nicht."
+		echo "The file $SCRIPT_DIR/requirements.txt doesn't exist."
 		exit 1
 	fi
 

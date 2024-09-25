@@ -5,6 +5,7 @@ RUN apt-get install -y python3 python3-pip python3-venv xterm git uuid-runtime w
 
 ENV root_venv_dir=/
 COPY .shellscript_functions /.shellscript_functions
+COPY requirements.txt /requirements.txt
 RUN bash /.shellscript_functions
 RUN rm /.shellscript_functions
 

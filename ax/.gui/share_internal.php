@@ -76,7 +76,7 @@
 					if ($_file["error"] != 0) {
 						print("File " . htmlentities($_file["name"]) . " could not be uploaded. Error-Code: " . $_file["error"]);
 					} else {
-						if ($_file["size"] > 0) {
+						if ($_file["size"] > 0 || isset($_GET["update"])) {
 							$num_offered_files++;
 							$offered_files[$_file_without_ending] = array(
 								"file" => $_file["tmp_name"] ?? null,

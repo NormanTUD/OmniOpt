@@ -1944,9 +1944,9 @@ def get_best_params_from_csv(csv_file_path, maximize):
             "program_string"
         ]:
             if col == "result":
-                results["result"] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+                results["result"] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
             else:
-                results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+                results["parameters"][col] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
 
     return results
 

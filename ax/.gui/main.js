@@ -169,10 +169,18 @@ function initialize_autotables() {
 
 		$(this).hide();
 
+		var _optionalColumnTitles = null;
+
+		if ($(this).data("header_columns")) {
+			_optionalColumnTitles = $(this).data("header_columns").split(",");
+		}
+
+		//function create_table_from_csv_data(csvData, table_container, new_table_id, optionalColumnTitles = null) {
 		create_table_from_csv_data(
 			csvText, 
 			tableContainer.attr('id'), 
-			`autotable_${index}`
+			`autotable_${index}`,
+			_optionalColumnTitles
 		);
 	});
 }

@@ -543,7 +543,6 @@
 			} elseif (
 				preg_match("/evaluation_errors\.log$/", $file)
 				|| preg_match("/oo_errors\.txt$/", $file)
-				|| preg_match("/get_next_trials/", $file)
 			) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -559,7 +558,29 @@
 
 				$this_html = "";
 
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
+
+				$html_parts[$_hash] = $this_html;
+
+				$shown_data += 1;
+			} elseif (
+				preg_match("/get_next_trials/", $file)
+			) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				$content_encoding = mb_detect_encoding($content);
+				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+					continue;
+				}
+
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
+
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,requested,got'>" . htmlentities($content) . "</pre>";
 				$this_html .= copy_button("stdout_file");
 
 				$html_parts[$_hash] = $this_html;

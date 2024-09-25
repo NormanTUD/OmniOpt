@@ -116,7 +116,6 @@ function send_status_report {
 			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
 		fi
 
-
 		anon_user=$(get_anon_user_id)
 		if [[ -n $ITWORKSONMYMACHINE ]]; then
 			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
@@ -156,7 +155,6 @@ function send_status_report {
 if command -v sbatch 2>/dev/null >/dev/null; then
 	has_sbatch=1
 fi
-
 
 export NO_WHIPTAIL=1
 
@@ -275,7 +273,6 @@ function mycd {
 	cd "$1"
 }
 
-
 slurmlogpath () {
 	if command -v scontrol 2>/dev/null >/dev/null; then
 		scontrol show job "$1" | grep StdOut | sed -e 's/^\s*StdOut=//'
@@ -372,6 +369,7 @@ help=0
 follow=0
 wait_until_ended=0
 tests=0
+workdir=""
 
 continue_was_set=0
 
@@ -384,6 +382,36 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--workdir=*)
+			old_workdir=$workdir_previous_job
+			workdir_previous_job="${i#*=}"
+
+			if [[ -n $old_workdir ]]; then
+				red_text "--workdir was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--workdir=.*\s\s*# #')
+			fi
+
+			args_string+=" --workdir $workdir_previous_job "
+
+			;;
+
+		--workdir)
+			old_workdir=$workdir_previous_job
+
+			shift
+			k=$((k+1))
+
+			workdir_previous_job="${args[k]}"
+
+			if [[ -n $old_workdir ]]; then
+				red_text "--workdir was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--workdir=.*\s\s*# #')
+			fi
+
+			args_string+=" --workdir $workdir_previous_job "
+
+			;;
+
 		--continue=*)
 			old_continue=$continue_previous_job
 			continue_previous_job="${i#*=}"
@@ -416,7 +444,6 @@ while [ $k -lt ${#args[@]} ]; do
 			continue_was_set=1
 
 			;;
-
 
 		--account=*)
 			old_continue=$account
@@ -652,8 +679,6 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 
-
-
 		--root_venv_dir=*)
 			root_venv_dir="${i#*=}"
 
@@ -673,7 +698,6 @@ while [ $k -lt ${#args[@]} ]; do
 			export root_venv_dir
 
 			;;
-
 
 		--time=*)
 			old_time=$time
@@ -960,6 +984,17 @@ if [[ "$debug" -eq "1" ]]; then
 fi
 
 mycd "$ORIGINAL_PWD"
+
+if [[ "$workdir" != "" ]]; then
+	if [[ ! -d "$workdir" ]]; then
+		mkdir -p "$workdir" || {
+			red_text "$workdir could not be created. Cannot continue."
+			exit 191
+		}
+	fi
+
+	mycd "$workdir"
+fi
 
 if [[ "$help" -eq "1" ]]; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then

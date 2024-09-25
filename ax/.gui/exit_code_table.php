@@ -33,6 +33,7 @@
                     105 => "Continued job error: previous job has missing state files.",
                     142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.",
                     181 => "Error parsing --parameter. Check output for more details.",
+                    191 => "Could not create workdir ",
                     192 => "Unknown data type (--tests).",
                     193 => "Error in printing logs. You may be on a read only file system.",
                     199 => "This happens on unstable file systems when trying to write a file.",

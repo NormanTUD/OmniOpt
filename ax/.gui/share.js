@@ -15,9 +15,9 @@ function parsePathAndGenerateLink(path) {
 
 
 		// Construct the query string
-		var queryString = 'share.php?user=' + encodeURIComponent(user);
+		var queryString = 'share.php?user_id=' + encodeURIComponent(user);
 		if (experiment) {
-			queryString += '&experiment=' + encodeURIComponent(experiment);
+			queryString += '&experiment_name=' + encodeURIComponent(experiment);
 		}
 		if (runNr) {
 			queryString += '&run_nr=' + encodeURIComponent(runNr);

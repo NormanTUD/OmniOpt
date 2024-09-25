@@ -515,11 +515,11 @@
 					$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
 				}
 
-				if($nr_real_headers > 2) {
+				if($nr_real_headers >= 2) {
 					$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
 				}
 
-				if($nr_real_headers > 3) {
+				if($nr_real_headers >= 3) {
 					$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
 				}
 

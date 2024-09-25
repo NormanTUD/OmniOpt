@@ -90,7 +90,7 @@
 					// Check if the run directory name matches the regex pattern
 					if (preg_match($regex_pattern, $run_path, $matches)) {
 						$parsedPath = parsePath($run_path);
-						$url = "share.php?user=" . $parsedPath['user'] . "&experiment=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
+						$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
 						$entry = [
 							'link' => $url,
 							'content' => "OmniOpt-Share: $run_path"

@@ -152,6 +152,7 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 	rawDataElement.style.display = 'none'; // Initially hide raw data
 
 	var toggleButton = document.createElement('button');
+	toggleButton.classList.add("invert_in_dark_mode");
 	toggleButton.textContent = 'Show Raw Data';
 
 	toggleButton.addEventListener('click', function() {
@@ -168,7 +169,6 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 	tableContainer.appendChild(toggleButton);
 	tableContainer.appendChild(rawDataElement);
 
-	// Activate DataTables
 	$(document).ready(function() {
 		var _new_table_id = `#${new_table_id}`;
 		console.log(_new_table_id);
@@ -200,4 +200,6 @@ function initialize_autotables() {
 			_optionalColumnTitles
 		);
 	});
+
+	apply_theme_based_on_system_preferences();
 }

@@ -41,8 +41,12 @@
 		$user_id = getenv("user_id");
 	}
 
-	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 	$experiment_name = $_GET['experiment_name'] ?? null;
+	if(!$experiment_name && getenv("experiment_name")) {
+		$experiment_name = getenv("experiment_name");
+	}
+
+	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 
 	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url", "cpu_ram_usage", "get_next_trials", "run_uuid"];
 	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt", "cpu_ram_usage.csv", "get_next_trials.csv", "run_uuid"];
@@ -59,8 +63,14 @@
 
 	if ($user_id !== null && $experiment_name !== null) {
 		$userFolder = get_user_folder($sharesPath, $uuid_folder, $user_id, $experiment_name);
+		if(!$userFolder) {
+			die("Could not create user folder");
+		}
 
 		$run_id = preg_replace("/.*\//", "", $userFolder);
+		if(!run_id && getenv("run_id")) {
+			$run_id = getenv("run_id");
+		}
 
 		$num_offered_files = 0;
 		$new_upload_md5_string = "";

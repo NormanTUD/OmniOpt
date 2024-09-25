@@ -833,8 +833,17 @@
 		}
 	}
 
-	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name)
+	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name, $run_nr="")
 	{
+		$probe_dir = "$sharesPath/$user_id/$experiment_name/$run_nr";
+		if(is_dir($probe_dir) && $run_nr >= 0) {
+			return $probe_dir;
+		}
+
+		if(getenv("disable_folder_creation")) {
+			return;
+		}
+
 		if (!$_uuid_folder) {
 			$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
 		} else {

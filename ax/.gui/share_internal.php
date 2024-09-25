@@ -61,7 +61,39 @@
 		$uuid_folder = findMatchingUUIDRunFolder($update_uuid, $sharesPath);
 	}
 
-	if ($user_id !== null && $experiment_name !== null) {
+	$num_offered_files = 0;
+
+	$offered_files_i = get_offered_files($acceptable_files, $acceptable_file_names, 0);
+
+	$offered_files = $offered_files_i[0];
+	$i = $offered_files_i[1];
+
+	foreach ($_FILES as $_file) {
+		if (preg_match("/log.(err|out)$/", $_file["name"])) {
+			$_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);
+			if (!isset($offered_files[$_file_without_ending])) {
+				if (isset($_file["name"])) {
+					if ($_file["error"] != 0) {
+						print("File " . htmlentities($_file["name"]) . " could not be uploaded. Error-Code: " . $_file["error"]);
+					} else {
+						if ($_file["size"] > 0) {
+							$num_offered_files++;
+							$offered_files[$_file_without_ending] = array(
+								"file" => $_file["tmp_name"] ?? null,
+								"filename" => $_file["name"]
+							);
+						}
+					}
+				} else {
+					print("Could not determine filename for at least one uploaded file");
+				}
+			} else {
+				print("$_file_without_ending coulnd't be found in \$offered_files\n");
+			}
+		}
+	}
+
+	if ($user_id !== null && $experiment_name !== null && $num_offered_files > 0) {
 		$userFolder = get_user_folder($sharesPath, $uuid_folder, $user_id, $experiment_name);
 		if(!$userFolder) {
 			die("Could not create user folder");
@@ -72,40 +104,7 @@
 			$run_id = getenv("run_id");
 		}
 
-		$num_offered_files = 0;
 		$new_upload_md5_string = "";
-
-		$i = 0;
-
-		$offered_files_i = get_offered_files($acceptable_files, $acceptable_file_names, $i);
-		$offered_files = $offered_files_i[0];
-		$i = $offered_files_i[1];
-
-
-		foreach ($_FILES as $_file) {
-			if (preg_match("/log.(err|out)$/", $_file["name"])) {
-				$_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);
-				if (!isset($offered_files[$_file_without_ending])) {
-					if (isset($_file["name"])) {
-						if ($_file["error"] != 0) {
-							print("File " . htmlentities($_file["name"]) . " could not be uploaded. Error-Code: " . $_file["error"]);
-						} else {
-							if ($_file["size"] > 0) {
-								$num_offered_files++;
-								$offered_files[$_file_without_ending] = array(
-									"file" => $_file["tmp_name"] ?? null,
-									"filename" => $_file["name"]
-								);
-							}
-						}
-					} else {
-						print("Could not determine filename for at least one uploaded file");
-					}
-				} else {
-					print("$_file_without_ending coulnd't be found in \$offered_files\n");
-				}
-			}
-		}
 
 		foreach ($offered_files as $offered_file) {
 			$filename = $offered_file["filename"];

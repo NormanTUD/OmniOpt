@@ -2041,8 +2041,9 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
             total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
 
         failed_error_str = ""
-        if failed_jobs() >= 1:
-            failed_error_str = f", failed: {failed_jobs()}"
+        if print_to_file:
+            if failed_jobs() >= 1:
+                failed_error_str = f", failed: {failed_jobs()}"
 
         table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}{failed_error_str}):")
 

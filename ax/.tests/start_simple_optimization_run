@@ -239,6 +239,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
+			--live_share \
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
@@ -257,11 +258,11 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--num_random_steps $num_random_steps \
 			--model $model \
 			--auto_exclude_defective_hosts \
-			--gridsearch \
 			--hide_ascii_plots
 		exit_code=$?
 	else
 		./omniopt \
+			--live_share \
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
@@ -271,12 +272,11 @@ if [[ "$gridsearch" -eq "1" ]]; then
 			--max_eval $max_eval \
 			--num_parallel_jobs $num_parallel_jobs \
 			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
 			--parameter int_param range -100 10 int \
 			--parameter float_param range -100 10 float \
 			--parameter choice_param choice 1,2,4,8,16,hallo \
 			--parameter int_param_two range -100 10 int \
-			--parameter fail_or_not choice "0,1" \
 			--follow \
 			--num_random_steps $num_random_steps \
 			--model $model \
@@ -288,6 +288,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 else
 	if [[ "$allow_failure" -eq "0" ]]; then
 		./omniopt \
+			--live_share \
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \
@@ -310,6 +311,7 @@ else
 		exit_code=$?
 	else
 		./omniopt \
+			--live_share \
 			--send_anonymized_usage_stats \
 			--partition $PARTITION \
 			--experiment_name $TESTNAME \

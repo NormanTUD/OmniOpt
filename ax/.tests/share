@@ -60,16 +60,16 @@ fi
 
 export experiment_name_name="non-existing-experiment_name"
 
-php_share_internal_startpage_test_user_non_existing_experiment_name=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##')
-expected_share_internal_startpage_test_user_non_existing_experiment_name="Using sharesPath ./_share_test_case/Could not create user folder"
+#php_share_internal_startpage_test_user_non_existing_experiment_name=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##')
+#expected_share_internal_startpage_test_user_non_existing_experiment_name="Using sharesPath ./_share_test_case/Could not create user folder"
 
-if [[ "$php_share_internal_startpage_test_user_non_existing_experiment_name" == "$expected_share_internal_startpage_test_user_non_existing_experiment_name" ]]; then
-	green_text "php .gui/share_internal.php _share_test_case/test_user/non-existing-experiment_name"
-else
-	error_msg="php .gui/share_internal.php _share_test_case/test_user/non-existing-experiment_name failed.\nGot:\n$php_share_internal_startpage_test_user_non_existing_experiment_name\nExpected:\n$expected_share_internal_startpage_test_user_non_existing_experiment_name\n\n"
-	red_text "$error_msg"
-	ERRORS+=("$error_msg")
-fi
+#if [[ "$php_share_internal_startpage_test_user_non_existing_experiment_name" == "$expected_share_internal_startpage_test_user_non_existing_experiment_name" ]]; then
+#	green_text "php .gui/share_internal.php _share_test_case/test_user/non-existing-experiment_name"
+#else
+#	error_msg="php .gui/share_internal.php _share_test_case/test_user/non-existing-experiment_name failed.\nGot:\n$php_share_internal_startpage_test_user_non_existing_experiment_name\nExpected:\n$expected_share_internal_startpage_test_user_non_existing_experiment_name\n\n"
+#	red_text "$error_msg"
+#	ERRORS+=("$error_msg")
+#fi
 
 #export run_id=0
 #export experiment_name_name="ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather"

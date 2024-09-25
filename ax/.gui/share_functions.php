@@ -64,8 +64,7 @@
 		return $cleanedString;
 	}
 
-	function calculateDirectoryHash($directory)
-	{
+	function calculateDirectoryHash($directory) {
 		// Überprüfen, ob der Ordner existiert und lesbar ist
 		if (!is_dir($directory) || !is_readable($directory)) {
 			return false; // Fehler, Ordner existiert nicht oder ist nicht lesbar
@@ -113,14 +112,12 @@
 		return hash('sha256', $combinedHashes);
 	}
 
-	function die_with_time()
-	{
+	function die_with_time() {
 		$time_end = microtime(true);
 		dier("Runtime: " . abs($time_end - $GLOBALS["time_start"]));
 	}
 
-	function get_header_file($file)
-	{
+	function get_header_file($file) {
 		$replaced_file = preg_replace("/.*\//", "", $file);
 
 		$names = array(
@@ -139,8 +136,7 @@
 		}
 	}
 
-	function loadCsvToJsonByResult($file)
-	{
+	function loadCsvToJsonByResult($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
 		$csvData = [];
@@ -179,8 +175,7 @@
 		return $jsonData;
 	}
 
-	function loadCsvToJson($file)
-	{
+	function loadCsvToJson($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
 		$csvData = [];
@@ -205,19 +200,16 @@
 		return $jsonData;
 	}
 
-	function warn($message)
-	{
+	function warn($message) {
 		echo "Warning: " . $message . "\n";
 	}
 
-	function dier($msg)
-	{
+	function dier($msg) {
 		print("<pre>" . print_r($msg, true) . "</pre>");
 		exit(1);
 	}
 
-	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath): ?string
-	{
+	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath): ?string {
 		// Glob-Muster, um alle passenden Dateien zu finden
 
 		$glob_str = "$sharesPath/*/*/*/run_uuid";
@@ -240,8 +232,7 @@
 		return null;
 	}
 
-	function checkPermissions($path, $user_id)
-	{
+	function checkPermissions($path, $user_id) {
 		// Überprüfen, ob der Ordner existiert und dem aktuellen Benutzer gehört
 		if (!file_exists($path) || !is_dir($path)) {
 			print("Ordner existiert nicht oder ist kein Verzeichnis.");
@@ -259,8 +250,7 @@
 		}
 	}
 
-	function deleteOldFolders($path)
-	{
+	function deleteOldFolders($path) {
 		$threshold = strtotime('-30 days');
 
 		$folders = glob($path . '/*', GLOB_ONLYDIR);
@@ -273,8 +263,7 @@
 		}
 	}
 
-	function deleteFolder($folder)
-	{
+	function deleteFolder($folder) {
 		$files = array_diff(scandir($folder), array('.', '..'));
 
 		foreach ($files as $file) {
@@ -284,8 +273,7 @@
 		return rmdir($folder);
 	}
 
-	function createNewFolder($path, $user_id, $experiment_name)
-	{
+	function createNewFolder($path, $user_id, $experiment_name) {
 		$i = 0;
 		do {
 			$newFolder = $path . "/$user_id/$experiment_name/$i";
@@ -296,8 +284,7 @@
 		return $newFolder;
 	}
 
-	function searchForHashFile($directory, $new_upload_md5, $userFolder)
-	{
+	function searchForHashFile($directory, $new_upload_md5, $userFolder) {
 		$files = glob($directory);
 
 		foreach ($files as $file) {
@@ -325,8 +312,7 @@
 		return [false, null];
 	}
 
-	function extractPathComponents($found_hash_file_dir, $sharesPath)
-	{
+	function extractPathComponents($found_hash_file_dir, $sharesPath) {
 		$pattern = "#^$sharesPath/([^/]+)/([^/]+)/(\d+)$#";
 
 		if (preg_match($pattern, $found_hash_file_dir, $matches)) {
@@ -345,14 +331,12 @@
 		}
 	}
 
-	function remove_ansi_colors($contents)
-	{
+	function remove_ansi_colors($contents) {
 		$contents = preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $contents);
 		return $contents;
 	}
 
-	function print_url($content)
-	{
+	function print_url($content) {
 		$content = htmlentities($content);
 		if (preg_match("/^https?:\/\//", $content)) {
 			echo "<a target='_blank' href='$content'>Link to the GUI, preloaded with all options specified here.</a>";
@@ -363,8 +347,7 @@
 		return 0;
 	}
 
-	function removeMatchingLines(array $lines, string $pattern): array
-	{
+	function removeMatchingLines(array $lines, string $pattern): array {
 		// Überprüfen, ob das Pattern ein gültiges Regex ist
 		if (@preg_match($pattern, null) === false) {
 			throw new InvalidArgumentException("Ungültiges Regex-Muster: $pattern");
@@ -382,8 +365,7 @@
 		return $filteredLines;
 	}
 
-	function convertStringToHtmlTable($inputString)
-	{
+	function convertStringToHtmlTable($inputString) {
 		// Convert the input string into an array of lines
 		$lines = explode("\n", trim($inputString));
 		array_shift($lines); // Remove headline line above the table
@@ -463,8 +445,7 @@
 		return $html;
 	}
 
-	function show_run($folder)
-	{
+	function show_run($folder) {
 		$run_files = glob("$folder/*");
 
 		$html = "";
@@ -783,8 +764,7 @@
 		print $html;
 	}
 
-	function custom_sort($a, $b)
-	{
+	function custom_sort($a, $b) {
 		// Extrahiere numerische und alphabetische Teile
 		$a_numeric = preg_replace('/[^0-9]/', '', $a);
 		$b_numeric = preg_replace('/[^0-9]/', '', $b);
@@ -837,8 +817,7 @@
 		return $filtered_folders;
 	}
 
-	function show_run_selection($sharesPath, $user, $experiment_name)
-	{
+	function show_run_selection($sharesPath, $user, $experiment_name) {
 		$experiment_name = preg_replace("/.*\//", "", $experiment_name);
 		$folder_glob = "$sharesPath/$user/$experiment_name/*";
 		$experiment_subfolders = glob($folder_glob, GLOB_ONLYDIR);
@@ -865,13 +844,11 @@
 		}
 	}
 
-	function print_script_and_folder($folder)
-	{
+	function print_script_and_folder($folder) {
 		echo "\n<script>createBreadcrumb('./$folder');</script>\n";
 	}
 
-	function checkForResult($content)
-	{
+	function checkForResult($content) {
 		// Regulärer Ausdruck, der nach "RESULT: " gefolgt von einer Zahl sucht (int, negativ, float)
 		$pattern = '/RESULT:\s*(-?\d+(\.\d+)?)/';
 
@@ -885,8 +862,7 @@
 		}
 	}
 
-	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name, $run_nr="")
-	{
+	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name, $run_nr="") {
 		$probe_dir = "$sharesPath/$user_id/$experiment_name/$run_nr";
 		if(is_dir($probe_dir) && $run_nr >= 0) {
 			return $probe_dir;
@@ -905,8 +881,7 @@
 		return $userFolder;
 	}
 
-	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr)
-	{
+	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr) {
 		if (isset($user_id) && !isset($experiment_name)) {
 			$user = $user_id;
 			if (preg_match("/\.\./", $user)) {
@@ -969,8 +944,7 @@
 	}
 
 
-	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg)
-	{
+	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg) {
 		$empty_files = [];
 
 		foreach ($offered_files as $offered_file) {
@@ -1010,8 +984,7 @@
 		}
 	}
 
-	function remove_extra_slashes_from_url($string)
-	{
+	function remove_extra_slashes_from_url($string) {
 		// Verwende preg_replace, um doppelte oder mehrfache "//" zu entfernen
 		// Aber nicht, wenn vor den Slashes ein ":" steht (z.B. bei URLs wie "https://")
 		$pattern = '/(?<!:)(\/{2,})/'; // Negative Lookbehind für ":"
@@ -1023,8 +996,7 @@
 		return $cleaned_string;
 	}
 
-	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath)
-	{
+	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath) {
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
@@ -1063,8 +1035,7 @@
 		}
 	}
 
-	function get_offered_files($acceptable_files, $acceptable_file_names, $i)
-	{
+	function get_offered_files($acceptable_files, $acceptable_file_names, $i) {
 		foreach ($acceptable_files as $acceptable_file) {
 			$offered_files[$acceptable_file] = array(
 				"file" => $_FILES[$acceptable_file]['tmp_name'] ?? null,

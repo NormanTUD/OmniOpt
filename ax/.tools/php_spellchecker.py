@@ -15,6 +15,9 @@ console = Console()
 
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
 whitelisted = [
+    "doesnt",
+    "workdir",
+    "todo",
     "additionalparameterstable",
     "ampoptimizerwrapper",
     "anonymized",

@@ -49,6 +49,7 @@ whitelisted = [
     "debian",
     "dier",
     "dont",
+    "dir",
     "eg",
     "elif",
     "endtime",

@@ -1,4 +1,48 @@
 <?php
+	function countNonMatchingHeaders($csvFilePath) {
+		// Die Header, die wir ignorieren möchten
+		$ignoredHeaders = [
+			'trial_index', 'arm_name', 'trial_status',
+			'generation_method', 'result'
+		];
+
+		// Prüfen, ob die Datei existiert und lesbar ist
+		if (!file_exists($csvFilePath) || !is_readable($csvFilePath)) {
+			trigger_error('Die Datei existiert nicht oder ist nicht lesbar.', E_USER_WARNING);
+			return false;
+		}
+
+		// Datei öffnen
+		if (($handle = fopen($csvFilePath, 'r')) !== false) {
+			// Erste Zeile (Header) einlesen
+			$headers = fgetcsv($handle);
+
+			// Datei schließen
+			fclose($handle);
+
+			// Falls die Datei leer ist oder keine Header hat
+			if ($headers === false) {
+				trigger_error('Die CSV-Datei enthält keine Header-Zeile.', E_USER_WARNING);
+				return false;
+			}
+
+			// Anzahl der Header, die nicht in der Liste der ignorierten Header enthalten sind
+			$nonMatchingHeaderCount = 0;
+
+			foreach ($headers as $header) {
+				if (!in_array(trim($header), $ignoredHeaders)) {
+					$nonMatchingHeaderCount++;
+				}
+			}
+
+			return $nonMatchingHeaderCount;
+		} else {
+			// Falls die Datei nicht geöffnet werden konnte
+			trigger_error('Fehler beim Öffnen der Datei.', E_USER_WARNING);
+			return false;
+		}
+	}
+
 	function copy_button($name_to_search_for) {
 		return "<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, \"$name_to_search_for\")'>📋 Copy raw data to clipboard</button>";
 	}
@@ -465,11 +509,19 @@
 
 				$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-				$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
+				$nr_real_headers = countNonMatchingHeaders($file);
 
-				$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
+				if($nr_real_headers > 0) {
+					$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
+				}
 
-				$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
+				if($nr_real_headers > 2) {
+					$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
+				}
+
+				if($nr_real_headers > 3) {
+					$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
+				}
 
 				$this_html = "";
 				if ($resultsCsvJson == "[]") {

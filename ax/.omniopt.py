@@ -1880,7 +1880,9 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
-def get_best_params(csv_file_path):
+def get_best_params():
+    csv_file_path = save_pd_csv()
+
     results = {
         "result": None,
         "parameters": {}
@@ -2008,12 +2010,12 @@ def count_done_jobs():
 
     return _count_done_jobs(csv_file_path)
 
-def print_best_result(csv_file_path):
+def print_best_result():
     global global_vars
     global SHOWN_END_TABLE
 
     try:
-        best_params = get_best_params(csv_file_path)
+        best_params = get_best_params()
 
         best_result = None
 
@@ -2212,7 +2214,7 @@ def show_end_table_and_save_end_files(csv_file_path):
 
     display_failed_jobs_table()
 
-    best_result_exit = print_best_result(csv_file_path)
+    best_result_exit = print_best_result()
 
     if best_result_exit > 0:
         _exit = best_result_exit
@@ -2793,7 +2795,7 @@ def get_current_model():
 
 def get_best_params_str():
     if count_done_jobs() >= 0:
-        best_params = get_best_params(RESULT_CSV_FILE)
+        best_params = get_best_params()
         if best_params and "result" in best_params:
             best_result = best_params["result"]
             if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):

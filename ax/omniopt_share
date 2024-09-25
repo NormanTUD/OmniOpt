@@ -83,7 +83,7 @@ for arg in "$@"; do
                         red_text "Cannot share $arg: folder not found"
                 fi
         else
-                red_text "Invalid option $arg"
+                red_text "Invalid option $arg, is this suppoed to be your run folder? If so, it doesn't exist."
                 help 1
         fi
 done

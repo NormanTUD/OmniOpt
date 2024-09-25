@@ -1880,9 +1880,7 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
-def get_best_params():
-    csv_file_path = save_pd_csv()
-
+def get_best_params_from_csv(csv_file_path):
     results = {
         "result": None,
         "parameters": {}
@@ -1947,6 +1945,11 @@ def get_best_params():
                 results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
 
     return results
+
+def get_best_params():
+    csv_file_path = save_pd_csv()
+
+    return get_best_params_from_csv(csv_file_path)
 
 def _count_sobol_or_completed(csv_file_path, _type):
     if _type not in ["Sobol", "COMPLETED"]:

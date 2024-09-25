@@ -2017,7 +2017,7 @@ def count_done_jobs():
 
     return _count_done_jobs(csv_file_path)
 
-def _print_best_result(csv_file_path, maximize):
+def _print_best_result(csv_file_path, maximize, print_to_file=True):
     global global_vars
     global SHOWN_END_TABLE
 
@@ -2065,8 +2065,9 @@ def _print_best_result(csv_file_path, maximize):
             console.print(table)
         table_str = capture.get()
 
-        with open(f'{CURRENT_RUN_FOLDER}/best_result.txt', mode="w", encoding="utf-8") as text_file:
-            text_file.write(table_str)
+        if print_to_file:
+            with open(f'{CURRENT_RUN_FOLDER}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+                text_file.write(table_str)
 
         _pd_csv = f"{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}"
 
@@ -2082,7 +2083,7 @@ def _print_best_result(csv_file_path, maximize):
 def print_best_result():
     csv_file_path = save_pd_csv()
 
-    return _print_best_result(csv_file_path, args.maximize)
+    return _print_best_result(csv_file_path, args.maximize, True)
 
 def get_plot_types(x_y_combinations):
     plot_types = []
@@ -4957,7 +4958,7 @@ def run_tests():
 
     nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _expected_best_result_maximize, _best_results_from_example_file_maximize)
 
-    _print_best_result(_example_csv_file, False)
+    _print_best_result(_example_csv_file, False, False)
 
     my_exit(nr_errors)
 

@@ -2063,15 +2063,13 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
 
         with console.capture() as capture:
             console.print(table)
-        table_str = capture.get()
 
         if print_to_file:
+            table_str = capture.get()
             with open(f'{CURRENT_RUN_FOLDER}/best_result.txt', mode="w", encoding="utf-8") as text_file:
                 text_file.write(table_str)
 
-        _pd_csv = f"{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}"
-
-        show_sixel_graphics(_pd_csv)
+        show_sixel_graphics(csv_file_path)
 
         SHOWN_END_TABLE = True
     except Exception as e:

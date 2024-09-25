@@ -33,7 +33,7 @@ if (!function_exists("dier")) {
 }
 
 function _isCurl(){
-    return function_exists('curl_version');
+	return function_exists('curl_version');
 }
 
 function getFirstTagName($url) {

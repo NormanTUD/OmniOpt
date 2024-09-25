@@ -440,7 +440,7 @@ def live_share():
     stdout, stderr = run_live_share_command()
 
     if shown_live_share_counter == 0 and stderr:
-        print_red(stderr)
+        print_yellow(stderr)
 
     shown_live_share_counter = shown_live_share_counter + 1
 

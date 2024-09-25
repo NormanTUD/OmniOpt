@@ -93,7 +93,7 @@
 		}
 	}
 
-	if ($user_id !== null && $experiment_name !== null && $num_offered_files > 0) {
+	if ($user_id !== null && $experiment_name !== null && ($num_offered_files > 0 || isset($_GET["update"]))) {
 		$userFolder = get_user_folder($sharesPath, $uuid_folder, $user_id, $experiment_name);
 		if(!$userFolder) {
 			die("Could not create user folder");

@@ -167,11 +167,11 @@
 		exit(1);
 	}
 
-	function findMatchingUUIDRunFolder(string $targetUUID): ?string
+	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath): ?string
 	{
 		// Glob-Muster, um alle passenden Dateien zu finden
 
-		$glob_str = './shares/*/*/*/run_uuid';
+		$glob_str = "$sharesPath/*/*/*/run_uuid";
 		$files = glob($glob_str);
 		// dier($glob_str);
 		// dier($files);
@@ -276,9 +276,9 @@
 		return [false, null];
 	}
 
-	function extractPathComponents($found_hash_file_dir)
+	function extractPathComponents($found_hash_file_dir, $sharesPath)
 	{
-		$pattern = '#^shares/([^/]+)/([^/]+)/(\d+)$#';
+		$pattern = "#^$sharesPath/([^/]+)/([^/]+)/(\d+)$#";
 
 		if (preg_match($pattern, $found_hash_file_dir, $matches)) {
 			assert(isset($matches[1]), "Failed to extract user from path: $found_hash_file_dir");
@@ -747,7 +747,8 @@
 
 		foreach ($experiment_subfolders as $run_nr) {
 			$run_nr = preg_replace("/.*\//", "", $run_nr);
-			echo "<a class='_share_link' href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr\">$run_nr</a><br>";
+			$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
+			echo "<!-- " . __LINE__ . " --><a class='_share_link' href=\"share.php?user=$user&experiment=$experiment_name&run_nr=$run_nr$sharesPathLink\">$run_nr</a><br>";
 		}
 	}
 
@@ -806,7 +807,8 @@
 			} else {
 				foreach ($experiment_subfolders as $experiment) {
 					$experiment = preg_replace("/.*\//", "", $experiment);
-					echo "<a class='_share_link' href=\"share.php?user=$user&experiment=$experiment\">$experiment</a><br>\n";
+					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
+					echo "<!-- " . __LINE__ . " --><a class='_share_link' href=\"share.php?user=$user&experiment=$experiment$sharesPathLink\">$experiment</a><br>\n";
 				}
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
@@ -839,7 +841,8 @@
 			if (count($user_subfolders)) {
 				foreach ($user_subfolders as $user) {
 					$user = preg_replace("/.*\//", "", $user);
-					echo "<a class='_share_link' href=\"share.php?user=$user\">$user</a><br>\n";
+					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
+					echo "<!-- " . __LINE__ . " --><a class='_share_link' href=\"share.php?user=$user$sharesPathLink\">$user</a><br>\n";
 				}
 			} else {
 				echo "No users found";
@@ -892,18 +895,18 @@
 		}
 	}
 
-	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder)
+	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath)
 	{
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		$found_hash_file_data = searchForHashFile("shares/*/*/*/hash.md5", $project_md5, $userFolder);
+		$found_hash_file_data = searchForHashFile("$sharesPath/*/*/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
 
 		if ($found_hash_file && is_null($update_uuid)) {
-			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir);
+			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir, $sharesPath);
 			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
 			exit(0);
 		} else {

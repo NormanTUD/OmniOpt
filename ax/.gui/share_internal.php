@@ -11,10 +11,14 @@
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 	$sharesPath = './shares/';
 
-	if (getenv("share_path")) {
+	if (getenv("share_path") || isset($_GET["share_path"])) {
 		$sharesPath = getenv("share_path");
+		if(!$sharesPath) {
+			$sharesPath = "./" . $_GET["share_path"] . "/";
+			$sharesPath = preg_replace("/\/*$/", "/", $sharesPath);
+		}
 
-		if (!is_dir("share_path")) {
+		if (!is_dir($sharesPath)) {
 			print("Share dir $sharesPath could not be found!");
 			exit(1);
 		}
@@ -46,7 +50,7 @@
 	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
 	$uuid_folder = null;
 	if ($update_uuid) {
-		$uuid_folder = findMatchingUUIDRunFolder($update_uuid);
+		$uuid_folder = findMatchingUUIDRunFolder($update_uuid, $sharesPath);
 	}
 
 	if ($user_id !== null && $experiment_name !== null) {
@@ -104,7 +108,7 @@
 			exit(1);
 		}
 
-		move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder);
+		move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath);
 	} else {
 		include_once "_functions.php";
 

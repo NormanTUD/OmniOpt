@@ -758,11 +758,40 @@
 		return strcmp($a, $b);
 	}
 
+	function check_and_filter_folders($folders) {
+		// Überprüfe, ob das übergebene Argument ein Array ist
+		if (!is_array($folders)) {
+			throw new InvalidArgumentException("Der übergebene Parameter muss ein Array sein.");
+		}
+
+		$filtered_folders = array_filter($folders, function($folder) {
+			// Überprüfe, ob der Pfad ein Verzeichnis ist
+			if (!is_dir($folder)) {
+				// Wenn es kein Verzeichnis ist, gebe eine Warnung aus und behalte den Eintrag
+				error_log("Warnung: '$folder' ist kein gültiges Verzeichnis.");
+				return true;
+			}
+
+			// Öffne das Verzeichnis
+			$files = scandir($folder);
+
+			// Entferne "." und ".." aus der Liste der Dateien
+			$files = array_diff($files, array('.', '..'));
+
+			// Wenn Dateien vorhanden sind, behalte den Eintrag
+			return count($files) > 0;
+		});
+
+		return $filtered_folders;
+	}
+
 	function show_run_selection($sharesPath, $user, $experiment_name)
 	{
 		$experiment_name = preg_replace("/.*\//", "", $experiment_name);
 		$folder_glob = "$sharesPath/$user/$experiment_name/*";
 		$experiment_subfolders = glob($folder_glob, GLOB_ONLYDIR);
+
+		$experiment_subfolders = check_and_filter_folders($experiment_subfolders);
 
 		if (count($experiment_subfolders) == 0) {
 			echo "No runs found in $folder_glob";

@@ -323,3 +323,7 @@ a, a:visited, a:active, a:hover, a:link {
 #main_tab {
 	overflow: scroll;
 }
+
+.ui-tabs .ui-tabs-nav li {
+	user-select: none;
+}

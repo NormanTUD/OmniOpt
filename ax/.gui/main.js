@@ -171,7 +171,6 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 
 	$(document).ready(function() {
 		var _new_table_id = `#${new_table_id}`;
-		console.log(_new_table_id);
 		$(_new_table_id).DataTable({
 			"ordering": true,  // Enable sorting on all columns
 			"paging": false    // Show all entries on one page (no pagination)

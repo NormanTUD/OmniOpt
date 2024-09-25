@@ -71,5 +71,5 @@ function find_closest_element_behind_and_copy_content_to_clipboard (clicked_elem
 
 	setTimeout(() => {
 		$(clicked_element).text(oldText);
-	}, 2000);
+	}, 1000);
 }

@@ -956,6 +956,19 @@
 		}
 	}
 
+	function remove_extra_slashes_from_url($string)
+	{
+		// Verwende preg_replace, um doppelte oder mehrfache "//" zu entfernen
+		// Aber nicht, wenn vor den Slashes ein ":" steht (z.B. bei URLs wie "https://")
+		$pattern = '/(?<!:)(\/{2,})/'; // Negative Lookbehind für ":"
+
+		// Ersetze doppelte oder mehrfache "//" durch ein einzelnes "/"
+		$cleaned_string = preg_replace($pattern, '/', $string);
+
+		// Gib die bereinigte Zeichenkette zurück
+		return $cleaned_string;
+	}
+
 	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath)
 	{
 		$added_files = 0;
@@ -968,24 +981,29 @@
 
 		if ($found_hash_file && is_null($update_uuid)) {
 			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir, $sharesPath);
-			echo "This project already seems to have been uploaded. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\n";
+			$old_url = remove_extra_slashes_from_url("$BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id");
+			echo "This project already seems to have been uploaded. See $old_url\n";
 			exit(0);
 		} else {
 			if (!$uuid_folder || !is_dir($uuid_folder)) {
+				$url = remove_extra_slashes_from_url("$BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id");
+
 				move_files(
 					$offered_files,
 					$added_files,
 					$userFolder,
-					"See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n",
-					"Run was successfully shared. See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id\nYou can share the link. It is valid for 30 days.\n"
+					"See $url&update=1 for a live-trace.\n",
+					"Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n"
 				);
 			} else {
+				$url = remove_extra_slashes_from_url("$BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1");
+
 				move_files(
 					$offered_files,
 					$added_files,
 					$uuid_folder,
-					"See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n",
-					"See $BASEURL/share.php?user=$user_id&experiment=$experiment_name&run_nr=$run_id&update=1 for a live-trace.\n"
+					"See $url for a live-trace.\n",
+					"See $url for a live-trace.\n"
 				);
 			}
 		}

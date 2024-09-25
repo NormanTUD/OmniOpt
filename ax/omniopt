@@ -787,7 +787,11 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 			if [[ $commits_since_tag -eq 1 ]]; then
 				echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commit ago)"
 			else
-				echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
+				if [[ $commits_since_tag -eq 0 ]]; then
+					echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
+				else
+					echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
+				fi
 			fi
 
 			if [[ "$commits_since_tag" -gt 0 ]]; then

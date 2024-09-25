@@ -1954,6 +1954,7 @@ def _count_sobol_or_completed(csv_file_path, _type):
     count = 0
 
     if not os.path.exists(csv_file_path):
+        print_debug(f"_count_sobol_or_completed: path '{csv_file_path}' not found")
         return count
 
     df = None
@@ -1983,7 +1984,10 @@ def _count_sobol_or_completed(csv_file_path, _type):
     assert df is not None, "DataFrame should not be None after reading CSV file"
     assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
-    rows = df[df["generation_method"] == _type]
+    if _type == "Sobol":
+        rows = df[df["generation_method"] == _type]
+    else:
+        rows = df[df["trial_status"] == _type]
     count = len(rows)
 
     return count

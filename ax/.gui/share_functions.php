@@ -844,10 +844,10 @@
 		return $userFolder;
 	}
 
-	function show_dir_view_or_plot($sharesPath, $experiment_name)
+	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name)
 	{
-		if (isset($_GET["user"]) && !isset($_GET["experiment"])) {
-			$user = $_GET["user"];
+		if (isset($user_id) && !isset($experiment_name)) {
+			$user = $user_id;
 			if (preg_match("/\.\./", $user)) {
 				print("Invalid user path");
 				exit(1);
@@ -874,27 +874,20 @@
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
 			}
-		} elseif (isset($_GET["user"]) && isset($_GET["experiment"]) && !isset($_GET["run_nr"])) {
-			$user = $_GET["user"];
-			$experiment_name = $_GET["experiment"];
-
-			show_run_selection($sharesPath, $user, $experiment_name);
-			print("<!-- $user/$experiment_name/ -->");
-			print_script_and_folder("$user/$experiment_name/");
-		} elseif (isset($_GET["user"]) && isset($_GET["experiment"]) && isset($_GET["run_nr"])) {
-			$user = $_GET["user"];
-			$experiment_name = $_GET["experiment"];
-			$run_nr = $_GET["run_nr"];
-
-			$run_folder = "$sharesPath/$user/$experiment_name/$run_nr/";
+		} elseif (isset($user_id) && isset($experiment_name) && !isset($run_nr)) {
+			show_run_selection($sharesPath, $user_id, $experiment_name);
+			print("<!-- $user_id/$experiment_name/ -->");
+			print_script_and_folder("$user_id/$experiment_name/");
+		} elseif (isset($user_id) && isset($experiment_name) && isset($run_nr)) {
+			$run_folder = "$sharesPath/$user_id/$experiment_name/$run_nr/";
 			if (isset($_GET["get_hash_only"])) {
 				echo calculateDirectoryHash($run_folder);
 
 				exit(0);
 			} else {
-				print("<!-- $user/$experiment_name/$run_nr -->");
+				print("<!-- $user_id/$experiment_name/$run_nr -->");
 
-				print_script_and_folder("$user/$experiment_name/$run_nr");
+				print_script_and_folder("$user_id/$experiment_name/$run_nr");
 				show_run($run_folder);
 			}
 		} else {

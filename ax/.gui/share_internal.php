@@ -37,6 +37,10 @@
 	}
 
 	$user_id = $_GET['user_id'] ?? null;
+	if(!$user_id && getenv("user_id")) {
+		$user_id = getenv("user_id");
+	}
+
 	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 	$experiment_name = $_GET['experiment_name'] ?? null;
 
@@ -128,4 +132,4 @@
 		}
 	}
 
-	show_dir_view_or_plot($sharesPath, $experiment_name);
+	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name);

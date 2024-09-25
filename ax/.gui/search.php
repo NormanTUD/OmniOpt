@@ -42,7 +42,7 @@
 	{
 		// Check if the root directory exists
 		if (!is_dir($root_dir)) {
-			throw new Exception("The root directory does not exist: " . $root_dir);
+			return $output;
 		}
 
 		// Get the list of directories in the root directory

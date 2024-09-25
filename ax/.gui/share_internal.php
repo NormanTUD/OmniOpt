@@ -141,4 +141,6 @@
 		}
 	}
 
-	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name);
+	$run_nr = isset($_GET["run_nr"]) ? $_GET["run_nr"] : null;
+
+	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr);

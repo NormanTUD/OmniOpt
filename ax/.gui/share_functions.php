@@ -853,7 +853,7 @@
 		return $userFolder;
 	}
 
-	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name)
+	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr)
 	{
 		if (isset($user_id) && !isset($experiment_name)) {
 			$user = $user_id;

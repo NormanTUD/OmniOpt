@@ -75,18 +75,33 @@ function find_closest_element_behind_and_copy_content_to_clipboard (clicked_elem
 }
 
 function parse_csv(csv) {
-    try {
-        var rows = csv.trim().split('\n').map(row => row.split(','));
-        return rows;
-    } catch (error) {
-        console.error("Error parsing CSV:", error);
-        return [];
-    }
+	try {
+		var rows = csv.trim().split('\n').map(row => row.split(','));
+		return rows;
+	} catch (error) {
+		console.error("Error parsing CSV:", error);
+		return [];
+	}
+}
+
+function normalizeArrayLength(array) {
+	// Schritt 1: Bestimme die maximale Länge der Unterarrays
+	let maxColumns = array.reduce((max, row) => Math.max(max, row.length), 0);
+
+	// Schritt 2: Fülle die kürzeren Arrays auf die maximale Länge auf
+	return array.map(row => {
+		let filledRow = [...row]; // Kopiere das Array
+		while (filledRow.length < maxColumns) {
+			filledRow.push(""); // Füge leere Strings hinzu
+		}
+		return filledRow;
+	});
 }
 
 function create_table_from_csv_data(csvData, table_container, new_table_id, optionalColumnTitles = null) {
 	// Parse CSV data
 	var data = parse_csv(csvData);
+	data = normalizeArrayLength(data);
 	var tableContainer = document.getElementById(table_container);
 
 	if (!tableContainer) {

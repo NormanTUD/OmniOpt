@@ -401,9 +401,6 @@ def append_and_read(file, nr=0, recursion=0):
 
     return 0
 
-def _count_sobol_steps(csv_file_path):
-    return _count_sobol_or_completed(csv_file_path, "Sobol")
-
 def run_live_share_command():
     if not CURRENT_RUN_FOLDER:
         return "", ""
@@ -483,26 +480,10 @@ def save_pd_csv():
 
     return pd_csv
 
-def count_sobol_steps():
-    csv_file_path = save_pd_csv()
-
-    return _count_sobol_steps(csv_file_path)
-
 def add_to_phase_counter(phase, nr=0, run_folder=""):
     if run_folder == "":
         run_folder = CURRENT_RUN_FOLDER
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
-
-def get_random_steps_from_prev_job():
-    if not args.continue_previous_job:
-        return count_sobol_steps()
-
-    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
-
-    if not os.path.exists(prev_step_file):
-        return count_sobol_steps()
-
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
@@ -2001,8 +1982,27 @@ def _count_sobol_or_completed(csv_file_path, _type):
 
     return count
 
+def _count_sobol_steps(csv_file_path):
+    return _count_sobol_or_completed(csv_file_path, "Sobol")
+
 def _count_done_jobs(csv_file_path):
     return _count_sobol_or_completed(csv_file_path, "COMPLETED")
+
+def count_sobol_steps():
+    csv_file_path = save_pd_csv()
+
+    return _count_sobol_steps(csv_file_path)
+
+def get_random_steps_from_prev_job():
+    if not args.continue_previous_job:
+        return count_sobol_steps()
+
+    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
+
+    if not os.path.exists(prev_step_file):
+        return count_sobol_steps()
+
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
 def failed_jobs(nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"

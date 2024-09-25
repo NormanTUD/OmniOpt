@@ -178,6 +178,8 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 	});
 }
 
+var already_initialized_tables = [];
+
 function initialize_autotables() {
 	$('.autotable').each(function(index) {
 		var csvText = $(this).text().trim();
@@ -191,13 +193,17 @@ function initialize_autotables() {
 			_optionalColumnTitles = $(this).data("header_columns").split(",");
 		}
 
-		//function create_table_from_csv_data(csvData, table_container, new_table_id, optionalColumnTitles = null) {
-		create_table_from_csv_data(
-			csvText, 
-			tableContainer.attr('id'), 
-			`autotable_${index}`,
-			_optionalColumnTitles
-		);
+		var table_container_id = tableContainer.attr('id');
+
+		if(!already_initialized_tables.includes(table_container_id)) {
+			create_table_from_csv_data(
+				csvText, 
+				table_container_id, 
+				`autotable_${index}`,
+				_optionalColumnTitles
+			);
+			already_initialized_tables.push(table_container_id);
+		}
 	});
 
 	apply_theme_based_on_system_preferences();

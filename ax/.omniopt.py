@@ -442,7 +442,7 @@ def live_share():
     stdout, stderr = run_live_share_command()
 
     if shown_live_share_counter == 0 and stderr:
-        print(stderr, end="")
+        print_red(stderr)
 
     shown_live_share_counter = shown_live_share_counter + 1
 
@@ -4543,6 +4543,9 @@ def main():
     save_state_files()
 
     write_run_uuid_to_file()
+
+    if args.maximize:
+        print_red("--maximize is not fully supported yet!")
 
     print(f"[yellow]Run-folder[/yellow]: [underline]{CURRENT_RUN_FOLDER}[/underline]")
     if args.continue_previous_job:

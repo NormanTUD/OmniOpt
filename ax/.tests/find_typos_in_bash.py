@@ -24,19 +24,24 @@ whitelisted = read_file_to_array(".tests/whitelisted_words")
 
 console = Console()
 
-# Function to extract strings from Bash files
-def extract_strings_from_bash(bash_script_path):
+# Function to extract strings and comments from Bash files
+def extract_strings_and_comments_from_bash(bash_script_path):
     with open(bash_script_path, 'r') as file:
         bash_content = file.read()
 
-    # Regex for strings in single and double quotes
+    # Regex for strings in single and double quotes and comments
     string_pattern = r"(\".*?\"|'.*?')"
+    comment_pattern = r"(?<=#).*"
+    
+    # Find all strings and comments
     strings = re.findall(string_pattern, bash_content)
+    comments = re.findall(comment_pattern, bash_content)
 
-    # Remove the quotes
+    # Remove the quotes from strings and strip comments
     strings = [s[1:-1] for s in strings]
+    comments = [c.strip() for c in comments]
 
-    return strings
+    return strings + comments  # Combine strings and comments
 
 def filter_and_spellcheck_words(words):
     misspelled_words = []
@@ -51,14 +56,14 @@ def filter_and_spellcheck_words(words):
 # Main function
 def main():
     # Handle arguments
-    parser = argparse.ArgumentParser(description='Extract strings from Bash files and display filtered misspelled words.')
+    parser = argparse.ArgumentParser(description='Extract strings and comments from Bash files and display filtered misspelled words.')
     parser.add_argument('bash_files', nargs='+', help='Path(s) to the Bash files')
     args = parser.parse_args()
 
     file_count_with_errors = 0
 
     # Table for results
-    table = Table(title="Misspelled Words in bash files:", show_lines=True)
+    table = Table(title="Misspelled Words in Bash Files:", show_lines=True)
     table.add_column("File", justify="center", style="cyan", no_wrap=True)
     table.add_column("Words", justify="left", style="magenta")
 
@@ -74,13 +79,13 @@ def main():
                 console.print(f"[bold red]Warning: File '{bash_file}' does not exist![/bold red]")
                 continue
 
-            # Extract strings
-            strings = extract_strings_from_bash(bash_file)
+            # Extract strings and comments
+            strings_and_comments = extract_strings_and_comments_from_bash(bash_file)
 
             # Split strings by space, comma, semicolon, etc.
             words = []
-            for string in strings:
-                words.extend(re.split(r'[ ,;]', string))
+            for entry in strings_and_comments:
+                words.extend(re.split(r'[ ,;]', entry))
 
             # Filter and spellcheck the words
             misspelled_words = filter_and_spellcheck_words(words)
@@ -100,3 +105,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

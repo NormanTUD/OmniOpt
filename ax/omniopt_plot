@@ -338,10 +338,8 @@ if [[ "$help" -eq 1 ]]; then
 fi
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
-	# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
 
-	# Entfernen Sie das letzte "," vom gejointen String
 	joined_plot_types=${joined_plot_types%, }
 
 	echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
@@ -507,10 +505,8 @@ cd "$ORIGINAL_PWD"
 
 if [[ "$plot_type" != "menu" ]]; then
 	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
-		# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 		joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
 
-		# Entfernen Sie das letzte "," vom gejointen String
 		joined_plot_types=${joined_plot_types%, }
 
 		echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"

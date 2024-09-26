@@ -8,9 +8,9 @@ LOG_TIMES=()
 LOG_TIMES+=("Failed,Name,TestRunTime,ExitCode,WantedExitCodes,Success")
 
 unshift() {
-	local -n ary=$1       # Referenz auf das Array
-	local element=$2      # Das Element, das an den Anfang eingefügt werden soll
-	ary=("$element" "${ary[@]}")  # Neues Element an den Anfang des Arrays setzen
+	local -n ary=$1
+	local element=$2
+	ary=("$element" "${ary[@]}")
 }
 
 function displaytime {

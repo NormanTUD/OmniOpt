@@ -15,7 +15,6 @@ console = Console()
 
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
 whitelisted = [
-    "doesnt",
     "workdir",
     "todo",
     "additionalparameterstable",
@@ -186,6 +185,14 @@ whitelisted = [
     "stderr",
     "stdout",
     "storageerror",
+    "ascii",
+    "ansi",
+    "tu",
+    "fosscuda",
+    "smi",
+    "unix",
+    "rwxr",
+    "xr",
     "subfolder",
     "subfolders",
     "subgraphs",
@@ -238,7 +245,7 @@ def extract_visible_text_from_html(html_content):
 
 def clean_word(word):
     # Remove punctuation and split hyphenated words
-    word = re.sub(r'[^\w\s/-_]', '', word)  # Remove punctuation except hyphen
+    word = re.sub(r'[^\w\s/\'-_]', '', word)  # Remove punctuation except hyphen
     return word.split('-')  # Split on hyphens to check each part separately
 
 def is_valid_word(word):

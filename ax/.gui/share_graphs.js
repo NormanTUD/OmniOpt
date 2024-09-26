@@ -187,76 +187,82 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	// 2D Scatter Plot
+	var already_existing_plots = [];
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
 			var x_name = _paramKeys[i];
 			var y_name = _paramKeys[j];
 
-			var xValues = _results_csv_json.map(function(row) {
-				var parsedValue = parseFloat(row[x_name]);
-				return isNaN(parsedValue) ? row[x_name] : parsedValue;
-			});
+			var _key = [x_name, y_name].sort().join("!!!");
 
-			var yValues = _results_csv_json.map(function(row) {
-				var parsedValue = parseFloat(row[y_name]);
-				return isNaN(parsedValue) ? row[y_name] : parsedValue;
-			});
+			if(!already_existing_plots.includes(_key)) {
+				var xValues = _results_csv_json.map(function(row) {
+					var parsedValue = parseFloat(row[x_name]);
+					return isNaN(parsedValue) ? row[x_name] : parsedValue;
+				});
 
-			function color_curried(value) {
-				return getColor(value, minResult, maxResult);
-			}
+				var yValues = _results_csv_json.map(function(row) {
+					var parsedValue = parseFloat(row[y_name]);
+					return isNaN(parsedValue) ? row[y_name] : parsedValue;
+				});
 
-			var colors = resultValues.map(color_curried);
-
-			// Create a custom colorscale from the unique values of resultValues and their corresponding colors
-			var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
-			var customColorscale = uniqueValues.map(value => {
-				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
-			});
-
-			// Scatter Plot Trace
-			var trace2d = {
-				x: xValues,
-				y: yValues,
-				mode: 'markers',
-				type: 'scatter',
-				marker: {
-					color: colors
+				function color_curried(value) {
+					return getColor(value, minResult, maxResult);
 				}
-			};
 
-			// Dummy Trace for Color Legend with Custom Colorscale
-			var colorScaleTrace = {
-				x: [null], // Dummy data
-				y: [null], // Dummy data
-				type: 'scatter',
-				mode: 'markers',
-				marker: {
-					color: [minResult, maxResult],
-					colorscale: customColorscale,
-					cmin: minResult,
-					cmax: maxResult,
-					showscale: true, // Show the color scale
-					colorbar: {
-						title: 'Result Values',
-						titleside: 'right'
+				var colors = resultValues.map(color_curried);
+
+				// Create a custom colorscale from the unique values of resultValues and their corresponding colors
+				var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
+				var customColorscale = uniqueValues.map(value => {
+					return [(value - minResult) / (maxResult - minResult), color_curried(value)];
+				});
+
+				// Scatter Plot Trace
+				var trace2d = {
+					x: xValues,
+					y: yValues,
+					mode: 'markers',
+					type: 'scatter',
+					marker: {
+						color: colors
 					}
-				},
-				hoverinfo: 'none' // Hide hover info for this trace
-			};
+				};
 
-			var layout2d = {
-				title: `Scatter Plot: ${x_name} vs ${y_name}`,
-				xaxis: { title: x_name },
-				yaxis: { title: y_name },
-				paper_bgcolor: 'rgba(0,0,0,0)',
-				plot_bgcolor: 'rgba(0,0,0,0)',
-				showlegend: false // We use the colorbar instead of a traditional legend
-			};
+				// Dummy Trace for Color Legend with Custom Colorscale
+				var colorScaleTrace = {
+					x: [null], // Dummy data
+					y: [null], // Dummy data
+					type: 'scatter',
+					mode: 'markers',
+					marker: {
+						color: [minResult, maxResult],
+						colorscale: customColorscale,
+						cmin: minResult,
+						cmax: maxResult,
+						showscale: true, // Show the color scale
+						colorbar: {
+							title: 'Result Values',
+							titleside: 'right'
+						}
+					},
+					hoverinfo: 'none' // Hide hover info for this trace
+				};
 
-			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-			$('#scatter_plot_2d_container').html(new_plot_div);
-			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d, colorScaleTrace], layout2d);
+				var layout2d = {
+					title: `Scatter Plot: ${x_name} vs ${y_name}`,
+					xaxis: { title: x_name },
+					yaxis: { title: y_name },
+					paper_bgcolor: 'rgba(0,0,0,0)',
+					plot_bgcolor: 'rgba(0,0,0,0)',
+					showlegend: false // We use the colorbar instead of a traditional legend
+				};
+
+				var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${i}_${j}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+				$('#scatter_plot_2d_container').append(new_plot_div);
+				Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d, colorScaleTrace], layout2d);
+				already_existing_plots.push(_key);
+			}
 		}
 	}
 }

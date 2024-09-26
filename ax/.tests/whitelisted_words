@@ -14,8 +14,11 @@ affeaffeaffeaffeaffeaffeaffeaffe
 AISTATS
 alertError
 allitems
+alphaConstraint
 alphaDropout
 AlphaDropout
+alphaInitializer
+alphaRegularizer
 ALPHAREPL
 ampoptimizerwrapper
 AMSGrad
@@ -74,6 +77,7 @@ batchsize
 batchSize
 betaConstraint
 betaInitializer
+betaRegularizer
 biasConstraint
 biasInitializer
 biasRegularizer
@@ -115,6 +119,7 @@ canvasWidth
 captureEvents
 categoricalAccuracy
 categoricalCrossentropy
+categoricalHinge
 cc
 cd
 cdata
@@ -151,6 +156,7 @@ commandline
 concatted
 config
 const
+Constains
 CONT
 containerId
 contentType
@@ -194,6 +200,7 @@ darkred
 darktheme
 darwin
 datadebug
+dataFormat
 DataFrame
 datagen
 dataplaceholder
@@ -220,6 +227,7 @@ depthMultiplier
 depthwise
 depthwiseConstraint
 depthwiseInitializer
+depthwiseRegularizer
 desc
 descs
 deserializing
@@ -257,6 +265,7 @@ dpi
 drawingboard
 Dredict
 droparray
+dropoutFunc
 dropoutRate
 dtype
 echoerr
@@ -270,6 +279,9 @@ elem
 elif
 elu
 ELU
+embeddingsConstraint
+embeddingsInitializer
+embeddingsRegularizer
 emessage
 encodings
 endtime
@@ -301,11 +313,13 @@ ExitCode
 exitcodes
 expectedsclass
 expirationDate
+Exponetial
 extractCategoryFromURL
 facingMode
 falsetriggerchange
 fanAvg
 FanIn
+fanOut
 fcnn
 FCNN
 fi
@@ -396,6 +410,7 @@ grep
 gridsearch
 gridsize
 gru
+gruCell
 gt
 gui
 hallollolololololololllllolololo
@@ -459,7 +474,10 @@ initializer
 Initializer
 initializers
 initializerval
+inputDim
+inputDType
 InputLayer
+inputLength
 inputShape
 inputString
 inputtensor
@@ -497,6 +515,7 @@ keyname
 keyup
 kn
 ktotalBytesSnapshot
+kullbackLeiblerDivergence
 lang
 languagelangtensors
 layerDiff
@@ -520,6 +539,7 @@ libs
 lightblue
 lightcoral
 lightgray
+lightmode
 lineHeight
 linkonclick
 linters
@@ -546,12 +566,14 @@ lowerCaseColor
 lrrdeferdocumentaddEventListener
 lstm
 LSTM
+lstmCell
 lt
 mae
 mainContent
 mainsite
 mainsiteshow
 mape
+maskZero
 matchMedia
 matplotlib
 max
@@ -576,6 +598,7 @@ MemoryError
 memoryfree
 memorytotal
 memoryused
+mergeMode
 metrices
 metricsNames
 mib
@@ -636,6 +659,7 @@ nitializer
 nodeIndex
 noheader
 noir
+noiseShape
 nonexisting
 nonNeg
 nonsbatchsystems
@@ -700,9 +724,12 @@ os
 OSError
 outfile
 outname
+outputDim
+Overfitting
 OverflowError
 palegreen
 param
+Parameterized
 parameterscsv
 parameterstxt
 ParameterType
@@ -733,6 +760,7 @@ png
 pointwise
 pointwiseConstraint
 pointwiseInitializer
+pointwiseRegularizer
 poisson
 poolSize
 popstate
@@ -742,6 +770,7 @@ pprint
 pre
 predictcontainer
 predictcontainershow
+prelu
 Preprocess
 prev
 printf
@@ -786,6 +815,7 @@ recurrentActivation
 recurrentConstraint
 recurrentDropout
 recurrentInitializer
+recurrentRegularizer
 RecursionError
 ReferenceError
 regex
@@ -799,6 +829,7 @@ releaseEvents
 relu
 ReLU
 removeIdAttribute
+repeatVector
 REPLACEME
 reportError
 repredict
@@ -808,6 +839,7 @@ requestIdleCallback
 res
 RES
 rescaleFactor
+resetAfter
 resetted
 resettet
 resize
@@ -863,6 +895,7 @@ SBATCH
 scaledGrads
 scaleNestedArray
 scattergenerationmethod
+scattergl
 SCIENTIFICNOTATION
 scontrol
 scoreMsg
@@ -900,6 +933,7 @@ sgd
 SGD
 shader
 shapeType
+sharedAxes
 sharephp
 sharesPath
 shebangline
@@ -943,6 +977,7 @@ SIGWINCH
 SIGXCPU
 sigxfsz
 simpleRNN
+simpleRNNCell
 sixel
 sixel slurm,
 sizeToContent
@@ -960,6 +995,7 @@ Softmax
 softplus
 softsign
 spacebar
+sparseCategoricalCrossentropy
 splitted
 sprintf
 sqrt
@@ -967,6 +1003,7 @@ squaredHinge
 squeue
 src
 srun
+stackedRNNCells
 stacktrace
 startagain
 stat
@@ -1037,8 +1074,10 @@ theres
 thisitem
 thisvarname
 thompson
+Thresholded
 ThresholdedReLU
 timebin
+timeDistributed
 timestamp
 timestamps
 tir

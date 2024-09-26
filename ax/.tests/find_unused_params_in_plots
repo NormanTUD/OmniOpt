@@ -38,7 +38,6 @@ for plot_file in $(ls .omniopt_plot*.py); do
 done
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No find_unused_params_in_plots errors"
 	exit 0
 else
 	echo ""

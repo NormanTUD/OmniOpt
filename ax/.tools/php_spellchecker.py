@@ -144,8 +144,6 @@ def show_summary_table(_errors_found):
             summary_table.add_row(file_path, ", ".join(misspelled_words))
 
         console.print(summary_table)
-    else:
-        console.print("[green]No spelling errors found in any file.[/green]")
 
 if __name__ == "__main__":
     try:

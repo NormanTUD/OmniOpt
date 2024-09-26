@@ -174,7 +174,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						};
 
 						var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-						$('#scatter_plot_3d_container').html(new_plot_div);
+						$('#scatter_plot_3d_container').append(new_plot_div);
 						Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
 
 						already_existing_plots.push(_key);

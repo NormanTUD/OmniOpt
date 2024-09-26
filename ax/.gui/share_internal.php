@@ -116,12 +116,14 @@
 			}
 		}
 
-		if ($num_offered_files == 0) {
+		if ($num_offered_files == 0 && !isset($_GET["update"])) {
 			print("Error sharing job. No offered files could be found.");
 			exit(1);
 		}
 
-		move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath);
+		if($num_offered_files) {
+			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath);
+		}
 	} else {
 		include_once "_functions.php";
 

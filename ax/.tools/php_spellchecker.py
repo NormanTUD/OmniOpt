@@ -219,9 +219,7 @@ whitelisted = [
     "uuid",
     "valuetype",
     "virtualenv",
-    "von",
-    "youd",
-    "youll"
+    "von"
 ]
 
 def extract_visible_text_from_html(html_content):

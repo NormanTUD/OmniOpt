@@ -125,6 +125,8 @@ captureEvents
 categoricalAccuracy
 categoricalCrossentropy
 categoricalHinge
+categoryName
+catN
 cc
 cd
 cdata
@@ -157,6 +159,8 @@ colorscale
 Colorscale
 colorValue
 coloured
+colspan
+colspanTd
 commandline
 concatted
 config
@@ -195,6 +199,7 @@ currentElement
 currentLayerNeurons
 currentLayerX
 currentNeuronY
+currentNumber
 currentScript
 currentSpacing
 currentSrc
@@ -358,6 +363,7 @@ floatval
 fn
 forceSnowParam
 fosscuda
+fromPixel
 fromPixels
 frontChars
 fullStr
@@ -478,6 +484,7 @@ img
 imgcat
 imgDiv
 imgs
+iMissing
 ImportError
 IndentationError
 IndexError
@@ -649,10 +656,12 @@ multdimensional
 multibound
 multiline
 multiplicator
+myKeyboard
 mymodel
 mysqli
 nameEQ
 NameError
+navbarSelected
 ne
 nearestNeighbor
 Neo
@@ -661,11 +670,13 @@ neuronDiff
 neuronY
 newArray
 newBytes
+newCategoryContent
 newline
 newNeuronWeights
 newSrc
 newTensors
 newWeights
+nextCategory
 nextFrame
 nextLayerNeurons
 nextLayerX
@@ -722,6 +733,7 @@ onBatchEnd
 onchange
 onclick
 oneHot
+oneHotArray
 onEpochBegin
 onEpochEnd
 onlyUnique
@@ -893,6 +905,7 @@ rMutilcurrentScriptfunction
 rnn
 ropout
 rotateWithOffset
+rowElement
 rp
 rundir
 runmode
@@ -936,6 +949,7 @@ searchResults
 searchResultsappend
 searchResultsappenduln
 searchResultsempty
+secondRow
 secondsbr
 sed
 segfault
@@ -1048,6 +1062,7 @@ stimpy
 storageerror
 str
 stringified
+stringToNumberMap
 strLen
 strokeend
 struct
@@ -1099,6 +1114,7 @@ tf
 TFJS
 th
 thead
+thecanvas
 themeSelect
 theres
 thisitem
@@ -1106,6 +1122,7 @@ thisvarname
 thompson
 Thresholded
 ThresholdedReLU
+thumbnailContainerId
 timebin
 timeDistributed
 timestamp

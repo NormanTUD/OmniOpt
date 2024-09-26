@@ -25,7 +25,7 @@ function green_text {
 }
 
 if ! command -v php 2>/dev/null >/dev/null; then
-	red_text "Cannot run php_search-test when PHP is not installed!"
+	yellow_text "Cannot run php_search-test when PHP is not installed!"
 	exit 255
 fi
 

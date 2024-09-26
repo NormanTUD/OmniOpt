@@ -1,5 +1,4 @@
 acontent
-SameSite
 additionalparameterstable
 affeaffeaffeaffeaffeaffeaffeaffe
 ampoptimizerwrapper
@@ -55,6 +54,9 @@ ci
 cli
 clusterhost
 colname
+colorbar
+colorscale
+Colorscale
 coloured
 commandline
 config
@@ -178,6 +180,7 @@ itertools
 IWILLNEVERFINDANYTHINGHOPEFULLY
 Jedi
 jobsbatch
+js
 json
 kde
 kerneldensityestimationplots
@@ -288,6 +291,7 @@ pre
 prev
 printf
 printfrunning
+PrismJS
 Projectdir
 PROJECTDIR
 pstate
@@ -313,6 +317,7 @@ resultlink
 resultscsv
 resultsforEachfunctionresult
 resultslength
+resultValues
 rg
 richpretty
 richtable
@@ -329,6 +334,7 @@ rwxr
 rwxrxrx
 saasbo
 SAASBO
+SameSite
 SameSiteNone
 sbatch
 SBATCH
@@ -440,6 +446,7 @@ theres
 thompson
 timebin
 timestamp
+timestamps
 TkAgg
 tmp
 toc
@@ -496,9 +503,3 @@ XXX
 yaml
 yellowContinuation
 ZeroDivisionError
-PrismJS
-colorscale
-resultValues
-Colorscale
-colorbar
-timestamps

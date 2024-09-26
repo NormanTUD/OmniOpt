@@ -561,7 +561,27 @@
 				$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
 
 				$html_parts[$_hash] = $this_html;
-			} elseif (preg_match("/parameters\.txt$/", $file) || preg_match("/best_result\.txt$/", $file)) {
+			} elseif (preg_match("/best_result\.txt$/", $file)) {
+				$content = remove_ansi_colors(file_get_contents($file));
+				$content_encoding = mb_detect_encoding($content);
+				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+					continue;
+				}
+
+				$header = get_header_file($file);
+
+				$_hash = hash('md5', "$header - $file");
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$this_html = "";
+
+				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
+
+				$html_parts[$_hash] = $this_html;
+
+				$shown_data += 1;
+			} elseif (preg_match("/parameters\.txt$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
 				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {

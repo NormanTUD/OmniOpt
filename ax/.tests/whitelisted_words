@@ -1,4 +1,5 @@
 acontent
+SameSite
 additionalparameterstable
 affeaffeaffeaffeaffeaffeaffeaffe
 ampoptimizerwrapper
@@ -495,3 +496,9 @@ XXX
 yaml
 yellowContinuation
 ZeroDivisionError
+PrismJS
+colorscale
+resultValues
+Colorscale
+colorbar
+timestamps

@@ -1,42 +1,33 @@
 function showSpinnerOverlay(text) {
-	// Überprüfen, ob bereits ein Overlay existiert
 	if (document.getElementById('spinner-overlay')) {
-		return; // Wenn ja, wird nichts getan
+		return;
 	}
 
-	// Erstelle das Overlay
 	var overlay = document.createElement('div');
 	overlay.id = 'spinner-overlay';
 
-	// Erstelle den Container für den Spinner und den Text
 	var container = document.createElement('div');
 	container.id = 'spinner-container';
 
-	// Erstelle den Spinner
 	var spinner = document.createElement('div');
 	spinner.classList.add('spinner');
 
-	// Erstelle den Text
 	var spinnerText = document.createElement('div');
 	spinnerText.id = 'spinner-text';
 	spinnerText.innerText = text;
 
-	// Füge den Spinner und den Text zum Container hinzu
 	container.appendChild(spinner);
 	container.appendChild(spinnerText);
 
-	// Füge den Container zum Overlay hinzu
 	overlay.appendChild(container);
 
-	// Füge das Overlay zum Body hinzu
 	document.body.appendChild(overlay);
 }
 
 function removeSpinnerOverlay() {
-	// Überprüfe, ob das Overlay existiert
 	var overlay = document.getElementById('spinner-overlay');
 	if (overlay) {
-		overlay.remove(); // Entferne das Overlay
+		overlay.remove();
 	}
 }
 
@@ -85,14 +76,12 @@ function parse_csv(csv) {
 }
 
 function normalizeArrayLength(array) {
-	// Schritt 1: Bestimme die maximale Länge der Unterarrays
 	let maxColumns = array.reduce((max, row) => Math.max(max, row.length), 0);
 
-	// Schritt 2: Fülle die kürzeren Arrays auf die maximale Länge auf
 	return array.map(row => {
-		let filledRow = [...row]; // Kopiere das Array
+		let filledRow = [...row];
 		while (filledRow.length < maxColumns) {
-			filledRow.push(""); // Füge leere Strings hinzu
+			filledRow.push("");
 		}
 		return filledRow;
 	});

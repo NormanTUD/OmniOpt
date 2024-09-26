@@ -1,7 +1,7 @@
 var log = console.log;
 var l = log;
 
-var searchTimer; // Globale Variable für den Timer
+var searchTimer;
 var lastSearch = "";
 
 async function start_search() {
@@ -13,7 +13,6 @@ async function start_search() {
 
 	lastSearch = searchTerm;
 
-	// Funktion zum Abbrechen der vorherigen Suchanfrage
 	function abortPreviousRequest() {
 		if (searchTimer) {
 			clearTimeout(searchTimer);
@@ -23,9 +22,7 @@ async function start_search() {
 
 	abortPreviousRequest();
 
-	// Funktion zum Durchführen der Suchanfrage
 	async function performSearch() {
-		// Abbrechen der vorherigen Anfrage, falls vorhanden
 		abortPreviousRequest();
 
 		if (!/^\s*$/.test(searchTerm)) {
@@ -50,7 +47,6 @@ async function start_search() {
 		}
 	}
 
-	// Starten der Suche nach 10 ms Verzögerung
 	searchTimer = setTimeout(performSearch, 10);
 
 	if(searchTerm.length) {

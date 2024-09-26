@@ -70,7 +70,6 @@ function createBreadcrumb(currentFolderPath) {
 
 			breadcrumb.appendChild(link);
 
-			// Füge ein Trennzeichen hinzu, außer beim letzten Element
 			breadcrumb.appendChild(document.createTextNode(' / '));
 		}
 	});

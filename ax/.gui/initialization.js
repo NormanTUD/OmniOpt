@@ -2,12 +2,9 @@ $(document).ready(function() {
 	apply_theme_based_on_system_preferences();
 
 	document.addEventListener('keydown', function(event) {
-		// Überprüfen, ob die Escape-Taste gedrückt wurde
 		if (event.key === 'Escape') {
-			// Überprüfen, ob der Button sichtbar ist
 			var deleteButton = document.getElementById('del_search_button');
 			if (deleteButton && getComputedStyle(deleteButton).display !== 'none') {
-				// Führe die Funktion delete_search() aus
 				delete_search();
 			}
 		}
@@ -15,7 +12,6 @@ $(document).ready(function() {
 
 	var themeSelect = document.getElementById('themeSelect');
 
-	// Setze das aktuelle Thema beim Laden der Seite
 	var currentTheme = get_cookie("theme");
 	if (currentTheme) {
 		themeSelect.value = currentTheme;

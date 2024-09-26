@@ -46,33 +46,47 @@ def extract_template_strings(content):
     pattern = r'`([^`\\]*(?:\\.[^`\\]*)*)`'
     return re.findall(pattern, content)
 
-def extract_strings_from_js(filepath):
-    """Extract all string literals from a JavaScript file."""
+def extract_single_line_comments(content):
+    """Extract all single-line comments from JavaScript content."""
+    pattern = r'//(.*)'
+    return re.findall(pattern, content)
+
+def extract_multi_line_comments(content):
+    """Extract all multi-line comments from JavaScript content."""
+    pattern = r'/\*([\s\S]*?)\*/'
+    return re.findall(pattern, content)
+
+def extract_strings_and_comments_from_js(filepath):
+    """Extract all string literals and comments from a JavaScript file."""
     with open(filepath, 'r', encoding='utf-8') as file:
         content = file.read()
 
-    strings = []
-    strings.extend(extract_single_quoted_strings(content))
-    strings.extend(extract_double_quoted_strings(content))
-    strings.extend(extract_template_strings(content))
+    strings_and_comments = []
+    # Extract all string literals
+    strings_and_comments.extend(extract_single_quoted_strings(content))
+    strings_and_comments.extend(extract_double_quoted_strings(content))
+    strings_and_comments.extend(extract_template_strings(content))
+    # Extract all comments
+    strings_and_comments.extend(extract_single_line_comments(content))
+    strings_and_comments.extend(extract_multi_line_comments(content))
 
-    return strings
+    return strings_and_comments
 
 def clean_word(word):
     after = re.sub(r'[^\'a-zA-Z0-9_/-]', '', word)
     return after
 
 def analyze_js_file(filepath, progress, task_id):
-    strings = extract_strings_from_js(filepath)
+    strings_and_comments = extract_strings_and_comments_from_js(filepath)
     possibly_incorrect_words = []
     
-    total_words = sum(len(string.split()) for string in strings)
+    total_words = sum(len(entry.split()) for entry in strings_and_comments)
     current_word_count = 0
     
     progress.update(task_id, description=f"[bold]Analyzing {filepath}...[/bold]")
 
-    for string in strings:
-        words = string.split()
+    for entry in strings_and_comments:
+        words = entry.split()
         for word in words:
             word = clean_word(word)
             current_word_count += 1
@@ -89,7 +103,7 @@ def analyze_js_file(filepath, progress, task_id):
     return possibly_incorrect_words
 
 def main():
-    parser = argparse.ArgumentParser(description='Analyze JavaScript files and check the spelling of string literals.')
+    parser = argparse.ArgumentParser(description='Analyze JavaScript files and check the spelling of string literals and comments.')
     parser.add_argument('files', metavar='FILE', nargs='+', help='The JavaScript files to analyze.')
     args = parser.parse_args()
 
@@ -134,4 +148,3 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         console.print("[red]Cancelled script by using CTRL + C[/red]")
-

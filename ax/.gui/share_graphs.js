@@ -323,18 +323,16 @@ function plot_all_possible (_results_csv_json) {
 }
 
 function convertUnixTimeToReadable(unixTime) {
-	var date = new Date(unixTime * 1000); // Unix-Zeit ist in Sekunden, daher * 1000 um Millisekunden zu erhalten
-	return date.toLocaleString(); // Konvertiere zu einem lesbaren Datum und Uhrzeit
+	var date = new Date(unixTime * 1000);
+	return date.toLocaleString();
 }
 
 function plotLineChart(data) {
-	// Extrahiere die Unix-Zeit, die geplanten Worker und die tatsächlichen Worker
 	var unixTime = data.map(row => row[0]);
-	var readableTime = unixTime.map(convertUnixTimeToReadable); // Konvertiere Unix-Zeit in menschenlesbares Format
+	var readableTime = unixTime.map(convertUnixTimeToReadable);
 	var plannedWorkers = data.map(row => row[1]);
 	var actualWorkers = data.map(row => row[2]);
 
-	// Erstelle den Trace für geplante Worker
 	var tracePlanned = {
 		x: readableTime,
 		y: plannedWorkers,
@@ -342,7 +340,6 @@ function plotLineChart(data) {
 		name: 'Planned Worker'
 	};
 
-	// Erstelle den Trace für tatsächliche Worker
 	var traceActual = {
 		x: readableTime,
 		y: actualWorkers,
@@ -350,7 +347,6 @@ function plotLineChart(data) {
 		name: 'Real Worker'
 	};
 
-	// Layout des Diagramms
 	var layout = {
 		title: 'Planned vs. real worker over time',
 		xaxis: {
@@ -379,7 +375,6 @@ function plotLineChart(data) {
 	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
 	document.body.appendChild(new_plot_div);
 	
-	// Erstelle das Diagramm
 	Plotly.newPlot('line-plot', [tracePlanned, traceActual], layout);
 }
 
@@ -457,14 +452,11 @@ function plot_cpu_gpu_graph(cpu_ram_usage_json) {
 }
 
 function replaceZeroWithNull(arr) {
-	// Überprüfen, ob arr ein Array ist
 	if (Array.isArray(arr)) {
 		for (let i = 0; i < arr.length; i++) {
-			// Wenn das aktuelle Element ein Array ist, rekursiv aufrufen
 			if (Array.isArray(arr[i])) {
 				replaceZeroWithNull(arr[i]);
 			} else if (arr[i] === 0) {
-				// Wenn das aktuelle Element 0 ist, durch null ersetzen
 				arr[i] = null;
 			}
 		}

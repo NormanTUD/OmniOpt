@@ -51,6 +51,8 @@ autoset
 autotable
 availableSpace
 avg
+avgRuntimeBar
+avgRuntimes
 axcoredata
 axcoreexperiment
 axcoreparameter
@@ -310,6 +312,9 @@ excludenode
 excludenodeandrestartall
 exitcode
 ExitCode
+exitCodeCounts
+exitCodePie
+exitCodePlot
 exitcodes
 expectedsclass
 expirationDate
@@ -327,6 +332,7 @@ filecontent
 filename
 filenames
 filenamesvg
+Filepath
 FileReader
 FileReaderDONE
 filetypes
@@ -342,6 +348,7 @@ flattenSquareBottomY
 flattenSquareTopY
 flipLeftRight
 floatingpoint
+floatval
 fn
 forceSnowParam
 fosscuda
@@ -436,6 +443,7 @@ hrt
 html
 HTMLElement
 htmlheadmeta
+http
 Hyperparam
 hyperparameter
 hyperparameterconstellations
@@ -484,6 +492,7 @@ inputtensor
 int
 INT
 intendation
+intval
 isDisposedInternal
 isfile
 isolateEval
@@ -882,8 +891,13 @@ runmode
 runsh
 runtime
 Runtime
+runtimeBox
+runtimeCount
 RuntimeError
+runtimePlot
 runtimes
+runtimeSum
+runtimeVsExitCodePlot
 rwxr
 rwxrxrx
 saasbo
@@ -892,6 +906,7 @@ SameSite
 SameSiteNone
 sbatch
 SBATCH
+sbatchPlot
 scaledGrads
 scaleNestedArray
 scattergenerationmethod
@@ -1093,6 +1108,8 @@ Tooltip
 tooltips
 tooltipText
 toPixels
+topNUsers
+topUserBar
 torchautograd
 tput
 tqdm
@@ -1133,6 +1150,8 @@ URLSearchParamswindowlocationsearch
 useBias
 useNesterov
 userAgent
+userJobCounts
+userPlot
 USR
 utilizationgpu
 utilizationmemory
@@ -1212,22 +1231,3 @@ yScale
 ZeroDivisionError
 zipContents
 zipWriter
-http
-intval
-floatval
-Filepath
-exitCodePlot
-userPlot
-runtimePlot
-runtimeVsExitCodePlot
-exitCodeCounts
-exitCodePie
-avgRuntimes
-runtimeSum
-runtimeCount
-avgRuntimeBar
-runtimeBox
-userJobCounts
-topNUsers
-topUserBar
-sbatchPlot

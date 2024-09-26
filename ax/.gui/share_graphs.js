@@ -100,7 +100,6 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
-	// 3D Scatter Plot
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {

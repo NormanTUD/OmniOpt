@@ -10,4 +10,4 @@ while [ ! -d .git ] && [ "$PWD" != "/" ]; do cd ..; done
 
 cd ax
 
-./.tests/main --num_random_steps=1 --max_eval=2 --superquick
+./.tests/main --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error

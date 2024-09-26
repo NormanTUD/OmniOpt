@@ -490,7 +490,7 @@ def add_to_phase_counter(phase, nr=0, run_folder=""):
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
-    print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
+    print(f"Unsupported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
     my_exit(203)
 
 if args.num_parallel_jobs:

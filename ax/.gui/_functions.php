@@ -1,4 +1,6 @@
 <?php
+	chdir(__DIR__);
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			$source_data = debug_backtrace()[0];

@@ -574,9 +574,7 @@
 
 				$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-				$this_html = "";
-
-				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
+				$this_html = "<pre>" . htmlentities($content) . "</pre>";
 
 				$html_parts[$_hash] = $this_html;
 

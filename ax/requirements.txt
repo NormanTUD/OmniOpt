@@ -36,3 +36,4 @@ beautifulsoup4
 pyspellchecker
 emoji
 bashlex
+slimit

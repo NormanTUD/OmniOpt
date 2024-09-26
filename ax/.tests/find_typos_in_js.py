@@ -73,7 +73,7 @@ def extract_strings_and_comments_from_js(filepath):
     return strings_and_comments
 
 def clean_word(word):
-    after = re.sub(r'[^\'a-zA-Z0-9_/-]', '', word)
+    after = re.sub(r'[^.()[]\'a-zA-Z0-9_/-]', '', word)
     return after
 
 def analyze_js_file(filepath, progress):

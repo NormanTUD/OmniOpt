@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
@@ -11,7 +9,7 @@ cd ..
 source .shellscript_functions
 
 if [[ -n $1 ]]; then
-	python3 .tests/find_typos_in_bash.py $1
+	python3 .tests/find_typos_in_js.py $1
 else
 	files=$(ls .gui/*.js | grep -v jquery | grep -v plotly | grep -v tooltipster | tr '\n' ' ')
 	eval "python3 .tests/find_typos_in_js.py $files"

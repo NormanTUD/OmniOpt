@@ -1,4 +1,5 @@
 from pprint import pprint
+import glob
 import os
 import site
 import sys
@@ -74,8 +75,37 @@ if os.path.isfile(requirement_path):
         install_requires = f.read().splitlines()
 
 
-setup(name='omniopt',
-    version='0.2',
+
+# Verzeichnisse durchsuchen und alle .py-Dateien im Home-Verzeichnis sammeln
+home_dir = os.path.expanduser("~")
+py_files = glob.glob(os.path.join(home_dir, "*.py"))
+
+def is_python_script(file_path):
+    if file_path.endswith(".py"):
+        return True
+    return False
+
+def is_bash_script(file_path):
+    if file_path == ".env":
+        return False
+    try:
+        with open(file_path, mode='r', encoding="utf-8") as file:
+            first_line = file.readline()
+            return first_line.startswith("#!") and "bash" in first_line
+    except (IOError, UnicodeDecodeError):
+        return False
+
+# Alle Dateien im Home-Verzeichnis durchsuchen
+all_files = glob.glob("*")
+all_files.extend(glob.glob(".*"))
+bash_files = [f for f in all_files if is_bash_script(f)]
+python_files = [f for f in all_files if is_python_script(f)]
+
+all_needed_files = bash_files
+all_needed_files.extend(python_files) 
+
+setup(name='omniopt2',
+    version='0.9',
     description='Automatic hyperparameter optimizer based on Ax/Botorch',
     author='Norman Koch',
     author_email='norman.koch@tu-dresden.de',
@@ -84,20 +114,7 @@ setup(name='omniopt',
     packages=[
         '.',
     ],
-    data_files=[('bin', [
-        "omniopt_evaluate",
-        "omniopt",
-        "omniopt_plot",
-        ".helpers.py",
-        ".omniopt_plot_general.py",
-        ".omniopt_plot_gpu_usage.py",
-        ".omniopt_plot_kde.py",
-        ".omniopt_plot_scatter.py",
-        ".omniopt_plot_worker.py",
-        ".omniopt.py",
-        ".shellscript_functions",
-        ".general.sh",
-    ])],
+    data_files=[('bin', all_needed_files)],
     include_package_data=True,
 )
 

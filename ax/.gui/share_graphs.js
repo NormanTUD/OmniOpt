@@ -45,7 +45,10 @@ function getUniqueValues(arr) {
 function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	var dimensions = [..._paramKeys, 'result'].map(function(key) {
 		var values = _results_csv_json.map(function(row) { return row[key]; });
+		values = values.filter(value => value !== undefined && !isNaN(value));
+
 		var numericValues = values.map(function(value) { return parseFloat(value); });
+		numericValues = numericValues.filter(value => value !== undefined && !isNaN(value));
 
 		if (numericValues.every(isNumeric)) {
 			return {
@@ -328,7 +331,12 @@ function plot_parallel_plot (_results_csv_json) {
 	});
 
 	// Get result values for color mapping
-	var resultValues = _results_csv_json.map(function(row) { return parseFloat(row.result); });
+	var resultValues = _results_csv_json.map(function(row) {
+		return parseFloat(row.result);
+	});
+
+	resultValues = resultValues.filter(value => value !== undefined && !isNaN(value));
+
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 

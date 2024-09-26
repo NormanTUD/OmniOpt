@@ -145,4 +145,3 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         console.print("[red]Cancelled script by using CTRL + C[/red]")
-

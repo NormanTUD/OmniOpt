@@ -1,12 +1,13 @@
 import argparse
 import os
 import re
+import sys
 from spellchecker import SpellChecker
 from rich.progress import Progress
 from rich.console import Console
 from rich.table import Table
 
-# Initialisiere den Spellchecker
+# Initialize the spellchecker
 spell = SpellChecker(language='en')
 
 def read_file_to_array(file_path):
@@ -17,79 +18,85 @@ def read_file_to_array(file_path):
         lines = [line.strip() for line in file.readlines()]
     return lines
 
-# Whitelist aus Datei einlesen
+# Read the whitelist from the file
 whitelisted = read_file_to_array(".tests/whitelisted_words")
 
 console = Console()
 
-# Funktion zum Extrahieren von Strings aus Bash-Dateien
+# Function to extract strings from Bash files
 def extract_strings_from_bash(bash_script_path):
     with open(bash_script_path, 'r') as file:
         bash_content = file.read()
 
-    # Regex für Strings in einfachen und doppelten Anführungszeichen
+    # Regex for strings in single and double quotes
     string_pattern = r"(\".*?\"|'.*?')"
     strings = re.findall(string_pattern, bash_content)
 
-    # Entferne die Anführungszeichen
+    # Remove the quotes
     strings = [s[1:-1] for s in strings]
 
     return strings
 
-# Funktion zum Filtern und Spellchecken der Wörter
+# Function to filter and spellcheck words
 def filter_and_spellcheck_words(words):
     misspelled_words = []
     for word in words:
-        # Prüfe, ob das Wort aus Buchstaben besteht und nicht komplett groß ist
+        # Check if the word consists of letters and is not all uppercase
         if word.isalpha() and not word.isupper() and word not in whitelisted:
-            # Prüfe, ob das Wort falsch geschrieben ist
+            # Check if the word is misspelled
             if word in spell.unknown([word]):
                 misspelled_words.append(word)
     return misspelled_words
 
-# Hauptfunktion
+# Main function
 def main():
-    # Argumente verarbeiten
-    parser = argparse.ArgumentParser(description='Extrahiere Strings aus Bash-Dateien und zeige gefilterte Wörter an.')
-    parser.add_argument('bash_files', nargs='+', help='Pfad(e) zu den Bash-Dateien')
+    # Handle arguments
+    parser = argparse.ArgumentParser(description='Extract strings from Bash files and display filtered misspelled words.')
+    parser.add_argument('bash_files', nargs='+', help='Path(s) to the Bash files')
     args = parser.parse_args()
 
-    # Fortschrittsanzeige mit rich
-    with Progress() as progress:
-        task = progress.add_task("[green]Verarbeite Dateien...", total=len(args.bash_files))
+    file_count_with_errors = 0
 
-        # Tabelle für die Ergebnisse
-        table = Table(title="Falsch geschriebene Wörter", show_lines=True)
-        table.add_column("Datei", justify="center", style="cyan", no_wrap=True)
-        table.add_column("Wörter", justify="left", style="magenta")
+    # Table for results
+    table = Table(title="Misspelled Words", show_lines=True)
+    table.add_column("File", justify="center", style="cyan", no_wrap=True)
+    table.add_column("Words", justify="left", style="magenta")
 
-        # Verarbeite jede Datei
+    # Progress bar with rich
+    with Progress(transient=True) as progress:
+        task = progress.add_task("[green]Processing files...", total=len(args.bash_files))
+
+        # Process each file
         for bash_file in args.bash_files:
             progress.advance(task)
 
             if not os.path.exists(bash_file):
-                console.print(f"[bold red]Warnung: Datei '{bash_file}' existiert nicht![/bold red]")
+                console.print(f"[bold red]Warning: File '{bash_file}' does not exist![/bold red]")
                 continue
 
-            # Strings extrahieren
+            # Extract strings
             strings = extract_strings_from_bash(bash_file)
 
-            # Splitte die Strings nach Leerzeichen, Komma, Semikolon usw.
+            # Split strings by space, comma, semicolon, etc.
             words = []
             for string in strings:
                 words.extend(re.split(r'[ ,;]', string))
 
-            # Filtere und checke die Wörter auf Rechtschreibung
+            # Filter and spellcheck the words
             misspelled_words = filter_and_spellcheck_words(words)
             misspelled_words = list(set(misspelled_words))
 
-            # Falls es falsch geschriebene Wörter gibt, füge sie zur Tabelle hinzu
+            # If there are misspelled words, add them to the table and increase the error count
             if misspelled_words:
+                file_count_with_errors += 1
                 table.add_row(bash_file, ", ".join(misspelled_words))
 
-        # Zeige Tabelle an
+    if file_count_with_errors > 0:
+        # Display the table before the progress bar ends
         console.print(table)
+
+    # Set the exit code based on the number of files with errors
+    sys.exit(file_count_with_errors)
 
 if __name__ == "__main__":
     main()
-

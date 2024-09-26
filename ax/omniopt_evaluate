@@ -541,7 +541,7 @@ function change_variables {
 			fi
 
 			eval "$(resize)"
-			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge whereever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge wherever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export DISPLAYGAUGE=1
 			else
 				export DISPLAYGAUGE=0

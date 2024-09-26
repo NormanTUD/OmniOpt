@@ -13,27 +13,25 @@ $(document).ready(function() {
 		}
 	});
 
-	document.addEventListener('DOMContentLoaded', function() {
-		var themeSelect = document.getElementById('themeSelect');
+	var themeSelect = document.getElementById('themeSelect');
 
-		// Setze das aktuelle Thema beim Laden der Seite
-		var currentTheme = get_cookie("theme");
-		if (currentTheme) {
-			themeSelect.value = currentTheme;
-			if (currentTheme === "dark") {
-				enable_dark_mode();
-			} else {
-				enable_light_mode();
-			}
+	// Setze das aktuelle Thema beim Laden der Seite
+	var currentTheme = get_cookie("theme");
+	if (currentTheme) {
+		themeSelect.value = currentTheme;
+		if (currentTheme === "dark") {
+			enable_dark_mode();
+		} else {
+			enable_light_mode();
 		}
+	}
 
-		themeSelect.addEventListener('change', function() {
-			if (themeSelect.value === 'dark') {
-				enable_dark_mode();
-			} else {
-				enable_light_mode();
-			}
-		});
+	themeSelect.addEventListener('change', function() {
+		if (themeSelect.value === 'dark') {
+			enable_dark_mode();
+		} else {
+			enable_light_mode();
+		}
 	});
 
 	// Listen for changes to the system color scheme preferences

@@ -76,6 +76,11 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 			cmin: minResult,
 			cmax: maxResult
 		},
+		unselected: {
+			line: {
+				opacity: 0
+			}
+		},
 		dimensions: dimensions
 	};
 

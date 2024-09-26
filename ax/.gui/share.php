@@ -11,6 +11,7 @@
 	var last_load_content = "";
 	var last_hash = "";
 	var countdownInterval;
+	var currently_switching = false;
 
 	var tab_ids = ["out_files_tabs", "main_tabbed"];
 
@@ -50,7 +51,12 @@
 		return results === null ? '' : decodeURIComponent(results[1]);
 	}
 
-	function load_content(msg) {
+	async function load_content(msg) {
+		while (currently_switching) {
+			await sleep(10_000);
+		}
+
+		currently_switching = true;
 		var queryString = window.location.search;
 		var requestUrl = 'share_internal.php' + queryString;
 
@@ -71,16 +77,16 @@
 				$(".toggle_raw_data").remove();
 
 				initialize_autotables();
-
 				restoreActiveTab();
-
 				removeSpinnerOverlay();
+				currently_switching = false;
 			},
 			error: function() {
 				showSpinnerOverlay(msg);
 				console.error('Error loading the content.');
 				$('#share_main').html('Error loading the requested content!').show();
 				removeSpinnerOverlay();
+				currently_switching = false;
 			}
 		});
 	}
@@ -93,13 +99,13 @@
 		$.ajax({
 		url: hashUrl,
 			method: 'GET',
-			success: function(response) {
+			success: async function(response) {
 				var newHash = response.trim(); // Ensure no extra spaces or newlines
 
 				if (newHash !== last_hash) {
 					console.log(`${new Date().toString()}: Hash changed, reloading content.`);
 					last_hash = newHash;
-					load_content(`Reloading content...`);
+					await load_content(`Reloading content...`);
 				} else {
 					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
 				}

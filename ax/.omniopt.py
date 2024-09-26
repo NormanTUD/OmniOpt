@@ -4316,25 +4316,31 @@ def execute_nvidia_smi():
         try:
             host = socket.gethostname()
 
-            _file = NVIDIA_SMI_LOGS_BASE + "_" + host + ".csv"
-            noheader = ",noheader"
+            if NVIDIA_SMI_LOGS_BASE and host:
+                _file = NVIDIA_SMI_LOGS_BASE + "_" + host + ".csv"
+                noheader = ",noheader"
 
-            result = subprocess.run([
-                'nvidia-smi',
-                '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
-                f'--format=csv{noheader}'],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            assert result.returncode == 0, "nvidia-smi execution failed"
+                result = subprocess.run([
+                    'nvidia-smi',
+                    '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
+                    f'--format=csv{noheader}'],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                assert result.returncode == 0, "nvidia-smi execution failed"
 
-            output = result.stdout
+                output = result.stdout
 
-            output = output.rstrip('\n')
+                output = output.rstrip('\n')
 
-            if host and output:
-                append_to_nvidia_smi_logs(_file, host, output)
+                if host and output:
+                    append_to_nvidia_smi_logs(_file, host, output)
+            else:
+                if not NVIDIA_SMI_LOGS_BASE:
+                    print_debug("NVIDIA_SMI_LOGS_BASE not defined")
+                if not host:
+                    print_debug("host not defined")
         except Exception as e:
             print(f"execute_nvidia_smi: An error occurred: {e}")
         if is_slurm_job() and not args.force_local_execution:

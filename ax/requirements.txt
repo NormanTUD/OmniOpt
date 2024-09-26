@@ -19,7 +19,6 @@ textual
 tqdm
 plotille
 seaborn
-pyvista
 pytz
 pyqt5
 psutil

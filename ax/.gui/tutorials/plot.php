@@ -24,7 +24,7 @@ If you know what plot you want, you can directly plot it by using:
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter # change plot_type accordingly</code></pre>
 
 <h3 id="plot_to_file">Plot to file</h3>
-All, except the 3d scatter, support to export your plot to a file.
+All plot scripts support to export your plot to a file.
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.</code></pre>
 
 <h2 id="plot-types">Plot types</h2>
@@ -132,15 +132,6 @@ All, except the 3d scatter, support to export your plot to a file.
 
 <h4 id="cpu_ram_usage_options"><samp>--plot_type=cpu_ram_usage</samp> Options</h4>
 <pre><?php require "plot_helps/cpu_ram_usage.txt"; ?></pre>
-
-<h3 id="3d">3d</h3>
-<pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=3d</code></pre>
-<img alt="3d" src="imgs/3d.png" /><br>
-
-<p>Plots CPU and RAM usage of the main process of an OmniOpt2 optimization.</p>
-
-<h4 id="3d_options"><samp>--plot_type=3d</samp> Options</h4>
-<pre><?php require "plot_helps/3d.txt"; ?></pre>
 
 <h3 id="gpu_usage">GPU usage</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=gpu_usage</code></pre>

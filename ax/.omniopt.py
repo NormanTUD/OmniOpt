@@ -424,7 +424,7 @@ def run_live_share_command():
         print(f"Command failed with error: {e}, stderr: {e.stderr}")
         return "", str(e.stderr)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"run_live_share_command: An error occurred: {e}")
 
     return "", ""
 
@@ -3162,7 +3162,7 @@ def extract_headers_and_rows(data_list):
 
         return headers, rows
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
 def get_list_import_as_string(_brackets=True, _comma=False):
@@ -3856,7 +3856,7 @@ def write_run_uuid_to_file():
 
         return True
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"write_run_uuid_to_file: An error occurred: {e}")
 
         return False
 
@@ -4336,7 +4336,7 @@ def execute_nvidia_smi():
             if host and output:
                 append_to_nvidia_smi_logs(_file, host, output)
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"execute_nvidia_smi: An error occurred: {e}")
         if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
 

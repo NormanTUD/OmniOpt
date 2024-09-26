@@ -55,11 +55,11 @@
 				var newHash = response.trim(); // Ensure no extra spaces or newlines
 
 				if (newHash !== last_hash) {
-					console.log('Hash changed, reloading content.');
+					console.log(`${new Date().toString()}: Hash changed, reloading content.`);
 					last_hash = newHash;
-					load_content("Reloading content...");
+					load_content(`${new Date().toString()}: Reloading content...`);
 				} else {
-					console.log('Hash unchanged, no reload necessary.');
+					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
 				}
 			},
 			error: function() {

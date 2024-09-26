@@ -100,62 +100,87 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+	var already_existing_plots = [];
+
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {
 				for (var k = j + 1; k < _paramKeys.length; k++) {
-					var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
-					var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
-					var zValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[k]]); });
+					var x_name = _paramKeys[i];
+					var y_name = _paramKeys[j];
+					var z_name = _paramKeys[k];
 
-					function color_curried (value) {
-						return getColor(value, minResult, maxResult)
-					}
+					var _key = [x_name, y_name, z_name].sort().join("!!!");
+					if(!already_existing_plots.includes(_key)) {
+						var xValues = _results_csv_json.map(function(row) {
+							var parsedValue = parseFloat(row[x_name]);
+							return isNaN(parsedValue) ? row[x_name] : parsedValue;
+						});
 
-					var colors = resultValues.map(color_curried);
+						var yValues = _results_csv_json.map(function(row) {
+							var parsedValue = parseFloat(row[y_name]);
+							return isNaN(parsedValue) ? row[y_name] : parsedValue;
+						});
 
-					var trace3d = {
-						x: xValues,
-						y: yValues,
-						z: zValues,
-						mode: 'markers',
-						type: 'scatter3d',
-						marker: {
-							color: colors
+						var zValues = _results_csv_json.map(function(row) {
+							var parsedValue = parseFloat(row[z_name]);
+							return isNaN(parsedValue) ? row[z_name] : parsedValue;
+						});
+
+
+						function color_curried (value) {
+							return getColor(value, minResult, maxResult)
 						}
-					};
 
-					var layout3d = {
-						title: `3D Scatter Plot: ${_paramKeys[i]} vs ${_paramKeys[j]} vs ${_paramKeys[k]}`,
-						width: get_width(),
-						height: get_height(),
-						autosize: false,
-						margin: {
-							l: 50,
-							r: 50,
-							b: 100,
-							t: 100,
-							pad: 4
-						},
-						scene: {
-							xaxis: { title: _paramKeys[i] },
-							yaxis: { title: _paramKeys[j] },
-							zaxis: { title: _paramKeys[k] }
-						},
-						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)',
+						var colors = resultValues.map(color_curried);
 
-						showlegend: false,
-						legend: {
-							x: 0.1,
-							y: 1.1,
-							orientation: 'h'
-						},
-					};
+						var trace3d = {
+							x: xValues,
+							y: yValues,
+							z: zValues,
+							mode: 'markers',
+							type: 'scatter3d',
+							marker: {
+								color: colors
+							}
+						};
 
-					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-					$('#scatter_plot_3d_container').html(new_plot_div);
-					Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
+						log(trace3d);
+
+						var layout3d = {
+							title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
+							width: get_width(),
+							height: get_height(),
+							autosize: false,
+							margin: {
+								l: 50,
+								r: 50,
+								b: 100,
+								t: 100,
+								pad: 4
+							},
+							scene: {
+								xaxis: { title: x_name },
+								yaxis: { title: y_name },
+								zaxis: { title: z_name }
+							},
+							paper_bgcolor: 'rgba(0,0,0,0)',
+							plot_bgcolor: 'rgba(0,0,0,0)',
+
+							showlegend: false,
+							legend: {
+								x: 0.1,
+								y: 1.1,
+								orientation: 'h'
+							},
+						};
+
+						var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+						$('#scatter_plot_3d_container').html(new_plot_div);
+						Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
+
+						already_existing_plots.push(_key);
+					}
 				}
 			}
 		}
@@ -166,8 +191,11 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 	// 2D Scatter Plot
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
-			var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
-			var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
+			var x_name = _paramKeys[i];
+			var y_name = _paramKeys[j];
+
+			var xValues = _results_csv_json.map(function(row) { return parseFloat(row[x_name]); });
+			var yValues = _results_csv_json.map(function(row) { return parseFloat(row[y_name]); });
 
 			function color_curried(value) {
 				return getColor(value, minResult, maxResult);
@@ -213,9 +241,9 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			};
 
 			var layout2d = {
-				title: `Scatter Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
-				xaxis: { title: _paramKeys[i] },
-				yaxis: { title: _paramKeys[j] },
+				title: `Scatter Plot: ${x_name} vs ${y_name}`,
+				xaxis: { title: x_name },
+				yaxis: { title: y_name },
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)',
 				showlegend: false // We use the colorbar instead of a traditional legend
@@ -226,93 +254,6 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			Plotly.newPlot(`scatter-plot-${i}_${j}`, [trace2d, colorScaleTrace], layout2d);
 		}
 	}
-}
-
-function hex_scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
-	// Hexbin Scatter Plot
-	if (_paramKeys.length >= 2) {
-		for (var i = 0; i < _paramKeys.length; i++) {
-			for (var j = i + 1; j < _paramKeys.length; j++) {
-				try {
-					var xValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[i]]); });
-					var yValues = _results_csv_json.map(function(row) { return parseFloat(row[_paramKeys[j]]); });
-					var resultValues = _results_csv_json.map(function(row) { return parseFloat(row["result"]); });
-
-					// Create a custom colorscale based on resultValues
-					var colorscale = [];
-					var steps = 10; // Number of color steps
-					for (var k = 0; k <= steps; k++) {
-						var value = minResult + (maxResult - minResult) * (k / steps);
-						colorscale.push([
-							k / steps,
-							`rgb(${255 * k / steps}, ${255 * (1 - k / steps)}, 0)`
-						]);
-					}
-
-					var traceHexbin = {
-						x: xValues,
-						y: yValues,
-						z: resultValues,
-						type: 'histogram2dcontour',
-						colorscale: colorscale,
-						showscale: true,
-						colorbar: {
-							title: 'Avg Result',
-							titleside: 'right'
-						},
-						contours: {
-							coloring: 'heatmap'
-						}
-					};
-
-					var layoutHexbin = {
-						title: `Contour Plot: ${_paramKeys[i]} vs ${_paramKeys[j]}`,
-						xaxis: { title: _paramKeys[i] },
-						yaxis: { title: _paramKeys[j] },
-						width: get_width(),
-						height: get_height(),
-						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)'
-					};
-
-					var new_plot_div = $(`<div class='share_graph hexbin-plot' id='hexbin-plot-${i}_${j}' style='width: ${get_width()}px;height:${get_height()}px;'></div>`);
-					$('body').append(new_plot_div);
-					Plotly.newPlot(`hexbin-plot-${i}_${j}`, [traceHexbin], layoutHexbin);
-				} catch (error) {
-					log(error, `Error in hex_scatter function for parameters: ${_paramKeys[i]}, ${_paramKeys[j]}`);
-				}
-			}
-		}
-	}
-}
-
-function createHexbinData(data, minResult, maxResult) {
-	var hexbin = d3.hexbin()
-		.x(function(d) { return d.x; })
-		.y(function(d) { return d.y; })
-		.radius(20);
-
-	var hexbinPoints = hexbin(data);
-
-	var x = [];
-	var y = [];
-	var avgResults = [];
-	var colors = [];
-
-	hexbinPoints.forEach(function(bin) {
-		var avgResult = d3.mean(bin, function(d) { return d.result; });
-		x.push(d3.mean(bin, function(d) { return d.x; }));
-		y.push(d3.mean(bin, function(d) { return d.y; }));
-		avgResults.push(avgResult);
-		colors.push(getColor(avgResult, minResult, maxResult));
-	});
-
-	return {
-		x: x,
-		y: y,
-		avgResults: avgResults,
-		colors: colors
-	};
 }
 
 function plot_parallel_plot (_results_csv_json) {

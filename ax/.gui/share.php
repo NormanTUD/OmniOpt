@@ -43,28 +43,30 @@
                 });
         }
 
-        function fetchHashAndUpdateContent(interval) {
-                var hashUrl = window.location + '&get_hash_only=1';
+	function fetchHashAndUpdateContent(interval) {
+		var share_internal_url = window.location.toString();
+		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
+		var hashUrl = share_internal_url + '&get_hash_only=1';
 
-                $.ajax({
-                        url: hashUrl,
-                        method: 'GET',
-                        success: function(response) {
-                                var newHash = response.trim(); // Ensure no extra spaces or newlines
+		$.ajax({
+			url: hashUrl,
+			method: 'GET',
+			success: function(response) {
+				var newHash = response.trim(); // Ensure no extra spaces or newlines
 
-                                if (newHash !== last_hash) {
-                                        console.log('Hash changed, reloading content.');
-                                        last_hash = newHash;
-                                        load_content("Reloading content...");
-                                } else {
-                                        console.log('Hash unchanged, no reload necessary.');
-                                }
-                        },
-                        error: function() {
-                                console.error('Error fetching the hash.');
-                        }
-                });
-        }
+				if (newHash !== last_hash) {
+					console.log('Hash changed, reloading content.');
+					last_hash = newHash;
+					load_content("Reloading content...");
+				} else {
+					console.log('Hash unchanged, no reload necessary.');
+				}
+			},
+			error: function() {
+				console.error('Error fetching the hash.');
+			}
+		});
+	}
 
         function updateCountdown(interval) {
                 var countdown = interval / 1000; // Interval in seconds

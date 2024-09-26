@@ -673,13 +673,11 @@
 
 				$out_or_err_files[] = $file;
 			} else {
-				$_hash = hash("md5", $file);
-
-				$this_html = "<h2 class='error'>Unknown file type $file</h2>";
-
-				$tab_headers[] = array("id" => $_hash, "header" => "Out-Files");
-
-				$html_parts[$file] = $this_html;
+				echo "<!-- Unknown file '$file' -->\n";
+				#$_hash = hash("md5", $file);
+				#$this_html = "<h2 class='error'>Unknown file type $file</h2>";
+				#$tab_headers[] = array("id" => $_hash, "header" => "Out-Files");
+				#$html_parts[$file] = $this_html;
 			}
 		}
 

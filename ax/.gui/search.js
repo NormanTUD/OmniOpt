@@ -76,7 +76,6 @@ function mark_search_result_yellow(content, search) {
 	}
 }
 
-// Funktion zur Anzeige der Suchergebnisse
 async function displaySearchResults(searchTerm, results) {
 	var $searchResults = $('#searchResults');
 	$searchResults.empty();

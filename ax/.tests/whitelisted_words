@@ -10,6 +10,7 @@ Adam
 adamax
 Adamax
 additionalparameterstable
+admin
 affeaffeaffeaffeaffeaffeaffeaffe
 AISTATS
 alertError
@@ -178,6 +179,7 @@ cpu
 cpuRamChart
 cpus
 createImageBitmap
+crossorigin
 css
 csv
 CSV
@@ -209,6 +211,7 @@ dataplaceholder
 datapoints
 dataset
 datasets
+datatype
 dataURLToBlob
 Datenow
 dbg
@@ -218,6 +221,7 @@ deadcode
 Deadcode
 debian
 DebugLayer
+debuglogs
 decille
 def
 delaybetween
@@ -644,6 +648,7 @@ multibound
 multiline
 multiplicator
 mymodel
+mysqli
 nameEQ
 NameError
 ne
@@ -914,6 +919,7 @@ scattergl
 SCIENTIFICNOTATION
 scontrol
 scoreMsg
+scp
 screenshot
 screenshots
 scriptpy
@@ -1000,8 +1006,12 @@ skimage
 slurm
 SLURM
 slurmbased
+slurmid
 slurmjobid
 smi
+smtphost
+smtppass
+smtpuser
 sobol
 SOBOL
 socalled
@@ -1073,6 +1083,7 @@ tbody
 td
 temml
 temperaturegpu
+tempnam
 tensordata
 tensorflow
 tensorflowjs
@@ -1209,6 +1220,7 @@ wrnError
 wrnLoading
 WWWWW
 Xavier
+xaxis
 xCoord
 xhost
 xhr
@@ -1222,6 +1234,7 @@ xterm
 xxx
 XXX
 yaml
+yaxis
 yCoord
 yellowContinuation
 yped

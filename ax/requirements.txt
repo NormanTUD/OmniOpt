@@ -35,3 +35,4 @@ cowsay
 beautifulsoup4
 pyspellchecker
 emoji
+bashlex

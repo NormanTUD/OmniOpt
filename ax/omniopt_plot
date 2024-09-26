@@ -386,7 +386,7 @@ function menu {
 			accepts_min_max_string=""
 
 			if [[ "$num_not_disabled_min_param" -ne "0" ]]; then
-				accepts_min_max_string=", honours min/max"
+				accepts_min_max_string=", honors min/max"
 			fi
 
 			whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
@@ -397,7 +397,7 @@ function menu {
 	done
 
 	if [ ${#whiptail_args[@]} -eq 0 ]; then
-		echo "It seems like the run folder $run_dir does not have any plottable data."
+		echo "It seems like the run folder $run_dir does not have any plotable data."
 		exit 3
 	fi
 

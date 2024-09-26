@@ -5,6 +5,7 @@
         <div id="share_main" style="display: none"></div>
 </div>
 <script>
+	var already_initialized_tables = [];
         var last_load_content = "";
         var last_hash = "";
         var countdownInterval;
@@ -29,6 +30,10 @@
                                         $('#share_main').html(response).show();
                                         last_load_content = response;
                                 }
+
+				already_initialized_tables = [];
+				$("[id*='autotable_']").remove();
+				$(".toggle_raw_data").remove();
 
 				initialize_autotables();
 
@@ -57,7 +62,7 @@
 				if (newHash !== last_hash) {
 					console.log(`${new Date().toString()}: Hash changed, reloading content.`);
 					last_hash = newHash;
-					load_content(`${new Date().toString()}: Reloading content...`);
+					load_content(`Reloading content...`);
 				} else {
 					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
 				}

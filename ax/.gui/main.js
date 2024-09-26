@@ -151,22 +151,25 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 	rawDataElement.textContent = csvData;
 	rawDataElement.style.display = 'none'; // Initially hide raw data
 
-	var toggleButton = document.createElement('button');
-	toggleButton.classList.add("invert_in_dark_mode");
-	toggleButton.textContent = 'Show Raw Data';
+	var toggle_raw_data_button = document.createElement('button');
+	toggle_raw_data_button.classList.add("invert_in_dark_mode");
+	toggle_raw_data_button.textContent = 'Show Raw Data';
 
-	toggleButton.addEventListener('click', function() {
+	toggle_raw_data_button.addEventListener('click', function() {
 		if (rawDataElement.style.display === 'none') {
 			rawDataElement.style.display = 'block';
-			toggleButton.textContent = 'Hide Raw Data';
+			toggle_raw_data_button.textContent = 'Hide Raw Data';
 		} else {
 			rawDataElement.style.display = 'none';
-			toggleButton.textContent = 'Show Raw Data';
+			toggle_raw_data_button.textContent = 'Show Raw Data';
 		}
 	});
 
+
+	toggle_raw_data_button.classList.add('toggle_raw_data');
+
 	// Append the button and raw data element under the table
-	tableContainer.appendChild(toggleButton);
+	tableContainer.appendChild(toggle_raw_data_button);
 	tableContainer.appendChild(rawDataElement);
 
 	$(document).ready(function() {
@@ -177,8 +180,6 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 		});
 	});
 }
-
-var already_initialized_tables = [];
 
 function initialize_autotables() {
 	$('.autotable').each(function(index) {

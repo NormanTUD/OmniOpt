@@ -96,7 +96,7 @@ def main():
     typo_files = 0
     results = {}
 
-    with Progress() as progress:
+    with Progress(transient=True) as progress:
         task_id = progress.add_task("Analyzing files...", total=len(args.files))
         
         for filepath in args.files:
@@ -107,7 +107,7 @@ def main():
                 if possibly_incorrect_words:
                     typo_files += 1
                     console.print(f"\n[red]Unknown or misspelled words in {filepath}:[/red]")
-                    console.print("\n[red]'\n'" + "\n".join(possibly_incorrect_words) + "[/red]")
+                    console.print("\n[red]" + "\n".join(possibly_incorrect_words) + "[/red]")
 
             progress.update(task_id, advance=1)
 
@@ -116,12 +116,16 @@ def main():
         table = Table(title="Summary of Misspelled Words")
 
         table.add_column("File", justify="left")
-        table.add_column("Misspelled Words", justify="left")
+        table.add_column("Misspelled Words:", justify="left")
 
+        files_with_errors = 0
         for filepath, words in results.items():
-            table.add_row(filepath, ', '.join(words) if words else "None")
+            if len(words):
+                table.add_row(filepath, ', '.join(words) if words else "None")
+                files_with_errors = files_with_errors + 1
 
-        console.print(table)
+        if files_with_errors:
+            console.print(table)
 
     sys.exit(typo_files)
 

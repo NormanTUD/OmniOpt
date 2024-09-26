@@ -192,8 +192,15 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			var x_name = _paramKeys[i];
 			var y_name = _paramKeys[j];
 
-			var xValues = _results_csv_json.map(function(row) { return parseFloat(row[x_name]); });
-			var yValues = _results_csv_json.map(function(row) { return parseFloat(row[y_name]); });
+			var xValues = _results_csv_json.map(function(row) {
+				var parsedValue = parseFloat(row[x_name]);
+				return isNaN(parsedValue) ? row[x_name] : parsedValue;
+			});
+
+			var yValues = _results_csv_json.map(function(row) {
+				var parsedValue = parseFloat(row[y_name]);
+				return isNaN(parsedValue) ? row[y_name] : parsedValue;
+			});
 
 			function color_curried(value) {
 				return getColor(value, minResult, maxResult);

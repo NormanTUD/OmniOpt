@@ -63,8 +63,3 @@ function generateTOC() {
 		console.error('Error generating TOC:', error);
 	}
 }
-
-$(document).ready(function() {
-	Prism.highlightAll();
-	generateTOC();
-});

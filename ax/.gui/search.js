@@ -100,15 +100,3 @@ async function displaySearchResults(searchTerm, results) {
 		$searchResults.append('<p>No results found.</p>');
 	}
 }
-
-document.addEventListener('keydown', function(event) {
-	// Überprüfen, ob die Escape-Taste gedrückt wurde
-	if (event.key === 'Escape') {
-		// Überprüfen, ob der Button sichtbar ist
-		var deleteButton = document.getElementById('del_search_button');
-		if (deleteButton && getComputedStyle(deleteButton).display !== 'none') {
-			// Führe die Funktion delete_search() aus
-			delete_search();
-		}
-	}
-});

@@ -145,8 +145,6 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 							}
 						};
 
-						log(trace3d);
-
 						var layout3d = {
 							title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
 							width: get_width(),

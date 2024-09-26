@@ -17,12 +17,10 @@
 
 	function saveActiveTab() {
 		activeTabIndex = $tabs.tabs("option", "active");
-		console.log("Saved active tab index: " + activeTabIndex);
 	}
 
 	function restoreActiveTab() {
 		$tabs.tabs("option", "active", activeTabIndex);
-		console.log("Restored active tab index: " + activeTabIndex);
 	}
 
         function getParameterByName(name) {

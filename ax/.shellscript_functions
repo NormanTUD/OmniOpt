@@ -302,6 +302,9 @@
 			_tput cr
 			_tput el
 		fi
+
+		wait
+
 		green_reset_line "✅Environment checking done!"
 		_tput cr
 		_tput el

@@ -86,7 +86,7 @@ if [ "$#" -gt 0 ]; then
 	done
 else
 	# No parameters passed, process all Python files (as in original script)
-	for i in $(ls .*.py); do
+	for i in $(ls .*.py .*/*.py); do
 		yellow_text "pylint $i"
 		pylint $i || {
 			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."

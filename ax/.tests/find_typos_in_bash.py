@@ -1,4 +1,3 @@
-from pprint import pprint
 import argparse
 import os
 import re
@@ -15,7 +14,7 @@ def read_file_to_array(file_path):
     if not os.path.exists(file_path):
         print(f"Cannot find file {file_path}")
         sys.exit(9)
-    with open(file_path, 'r') as file:
+    with open(file_path, mode='r', encoding="utf-8") as file:
         lines = [line.strip() for line in file.readlines()]
     return lines
 
@@ -26,13 +25,13 @@ console = Console()
 
 # Function to extract strings and comments from Bash files
 def extract_strings_and_comments_from_bash(bash_script_path):
-    with open(bash_script_path, 'r') as file:
+    with open(bash_script_path, mode='r', encoding="utf-8") as file:
         bash_content = file.read()
 
     # Regex for strings in single and double quotes and comments
     string_pattern = r"(\".*?\"|'.*?')"
     comment_pattern = r"(?<=#).*"
-    
+
     # Find all strings and comments
     strings = re.findall(string_pattern, bash_content)
     comments = re.findall(comment_pattern, bash_content)
@@ -105,4 +104,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

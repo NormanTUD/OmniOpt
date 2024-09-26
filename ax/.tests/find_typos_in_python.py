@@ -21,7 +21,7 @@ def read_file_to_array(file_path):
     if not os.path.exists(file_path):
         print(f"Cannot find file {file_path}")
         sys.exit(9)
-    with open(file_path, 'r') as file:
+    with open(file_path, mode='r', encoding="utf-8") as file:
         lines = [line.strip() for line in file.readlines()]
     return lines
 
@@ -62,7 +62,7 @@ def clean_word(word):
 
 def analyze_file(filepath, progress, task_id):
     """Analyze a Python file and check the spelling of string literals."""
-    with open(filepath, 'r', encoding='utf-8') as file:
+    with open(filepath, mode='r', encoding='utf-8') as file:
         content = file.read()
 
     tree = ast.parse(content)

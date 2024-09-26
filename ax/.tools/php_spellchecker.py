@@ -2,14 +2,13 @@ import os
 import sys
 import re
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup
 from spellchecker import SpellChecker
 import emoji
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn
 from rich.table import Table
-from rich.text import Text
 
 spell = SpellChecker(language='en')
 
@@ -19,7 +18,7 @@ def read_file_to_array(file_path):
     if not os.path.exists(file_path):
         print(f"Cannot find file {file_path}")
         sys.exit(9)
-    with open(file_path, 'r') as file:
+    with open(file_path, mode='r', encoding="utf-8") as file:
         lines = [line.strip() for line in file.readlines()]
     return lines
 
@@ -91,8 +90,8 @@ def check_spelling(text):
 def process_php_file(file_path):
     try:
         # Execute the PHP file and capture the output
-        result = subprocess.run(['php', file_path], capture_output=True, text=True)
-        html_content = result.stdout
+        _result = subprocess.run(['php', file_path], capture_output=True, text=True, check=False)
+        html_content = _result.stdout
 
         # Extract the visible text from HTML content
         extracted_text = extract_visible_text_from_html(html_content)
@@ -103,10 +102,8 @@ def process_php_file(file_path):
 
             if misspelled_words:
                 return (file_path, misspelled_words)
-            else:
-                return None
-        else:
-            return None
+
+        return None
     except Exception as e:
         console.print(f"[red]Error processing {file_path}: {e}[/red]")
         return None
@@ -116,7 +113,7 @@ def process_directory(directory_path):
     php_files = [os.path.join(root, file) for root, _, files in os.walk(directory_path) for file in files if file.endswith(".php")]
 
     # Use ThreadPoolExecutor to parallelize file processing
-    errors_found = []
+    _errors_found = []
     with ThreadPoolExecutor() as executor, Progress(
         TextColumn("[bold blue]Processing:[/bold blue] {task.fields[filename]}"),
         BarColumn(),
@@ -130,20 +127,20 @@ def process_directory(directory_path):
             file_path = futures[future]
             progress.update(task, advance=1, filename=file_path)
 
-            result = future.result()
-            if result:
-                errors_found.append(result)
+            _result = future.result()
+            if _result:
+                _errors_found.append(_result)
 
-    return errors_found
+    return _errors_found
 
-def show_summary_table(errors_found):
-    if errors_found:
+def show_summary_table(_errors_found):
+    if _errors_found:
         console.print("\n[bold red]Summary of Misspelled Words:[/bold red]")
         summary_table = Table(title="Misspelled Words Summary", title_style="red bold", box=None)
         summary_table.add_column("File", justify="left", style="bold yellow")
         summary_table.add_column("Misspelled Words", justify="left", style="red")
 
-        for file_path, misspelled_words in errors_found:
+        for file_path, misspelled_words in _errors_found:
             summary_table.add_row(file_path, ", ".join(misspelled_words))
 
         console.print(summary_table)
@@ -160,9 +157,9 @@ if __name__ == "__main__":
 
         if os.path.isfile(input_path):
             errors_found = []
-            result = process_php_file(input_path)
-            if result:
-                errors_found.append(result)
+            _result = process_php_file(input_path)
+            if _result:
+                errors_found.append(_result)
             show_summary_table(errors_found)
 
             sys.exit(len(errors_found))

@@ -15,7 +15,7 @@ def read_file_to_array(file_path):
     if not os.path.exists(file_path):
         console.print(f"[red]Cannot find file {file_path}[/red]")
         sys.exit(9)
-    with open(file_path, 'r') as file:
+    with open(file_path, mode='r', encoding="utf-8") as file:
         lines = [line.strip() for line in file.readlines()]
     return lines
 
@@ -58,7 +58,7 @@ def extract_multi_line_comments(content):
 
 def extract_strings_and_comments_from_js(filepath):
     """Extract all string literals and comments from a JavaScript file."""
-    with open(filepath, 'r', encoding='utf-8') as file:
+    with open(filepath, mode='r', encoding='utf-8') as file:
         content = file.read()
 
     strings_and_comments = []
@@ -79,10 +79,10 @@ def clean_word(word):
 def analyze_js_file(filepath, progress, task_id):
     strings_and_comments = extract_strings_and_comments_from_js(filepath)
     possibly_incorrect_words = []
-    
+
     total_words = sum(len(entry.split()) for entry in strings_and_comments)
     current_word_count = 0
-    
+
     progress.update(task_id, description=f"[bold]Analyzing {filepath}...[/bold]")
 
     for entry in strings_and_comments:
@@ -90,7 +90,7 @@ def analyze_js_file(filepath, progress, task_id):
         for word in words:
             word = clean_word(word)
             current_word_count += 1
-            
+
             progress.update(task_id, description=f"[bold]{filepath}: Checking word {current_word_count}/{total_words}...[/bold]")
 
             if is_valid_word(word):
@@ -112,12 +112,12 @@ def main():
 
     with Progress(transient=True) as progress:
         task_id = progress.add_task("Analyzing files...", total=len(args.files))
-        
+
         for filepath in args.files:
             if os.path.splitext(filepath)[1] == '.js':
                 possibly_incorrect_words = analyze_js_file(filepath, progress, task_id)
                 results[filepath] = possibly_incorrect_words
-                
+
                 if possibly_incorrect_words:
                     typo_files += 1
                     console.print(f"\n[red]Unknown or misspelled words in {filepath}:[/red]")

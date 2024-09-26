@@ -224,6 +224,9 @@
 					ppip "$MODULES_WITHOUT_VERSIONS" "$AS_REQUIREMENT_OF" "$NUMBER_OF_MAIN_MODULES"
 				else
 					red_reset_line "❌Failed to install $MODULE. Check .pip_logs/install_errors."
+					if [[ -n $CI ]]; then
+						cat ".pip_logs/install_errors" 
+					fi
 					exit 3
 				fi
 			}

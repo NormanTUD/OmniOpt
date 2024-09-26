@@ -275,6 +275,9 @@
 
 	function createNewFolder($path, $user_id, $experiment_name) {
 		$i = 0;
+
+		$newFolder = $path . "/$user_id/$experiment_name/$i";
+
 		do {
 			$newFolder = $path . "/$user_id/$experiment_name/$i";
 			$i++;
@@ -869,7 +872,8 @@
 
 	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name, $run_nr="") {
 		$probe_dir = "$sharesPath/$user_id/$experiment_name/$run_nr";
-		if(is_dir($probe_dir) && $run_nr >= 0) {
+
+		if($run_nr != "" && $run_nr >= 0 && is_dir($probe_dir)) {
 			return $probe_dir;
 		}
 
@@ -990,14 +994,10 @@
 	}
 
 	function remove_extra_slashes_from_url($string) {
-		// Verwende preg_replace, um doppelte oder mehrfache "//" zu entfernen
-		// Aber nicht, wenn vor den Slashes ein ":" steht (z.B. bei URLs wie "https://")
-		$pattern = '/(?<!:)(\/{2,})/'; // Negative Lookbehind für ":"
+		$pattern = '/(?<!:)(\/{2,})/';
 
-		// Ersetze doppelte oder mehrfache "//" durch ein einzelnes "/"
 		$cleaned_string = preg_replace($pattern, '/', $string);
 
-		// Gib die bereinigte Zeichenkette zurück
 		return $cleaned_string;
 	}
 

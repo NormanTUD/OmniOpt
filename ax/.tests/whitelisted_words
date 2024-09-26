@@ -27,6 +27,7 @@ anonymized
 ansi
 ansitable
 ar
+argmax
 argparse
 args
 argsepochs
@@ -814,6 +815,7 @@ QOSMinGRES
 queueMicrotask
 quickfix
 quot
+Randomizer
 randomNormal
 randomUniform
 RangeParameter
@@ -1093,6 +1095,7 @@ TestRunTime
 texShape
 textarea
 tf
+TFJS
 th
 thead
 themeSelect
@@ -1154,6 +1157,7 @@ unix
 unixtimestamp
 Unsetting
 updateCommands
+Upsampling
 url
 urlParams
 urls

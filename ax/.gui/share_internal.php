@@ -123,24 +123,26 @@
 
 		if($num_offered_files) {
 			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath);
-		}
-	} else {
-		include_once "_functions.php";
 
-		$dir_path = ".";
-		if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
-			$dir_path = "..";
+			exit(0);
 		}
-		if (!isset($_GET["get_hash_only"])) {
-	?>
-		    <script src='plotly-latest.min.js'></script>
-		    <script src='share.js'></script>
-		    <script src='share_graphs.js'></script>
-		    <link href="<?php echo $dir_path; ?>/share.css" rel="stylesheet" />
+	}
 
-		    <div id="breadcrumb"></div>
-	<?php
-		}
+	include_once "_functions.php";
+
+	$dir_path = ".";
+	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+		$dir_path = "..";
+	}
+	if (!isset($_GET["get_hash_only"])) {
+?>
+	    <script src='plotly-latest.min.js'></script>
+	    <script src='share.js'></script>
+	    <script src='share_graphs.js'></script>
+	    <link href="<?php echo $dir_path; ?>/share.css" rel="stylesheet" />
+
+	    <div id="breadcrumb"></div>
+<?php
 	}
 
 	$run_nr = isset($_GET["run_nr"]) ? $_GET["run_nr"] : null;

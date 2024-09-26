@@ -600,7 +600,7 @@ for entry in "${LOG_TIMES[@]}"; do
 	for i in "${!fields[@]}"; do    
 		header="${headers[$i]}"
 		if [[ -z "${headers[$i]}" ]]; then
-			echo "Fehler: Kein Header für Index $i gefunden"
+			echo "Error: No header for index $i found"
 		else
 			max_lengths["$header"]=${max_lengths["$header"]:-0}
 			[[ ${#fields[$i]} -gt ${max_lengths["$header"]} ]] && max_lengths["$header"]=${#fields[$i]}

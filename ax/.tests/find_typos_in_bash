@@ -13,6 +13,6 @@ source .shellscript_functions
 if [[ -n $1 ]]; then
 	python3 .tests/find_typos_in_bash.py $1
 else
-	files=$(grep "^#..bin.bash" * 2>/dev/null | sed -e 's#:.*##' | tr '\n' ' ')
+	files=$(grep -r "^#..bin.bash" . 2>/dev/null | sed -e 's#:.*##' | tr '\n' ' ')
 	eval "python3 .tests/find_typos_in_bash.py $files"
 fi

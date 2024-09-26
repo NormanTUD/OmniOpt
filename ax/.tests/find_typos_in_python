@@ -27,7 +27,7 @@ if command -v python3 2>/dev/null >/dev/null; then
 	python3 .tests/find_typos_in_python.py .*.py
 	exit_code=$?
 else
-	echo "Warning: PHP is not installed. Cann run php_spellchecker"
+	echo "Warning: python3 is not installed. Cannot run find_typos_in_python"
 fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

@@ -71,7 +71,7 @@ if [[ "$exit_code" == 0 ]]; then
 	exit_code=$?
 
 	if [[ "$exit_code" -eq "0" ]]; then
-		echo "Creating $OUTPUTPATH seemed to be succesful"
+		echo "Creating $OUTPUTPATH seemed to be successful"
 		if [[ -z $DONTSTARTFIREFOX ]]; then
 			eval $(resize)
 

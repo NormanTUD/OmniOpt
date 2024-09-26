@@ -1,3 +1,4 @@
+from pprint import pprint
 import argparse
 import os
 import re
@@ -37,14 +38,13 @@ def extract_strings_from_bash(bash_script_path):
 
     return strings
 
-# Function to filter and spellcheck words
 def filter_and_spellcheck_words(words):
     misspelled_words = []
     for word in words:
         # Check if the word consists of letters and is not all uppercase
-        if word.isalpha() and not word.isupper() and word not in whitelisted:
+        if word.isalpha() and word not in whitelisted:
             # Check if the word is misspelled
-            if word in spell.unknown([word]):
+            if word not in spell:  # Check if the word is not recognized
                 misspelled_words.append(word)
     return misspelled_words
 
@@ -58,7 +58,7 @@ def main():
     file_count_with_errors = 0
 
     # Table for results
-    table = Table(title="Misspelled Words", show_lines=True)
+    table = Table(title="Misspelled Words in bash files:", show_lines=True)
     table.add_column("File", justify="center", style="cyan", no_wrap=True)
     table.add_column("Words", justify="left", style="magenta")
 

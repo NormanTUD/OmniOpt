@@ -412,6 +412,11 @@
 				rm -rf "$VENV_DIR"
 				exit 1
 			}
+
+			downgrade_output=$(pip3 install -q pip==24.0) || {
+				red_text "Failed to downgrade pip. Output:"
+				red_text "$downgrade_output"
+			}
 		else
 			red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
 			rm -rf "$VENV_DIR"

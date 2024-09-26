@@ -2,7 +2,7 @@ from pprint import pprint
 import os
 import site
 import sys
-from distutils.sysconfig import get_python_lib
+import sysconfig
 
 from setuptools import setup
 
@@ -15,7 +15,7 @@ def dier (msg):
 site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
 def do_nothing(x):
-    pass
+    return x
 
 do_nothing(site.ENABLE_USER_SITE) # to trick linters...
 
@@ -24,7 +24,7 @@ do_nothing(site.ENABLE_USER_SITE) # to trick linters...
 # still present in site-packages. See #18115.
 overlay_warning = False
 if "install" in sys.argv:
-    lib_paths = [get_python_lib()]
+    lib_paths = [sysconfig.get_path('purelib')]
     if lib_paths[0].startswith("/usr/lib/"):
         print("You need to be in a virtual environment or something similar to install this package")
     for lib_path in lib_paths:
@@ -39,7 +39,7 @@ lib_folder = os.path.dirname(os.path.realpath(__file__))
 requirement_path = f"{lib_folder}/requirements.txt"
 install_requires = []
 if os.path.isfile(requirement_path):
-    with open(requirement_path) as f:
+    with open(requirement_path, mode="r", encoding="utf-8") as f:
         install_requires = f.read().splitlines()
 
 

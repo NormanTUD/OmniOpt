@@ -829,7 +829,7 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 			if [[ "$commits_since_tag" -gt 0 ]]; then
 				if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
 					yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
-					git checkout $tag_commit_hash >/dev/null || {
+					git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
 						red_text "Failed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
 						exit 211
 					}

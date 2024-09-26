@@ -520,7 +520,7 @@
 				$this_html .= "<script>\n";
 				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
 				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
-				$this_html .= "    plot_parallel_plot(job_infos_csv);\n";
+				#$this_html .= "    plot_parallel_plot(job_infos_csv);\n";
 				#$this_html .= "    create_table_from_csv_data(results_csv_bare, '$_hash', 'results_csv_nice_table');\n";
 				$this_html .= "</script>";
 
@@ -631,7 +631,7 @@
 					continue;
 				}
 
-				$resultsCsvJson = loadCsvToJsonByResult($file);
+				$jobInfosCsvJson = loadCsvToJsonByResult($file);
 
 				$header = get_header_file($file);
 
@@ -641,12 +641,12 @@
 
 				$this_html = "";
 
-				if ($resultsCsvJson == "[]") {
+				if ($jobInfosCsvJson== "[]") {
 					$this_html .= "Data is empty";
 				} else {
 					$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 					$this_html .= copy_button("stdout_file");
-					$this_html .= "<script>var job_infos_csv = $resultsCsvJson; plot_parallel_plot(job_infos_csv);</script>";
+					$this_html .= "<script>var job_infos_csv = $jobInfosCsvJson; plot_parallel_plot(job_infos_csv);</script>";
 				}
 
 				$html_parts[$_hash] = $this_html;

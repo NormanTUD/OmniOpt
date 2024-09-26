@@ -76,14 +76,15 @@ def clean_word(word):
     after = re.sub(r'[^\'a-zA-Z0-9_/-]', '', word)
     return after
 
-def analyze_js_file(filepath, progress, task_id):
+def analyze_js_file(filepath, progress):
     strings_and_comments = extract_strings_and_comments_from_js(filepath)
     possibly_incorrect_words = []
 
     total_words = sum(len(entry.split()) for entry in strings_and_comments)
     current_word_count = 0
 
-    progress.update(task_id, description=f"[bold]Analyzing {filepath}...[/bold]")
+    # Create a progress task for each file
+    task_id = progress.add_task(f"[bold]Analyzing {filepath}[/bold]", total=total_words)
 
     for entry in strings_and_comments:
         words = entry.split()
@@ -91,7 +92,7 @@ def analyze_js_file(filepath, progress, task_id):
             word = clean_word(word)
             current_word_count += 1
 
-            progress.update(task_id, description=f"[bold]{filepath}: Checking word {current_word_count}/{total_words}...[/bold]")
+            progress.update(task_id, advance=1, description=f"[bold]{filepath}: Checking word {current_word_count}/{total_words}...[/bold]")
 
             if is_valid_word(word):
                 if not is_ignored(word):
@@ -100,7 +101,7 @@ def analyze_js_file(filepath, progress, task_id):
                             console.print(f"\n{word}")
                             possibly_incorrect_words.append(word)
 
-    progress.update(task_id, description=f"[dim]Checked {total_words} words in {filepath}.[/dim]", completed=True)
+    progress.update(task_id, completed=True)
     return possibly_incorrect_words
 
 def main():
@@ -112,19 +113,15 @@ def main():
     results = {}
 
     with Progress(transient=True) as progress:
-        task_id = progress.add_task("Analyzing files...", total=len(args.files))
-
         for filepath in args.files:
             if os.path.splitext(filepath)[1] == '.js':
-                possibly_incorrect_words = analyze_js_file(filepath, progress, task_id)
+                possibly_incorrect_words = analyze_js_file(filepath, progress)
                 results[filepath] = possibly_incorrect_words
 
                 if possibly_incorrect_words:
                     typo_files += 1
                     console.print(f"\n[red]Unknown or misspelled words in {filepath}:[/red]")
                     console.print("\n[red]" + "\n".join(possibly_incorrect_words) + "[/red]")
-
-            progress.update(task_id, advance=1)
 
     # Summary Table
     if results:
@@ -149,3 +146,4 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         console.print("[red]Cancelled script by using CTRL + C[/red]")
+

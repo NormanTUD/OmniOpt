@@ -421,7 +421,10 @@ def run_live_share_command():
         # Return stdout and stderr
         return str(result.stdout), str(result.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e}, stderr: {e.stderr}")
+        if e.stderr:
+            print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
+        else:
+            print(f"run_live_share_command: command failed with error: {e}")
         return "", str(e.stderr)
     except Exception as e:
         print(f"run_live_share_command: An error occurred: {e}")

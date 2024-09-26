@@ -102,7 +102,10 @@ bash_files = [f for f in all_files if is_bash_script(f)]
 python_files = [f for f in all_files if is_python_script(f)]
 
 all_needed_files = bash_files
-all_needed_files.extend(python_files) 
+all_needed_files.extend(python_files)
+
+print("Copying the following files:")
+print("- " + "\n".join(all_needed_files))
 
 setup(name='omniopt2',
     version='0.9',
@@ -111,9 +114,7 @@ setup(name='omniopt2',
     author_email='norman.koch@tu-dresden.de',
     url='https://scads.ai/transfer-2/verfuegbare-software-dienste-en/omniopt/',
     install_requires=install_requires,
-    packages=[
-        '.',
-    ],
+    packages=['.',],
     data_files=[('bin', all_needed_files)],
     include_package_data=True,
 )

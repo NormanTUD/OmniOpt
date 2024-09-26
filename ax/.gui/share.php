@@ -5,10 +5,25 @@
         <div id="share_main" style="display: none"></div>
 </div>
 <script>
+	alert = console.error;
+
 	var already_initialized_tables = [];
         var last_load_content = "";
         var last_hash = "";
         var countdownInterval;
+	var $tabs = $("#main_tabbed").tabs();
+
+	var activeTabIndex = $tabs.tabs("option", "active");
+
+	function saveActiveTab() {
+		activeTabIndex = $tabs.tabs("option", "active");
+		console.log("Saved active tab index: " + activeTabIndex);
+	}
+
+	function restoreActiveTab() {
+		$tabs.tabs("option", "active", activeTabIndex);
+		console.log("Restored active tab index: " + activeTabIndex);
+	}
 
         function getParameterByName(name) {
                 var regex = new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)');
@@ -26,6 +41,7 @@
                         url: requestUrl,
                         method: 'GET',
                         success: function(response) {
+				saveActiveTab();
                                 if (response != last_load_content) {
                                         $('#share_main').html(response).show();
                                         last_load_content = response;
@@ -36,6 +52,9 @@
 				$(".toggle_raw_data").remove();
 
 				initialize_autotables();
+				$tabs = $("#main_tabbed").tabs();
+
+				restoreActiveTab();
 
                                 removeSpinnerOverlay();
                         },

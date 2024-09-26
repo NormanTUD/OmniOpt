@@ -98,7 +98,6 @@ def analyze_js_file(filepath, progress):
                 if not is_ignored(word):
                     if spell.correction(word) != word:
                         if word not in possibly_incorrect_words:
-                            console.print(f"\n{word}")
                             possibly_incorrect_words.append(word)
 
     progress.update(task_id, completed=True)

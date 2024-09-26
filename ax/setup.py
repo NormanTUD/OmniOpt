@@ -6,6 +6,13 @@ import sysconfig
 
 from setuptools import setup
 
+def is_executable_in_path(executable_name):
+    for path in os.environ.get('PATH', '').split(':'):
+        executable_path = os.path.join(path, executable_name)
+        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
+            return True
+    return False
+
 def dier (msg):
     pprint(msg)
     sys.exit(1)
@@ -18,6 +25,30 @@ def do_nothing(x):
     return x
 
 do_nothing(site.ENABLE_USER_SITE) # to trick linters...
+
+required_programs = [
+    "whiptail",
+    "git",
+    "base64",
+    "curl",
+    "wget",
+    "uuidgen",
+    "python3",
+    "gcc",
+    "resize"
+]
+
+_error = 0
+for rp in required_programs:
+    if not is_executable_in_path(rp):
+        if _error == 0:
+            print("=========================== ERROR WHILE TRYING TO INSTALL OMNIOPT ===========================")
+
+        print(f"Missing required program {rp}")
+        _error = _error + 1
+
+if _error >= 1:
+    sys.exit(_error % 255)
 
 # Warn if we are installing over top of an existing installation. This can
 # cause issues where files that were deleted from a more recent OmniOpt2 are

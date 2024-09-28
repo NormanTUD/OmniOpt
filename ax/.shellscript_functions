@@ -235,7 +235,7 @@
 				fi
 			}
 
-			FROZEN=$(pip list --format=freeze)
+			FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 
 			PROGRESSBAR=$(generate_progress_bar "$NUMBER_OF_MAIN_MODULES")
 
@@ -251,7 +251,7 @@
 		for key in $(echo "$install_those"); do
 			noversion=$(echo "$key" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 			if [[ -z $FROZEN ]]; then
-				FROZEN=$(pip list --format=freeze)
+				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 			fi
 			if echo "$FROZEN" | grep -i "$noversion" 2>/dev/null >/dev/null; then
 				nr=$(($nr+1))
@@ -420,7 +420,7 @@
 				exit 1
 			}
 
-			downgrade_output=$(pip3 install -q pip==24.0) || {
+			downgrade_output=$(pip3 --disable-pip-version-check install -q pip==24.0) || {
 				red_text "Failed to downgrade pip. Output:"
 				red_text "$downgrade_output"
 			}
@@ -437,7 +437,7 @@
 	if [[ -z $DONT_INSTALL_MODULES ]]; then
 		if [[ -z $SLURM_JOB_ID ]]; then
 			set +e
-			FROZEN=$(pip list --format=freeze)
+			FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 			exit_code_pip=$?
 			set -e
 

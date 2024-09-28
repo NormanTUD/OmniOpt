@@ -532,6 +532,7 @@ def print_logo():
         "In pursuit of the ultimate accuracy!",
         "May the optimal values be with you.",
         "Tuning up for success!",
+        "Animals are friends, not food!",
         "Hyperparam magic, just add data!",
         "Unlocking the secrets of the grid.",
         "Tuning: because close enough isn't good enough.",

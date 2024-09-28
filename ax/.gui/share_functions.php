@@ -125,7 +125,7 @@
 			"results.csv" => "Results",
 			"job_infos.csv" => "Job-Infos",
 			"parameters.txt" => "Parameter",
-			"get_next_trials.csv" => "Next trial requested/got",
+			"get_next_trials.csv" => "Next trial got/requested",
 			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
 		);
 
@@ -639,7 +639,7 @@
 
 				$this_html = "";
 
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,requested,got'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,got,requested'>" . htmlentities($content) . "</pre>";
 				$this_html .= copy_button("stdout_file");
 
 				$html_parts[$_hash] = $this_html;

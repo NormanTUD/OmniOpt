@@ -4107,7 +4107,7 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
     if not SYSTEM_HAS_SBATCH:
         return 1
 
-    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval - submitted_jobs())
+    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval - submitted_jobs(), max_eval - count_done_jobs())
 
     return requested
 

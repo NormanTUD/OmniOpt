@@ -1266,3 +1266,6 @@ yScale
 ZeroDivisionError
 zipContents
 zipWriter
+createBreadcrumb
+BoTorch
+Sobol

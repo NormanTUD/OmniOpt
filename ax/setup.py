@@ -74,12 +74,6 @@ if os.path.isfile(requirement_path):
     with open(requirement_path, mode="r", encoding="utf-8") as f:
         install_requires = f.read().splitlines()
 
-
-
-# Verzeichnisse durchsuchen und alle .py-Dateien im Home-Verzeichnis sammeln
-home_dir = os.path.expanduser("~")
-py_files = glob.glob(os.path.join(home_dir, "*.py"))
-
 def is_python_script(file_path):
     if file_path.endswith(".py"):
         return True

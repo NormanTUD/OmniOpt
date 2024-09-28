@@ -109,7 +109,6 @@ def process_php_file(file_path):
         return None
 
 def process_directory(directory_path):
-    total_errors = 0
     php_files = [os.path.join(root, file) for root, _, files in os.walk(directory_path) for file in files if file.endswith(".php")]
 
     # Use ThreadPoolExecutor to parallelize file processing

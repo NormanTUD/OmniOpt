@@ -135,14 +135,6 @@ class UndefinedVariableChecker(ast.NodeVisitor):
                 self.defined_vars.add(node.value.func.id)
         self.generic_visit(node)
 
-    def visit_Comparison(self, node):
-        if isinstance(node.left, ast.Name):
-            self.defined_vars.add(node.left.id)
-        for comparator in node.comparators:
-            if isinstance(comparator, ast.Name):
-                self.defined_vars.add(comparator.id)
-        self.generic_visit(node)
-
     def visit_Subscript(self, node):
         if isinstance(node.value, ast.Name):
             self.defined_vars.add(node.value.id)

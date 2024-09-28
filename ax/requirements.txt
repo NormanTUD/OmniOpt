@@ -34,7 +34,6 @@ flake8
 cowsay
 beautifulsoup4
 pyspellchecker
-spellchecker
 emoji
 bashlex
 slimit

@@ -33,19 +33,10 @@ fi
 
 ERRORS=()
 
-export share_path=./_share_test_case/
-
-#php_share_internal_startpage=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##' 2>&1)
-#expected_share_internal_startpage="Using sharesPath ./_share_test_case/ <script src='plotly-latest.min.js'></script> <script src='share.js'></script> <script src='share_graphs.js'></script> <link href=\"./share.css\" rel=\"stylesheet\" /> <div id=\"breadcrumb\"></div> <a class='_share_link' href=\"share.php?user_id=test_user&share_path=./_share_test_case/\">test_user</a><br> <script>createBreadcrumb('./');</script>"
-#if [[ "$php_share_internal_startpage" == "$expected_share_internal_startpage" ]]; then
-#	green_text "php .gui/share_internal.php _share_test_case"
-#else
-#	error_msg="php .gui/share_internal.php _share_test_case failed.\nGot:\n$php_share_internal_startpage\nExpected:\n$expected_share_internal_startpage"
-#	red_text "$error_msg"
-#	ERRORS+=("$error_msg")
-#fi
-
-export user_id="test_user"
+export share_path=_share_test_case
+export user_id=test_user
+export experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather
+export run_id=0
 
 php_share_internal_startpage_test_user_id=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##' 2>&1)
 expected_share_internal_startpage_test_user_id="Using sharesPath ./_share_test_case/ <script src='plotly-latest.min.js'></script> <script src='share.js'></script> <script src='share_graphs.js'></script> <link href=\"./share.css\" rel=\"stylesheet\" /> <div id=\"breadcrumb\"></div> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather</a><br> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_Powersupply&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_Powersupply</a><br> <script>createBreadcrumb('./test_user//');</script>"
@@ -57,38 +48,6 @@ else
 	red_text "$error_msg"
 	ERRORS+=("$error_msg")
 fi
-
-export experiment_name_name="non-existing-experiment_name"
-
-#php_share_internal_startpage_test_user_non_existing_experiment_name=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##' 2>&1)
-#expected_share_internal_startpage_test_user_non_existing_experiment_name="Using sharesPath ./_share_test_case/Could not create user folder"
-
-#if [[ "$php_share_internal_startpage_test_user_non_existing_experiment_name" == "$expected_share_internal_startpage_test_user_non_existing_experiment_name" ]]; then
-#	green_text "php .gui/share_internal.php _share_test_case/test_user/non-existing-experiment_name"
-#else
-#	error_msg="php .gui/share_internal.php _share_test_case/test_user/non-existing-experiment_name failed.\nGot:\n$php_share_internal_startpage_test_user_non_existing_experiment_name\nExpected:\n$expected_share_internal_startpage_test_user_non_existing_experiment_name\n\n"
-#	red_text "$error_msg"
-#	ERRORS+=("$error_msg")
-#fi
-
-#export run_id=0
-#export experiment_name_name="ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather"
-
-#php_share_internal_startpage_test_user_id=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##' 2>&1)
-#expected_share_internal_startpage_test_user_id="Using sharesPath ./_share_test_case/ <script src='plotly-latest.min.js'></script> <script src='share.js'></script> <script src='share_graphs.js'></script> <link href=\"./share.css\" rel=\"stylesheet\" /> <div id=\"breadcrumb\"></div> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather</a><br> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_Powersupply&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_Powersupply</a><br> <script>createBreadcrumb('./test_user//');</script>"
-
-#if [[ "$php_share_internal_startpage_test_user" == "$expected_share_internal_startpage_test_user" ]]; then
-#	green_text "php .gui/share_internal.php _share_test_case/test_user"
-#else
-#	error_msg="php .gui/share_internal.php _share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather failed.\nGot:\n$php_share_internal_startpage_test_user\nExpected:\n$expected_share_internal_startpage_test_user"
-#	red_text "$error_msg"
-#	ERRORS+=("$error_msg")
-#fi
-
-export share_path=_share_test_case
-export user_id=test_user
-export experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather
-export run_id=0
 
 original_dir=$(pwd)
 
@@ -113,6 +72,19 @@ share_output_must_contain=(
 	"2d-Scatter-Plots"
 	"3d-Scatter-Plots"
 	"Sobol"
+	"</script></div></div>"
+	"0.001000000000000000020816681712"
+	"arm_name"
+	"435_0"
+	"stdout_file"
+	"trial_index,arm_name,trial_status,generation_method,result,n_samples,confidence,feature_proportion,n_clusters"
+	"CANCELLED"
+	"slurmstepd:"
+	"invert_in_dark_mode"
+	"copy_to_clipboard_button"
+	"find_closest_element_behind_and_copy_content_to_clipboard"
+	"FAILED"
+	"COMPLETED"
 )
 
 for i in "${share_output_must_contain[@]}"; do

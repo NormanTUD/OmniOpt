@@ -700,7 +700,7 @@
 		}
 
 		if(count($tab_headers)) {
-			$html .= "<div id='main_tabbed'>\n";
+			$html .= "<div id='main_tabbed' style='width: fit-content'>\n";
 			$html .= "<ul>\n";
 			foreach ($tab_headers as $header) {
 				$cleaned_header = removeHTags($header["header"]);

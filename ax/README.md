@@ -12,7 +12,7 @@ This will automatically install all dependencies. Internally, it calls a pythons
 # Show results
 
 ```command
-./evaluate-run
+./omniopt_evaluate
 ```
 
 # Plot results

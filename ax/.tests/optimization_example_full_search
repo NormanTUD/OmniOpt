@@ -71,8 +71,6 @@ if [[ -z "$param_four" ]]; then red_text "Parameter --param_four cannot be empty
 
 perl -e 'use strict;
 use warnings;
-use autodie;
-use Data::Dumper;
 
 sub shekel {
         my @args = @_;

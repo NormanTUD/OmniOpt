@@ -243,7 +243,7 @@ TESTNAME=__main__tests__
 	--num_random_steps=$num_random_steps \
 	--follow \
 	--send_anonymized_usage_stats \
-	--run_program='LnRlc3RzL29wdGltaXphdGlvbl9leGFtcGxlX2FsbF9mbG9hdCAtLXg9JSh4KSAtLXk9JSh5KSAtLXo9JSh6KSAtLWE9JShhKQ==' \
+	--run_program=$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)" | base64 -w 0) \
 	--cpus_per_task=1 \
 	--nodes_per_job=1 \
 	--model=BOTORCH_MODULAR \

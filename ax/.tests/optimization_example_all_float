@@ -71,8 +71,6 @@ if [[ -z "$a" ]]; then red_text "Parameter --a cannot be empty"; help 1; fi
 
 perl -e 'use strict;
 use warnings;
-use autodie;
-use Data::Dumper;
 
 sub shekel {
         my @args = @_;

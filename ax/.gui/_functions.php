@@ -60,7 +60,6 @@
 		curl_close($ch);
 
 		if ($http_code == 200) {
-			// JSON-Daten parsen
 			$data = json_decode($response, true);
 
 			if (isset($data[0]['name'])) {

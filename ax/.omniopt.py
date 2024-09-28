@@ -4057,7 +4057,11 @@ def _get_next_trials():
     new_msgs = []
 
     currently_running_jobs = len(global_vars["jobs"])
-    real_num_parallel_jobs = num_parallel_jobs - currently_running_jobs
+    real_num_parallel_jobs = min(
+        max_eval + NR_INSERTED_JOBS - count_done_jobs(),
+        max_eval + NR_INSERTED_JOBS - submitted_jobs(),
+        num_parallel_jobs - currently_running_jobs
+    )
 
     if real_num_parallel_jobs == 0:
         return None

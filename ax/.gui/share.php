@@ -104,7 +104,7 @@
 				if (newHash !== last_hash) {
 					console.log(`${new Date().toString()}: Hash changed, reloading content.`);
 					last_hash = newHash;
-					await load_content(`Reloading content...`);
+					await load_content(`Loading new jobs...`);
 				} else {
 					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
 				}

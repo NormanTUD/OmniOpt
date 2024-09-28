@@ -1,7 +1,6 @@
 <?php
         require "_header_base.php";
 ?>
-        <div style="visibility: hidden" id="countdown"></div>
         <div id="share_main" style="display: none"></div>
 </div>
 <script>
@@ -116,21 +115,6 @@
 		});
 	}
 
-	function updateCountdown(interval) {
-		var countdown = interval / 1000; // Interval in seconds
-		$('#countdown').text('Next update in ' + countdown + ' seconds').show();
-
-		countdownInterval = setInterval(function() {
-			countdown--;
-			if (countdown <= 0) {
-				$('#countdown').css("visibility", "hidden");
-				clearInterval(countdownInterval);
-			} else {
-				$('#countdown').text('Next update in ' + countdown + ' seconds').css("visibility", "visible");
-			}
-		}, 1000);
-	}
-
 	$(document).ready(function() {
 		load_content("Loading OmniOpt-Share...");
 
@@ -138,10 +122,8 @@
 
 		if (auto_update) {
 			var interval = parseInt(1, 10) * 1000; // Convert to milliseconds
-			updateCountdown(interval);
 			setInterval(function() {
 				fetchHashAndUpdateContent(interval);
-				updateCountdown(interval);
 			}, interval);
 		}
 	});

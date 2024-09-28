@@ -864,7 +864,7 @@
 		foreach ($experiment_subfolders as $run_nr) {
 			$run_nr = preg_replace("/.*\//", "", $run_nr);
 			$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
-			echo "<!-- " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$run_nr</a><br>";
+			echo "<!-- show_run_selection " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$run_nr</a><br>";
 		}
 	}
 
@@ -930,7 +930,7 @@
 				foreach ($experiment_subfolders as $experiment) {
 					$experiment = preg_replace("/.*\//", "", $experiment);
 					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
-					echo "<!-- " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment$sharesPathLink\">$experiment</a><br>\n";
+					echo "<!-- show_dir_view_or_plot A " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment$sharesPathLink\">$experiment</a><br>\n";
 				}
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
@@ -957,7 +957,7 @@
 				foreach ($user_subfolders as $user) {
 					$user = preg_replace("/.*\//", "", $user);
 					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
-					echo "<!-- " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user$sharesPathLink\">$user</a><br>\n";
+					echo "<!-- show_dir_view_or_plot B " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user$sharesPathLink\">$user</a><br>\n";
 				}
 			} else {
 				echo "No users found";

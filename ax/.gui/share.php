@@ -121,7 +121,7 @@
 		var auto_update = getParameterByName('update');
 
 		if (auto_update) {
-			var interval = parseInt(1, 10) * 1000; // Convert to milliseconds
+			var interval = 5000;
 			setInterval(function() {
 				fetchHashAndUpdateContent(interval);
 			}, interval);

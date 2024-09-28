@@ -273,7 +273,7 @@ td {
 
 #spinner-overlay {
 	-webkit-text-stroke: 1px black;
-	font-color: white;
+	white !important;
 	position: fixed;
 	top: 0;
 	left: 0;

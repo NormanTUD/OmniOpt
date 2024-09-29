@@ -76,3 +76,13 @@
 
 		return $tagName;
 	}
+
+	function get_or_env ($name) {
+		$var = isset($_GET[$name]) ? $_GET[$name] : null;
+
+		if(is_null($var) || !strlen($var)) {
+			$var = getenv($name);
+		}
+
+		return $var;
+	}

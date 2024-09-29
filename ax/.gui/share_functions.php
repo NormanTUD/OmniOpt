@@ -204,11 +204,6 @@
 		echo "Warning: " . $message . "\n";
 	}
 
-	function dier($msg) {
-		print("<pre>" . print_r($msg, true) . "</pre>");
-		exit(1);
-	}
-
 	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath): ?string {
 		// Glob-Muster, um alle passenden Dateien zu finden
 

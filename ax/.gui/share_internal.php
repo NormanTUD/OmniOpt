@@ -8,6 +8,8 @@
 
 	ini_set('display_errors', 1);
 
+	include_once "_functions.php";
+
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 	$sharesPath = './shares/';
 
@@ -18,14 +20,9 @@
 			$sharesPath = preg_replace("/\/*$/", "/", $sharesPath);
 		}
 
-		if (!is_dir($sharesPath)) {
-			print("Share dir $sharesPath could not be found!");
-			exit(1);
-		}
-
 		if (preg_match("/^\//", $sharesPath)) {
 			print("Absolute path is not allowed.");
-			exit(2);
+			exit(1);
 		}
 
 		if (preg_match("/\.\./", $sharesPath)) {
@@ -33,18 +30,18 @@
 			exit(2);
 		}
 
+		if (!is_dir($sharesPath)) {
+			print("Share dir $sharesPath could not be found!");
+			exit(3);
+		}
+
+
 		print("Using sharesPath $sharesPath");
 	}
 
-	$user_id = $_GET['user_id'] ?? null;
-	if(!$user_id && getenv("user_id")) {
-		$user_id = getenv("user_id");
-	}
+	$user_id = get_or_env("user_id");
 
-	$experiment_name = $_GET['experiment_name'] ?? null;
-	if(!$experiment_name && getenv("experiment_name")) {
-		$experiment_name = getenv("experiment_name");
-	}
+	$experiment_name = get_or_env('experiment_name');
 
 	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 
@@ -102,7 +99,7 @@
 		$run_id = preg_replace("/.*\//", "", $userFolder);
 
 		if(!$run_id && getenv("run_id") && preg_match("/^\d+$/", getenv("run_dir"))) {
-			$run_id = getenv("run_id");
+			$run_id = get_or_env("run_id");
 		}
 
 		$new_upload_md5_string = "";
@@ -128,8 +125,6 @@
 			exit(0);
 		}
 	}
-
-	include_once "_functions.php";
 
 	$dir_path = ".";
 	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {

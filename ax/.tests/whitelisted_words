@@ -96,6 +96,7 @@ blockWidth
 bool
 boolean
 botorch
+BoTorch
 botorchmodelsutilsassorted
 botorchoptimfit
 botorchoptimoptimize
@@ -184,6 +185,7 @@ countParametersByFunctionName
 cpu
 cpuRamChart
 cpus
+createBreadcrumb
 createImageBitmap
 crossorigin
 css
@@ -1030,6 +1032,7 @@ smtphost
 smtppass
 smtpuser
 sobol
+Sobol
 SOBOL
 socalled
 softmax
@@ -1205,6 +1208,7 @@ verticalSpacing
 videoElement
 videoinput
 virtualenv
+visualizable
 visualizeNumbersOnCanvas
 vl
 von
@@ -1266,6 +1270,3 @@ yScale
 ZeroDivisionError
 zipContents
 zipWriter
-createBreadcrumb
-BoTorch
-Sobol

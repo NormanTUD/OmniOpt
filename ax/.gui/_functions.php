@@ -74,6 +74,10 @@
 		$url = "https://api.github.com/repos/NormanTUD/OmniOpt/tags";
 		$tagName = getFirstTagName($url);
 
+		if(!$tagName) {
+			$tagName = "Latest version could not be determined";
+		}
+
 		return $tagName;
 	}
 

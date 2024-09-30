@@ -1496,11 +1496,6 @@ def check_file_info(file_path):
     string = f"pwd: {os.getcwd()}\n"
     string += f"File: {file_path}\n"
     string += f"UID: {uid}\n"
-
-    _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
-        string += f"OO-Info: SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
-
     string += f"GID: {gid}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"
@@ -1508,7 +1503,6 @@ def check_file_info(file_path):
     string += f"Owner: {username}\n"
     string += f"Last access: {access_time}\n"
     string += f"Last modification: {modification_time}\n"
-
     string += f"Hostname: {socket.gethostname()}"
 
     return string
@@ -1620,7 +1614,7 @@ def extract_info(data):
     values = []
 
     # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
-    pattern = re.compile(r'\s*OO-Info:\s*(\w+):\s*(.+)\s*$', re.IGNORECASE)
+    pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
 
     # Gehe durch jede Zeile im String
     for line in data.splitlines():
@@ -4865,6 +4859,8 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    nr_errors += is_equal('extract_info("OO-Info: SLURM_JOB_ID: 123")', json.dumps(extract_info("OO-Info: SLURM_JOB_ID: 123")), '[["OO_Info_SLURM_JOB_ID"], ["123"]]')
 
     if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:
         nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus

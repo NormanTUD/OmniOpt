@@ -36,7 +36,7 @@
 		}
 
 
-		print("Using sharesPath $sharesPath");
+		print("Using sharesPath $sharesPath\n");
 	}
 
 	$user_id = get_or_env("user_id");
@@ -141,6 +141,6 @@
 <?php
 	}
 
-	$run_nr = get_or_env("run_nr");
+	$run_id = get_or_env("run_id");
 
-	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr);
+	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_id);

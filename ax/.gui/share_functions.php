@@ -839,7 +839,8 @@
 		foreach ($experiment_subfolders as $run_nr) {
 			$run_nr = preg_replace("/.*\//", "", $run_nr);
 			$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
-			echo "<!-- show_run_selection " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$run_nr</a><br>";
+			echo "<!-- show_run_selection " . __LINE__ . " -->\n";
+			echo "<a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$run_nr</a><br>";
 		}
 	}
 
@@ -882,7 +883,7 @@
 	}
 
 	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr) {
-		if (isset($user_id) && $user_id != "" && (!isset($experiment_name) || !$experiment_name)) {
+		if (isset($user_id) && $user_id != "" && (!isset($experiment_name) || $experiment_name == "")) {
 			$user = $user_id;
 			if (preg_match("/\.\./", $user)) {
 				print("Invalid user path");
@@ -904,7 +905,7 @@
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
 			}
-		} elseif (isset($user_id) && $user_id != "" && (!isset($experiment_name) || $experiment_name) && (!isset($run_nr) || $run_nr == "")) {
+		} elseif (isset($user_id) && $user_id != "" && (!isset($experiment_name) || $experiment_name == "") && (!isset($run_nr) || $run_nr == "")) {
 			show_run_selection($sharesPath, $user_id, $experiment_name);
 			print("<!-- $user_id/$experiment_name/ -->");
 			print_script_and_folder("$user_id/$experiment_name/");

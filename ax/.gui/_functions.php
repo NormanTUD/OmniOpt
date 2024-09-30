@@ -84,7 +84,7 @@
 	function get_or_env ($name) {
 		$var = isset($_GET[$name]) ? $_GET[$name] : null;
 
-		if(is_null($var) || !strlen($var)) {
+		if(is_null($var) || !strlen($var) && strlen(getenv($name))) {
 			$var = getenv($name);
 		}
 

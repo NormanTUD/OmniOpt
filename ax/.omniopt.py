@@ -1496,6 +1496,11 @@ def check_file_info(file_path):
     string = f"pwd: {os.getcwd()}\n"
     string += f"File: {file_path}\n"
     string += f"UID: {uid}\n"
+
+    _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
+        string += f"SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
+
     string += f"GID: {gid}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"

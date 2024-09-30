@@ -98,7 +98,7 @@
 
 		$run_id = preg_replace("/.*\//", "", $userFolder);
 
-		if(!$run_id && getenv("run_id") && preg_match("/^\d+$/", getenv("run_dir"))) {
+		if($run_id != "" && getenv("run_id") && preg_match("/^\d+$/", getenv("run_dir"))) {
 			$run_id = get_or_env("run_id");
 		}
 
@@ -141,6 +141,6 @@
 <?php
 	}
 
-	$run_nr = isset($_GET["run_nr"]) ? $_GET["run_nr"] : null;
+	$run_nr = get_or_env("run_nr");
 
 	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr);

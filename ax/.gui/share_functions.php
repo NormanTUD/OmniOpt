@@ -453,15 +453,13 @@
 
 		$html = "";
 
-		$shown_data = 0;
-
 		$file = "";
 
 		if (file_exists("$folder/ui_url.txt")) {
 			$content = remove_ansi_colors(file_get_contents("$folder/ui_url.txt"));
 			$content_encoding = mb_detect_encoding($content);
 			if (($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-				$shown_data += print_url($content);
+				#$shown_data += print_url($content);
 			}
 		}
 
@@ -525,8 +523,6 @@
 				$this_html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
 
 				$html_parts[$_hash] = $this_html;
-
-				$shown_data += 1;
 			} elseif (preg_match("/cpu_ram_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);
 				$content = remove_ansi_colors(file_get_contents($file));
@@ -574,8 +570,6 @@
 				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
 
 				$html_parts[$_hash] = $this_html;
-
-				$shown_data += 1;
 			} elseif (preg_match("/parameters\.txt$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -592,8 +586,6 @@
 				$this_html = "<pre>" . htmlentities($content) . "</pre>";
 
 				$html_parts[$_hash] = $this_html;
-
-				$shown_data += 1;
 			} elseif (
 				preg_match("/evaluation_errors\.log$/", $file)
 				|| preg_match("/oo_errors\.txt$/", $file)
@@ -615,8 +607,6 @@
 				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
 
 				$html_parts[$_hash] = $this_html;
-
-				$shown_data += 1;
 			} elseif (
 				preg_match("/get_next_trials/", $file)
 			) {
@@ -638,8 +628,6 @@
 				$this_html .= copy_button("stdout_file");
 
 				$html_parts[$_hash] = $this_html;
-
-				$shown_data += 1;
 			} elseif (preg_match("/job_infos\.csv$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);
@@ -666,8 +654,6 @@
 				}
 
 				$html_parts[$_hash] = $this_html;
-
-				$shown_data += 1;
 			} elseif (
 				preg_match("/state_files/", $file)
 				|| preg_match("/failed_logs/", $file)
@@ -776,7 +762,7 @@
 			$html .= "</div>\n";
 		}
 
-		if ($shown_data == 0) {
+		if (count($html_parts) == 0 || count($tab_headers) == 0) {
 			$html .= "<h2>No visualizable data could be found</h2>";
 		}
 
@@ -846,12 +832,6 @@
 		if (count($experiment_subfolders) == 0) {
 			echo "No runs found in $folder_glob";
 			exit(1);
-		} elseif (count($experiment_subfolders) == 1) {
-			$user_dir = preg_replace("/^\.\//", "", preg_replace("/\/\/*/", "/", preg_replace("/\.\/shares\//", "./", $experiment_subfolders[0])));
-
-			print_script_and_folder($user_dir);
-			show_run($experiment_subfolders[0]);
-			exit(0);
 		}
 
 		usort($experiment_subfolders, 'custom_sort');
@@ -902,7 +882,7 @@
 	}
 
 	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr) {
-		if (isset($user_id) && !isset($experiment_name)) {
+		if (isset($user_id) && $user_id != "" && (!isset($experiment_name) || !$experiment_name)) {
 			$user = $user_id;
 			if (preg_match("/\.\./", $user)) {
 				print("Invalid user path");
@@ -915,12 +895,6 @@
 			if (count($experiment_subfolders) == 0) {
 				print("Did not find any experiments for $sharesPath/$user/*");
 				exit(0);
-			} elseif (count($experiment_subfolders) == 1) {
-				show_run_selection($sharesPath, $user, $experiment_subfolders[0]);
-				$this_experiment_name = "$experiment_subfolders[0]";
-				$this_experiment_name = preg_replace("/.*\//", "", $this_experiment_name);
-				print("<!-- $user/$experiment_name/$this_experiment_name -->");
-				print_script_and_folder("$user/$experiment_name/$this_experiment_name");
 			} else {
 				foreach ($experiment_subfolders as $experiment) {
 					$experiment = preg_replace("/.*\//", "", $experiment);
@@ -930,20 +904,23 @@
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
 			}
-		} elseif (isset($user_id) && isset($experiment_name) && !isset($run_nr)) {
+		} elseif (isset($user_id) && $user_id != "" && (!isset($experiment_name) || $experiment_name) && (!isset($run_nr) || $run_nr == "")) {
 			show_run_selection($sharesPath, $user_id, $experiment_name);
 			print("<!-- $user_id/$experiment_name/ -->");
 			print_script_and_folder("$user_id/$experiment_name/");
-		} elseif (isset($user_id) && isset($experiment_name) && isset($run_nr)) {
-			$run_folder = "$sharesPath/$user_id/$experiment_name/$run_nr/";
+		} elseif (isset($user_id) && $user_id != "" && isset($experiment_name) && $experiment_name != "" && isset($run_nr) && $run_nr != "") {
+			$run_folder_without_shares = "$user_id/$experiment_name/$run_nr/";
+
+			$run_folder = "$sharesPath/$run_folder_without_shares";
 			if (isset($_GET["get_hash_only"])) {
 				echo calculateDirectoryHash($run_folder);
 
 				exit(0);
 			} else {
-				print("<!-- $user_id/$experiment_name/$run_nr -->");
+				print("<!-- $run_folder_without_shares -->");
 
-				print_script_and_folder("$user_id/$experiment_name/$run_nr");
+				print_script_and_folder($run_folder_without_shares);
+
 				show_run($run_folder);
 			}
 		} else {
@@ -952,7 +929,9 @@
 				foreach ($user_subfolders as $user) {
 					$user = preg_replace("/.*\//", "", $user);
 					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
-					echo "<!-- show_dir_view_or_plot B " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user$sharesPathLink\">$user</a><br>\n";
+
+					echo "<!-- show_dir_view_or_plot B " . __LINE__ . " -->\n";
+					echo "<a class='_share_link' href=\"share.php?user_id=$user$sharesPathLink\">$user</a><br>\n";
 				}
 			} else {
 				echo "No users found";

@@ -36,7 +36,7 @@ ERRORS=()
 export share_path=_share_test_case
 export user_id=test_user
 export experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather
-export run_id=0
+export run_nr=0
 
 php_share_internal_startpage_test_user_id=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##' 2>&1)
 expected_share_internal_startpage_test_user_id="Using sharesPath ./_share_test_case/ <script src='plotly-latest.min.js'></script> <script src='share.js'></script> <script src='share_graphs.js'></script> <link href=\"./share.css\" rel=\"stylesheet\" /> <div id=\"breadcrumb\"></div> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather</a><br> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_Powersupply&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_Powersupply</a><br> <script>createBreadcrumb('./test_user//');</script>"

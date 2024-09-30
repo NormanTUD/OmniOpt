@@ -975,6 +975,7 @@ shader
 shapeType
 sharedAxes
 sharephp
+sharespath
 sharesPath
 shebangline
 shellcheck

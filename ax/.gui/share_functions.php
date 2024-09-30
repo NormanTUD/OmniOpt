@@ -884,6 +884,11 @@
 
 	function show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr) {
 		if (isset($user_id) && $user_id != "" && (!isset($experiment_name) || $experiment_name == "")) {
+			// given:
+			//	user_id
+			// missing:
+			//	experiment_name
+			//	run_nr
 			$user = $user_id;
 			if (preg_match("/\.\./", $user)) {
 				print("Invalid user path");
@@ -905,11 +910,21 @@
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
 			}
-		} elseif (isset($user_id) && $user_id != "" && (!isset($experiment_name) || $experiment_name == "") && (!isset($run_nr) || $run_nr == "")) {
+		} elseif (isset($user_id) && $user_id != "" && (isset($experiment_name) || $experiment_name != "") && (!isset($run_nr) || $run_nr == "")) {
+			// given:
+			//	user_id
+			//	experiment_name
+			// missing:
+			//	run_nr
 			show_run_selection($sharesPath, $user_id, $experiment_name);
 			print("<!-- $user_id/$experiment_name/ -->");
 			print_script_and_folder("$user_id/$experiment_name/");
 		} elseif (isset($user_id) && $user_id != "" && isset($experiment_name) && $experiment_name != "" && isset($run_nr) && $run_nr != "") {
+			// given:
+			//	user_id
+			//	experiment_name
+			// missing:
+			//	none
 			$run_folder_without_shares = "$user_id/$experiment_name/$run_nr/";
 
 			$run_folder = "$sharesPath/$run_folder_without_shares";

@@ -12,7 +12,7 @@ if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
     <head>
         <meta charset="UTF-8">
         <title>OmniOpt2</title>
-        <link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
+        <link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
         <script src="<?php print $dir_path; ?>/jquery-3.7.1.js"></script>
         <script src="<?php print $dir_path; ?>/jquery-ui.min.js"></script>
@@ -23,16 +23,15 @@ if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
         <script src="<?php print $dir_path; ?>/jquery.dataTables.min.js"></script>
         <script src="<?php print $dir_path; ?>/main.js"></script>
         <script src="<?php print $dir_path; ?>/initialization.js"></script>
-        <link href="<?php print $dir_path; ?>/style.css" rel="stylesheet" />
+        <link href="<?php print $dir_path; ?>/style.css" rel="stylesheet">
 <?php
 if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
     ?>
-            <link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
+            <link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet">
     <?php
 }
 ?>
         <link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
-        <link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
         <script>
             document.onkeypress = function (e) {
                 e = e || window.event;
@@ -70,9 +69,9 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
     </head>
     <body>
         <div id="scads_bar">
-            <a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo" /></a>
-            <a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo" /></a>
-            <a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge" /></a>
+            <a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo"></a>
+            <a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo"></a>
+            <a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge"></a>
 <?php
                 require "searchable_php_files.php";
 
@@ -107,8 +106,8 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 
             <br>
             <span style="display: inline-flex;">
-                <img src="images/search.svg" height=32 />
-                <input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search" />
+                <img src="images/search.svg" height=32 alt="Search">
+                <input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search">
                 <button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
             </span>
         </div>

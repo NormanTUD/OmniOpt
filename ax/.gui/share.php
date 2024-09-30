@@ -91,6 +91,9 @@
 	}
 
 	function fetchHashAndUpdateContent(interval) {
+		if(currently_switching) {
+			return;
+		}
 		var share_internal_url = window.location.toString();
 		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
 		var hashUrl = share_internal_url + '&get_hash_only=1';

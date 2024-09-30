@@ -2962,6 +2962,14 @@ def progressbar_description(new_msgs=[]):
 def clean_completed_jobs():
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
+
+        while _state == "running":
+            _state = state_from_job(job)
+
+            _sleep(5)
+
+    for job, trial_index in global_vars["jobs"][:]:
+        _state = state_from_job(job)
         if _state in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
         elif _state in ["unknown", "pending", "running"]:

@@ -6,10 +6,12 @@ from rich.progress import Progress
 from rich.table import Table
 from rich.console import Console
 from lxml import etree
+import html5lib
 
 console = Console()
 
 def fetch_page(url):
+    """Fetch the HTML content of a given URL."""
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -19,6 +21,7 @@ def fetch_page(url):
         return None
 
 def extract_links(html, base_url):
+    """Extract all unique links from the HTML content."""
     soup = BeautifulSoup(html, 'html.parser')
     links = set()
     for link in soup.find_all('a', href=True):
@@ -27,6 +30,7 @@ def extract_links(html, base_url):
     return links
 
 def check_link(url):
+    """Check if a link is reachable (returns status code 200)."""
     try:
         response = requests.head(url, allow_redirects=True)
         return response.status_code == 200
@@ -34,14 +38,16 @@ def check_link(url):
         return False
 
 def validate_html(html):
-    parser = etree.HTMLParser()
+    """Validate the HTML using html5lib and lxml."""
     try:
-        etree.fromstring(html, parser)
-        return []
-    except etree.XMLSyntaxError as e:
-        return e.error_log
+        parser = html5lib.HTMLParser(strict=True)
+        document = parser.parse(html)
+        return [], document
+    except Exception as e:
+        return [str(e)], None
 
 def main():
+    # Argument parsing
     parser = argparse.ArgumentParser(description="Check all links and HTML syntax on a website.")
     parser.add_argument('url', help="The base URL to start the check.")
     args = parser.parse_args()
@@ -52,10 +58,11 @@ def main():
     if html is None:
         return
 
+    # Extract links
     links = extract_links(html, base_url)
-
     console.print(f"Found {len(links)} links on {base_url}")
-    
+
+    # Check each link with progress bar
     invalid_links = []
     with Progress() as progress:
         task = progress.add_task("Checking links...", total=len(links))
@@ -64,18 +71,19 @@ def main():
                 invalid_links.append(link)
             progress.advance(task)
 
+    # Validate the HTML syntax
     console.print("[bold]HTML Syntax Errors:[/bold]")
-    errors = validate_html(html)
+    errors, document = validate_html(html)
     if errors:
         table = Table(title="HTML Errors")
-        table.add_column("Line", justify="right")
         table.add_column("Error", justify="left")
         for error in errors:
-            table.add_row(str(error.line), error.message)
+            table.add_row(error)
         console.print(table)
     else:
-        console.print("[green]No HTML syntax errors found![/green]")
+        console.print("[green]No major HTML syntax errors found![/green]")
 
+    # Display invalid links
     if invalid_links:
         console.print("[bold red]Invalid Links:[/bold red]")
         for link in invalid_links:
@@ -85,4 +93,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

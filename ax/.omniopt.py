@@ -2964,10 +2964,10 @@ def clean_completed_jobs():
         _state = state_from_job(job)
         if _state in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
-        elif _state in ["unknown", "pending"]:
+        elif _state in ["unknown", "pending", "running"]:
             pass
         else:
-            print_red(f"File job {job}, state not in completed, early_stopped, abandoned, unknown or pending: {_state}")
+            print_red(f"File job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """

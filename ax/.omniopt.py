@@ -1499,7 +1499,7 @@ def check_file_info(file_path):
 
     _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
     if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
-        string += f"SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
+        string += f"OO-Info: SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
 
     string += f"GID: {gid}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
@@ -1669,6 +1669,10 @@ def evaluate(parameters):
         string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
         original_print("Debug-Infos:", string)
+
+        _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+        if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
+            original_print(f"OO-Info: SLURM_JOB_ID: {_SLURM_JOB_ID}\n")
 
         original_print(program_string_with_params)
 

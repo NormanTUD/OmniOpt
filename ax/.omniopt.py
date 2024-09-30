@@ -1497,6 +1497,9 @@ def check_file_info(file_path):
     string += f"File: {file_path}\n"
     string += f"UID: {uid}\n"
     string += f"GID: {gid}\n"
+    _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
+        string += f"SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"
     string += f"Permissions: {permissions}\n"
@@ -1664,10 +1667,6 @@ def evaluate(parameters):
 
         original_print("Debug-Infos:", string)
 
-        _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-        if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
-            original_print(f"OO-Info: SLURM_JOB_ID: {_SLURM_JOB_ID}\n")
-
         original_print(program_string_with_params)
 
         start_time = int(time.time())
@@ -1688,6 +1687,11 @@ def evaluate(parameters):
         result = get_result(stdout)
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
+
+        _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+        if _SLURM_JOB_ID:
+            extra_vars_names.append("OO_Info_SLURM_JOB_ID")
+            extra_vars_values.append(_SLURM_JOB_ID)
 
         original_print(f"Result: {result}")
 

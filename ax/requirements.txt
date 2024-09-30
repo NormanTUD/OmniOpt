@@ -38,3 +38,5 @@ emoji
 bashlex
 slimit
 hiplot
+html5lib
+lxml

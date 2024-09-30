@@ -96,10 +96,10 @@
 			die("Could not create user folder");
 		}
 
-		$run_id = preg_replace("/.*\//", "", $userFolder);
+		$run_nr = preg_replace("/.*\//", "", $userFolder);
 
-		if($run_id != "" && getenv("run_id") && preg_match("/^\d+$/", getenv("run_dir"))) {
-			$run_id = get_or_env("run_id");
+		if($run_nr != "" && getenv("run_nr") && preg_match("/^\d+$/", getenv("run_dir"))) {
+			$run_nr = get_or_env("run_nr");
 		}
 
 		$new_upload_md5_string = "";
@@ -120,7 +120,7 @@
 		}
 
 		if($num_offered_files) {
-			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath);
+			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder, $sharesPath);
 
 			exit(0);
 		}
@@ -141,6 +141,6 @@
 <?php
 	}
 
-	$run_id = get_or_env("run_id");
+	$run_nr = get_or_env("run_nr");
 
-	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_id);
+	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr);

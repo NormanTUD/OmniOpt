@@ -78,25 +78,25 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 
                 $current_file = basename($_SERVER["PHP_SELF"]);
 
-foreach ($GLOBALS["files"] as $fn => $n) {
-    if (is_array($n)) {
-         $n = $n["name"];
-    }
+		foreach ($GLOBALS["files"] as $fn => $n) {
+			if (is_array($n)) {
+				$n = $n["name"];
+			}
 
-    $tab_is_active = preg_match("/^$fn.php/", $current_file);
-    $tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-    $_link = "$dir_path/$fn.php";
+			$tab_is_active = preg_match("/^$fn.php/", $current_file);
+			$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
+			$_link = "$dir_path/$fn.php";
 
-    if (!file_exists($_link)) {
-        dier("Coult not find $_link");
-    }
-        echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
-}
+			if (!file_exists($_link)) {
+				dier("Coult not find $_link");
+			}
+			echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
+		}
                 $current_tag = get_current_tag();
 
-if ($current_tag) {
-    echo " $current_tag, ";
-}
+		if ($current_tag) {
+			echo " $current_tag, ";
+		}
 ?>
             <span style="display: inline-grid;">
                 <select id="themeSelect" name="theme">

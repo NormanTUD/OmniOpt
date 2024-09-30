@@ -241,6 +241,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 						cmin: minResult,
 						cmax: maxResult,
 						showscale: true, // Show the color scale
+						size: 60,
 						colorbar: {
 							title: 'Result Values',
 							titleside: 'right'

@@ -133,7 +133,7 @@
 		);
 
 		if (isset($names[$replaced_file])) {
-			return "<h2>" . $names[$replaced_file] . " (<samp>$replaced_file</samp>)</h2>";
+			return "<h2>" . $names[$replaced_file] . "</h2>";
 		} else {
 			return "<h2>" . $replaced_file . "</h2>";
 		}

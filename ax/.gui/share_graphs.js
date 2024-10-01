@@ -42,9 +42,13 @@ function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
 
-function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
-	var dimensions = [..._paramKeys, 'result'].map(function(key) {
-		var values = _results_csv_json.map(function(row) { return row[key]; });
+function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+	var dimensions = [...paramKeys, 'result'].map(function(key) {
+		var result_idx = paramKeys.length + 1;
+
+		var values = _results_csv_json.map(function(row) {
+			return row[result_idx];
+		});
 		values = values.filter(value => value !== undefined && !isNaN(value));
 
 		var numericValues = values.map(function(value) { return parseFloat(value); });
@@ -66,6 +70,8 @@ function parallel_plot(_paramKeys, _results_csv_json, minResult, maxResult, resu
 			};
 		}
 	});
+
+	log("dimensions:", dimensions)
 
 	var traceParallel = {
 		type: 'parcoords',
@@ -270,9 +276,10 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 }
 
 async function plot_parallel_plot () {
-	var urlParams = new URLSearchParams(window.location.search);
-
-	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=job_infos.csv`)
+	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
+	if(!_results_csv_json) {
+		return;
+	}
 
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
@@ -288,11 +295,10 @@ async function plot_parallel_plot () {
 		return;
 	}
 
-
 	var header_line = _results_csv_json.data.shift();
 
 	// Extract parameter names
-	var paramKeys = Object.keys(_results_csv_json.data[0]).filter(function(key) {
+	var paramKeys = header_line.filter(function(key) {
 		return ![
 			'trial_index',
 			'arm_name',
@@ -313,7 +319,7 @@ async function plot_parallel_plot () {
 
 	// Get result values for color mapping
 	var resultValues = _results_csv_json.data.map(function(row) {
-		return parseFloat(row.result);
+		return parseFloat(row[result_idx]);
 	});
 
 	resultValues = resultValues.filter(value => value !== undefined && !isNaN(value));
@@ -329,9 +335,11 @@ async function plot_parallel_plot () {
 }
 
 async function plot_all_possible () {
-	var urlParams = new URLSearchParams(window.location.search);
+	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`results.csv`)
 
-	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=results.csv`)
+	if(!_results_csv_json) {
+		return;
+	}
 
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
@@ -389,9 +397,10 @@ function convertUnixTimeToReadable(unixTime) {
 }
 
 async function load_parameter () {
-	var urlParams = new URLSearchParams(window.location.search);
-
-	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=parameters.txt`)
+	var data = await fetchJsonFromUrlFilenameOnly(`parameters.txt`)
+	if(!data) {
+		return;
+	}
 
 	if(!Object.keys(data).includes("raw")) {
 		log(`load_parameter: Could not plot seemingly empty data: no raw found`);
@@ -406,12 +415,11 @@ async function load_out_files () {
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
-
-	if($("#out_files_content").length == 0) {
-		console.error(`#out_files_content not found`);
-	} else {
-		$("#out_files_content").html(data.raw);
+	if(!data) {
+		return;
 	}
+
+	$("#out_files_content").html(data.raw);
 }
 
 async function load_evaluation_errors_and_oo_errors () {
@@ -425,9 +433,10 @@ async function load_evaluation_errors_and_oo_errors () {
 }
 
 async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
-	var urlParams = new URLSearchParams(window.location.search);
-
-	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${_fn}`)
+	var data = await fetchJsonFromUrlFilenameOnly(`${_fn}`)
+	if(!data) {
+		return;
+	}
 
 	if(!Object.keys(data).includes("raw")) {
 		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
@@ -443,9 +452,10 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 }
 
 async function load_best_result () {
-	var urlParams = new URLSearchParams(window.location.search);
-
-	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=best_result.txt`)
+	var data = await fetchJsonFromUrlFilenameOnly(`best_result.txt`)
+	if(!data) {
+		return;
+	}
 
 	if(!Object.keys(data).includes("raw")) {
 		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
@@ -457,9 +467,10 @@ async function load_best_result () {
 }
 
 async function plot_planned_vs_real_worker_over_time () {
-	var urlParams = new URLSearchParams(window.location.search);
-
-	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=worker_usage.csv`)
+	var data = await fetchJsonFromUrlFilenameOnly(`worker_usage.csv`)
+	if(!data) {
+		return;
+	}
 
 	convertToIntAndFilter(data.data.map(Object.values))
 
@@ -521,9 +532,10 @@ async function plot_planned_vs_real_worker_over_time () {
 }
 
 async function plot_cpu_gpu_graph() {
-	var urlParams = new URLSearchParams(window.location.search);
-
-	var cpu_ram_usage_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=cpu_ram_usage.csv`)
+	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`)
+	if(!cpu_ram_usage_json) {
+		return;
+	}
 
 	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values))
 
@@ -624,9 +636,16 @@ async function fetchJsonFromUrl(url) {
 		const data = await response.json();
 		return data;
 	} catch (error) {
-		console.error('Fetch error:', error);
 		return null;
 	}
+}
+
+async function fetchJsonFromUrlFilenameOnly(filename) {
+	var urlParams = new URLSearchParams(window.location.search);
+
+	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`)
+
+	return _results_csv_json;
 }
 
 async function load_all_data() {

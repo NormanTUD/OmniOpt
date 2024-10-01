@@ -756,8 +756,6 @@
 
 		$html_parts = [];
 
-		$parallel_plot = 0;
-
 		foreach ($run_files as $file) {
 			if (preg_match("/\/\.\.\/?/", $file)) {
 				print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
@@ -797,7 +795,6 @@
 				$tab_headers_and_html_parts = get_results_job_infos($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
-				$parallel_plot = 1;
 			} elseif (
 				preg_match("/(?:state_files|single_runs|gpu_usage|failed_logs)/", $file)
 				|| preg_match("/hash\.md5$/", $file)

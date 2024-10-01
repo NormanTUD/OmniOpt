@@ -2048,7 +2048,7 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
             print_red("Best result could not be determined")
             return 87
 
-        total_str = f"total: {count_done_jobs() - NR_INSERTED_JOBS}"
+        total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
 
         if NR_INSERTED_JOBS:
             total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
@@ -2406,7 +2406,8 @@ def get_ax_param_representation(data):
 
     print("data:")
     pprint(data)
-    helpers.dier(f"Unknown data range {data['type']}")
+    print_red(f"Unknown data range {data['type']}")
+    my_exit(19)
 
     return {} # only for linter, never reached because of die
 
@@ -3240,7 +3241,6 @@ def load_data_from_existing_run_folders(_paths):
     global double_hashes
     global missing_results
 
-    #helpers.dier(help(ax_client.experiment.search_space))
     with console.status("[bold green]Loading existing jobs into ax_client...") as _status:
         path_idx = 0
         for this_path in _paths:
@@ -4514,8 +4514,6 @@ def parse_orchestrator_file(_f, _test=False):
                         if not isinstance(y, str):
                             print_red("x['match_strings'] is not a string but {type(x['match_strings'])}")
                             die_orchestrator_exit_code_206(_test)
-
-                #helpers.dier(data)
 
                 return data
             except Exception as e:

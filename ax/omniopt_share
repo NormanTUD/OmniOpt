@@ -191,13 +191,15 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			echo "DEBUG: curl -s ${curl_options[@]} $url"
 		fi
 
+		set +e
 		CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
 		exit_code=$?
+		set -e
 
 		if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
 			red_text "$CURL_OUTPUT"
 			if [[ $exit_code -ne 0 ]]; then
-				echo "Curling $url failed"
+				echo "Curling $url failed. Curl exited with $exit_code instead of 0"
 				exit $exit_code
 			fi
 		else

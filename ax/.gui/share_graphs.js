@@ -108,6 +108,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	var already_existing_plots = [];
 
+	$('#scatter_plot_3d_container').html("");
+
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {
@@ -121,74 +123,77 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var z_name = _paramKeys[k];
 
 					var _key = [x_name, y_name, z_name].sort().join("!!!");
-					if(!already_existing_plots.includes(_key)) {
-						var xValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[map_x]);
-							return isNaN(parsedValue) ? row[map_x] : parsedValue;
-						});
-
-						var yValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[map_y]);
-							return isNaN(parsedValue) ? row[map_y] : parsedValue;
-						});
-
-						var zValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[map_z]);
-							return isNaN(parsedValue) ? row[map_z] : parsedValue;
-						});
-
-
-						function color_curried (value) {
-							return getColor(value, minResult, maxResult)
-						}
-
-						var colors = resultValues.map(color_curried);
-
-						var trace3d = {
-							x: xValues,
-							y: yValues,
-							z: zValues,
-							mode: 'markers',
-							type: 'scatter3d',
-							marker: {
-								color: colors
-							}
-						};
-
-						var layout3d = {
-							title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
-							width: get_width(),
-							height: get_height(),
-							autosize: false,
-							margin: {
-								l: 50,
-								r: 50,
-								b: 100,
-								t: 100,
-								pad: 4
-							},
-							scene: {
-								xaxis: { title: x_name },
-								yaxis: { title: y_name },
-								zaxis: { title: z_name }
-							},
-							paper_bgcolor: 'rgba(0,0,0,0)',
-							plot_bgcolor: 'rgba(0,0,0,0)',
-
-							showlegend: false,
-							legend: {
-								x: 0.1,
-								y: 1.1,
-								orientation: 'h'
-							},
-						};
-
-						var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${i}_${j}_${k}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-						$('#scatter_plot_3d_container').append(new_plot_div);
-						Plotly.newPlot(`scatter-plot-3d-${i}_${j}_${k}`, [trace3d], layout3d);
-
-						already_existing_plots.push(_key);
+					if(already_existing_plots.includes(_key)) {
+						log(`Key already exists: ${_key}`);
+						continue;
 					}
+
+					var xValues = _results_csv_json.map(function(row) {
+						var parsedValue = parseFloat(row[map_x]);
+						return isNaN(parsedValue) ? row[map_x] : parsedValue;
+					});
+
+					var yValues = _results_csv_json.map(function(row) {
+						var parsedValue = parseFloat(row[map_y]);
+						return isNaN(parsedValue) ? row[map_y] : parsedValue;
+					});
+
+					var zValues = _results_csv_json.map(function(row) {
+						var parsedValue = parseFloat(row[map_z]);
+						return isNaN(parsedValue) ? row[map_z] : parsedValue;
+					});
+
+
+					function color_curried (value) {
+						return getColor(value, minResult, maxResult)
+					}
+
+					var colors = resultValues.map(color_curried);
+
+					var trace3d = {
+						x: xValues,
+						y: yValues,
+						z: zValues,
+						mode: 'markers',
+						type: 'scatter3d',
+						marker: {
+							color: colors
+						}
+					};
+
+					var layout3d = {
+						title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
+						width: get_width(),
+						height: get_height(),
+						autosize: false,
+						margin: {
+							l: 50,
+							r: 50,
+							b: 100,
+							t: 100,
+							pad: 4
+						},
+						scene: {
+							xaxis: { title: x_name },
+							yaxis: { title: y_name },
+							zaxis: { title: z_name }
+						},
+						paper_bgcolor: 'rgba(0,0,0,0)',
+						plot_bgcolor: 'rgba(0,0,0,0)',
+
+						showlegend: false,
+						legend: {
+							x: 0.1,
+							y: 1.1,
+							orientation: 'h'
+						},
+					};
+
+					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${x_name}_${y_name}_${z_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+					$('#scatter_plot_3d_container').append(new_plot_div);
+					Plotly.newPlot(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, [trace3d], layout3d);
+
+					already_existing_plots.push(_key);
 				}
 			}
 		}

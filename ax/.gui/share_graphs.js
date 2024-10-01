@@ -328,11 +328,24 @@ function convertUnixTimeToReadable(unixTime) {
 	return date.toLocaleString();
 }
 
-function plot_planned_vs_real_worker_over_time (data) {
-	var unixTime = data.map(row => row[0]);
+async function plot_planned_vs_real_worker_over_time () {
+	const urlParams = new URLSearchParams(window.location.search);
+
+	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=worker_usage.csv`)
+
+	convertToIntAndFilter(data.data.map(Object.values))
+
+	replaceZeroWithNull(data.data);
+
+	if(!data.data.length) {
+		log(`Could not plot seemingly empty data`);
+		return;
+	}
+
+	var unixTime = data.data.map(row => row[0]);
 	var readableTime = unixTime.map(convertUnixTimeToReadable);
-	var plannedWorkers = data.map(row => row[1]);
-	var actualWorkers = data.map(row => row[2]);
+	var plannedWorkers = data.data.map(row => row[1]);
+	var actualWorkers = data.data.map(row => row[2]);
 
 	var tracePlanned = {
 		x: readableTime,
@@ -377,19 +390,24 @@ async function plot_cpu_gpu_graph() {
 
 	var cpu_ram_usage_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=cpu_ram_usage.csv`)
 
-	convertToIntAndFilter(cpu_ram_usage_json.map(Object.values))
+	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values))
 
-	replaceZeroWithNull(cpu_ram_usage_json);
+	replaceZeroWithNull(cpu_ram_usage_json.data);
+	
+	if(!cpu_ram_usage_json.data.length) {
+		log(`Could not plot seemingly empty cpu_ram_usage_json`);
+		return;
+	}
 
-	const validCpuEntries = cpu_ram_usage_json.filter(entry => entry[2] !== null && entry[2] !== undefined);
+	const validCpuEntries = cpu_ram_usage_json.data.filter(entry => entry[2] !== null && entry[2] !== undefined);
 
 	// Filtered timestamps and CPU usage data
 	const timestamps_cpu = validCpuEntries.map(entry => new Date(entry[0] * 1000));
 	const cpuUsage = validCpuEntries.map(entry => entry[2]);
 
 	// RAM data remains the same
-	const timestamps_ram = cpu_ram_usage_json.map(entry => new Date(entry[0] * 1000));
-	const ramUsage = cpu_ram_usage_json.map(entry => entry[1]);
+	const timestamps_ram = cpu_ram_usage_json.data.map(entry => new Date(entry[0] * 1000));
+	const ramUsage = cpu_ram_usage_json.data.map(entry => entry[1]);
 
 	// RAM Usage Plot
 	const ramTrace = {
@@ -471,8 +489,13 @@ async function fetchJsonFromUrl(url) {
 	}
 }
 
-async function getData() {
-	var json_data = await fetchJsonFromUrl('https://api.example.com/data');
+async function load_all_data() {
+	var promises = [];
 
-	return json_data;
+	promises.push(plot_cpu_gpu_graph());
+	promises.push(plot_planned_vs_real_worker_over_time());
+
+	for (var i = 0; i < promises.length; i++) {
+		await promises[i];
+	}
 }

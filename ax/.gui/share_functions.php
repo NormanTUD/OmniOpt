@@ -549,7 +549,7 @@
 		$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>\n";
 		$this_html .= copy_button("stdout_file");
 		$this_html .= "<div id='worker_usage_plot'></div>\n";
-		$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plot_planned_vs_real_worker_over_time(worker_usage_csv);</script>";
+		$this_html .= "<script>plot_planned_vs_real_worker_over_time();</script>";
 
 		$html_parts[$_hash] = $this_html;
 

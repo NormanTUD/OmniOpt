@@ -453,11 +453,14 @@
 		$jsonData = loadCsvToJson($file);
 
 		if ($jsonData != "[]") {
-			$html_parts["cpu_ram_usage"] = "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
+			$_part = "<div id='cpuRamChart'></div>";
+			$_part .= "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json);</script>";
 
 			$header = get_header_file($file);
-
 			$_hash = hash('md5', "$header - $file");
+
+			$html_parts[$_hash] = $_part;
+
 			$tab_headers[] = array("id" => $_hash, "header" => $header);
 		}
 

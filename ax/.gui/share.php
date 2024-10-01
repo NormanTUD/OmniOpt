@@ -18,12 +18,16 @@
 
 	function saveActiveTab() {
 		for (var i = 0; i < tab_ids.length; i++) {
-			var tab_id = tab_ids[i];
-			var _active_tab = $("#" + tab_id).tabs("option", "active");
+			try {
+				var tab_id = tab_ids[i];
+				var _active_tab = $("#" + tab_id).tabs("option", "active");
 
-			log(`Checking tab ${tab_id}: ${_active_tab}`);
+				log(`Checking tab ${tab_id}: ${_active_tab}`);
 
-			activeTabIndices[tab_id] = _active_tab;
+				activeTabIndices[tab_id] = _active_tab;
+			} catch (e) {
+				console.warn(e);
+			}
 		}
 	}
 

@@ -157,6 +157,11 @@ debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus 
 
 args = parser.parse_args()
 
+def _sleep(t: int):
+    if not args.no_sleep:
+        time.sleep(t)
+
+
 def my_exit(_code=0):
     tb = traceback.format_exc()
 
@@ -371,10 +376,6 @@ def print_debug(msg):
         pass
 
     _debug("\t" + msg)
-
-def _sleep(t: int):
-    if not args.no_sleep:
-        time.sleep(t)
 
 def append_and_read(file, nr=0, recursion=0):
     try:

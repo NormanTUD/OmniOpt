@@ -336,6 +336,22 @@ async function plot_parallel_plot () {
 	$("#out_files_tabs").tabs();
 }
 
+async function load_results () {
+	var data = await fetchJsonFromUrlFilenameOnly(`results.csv`);
+	if(!data) {
+		log("load_results: Could not fetch results.csv");
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		log(`load_results: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+	
+
+	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button}`);
+}
+
 async function plot_all_possible () {
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`results.csv`)
 
@@ -466,7 +482,7 @@ async function load_next_trials () {
 		return;
 	}
 
-	$("#next_trials_csv").html(`<pre>${data.raw}</pre>`);
+	$("#next_trials_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>`);
 }
 
 async function load_job_infos () {
@@ -480,7 +496,7 @@ async function load_job_infos () {
 		return;
 	}
 
-	$("#job_infos_csv").html(`<pre>${data.raw}</pre>`);
+	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>`);
 }
 
 async function load_best_result () {
@@ -701,6 +717,7 @@ async function load_all_data() {
 	promises.push(load_best_result());
 	promises.push(load_job_infos());
 	promises.push(load_next_trials());
+	promises.push(load_results());
 	promises.push(load_parameter());
 
 	for (var i = 0; i < promises.length; i++) {

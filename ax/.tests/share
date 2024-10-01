@@ -54,30 +54,12 @@ original_dir=$(pwd)
 share_internal_output=$(php share_internal.php 2>&1)
 
 share_output_must_contain=(
-	"0.696001762308624316588634428626"
-	"BoTorch"
-	"trial_status"
-	"0.183587289507441547842248041889"
-	"feature_proportion"
-	"499,74_0,FAILED,BoTorch,,1000,0.250000000000000000000000000000,0.000000000000000000000000000000,1"
-	"find_closest_element_behind_and_copy_content_to_clipboard"
 	"breadcrumb"
 	"createBreadcrumb"
 	"Best results"
 	"Parameter"
 	"2d-Scatter-Plots"
 	"3d-Scatter-Plots"
-	"Sobol"
-	"0.001000000000000000020816681712"
-	"arm_name"
-	"435_0"
-	"stdout_file"
-	"trial_index,arm_name,trial_status,generation_method,result,n_samples,confidence,feature_proportion,n_clusters"
-	"invert_in_dark_mode"
-	"copy_to_clipboard_button"
-	"find_closest_element_behind_and_copy_content_to_clipboard"
-	"FAILED"
-	"COMPLETED"
 )
 
 for i in "${share_output_must_contain[@]}"; do

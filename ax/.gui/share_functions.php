@@ -499,8 +499,9 @@
 
 			$this_html = "";
 			if ($resultsCsvJson != "[]") {
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
-				$this_html .= copy_button("stdout_file");
+				#$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
+				$this_html .= "<div id='results_csv'></div>";
+				#$this_html .= copy_button("stdout_file");
 
 				$this_html .= "<script>plot_all_possible();</script>";
 
@@ -542,8 +543,6 @@
 			return [$tab_headers, $html_parts];
 		}
 
-		#$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>\n";
-		#$this_html .= copy_button("stdout_file");
 		$this_html = "<div id='worker_usage_plot'></div>\n";
 		$this_html .= "<script>plot_planned_vs_real_worker_over_time();</script>";
 

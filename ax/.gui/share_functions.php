@@ -585,7 +585,7 @@
 
 		$header = get_header_file($file);
 
-		$_hash = hash('md5', "$header - $file");
+		$_hash = preg_replace("/\./", "_", preg_replace("/.*\//", "", $file));
 
 		$tab_headers[] = array("id" => $_hash, "header" => $header);
 

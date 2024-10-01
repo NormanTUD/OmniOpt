@@ -328,6 +328,20 @@ function convertUnixTimeToReadable(unixTime) {
 	return date.toLocaleString();
 }
 
+async function load_parameter () {
+	const urlParams = new URLSearchParams(window.location.search);
+
+	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=parameters.txt`)
+
+	if(!Object.keys(data).includes("raw")) {
+		log(`Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+	
+
+	$("#parameters_txt").html(`<pre>${data.raw}</pre>`);
+}
+
 async function load_best_result () {
 	const urlParams = new URLSearchParams(window.location.search);
 
@@ -520,6 +534,7 @@ async function load_all_data() {
 
 	promises.push(plot_cpu_gpu_graph());
 	promises.push(load_best_result());
+	promises.push(load_parameter());
 	promises.push(plot_planned_vs_real_worker_over_time());
 
 	for (var i = 0; i < promises.length; i++) {

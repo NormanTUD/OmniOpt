@@ -769,16 +769,11 @@
 				$tab_headers_and_html_parts = get_results_parameters($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
-			} elseif (
-				preg_match("/evaluation_errors\.log$/", $file)
-				|| preg_match("/oo_errors\.txt$/", $file)
-			) {
+			} elseif (preg_match("/evaluation_errors\.log$/", $file) || preg_match("/oo_errors\.txt$/", $file)) {
 				$tab_headers_and_html_parts = get_results_evaluation_errors_and_oo_errors($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
-			} elseif (
-				preg_match("/get_next_trials/", $file)
-			) {
+			} elseif (preg_match("/get_next_trials/", $file)) {
 				$tab_headers_and_html_parts = get_results_get_next_trial($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
@@ -788,10 +783,7 @@
 				$html_parts = $tab_headers_and_html_parts[1];
 				$parallel_plot = 1;
 			} elseif (
-				preg_match("/state_files/", $file)
-				|| preg_match("/failed_logs/", $file)
-				|| preg_match("/single_runs/", $file)
-				|| preg_match("/gpu_usage/", $file)
+				preg_match("/(?:state_files|single_runs|gpu_usage|failed_logs)/", $file)
 				|| preg_match("/hash\.md5$/", $file)
 				|| preg_match("/ui_url\.txt$/", $file)
 				|| preg_match("/run_uuid$/", $file)

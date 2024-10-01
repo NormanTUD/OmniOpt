@@ -669,6 +669,8 @@
 
 		$html_parts = [];
 
+		$parallel_plot = 0;
+
 		foreach ($run_files as $file) {
 			if (preg_match("/\/\.\.\/?/", $file)) {
 				print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
@@ -713,6 +715,7 @@
 				$tab_headers_and_html_parts = get_results_job_infos($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
+				$parallel_plot = 1;
 			} elseif (
 				preg_match("/state_files/", $file)
 				|| preg_match("/failed_logs/", $file)
@@ -796,14 +799,13 @@
 			}
 		}
 
-		$html .= "<div id='scatter_plot_2d_container'>";
-		$html .= "</div>";
+		$html .= "<div id='scatter_plot_2d_container'></div>";
 
-		$html .= "<div id='scatter_plot_3d_container'>";
-		$html .= "</div>";
+		$html .= "<div id='scatter_plot_3d_container'></div>";
 
-		$html .= "<div id='parallel_plot_container'>";
-		$html .= "</div>";
+		if($parallel_plot) {
+			$html .= "<div id='parallel_plot_container'></div>";
+		}
 
 		if(count($html_parts)) {
 			foreach ($html_parts as $id => $html_part) {

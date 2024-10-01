@@ -480,7 +480,7 @@ async function load_next_trials () {
 		return;
 	}
 
-	$("#next_trials_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>`);
+	$("#next_trials_csv").html(`${data.raw}`);
 }
 
 async function load_job_infos () {

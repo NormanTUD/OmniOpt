@@ -501,12 +501,8 @@
 			if ($resultsCsvJson != "[]") {
 				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 				$this_html .= copy_button("stdout_file");
-				$this_html .= "<script>\n";
-				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
-				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
-				$this_html .= "</script>";
 
-				$this_html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
+				$this_html .= "<script>plot_all_possible();</script>";
 
 				$html_parts[$_hash] = $this_html;
 
@@ -659,7 +655,7 @@
 
 			$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
 			$this_html .= copy_button("stdout_file");
-			$this_html .= "<script>var job_infos_csv = $jobInfosCsvJson; plot_parallel_plot(job_infos_csv);</script>";
+			$this_html .= "<script>plot_parallel_plot();</script>";
 			$html_parts[$_hash] = $this_html;
 		}
 

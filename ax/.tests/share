@@ -60,8 +60,6 @@ share_output_must_contain=(
 	"0.183587289507441547842248041889"
 	"feature_proportion"
 	"499,74_0,FAILED,BoTorch,,1000,0.250000000000000000000000000000,0.000000000000000000000000000000,1"
-	"results_csv_bare"
-	"job_infos_csv"
 	"find_closest_element_behind_and_copy_content_to_clipboard"
 	"Experiment parameters"
 	"breadcrumb"

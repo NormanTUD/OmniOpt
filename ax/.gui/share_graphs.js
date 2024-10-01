@@ -113,18 +113,18 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var _key = [x_name, y_name, z_name].sort().join("!!!");
 					if(!already_existing_plots.includes(_key)) {
 						var xValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[x_name]);
-							return isNaN(parsedValue) ? row[x_name] : parsedValue;
+							var parsedValue = parseFloat(row[i]);
+							return isNaN(parsedValue) ? row[i] : parsedValue;
 						});
 
 						var yValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[y_name]);
-							return isNaN(parsedValue) ? row[y_name] : parsedValue;
+							var parsedValue = parseFloat(row[j]);
+							return isNaN(parsedValue) ? row[j] : parsedValue;
 						});
 
 						var zValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[z_name]);
-							return isNaN(parsedValue) ? row[z_name] : parsedValue;
+							var parsedValue = parseFloat(row[k]);
+							return isNaN(parsedValue) ? row[k] : parsedValue;
 						});
 
 
@@ -188,6 +188,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	// 2D Scatter Plot
 	var already_existing_plots = [];
+
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
 			var x_name = _paramKeys[i];
@@ -197,13 +198,13 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 
 			if(!already_existing_plots.includes(_key)) {
 				var xValues = _results_csv_json.map(function(row) {
-					var parsedValue = parseFloat(row[x_name]);
-					return isNaN(parsedValue) ? row[x_name] : parsedValue;
+					var parsedValue = parseFloat(row[i]);
+					return isNaN(parsedValue) ? row[i] : parsedValue;
 				});
 
 				var yValues = _results_csv_json.map(function(row) {
-					var parsedValue = parseFloat(row[y_name]);
-					return isNaN(parsedValue) ? row[y_name] : parsedValue;
+					var parsedValue = parseFloat(row[j]);
+					return isNaN(parsedValue) ? row[j] : parsedValue;
 				});
 
 				function color_curried(value) {
@@ -268,9 +269,26 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 	}
 }
 
-function plot_parallel_plot (_results_csv_json) {
+async function plot_parallel_plot () {
+	const urlParams = new URLSearchParams(window.location.search);
+
+	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=results.csv`)
+
+	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
+
+	replaceZeroWithNull(_results_csv_json.data);
+
+	if(!Object.keys(_results_csv_json).includes("data")) {
+		log(`Could not plot seemingly empty _results_csv_json: no data found`);
+		return;
+	}
+	
+	if(!_results_csv_json.data.length) {
+		log(`Could not plot seemingly empty _results_csv_json`);
+		return;
+	}
 	// Extract parameter names
-	var paramKeys = Object.keys(_results_csv_json[0]).filter(function(key) {
+	var paramKeys = Object.keys(_results_csv_json.data[0]).filter(function(key) {
 		return ![
 			'trial_index',
 			'arm_name',
@@ -288,7 +306,7 @@ function plot_parallel_plot (_results_csv_json) {
 	});
 
 	// Get result values for color mapping
-	var resultValues = _results_csv_json.map(function(row) {
+	var resultValues = _results_csv_json.data.map(function(row) {
 		return parseFloat(row.result);
 	});
 
@@ -297,26 +315,67 @@ function plot_parallel_plot (_results_csv_json) {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+	parallel_plot(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
 
 	apply_theme_based_on_system_preferences();
 
 	$("#out_files_tabs").tabs();
 }
 
-function plot_all_possible (_results_csv_json) {
-	// Extract parameter names
-	var paramKeys = Object.keys(_results_csv_json[0]).filter(function(key) {
-		return !['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(key);
+async function plot_all_possible () {
+	const urlParams = new URLSearchParams(window.location.search);
+
+	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=results.csv`)
+
+	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
+
+	if(!Object.keys(_results_csv_json).includes("data")) {
+		log(`Could not plot seemingly empty _results_csv_json: no data found`);
+		return;
+	}
+	
+	if(!_results_csv_json.data.length) {
+		log(`Could not plot seemingly empty _results_csv_json`);
+		return;
+	}
+
+	var header_line = _results_csv_json.data.shift();
+
+	var paramKeys = [];
+
+	for (var i = 0; i < header_line.length; i++) {
+		var this_element = header_line[i];
+
+		if(!['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(this_element)) {
+			paramKeys.push(this_element);
+		}
+	}
+
+	var result_idx = header_line.indexOf("result");
+
+	if(result_idx < 0) {
+		console.error("Cannot find result column index!");
+		return;
+	}
+
+	log("_results_csv_json.data:", _results_csv_json.data, "result_idx:", result_idx);
+
+	var resultValues = _results_csv_json.data.map(function(row) {
+		return parseFloat(row[result_idx]);
 	});
 
-	// Get result values for color mapping
-	var resultValues = _results_csv_json.map(function(row) { return parseFloat(row.result); });
+	resultValues = resultValues.filter(function (value) {
+		return !Number.isNaN(value);
+	});
+
+
+	log(resultValues);
+
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	scatter(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
-	scatter_3d(paramKeys, _results_csv_json, minResult, maxResult, resultValues);
+	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
+	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
 
 	apply_theme_based_on_system_preferences();
 
@@ -532,10 +591,13 @@ async function fetchJsonFromUrl(url) {
 async function load_all_data() {
 	var promises = [];
 
+	promises.push(plot_all_possible());
 	promises.push(plot_cpu_gpu_graph());
+	promises.push(plot_parallel_plot());
+	promises.push(plot_planned_vs_real_worker_over_time());
+
 	promises.push(load_best_result());
 	promises.push(load_parameter());
-	promises.push(plot_planned_vs_real_worker_over_time());
 
 	for (var i = 0; i < promises.length; i++) {
 		await promises[i];

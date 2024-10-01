@@ -542,9 +542,9 @@
 			return [$tab_headers, $html_parts];
 		}
 
-		$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>\n";
-		$this_html .= copy_button("stdout_file");
-		$this_html .= "<div id='worker_usage_plot'></div>\n";
+		#$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>\n";
+		#$this_html .= copy_button("stdout_file");
+		$this_html = "<div id='worker_usage_plot'></div>\n";
 		$this_html .= "<script>plot_planned_vs_real_worker_over_time();</script>";
 
 		$html_parts[$_hash] = $this_html;
@@ -657,8 +657,8 @@
 		} else {
 			$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-			$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
-			$this_html .= copy_button("stdout_file");
+			$this_html = "<div id='parallel_plot_container'></div>";
+			#$this_html .= copy_button("stdout_file");
 			$this_html .= "<script>plot_parallel_plot();</script>";
 			$html_parts[$_hash] = $this_html;
 		}
@@ -828,10 +828,6 @@
 		$html .= "<div id='scatter_plot_2d_container'></div>\n";
 
 		$html .= "<div id='scatter_plot_3d_container'></div>\n";
-
-		if($parallel_plot) {
-			$html .= "<div id='parallel_plot_container'></div>\n";
-		}
 
 		if(count($html_parts)) {
 			foreach ($html_parts as $id => $html_part) {

@@ -272,7 +272,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 async function plot_parallel_plot () {
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=results.csv`)
+	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=job_infos.csv`)
 
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
@@ -287,6 +287,10 @@ async function plot_parallel_plot () {
 		log(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
+
+
+	var header_line = _results_csv_json.data.shift();
+
 	// Extract parameter names
 	var paramKeys = Object.keys(_results_csv_json.data[0]).filter(function(key) {
 		return ![
@@ -304,6 +308,8 @@ async function plot_parallel_plot () {
 			'exit_code'
 		].includes(key);
 	});
+
+	var result_idx = header_line.indexOf("result");
 
 	// Get result values for color mapping
 	var resultValues = _results_csv_json.data.map(function(row) {
@@ -643,4 +649,14 @@ async function load_all_data() {
 	}
 
 	removeSpinnerOverlay();
+}
+
+function copy_button (name_to_search_for) {
+	if(!name_to_search_for) {
+		console.error("Empty name_to_search_for in copy_button");
+		console.trace();
+		return "";
+	}
+
+	return `<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, "${name_to_search_for}")'>📋 Copy raw data to clipboard</button>"`;
 }

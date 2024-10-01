@@ -16,6 +16,17 @@
 
 	var activeTabIndices = {};
 
+	function initialize_tabs () {
+		for (var i = 0; i < tab_ids.length; i++) {
+			try {
+				var tab_id = tab_ids[i];
+				$("#" + tab_id).tabs();
+			} catch (e) {
+				console.warn(e);
+			}
+		}
+	}
+
 	function saveActiveTab() {
 		for (var i = 0; i < tab_ids.length; i++) {
 			try {
@@ -101,6 +112,8 @@
 
 				await load_all_data();
 
+				initialize_tabs();
+
 				currently_switching = false;
 			},
 			error: function() {
@@ -134,6 +147,7 @@
 				} else {
 					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
 				}
+
 			},
 			error: function() {
 				console.error('Error fetching the hash.');

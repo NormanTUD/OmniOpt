@@ -449,6 +449,21 @@
 		return $html;
 	}
 
+	function get_results_cpu_ram_usage ($file, $tab_headers, $html_parts) {
+		$jsonData = loadCsvToJson($file);
+
+		if ($jsonData != "[]") {
+			$html_parts["cpu_ram_usage"] = "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
+
+			$header = get_header_file($file);
+
+			$_hash = hash('md5', "$header - $file");
+			$tab_headers[] = array("id" => $_hash, "header" => $header);
+		}
+
+		return [$tab_headers, $html_parts];
+	}
+
 	function get_results_csv_code ($file, $tab_headers, $html_parts) {
 		$content = remove_ansi_colors(file_get_contents($file));
 		$content_encoding = mb_detect_encoding($content);
@@ -524,16 +539,9 @@
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/cpu_ram_usage\.csv$/", $file)) {
-				$jsonData = loadCsvToJson($file);
-
-				if ($jsonData != "[]") {
-					$html_parts["cpu_ram_usage"] = "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
-
-					$header = get_header_file($file);
-
-					$_hash = hash('md5', "$header - $file");
-					$tab_headers[] = array("id" => $_hash, "header" => $header);
-				}
+				$tab_headers_and_html_parts = get_results_cpu_ram_usage($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/worker_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);
 				$content = remove_ansi_colors(file_get_contents($file));

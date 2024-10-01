@@ -1,6 +1,4 @@
-var hashcache = {
-
-};
+var hashcache = [];
 
 function get_width() {
 	return Math.max(1200, parseInt(0.95 * window.innerWidth));
@@ -347,9 +345,9 @@ async function load_results () {
 		log(`load_results: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
-	
 
-	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button}`);
+
+	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
 }
 
 async function plot_all_possible () {
@@ -365,7 +363,7 @@ async function plot_all_possible () {
 		log(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
 	}
-	
+
 	if(!_results_csv_json.data.length) {
 		log(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
 		return;
@@ -424,7 +422,7 @@ async function load_parameter () {
 		log(`load_parameter: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
-	
+
 
 	$("#parameters_txt").html(`<pre>${data.raw}</pre>`);
 }
@@ -460,7 +458,7 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 		log(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
-	
+
 
 	if($(`#${_divname}`).length == 0) {
 		console.error(`Could not find #${_divname}`);
@@ -509,7 +507,7 @@ async function load_best_result () {
 		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
-	
+
 
 	$("#best_result_txt").html(`<pre>${data.raw}</pre>`);
 }
@@ -561,7 +559,7 @@ async function plot_planned_vs_real_worker_over_time () {
 		yaxis: {
 			title: 'Nr. Worker'
 		},
-		width: get_width(),
+width: get_width(),
 		height: get_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
@@ -682,11 +680,15 @@ async function fetchJsonFromUrl(url) {
 			throw new Error('Network response was not ok: ' + response.statusText);
 		}
 		const data = await response.json();
-		var hash = data.hash;
-		if(!Object.keys(hashcache).includes(url) || hashcache[url] != hash) {
-			hashcache[url] = hash;
-			return data;
+		if(Object.keys(data).includes("hash")) {
+			var hash = data.hash;
+			if(!hashcache.includes(hash)) {
+				hashcache.push(hash);
+				return data;
+			}
 		}
+
+		return data;
 	} catch (error) {
 		return null;
 	}
@@ -697,9 +699,9 @@ async function fetchJsonFromUrl(url) {
 async function fetchJsonFromUrlFilenameOnly(filename) {
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`)
+	var _res = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`)
 
-	return _results_csv_json;
+	return _res;
 }
 
 async function load_all_data() {

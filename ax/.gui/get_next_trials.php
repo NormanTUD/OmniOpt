@@ -49,7 +49,7 @@
 
 	$header = get_header_file($file);
 
-	$this_html = "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,got,requested'>" . htmlentities($content) . "</pre>";
+	$this_html = "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,got,requested'>" . htmlentities($content) . "</pre>\n";
 	$this_html .= copy_button("stdout_file");
 
 	print json_encode(

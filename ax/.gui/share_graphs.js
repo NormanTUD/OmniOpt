@@ -44,10 +44,10 @@ function getUniqueValues(arr) {
 
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
 	var dimensions = [...paramKeys, 'result'].map(function(key) {
-		var result_idx = paramKeys.length + 1;
+		var idx = [...paramKeys, "result"].indexOf(key);
 
 		var values = _results_csv_json.map(function(row) {
-			return row[result_idx];
+			return row[idx];
 		});
 		values = values.filter(value => value !== undefined && !isNaN(value));
 
@@ -70,8 +70,6 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 			};
 		}
 	});
-
-	log("dimensions:", dimensions)
 
 	var traceParallel = {
 		type: 'parcoords',

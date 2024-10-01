@@ -511,7 +511,7 @@
 				$nr_real_headers = countNonMatchingHeaders($file);
 
 				if($nr_real_headers > 0) {
-					$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
+					$tab_headers[] = array("id" => "parallel_plot_element", "header" => "Parallel-Plot");
 				}
 
 				if($nr_real_headers >= 2) {
@@ -650,14 +650,14 @@
 
 		$header = get_header_file($file);
 
-		$_hash = hash('md5', "$header - $file");
+		$_hash = "parallel_plot_element";
 
 		if ($jobInfosCsvJson == "[]") {
 			return [$tab_headers, $html_parts];
 		} else {
 			$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-			$this_html = "<div id='parallel_plot_container'></div>";
+			$this_html = "<div id='parallel_plot_container'><div id='$_hash'></div></div>";
 			#$this_html .= copy_button("stdout_file");
 			$this_html .= "<script>plot_parallel_plot();</script>";
 			$html_parts[$_hash] = $this_html;

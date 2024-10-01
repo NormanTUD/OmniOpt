@@ -536,6 +536,46 @@
 		return [$tab_headers, $html_parts];
 	}
 
+	function get_results_best_results ($file, $tab_headers, $html_parts) {
+		$content = remove_ansi_colors(file_get_contents($file));
+		$content_encoding = mb_detect_encoding($content);
+		if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+			return [$tab_headers, $html_parts];
+		}
+
+		$header = get_header_file($file);
+
+		$_hash = hash('md5', "$header - $file");
+
+		$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+		$this_html = "<pre>" . htmlentities($content) . "</pre>";
+
+		$html_parts[$_hash] = $this_html;
+
+		return [$tab_headers, $html_parts];
+	}
+
+	function get_results_parameters ($file, $tab_headers, $html_parts) {
+		$content = remove_ansi_colors(file_get_contents($file));
+		$content_encoding = mb_detect_encoding($content);
+		if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+			return [$tab_headers, $html_parts];
+		}
+
+		$header = get_header_file($file);
+
+		$_hash = hash('md5', "$header - $file");
+
+		$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+		$this_html = "<pre>" . htmlentities($content) . "</pre>";
+
+		$html_parts[$_hash] = $this_html;
+
+		return [$tab_headers, $html_parts];
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 
@@ -575,39 +615,13 @@
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/best_result\.txt$/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$this_html = "";
-
-				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_best_results($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/parameters\.txt$/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$this_html = "<pre>" . htmlentities($content) . "</pre>";
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_parameters($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (
 				preg_match("/evaluation_errors\.log$/", $file)
 				|| preg_match("/oo_errors\.txt$/", $file)
@@ -695,10 +709,6 @@
 				$out_or_err_files[] = $file;
 			} else {
 				echo "<!-- Unknown file '$file' -->\n";
-				#$_hash = hash("md5", $file);
-				#$this_html = "<h2 class='error'>Unknown file type $file</h2>";
-				#$tab_headers[] = array("id" => $_hash, "header" => "Out-Files");
-				#$html_parts[$file] = $this_html;
 			}
 		}
 

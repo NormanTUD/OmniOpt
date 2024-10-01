@@ -565,11 +565,11 @@
 
 		$header = get_header_file($file);
 
-		$_hash = hash('md5', "$header - $file");
+		$_hash = preg_replace("/\./", "_", preg_replace("/.*\//", "", $file));
 
 		$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-		$this_html = "<pre>" . htmlentities($content) . "</pre>";
+		$this_html = "<script>load_best_result();</script>";
 
 		$html_parts[$_hash] = $this_html;
 

@@ -328,6 +328,20 @@ function convertUnixTimeToReadable(unixTime) {
 	return date.toLocaleString();
 }
 
+async function load_best_result () {
+	const urlParams = new URLSearchParams(window.location.search);
+
+	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=best_result.txt`)
+
+	if(!Object.keys(data).includes("raw")) {
+		log(`Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+	
+
+	$("#best_result_txt").html(`<pre>${data.raw}</pre>`);
+}
+
 async function plot_planned_vs_real_worker_over_time () {
 	const urlParams = new URLSearchParams(window.location.search);
 
@@ -336,6 +350,11 @@ async function plot_planned_vs_real_worker_over_time () {
 	convertToIntAndFilter(data.data.map(Object.values))
 
 	replaceZeroWithNull(data.data);
+
+	if(!Object.keys(data).includes("data")) {
+		log(`Could not plot seemingly empty data: no data found`);
+		return;
+	}
 
 	if(!data.data.length) {
 		log(`Could not plot seemingly empty data`);
@@ -383,6 +402,8 @@ async function plot_planned_vs_real_worker_over_time () {
 	};
 
 	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
+
+	initialize_autotables();
 }
 
 async function plot_cpu_gpu_graph() {
@@ -393,6 +414,11 @@ async function plot_cpu_gpu_graph() {
 	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values))
 
 	replaceZeroWithNull(cpu_ram_usage_json.data);
+
+	if(!Object.keys(cpu_ram_usage_json).includes("data")) {
+		log(`Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+		return;
+	}
 	
 	if(!cpu_ram_usage_json.data.length) {
 		log(`Could not plot seemingly empty cpu_ram_usage_json`);
@@ -493,6 +519,7 @@ async function load_all_data() {
 	var promises = [];
 
 	promises.push(plot_cpu_gpu_graph());
+	promises.push(load_best_result());
 	promises.push(plot_planned_vs_real_worker_over_time());
 
 	for (var i = 0; i < promises.length; i++) {

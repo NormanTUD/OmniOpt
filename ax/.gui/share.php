@@ -98,7 +98,7 @@
 			success: async function(response) {
 				saveActiveTab();
 				if (response != last_load_content) {
-					$('#share_main').html(response).show();
+					$('#share_main').html(response);
 					last_load_content = response;
 				}
 
@@ -113,6 +113,8 @@
 				await load_all_data();
 
 				initialize_tabs();
+
+				$("#share_main").show();
 
 				currently_switching = false;
 			},

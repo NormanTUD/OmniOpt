@@ -14,15 +14,16 @@
 
 	var tab_ids = ["out_files_tabs", "main_tabbed"];
 
-
-
-	var activeTabIndices = [];
+	var activeTabIndices = {};
 
 	function saveActiveTab() {
 		for (var i = 0; i < tab_ids.length; i++) {
 			var tab_id = tab_ids[i];
+			var _active_tab = $("#" + tab_id).tabs("option", "active");
 
-			activeTabIndices[tab_id] = $("#" + tab_id).tabs("option", "active");
+			log(`Checking tab ${tab_id}: ${_active_tab}`);
+
+			activeTabIndices[tab_id] = _active_tab;
 		}
 	}
 

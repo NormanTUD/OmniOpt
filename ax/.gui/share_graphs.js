@@ -408,6 +408,34 @@ async function load_out_files () {
 	}
 }
 
+async function load_evaluation_errors_and_oo_errors () {
+	var p = [];
+	p.push(_load_evaluation_errors_and_oo_errors("evaluation_errors.log", "evaluation_errors"));
+	p.push(_load_evaluation_errors_and_oo_errors("oo_errors.txt", "oo_errors"));
+
+	for (var i = 0; i < p.length; i++) {
+		await p[i];
+	}
+}
+
+async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
+	var urlParams = new URLSearchParams(window.location.search);
+
+	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${_fn}`)
+
+	if(!Object.keys(data).includes("raw")) {
+		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+	
+
+	if($(`#${_divname}`).length == 0) {
+		console.error(`Could not find #${_divname}`);
+	} else {
+		$(`#${_divname}`).html(`<pre>${data.raw}</pre>`);
+	}
+}
+
 async function load_best_result () {
 	var urlParams = new URLSearchParams(window.location.search);
 
@@ -605,6 +633,7 @@ async function load_all_data() {
 	promises.push(plot_parallel_plot());
 	promises.push(plot_planned_vs_real_worker_over_time());
 
+	promises.push(load_evaluation_errors_and_oo_errors());
 	promises.push(load_out_files());
 	promises.push(load_best_result());
 	promises.push(load_parameter());

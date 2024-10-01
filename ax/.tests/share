@@ -69,7 +69,6 @@ share_output_must_contain=(
 	"2d-Scatter-Plots"
 	"3d-Scatter-Plots"
 	"Sobol"
-	"</script></div></div>"
 	"0.001000000000000000020816681712"
 	"arm_name"
 	"435_0"

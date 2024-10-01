@@ -473,8 +473,8 @@
 		$jsonData = loadCsvToJson($file);
 
 		if ($jsonData != "[]") {
-			$_part = "<div id='cpuRamChart'></div>";
-			$_part .= "<script>plot_cpu_gpu_graph();</script>";
+			$_part = "<div id='cpuRamChart'></div>\n";
+			$_part .= "<script>plot_cpu_gpu_graph();</script>\n";
 
 			$header = get_header_file($file);
 			$_hash = hash('md5', "$header - $file");
@@ -607,7 +607,11 @@
 
 		$this_html = "";
 
-		$this_html .= "<pre>" . htmlentities($content) . "</pre>";
+		if(preg_match('/oo/', $file)) {
+			$this_html .= "<div id='oo_errors'></div>\n";
+		} else {
+			$this_html .= "<div id='evaluation_errors'></div>\n";
+		}
 
 		$html_parts[$_hash] = $this_html;
 
@@ -701,9 +705,9 @@
 					$html .= "<div id='$_hash'>";
 					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
 					$html .= copy_button("stdout_file");
-					$html .= "</div>";
+					$html .= "</div>\n";
 				}
-				$html .= "</div>";
+				$html .= "</div>\n";
 
 				$html .= "<script>";
 				$html .= "$(function() {";
@@ -711,7 +715,7 @@
 				$html .= '    $("#main_tabbed").tabs();';
 				$html .= "});";
 				$html .= "</script>";
-				$html .= "</div>";
+				$html .= "</div>\n";
 			}
 		}
 
@@ -818,22 +822,22 @@
 		$html .= get_header_line($tab_headers);
 
 		if(count($out_or_err_files)) {
-			$html .= "<div id='out_files_content'></div>"; #get_out_files_html($out_or_err_files);
+			$html .= "<div id='out_files_content'></div>\n"; #get_out_files_html($out_or_err_files);
 		}
 
-		$html .= "<div id='scatter_plot_2d_container'></div>";
+		$html .= "<div id='scatter_plot_2d_container'></div>\n";
 
-		$html .= "<div id='scatter_plot_3d_container'></div>";
+		$html .= "<div id='scatter_plot_3d_container'></div>\n";
 
 		if($parallel_plot) {
-			$html .= "<div id='parallel_plot_container'></div>";
+			$html .= "<div id='parallel_plot_container'></div>\n";
 		}
 
 		if(count($html_parts)) {
 			foreach ($html_parts as $id => $html_part) {
 				$html .= "<div id='$id'>";
 				$html .= $html_part;
-				$html .= "</div>";
+				$html .= "</div>\n";
 			}
 		}
 

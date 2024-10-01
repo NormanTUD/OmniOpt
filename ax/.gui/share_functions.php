@@ -474,7 +474,7 @@
 
 		if ($jsonData != "[]") {
 			$_part = "<div id='cpuRamChart'></div>";
-			$_part .= "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json);</script>";
+			$_part .= "<script>plot_cpu_gpu_graph();</script>";
 
 			$header = get_header_file($file);
 			$_hash = hash('md5', "$header - $file");

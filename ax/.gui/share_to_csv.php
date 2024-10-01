@@ -1,4 +1,6 @@
 <?php
+	header('Content-Type: application/json; charset=utf-8');
+
 	include_once("_functions.php");
 	include_once("share_functions.php");
 

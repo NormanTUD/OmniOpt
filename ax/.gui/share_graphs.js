@@ -372,8 +372,15 @@ function plot_planned_vs_real_worker_over_time (data) {
 	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
 }
 
-function plot_cpu_gpu_graph(cpu_ram_usage_json) {
-	// Initialize arrays to store valid values
+async function plot_cpu_gpu_graph() {
+	const urlParams = new URLSearchParams(window.location.search);
+
+	var cpu_ram_usage_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=cpu_ram_usage.csv`)
+
+	convertToIntAndFilter(cpu_ram_usage_json.map(Object.values))
+
+	replaceZeroWithNull(cpu_ram_usage_json);
+
 	const validCpuEntries = cpu_ram_usage_json.filter(entry => entry[2] !== null && entry[2] !== undefined);
 
 	// Filtered timestamps and CPU usage data
@@ -449,3 +456,23 @@ function replaceZeroWithNull(arr) {
 		}
 	}
 };
+
+async function fetchJsonFromUrl(url) {
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error('Network response was not ok: ' + response.statusText);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Fetch error:', error);
+		return null;
+	}
+}
+
+async function getData() {
+	var json_data = await fetchJsonFromUrl('https://api.example.com/data');
+
+	return json_data;
+}

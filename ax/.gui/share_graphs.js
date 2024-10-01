@@ -328,7 +328,7 @@ function convertUnixTimeToReadable(unixTime) {
 	return date.toLocaleString();
 }
 
-function plotLineChart(data) {
+function plot_planned_vs_real_worker_over_time (data) {
 	var unixTime = data.map(row => row[0]);
 	var readableTime = unixTime.map(convertUnixTimeToReadable);
 	var plannedWorkers = data.map(row => row[1]);
@@ -369,14 +369,7 @@ function plotLineChart(data) {
 		},
 	};
 
-	var new_plot_div = document.createElement('div');
-	new_plot_div.id = 'line-plot';
-	new_plot_div.style.width = get_width() + 'px';
-	new_plot_div.style.height = get_height() + 'px';
-	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
-	document.body.appendChild(new_plot_div);
-	
-	Plotly.newPlot('line-plot', [tracePlanned, traceActual], layout);
+	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
 }
 
 function plot_cpu_gpu_graph(cpu_ram_usage_json) {
@@ -441,13 +434,6 @@ function plot_cpu_gpu_graph(cpu_ram_usage_json) {
 	};
 
 	const data = [ramTrace, cpuTrace];
-
-	var new_plot_div = document.createElement('div');
-	new_plot_div.id = 'cpuRamChart';
-	new_plot_div.style.width = get_width() + 'px';
-	new_plot_div.style.height = get_height() + 'px';
-	new_plot_div = $(new_plot_div).addClass("share_graph")[0];
-	document.body.appendChild(new_plot_div);
 
 	Plotly.newPlot('cpuRamChart', data, layout);
 }

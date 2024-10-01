@@ -511,6 +511,31 @@
 		return [$tab_headers, $html_parts];
 	}
 
+	function get_results_worker_usage ($file, $tab_headers, $html_parts) {
+		$jsonData = loadCsvToJson($file);
+		$content = remove_ansi_colors(file_get_contents($file));
+
+		$header = get_header_file($file);
+
+		$_hash = hash('md5', "$header - $file");
+
+		$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+
+		if ($jsonData == "[]") {
+			return [$tab_headers, $html_parts];
+		}
+
+		$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>\n";
+		$this_html .= copy_button("stdout_file");
+		$this_html .= "<div id='worker_usage_plot'></div>\n";
+		$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plot_planned_vs_real_worker_over_time(worker_usage_csv);</script>";
+
+		$html_parts[$_hash] = $this_html;
+
+		return [$tab_headers, $html_parts];
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 
@@ -546,27 +571,9 @@
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/worker_usage\.csv$/", $file)) {
-				$jsonData = loadCsvToJson($file);
-				$content = remove_ansi_colors(file_get_contents($file));
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$this_html = "";
-
-				if ($jsonData == "[]") {
-					$this_html .= "Data is empty";
-					continue;
-				}
-
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
-				$this_html .= copy_button("stdout_file");
-				$this_html .= "<script>var worker_usage_csv = convertToIntAndFilter($jsonData.map(Object.values)); plotLineChart(worker_usage_csv);</script>";
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_worker_usage($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/best_result\.txt$/", $file)) {
 				$content = remove_ansi_colors(file_get_contents($file));
 				$content_encoding = mb_detect_encoding($content);

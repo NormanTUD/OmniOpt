@@ -75,8 +75,6 @@ share_output_must_contain=(
 	"435_0"
 	"stdout_file"
 	"trial_index,arm_name,trial_status,generation_method,result,n_samples,confidence,feature_proportion,n_clusters"
-	"CANCELLED"
-	"slurmstepd:"
 	"invert_in_dark_mode"
 	"copy_to_clipboard_button"
 	"find_closest_element_behind_and_copy_content_to_clipboard"

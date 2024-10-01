@@ -84,7 +84,7 @@
 		$.ajax({
 		url: requestUrl,
 			method: 'GET',
-			success: function(response) {
+			success: async function(response) {
 				saveActiveTab();
 				if (response != last_load_content) {
 					$('#share_main').html(response).show();
@@ -98,6 +98,9 @@
 				initialize_autotables();
 				restoreActiveTab();
 				removeSpinnerOverlay();
+
+				await load_all_data();
+
 				currently_switching = false;
 			},
 			error: function() {

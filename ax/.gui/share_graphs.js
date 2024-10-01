@@ -270,7 +270,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 }
 
 async function plot_parallel_plot () {
-	const urlParams = new URLSearchParams(window.location.search);
+	var urlParams = new URLSearchParams(window.location.search);
 
 	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=results.csv`)
 
@@ -323,7 +323,7 @@ async function plot_parallel_plot () {
 }
 
 async function plot_all_possible () {
-	const urlParams = new URLSearchParams(window.location.search);
+	var urlParams = new URLSearchParams(window.location.search);
 
 	var _results_csv_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=results.csv`)
 
@@ -383,7 +383,7 @@ function convertUnixTimeToReadable(unixTime) {
 }
 
 async function load_parameter () {
-	const urlParams = new URLSearchParams(window.location.search);
+	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=parameters.txt`)
 
@@ -396,8 +396,20 @@ async function load_parameter () {
 	$("#parameters_txt").html(`<pre>${data.raw}</pre>`);
 }
 
+async function load_out_files () {
+	var urlParams = new URLSearchParams(window.location.search);
+
+	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+
+	if($("#out_files_content").length == 0) {
+		console.error(`#out_files_content not found`);
+	} else {
+		$("#out_files_content").html(data.raw);
+	}
+}
+
 async function load_best_result () {
-	const urlParams = new URLSearchParams(window.location.search);
+	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=best_result.txt`)
 
@@ -411,7 +423,7 @@ async function load_best_result () {
 }
 
 async function plot_planned_vs_real_worker_over_time () {
-	const urlParams = new URLSearchParams(window.location.search);
+	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=worker_usage.csv`)
 
@@ -475,7 +487,7 @@ async function plot_planned_vs_real_worker_over_time () {
 }
 
 async function plot_cpu_gpu_graph() {
-	const urlParams = new URLSearchParams(window.location.search);
+	var urlParams = new URLSearchParams(window.location.search);
 
 	var cpu_ram_usage_json = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=cpu_ram_usage.csv`)
 
@@ -593,6 +605,7 @@ async function load_all_data() {
 	promises.push(plot_parallel_plot());
 	promises.push(plot_planned_vs_real_worker_over_time());
 
+	promises.push(load_out_files());
 	promises.push(load_best_result());
 	promises.push(load_parameter());
 

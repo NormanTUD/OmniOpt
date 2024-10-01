@@ -805,7 +805,7 @@
 				// do nothing
 			} elseif (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
 				if(!$out_files_already_in_tab) {
-					$tab_headers[] = array("id" => 'single_run_files_container', "header" => "Out-Files");
+					$tab_headers[] = array("id" => 'out_files_content', "header" => "Out-Files");
 					$out_files_already_in_tab = 1;
 				}
 
@@ -817,7 +817,9 @@
 
 		$html .= get_header_line($tab_headers);
 
-		$html .= get_out_files_html($out_or_err_files);
+		if(count($out_or_err_files)) {
+			$html .= "<div id='out_files_content'></div>"; #get_out_files_html($out_or_err_files);
+		}
 
 		$html .= "<div id='scatter_plot_2d_container'></div>";
 

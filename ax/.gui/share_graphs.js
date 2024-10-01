@@ -105,13 +105,17 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 }
 
-function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	var already_existing_plots = [];
 
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {
 				for (var k = j + 1; k < _paramKeys.length; k++) {
+					var map_x = mappingKeyNameToIndex[_paramKeys[i]];
+					var map_y = mappingKeyNameToIndex[_paramKeys[j]];
+					var map_z = mappingKeyNameToIndex[_paramKeys[k]];
+
 					var x_name = _paramKeys[i];
 					var y_name = _paramKeys[j];
 					var z_name = _paramKeys[k];
@@ -119,18 +123,18 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var _key = [x_name, y_name, z_name].sort().join("!!!");
 					if(!already_existing_plots.includes(_key)) {
 						var xValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[i]);
-							return isNaN(parsedValue) ? row[i] : parsedValue;
+							var parsedValue = parseFloat(row[map_x]);
+							return isNaN(parsedValue) ? row[map_x] : parsedValue;
 						});
 
 						var yValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[j]);
-							return isNaN(parsedValue) ? row[j] : parsedValue;
+							var parsedValue = parseFloat(row[map_y]);
+							return isNaN(parsedValue) ? row[map_y] : parsedValue;
 						});
 
 						var zValues = _results_csv_json.map(function(row) {
-							var parsedValue = parseFloat(row[k]);
-							return isNaN(parsedValue) ? row[k] : parsedValue;
+							var parsedValue = parseFloat(row[map_z]);
+							return isNaN(parsedValue) ? row[map_z] : parsedValue;
 						});
 
 
@@ -191,13 +195,16 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 	}
 }
 
-function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	var already_existing_plots = [];
 
 	$('#scatter_plot_2d_container').html("");
 
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
+			var map_x = mappingKeyNameToIndex[_paramKeys[i]];
+			var map_y = mappingKeyNameToIndex[_paramKeys[j]];
+
 			var x_name = _paramKeys[i];
 			var y_name = _paramKeys[j];
 
@@ -208,13 +215,13 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				continue;
 			}
 			var xValues = _results_csv_json.map(function(row) {
-				var parsedValue = parseFloat(row[i]);
-				return isNaN(parsedValue) ? row[i] : parsedValue;
+				var parsedValue = parseFloat(row[map_x]);
+				return isNaN(parsedValue) ? row[map_x] : parsedValue;
 			});
 
 			var yValues = _results_csv_json.map(function(row) {
-				var parsedValue = parseFloat(row[j]);
-				return isNaN(parsedValue) ? row[j] : parsedValue;
+				var parsedValue = parseFloat(row[map_y]);
+				return isNaN(parsedValue) ? row[map_y] : parsedValue;
 			});
 
 			function color_curried(value) {
@@ -373,6 +380,7 @@ async function plot_all_possible () {
 
 	var header_line = _results_csv_json.data.shift();
 
+	var mappingKeyNameToIndex = {};
 	var paramKeys = [];
 
 	for (var i = 0; i < header_line.length; i++) {
@@ -380,6 +388,7 @@ async function plot_all_possible () {
 
 		if(!['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(this_element)) {
 			paramKeys.push(this_element);
+			mappingKeyNameToIndex[this_element] = i;
 		}
 	}
 
@@ -401,10 +410,8 @@ async function plot_all_possible () {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	log(_results_csv_json);
-
-	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
-	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
+	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
+	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 
 	apply_theme_based_on_system_preferences();
 

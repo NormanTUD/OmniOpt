@@ -20,11 +20,15 @@
 		for (var i = 0; i < tab_ids.length; i++) {
 			try {
 				var tab_id = tab_ids[i];
-				var _active_tab = $("#" + tab_id).tabs("option", "active");
+				var _active_tab = $("#" + tab_id).tabs().tabs("option", "active");
 
-				log(`Checking tab ${tab_id}: ${_active_tab}`);
+				log(`Checking tab ${tab_id}:`, _active_tab);
 
-				activeTabIndices[tab_id] = _active_tab;
+				if(typeof(_active_tab) == "number") {
+					activeTabIndices[tab_id] = _active_tab;
+				} else {
+					console.warn(`Error while saveActiveTab: typeof(activeTabIndices[${tab_id}]) == ${typeof(activeTabIndices[tab_id])}:`, activeTabIndices[tab_id]);
+				}
 			} catch (e) {
 				console.warn(e);
 			}
@@ -36,12 +40,23 @@
 			var tab_id = tab_ids[i];
 
 			if (Object.keys(activeTabIndices).includes(tab_id)) {
-				try {
-					$("#" + tab_id).tabs("option", "active", activeTabIndices[tab_id]);
-				} catch (e) {
-					if(!("" + e).includes("cannot call methods on tabs prior to initialization")) {
-						console.error(e);
+				var _saved_active_tab = activeTabIndices[tab_id];
+
+				if(typeof(_saved_active_tab) == "number") {
+					try {
+						var _tab_id = "#" + tab_id;
+						log(`Trying to set ${_tab_id} to ${_saved_active_tab}`);
+
+						$(_tab_id).tabs("option", "active", _saved_active_tab);
+
+						log(`Set ${_tab_id} to ${_saved_active_tab}`);
+					} catch (e) {
+						if(!("" + e).includes("cannot call methods on tabs prior to initialization")) {
+							console.error(e);
+						}
 					}
+				} else {
+					log(`Error: _saved_active_tab is not an integer, but ${typeof(_saved_active_tab)}:`, _saved_active_tab);
 				}
 			} else {
 				log(`No saved active tab for #${tab_id}`);

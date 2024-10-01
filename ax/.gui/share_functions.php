@@ -178,6 +178,20 @@
 		return $jsonData;
 	}
 
+	function convert_to_int_or_float_if_possible($var) {
+		// Prüfen, ob die Eingabe ein numerischer Wert ist
+		if (is_numeric($var)) {
+			// Wenn es ein ganzzahliger Wert ist, nach int konvertieren
+			if (ctype_digit($var) || (is_numeric($var) && (float)$var == (int)$var)) {
+				return (int)$var;
+			}
+			// Sonst als float zurückgeben
+			return (float)$var;
+		}
+		// Wenn die Eingabe nicht numerisch ist, den originalen Wert zurückgeben
+		return $var;
+	}
+
 	function loadCsvToJson($file) {
 		assert(file_exists($file), "CSV file does not exist.");
 
@@ -187,7 +201,11 @@
 			assert($fileHandle !== false, "Failed to open the file.");
 
 			while (($row = fgetcsv($fileHandle)) !== false) {
-				$csvData[] = $row;
+				$new_row = [];
+				foreach ($row as $r) {
+					$new_row[] = convert_to_int_or_float_if_possible($r);
+				}
+				$csvData[] = $new_row;
 			}
 
 			fclose($fileHandle);

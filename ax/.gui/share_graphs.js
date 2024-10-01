@@ -726,6 +726,8 @@ async function load_all_data() {
 		await promises[i];
 	}
 
+	initialize_autotables();
+
 	removeSpinnerOverlay();
 }
 

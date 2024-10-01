@@ -93,11 +93,6 @@ function create_table_from_csv_data(csvData, table_container, new_table_id, opti
 	data = normalizeArrayLength(data);
 	var tableContainer = document.getElementById(table_container);
 
-	if (!tableContainer) {
-		console.error(`Table container "${table_container}" not found`);
-		return;
-	}
-
 	// Create table element
 	var table = document.createElement('table');
 	$(table).addClass('display').attr('id', new_table_id);
@@ -185,15 +180,12 @@ function initialize_autotables() {
 
 		var table_container_id = tableContainer.attr('id');
 
-		if(!already_initialized_tables.includes(table_container_id)) {
-			create_table_from_csv_data(
-				csvText, 
-				table_container_id, 
-				`autotable_${index}`,
-				_optionalColumnTitles
-			);
-			already_initialized_tables.push(table_container_id);
-		}
+		create_table_from_csv_data(
+			csvText, 
+			table_container_id, 
+			`autotable_${index}`,
+			_optionalColumnTitles
+		);
 	});
 
 	apply_theme_based_on_system_preferences();

@@ -470,10 +470,6 @@ async function plot_planned_vs_real_worker_over_time () {
 		return;
 	}
 
-	convertToIntAndFilter(data.data.map(Object.values))
-
-	replaceZeroWithNull(data.data);
-
 	if(!Object.keys(data).includes("data")) {
 		log(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
 		return;
@@ -483,6 +479,10 @@ async function plot_planned_vs_real_worker_over_time () {
 		log(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
 		return;
 	}
+
+	convertToIntAndFilter(data.data.map(Object.values))
+
+	replaceZeroWithNull(data.data);
 
 	var unixTime = data.data.map(row => row[0]);
 	var readableTime = unixTime.map(convertUnixTimeToReadable);

@@ -631,8 +631,7 @@
 
 		$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-		$this_html = "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,got,requested'>" . htmlentities($content) . "</pre>";
-		$this_html .= copy_button("stdout_file");
+		$this_html = "<div id='next_trials_csv'></div>";
 
 		$html_parts[$_hash] = $this_html;
 
@@ -657,8 +656,8 @@
 		} else {
 			$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-			$this_html = "<div id='parallel_plot_container'><div id='$_hash'></div></div>";
 			#$this_html .= copy_button("stdout_file");
+			$this_html = "<div id='parallel_plot_container'><div id='$_hash'></div></div>";
 			$this_html .= "<script>plot_parallel_plot();</script>";
 			$html_parts[$_hash] = $this_html;
 		}

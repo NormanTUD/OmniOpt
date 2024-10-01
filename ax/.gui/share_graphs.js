@@ -441,7 +441,7 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
+		log(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 	
@@ -451,6 +451,36 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 	} else {
 		$(`#${_divname}`).html(`<pre>${data.raw}</pre>`);
 	}
+}
+
+async function load_next_trials () {
+	var urlParams = new URLSearchParams(window.location.search);
+
+	var data = await fetchJsonFromUrl(`get_next_trials.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		log(`load_next_trials: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	$("#next_trials_csv").html(`<pre>${data.raw}</pre>`);
+}
+
+async function load_job_infos () {
+	var data = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		log(`load_job_infos: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	$("#job_infos_csv").html(`<pre>${data.raw}</pre>`);
 }
 
 async function load_best_result () {
@@ -669,6 +699,8 @@ async function load_all_data() {
 	promises.push(load_evaluation_errors_and_oo_errors());
 	promises.push(load_out_files());
 	promises.push(load_best_result());
+	promises.push(load_job_infos());
+	promises.push(load_next_trials());
 	promises.push(load_parameter());
 
 	for (var i = 0; i < promises.length; i++) {

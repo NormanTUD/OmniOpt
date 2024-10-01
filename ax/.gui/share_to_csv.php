@@ -49,31 +49,31 @@
 
 	$share_dir = "./shares/";
 	if(!is_dir($share_dir)) {
-		print json_encode(["error" => "$share_dir is not a directory"]);
+		print json_encode(["error" => "A: $share_dir is not a directory"]);
 		exit(1);
 	}
 
 	$share_dir = "$share_dir/" . $vars["user_id"] . "/";
 	if(!is_dir($share_dir)) {
-		print json_encode(["error" => "$share_dir is not a directory"]);
+		print json_encode(["error" => "B: $share_dir is not a directory"]);
 		exit(1);
 	}
 
 	$share_dir = "$share_dir/" . $vars["experiment_name"] . "/";
 	if(!is_dir($share_dir)) {
-		print json_encode(["error" => "$share_dir is not a directory"]);
+		print json_encode(["error" => "C: $share_dir is not a directory"]);
 		exit(1);
 	}
 
 	$share_dir = "$share_dir/" . $vars["run_nr"];
 	if(!is_dir($share_dir)) {
-		print json_encode(["error" => "$share_dir is not a directory"]);
+		print json_encode(["error" => "D: $share_dir is not a directory"]);
 		exit(1);
 	}
 
 	$share_file = "$share_dir/" . $vars["filename"];
 	if(!file_exists($share_file)) {
-		print json_encode(["error" => "$share_dir is not a directory"]);
+		print json_encode(["error" => "E: $share_dir is not a directory"]);
 		exit(1);
 	}
 

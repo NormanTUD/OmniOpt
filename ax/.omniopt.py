@@ -2962,16 +2962,18 @@ def progressbar_description(new_msgs=[]):
     progress_bar.refresh()
 
 def clean_completed_jobs():
+    #for job, trial_index in global_vars["jobs"][:]:
+    #    _state = state_from_job(job)
+    #    if _state != "running":
+    #        print_red(f"clean_completed_jobs: {job} has state {_state}")
+    #    while _state == "running":
+    #        _state = state_from_job(job)
+    #        print_yellow(f"clean_completed_jobs: Waiting for job {job}")
+    #        _sleep(5)
+
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
-
-        while _state == "running":
-            _state = state_from_job(job)
-
-            _sleep(5)
-
-    for job, trial_index in global_vars["jobs"][:]:
-        _state = state_from_job(job)
+        print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
         elif _state in ["unknown", "pending", "running"]:
@@ -4439,7 +4441,7 @@ def run_search(_progress_bar):
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
-    wait_for_jobs_to_complete(num_parallel_jobs)
+        wait_for_jobs_to_complete(num_parallel_jobs)
 
     while len(global_vars["jobs"]):
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
@@ -4451,7 +4453,8 @@ def run_search(_progress_bar):
 
 def wait_for_jobs_to_complete(_num_parallel_jobs):
     if SYSTEM_HAS_SBATCH:
-        while len(global_vars["jobs"]) > _num_parallel_jobs:
+        while len(global_vars["jobs"]) >= _num_parallel_jobs:
+            print_debug(f"Waitig for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             if is_slurm_job() and not args.force_local_execution:
                 _sleep(5)

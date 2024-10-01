@@ -648,6 +648,77 @@
 		return [$tab_headers, $html_parts];
 	}
 
+	function get_out_files_html ($out_or_err_files) {
+		$html = "";
+		if (count($out_or_err_files)) {
+			if (count($out_or_err_files) == 1) {
+				$_file = $out_or_err_files[0];
+				if (file_exists($_file)) {
+					$content = file_get_contents($_file);
+					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
+					$html .= copy_button("stdout_file");
+				}
+			} else {
+				$html .= "<div id='single_run_files_container'>\n";
+				$html .= "<h2 id='single_run_files'>Single run output files</h2>";
+				$html .= '<div id="out_files_tabs">';
+				$html .= '<ul style="max-height: 200px; overflow: auto;">';
+				$ok = "&#9989;";
+				$error = "&#10060;";
+
+				foreach ($out_or_err_files as $out_or_err_file) {
+					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+
+					$_hash = hash('md5', $content);
+
+					$ok_or_error = $ok;
+
+					if (!checkForResult($content)) {
+						$ok_or_error = $error;
+					}
+
+					$html .= "<li><a href='#$_hash'>" . preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)) . "<span class='invert_in_dark_mode'>$ok_or_error</span></a></li>";
+				}
+				$html .= "</ul>";
+				foreach ($out_or_err_files as $out_or_err_file) {
+					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+
+					$_hash = hash('md5', $content);
+					$html .= "<div id='$_hash'>";
+					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
+					$html .= copy_button("stdout_file");
+					$html .= "</div>";
+				}
+				$html .= "</div>";
+
+				$html .= "<script>";
+				$html .= "$(function() {";
+				$html .= '    $("#out_files_tabs").tabs();';
+				$html .= '    $("#main_tabbed").tabs();';
+				$html .= "});";
+				$html .= "</script>";
+				$html .= "</div>";
+			}
+		}
+
+		return $html;
+	}
+
+	function get_header_line($tab_headers) {
+		$html = "";
+		if(count($tab_headers)) {
+			$html .= "<div id='main_tabbed' style='width: fit-content'>\n";
+			$html .= "<ul>\n";
+			foreach ($tab_headers as $header) {
+				$cleaned_header = removeHTags($header["header"]);
+				$html .= "<li><a href='#" . $header["id"] . "'>$cleaned_header</a></li>\n";
+			}
+			$html .= "</ul>\n";
+		}
+
+		return $html;
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 
@@ -738,66 +809,9 @@
 			}
 		}
 
-		if(count($tab_headers)) {
-			$html .= "<div id='main_tabbed' style='width: fit-content'>\n";
-			$html .= "<ul>\n";
-			foreach ($tab_headers as $header) {
-				$cleaned_header = removeHTags($header["header"]);
-				$html .= "<li><a href='#" . $header["id"] . "'>$cleaned_header</a></li>\n";
-			}
-			$html .= "</ul>\n";
-		}
+		$html .= get_header_line($tab_headers);
 
-		if (count($out_or_err_files)) {
-			if (count($out_or_err_files) == 1) {
-				$_file = $out_or_err_files[0];
-				if (file_exists($_file)) {
-					$content = file_get_contents($_file);
-					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
-					$html .= copy_button("stdout_file");
-				}
-			} else {
-				$html .= "<div id='single_run_files_container'>\n";
-				$html .= "<h2 id='single_run_files'>Single run output files</h2>";
-				$html .= '<div id="out_files_tabs">';
-				$html .= '<ul style="max-height: 200px; overflow: auto;">';
-				$ok = "&#9989;";
-				$error = "&#10060;";
-
-				foreach ($out_or_err_files as $out_or_err_file) {
-					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
-
-					$_hash = hash('md5', $content);
-
-					$ok_or_error = $ok;
-
-					if (!checkForResult($content)) {
-						$ok_or_error = $error;
-					}
-
-					$html .= "<li><a href='#$_hash'>" . preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)) . "<span class='invert_in_dark_mode'>$ok_or_error</span></a></li>";
-				}
-				$html .= "</ul>";
-				foreach ($out_or_err_files as $out_or_err_file) {
-					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
-
-					$_hash = hash('md5', $content);
-					$html .= "<div id='$_hash'>";
-					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
-					$html .= copy_button("stdout_file");
-					$html .= "</div>";
-				}
-				$html .= "</div>";
-
-				$html .= "<script>";
-				$html .= "$(function() {";
-				$html .= '    $("#out_files_tabs").tabs();';
-				$html .= '    $("#main_tabbed").tabs();';
-				$html .= "});";
-				$html .= "</script>";
-				$html .= "</div>";
-			}
-		}
+		$html .= get_out_files_html($out_or_err_files);
 
 		$html .= "<div id='scatter_plot_2d_container'></div>";
 

@@ -166,8 +166,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			fi
 		fi
 
-
-
 		set -e
 
 		url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"

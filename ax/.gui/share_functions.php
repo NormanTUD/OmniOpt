@@ -127,6 +127,8 @@
 			"parameters.txt" => "Parameter",
 			"get_next_trials.csv" => "Next trial got/requested",
 			"cpu_ram_usage.csv" => "CPU/RAM-usage",
+			"evaluation_errors.log" => "Evaluation Errors",
+			"oo_errors.txt" => "OmniOpt2-Errors",
 			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
 		);
 
@@ -576,6 +578,76 @@
 		return [$tab_headers, $html_parts];
 	}
 
+	function get_results_evaluation_errors_and_oo_errors ($file, $tab_headers, $html_parts) {
+		$content = remove_ansi_colors(file_get_contents($file));
+		$content_encoding = mb_detect_encoding($content);
+		if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+			return [$tab_headers, $html_parts];
+		}
+
+		$header = get_header_file($file);
+
+		$_hash = hash('md5', "$header - $file");
+
+		$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+		$this_html = "";
+
+		$this_html .= "<pre>" . htmlentities($content) . "</pre>";
+
+		$html_parts[$_hash] = $this_html;
+
+		return [$tab_headers, $html_parts];
+	}
+
+	function get_results_get_next_trial ($file, $tab_headers, $html_parts) {
+		$content = remove_ansi_colors(file_get_contents($file));
+		$content_encoding = mb_detect_encoding($content);
+		if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+			return [$tab_headers, $html_parts];
+		}
+
+		$header = get_header_file($file);
+
+		$_hash = hash('md5', "$header - $file");
+
+		$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+		$this_html = "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,got,requested'>" . htmlentities($content) . "</pre>";
+		$this_html .= copy_button("stdout_file");
+
+		$html_parts[$_hash] = $this_html;
+
+		return [$tab_headers, $html_parts];
+	}
+
+	function get_results_job_infos ($file, $tab_headers, $html_parts) {
+		$content = remove_ansi_colors(file_get_contents($file));
+		$content_encoding = mb_detect_encoding($content);
+		if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
+			return [$tab_headers, $html_parts];
+		}
+
+		$jobInfosCsvJson = loadCsvToJsonByResult($file);
+
+		$header = get_header_file($file);
+
+		$_hash = hash('md5', "$header - $file");
+
+		if ($jobInfosCsvJson == "[]") {
+			return [$tab_headers, $html_parts];
+		} else {
+			$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+			$this_html = "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
+			$this_html .= copy_button("stdout_file");
+			$this_html .= "<script>var job_infos_csv = $jobInfosCsvJson; plot_parallel_plot(job_infos_csv);</script>";
+			$html_parts[$_hash] = $this_html;
+		}
+
+		return [$tab_headers, $html_parts];
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 
@@ -600,6 +672,8 @@
 		foreach ($run_files as $file) {
 			if (preg_match("/\/\.\.\/?/", $file)) {
 				print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
+
+				continue;
 			}
 
 			if (preg_match("/results\.csv$/", $file)) {
@@ -626,70 +700,19 @@
 				preg_match("/evaluation_errors\.log$/", $file)
 				|| preg_match("/oo_errors\.txt$/", $file)
 			) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$this_html = "";
-
-				$this_html .= "<pre>" . htmlentities($content) . "</pre>";
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_evaluation_errors_and_oo_errors($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (
 				preg_match("/get_next_trials/", $file)
 			) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$this_html = "";
-
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable' data-header_columns='datetime,got,requested'>" . htmlentities($content) . "</pre>";
-				$this_html .= copy_button("stdout_file");
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_get_next_trial($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/job_infos\.csv$/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$jobInfosCsvJson = loadCsvToJsonByResult($file);
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$this_html = "";
-
-				if ($jobInfosCsvJson== "[]") {
-					$this_html .= "Data is empty";
-				} else {
-					$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
-					$this_html .= copy_button("stdout_file");
-					$this_html .= "<script>var job_infos_csv = $jobInfosCsvJson; plot_parallel_plot(job_infos_csv);</script>";
-				}
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_job_infos($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (
 				preg_match("/state_files/", $file)
 				|| preg_match("/failed_logs/", $file)

@@ -279,12 +279,12 @@ async function plot_parallel_plot () {
 	replaceZeroWithNull(_results_csv_json.data);
 
 	if(!Object.keys(_results_csv_json).includes("data")) {
-		log(`Could not plot seemingly empty _results_csv_json: no data found`);
+		log(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
 	}
 	
 	if(!_results_csv_json.data.length) {
-		log(`Could not plot seemingly empty _results_csv_json`);
+		log(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
 	// Extract parameter names
@@ -330,12 +330,12 @@ async function plot_all_possible () {
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
 	if(!Object.keys(_results_csv_json).includes("data")) {
-		log(`Could not plot seemingly empty _results_csv_json: no data found`);
+		log(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
 	}
 	
 	if(!_results_csv_json.data.length) {
-		log(`Could not plot seemingly empty _results_csv_json`);
+		log(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
 
@@ -358,8 +358,6 @@ async function plot_all_possible () {
 		return;
 	}
 
-	log("_results_csv_json.data:", _results_csv_json.data, "result_idx:", result_idx);
-
 	var resultValues = _results_csv_json.data.map(function(row) {
 		return parseFloat(row[result_idx]);
 	});
@@ -367,9 +365,6 @@ async function plot_all_possible () {
 	resultValues = resultValues.filter(function (value) {
 		return !Number.isNaN(value);
 	});
-
-
-	log(resultValues);
 
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
@@ -393,7 +388,7 @@ async function load_parameter () {
 	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=parameters.txt`)
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`Could not plot seemingly empty data: no raw found`);
+		log(`load_parameter: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 	
@@ -407,7 +402,7 @@ async function load_best_result () {
 	var data = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=best_result.txt`)
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`Could not plot seemingly empty data: no raw found`);
+		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 	
@@ -425,12 +420,12 @@ async function plot_planned_vs_real_worker_over_time () {
 	replaceZeroWithNull(data.data);
 
 	if(!Object.keys(data).includes("data")) {
-		log(`Could not plot seemingly empty data: no data found`);
+		log(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
 		return;
 	}
 
 	if(!data.data.length) {
-		log(`Could not plot seemingly empty data`);
+		log(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
 		return;
 	}
 
@@ -489,12 +484,12 @@ async function plot_cpu_gpu_graph() {
 	replaceZeroWithNull(cpu_ram_usage_json.data);
 
 	if(!Object.keys(cpu_ram_usage_json).includes("data")) {
-		log(`Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+		log(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
 		return;
 	}
 	
 	if(!cpu_ram_usage_json.data.length) {
-		log(`Could not plot seemingly empty cpu_ram_usage_json`);
+		log(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json`);
 		return;
 	}
 
@@ -589,6 +584,8 @@ async function fetchJsonFromUrl(url) {
 }
 
 async function load_all_data() {
+	showSpinnerOverlay("Loading data...")
+
 	var promises = [];
 
 	promises.push(plot_all_possible());
@@ -602,4 +599,6 @@ async function load_all_data() {
 	for (var i = 0; i < promises.length; i++) {
 		await promises[i];
 	}
+
+	removeSpinnerOverlay();
 }

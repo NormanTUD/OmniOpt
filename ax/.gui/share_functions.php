@@ -126,6 +126,7 @@
 			"job_infos.csv" => "Job-Infos",
 			"parameters.txt" => "Parameter",
 			"get_next_trials.csv" => "Next trial got/requested",
+			"cpu_ram_usage.csv" => "CPU/RAM-usage",
 			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
 		);
 
@@ -448,12 +449,54 @@
 		return $html;
 	}
 
+	function get_results_csv_code ($file, $tab_headers, $html_parts) {
+		$content = remove_ansi_colors(file_get_contents($file));
+		$content_encoding = mb_detect_encoding($content);
+		if ($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+			$resultsCsvJson = loadCsvToJsonByResult($file);
+
+			$header = get_header_file($file);
+
+			$_hash = hash('md5', "$header - $file");
+
+			$this_html = "";
+			if ($resultsCsvJson != "[]") {
+				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
+				$this_html .= copy_button("stdout_file");
+				$this_html .= "<script>\n";
+				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
+				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
+				$this_html .= "</script>";
+
+				$this_html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
+
+				$html_parts[$_hash] = $this_html;
+
+				$tab_headers[] = array("id" => $_hash, "header" => $header);
+
+				$nr_real_headers = countNonMatchingHeaders($file);
+
+				if($nr_real_headers > 0) {
+					$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
+				}
+
+				if($nr_real_headers >= 2) {
+					$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
+				}
+
+				if($nr_real_headers >= 3) {
+					$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
+				}
+			}
+		}
+
+		return [$tab_headers, $html_parts];
+	}
+
 	function show_run($folder) {
 		$run_files = glob("$folder/*");
 
 		$html = "";
-
-		$file = "";
 
 		if (file_exists("$folder/ui_url.txt")) {
 			$content = remove_ansi_colors(file_get_contents("$folder/ui_url.txt"));
@@ -477,58 +520,19 @@
 			}
 
 			if (preg_match("/results\.csv$/", $file)) {
-				$content = remove_ansi_colors(file_get_contents($file));
-				$content_encoding = mb_detect_encoding($content);
-				if (!($content_encoding == "ASCII" || $content_encoding == "UTF-8")) {
-					continue;
-				}
-
-				$resultsCsvJson = loadCsvToJsonByResult($file);
-
-				$header = get_header_file($file);
-
-				$_hash = hash('md5', "$header - $file");
-
-				$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-				$nr_real_headers = countNonMatchingHeaders($file);
-
-				if($nr_real_headers > 0) {
-					$tab_headers[] = array("id" => "parallel_plot_container", "header" => "Parallel-Plot");
-				}
-
-				if($nr_real_headers >= 2) {
-					$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
-				}
-
-				if($nr_real_headers >= 3) {
-					$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
-				}
-
-				$this_html = "";
-				if ($resultsCsvJson == "[]") {
-					$this_html .= "Data is empty";
-					continue;
-				}
-
-				$this_html .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities($content) . "</pre>";
-				$this_html .= copy_button("stdout_file");
-				$this_html .= "<script>\n";
-				$this_html .= "    var job_infos_csv = $resultsCsvJson;\n";
-				$this_html .= "    var results_csv_bare = `".htmlentities($content)."`;\n";
-				#$this_html .= "    plot_parallel_plot(job_infos_csv);\n";
-				#$this_html .= "    create_table_from_csv_data(results_csv_bare, '$_hash', 'results_csv_nice_table');\n";
-				$this_html .= "</script>";
-
-				$this_html .= "<script>var results_csv_json = $resultsCsvJson; plot_all_possible(results_csv_json);</script>";
-
-				$html_parts[$_hash] = $this_html;
+				$tab_headers_and_html_parts = get_results_csv_code($file, $tab_headers, $html_parts);
+				$tab_headers = $tab_headers_and_html_parts[0];
+				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/cpu_ram_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);
-				$content = remove_ansi_colors(file_get_contents($file));
 
-				if (!$jsonData == "[]") {
+				if ($jsonData != "[]") {
 					$html_parts["cpu_ram_usage"] = "<script>var cpu_ram_usage_json = convertToIntAndFilter($jsonData.map(Object.values)); replaceZeroWithNull(cpu_ram_usage_json); plot_cpu_gpu_graph(cpu_ram_usage_json); </script>";
+
+					$header = get_header_file($file);
+
+					$_hash = hash('md5', "$header - $file");
+					$tab_headers[] = array("id" => $_hash, "header" => $header);
 				}
 			} elseif (preg_match("/worker_usage\.csv$/", $file)) {
 				$jsonData = loadCsvToJson($file);
@@ -941,6 +945,12 @@
 				show_run($run_folder);
 			}
 		} else {
+			// given:
+			//	none
+			// missing:
+			//	user_id
+			//	experiment_name
+			//	run_nr
 			$user_subfolders = glob($sharesPath . '*', GLOB_ONLYDIR);
 			if (count($user_subfolders)) {
 				foreach ($user_subfolders as $user) {

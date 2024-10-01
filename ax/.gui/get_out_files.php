@@ -50,4 +50,4 @@
 
 	$html = get_out_files_html($out_or_err_files);
 
-	print json_encode(array("raw" => $html));
+	print json_encode(array("raw" => $html, "hash" => hash("md5", $html)));

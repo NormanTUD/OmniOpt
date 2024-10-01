@@ -78,14 +78,18 @@
 	}
 
 	if(preg_match("/\.csv$/", $share_file)) {
-		echo json_encode(array(
-			"data" => json_decode(loadCsvToJson($share_file)),
-			"raw" => remove_ansi_colors(file_get_contents($share_file))
-		));
+		echo json_encode(
+			array(
+				"data" => json_decode(loadCsvToJson($share_file)),
+				"raw" => remove_ansi_colors(file_get_contents($share_file)),
+				"hash" => hash("md5", file_get_contents($share_file))
+			)
+		);
 	} else {
 		echo json_encode(
 			array(
-				"raw" => remove_ansi_colors(file_get_contents($share_file))
+				"raw" => remove_ansi_colors(file_get_contents($share_file)),
+				"hash" => hash("md5", file_get_contents($share_file))
 			)
 		);
 	}

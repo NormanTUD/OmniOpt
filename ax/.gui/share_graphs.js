@@ -1,3 +1,7 @@
+var hashcache = {
+
+};
+
 function get_width() {
 	return Math.max(1200, parseInt(0.95 * window.innerWidth));
 }
@@ -632,10 +636,16 @@ async function fetchJsonFromUrl(url) {
 			throw new Error('Network response was not ok: ' + response.statusText);
 		}
 		const data = await response.json();
-		return data;
+		var hash = data.hash;
+		if(!Object.keys(hashcache).includes(url) || hashcache[url] != hash) {
+			hashcache[url] = hash;
+			return data;
+		}
 	} catch (error) {
 		return null;
 	}
+
+	return null;
 }
 
 async function fetchJsonFromUrlFilenameOnly(filename) {

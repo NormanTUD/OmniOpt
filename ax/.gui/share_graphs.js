@@ -401,6 +401,8 @@ async function plot_all_possible () {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
+	log(_results_csv_json);
+
 	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
 	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
 

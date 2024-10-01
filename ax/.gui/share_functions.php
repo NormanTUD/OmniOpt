@@ -817,7 +817,7 @@
 		$html .= get_header_line($tab_headers);
 
 		if(count($out_or_err_files)) {
-			$html .= "<div id='out_files_content'></div>\n"; #get_out_files_html($out_or_err_files);
+			$html .= "<div id='out_files_content'></div>\n";
 		}
 
 		$html .= "<div id='scatter_plot_2d_container'></div>\n";

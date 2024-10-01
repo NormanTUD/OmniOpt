@@ -75,7 +75,7 @@
 		exit(1);
 	}
 
-	if(preg_match("\.csv$", $share_file)) {
+	if(preg_match("/\.csv$/", $share_file)) {
 		echo loadCsvToJson($share_file);
 	} else {
 		echo remove_ansi_colors(file_get_contents($share_file));

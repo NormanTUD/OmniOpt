@@ -585,7 +585,7 @@
 
 		$tab_headers[] = array("id" => $_hash, "header" => $header);
 
-		$this_html = "<pre>" . htmlentities($content) . "</pre>";
+		$this_html = "<div id='parameters_txt'></div>\n";
 
 		$html_parts[$_hash] = $this_html;
 

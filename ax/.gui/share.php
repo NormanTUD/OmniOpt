@@ -143,7 +143,7 @@
 				if (newHash !== last_hash) {
 					console.log(`${new Date().toString()}: Hash changed, reloading content.`);
 					last_hash = newHash;
-					await load_content(`Loading new jobs...`);
+					load_all_data();
 				} else {
 					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
 				}

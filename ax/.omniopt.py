@@ -4441,7 +4441,7 @@ def run_search(_progress_bar):
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
-        wait_for_jobs_to_complete(num_parallel_jobs)
+    wait_for_jobs_to_complete(0)
 
     while len(global_vars["jobs"]):
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
@@ -4453,11 +4453,14 @@ def run_search(_progress_bar):
 
 def wait_for_jobs_to_complete(_num_parallel_jobs):
     if SYSTEM_HAS_SBATCH:
-        while len(global_vars["jobs"]):
+        while len(global_vars["jobs"]) >= _num_parallel_jobs:
             print_debug(f"Waitig for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             if is_slurm_job() and not args.force_local_execution:
                 _sleep(5)
+
+            finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+
             clean_completed_jobs()
 
 def human_readable_generation_strategy():
@@ -4695,6 +4698,8 @@ def main():
         run_search(progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
+
+    wait_for_jobs_to_complete(0)
 
     end_program(RESULT_CSV_FILE)
 

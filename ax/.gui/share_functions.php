@@ -125,7 +125,7 @@
 			"results.csv" => "Results",
 			"job_infos.csv" => "Job-Infos",
 			"parameters.txt" => "Parameter",
-			"get_next_trials.csv" => "Next trial got/requested",
+			"get_next_trials.csv" => "get_next_trials",
 			"cpu_ram_usage.csv" => "CPU/RAM-usage of main worker",
 			"evaluation_errors.log" => "Evaluation Errors",
 			"oo_errors.txt" => "OmniOpt2-Errors",

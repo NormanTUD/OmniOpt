@@ -108,7 +108,6 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	var already_existing_plots = [];
-
 	$('#scatter_plot_3d_container').html("");
 
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
@@ -124,32 +123,74 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var z_name = _paramKeys[k];
 
 					var _key = [x_name, y_name, z_name].sort().join("!!!");
-					if(already_existing_plots.includes(_key)) {
+					if (already_existing_plots.includes(_key)) {
 						log(`Key already exists: ${_key}`);
 						continue;
 					}
 
-					var xValues = _results_csv_json.map(function(row) {
-						var parsedValue = parseFloat(row[map_x]);
-						return isNaN(parsedValue) ? row[map_x] : parsedValue;
-					});
-
-					var yValues = _results_csv_json.map(function(row) {
-						var parsedValue = parseFloat(row[map_y]);
-						return isNaN(parsedValue) ? row[map_y] : parsedValue;
-					});
-
-					var zValues = _results_csv_json.map(function(row) {
-						var parsedValue = parseFloat(row[map_z]);
-						return isNaN(parsedValue) ? row[map_z] : parsedValue;
-					});
-
-					function color_curried (value) {
-						return getColor(value, minResult, maxResult)
+					// Function to map string values to unique negative numbers starting just below the minimum numeric value
+					function mapStrings(values, minNumericValue) {
+						var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
+						uniqueStrings.sort(); // Alphabetically sort the strings
+						var stringMapping = {};
+						// Start string values just below the minimum numeric value
+						var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
+						uniqueStrings.forEach((str, idx) => {
+							stringMapping[str] = baseNegativeValue - idx;
+						});
+						return stringMapping;
 					}
 
+					// Get minimum numeric value for each axis
+					function getMinNumericValue(values) {
+						return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
+					}
+
+					var xValuesRaw = _results_csv_json.map(row => row[map_x]);
+					var yValuesRaw = _results_csv_json.map(row => row[map_y]);
+					var zValuesRaw = _results_csv_json.map(row => row[map_z]);
+
+					var minXValue = getMinNumericValue(xValuesRaw);
+					var minYValue = getMinNumericValue(yValuesRaw);
+					var minZValue = getMinNumericValue(zValuesRaw);
+
+					// Map strings to negative values and store the original string for hover tooltips
+					var stringMappingX = mapStrings(xValuesRaw, minXValue);
+					var stringMappingY = mapStrings(yValuesRaw, minYValue);
+					var stringMappingZ = mapStrings(zValuesRaw, minZValue);
+
+					var xValues = [];
+					var yValues = [];
+					var zValues = [];
+					var hoverText = [];
+
+					_results_csv_json.forEach(function(row) {
+						// Handle x-axis
+						var xParsed = parseFloat(row[map_x]);
+						var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
+						xValues.push(xValue);
+
+						// Handle y-axis
+						var yParsed = parseFloat(row[map_y]);
+						var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
+						yValues.push(yValue);
+
+						// Handle z-axis
+						var zParsed = parseFloat(row[map_z]);
+						var zValue = isNaN(zParsed) ? stringMappingZ[row[map_z]] : zParsed;
+						zValues.push(zValue);
+
+						// Hover text with the original values
+						hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}, z: ${row[map_z]}`);
+					});
+
+					// Color function for markers
+					function color_curried(value) {
+						return getColor(value, minResult, maxResult);
+					}
 					var colors = resultValues.map(color_curried);
 
+					// Plotly trace for 3D scatter plot
 					var trace3d = {
 						x: xValues,
 						y: yValues,
@@ -158,9 +199,43 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						type: 'scatter3d',
 						marker: {
 							color: colors
-						}
+						},
+						text: hoverText, // Show the original values in hover info
+						hoverinfo: 'text'
 					};
 
+					log(trace3d);
+
+					// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
+					function getAxisConfig(stringMapping, rawValues, minValue) {
+						var tickvals = [];
+						var ticktext = [];
+						
+						// Handle numeric values
+						rawValues.forEach(val => {
+							var parsed = parseFloat(val);
+							if (!isNaN(parsed)) {
+								if (!tickvals.includes(parsed)) {
+									tickvals.push(parsed);
+									ticktext.push(String(parsed));
+								}
+							}
+						});
+
+						// Handle string values
+						Object.entries(stringMapping).forEach(([key, mappedValue]) => {
+							tickvals.push(mappedValue);
+							ticktext.push(key);
+						});
+
+						return { tickvals, ticktext };
+					}
+
+					var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue);
+					var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue);
+					var zAxisConfig = getAxisConfig(stringMappingZ, zValuesRaw, minZValue);
+
+					// Layout for 3D scatter plot
 					var layout3d = {
 						title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
 						width: get_width(),
@@ -174,25 +249,40 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 							pad: 4
 						},
 						scene: {
-							xaxis: { title: x_name },
-							yaxis: { title: y_name },
-							zaxis: { title: z_name }
+							xaxis: {
+								title: x_name,
+								tickvals: xAxisConfig.tickvals,
+								ticktext: xAxisConfig.ticktext
+							},
+							yaxis: {
+								title: y_name,
+								tickvals: yAxisConfig.tickvals,
+								ticktext: yAxisConfig.ticktext
+							},
+							zaxis: {
+								title: z_name,
+								tickvals: zAxisConfig.tickvals,
+								ticktext: zAxisConfig.ticktext
+							}
 						},
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)',
-
 						showlegend: false,
 						legend: {
 							x: 0.1,
 							y: 1.1,
 							orientation: 'h'
-						},
+						}
 					};
 
+					// Create a new div for the plot
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${x_name}_${y_name}_${z_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 					$('#scatter_plot_3d_container').append(new_plot_div);
+
+					// Plot the 3D scatter plot using Plotly
 					Plotly.newPlot(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, [trace3d], layout3d);
 
+					// Add the current key to the list of already existing plots
 					already_existing_plots.push(_key);
 				}
 			}

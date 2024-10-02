@@ -4173,6 +4173,7 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
                 enforce_num_trials=True,
                 model_kwargs={"seed": seed}, # Any kwargs you want passed into the model
                 model_gen_kwargs={'enforce_num_arms': True}, # Any kwargs you want passed to `modelbridge.gen`
+                should_deduplicate=True
             )
         )
 
@@ -4200,7 +4201,8 @@ def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
             num_trials=-1,
             max_parallelism=_num_parallel_jobs,
             #model_kwargs={"seed": seed},
-            model_gen_kwargs={'enforce_num_arms': True}
+            model_gen_kwargs={'enforce_num_arms': True},
+            should_deduplicate=True
         )
     )
 

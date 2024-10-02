@@ -57,7 +57,7 @@
 			<tr>
 				<td><samp>--parameter PARAMETER [PARAMETER ...]</samp></td>
 				<td>Experiment parameters in the formats: <br>
-					- <samp>&lt;NAME&gt; range &lt;NAME&gt; &lt;LOWER BOUND&gt; &lt;UPPER BOUND&gt; (&lt;INT, FLOAT&gt;)</samp><br>
+					- <samp>&lt;NAME&gt; range &lt;NAME&gt; &lt;LOWER BOUND&gt; &lt;UPPER BOUND&gt; (&lt;INT, FLOAT&gt;) (&lt;log_scale: true or false, default false&gt;)</samp><br>
 					- <samp>&lt;NAME&gt; fixed &lt;NAME&gt; &lt;VALUE&gt;</samp><br>
 					- <samp>&lt;NAME&gt; choice &lt;NAME&gt; &lt;Comma-separated list of values&gt;</samp>
 				</td>

@@ -147,7 +147,7 @@ try:
             required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
             required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 
-            required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) (log_scale: True/False>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
+            required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) (log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
             required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
             optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
@@ -1258,7 +1258,7 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
         elif log_scale.lower() == "false":
             log_scale = False
         else:
-            print_red(f"Parameter 5 (log_scale) must either be true or false, but not something else. Default: false.")
+            print_red("Parameter 5 (log_scale) must either be true or false, but not something else. Default: false.")
     except Exception:
         skip = 5
 

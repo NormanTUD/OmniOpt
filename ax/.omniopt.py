@@ -4456,7 +4456,7 @@ def run_search(_progress_bar):
 def wait_for_jobs_to_complete(_num_parallel_jobs):
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) >= _num_parallel_jobs:
-            print_debug(f"Waitig for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
+            print_debug(f"Waiting for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             if is_slurm_job() and not args.force_local_execution:
                 _sleep(5)

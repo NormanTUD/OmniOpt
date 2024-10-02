@@ -7,33 +7,19 @@ worker_timeout = 5
 max_eval = 2
 num_parallel_jobs = 20
 gpus = 0
-run_program = "./tests/optimization_example --int_param='%int_param' --float_param='%float_param' --choice_param='%choice_param' --int_param_two='%int_param_two'"
+run_program = "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)'"
 
 [[parameter]]
-name = "int_param"
-type = "range"
-min = -100
-max = 10
-data_type = "int"
+param = ["int_param", "range", "-100", "10", "int"]
 
 [[parameter]]
-name = "float_param"
-type = "range"
-min = -100
-max = 10
-data_type = "float"
+param = ["float_param", "range", "-100", "10", "float"]
 
 [[parameter]]
-name = "choice_param"
-type = "choice"
-choices = ["1", "2", "4", "8", "16", "hallo"]
+param = ["choice_param", "choice", "1,2,4,8,16,hallo"]
 
 [[parameter]]
-name = "int_param_two"
-type = "range"
-min = -100
-max = 10
-data_type = "int"
+param = ["int_param_two", "range", "-100", "10", "int"]
 
 num_random_steps = 1
 model = "BOTORCH_MODULAR"

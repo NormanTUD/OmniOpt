@@ -251,7 +251,7 @@ function generateTOC() {
 			currentLevel = level;
 		});
 
-		$tocDiv.append($tocContainer);
+		$tocDiv.html($tocContainer);
 	} catch (error) {
 		console.error('Error generating TOC:', error);
 	}

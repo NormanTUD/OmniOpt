@@ -230,7 +230,7 @@ try:
         def merge_args_with_config(self, config, cli_args):
             """ Merge CLI args with config file args (CLI takes precedence) """
             for key, value in vars(cli_args).items():
-                if value is None and key in config:
+                if (value is None or value == "") and key in config:
                     setattr(cli_args, key, config[key])
             return cli_args
 
@@ -859,7 +859,11 @@ def get_file_as_string(f):
 global_vars["joined_run_program"] = ""
 if not args.continue_previous_job:
     if args.run_program:
-        global_vars["joined_run_program"] = " ".join(args.run_program[0])
+        if isinstance(args.run_program, list):
+            global_vars["joined_run_program"] = " ".join(args.run_program[0])
+        else:
+            global_vars["joined_run_program"] = args.run_program
+
         global_vars["joined_run_program"] = decode_if_base64(global_vars["joined_run_program"])
 else:
     prev_job_folder = args.continue_previous_job
@@ -869,6 +873,10 @@ else:
     else:
         print(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         my_exit(44)
+
+if not args.tests and len(global_vars["joined_run_program"]) == 0:
+    print_red("--run_program was empty")
+    sys.exit(19)
 
 global_vars["experiment_name"] = args.experiment_name
 
@@ -1366,6 +1374,10 @@ def parse_experiment_parameters():
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
         j = 0
+
+        if "param" in this_args:
+            this_args = this_args["param"]
+
         while j < len(this_args):
             name = this_args[j]
 

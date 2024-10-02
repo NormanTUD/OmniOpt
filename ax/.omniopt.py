@@ -2325,6 +2325,8 @@ def end_program(csv_file_path, _force=False, exit_code=None):
     if exit_code:
         _exit = exit_code
 
+    live_share()
+
     my_exit(_exit)
 
 def save_checkpoint(trial_nr=0, eee=None):

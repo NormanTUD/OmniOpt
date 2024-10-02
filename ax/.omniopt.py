@@ -120,7 +120,7 @@ try:
             self.parser = argparse.ArgumentParser(
                 prog="omniopt",
                 description='A hyperparameter optimizer for slurmbased HPC-systems',
-                epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int",
+                epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network ...",
                 formatter_class=RichHelpFormatter
             )
 
@@ -128,7 +128,7 @@ try:
             self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
             self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
 
-            # Initialize the remaining arguments (same as in your original example)
+            # Initialize the remaining arguments
             self.add_arguments()
 
         def add_arguments(self):
@@ -207,31 +207,55 @@ try:
                 sys.exit(5)
 
             with open(config_path, mode='r', encoding="utf-8") as file:
-                if file_format == 'yaml':
-                    try:
-                        res = yaml.safe_load(file)
-                        return res
-                    except yaml.parser.ParserError as e:
-                        print_red(f"Error parsing yaml file {config_path} (format: {file_format}): {e}")
-                        sys.exit(5)
-
-                if file_format == 'toml':
-                    try:
+                try:
+                    if file_format == 'yaml':
+                        return yaml.safe_load(file)
+                    elif file_format == 'toml':
                         return toml.load(file)
-                    except toml.decoder.TomlDecodeError as e:
-                        print_red(f"Error parsing toml file {config_path} (format: {file_format}): {e}")
-                        sys.exit(5)
+                except Exception as e:
+                    print_red(f"Error parsing {file_format} file '{config_path}': {e}")
+                    sys.exit(5)
 
-                print_red(f"Invalid format {file_format}")
-                sys.exit(5)
+            return {}
 
-            return []
+        def validate_and_convert(self, config, arg_defaults):
+            """
+            Validates the config data and converts them to the right types based on argparse defaults.
+            Warns about unknown or unused parameters.
+            """
+            converted_config = {}
+            for key, value in config.items():
+                if key in arg_defaults:
+                    # Get the expected type either from the default value or from the CLI argument itself
+                    default_value = arg_defaults[key]
+                    if default_value is not None:
+                        expected_type = type(default_value)
+                    else:
+                        # Fall back to using the current value's type, assuming it's not None
+                        expected_type = type(value)
+
+                    try:
+                        # Convert the value to the expected type
+                        converted_config[key] = expected_type(value)
+                    except (ValueError, TypeError):
+                        print_red(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
+                else:
+                    print_yellow(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
+
+            return converted_config
 
         def merge_args_with_config(self, config, cli_args):
             """ Merge CLI args with config file args (CLI takes precedence) """
+            arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
+
+            # Validate and convert the config values
+            validated_config = self.validate_and_convert(config, arg_defaults)
+
             for key, value in vars(cli_args).items():
-                if (value is None or value == "") and key in config:
-                    setattr(cli_args, key, config[key])
+                if value is None or value == "":
+                    if key in validated_config:
+                        setattr(cli_args, key, validated_config[key])
+
             return cli_args
 
         def parse_arguments(self):
@@ -241,7 +265,7 @@ try:
             config = {}
 
             if _args.config_yaml and _args.config_toml:
-                print_red("Error: Cannot use both YAML and TOML configuration files simultaneously.")
+                print_red("Error: Cannot use both YAML and TOML configuration files simultaneously.]")
                 sys.exit(5)
 
             if _args.config_yaml:

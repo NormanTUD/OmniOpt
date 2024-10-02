@@ -660,8 +660,6 @@ def print_logo():
 
     cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
 
-print_logo()
-
 process = psutil.Process(os.getpid())
 
 global_vars = {}
@@ -5094,6 +5092,8 @@ def run_tests():
     my_exit(nr_errors)
 
 if __name__ == "__main__":
+    print_logo()
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 

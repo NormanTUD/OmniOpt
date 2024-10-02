@@ -195,11 +195,18 @@ try:
                 print_red(f"Error: {file_format} config file '{config_path}' not found.")
                 my_exit(5)
 
-            with open(config_path, 'r') as file:
+            with open(config_path, mode='r', encoding="utf-8") as file:
                 if file_format == 'yaml':
-                    return yaml.safe_load(file)
-                elif file_format == 'toml':
+                    res = yaml.safe_load(file)
+                    return res
+
+                if file_format == 'toml':
                     return toml.load(file)
+
+                print_red(f"Invalid format {file_format}")
+                my_exit(5)
+
+            return []
 
         def merge_args_with_config(self, config, cli_args):
             """ Merge CLI args with config file args (CLI takes precedence) """
@@ -210,24 +217,24 @@ try:
 
         def parse_arguments(self):
             # First, parse the CLI arguments to check if config files are provided
-            args = self.parser.parse_args()
+            _args = self.parser.parse_args()
 
             config = {}
 
-            if args.config_yaml and args.config_toml:
+            if _args.config_yaml and _args.config_toml:
                 print_red("Error: Cannot use both YAML and TOML configuration files simultaneously.")
                 my_exit(5)
 
-            if args.config_yaml:
-                config = self.load_config(args.config_yaml, 'yaml')
+            if _args.config_yaml:
+                config = self.load_config(_args.config_yaml, 'yaml')
 
-            elif args.config_toml:
-                config = self.load_config(args.config_toml, 'toml')
+            elif _args.config_toml:
+                config = self.load_config(_args.config_toml, 'toml')
 
             # Merge CLI args with config file (CLI has priority)
-            args = self.merge_args_with_config(config, args)
+            _args = self.merge_args_with_config(config, _args)
 
-            return args
+            return _args
 
     loader = ConfigLoader()
     args = loader.parse_arguments()

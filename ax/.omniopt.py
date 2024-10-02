@@ -4092,13 +4092,15 @@ def _get_next_trials():
 
     base_msg = f"getting {real_num_parallel_jobs} trials "
 
-    if SYSTEM_HAS_SBATCH:
+    if SYSTEM_HAS_SBATCH and not args.force_local_execution:
         if last_ax_client_time:
             new_msgs.append(f"{base_msg}(last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
         else:
             new_msgs.append(f"{base_msg}")
     else:
         real_num_parallel_jobs = 1
+
+        base_msg = f"getting {real_num_parallel_jobs} trials "
 
         if last_ax_client_time:
             new_msgs.append(f"{base_msg}(no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")

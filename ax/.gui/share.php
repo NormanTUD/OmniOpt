@@ -130,11 +130,11 @@
 
 	function getHashUrlContent(url) {
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", url, false); // false bedeutet synchron
+		xhr.open("GET", url, false);
 		xhr.send();
 
 		if (xhr.status === 200) {
-			return xhr.responseText; // gibt den Inhalt als String zurück
+			return xhr.responseText;
 		} else {
 			throw new Error("Error fetching URL: " + xhr.status);
 		}

@@ -4441,10 +4441,12 @@ def run_search(_progress_bar):
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
-    wait_for_jobs_to_complete(2)
+    #wait_for_jobs_to_complete(2)
 
     while len(global_vars["jobs"]):
+        wait_for_jobs_to_complete(1)
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+
         if is_slurm_job() and not args.force_local_execution:
             _sleep(1)
 

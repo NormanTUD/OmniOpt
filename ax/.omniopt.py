@@ -1764,6 +1764,7 @@ def disable_logging():
         "ax.modelbridge.cross_validation",
         "ax.modelbridge.dispatch_utils",
         "ax.modelbridge.torch",
+        "ax.modelbridge.generation_node",
 
         "ax.service",
         "ax.service.utils",

@@ -661,9 +661,10 @@
 				}
 			} else {
 				$html .= "<div id='single_run_files_container'>\n";
-				$html .= "<h2 id='single_run_files'>Single run output files</h2>";
-				$html .= '<div id="out_files_tabs">';
-				$html .= '<ul style="max-height: 200px; overflow: auto;">';
+				$html .= "<h2 id='single_run_files'>Single run output files</h2>\n";
+				$html .= '<div id="out_files_tabs">' . "\n";
+				$html .= '<ul style="max-height: 200px; overflow: auto;">' . "\n";
+
 				$ok = "&#9989;";
 				$error = "&#10060;";
 
@@ -681,12 +682,13 @@
 					$html .= "<li><a href='#$_hash'>" . preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)) . "<span class='invert_in_dark_mode'>$ok_or_error</span></a></li>";
 				}
 				$html .= "</ul>";
+
 				foreach ($out_or_err_files as $out_or_err_file) {
 					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
 
 					$_hash = hash('md5', $content);
-					$html .= "<div id='$_hash'>";
-					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
+					$html .= "<div id='$_hash'>\n";
+					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>\n";
 					$html .= copy_button("stdout_file");
 					$html .= "</div>\n";
 				}

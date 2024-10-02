@@ -36,6 +36,11 @@
 
 	$run_folder = "$sharesPath/$run_folder_without_shares";
 
+	if(!is_dir($run_folder)) {
+		print json_encode(array("error" => "$run_folder not found"));
+		exit(1);
+	}
+
 	$file = "$run_folder/get_next_trials.csv";
 
 	if(!file_exists($file)) {

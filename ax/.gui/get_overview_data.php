@@ -36,6 +36,11 @@
 
 	$run_folder = "$sharesPath/$run_folder_without_shares";
 
+	if(!is_dir($run_folder)) {
+		print json_encode(array("error" => "$run_folder not found"));
+		exit(1);
+	}
+
 	$run_files = glob("$run_folder/*");
 
 	$out_or_err_files = [];
@@ -51,6 +56,7 @@
 		}
 	}
 
+	dier($out_or_err_files);
 	$html = get_out_files_html($out_or_err_files);
 
 	print json_encode(

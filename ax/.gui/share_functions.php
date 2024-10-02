@@ -558,17 +558,10 @@
 			return [$tab_headers, $html_parts];
 		}
 
-		$header = get_header_file($file);
+		$this_html = "<pre id='best_result_txt'></pre>\n";
+		$this_html .= "<script>load_best_result();</script>";
 
-		$_hash = preg_replace("/\./", "_", preg_replace("/.*\//", "", $file));
-
-		$tab_headers[] = array("id" => $_hash, "header" => $header);
-
-		$this_html = "<script>load_best_result();</script>";
-
-		$html_parts[$_hash] = $this_html;
-
-		return [$tab_headers, $html_parts];
+		return $this_html;
 	}
 
 	function get_results_parameters ($file, $tab_headers, $html_parts) {
@@ -770,9 +763,7 @@
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/best_result\.txt$/", $file)) {
-				$tab_headers_and_html_parts = get_results_best_results($file, $tab_headers, $html_parts);
-				$tab_headers = $tab_headers_and_html_parts[0];
-				$html_parts = $tab_headers_and_html_parts[1];
+				$overview_html .= get_results_best_results($file, $tab_headers, $html_parts);
 			} elseif (preg_match("/parameters\.txt$/", $file)) {
 				$overview_html .= get_results_parameters($file, $tab_headers, $html_parts)."\n";
 			} elseif (preg_match("/evaluation_errors\.log$/", $file) || preg_match("/oo_errors\.txt$/", $file)) {

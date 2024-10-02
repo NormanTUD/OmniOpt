@@ -56,7 +56,6 @@ share_internal_output=$(php share_internal.php 2>&1)
 share_output_must_contain=(
 	"breadcrumb"
 	"createBreadcrumb"
-	"Best results"
 	"2d-Scatter-Plots"
 	"3d-Scatter-Plots"
 )

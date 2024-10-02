@@ -45,35 +45,75 @@ function getUniqueValues(arr) {
 }
 
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	var dimensions = [...paramKeys, 'result'].map(function(key) {
+	// Function to map string values to unique indices
+	function mapStrings(values) {
+		var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
+		uniqueStrings.sort(); // Alphabetically sort the strings
+		var stringMapping = {};
+		uniqueStrings.forEach((str, idx) => {
+			stringMapping[str] = idx; // Map string to its index
+		});
+		return stringMapping;
+	}
+
+	// Check if a value is fully numeric
+	function isFullyNumeric(values) {
+		return values.every(v => !isNaN(parseFloat(v)) && isFinite(v));
+	}
+
+	// Function to create dimensions for parallel plot
+	var dimensions = paramKeys.map(function(key) {
 		var idx = mappingKeyNameToIndex[key];
 
+		// Extract values from the results
 		var values = _results_csv_json.map(function(row) {
 			return row[idx];
 		});
 
-		values = values.filter(value => value !== undefined && !isNaN(value));
+		// Separate numeric and string values
+		var numericValues = values.filter(value => !isNaN(parseFloat(value)) && isFinite(value)).map(parseFloat);
+		var stringMapping = mapStrings(values);
 
-		var numericValues = values.map(function(value) { return parseFloat(value); });
-		numericValues = numericValues.filter(value => value !== undefined && !isNaN(value));
+		// Map all values (strings and numbers) to indices
+		var valueIndices = values.map(function(value) {
+			var parsedValue = parseFloat(value);
+			return isNaN(parsedValue) ? stringMapping[value] : parsedValue;
+		});
 
-		if (numericValues.every(isNumeric)) {
+		// Return a dimension configuration
+		if (isFullyNumeric(values)) {
+			// If all values are numeric, use a numeric range
 			return {
 				range: [Math.min(...numericValues), Math.max(...numericValues)],
 				label: key,
-				values: numericValues
+				values: valueIndices,
+				tickvals: numericValues,
+				ticktext: numericValues.map(String)
 			};
 		} else {
-			var uniqueValues = getUniqueValues(values);
-			var valueIndices = values.map(function(value) { return uniqueValues.indexOf(value); });
+			// For mixed or string values, use the string mapping with indices
+			var uniqueValues = Object.keys(stringMapping).sort();
 			return {
 				range: [0, uniqueValues.length - 1],
 				label: key,
-				values: valueIndices
+				values: valueIndices,
+				tickvals: Object.values(stringMapping),
+				ticktext: uniqueValues
 			};
 		}
 	});
 
+	// Add the result dimension (color scale) to the plot
+	dimensions.push({
+		range: [minResult, maxResult],
+		label: 'result',
+		values: resultValues,
+		colorscale: 'Jet',
+		tickvals: resultValues,
+		ticktext: resultValues.map(String)
+	});
+
+	// Parallel coordinates trace
 	var traceParallel = {
 		type: 'parcoords',
 		line: {
@@ -83,14 +123,10 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 			cmin: minResult,
 			cmax: maxResult
 		},
-		unselected: {
-			line: {
-				opacity: 0
-			}
-		},
 		dimensions: dimensions
 	};
 
+	// Layout for the parallel coordinates plot
 	var layoutParallel = {
 		title: 'Parallel Coordinates Plot',
 		width: get_width(),
@@ -100,9 +136,11 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		showlegend: false
 	};
 
+	// Create a new div for the plot
 	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 	$('#parallel_plot_container').html(new_plot_div);
 
+	// Render the plot with Plotly
 	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
 }
 

@@ -13,6 +13,7 @@ from pathlib import Path
 import uuid
 import yaml
 import toml
+import json
 
 jobs_finished = 0
 run_uuid = str(uuid.uuid4())
@@ -127,6 +128,7 @@ try:
             # Add config arguments
             self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
             self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
+            self.parser.add_argument('--config_json', help='JSON configuration file', type=str)
 
             # Initialize the remaining arguments
             self.add_arguments()
@@ -212,6 +214,8 @@ try:
                         return yaml.safe_load(file)
                     elif file_format == 'toml':
                         return toml.load(file)
+                    elif file_format == 'json':
+                        return json.load(file)
                 except Exception as e:
                     print_red(f"Error parsing {file_format} file '{config_path}': {e}")
                     sys.exit(5)
@@ -264,8 +268,8 @@ try:
 
             config = {}
 
-            if _args.config_yaml and _args.config_toml:
-                print_red("Error: Cannot use both YAML and TOML configuration files simultaneously.]")
+            if (_args.config_yaml and _args.config_toml) or (_args.config_yaml and _args.config_json) or (_args.config_json and _args.config_toml):
+                print_red("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
                 sys.exit(5)
 
             if _args.config_yaml:
@@ -273,6 +277,9 @@ try:
 
             elif _args.config_toml:
                 config = self.load_config(_args.config_toml, 'toml')
+
+            elif _args.config_json:
+                config = self.load_config(_args.config_json, 'json')
 
             # Merge CLI args with config file (CLI has priority)
             _args = self.merge_args_with_config(config, _args)
@@ -344,8 +351,6 @@ try:
         import shutil
     with console.status("[bold green]Loading math...") as status:
         import math
-    with console.status("[bold green]Loading json...") as status:
-        import json
     with console.status("[bold green]Loading itertools...") as status:
         from itertools import combinations
     with console.status("[bold green]Loading signal...") as status:

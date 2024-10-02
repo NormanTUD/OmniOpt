@@ -451,7 +451,8 @@ _test "Find typos in js" "bash .tests/find_typos_in_js" 0
 _test "Find typos in php" "bash .tests/find_typos_in_php" 0
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 _test "Testing defective toml file" "./omniopt --config_toml .tests/defective_example_config.toml" 5
-_test "Testing defective yaml file" "./omniopt --config_toml .tests/defective_example_config.yaml" 5
+_test "Testing defective yaml file" "./omniopt --config_yaml .tests/defective_example_config.yaml" 5
+_test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json" 5
 
 if [[ $quick -eq 0 ]]; then
 	_test "Linters" "bash .tests/linters" 0
@@ -512,6 +513,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Load from toml" "./omniopt --config_toml .tests/example_config.toml" 0
 	_test "Load from yaml" "./omniopt --config_yaml .tests/example_config.yaml" 0
+	_test "Load from json" "./omniopt --config_json .tests/example_config.json" 0
 
 	if command -v sbatch 2>/dev/null >/dev/null; then
 		#excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')

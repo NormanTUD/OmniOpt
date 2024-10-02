@@ -316,6 +316,11 @@
 				<td colspan="3">Config</td>
 			</tr>
 			<tr>
+				<td><samp>--config_json</samp></td>
+				<td>Allows a path to a json file containing all parameters for the run.</td>
+				<td>-</td>
+			</tr>
+			<tr>
 				<td><samp>--config_toml</samp></td>
 				<td>Allows a path to a toml file containing all parameters for the run.</td>
 				<td>-</td>

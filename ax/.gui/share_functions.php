@@ -683,15 +683,20 @@
 				}
 				$html .= "</ul>";
 
+				$html_part = "";
+
 				foreach ($out_or_err_files as $out_or_err_file) {
 					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
 
 					$_hash = hash('md5', $content);
-					$html .= "<div id='$_hash'>\n";
-					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>\n";
-					$html .= copy_button("stdout_file");
-					$html .= "</div>\n";
+					$html_part .= "<div id='$_hash'>\n";
+					$html_part .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>\n";
+					$html_part .= copy_button("stdout_file");
+					$html_part .= "</div>\n";
 				}
+
+				$html .= $html_part;
+
 				$html .= "</div>\n";
 
 				$html .= "<script>";

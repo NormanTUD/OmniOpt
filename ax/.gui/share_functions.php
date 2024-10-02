@@ -805,9 +805,7 @@
 		if($overview_html) {
 			array_unshift($tab_headers, array("id" => '_overview_', "header" => "Overview"));
 
-			if(count($out_or_err_files)) {
-				$overview_html .= "In total, " . count($out_or_err_files) . " jobs were executed.<br>\n";
-			}
+			$overview_html .= "<div id='overview_table'></div>";
 
 			$html_parts['_overview_'] = $overview_html;
 		}

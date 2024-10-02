@@ -937,6 +937,48 @@ async function fetchJsonFromUrl(url) {
 	return null;
 }
 
+async function _get_overview_data () {
+	var urlParams = new URLSearchParams(window.location.search);
+
+	var _res = await fetchJsonFromUrl(`get_overview_data.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+
+	return _res;
+}
+
+async function load_overview_data() {
+	var res = await _get_overview_data();
+
+	// Create a table
+	var table = document.createElement('table');
+	table.style.width = '100%';
+	table.style.borderCollapse = 'collapse';
+
+	// Create table headers
+	var headerRow = document.createElement('tr');
+	['Failed', 'Succeeded', 'Total'].forEach(function (heading) {
+		var th = document.createElement('th');
+		th.style.border = '1px solid black';
+		th.style.padding = '8px';
+		th.textContent = heading;
+		headerRow.appendChild(th);
+	});
+	table.appendChild(headerRow);
+
+	// Create a data row
+	var dataRow = document.createElement('tr');
+	[res.failed, res.succeeded, res.total].forEach(function (value) {
+		var td = document.createElement('td');
+		td.style.border = '1px solid black';
+		td.style.padding = '8px';
+		td.textContent = value;
+		dataRow.appendChild(td);
+	});
+	table.appendChild(dataRow);
+
+	// Insert table into the #overview_table element
+	$('#overview_table').html(table);
+}
+
 async function fetchJsonFromUrlFilenameOnly(filename) {
 	var urlParams = new URLSearchParams(window.location.search);
 
@@ -955,6 +997,7 @@ async function load_all_data() {
 	promises.push(plot_parallel_plot());
 	promises.push(plot_planned_vs_real_worker_over_time());
 
+	promises.push(load_overview_data());
 	promises.push(load_evaluation_errors_and_oo_errors());
 	promises.push(load_out_files());
 	promises.push(load_best_result());

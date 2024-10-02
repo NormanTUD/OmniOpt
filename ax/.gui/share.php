@@ -128,44 +128,53 @@
 		});
 	}
 
-	function fetchHashAndUpdateContent(interval) {
+	function getHashUrlContent(url) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, false); // false bedeutet synchron
+		xhr.send();
+
+		if (xhr.status === 200) {
+			return xhr.responseText; // gibt den Inhalt als String zurück
+		} else {
+			throw new Error("Error fetching URL: " + xhr.status);
+		}
+	}
+
+	function fetchHashAndUpdateContent() {
 		if(currently_switching) {
 			return;
 		}
+
 		var share_internal_url = window.location.toString();
 		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
 		var hashUrl = share_internal_url + '&get_hash_only=1';
 
-		$.ajax({
-		url: hashUrl,
-			method: 'GET',
-			success: async function(response) {
-				var newHash = response.trim(); // Ensure no extra spaces or newlines
+		var newHash = getHashUrlContent(hashUrl);
 
-				if (newHash !== last_hash) {
-					console.log(`${new Date().toString()}: Hash changed, reloading content.`);
-					last_hash = newHash;
-					load_all_data();
-				} else {
-					console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
-				}
-
-			},
-			error: function() {
-				console.error('Error fetching the hash.');
-			}
-		});
+		if (newHash !== last_hash) {
+			console.log(`${new Date().toString()}: Hash changed, reloading content.`);
+			last_hash = newHash;
+			load_all_data();
+		} else {
+			console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
+		}
 	}
 
 	$(document).ready(function() {
 		load_content("Loading OmniOpt-Share...");
+
+		var share_internal_url = window.location.toString();
+		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
+		var hashUrl = share_internal_url + '&get_hash_only=1';
+
+		last_hash = getHashUrlContent(hashUrl);
 
 		var auto_update = getParameterByName('update');
 
 		if (auto_update) {
 			var interval = 5000;
 			setInterval(function() {
-				fetchHashAndUpdateContent(interval);
+				fetchHashAndUpdateContent();
 			}, interval);
 		}
 	});

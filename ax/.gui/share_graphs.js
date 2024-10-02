@@ -144,7 +144,6 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						return isNaN(parsedValue) ? row[map_z] : parsedValue;
 					});
 
-
 					function color_curried (value) {
 						return getColor(value, minResult, maxResult)
 					}

@@ -204,8 +204,6 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						hoverinfo: 'text'
 					};
 
-					log(trace3d);
-
 					// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
 					function getAxisConfig(stringMapping, rawValues, minValue) {
 						var tickvals = [];
@@ -292,8 +290,25 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	var already_existing_plots = [];
-
 	$('#scatter_plot_2d_container').html("");
+
+	// Function to map string values to unique negative numbers starting just below the minimum numeric value
+	function mapStrings(values, minNumericValue) {
+		var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
+		uniqueStrings.sort(); // Alphabetically sort the strings
+		var stringMapping = {};
+		// Start string values just below the minimum numeric value
+		var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
+		uniqueStrings.forEach((str, idx) => {
+			stringMapping[str] = baseNegativeValue - idx;
+		});
+		return stringMapping;
+	}
+
+	// Get minimum numeric value for each axis
+	function getMinNumericValue(values) {
+		return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
+	}
 
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
@@ -305,24 +320,44 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 
 			var _key = [x_name, y_name].sort().join("!!!");
 
-			if(already_existing_plots.includes(_key)) {
+			if (already_existing_plots.includes(_key)) {
 				log(`Key already exists: ${_key}`);
 				continue;
 			}
-			var xValues = _results_csv_json.map(function(row) {
-				var parsedValue = parseFloat(row[map_x]);
-				return isNaN(parsedValue) ? row[map_x] : parsedValue;
+
+			var xValuesRaw = _results_csv_json.map(row => row[map_x]);
+			var yValuesRaw = _results_csv_json.map(row => row[map_y]);
+
+			var minXValue = getMinNumericValue(xValuesRaw);
+			var minYValue = getMinNumericValue(yValuesRaw);
+
+			// Map strings to negative values
+			var stringMappingX = mapStrings(xValuesRaw, minXValue);
+			var stringMappingY = mapStrings(yValuesRaw, minYValue);
+
+			var xValues = [];
+			var yValues = [];
+			var hoverText = [];
+
+			_results_csv_json.forEach(function(row) {
+				// Handle x-axis
+				var xParsed = parseFloat(row[map_x]);
+				var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
+				xValues.push(xValue);
+
+				// Handle y-axis
+				var yParsed = parseFloat(row[map_y]);
+				var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
+				yValues.push(yValue);
+
+				// Hover text with the original values
+				hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}`);
 			});
 
-			var yValues = _results_csv_json.map(function(row) {
-				var parsedValue = parseFloat(row[map_y]);
-				return isNaN(parsedValue) ? row[map_y] : parsedValue;
-			});
-
+			// Color function for markers
 			function color_curried(value) {
 				return getColor(value, minResult, maxResult);
 			}
-
 			var colors = resultValues.map(color_curried);
 
 			// Create a custom colorscale from the unique values of resultValues and their corresponding colors
@@ -331,6 +366,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
 			});
 
+			// Plotly trace for 2D scatter plot
 			var trace2d = {
 				x: xValues,
 				y: yValues,
@@ -338,7 +374,9 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				type: 'scatter',
 				marker: {
 					color: colors
-				}
+				},
+				text: hoverText, // Show the original values in hover info
+				hoverinfo: 'text'
 			};
 
 			// Dummy Trace for Color Legend with Custom Colorscale
@@ -362,18 +400,60 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				hoverinfo: 'none' // Hide hover info for this trace
 			};
 
+			// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
+			function getAxisConfig(stringMapping, rawValues, minValue) {
+				var tickvals = [];
+				var ticktext = [];
+				
+				// Handle numeric values
+				rawValues.forEach(val => {
+					var parsed = parseFloat(val);
+					if (!isNaN(parsed)) {
+						if (!tickvals.includes(parsed)) {
+							tickvals.push(parsed);
+							ticktext.push(String(parsed));
+						}
+					}
+				});
+
+				// Handle string values
+				Object.entries(stringMapping).forEach(([key, mappedValue]) => {
+					tickvals.push(mappedValue);
+					ticktext.push(key);
+				});
+
+				return { tickvals, ticktext };
+			}
+
+			var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue);
+			var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue);
+
+			// Layout for 2D scatter plot
 			var layout2d = {
 				title: `Scatter Plot: ${x_name} vs ${y_name}`,
-				xaxis: { title: x_name },
-				yaxis: { title: y_name },
+				xaxis: {
+					title: x_name,
+					tickvals: xAxisConfig.tickvals,
+					ticktext: xAxisConfig.ticktext
+				},
+				yaxis: {
+					title: y_name,
+					tickvals: yAxisConfig.tickvals,
+					ticktext: yAxisConfig.ticktext
+				},
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)',
 				showlegend: false // We use the colorbar instead of a traditional legend
 			};
 
+			// Create a new div for the plot
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 			$('#scatter_plot_2d_container').append(new_plot_div);
+
+			// Plot the 2D scatter plot using Plotly
 			Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
+
+			// Add the current key to the list of already existing plots
 			already_existing_plots.push(_key);
 		}
 	}

@@ -44,13 +44,14 @@ function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
 
-function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues) {
+function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	var dimensions = [...paramKeys, 'result'].map(function(key) {
-		var idx = [...paramKeys, "result"].indexOf(key);
+		var idx = mappingKeyNameToIndex[key];
 
 		var values = _results_csv_json.map(function(row) {
 			return row[idx];
 		});
+
 		values = values.filter(value => value !== undefined && !isNaN(value));
 
 		var numericValues = values.map(function(value) { return parseFloat(value); });
@@ -311,6 +312,12 @@ async function plot_parallel_plot () {
 
 	var header_line = _results_csv_json.data.shift();
 
+	var mappingKeyNameToIndex = {};
+
+	for (var i = 0; i < header_line.length; i++) {
+		mappingKeyNameToIndex[header_line[i]] = i;
+	}
+
 	// Extract parameter names
 	var paramKeys = header_line.filter(function(key) {
 		return ![
@@ -341,7 +348,7 @@ async function plot_parallel_plot () {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	parallel_plot(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues);
+	parallel_plot(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 
 	apply_theme_based_on_system_preferences();
 

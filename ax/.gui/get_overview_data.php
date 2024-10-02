@@ -18,15 +18,18 @@
 	$experiment_name = get_or_env("experiment_name");
 
 	if(!preg_match("/^\d+$/", $run_nr)) {
-		die("Invalid run_nr\n");
+		print json_encode(array("error" => "Invalid run_nr"));
+		exit(0);
 	}
 
 	if(!preg_match("/^[a-zA-Z0-9_]+$/", $experiment_name)) {
-		die("Invalid experiment_name\n");
+		print json_encode(array("error" => "Invalid experiment_name"));
+		exit(0);
 	}
 	
 	if(!preg_match("/^[a-zA-Z0-9_]+$/", $user_id)) {
-		die("Invalid user_id\n");
+		print json_encode(array("error" => "Invalid user_id"));
+		exit(0);
 	}
 
 	$run_folder_without_shares = "$user_id/$experiment_name/$run_nr/";

@@ -4441,7 +4441,7 @@ def run_search(_progress_bar):
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
-    wait_for_jobs_to_complete(0)
+    wait_for_jobs_to_complete(1)
 
     while len(global_vars["jobs"]):
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])

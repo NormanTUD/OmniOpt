@@ -144,6 +144,7 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
+	log("scatter_3d");
 	var already_existing_plots = [];
 	$('#scatter_plot_3d_container').html("");
 
@@ -326,6 +327,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 }
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
+	log("scatter");
 	var already_existing_plots = [];
 	$('#scatter_plot_2d_container').html("");
 
@@ -509,6 +511,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 }
 
 async function plot_parallel_plot () {
+	log("plot_parallel_plot");
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
 	if(!_results_csv_json) {
 		return;
@@ -590,6 +593,7 @@ async function load_results () {
 }
 
 async function plot_all_possible () {
+	log("plot_all_possible");
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`results.csv`)
 
 	if(!_results_csv_json) {
@@ -754,6 +758,7 @@ async function load_best_result () {
 }
 
 async function plot_planned_vs_real_worker_over_time () {
+	log("plot_planned_vs_real_worker_over_time");
 	var data = await fetchJsonFromUrlFilenameOnly(`worker_usage.csv`)
 	if(!data) {
 		return;
@@ -819,6 +824,7 @@ width: get_width(),
 }
 
 async function plot_cpu_gpu_graph() {
+	log("plot_cpu_gpu_graph");
 	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`)
 	if(!cpu_ram_usage_json) {
 		return;

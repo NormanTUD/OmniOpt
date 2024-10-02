@@ -56,12 +56,17 @@
 		}
 	}
 
-	dier($out_or_err_files);
-	$html = get_out_files_html($out_or_err_files);
-
-	print json_encode(
-		array(
-			"raw" => $html,
-			"hash" => hash("md5", $html)
-		)
+	$stat = array(
+		"failed" => 0,
+		"succeeded" => 0
 	);
+
+	foreach ($out_or_err_files as $file) {
+		if(checkForResult(file_get_contents($file)) != false) {
+			$stat["succeeded"]++;
+		} else {
+			$stat["failed"]++;
+		}
+	}
+
+	print json_encode($stat);

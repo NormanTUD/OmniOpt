@@ -101,6 +101,17 @@ def my_exit(_code=0):
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
+def print_red(text):
+    helpers.print_color("red", text)
+
+    if CURRENT_RUN_FOLDER:
+        try:
+            with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
+                myfile.write(text)
+        except FileNotFoundError as e:
+            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
+            sys.exit(99)
+
 parser = None
 
 try:
@@ -193,18 +204,26 @@ try:
         def load_config(self, config_path, file_format):
             if not os.path.isfile(config_path):
                 print_red(f"Error: {file_format} config file '{config_path}' not found.")
-                my_exit(5)
+                sys.exit(5)
 
             with open(config_path, mode='r', encoding="utf-8") as file:
                 if file_format == 'yaml':
-                    res = yaml.safe_load(file)
-                    return res
+                    try:
+                        res = yaml.safe_load(file)
+                        return res
+                    except yaml.parser.ParserError as e:
+                        print_red(f"Error parsing yaml file {config_path} (format: {file_format}): {e}")
+                        sys.exit(5)
 
                 if file_format == 'toml':
-                    return toml.load(file)
+                    try:
+                        return toml.load(file)
+                    except toml.decoder.TomlDecodeError as e:
+                        print_red(f"Error parsing toml file {config_path} (format: {file_format}): {e}")
+                        sys.exit(5)
 
                 print_red(f"Invalid format {file_format}")
-                my_exit(5)
+                sys.exit(5)
 
             return []
 
@@ -223,7 +242,7 @@ try:
 
             if _args.config_yaml and _args.config_toml:
                 print_red("Error: Cannot use both YAML and TOML configuration files simultaneously.")
-                my_exit(5)
+                sys.exit(5)
 
             if _args.config_yaml:
                 config = self.load_config(_args.config_yaml, 'yaml')
@@ -388,17 +407,6 @@ logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_log
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
 NVIDIA_SMI_LOGS_BASE = None
-
-def print_red(text):
-    helpers.print_color("red", text)
-
-    if CURRENT_RUN_FOLDER:
-        try:
-            with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
-                myfile.write(text)
-        except FileNotFoundError as e:
-            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
-            sys.exit(99)
 
 def _debug(msg, _lvl=0, eee=None):
     if _lvl > 3:

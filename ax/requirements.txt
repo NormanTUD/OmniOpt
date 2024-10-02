@@ -40,3 +40,4 @@ slimit
 hiplot
 html5lib
 lxml
+toml

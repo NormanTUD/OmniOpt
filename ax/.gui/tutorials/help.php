@@ -312,5 +312,18 @@
 				<td>Show a table of percentage of usage of max worker over time.</td>
 				<td><samp>False</samp></td>
 			</tr>
+			<tr class="section-header invert_in_dark_mode">
+				<td colspan="3">Config</td>
+			</tr>
+			<tr>
+				<td><samp>--config_toml</samp></td>
+				<td>Allows a path to a toml file containing all parameters for the run.</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<td><samp>--config_yaml</samp></td>
+				<td>Allows a path to a yaml file containing all parameters for the run.</td>
+				<td>-</td>
+			</tr>
 		</tbody>
 	</table>

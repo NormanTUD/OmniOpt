@@ -348,6 +348,16 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 		return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
 	}
 
+	// Function to reduce tick marks (only for numeric values)
+	function reduceNumericTicks(tickvals, ticktext, maxTicks) {
+		if (tickvals.length > maxTicks) {
+			const step = Math.ceil(tickvals.length / maxTicks);
+			tickvals = tickvals.filter((_, i) => i % step === 0);
+			ticktext = ticktext.filter((_, i) => i % step === 0);
+		}
+		return { tickvals, ticktext };
+	}
+
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
 			var map_x = mappingKeyNameToIndex[_paramKeys[i]];
@@ -439,32 +449,34 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			};
 
 			// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
-			function getAxisConfig(stringMapping, rawValues, minValue) {
+			function getAxisConfig(stringMapping, rawValues, minValue, isNumeric) {
 				var tickvals = [];
 				var ticktext = [];
-				
-				// Handle numeric values
-				rawValues.forEach(val => {
-					var parsed = parseFloat(val);
-					if (!isNaN(parsed)) {
-						if (!tickvals.includes(parsed)) {
-							tickvals.push(parsed);
-							ticktext.push(String(parsed));
-						}
-					}
-				});
 
-				// Handle string values
+				// Handle string values (always show all strings)
 				Object.entries(stringMapping).forEach(([key, mappedValue]) => {
 					tickvals.push(mappedValue);
 					ticktext.push(key);
 				});
 
+				// Handle numeric values (only reduce ticks for numeric values)
+				if (isNumeric) {
+					rawValues.forEach(val => {
+						var parsed = parseFloat(val);
+						if (!isNaN(parsed)) {
+							tickvals.push(parsed);
+							ticktext.push(String(parsed));
+						}
+					});
+					// Reduce tick count if too many numeric values
+					return reduceNumericTicks(tickvals, ticktext, 10); // Max 10 ticks for numeric values
+				}
+
 				return { tickvals, ticktext };
 			}
 
-			var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue);
-			var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue);
+			var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
+			var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
 
 			// Layout for 2D scatter plot
 			var layout2d = {

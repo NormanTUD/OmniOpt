@@ -78,86 +78,10 @@ def is_slurm_job():
         return True
     return False
 
-parser = argparse.ArgumentParser(
-    prog="omniopt",
-    description='A hyperparameter optimizer for slurmbased HPC-systems',
-    epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int",
-    formatter_class=RichHelpFormatter
-)
-
-required = parser.add_argument_group('Required arguments', "These options have to be set")
-required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
-optional = parser.add_argument_group('Optional', "These options are optional")
-slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
-installing = parser.add_argument_group('Installing', "Parameters related to installing")
-debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
-
-required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
-required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
-required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
-required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
-required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
-required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
-
-required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
-required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
-
-optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
-optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
-optional.add_argument('--seed', help='Seed for random number generator', type=int)
-optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
-optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
-optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
-optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
-optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
-optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
-optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
-optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
-optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
-optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
-optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
-optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
-optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
-optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
-optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
-optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
-optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
-optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
-optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
-optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
-optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
-optional.add_argument('--workdir', help='Work dir (not yet implemented! TODO)', action='store_true', default=False)
-
-slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
-slurm.add_argument('--time', help='Time for the main job', default="", type=str)
-slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
-slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
-slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
-slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
-slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
-slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-slurm.add_argument('--account', help='Account to be used', type=str, default=None)
-slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-#slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
-
-installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
-
-debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
-debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
-debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
-debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
-debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
-debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
-
-args = parser.parse_args()
+args = None
 
 def _sleep(t: int):
-    if not args.no_sleep:
+    if args is not None and not args.no_sleep:
         time.sleep(t)
 
 
@@ -174,6 +98,90 @@ def my_exit(_code=0):
 
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
+
+parser = None
+
+try:
+    parser = argparse.ArgumentParser(
+        prog="omniopt",
+        description='A hyperparameter optimizer for slurmbased HPC-systems',
+        epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int",
+        formatter_class=RichHelpFormatter
+    )
+
+    required = parser.add_argument_group('Required arguments', "These options have to be set")
+    required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
+    optional = parser.add_argument_group('Optional', "These options are optional")
+    slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
+    installing = parser.add_argument_group('Installing', "Parameters related to installing")
+    debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
+
+    required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
+    required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
+    required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
+    required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
+    required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
+    required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
+    required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
+
+    required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
+    required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
+
+    optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+    optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+    optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
+    optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+    optional.add_argument('--seed', help='Seed for random number generator', type=int)
+    optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
+    optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
+    optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
+    optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
+    optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
+    optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
+    optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+    optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
+    optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+    optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
+    optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
+    optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
+    optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
+    optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
+    optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
+    optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
+    optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
+    optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
+    optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
+    optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
+    optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
+    optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
+    optional.add_argument('--workdir', help='Work dir (not yet implemented! TODO)', action='store_true', default=False)
+
+    slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
+    slurm.add_argument('--time', help='Time for the main job', default="", type=str)
+    slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
+    slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
+    slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
+    slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
+    slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
+    slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+    slurm.add_argument('--account', help='Account to be used', type=str, default=None)
+    slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+    #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
+
+    installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
+
+    debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+    debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+    debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
+    debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
+    debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
+    debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
+    debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
+
+    args = parser.parse_args()
+except KeyboardInterrupt:
+    print("Error: Failed to parse arguments because you pressed CTRL-C.")
+    my_exit(4)
 
 console = None
 ci_env = os.getenv("CI", "false").lower() == "true"

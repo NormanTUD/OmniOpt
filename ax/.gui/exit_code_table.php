@@ -11,8 +11,9 @@
                     $exit_code_info,
                     [
                     0 => "Seems to have worked properly",
-                    "2" => "Loading of Environment failed",
-                    "3" => "Invalid exit code detected",
+                    2 => "Loading of Environment failed",
+                    3 => "Invalid exit code detected",
+                    4 => "Failed loading modules",
                     10 => "Usually only returned by dier (for debugging).",
                     11 => "Required program not found (check logs)",
                     12 => "Error with pip, check logs.",

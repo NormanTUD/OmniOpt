@@ -43,7 +43,6 @@ function isNumeric(value) {
 function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
-
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	// Function to map string values to unique indices
 	function mapStrings(values) {
@@ -88,7 +87,7 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 				label: key,
 				values: valueIndices,
 				tickvals: numericValues,
-				ticktext: numericValues.map(String)
+				ticktext: numericValues.map(v => v.toLocaleString()) // Format large numbers
 			};
 		} else {
 			// For mixed or string values, use the string mapping with indices
@@ -110,7 +109,7 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		values: resultValues,
 		colorscale: 'Jet',
 		tickvals: resultValues,
-		ticktext: resultValues.map(String)
+		ticktext: resultValues.map(v => v.toLocaleString()) // Format result values
 	});
 
 	// Parallel coordinates trace

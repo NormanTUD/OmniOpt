@@ -58,7 +58,8 @@
 
 	$stat = array(
 		"failed" => 0,
-		"succeeded" => 0
+		"succeeded" => 0,
+		"total" => 0
 	);
 
 	foreach ($out_or_err_files as $file) {
@@ -67,6 +68,8 @@
 		} else {
 			$stat["failed"]++;
 		}
+
+		$stat["total"]++;
 	}
 
 	print json_encode($stat);

@@ -16,6 +16,11 @@
 	$run_nr = get_or_env("run_nr");
 	$user_id = get_or_env("user_id");
 	$experiment_name = get_or_env("experiment_name");
+	$environment_share_path = get_or_env("share_path");
+
+	if($environment_share_path && is_dir($environment_share_path) && !preg_match("/\.\./", $environment_share_path)) {
+		$sharesPath = $environment_share_path;
+	}
 
 	if(!preg_match("/^\d+$/", $run_nr)) {
 		print json_encode(array("error" => "Invalid run_nr"));
@@ -46,12 +51,7 @@
 	$out_or_err_files = [];
 
 	foreach ($run_files as $file) {
-		if (preg_match("/\/\.\.\/?/", $file)) {
-			print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
-
-			continue;
-		}
-		if (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
+		if (!preg_match("/\/\.\.\/?/", $file) && preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
 			$out_or_err_files[] = $file;
 		}
 	}

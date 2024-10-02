@@ -126,7 +126,7 @@
 			"job_infos.csv" => "Job-Infos",
 			"parameters.txt" => "Parameter",
 			"get_next_trials.csv" => "Next trial got/requested",
-			"cpu_ram_usage.csv" => "CPU/RAM-usage",
+			"cpu_ram_usage.csv" => "CPU/RAM-usage of main worker",
 			"evaluation_errors.log" => "Evaluation Errors",
 			"oo_errors.txt" => "OmniOpt2-Errors",
 			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
@@ -474,6 +474,9 @@
 
 		if ($jsonData != "[]") {
 			$_part = "<div id='cpuRamChart'></div>\n";
+			#$_part = "<div id='cpuRamChartRawData'></div>\n";
+			#$_part .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities(file_get_contents($file)) . "</pre>\n";
+			#$_part .= copy_button("stdout_file");
 			$_part .= "<script>plot_cpu_gpu_graph();</script>\n";
 
 			$header = get_header_file($file);

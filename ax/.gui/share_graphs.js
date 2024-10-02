@@ -877,7 +877,7 @@ async function plot_cpu_gpu_graph() {
 	};
 
 	const layout = {
-		title: 'CPU and RAM Usage Over Time',
+		title: 'CPU and RAM Usage Over Time by the main worker',
 		xaxis: {
 			title: 'Time',
 			type: 'date'
@@ -905,7 +905,13 @@ async function plot_cpu_gpu_graph() {
 
 	const data = [ramTrace, cpuTrace];
 
-	Plotly.newPlot('cpuRamChart', data, layout);
+	if($("#cpuRamChart").length) {
+		Plotly.newPlot('cpuRamChart', data, layout);
+	}
+
+	//$("#cpuRamChartRawData").html(cpu_ram_usage_json.raw + copy_button("stdout_file"));
+	
+	//initialize_autotables();
 }
 
 function replaceZeroWithNull(arr) {

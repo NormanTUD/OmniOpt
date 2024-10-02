@@ -129,7 +129,7 @@
 			"cpu_ram_usage.csv" => "CPU/RAM-usage of main worker",
 			"evaluation_errors.log" => "Evaluation Errors",
 			"oo_errors.txt" => "OmniOpt2-Errors",
-			"worker_usage.csv" => "Number of workers (time, wanted, got, percentage)"
+			"worker_usage.csv" => "Number of workers"
 		);
 
 		if (isset($names[$replaced_file])) {
@@ -519,11 +519,11 @@
 				}
 
 				if($nr_real_headers >= 2) {
-					$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2d-Scatter-Plots");
+					$tab_headers[] = array("id" => "scatter_plot_2d_container", "header" => "2D-Scatter-Plots");
 				}
 
 				if($nr_real_headers >= 3) {
-					$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3d-Scatter-Plots");
+					$tab_headers[] = array("id" => "scatter_plot_3d_container", "header" => "3D-Scatter-Plots");
 				}
 			}
 		}

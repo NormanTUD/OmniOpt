@@ -4080,17 +4080,20 @@ def _get_next_trials():
 
     new_msgs = []
 
+    simulated_nr_inserted_jobs = get_nr_of_imported_jobs()
+
     currently_running_jobs = len(global_vars["jobs"])
-    real_num_parallel_jobs = min(
-        max_eval + NR_INSERTED_JOBS - count_done_jobs(),
-        max_eval + NR_INSERTED_JOBS - submitted_jobs(),
+
+    nr_of_jobs_to_get = min(
+        max_eval + simulated_nr_inserted_jobs - count_done_jobs(),
+        max_eval + simulated_nr_inserted_jobs - submitted_jobs(),
         num_parallel_jobs - currently_running_jobs
     )
 
-    if real_num_parallel_jobs == 0:
+    if nr_of_jobs_to_get == 0:
         return None
 
-    base_msg = f"getting {real_num_parallel_jobs} trials "
+    base_msg = f"getting {nr_of_jobs_to_get} trials "
 
     if SYSTEM_HAS_SBATCH and not args.force_local_execution:
         if last_ax_client_time:
@@ -4098,9 +4101,9 @@ def _get_next_trials():
         else:
             new_msgs.append(f"{base_msg}")
     else:
-        real_num_parallel_jobs = 1
+        nr_of_jobs_to_get = 1
 
-        base_msg = f"getting {real_num_parallel_jobs} trials "
+        base_msg = f"getting {nr_of_jobs_to_get} trials "
 
         if last_ax_client_time:
             new_msgs.append(f"{base_msg}(no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
@@ -4114,7 +4117,7 @@ def _get_next_trials():
     get_next_trials_time_start = time.time()
     try:
         trial_index_to_param, _ = ax_client.get_next_trials(
-            max_trials=real_num_parallel_jobs
+            max_trials=nr_of_jobs_to_get
         )
     except np.linalg.LinAlgError as e:
         if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
@@ -4123,7 +4126,7 @@ def _get_next_trials():
             print_red(f"Error: {e}")
         sys.exit(242)
 
-    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
+    print_debug_get_next_trials(len(trial_index_to_param.items()), nr_of_jobs_to_get, getframeinfo(currentframe()).lineno)
 
     get_next_trials_time_end = time.time()
 
@@ -4139,7 +4142,9 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
     if not SYSTEM_HAS_SBATCH:
         return 1
 
-    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval - submitted_jobs(), max_eval - count_done_jobs())
+    simulated_nr_inserted_jobs = get_nr_of_imported_jobs()
+
+    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval + simulated_nr_inserted_jobs - submitted_jobs(), max_eval + simulated_nr_inserted_jobs - count_done_jobs())
 
     return requested
 

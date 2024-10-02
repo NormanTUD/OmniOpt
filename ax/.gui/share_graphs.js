@@ -243,33 +243,33 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					};
 
 					// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
-					function getAxisConfig(stringMapping, rawValues, minValue) {
+					function getAxisConfig(stringMapping, rawValues, minValue, isNumeric) {
 						var tickvals = [];
 						var ticktext = [];
-						
-						// Handle numeric values
-						rawValues.forEach(val => {
-							var parsed = parseFloat(val);
-							if (!isNaN(parsed)) {
-								if (!tickvals.includes(parsed)) {
-									tickvals.push(parsed);
-									ticktext.push(String(parsed));
-								}
-							}
-						});
 
-						// Handle string values
+						// Handle string values (always show all strings)
 						Object.entries(stringMapping).forEach(([key, mappedValue]) => {
 							tickvals.push(mappedValue);
 							ticktext.push(key);
 						});
 
+						// Handle numeric values (only reduce ticks for numeric values)
+						if (isNumeric) {
+							rawValues.forEach(val => {
+								var parsed = parseFloat(val);
+								if (!isNaN(parsed)) {
+									tickvals.push(parsed);
+									ticktext.push(String(parsed));
+								}
+							});
+						}
+
 						return { tickvals, ticktext };
 					}
 
-					var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue);
-					var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue);
-					var zAxisConfig = getAxisConfig(stringMappingZ, zValuesRaw, minZValue);
+					var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
+					var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
+					var zAxisConfig = getAxisConfig(stringMappingZ, zValuesRaw, minZValue, !isNaN(minZValue));
 
 					// Layout for 3D scatter plot
 					var layout3d = {

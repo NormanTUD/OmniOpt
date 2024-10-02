@@ -578,17 +578,9 @@
 			return [$tab_headers, $html_parts];
 		}
 
-		$header = get_header_file($file);
-
-		$_hash = preg_replace("/\./", "_", preg_replace("/.*\//", "", $file));
-
-		$tab_headers[] = array("id" => $_hash, "header" => $header);
-
 		$this_html = "<div id='parameters_txt'></div>\n";
 
-		$html_parts[$_hash] = $this_html;
-
-		return [$tab_headers, $html_parts];
+		return $this_html;
 	}
 
 	function get_results_evaluation_errors_and_oo_errors ($file, $tab_headers, $html_parts) {
@@ -756,6 +748,8 @@
 
 		$html_parts = [];
 
+		$overview_html = "";
+
 		foreach ($run_files as $file) {
 			if (preg_match("/\/\.\.\/?/", $file)) {
 				print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
@@ -780,9 +774,7 @@
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
 			} elseif (preg_match("/parameters\.txt$/", $file)) {
-				$tab_headers_and_html_parts = get_results_parameters($file, $tab_headers, $html_parts);
-				$tab_headers = $tab_headers_and_html_parts[0];
-				$html_parts = $tab_headers_and_html_parts[1];
+				$overview_html .= get_results_parameters($file, $tab_headers, $html_parts)."\n";
 			} elseif (preg_match("/evaluation_errors\.log$/", $file) || preg_match("/oo_errors\.txt$/", $file)) {
 				$tab_headers_and_html_parts = get_results_evaluation_errors_and_oo_errors($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
@@ -795,10 +787,15 @@
 				$tab_headers_and_html_parts = get_results_job_infos($file, $tab_headers, $html_parts);
 				$tab_headers = $tab_headers_and_html_parts[0];
 				$html_parts = $tab_headers_and_html_parts[1];
+			} elseif (preg_match("/run_uuid$/", $file)) { 
+				$content = htmlentities(remove_ansi_colors(file_get_contents($file)));
+				$overview_html .= "Run-UUID: $content<br>\n";
+			} elseif (preg_match("/ui_url\.txt$/", $file)) { 
+				$content = htmlentities(remove_ansi_colors(file_get_contents($file)));
+				$overview_html .= "<a target='_blank' href='$content'>Link to the GUI</a><br>";
 			} elseif (
 				preg_match("/(?:state_files|single_runs|gpu_usage|failed_logs)/", $file)
 				|| preg_match("/hash\.md5$/", $file)
-				|| preg_match("/ui_url\.txt$/", $file)
 				|| preg_match("/run_uuid$/", $file)
 			) {
 				// do nothing
@@ -812,6 +809,16 @@
 			} else {
 				echo "<!-- Unknown file '$file' -->\n";
 			}
+		}
+
+		if($overview_html) {
+			array_unshift($tab_headers, array("id" => '_overview_', "header" => "Overview"));
+
+			if(count($out_or_err_files)) {
+				$overview_html .= "In total, " . count($out_or_err_files) . " jobs were executed.<br>\n";
+			}
+
+			$html_parts['_overview_'] = $overview_html;
 		}
 
 		$html .= get_header_line($tab_headers);

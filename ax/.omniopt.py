@@ -10,10 +10,10 @@ import random
 import sys
 from inspect import currentframe, getframeinfo
 from pathlib import Path
+import json
 import uuid
 import yaml
 import toml
-import json
 
 jobs_finished = 0
 run_uuid = str(uuid.uuid4())
@@ -212,9 +212,11 @@ try:
                 try:
                     if file_format == 'yaml':
                         return yaml.safe_load(file)
-                    elif file_format == 'toml':
+
+                    if file_format == 'toml':
                         return toml.load(file)
-                    elif file_format == 'json':
+
+                    if file_format == 'json':
                         return json.load(file)
                 except Exception as e:
                     print_red(f"Error parsing {file_format} file '{config_path}': {e}")
@@ -268,7 +270,11 @@ try:
 
             config = {}
 
-            if (_args.config_yaml and _args.config_toml) or (_args.config_yaml and _args.config_json) or (_args.config_json and _args.config_toml):
+            yaml_and_toml = _args.config_yaml and _args.config_toml
+            yaml_and_json = _args.config_yaml and _args.config_json
+            json_and_toml = _args.config_json and _args.config_toml
+
+            if yaml_and_toml or yaml_and_json or json_and_toml:
                 print_red("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
                 sys.exit(5)
 

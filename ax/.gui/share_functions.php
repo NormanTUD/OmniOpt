@@ -506,8 +506,6 @@
 				$this_html .= "<div id='results_csv'></div>";
 				#$this_html .= copy_button("stdout_file");
 
-				$this_html .= "<script>plot_all_possible();</script>";
-
 				$html_parts[$_hash] = $this_html;
 
 				$tab_headers[] = array("id" => $_hash, "header" => $header);
@@ -547,7 +545,6 @@
 		}
 
 		$this_html = "<div id='worker_usage_plot'></div>\n";
-		$this_html .= "<script>plot_planned_vs_real_worker_over_time();</script>";
 
 		$html_parts[$_hash] = $this_html;
 
@@ -562,7 +559,6 @@
 		}
 
 		$this_html = "<pre id='best_result_txt'></pre>\n";
-		$this_html .= "<script>load_best_result();</script>";
 
 		return $this_html;
 	}
@@ -645,7 +641,6 @@
 
 			#$this_html .= copy_button("stdout_file");
 			$this_html = "<div id='parallel_plot_container'><div id='$_hash'></div></div>";
-			$this_html .= "<script>plot_parallel_plot();</script>";
 			$html_parts[$_hash] = $this_html;
 		}
 

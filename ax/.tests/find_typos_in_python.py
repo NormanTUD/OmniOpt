@@ -112,10 +112,14 @@ def main():
             task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
 
             # Analyze the file and show real-time progress
-            possibly_incorrect_words = analyze_file(filepath, progress, task_id)
-            if possibly_incorrect_words:
-                typo_files += 1
-                console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")
+            try:
+                possibly_incorrect_words = analyze_file(filepath, progress, task_id)
+                if possibly_incorrect_words:
+                    typo_files += 1
+                    console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")
+            except SyntaxError:
+                print(f"File {filepath} is not valid python. Cannot continue.")
+                sys.exit(1)
 
     sys.exit(typo_files)
 

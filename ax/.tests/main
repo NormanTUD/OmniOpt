@@ -450,9 +450,9 @@ _test "Find typos in bash" "bash .tests/find_typos_in_bash" 0
 _test "Find typos in js" "bash .tests/find_typos_in_js" 0
 _test "Find typos in php" "bash .tests/find_typos_in_php" 0
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
-_test "Testing defective toml file" "./omniopt --config_toml .tests/defective_example_config.toml" 5
-_test "Testing defective yaml file" "./omniopt --config_yaml .tests/defective_example_config.yaml" 5
-_test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json" 5
+_test "Testing defective toml file" "./omniopt --config_toml .tests/defective_example_config.toml" 5 104
+_test "Testing defective yaml file" "./omniopt --config_yaml .tests/defective_example_config.yaml" 5 104
+_test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json" 5 104
 
 if [[ $quick -eq 0 ]]; then
 	_test "Linters" "bash .tests/linters" 0
@@ -529,9 +529,9 @@ if [[ $superquick -eq 0 ]]; then
 		fi
 
 		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
-		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0
+		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0 87
 
-		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0
+		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 
 		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 

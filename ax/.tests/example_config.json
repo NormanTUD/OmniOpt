@@ -1,6 +1,6 @@
 {
   "experiment_name": "__main__tests__",
-  "gpus": 0,
+  "gpus": 1,
   "live_share": true,
   "max_eval": 2,
   "mem_gb": 4,

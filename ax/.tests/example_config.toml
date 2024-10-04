@@ -6,7 +6,7 @@ time = 60
 worker_timeout = 5
 max_eval = 2
 num_parallel_jobs = 20
-gpus = 0
+gpus = 1
 run_program = "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)'"
 
 [[parameter]]

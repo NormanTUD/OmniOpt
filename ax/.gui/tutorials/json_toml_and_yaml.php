@@ -2,7 +2,7 @@
     
 <div id="toc"></div>
 
-<h2 id="what_is_omniopt">What are TOML and YAML files? What are they good for?</h2>
+<h2 id="what_is_omniopt">What are TOML, JSON and YAML files? What are they good for?</h2>
 
 <p><a href="https://en.wikipedia.org/wiki/TOML" target="_blank">TOML</a>, <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a> and <a href="https://en.wikipedia.org/wiki/YAML" target="_blank">YAML</a> are file interchange formats that allow you to save data structures on your disk. OmniOpt2 allows you to load parameters via <tt>--config_toml path/to/your/configuration.toml</tt>, <tt>--config_json path/to/your/configuration.json</tt> or <tt>--config_yaml path/to/your/configuration.yaml</tt>.</p>
 

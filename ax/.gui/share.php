@@ -147,7 +147,11 @@
 
 		var share_internal_url = window.location.toString();
 		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
-		var hashUrl = share_internal_url + '&get_hash_only=1';
+		var end_sign = "&";
+		if(share_internal_url.endsWith("share_internal.php")) {
+			end_sign = "?";
+		}
+		var hashUrl = share_internal_url + end_sign + 'get_hash_only=1';
 
 		var newHash = getHashUrlContent(hashUrl);
 
@@ -165,7 +169,11 @@
 
 		var share_internal_url = window.location.toString();
 		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
-		var hashUrl = share_internal_url + '&get_hash_only=1';
+		var end_sign = "&";
+		if(share_internal_url.endsWith("share_internal.php")) {
+			end_sign = "?";
+		}
+		var hashUrl = share_internal_url + end_sign + 'get_hash_only=1';
 
 		last_hash = getHashUrlContent(hashUrl);
 

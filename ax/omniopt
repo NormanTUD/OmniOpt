@@ -467,10 +467,110 @@ args_string=""
 args=("$@")
 k=0
 
+config_toml=""
+config_yaml=""
+config_json=""
+
 while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--config_yaml=*)
+			old_config_yaml=$config_yaml_previous_job
+			config_yaml_previous_job="${i#*=}"
+			config_yaml=$config_yaml_previous_job
+
+			if [[ -n $old_config_yaml ]]; then
+				red_text "--config_yaml was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--config_yaml=.*\s\s*# #')
+			fi
+
+			args_string+=" --config_yaml $config_yaml_previous_job "
+
+			;;
+
+		--config_yaml)
+			old_config_yaml=$config_yaml_previous_job
+
+			shift
+			k=$((k+1))
+
+			config_yaml_previous_job="${args[k]}"
+			config_yaml=$config_yaml_previous_job
+
+			if [[ -n $old_config_yaml ]]; then
+				red_text "--config_yaml was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--config_yaml=.*\s\s*# #')
+			fi
+
+			args_string+=" --config_yaml $config_yaml_previous_job "
+
+			;;
+
+		--config_json=*)
+			old_config_json=$config_json_previous_job
+			config_json_previous_job="${i#*=}"
+
+			if [[ -n $old_config_json ]]; then
+				red_text "--config_json was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--config_json=.*\s\s*# #')
+			fi
+
+			args_string+=" --config_json $config_json_previous_job "
+			config_json=$config_json_previous_job
+
+			;;
+
+		--config_json)
+			old_config_json=$config_json_previous_job
+
+			shift
+			k=$((k+1))
+
+			config_json_previous_job="${args[k]}"
+
+			if [[ -n $old_config_json ]]; then
+				red_text "--config_json was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--config_json=.*\s\s*# #')
+			fi
+
+			args_string+=" --config_json $config_json_previous_job "
+			config_json=$config_json_previous_job
+
+			;;
+
+		--config_toml=*)
+			old_config_toml=$config_toml_previous_job
+			config_toml_previous_job="${i#*=}"
+
+			if [[ -n $old_config_toml ]]; then
+				red_text "--config_toml was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--config_toml=.*\s\s*# #')
+			fi
+
+			args_string+=" --config_toml $config_toml_previous_job "
+			config_toml=$config_toml_previous_job
+
+			;;
+
+		--config_toml)
+			old_config_toml=$config_toml_previous_job
+
+			shift
+			k=$((k+1))
+
+			config_toml_previous_job="${args[k]}"
+
+			if [[ -n $old_config_toml ]]; then
+				red_text "--config_toml was specified more than once. Using the last one."
+				args_string=$(echo "$args_string" | sed -e 's#\s*--config_toml=.*\s\s*# #')
+			fi
+
+			args_string+=" --config_toml $config_toml_previous_job "
+			config_toml=$config_toml_previous_job
+
+			;;
+
 		--workdir=*)
 			old_workdir=$workdir_previous_job
 			workdir_previous_job="${i#*=}"

@@ -1355,15 +1355,15 @@ else
 	else
 		if [[ -z $account ]]; then
 			if [[ -z $reservation ]]; then
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name '$experiment_name' --time=$formatted_time '$SCRIPT_DIR/omniopt' $args_string"
+				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name '$experiment_name' --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
 			else
 				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --reservation=$reservation --job-name '$experiment_name' --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
 			fi
 		else
 			if [[ -z $reservation ]]; then
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --job-name '$experiment_name' --time=$formatted_time '$SCRIPT_DIR/omniopt' $args_string"
+				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --job-name '$experiment_name' --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
 			else
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --reservation=$reservation --job-name '$experiment_name' --time=$formatted_time '$SCRIPT_DIR/omniopt' $args_string"
+				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --reservation=$reservation --job-name '$experiment_name' --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
 			fi
 		fi
 	fi

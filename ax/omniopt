@@ -1119,7 +1119,6 @@ else
 	exit 19
 fi
 
-
 if [[ -z $gpus ]]; then
 	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
 		gpus=$(get_config_from_config_file "gpus")

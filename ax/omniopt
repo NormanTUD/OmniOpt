@@ -962,13 +962,23 @@ function get_config_from_config_file {
 	key="$1"
 
 	if [[ "$config_toml" != "" ]]; then
-		parse_toml "$config_toml" "$key"
+		parse_toml "$config_toml" "$key" || {
+			red_text "Error parsing $config_toml"
+			exit 133
+		}
 	elif [[ "$config_yaml" != "" ]]; then
-		parse_yaml "$config_yaml" "$key"
+		parse_yaml "$config_yaml" "$key" || {
+			red_text "Error parsing $config_yaml"
+			exit 133
+		}
 	elif [[ "$config_json" != "" ]]; then
-		parse_json "$config_json" "$key"
+		parse_json "$config_json" "$key" || {
+			red_text "Error parsing $config_json"
+			exit 133
+		}
 	else
 		red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
+		exit 133
 	fi
 }
 
@@ -1104,9 +1114,9 @@ if [[ $tests -eq 0 ]]; then
 	if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 		if [[ "$continue_previous_job" == "" ]]; then
 			if [[ -z "$mem_gb" ]]; then
-				echo "A"
-				mem_gb=$(get_config_from_config_file "$mem_gb")
-				echo "B"
+				set +e
+				mem_gb=$(get_config_from_config_file "mem_gb")
+				set -e
 
 				if [[ -z "$mem_gb" ]]; then
 					red_text "Parameter --mem_gb is missing or empty";
@@ -1115,7 +1125,9 @@ if [[ $tests -eq 0 ]]; then
 			fi
 
 			if [[ -z "$time" ]]; then
-				time=$(get_config_from_config_file "$time")
+				set +e
+				time=$(get_config_from_config_file "time")
+				set -e
 
 				if [[ -z "$time" ]]; then
 					red_text "Parameter --time is missing or empty";
@@ -1124,7 +1136,9 @@ if [[ $tests -eq 0 ]]; then
 			fi
 
 			if [[ -z $experiment_name ]]; then
-				experiment_name=$(get_config_from_config_file "$experiment_name")
+				set +e
+				experiment_name=$(get_config_from_config_file "experiment_name")
+				set -e
 
 				if [[ -z $experiment_name ]]; then
 					red_text "Parameter --experiment_name is missing or empty"

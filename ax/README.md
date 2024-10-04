@@ -63,6 +63,7 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 | 103       | --time is not in minutes or HH:MM:SS format                                                      |
 | 104       | One of the parameters --mem_gb, --time, or --experiment_name is missing.                         |
 | 105       | Continued job error: previous job has missing state files.                                       |
+| 133       | Error loading --config_toml, --config_json or --config_yaml                                      |
 | 181       | Error parsing --parameter. Check output for more details.                                        |
 | 191       | Could not create workdir                                                                         |
 | 192       | Unknown data type (--tests).                                                                     |

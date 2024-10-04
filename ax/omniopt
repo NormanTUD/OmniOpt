@@ -958,6 +958,20 @@ while [ $k -lt ${#args[@]} ]; do
 	k=$((k+1))
 done
 
+function get_config_from_config_file {
+	key="$1"
+
+	if [[ "$config_toml" != "" ]]; then
+		parse_toml "$config_toml" "$key"
+	elif [[ "$config_yaml" != "" ]]; then
+		parse_yaml "$config_yaml" "$key"
+	elif [[ "$config_json" != "" ]]; then
+		parse_json "$config_json" "$key"
+	else
+		red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
+	fi
+}
+
 if [[ "$debug" -eq "1" ]]; then
 	set -x
 fi
@@ -1090,18 +1104,32 @@ if [[ $tests -eq 0 ]]; then
 	if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 		if [[ "$continue_previous_job" == "" ]]; then
 			if [[ -z "$mem_gb" ]]; then
-				red_text "Parameter --mem_gb is missing or empty";
-				myexit 104
+				echo "A"
+				mem_gb=$(get_config_from_config_file "$mem_gb")
+				echo "B"
+
+				if [[ -z "$mem_gb" ]]; then
+					red_text "Parameter --mem_gb is missing or empty";
+					myexit 104
+				fi
 			fi
 
 			if [[ -z "$time" ]]; then
-				red_text "Parameter --time is missing or empty";
-				myexit 104
+				time=$(get_config_from_config_file "$time")
+
+				if [[ -z "$time" ]]; then
+					red_text "Parameter --time is missing or empty";
+					myexit 104
+				fi
 			fi
 
 			if [[ -z $experiment_name ]]; then
-				red_text "Parameter --experiment_name is missing or empty"
-				myexit 104
+				experiment_name=$(get_config_from_config_file "$experiment_name")
+
+				if [[ -z $experiment_name ]]; then
+					red_text "Parameter --experiment_name is missing or empty"
+					myexit 104
+				fi
 			fi
 		fi
 	fi

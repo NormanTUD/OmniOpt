@@ -141,7 +141,3 @@ parameter:
   ]
 }
 </code></pre>
-
-<h2 id="caveats">Caveats</h2>
-
-<p>Currently, SLURM-related parameters that are given to the main script are not parsed properly and need to be given manually via the CLI.</p>

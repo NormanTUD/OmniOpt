@@ -575,15 +575,15 @@ if [[ $superquick -eq 0 ]]; then
 fi
 
 
-if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No errors"
-else
-	red_text "=> ERRORS => ERRORS => ERRORS =>"
-	for i in "${errors[@]}"; do
-		red_text "$(echo $i | base64 --decode)"
-		echo ""
-	done
-fi
+#if [ ${#errors[@]} -eq 0 ]; then
+#	green_text "No errors"
+#else
+#	red_text "=> ERRORS => ERRORS => ERRORS =>"
+#	for i in "${errors[@]}"; do
+#		red_text "$(echo $i | base64 --decode)"
+#		echo ""
+#	done
+#fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v firefox 2>/dev/null >/dev/null; then

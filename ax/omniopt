@@ -1371,6 +1371,7 @@ else
 	if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
 		yellow_text "$sbatch_command"
 	fi
+
 	sbatch_result=$($sbatch_command)
 	exit_code=$?
 

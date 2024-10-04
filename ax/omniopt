@@ -6,6 +6,95 @@ debug=0
 main_process_gb=4
 run_tests_that_fail_on_taurus=0
 
+function parse_toml {
+	file="$1"
+	key="$2"
+
+	if ! command -v cat 2>/dev/null >/dev/null; then
+		echo "cat not found. Cannot parse toml." >&2
+		return 1
+	fi
+
+	if ! command -v sed 2>/dev/null >/dev/null; then
+		echo "sed not found. Cannot parse toml." >&2
+		return 1
+	fi
+
+	if ! command -v grep 2>/dev/null >/dev/null; then
+		echo "grep not found. Cannot parse toml." >&2
+		return 1
+	fi
+
+	if [[ ! -e $file ]]; then
+		echo "Cannot parse non-existant toml." >&2
+		return 1
+	fi
+
+	cat "$file" | grep -e "^$key = " | sed -e "s#^\s*$key\s*=\s*##"
+}
+
+function parse_yaml {
+	file="$1"
+	key="$2"
+
+	if ! command -v cat 2>/dev/null >/dev/null; then
+		echo "cat not found. Cannot parse yaml." >&2
+		return 1
+	fi
+
+	if ! command -v sed 2>/dev/null >/dev/null; then
+		echo "sed not found. Cannot parse yaml." >&2
+		return 1
+	fi
+
+	if ! command -v grep 2>/dev/null >/dev/null; then
+		echo "grep not found. Cannot parse yaml." >&2
+		return 1
+	fi
+
+	if [[ ! -e "$file" ]]; then
+		echo "Cannot parse non-existant yaml." >&2
+		return 1
+	fi
+
+	cat "$file" | grep -e "^$key: " | sed -e "s#^\s*$key\s*:\s*##"
+}
+
+function parse_json {
+	file="$1"
+	key="$2"
+
+	if ! command -v cat 2>/dev/null >/dev/null; then
+		echo "cat not found. Cannot parse json." >&2
+		return 1
+	fi
+
+	if ! command -v sed 2>/dev/null >/dev/null; then
+		echo "sed not found. Cannot parse json." >&2
+		return 1
+	fi
+
+	if [[ ! -e .tools/jq ]] 2>/dev/null >/dev/null; then
+		echo ".tools/jq not found. Cannot parse json." >&2
+		return 1
+	fi
+
+	if ! command -v grep 2>/dev/null >/dev/null; then
+		echo "grep not found. Cannot parse json." >&2
+		return 1
+	fi
+
+	if [[ ! -e "$file" ]]; then
+		echo "Cannot parse non-existant json." >&2
+		return 1
+	fi
+
+	cat "$file" | .tools/jq -r '.mem_gb'
+}
+
+#parse_json ".tests/example_config.json" "mem_gb"
+#exit
+
 function echoerr {
 	echo "$@" 1>&2
 }

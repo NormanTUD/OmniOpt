@@ -1106,7 +1106,6 @@ fi
 
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
 
-# Überprüfen, ob mehr als eine Variable gesetzt ist
 if [ -n "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
 	true
 elif [ -z "$config_toml" ] && [ -n "$config_json" ] && [ -z "$config_yaml" ]; then

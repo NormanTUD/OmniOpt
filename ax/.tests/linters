@@ -57,6 +57,7 @@ done
 source .shellscript_functions
 
 export DONT_INSTALL_MODULES=1
+export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 
 errors=()
 

@@ -1149,6 +1149,12 @@ if [[ $tests -eq 0 ]]; then
 	fi
 fi
 
+if [[ -z $gpus ]]; then
+	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
+		gpus=$(get_config_from_config_file "gpus")
+	fi
+fi
+
 if [[ "$continue_previous_job" != "" ]]; then
 	if [[ ! -d "$continue_previous_job" ]]; then
 		echo "The folder $continue_previous_job was not found"

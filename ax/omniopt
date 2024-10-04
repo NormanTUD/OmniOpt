@@ -1107,6 +1107,12 @@ fi
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
 
 if [[ -z $gpus ]]; then
+	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
+		gpus=$(get_config_from_config_file "gpus")
+	fi
+fi
+
+if [[ -z $gpus ]]; then
 	gpus=0
 fi
 
@@ -1146,12 +1152,6 @@ if [[ $tests -eq 0 ]]; then
 				fi
 			fi
 		fi
-	fi
-fi
-
-if [[ -z $gpus ]]; then
-	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
-		gpus=$(get_config_from_config_file "gpus")
 	fi
 fi
 

@@ -1,0 +1,35 @@
+<h1>Basics and Docker</h1>
+    
+<div id="toc"></div>
+
+<h2 id="what_are_environment_variables">What are environment variables?</h2>
+
+<p>Every program on Linux has an environment, like a bash- or zsh-shell, that it runs in. These shells can contain variables that can change how OmniOpt2 works. Here is a list of all shell variables that change how OmniOpt2 works.</p>
+
+<table>
+	<tr>
+		<th>Name</th>
+		<th>What does it do?</th>
+	</tr>
+
+	<tr>
+		<td><samp>export DISABLE_SIXEL_GRAPHICS=1</samp></td>
+		<td>Disables <a href="https://en.wikipedia.org/wiki/Sixel">sixel</a>-graphics, no matter what other parameters are set</td>
+	</tr>
+	<tr>
+		<td><samp>export DONT_INSTALL_MODULES=1</samp></td>
+		<td>Disables installing modules</td>
+	</tr>
+	<tr>
+		<td><samp>export DONT_SHOW_DONT_INSTALL_MESSAGE=1</samp></td>
+		<td>Don't show messages regarding the installation of modules</td>
+	</tr>
+	<tr>
+		<td><samp>export RUN_WITH_COVERAGE=1</samp></td>
+		<td>Runs omniopt- and plot-script with coverage to find out test code coverage</td>
+	</tr>
+	<tr>
+		<td><samp>export PRINT_SEPERATOR=1</samp></td>
+		<td>Prints a seperator line after OmniOpt2 runs</td>
+	</tr>
+</table>

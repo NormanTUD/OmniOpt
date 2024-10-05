@@ -171,11 +171,11 @@ for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##
 done
 
 function echoerr() {
-        echo "$@" 1>&2
+	echo "$@" 1>&2
 }
 
 function red_text {
-        echoerr -e "\e[31m$1\e[0m"
+	echoerr -e "\e[31m$1\e[0m"
 }
 
 set -e
@@ -540,7 +540,7 @@ if [[ "$exit_code" -ne "0" ]]; then
 		echo_red "$OUTPUT"
 	fi
 else
-	if [[ -n  "$OUTPUT" ]]; then
+	if [[ -n "$OUTPUT" ]]; then
 		echo "$OUTPUT"
 	fi
 fi

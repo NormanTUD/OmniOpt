@@ -15,6 +15,10 @@
 		<th colspan=2>OmniOpt</th>
 	</tr>
 	<tr>
+		<td><samp>export root_venv_dir=/path/to/venv</samp></td>
+		<td>Path to where virtualenv should be installed. Default is <samp>$HOME</samp></td>
+	</tr>
+	<tr>
 		<td><samp>export DISABLE_SIXEL_GRAPHICS=1</samp></td>
 		<td>Disables <a href="https://en.wikipedia.org/wiki/Sixel">sixel</a>-graphics, no matter what other parameters are set</td>
 	</tr>

@@ -1168,6 +1168,20 @@ if [[ $tests -eq 0 ]]; then
 	fi
 fi
 
+if [[ -z $reservation ]]; then
+	_reservation=$(get_config_from_config_file "reservation")
+	if [[ -n $_reservation ]]; then
+		reservation=$_reservation
+	fi
+fi
+
+if [[ -z $account ]]; then
+	_account=$(get_config_from_config_file "account")
+	if [[ -n $_account ]]; then
+		account=$_account
+	fi
+fi
+
 if [[ "$continue_previous_job" != "" ]]; then
 	if [[ ! -d "$continue_previous_job" ]]; then
 		echo "The folder $continue_previous_job was not found"

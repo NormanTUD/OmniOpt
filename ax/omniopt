@@ -205,14 +205,14 @@ function send_status_report {
 			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
 		fi
 
-		anon_user=$(get_anon_user_id)
 		if [[ -n $ITWORKSONMYMACHINE ]]; then
 			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
+		elif [[ -n $OO_MAIN_TESTS ]]; then
+			anon_user="affed00faffed00faffed00faffed00f"
+		else
+			anon_user=$(get_anon_user_id)
 		fi
 
-		if [[ -n $OO_MAIN_TESTS ]]; then
-			anon_user="affed00faffed00faffed00faffed00f"
-		fi
 		has_sbatch=0
 		run_uuid=$(uuidgen)
 

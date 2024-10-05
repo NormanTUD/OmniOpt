@@ -1189,23 +1189,25 @@ if [[ $tests -eq 0 ]]; then
 	fi
 fi
 
+trap - ERR
+set +e
+
 if [[ -z $reservation ]]; then
-	set +e
 	_reservation=$(get_config_from_config_file "reservation" 0 2>/dev/null)
-	set -e
 	if [[ -n $_reservation ]]; then
 		reservation=$_reservation
 	fi
 fi
 
 if [[ -z $account ]]; then
-	set +e
 	_account=$(get_config_from_config_file "account" 0 2>/dev/null)
-	set -e
 	if [[ -n $_account ]]; then
 		account=$_account
 	fi
 fi
+
+set -e
+trap 'calltracer' ERR
 
 if [[ "$continue_previous_job" != "" ]]; then
 	if [[ ! -d "$continue_previous_job" ]]; then

@@ -49,4 +49,12 @@
 		<td><samp>export BUBBLESIZEINPX=1</samp></td>
 		<td>Size of bubbles in plot scripts in px</td>
 	</tr>
+
+	<tr>
+		<th colspan=2>Test-Scripts</th>
+	</tr>
+	<tr>
+		<td><samp>export SHOW_COMMAND_BEFORE_EXECUTION=1</samp></td>
+		<td>Show <samp>omniopt_plot</samp>-commands before executing them</td>
+	</tr>
 </table>

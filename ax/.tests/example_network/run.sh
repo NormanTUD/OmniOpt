@@ -75,7 +75,7 @@ for i in $@; do
         esac
 done
 
-source $SCRIPT_DIR/install.sh
+source $SCRIPT_DIR/.shellscript_functions
 
 if [[ "$train" == 1 ]]; then
         python3 train.py $*

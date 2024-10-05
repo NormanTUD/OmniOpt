@@ -249,7 +249,7 @@ if [[ "$force_local_execution" -eq "1" ]]; then
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "$TESTNAME-local" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -273,7 +273,7 @@ if [[ "$force_local_execution" -eq "1" ]]; then
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "$TESTNAME-local" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -300,7 +300,7 @@ if [[ "$force_local_execution" -eq "1" ]]; then
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "$TESTNAME-local" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -324,7 +324,7 @@ if [[ "$force_local_execution" -eq "1" ]]; then
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "$TESTNAME-local" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \

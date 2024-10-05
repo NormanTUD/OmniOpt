@@ -20,7 +20,7 @@
 		<td>Sets the user-id to <samp>affed00faffed00faffed00faffed00f</samp>, so the statistics can determine whether you are a real user or a test-user</td>
 	</tr>
 	<tr>
-		<td><samp>export ITWORKSONMYMACHINE=1/samp></td>
+		<td><samp>export ITWORKSONMYMACHINE=1</samp></td>
 		<td>Sets the user-id to <samp>affeaffeaffeaffeaffeaffeaffeaffe</samp>, so the statistics can determine whether you are a real user or a the main developer (only I should set this variable)</td>
 	</tr>
 

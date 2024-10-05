@@ -11,7 +11,9 @@
 		<th>Name</th>
 		<th>What does it do?</th>
 	</tr>
-
+	<tr>
+		<th colspan=2>OmniOpt</th>
+	</tr>
 	<tr>
 		<td><samp>export DISABLE_SIXEL_GRAPHICS=1</samp></td>
 		<td>Disables <a href="https://en.wikipedia.org/wiki/Sixel">sixel</a>-graphics, no matter what other parameters are set</td>
@@ -29,7 +31,18 @@
 		<td>Runs omniopt- and plot-script with coverage to find out test code coverage</td>
 	</tr>
 	<tr>
+		<td><samp>export CI=1</samp></td>
+		<td>Disables certain tests in a CI environment</td>
+	</tr>
+	<tr>
 		<td><samp>export PRINT_SEPERATOR=1</samp></td>
 		<td>Prints a seperator line after OmniOpt2 runs (useful for automated tests)</td>
+	</tr>
+	<tr>
+		<th colspan=2>Plot-Script</th>
+	</tr>
+	<tr>
+		<td><samp>export BUBBLESIZEINPX=1</samp></td>
+		<td>Size of bubbles in plot scripts in px</td>
 	</tr>
 </table>

@@ -206,7 +206,7 @@ try:
         def load_config(self, config_path, file_format):
             if not os.path.isfile(config_path):
                 print_red(f"Error: {file_format} config file '{config_path}' not found.")
-                sys.exit(5)
+                my_exit(5)
 
             with open(config_path, mode='r', encoding="utf-8") as file:
                 try:
@@ -220,7 +220,7 @@ try:
                         return json.load(file)
                 except Exception as e:
                     print_red(f"Error parsing {file_format} file '{config_path}': {e}")
-                    sys.exit(5)
+                    my_exit(5)
 
             return {}
 
@@ -276,7 +276,7 @@ try:
 
             if yaml_and_toml or yaml_and_json or json_and_toml:
                 print_red("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
-                sys.exit(5)
+                my_exit(5)
 
             if _args.config_yaml:
                 config = self.load_config(_args.config_yaml, 'yaml')
@@ -785,10 +785,10 @@ def log_nr_of_workers():
             f.write(str(nr_of_workers) + "\n")
     except FileNotFoundError:
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
-        sys.exit(99)
+        my_exit(99)
     except OSError as e:
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
-        sys.exit(199)
+        my_exit(199)
 
 def log_what_needs_to_be_logged():
     if "write_worker_usage" in globals():
@@ -911,14 +911,14 @@ else:
 
 if not args.tests and len(global_vars["joined_run_program"]) == 0:
     print_red("--run_program was empty")
-    sys.exit(19)
+    my_exit(19)
 
 global_vars["experiment_name"] = args.experiment_name
 
 def load_global_vars(_file):
     if not os.path.exists(_file):
         print(f"You've tried to continue a non-existing job: {_file}")
-        sys.exit(44)
+        my_exit(44)
     try:
         global global_vars
         with open(_file, encoding="utf-8") as f:
@@ -977,7 +977,7 @@ if not args.tests:
 
     if not global_vars["_time"]:
         print("Missing --time parameter. Cannot continue.")
-        sys.exit(19)
+        my_exit(19)
 
     if args.mem_gb is None:
         if not args.continue_previous_job:
@@ -1107,7 +1107,7 @@ def create_folder_and_file(folder):
             os.makedirs(folder)
     except FileExistsError:
         print_red(f"create_folder_and_file({folder}) failed, because the folder already existed. Cannot continue.")
-        sys.exit(13)
+        my_exit(13)
 
     file_path = os.path.join(folder, "results.csv")
 
@@ -4004,7 +4004,7 @@ def _orchestrate(stdout_path, trial_index):
 
             else:
                 print_red(f"Orchestrator: {behav} not yet implemented!")
-                sys.exit(210)
+                my_exit(210)
 
 def write_run_uuid_to_file():
     try:
@@ -4258,7 +4258,7 @@ def _get_next_trials():
             print_red(f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
         else:
             print_red(f"Error: {e}")
-        sys.exit(242)
+        my_exit(242)
 
     print_debug_get_next_trials(len(trial_index_to_param.items()), nr_of_jobs_to_get, getframeinfo(currentframe()).lineno)
 
@@ -4701,7 +4701,7 @@ def add_exclude_to_defective_nodes():
 def check_max_eval(_max_eval):
     if not _max_eval:
         print_red("--max_eval needs to be set!")
-        sys.exit(19)
+        my_exit(19)
 
 def main():
     print_debug("main()")

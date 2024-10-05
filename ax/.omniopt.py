@@ -657,7 +657,6 @@ def print_logo():
         "Precision tuning, no shortcuts.",
         "Climbing the hyperparameter mountain... Montana Sacra style!",
         "Optimizing like it's the Matrix, but I am the One.",
-        "Hyperparameters assemble! (Avengers style)",
         "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
         "Inception-level optimization: going deeper with every layer.",
         "Hyperparameter quest: It's dangerous to go alone, take this!",

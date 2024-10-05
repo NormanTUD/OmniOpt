@@ -960,21 +960,32 @@ done
 
 function get_config_from_config_file {
 	key="$1"
+	warn_and_exit="$2"
+
+	if [[ "$warn_and_exit" != "1" ]] || [[ "$warn_and_exit" != 0 ]]; then
+		warn_and_exit=1
+	fi
 
 	if [[ "$config_toml" != "" ]]; then
 		parse_toml "$config_toml" "$key" || {
-			red_text "Error parsing $config_toml"
-			exit 133
+			if [[ $warn_and_exit == 1 ]]; then
+				red_text "Error parsing $config_toml"
+				exit 133
+			fi
 		}
 	elif [[ "$config_yaml" != "" ]]; then
 		parse_yaml "$config_yaml" "$key" || {
-			red_text "Error parsing $config_yaml"
-			exit 133
+			if [[ $warn_and_exit == 1 ]]; then
+				red_text "Error parsing $config_yaml"
+				exit 133
+			fi
 		}
 	elif [[ "$config_json" != "" ]]; then
 		parse_json "$config_json" "$key" || {
-			red_text "Error parsing $config_json"
-			exit 133
+			if [[ $warn_and_exit == 1 ]]; then
+				red_text "Error parsing $config_json"
+				exit 133
+			fi
 		}
 	else
 		red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
@@ -1121,7 +1132,7 @@ fi
 
 if [[ -z $gpus ]]; then
 	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
-		gpus=$(get_config_from_config_file "gpus")
+		gpus=$(get_config_from_config_file "gpus" 0)
 	fi
 fi
 
@@ -1134,7 +1145,7 @@ if [[ $tests -eq 0 ]]; then
 		if [[ "$continue_previous_job" == "" ]]; then
 			if [[ -z "$mem_gb" ]]; then
 				set +e
-				mem_gb=$(get_config_from_config_file "mem_gb")
+				mem_gb=$(get_config_from_config_file "mem_gb" 1)
 				set -e
 
 				if [[ -z "$mem_gb" ]]; then
@@ -1145,7 +1156,7 @@ if [[ $tests -eq 0 ]]; then
 
 			if [[ -z "$time" ]]; then
 				set +e
-				time=$(get_config_from_config_file "time")
+				time=$(get_config_from_config_file "time" 1)
 				set -e
 
 				if [[ -z "$time" ]]; then
@@ -1156,7 +1167,7 @@ if [[ $tests -eq 0 ]]; then
 
 			if [[ -z $experiment_name ]]; then
 				set +e
-				experiment_name=$(get_config_from_config_file "experiment_name")
+				experiment_name=$(get_config_from_config_file "experiment_name" 1)
 				set -e
 
 				if [[ -z $experiment_name ]]; then
@@ -1169,14 +1180,14 @@ if [[ $tests -eq 0 ]]; then
 fi
 
 if [[ -z $reservation ]]; then
-	_reservation=$(get_config_from_config_file "reservation")
+	_reservation=$(get_config_from_config_file "reservation" 0)
 	if [[ -n $_reservation ]]; then
 		reservation=$_reservation
 	fi
 fi
 
 if [[ -z $account ]]; then
-	_account=$(get_config_from_config_file "account")
+	_account=$(get_config_from_config_file "account" 0)
 	if [[ -n $_account ]]; then
 		account=$_account
 	fi

@@ -1,4 +1,4 @@
-<h1>Basics and Docker</h1>
+<h1>Environment Variables</h1>
     
 <div id="toc"></div>
 
@@ -30,6 +30,6 @@
 	</tr>
 	<tr>
 		<td><samp>export PRINT_SEPERATOR=1</samp></td>
-		<td>Prints a seperator line after OmniOpt2 runs</td>
+		<td>Prints a seperator line after OmniOpt2 runs (useful for automated tests)</td>
 	</tr>
 </table>

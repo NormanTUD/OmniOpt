@@ -72,7 +72,7 @@ find_closest_match() {
 		echo "Multiple exact substring matches found: ${exact_matches[*]}" >&2
 	else
 		# No exact substring match found, proceed with Levenshtein
-		echo "No exact substring match found, proceeding with Levenshtein distance..." >&2
+		echo "No exact substring match found for >$input<, proceeding with Levenshtein distance..." >&2
 	fi
 
 	for expected in "${expected_plot_types[@]}"; do

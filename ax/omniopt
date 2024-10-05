@@ -971,6 +971,8 @@ function get_config_from_config_file {
 			if [[ $warn_and_exit == 1 ]]; then
 				red_text "Error parsing $config_toml"
 				exit 133
+			else
+				return 133
 			fi
 		}
 	elif [[ "$config_yaml" != "" ]]; then
@@ -978,6 +980,8 @@ function get_config_from_config_file {
 			if [[ $warn_and_exit == 1 ]]; then
 				red_text "Error parsing $config_yaml"
 				exit 133
+			else
+				return 133
 			fi
 		}
 	elif [[ "$config_json" != "" ]]; then
@@ -985,12 +989,16 @@ function get_config_from_config_file {
 			if [[ $warn_and_exit == 1 ]]; then
 				red_text "Error parsing $config_json"
 				exit 133
+			else
+				return 133
 			fi
 		}
 	else
 		if [[ $warn_and_exit == 1 ]]; then
 			red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
 			exit 133
+		else
+			return 133
 		fi
 	fi
 }

@@ -1,10 +1,14 @@
 #!/bin/bash
 
+#SBATCH --signal=B:USR1@200
+
 {
 checkout_to_latest_tested_version=0
 debug=0
 main_process_gb=4
 run_tests_that_fail_on_taurus=0
+force_local_execution=0
+has_sbatch=0
 
 function parse_toml {
 	file="$1"
@@ -194,6 +198,10 @@ function get_anon_user_id {
 	echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32
 }
 
+if command -v sbatch 2>/dev/null >/dev/null; then
+	has_sbatch=1
+fi
+
 function send_status_report {
 	exit_code=$1
 
@@ -213,7 +221,6 @@ function send_status_report {
 			anon_user=$(get_anon_user_id)
 		fi
 
-		has_sbatch=0
 		run_uuid=$(uuidgen)
 
 		if [[ -z $git_hash ]]; then
@@ -236,14 +243,6 @@ function send_status_report {
 		echo "Not sending anonymized user statistics"
 	fi
 }
-
-#SEND_USAGE_STATS=1
-#send_status_report
-#exit
-
-if command -v sbatch 2>/dev/null >/dev/null; then
-	has_sbatch=1
-fi
 
 export NO_WHIPTAIL=1
 
@@ -342,8 +341,6 @@ function remaining_time {
 		echo "$result"
 	fi
 }
-
-#SBATCH --signal=B:USR1@200
 
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 ORIGINAL_PWD="$(pwd)"
@@ -935,6 +932,10 @@ while [ $k -lt ${#args[@]} ]; do
 		--follow)
 			follow=1
 			;;
+		--force_local_execution)
+			force_local_execution=1
+			args_string+=" --force_local_execution "
+			;;
 		--wait_until_ended)
 			wait_until_ended=1
 			args_string+=" --wait_until_ended "
@@ -1349,7 +1350,7 @@ kill_tail_when_squeue_job_empty () {
 	return 0
 }
 
-if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null; then
+if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
 	# To start all subjobs independently from the omniopt job, unset all SLURM variables
 	set +x
 	for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do

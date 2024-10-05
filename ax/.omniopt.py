@@ -87,6 +87,39 @@ def _sleep(t: int):
     if args is not None and not args.no_sleep:
         time.sleep(t)
 
+def _debug(msg, _lvl=0, eee=None):
+    if _lvl > 3:
+        original_print(f"Cannot write _debug, error: {eee}")
+        print("Exit-Code: 193")
+        sys.exit(193)
+
+    try:
+        with open(logfile, mode='a', encoding="utf-8") as f:
+            original_print(msg, file=f)
+    except FileNotFoundError:
+        print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
+    except Exception as e:
+        original_print("_debug: Error trying to write log file: " + str(e))
+
+        _debug(msg, _lvl + 1, e)
+
+def print_debug(msg):
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    #nl = get_nesting_level(inspect.currentframe().f_back)
+    #_tabs = "\t" * nl
+    _tabs = ""
+    msg = f"{time_str}:{_tabs}{msg}"
+
+    if args is not None and args.debug:
+        print(msg)
+
+    try:
+        _debug(f"{time_str}: {get_functions_stack_array()}")
+    except Exception:
+        pass
+
+    _debug("\t" + msg)
 
 def my_exit(_code=0):
     tb = traceback.format_exc()
@@ -205,8 +238,8 @@ try:
 
         def load_config(self, config_path, file_format):
             if not os.path.isfile(config_path):
-                print_red(f"Error: {file_format} config file '{config_path}' not found.")
-                my_exit(5)
+                print("Exit-Code: 5")
+                sys.exit(5)
 
             with open(config_path, mode='r', encoding="utf-8") as file:
                 try:
@@ -220,7 +253,8 @@ try:
                         return json.load(file)
                 except (Exception, json.decoder.JSONDecodeError) as e:
                     print_red(f"Error parsing {file_format} file '{config_path}': {e}")
-                    my_exit(5)
+                    print("Exit-Code: 5")
+                    sys.exit(5)
 
             return {}
 
@@ -244,9 +278,9 @@ try:
                         # Convert the value to the expected type
                         converted_config[key] = expected_type(value)
                     except (ValueError, TypeError):
-                        print_red(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
+                        print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
                 else:
-                    print_yellow(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
+                    print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
 
             return converted_config
 
@@ -275,8 +309,8 @@ try:
             json_and_toml = _args.config_json and _args.config_toml
 
             if yaml_and_toml or yaml_and_json or json_and_toml:
-                print_red("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
-                my_exit(5)
+                print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
+                print("Exit-Code: 5")
 
             if _args.config_yaml:
                 config = self.load_config(_args.config_yaml, 'yaml')
@@ -443,22 +477,6 @@ LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
 NVIDIA_SMI_LOGS_BASE = None
 
-def _debug(msg, _lvl=0, eee=None):
-    if _lvl > 3:
-        original_print(f"Cannot write _debug, error: {eee}")
-        sys.exit(193)
-
-    try:
-        with open(logfile, mode='a', encoding="utf-8") as f:
-            original_print(msg, file=f)
-    except FileNotFoundError:
-        print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
-        sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
-        original_print("_debug: Error trying to write log file: " + str(e))
-
-        _debug(msg, _lvl + 1, e)
-
 def get_functions_stack_array():
     stack = inspect.stack()
     function_names = []
@@ -467,22 +485,6 @@ def get_functions_stack_array():
             if frame_info.function != "wrapper":
                 function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
     return "Function stack: " + (" -> ".join(function_names) + ":")
-
-def print_debug(msg):
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #nl = get_nesting_level(inspect.currentframe().f_back)
-    #_tabs = "\t" * nl
-    _tabs = ""
-    msg = f"{time_str}:{_tabs}{msg}"
-    if args.debug:
-        print(msg)
-
-    try:
-        _debug(f"{time_str}: {get_functions_stack_array()}")
-    except Exception:
-        pass
-
-    _debug("\t" + msg)
 
 def append_and_read(file, nr=0, recursion=0):
     try:

@@ -14,7 +14,7 @@
 		<th>What does it do?</th>
 	</tr>
 	<tr>
-		<th colspan=2>OmniOpt</th>
+		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt</th>
 	</tr>
 
 	<tr>
@@ -59,7 +59,7 @@
 		<td>Prints a seperator line after OmniOpt2 runs (useful for automated tests)</td>
 	</tr>
 	<tr>
-		<th colspan=2>Plot-Script</th>
+		<th class="section-header invert_in_dark_mode" colspan=2>Plot-Script</th>
 	</tr>
 	<tr>
 		<td><samp>export BUBBLESIZEINPX=1</samp></td>
@@ -67,7 +67,7 @@
 	</tr>
 
 	<tr>
-		<th colspan=2>Test-Scripts</th>
+		<th class="section-header invert_in_dark_mode" colspan=2>Test-Scripts</th>
 	</tr>
 	<tr>
 		<td><samp>export CREATE_PLOT_HELPS=1</samp></td>

@@ -41,3 +41,4 @@ hiplot
 html5lib
 lxml
 toml
+linkchecker

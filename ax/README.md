@@ -45,6 +45,7 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 | 3         | Invalid exit code detected                                                                       |
 | 4         | Failed loading modules                                                                           |
 | 5         | Errors regarding toml or yaml config files                                                       |
+| 6         | Error creating .logs dir                                                                         |
 | 10        | Usually only returned by dier (for debugging).                                                   |
 | 11        | Required program not found (check logs)                                                          |
 | 12        | Error with pip, check logs                                                                       |

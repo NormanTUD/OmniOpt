@@ -491,7 +491,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Incomplete choice parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice" 181 104
 
-	_test "Incomplete range parameter (mising upper and lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181 104
+	_test "Incomplete range parameter (missing upper and lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181 104
 
 	_test "Incomplete range parameter (missing upper)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181 104
 
@@ -501,7 +501,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Invalid range type (upper = lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 0" 181 104
 
-	_test "Invalid range type (mising upper limit and type)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181 104
+	_test "Invalid range type (missing upper limit and type)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181 104
 
 	_test "Invalid range type (missing upper limit)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 float" 181 104
 

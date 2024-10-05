@@ -42,6 +42,7 @@ function help () {
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
 	echo "  --time=(INT)                                       Time each subjob should run"
 	echo "  --allow_failure                                    Adds a param to randomly fail"
+	echo "  --force_local_execution                            Execute locally even when slurm is installed"
 	echo "  --help                                             this help"
 	echo "  --debug                                            Enables debug mode (set -x)"
 	exit $1
@@ -61,6 +62,7 @@ debug=0
 max_eval=30
 num_parallel_jobs=20
 allow_failure=0
+force_local_execution=0
 num_random_steps=$num_parallel_jobs
 time=60
 model=BOTORCH_MODULAR
@@ -72,6 +74,9 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--force_local_execution)
+			force_local_execution=1
+			;;
 		--allow_failure)
 			allow_failure=1
 			;;
@@ -235,104 +240,211 @@ fi
 PARTITION="alpha"
 TESTNAME=__main__tests__
 
-if [[ "$gridsearch" -eq "1" ]]; then
-	TESTNAME="${TESTNAME}_gridsearch"
-	if [[ "$allow_failure" -eq "0" ]]; then
-		./omniopt \
-			--live_share \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=$mem_gb \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--hide_ascii_plots
-		exit_code=$?
+if [[ "$force_local_execution" -eq "1" ]]; then
+	if [[ "$gridsearch" -eq "1" ]]; then
+		TESTNAME="${TESTNAME}_gridsearch"
+		if [[ "$allow_failure" -eq "0" ]]; then
+			./omniopt \
+				--force_local_execution \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--hide_ascii_plots
+			exit_code=$?
+		else
+			./omniopt \
+				--force_local_execution \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--gridsearch \
+				--hide_ascii_plots
+			exit_code=$?
+		fi
 	else
-		./omniopt \
-			--live_share \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=$mem_gb \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--gridsearch \
-			--hide_ascii_plots
-		exit_code=$?
+		if [[ "$allow_failure" -eq "0" ]]; then
+			./omniopt \
+				--force_local_execution \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--hide_ascii_plots
+			exit_code=$?
+		else
+			./omniopt \
+				--force_local_execution \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--parameter fail_or_not choice "0,1" \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--hide_ascii_plots
+			exit_code=$?
+		fi
 	fi
 else
-	if [[ "$allow_failure" -eq "0" ]]; then
-		./omniopt \
-			--live_share \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=$mem_gb \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--hide_ascii_plots
-		exit_code=$?
+	if [[ "$gridsearch" -eq "1" ]]; then
+		TESTNAME="${TESTNAME}_gridsearch"
+		if [[ "$allow_failure" -eq "0" ]]; then
+			./omniopt \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--hide_ascii_plots
+			exit_code=$?
+		else
+			./omniopt \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--gridsearch \
+				--hide_ascii_plots
+			exit_code=$?
+		fi
 	else
-		./omniopt \
-			--live_share \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=$mem_gb \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--parameter fail_or_not choice "0,1" \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--hide_ascii_plots
-		exit_code=$?
+		if [[ "$allow_failure" -eq "0" ]]; then
+			./omniopt \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--hide_ascii_plots
+			exit_code=$?
+		else
+			./omniopt \
+				--live_share \
+				--send_anonymized_usage_stats \
+				--partition $PARTITION \
+				--experiment_name $TESTNAME \
+				--mem_gb=$mem_gb \
+				--time $time \
+				--worker_timeout=5 \
+				--max_eval $max_eval \
+				--num_parallel_jobs $num_parallel_jobs \
+				--gpus $NUM_GPUS \
+				--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
+				--parameter int_param range -100 10 int \
+				--parameter float_param range -100 10 float \
+				--parameter choice_param choice 1,2,4,8,16,hallo \
+				--parameter int_param_two range -100 10 int \
+				--parameter fail_or_not choice "0,1" \
+				--follow \
+				--num_random_steps $num_random_steps \
+				--model $model \
+				--auto_exclude_defective_hosts \
+				--hide_ascii_plots
+			exit_code=$?
+		fi
 	fi
 fi
 

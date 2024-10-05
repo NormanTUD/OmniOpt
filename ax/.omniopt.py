@@ -218,7 +218,7 @@ try:
 
                     if file_format == 'json':
                         return json.load(file)
-                except Exception as e:
+                except (Exception, json.decoder.JSONDecodeError) as e:
                     print_red(f"Error parsing {file_format} file '{config_path}': {e}")
                     my_exit(5)
 

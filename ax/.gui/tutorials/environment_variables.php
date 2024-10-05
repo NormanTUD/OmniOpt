@@ -78,6 +78,10 @@
 		<td>Don't show <samp>omniopt_plot</samp> runtime at the end</td>
 	</tr>
 	<tr>
+		<td><samp>export NO_TESTS=1</samp></td>
+		<td>Disable tests for <samp>.tests/pre-commit</samp>-hook</td>
+	</tr>
+	<tr>
 		<td><samp>export SHOW_COMMAND_BEFORE_EXECUTION=1</samp></td>
 		<td>Show <samp>omniopt_plot</samp>-commands before executing them</td>
 	</tr>

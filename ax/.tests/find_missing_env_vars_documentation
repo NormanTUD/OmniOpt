@@ -1,0 +1,59 @@
+#!/bin/bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+file=".gui/tutorials/environment_variables.php"
+
+if ! [[ -f "$file" ]]; then
+	echo "$file not found"
+	exit 255
+fi
+
+described_params=()
+
+for described_param in $(cat $file | grep "<td><samp" | sed -e 's#\s.*<td><samp>##' -e 's#<.*##' -e 's#^export ##' | sed -e 's#=.*##'); do
+	described_params+=("$described_param")
+done
+
+errors=0
+
+for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
+	found_params=$(egrep -ri 'if\s..?\s-[nz]' $bash_file | sed -e 's#^\s*##' -e 's#.*if\s*\[\[*\s*##' -e 's#\s\]\]*\s*.*##' -e 's#^-[zn]\s*##' | sort | uniq | sed -e 's#"##g' | grep -v "{" | sed -e 's#^\$##' | grep -v old_ | grep -v CHAR | grep -v RUN_DIR | grep -v reservation | grep -v min | grep -v max | grep -v _VERSION | grep -v account | grep -v SLURM_ | grep -v DISPLAY | grep -v "config_toml" | grep -v config_yaml | grep -v config_json | grep -v CODE | grep -v no_color | grep -v time | grep -v mem_gb | grep -v exit_code | grep -v already_sent_signal | grep -v tag_commit_hash | grep -v ORIGINAL_ARGS | grep -v ZSH_EVAL_CONTEXT | grep -v DONT_ASK_USERNAME | grep -v gpus | grep -v new_git_hash | grep -v AVAILABLE_PROJECTS | grep -v git_hash | grep -v experiment_name | grep -v current_tag | grep -v result | grep -v OUTPUT)
+
+	for found_param in $(echo "${found_params[@]}"); do
+		found=0
+
+		for described_param in $(echo "${described_params[@]}"); do
+			if [[ "$described_param" == "$found_param" ]]; then
+				found=1
+			fi
+		done
+
+		if [[ "$found" -eq 0 ]]; then
+			red_text "Parameter found $bash_file but not in $file: $found_param"
+			errors=$(($errors+1))
+		fi
+	done
+done
+
+exit $errors

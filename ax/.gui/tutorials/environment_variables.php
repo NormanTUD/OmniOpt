@@ -72,6 +72,10 @@
 		<td>Creates the help files for the tutorials page for each <samp>omniopt_plot</samp></td>
 	</tr>
 	<tr>
+		<td><samp>export NO_RUNTIME=1</samp></td>
+		<td>Don't show <samp>omniopt_plot</samp> runtime at the end</td>
+	</tr>
+	<tr>
 		<td><samp>export SHOW_COMMAND_BEFORE_EXECUTION=1</samp></td>
 		<td>Show <samp>omniopt_plot</samp>-commands before executing them</td>
 	</tr>

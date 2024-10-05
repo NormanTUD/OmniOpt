@@ -446,6 +446,7 @@ _test "folder structure Documentation" "bash .tests/folder_structure" 0
 _test "state_files Documentation" "bash ./.tests/state_files" 0
 _test "php_files syntax check" "bash .tests/php_files" 0
 _test "Find typos in gui" "bash .tests/find_typos_in_gui .gui" 0
+_test "Find typos in gui" "bash .tests/find_missing_env_vars_documentation" 0
 _test "Find typos in bash" "bash .tests/find_typos_in_bash" 0
 _test "Find typos in js" "bash .tests/find_typos_in_js" 0
 _test "Find typos in php" "bash .tests/find_typos_in_php" 0

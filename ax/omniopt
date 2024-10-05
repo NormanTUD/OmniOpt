@@ -1132,7 +1132,7 @@ fi
 
 if [[ -z $gpus ]]; then
 	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
-		gpus=$(get_config_from_config_file "gpus" 0)
+		gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
 	fi
 fi
 
@@ -1180,14 +1180,18 @@ if [[ $tests -eq 0 ]]; then
 fi
 
 if [[ -z $reservation ]]; then
-	_reservation=$(get_config_from_config_file "reservation" 0)
+	set +e
+	_reservation=$(get_config_from_config_file "reservation" 0 2>/dev/null)
+	set -e
 	if [[ -n $_reservation ]]; then
 		reservation=$_reservation
 	fi
 fi
 
 if [[ -z $account ]]; then
-	_account=$(get_config_from_config_file "account" 0)
+	set +e
+	_account=$(get_config_from_config_file "account" 0 2>/dev/null)
+	set -e
 	if [[ -n $_account ]]; then
 		account=$_account
 	fi

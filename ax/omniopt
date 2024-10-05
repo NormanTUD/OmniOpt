@@ -74,8 +74,8 @@ function parse_json {
 		return 1
 	fi
 
-	if [[ ! -e .tools/jq ]] 2>/dev/null >/dev/null; then
-		echo ".tools/jq not found. Cannot parse json." >&2
+	if [[ ! -e ".tools/jq_$(uname -m)" ]] 2>/dev/null >/dev/null; then
+		echo ".tools/jq_$(uname -m) not found. Cannot parse json." >&2
 		return 1
 	fi
 
@@ -89,7 +89,7 @@ function parse_json {
 		return 1
 	fi
 
-	cat "$file" | .tools/jq -r '.mem_gb'
+	cat "$file" | .tools/jq_$(uname -m) -r '.mem_gb'
 }
 
 #parse_json ".tests/example_config.json" "mem_gb"

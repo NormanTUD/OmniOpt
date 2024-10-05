@@ -41,6 +41,10 @@
 		<td>Don't show messages regarding the installation of modules</td>
 	</tr>
 	<tr>
+		<td><samp>export DONTSTARTFIREFOX=1</samp></td>
+		<td>Don't start firefox when <samp>RUN_WITH_COVERAGE</samp> is defined.</td>
+	</tr>
+	<tr>
 		<td><samp>export RUN_WITH_COVERAGE=1</samp></td>
 		<td>Runs omniopt- and plot-script with coverage to find out test code coverage</td>
 	</tr>

@@ -1605,11 +1605,11 @@ def find_file_paths(_text):
 
 def check_file_info(file_path):
     if not os.path.exists(file_path):
-        print(f"The file {file_path} does not exist.")
+        print(f"check_file_info: The file {file_path} does not exist.")
         return ""
 
     if not os.access(file_path, os.R_OK):
-        print(f"The file {file_path} is not readable.")
+        print(f"check_file_info: The file {file_path} is not readable.")
         return ""
 
     file_stat = os.stat(file_path)
@@ -3924,7 +3924,7 @@ def is_already_in_defective_nodes(hostname):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     if not os.path.isfile(file_path):
-        print_red(f"Error: The file {file_path} does not exist.")
+        print_red(f"is_already_in_defective_nodes: Error: The file {file_path} does not exist.")
         return False
 
     try:
@@ -3933,7 +3933,7 @@ def is_already_in_defective_nodes(hostname):
                 if line.strip() == hostname:
                     return True
     except Exception as e:
-        print_red(f"Error reading the file {file_path}: {e}")
+        print_red(f"is_already_in_defective_nodes: Error reading the file {file_path}: {e}")
         return False
 
     return False

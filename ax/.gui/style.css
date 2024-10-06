@@ -13,8 +13,8 @@
 
 #loader {
 	display: grid;
-	justify-content: center; /* Horizontal zentriert */
-	align-items: center; /* Vertikal zentriert */
+	justify-content: center;
+	align-items: center;
 	height: 100%;
 }
 
@@ -23,8 +23,8 @@
 }
 
 h2 {
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 body {
@@ -254,8 +254,10 @@ td {
 }
 
 .spinner {
-	border: 8px solid rgba(0, 0, 0, 0.1); /* Light mode spinner color */
-	border-left: 8px solid #3498db; /* Spinner color */
+	border: 8px solid rgba(0, 0, 0, 0.1);
+	/* Light mode spinner color */
+	border-left: 8px solid #3498db;
+	/* Spinner color */
 	border-radius: 50%;
 	width: 50px;
 	height: 50px;
@@ -263,8 +265,13 @@ td {
 }
 
 @keyframes spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 #spinner-overlay {

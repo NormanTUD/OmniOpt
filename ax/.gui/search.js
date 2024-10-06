@@ -1,5 +1,3 @@
-var l = log;
-
 var searchTimer;
 var lastSearch = "";
 

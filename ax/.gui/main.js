@@ -16,8 +16,9 @@ function warn(message) {
 }
 
 function debug(message) {
-	console.debug(message);
-	appendLog('debug', message);
+	const debugInfo = `Memory: ${window.performance.memory ? window.performance.memory.usedJSHeapSize : 'N/A'} bytes | Time: ${performance.now().toFixed(2)} ms`;
+	console.debug(message + " | " + debugInfo);
+	appendLog('debug', message + " | " + debugInfo);
 }
 
 // Fügt den Log zur Statusbar hinzu
@@ -27,7 +28,27 @@ function appendLog(type, message) {
 	const logMessage = `[${timestamp}] ${message}`;
 	logs.push({ type, message: logMessage });
 	$('#statusLogs').append(`<div class="log-entry ${type}">${logMessage}</div>`);
-	$('#currentStatus').text(`${message}`);
+
+	// Färbe den aktuellen Status entsprechend der Log-Art
+	let statusColor;
+	switch(type) {
+		case 'log':
+			statusColor = '#00ff00'; // Grün für normale Logs
+			break;
+		case 'error':
+			statusColor = '#ff0000'; // Rot für Fehler
+			break;
+		case 'warn':
+			statusColor = '#ffff00'; // Gelb für Warnungen
+			break;
+		case 'debug':
+			statusColor = '#00ffff'; // Cyan für Debug-Infos
+			break;
+		default:
+			statusColor = '#ffffff'; // Weiß als Standard
+	}
+
+	$('#currentStatus').html(`<span style="color:${statusColor};">${message}</span>`);
 }
 
 function inject_status_bar_css () {
@@ -104,6 +125,7 @@ function add_status_bar () {
 
 	inject_status_bar_css();
 }
+
 
 function showSpinnerOverlay(text) {
 	if (document.getElementById('spinner-overlay')) {

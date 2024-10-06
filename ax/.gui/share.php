@@ -153,8 +153,6 @@
 			log(`Hash changed, reloading content.`);
 			last_hash = newHash;
 			load_all_data();
-		} else {
-			log(`Hash unchanged, no reload necessary.`);
 		}
 	}
 

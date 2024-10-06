@@ -997,7 +997,7 @@ async function _get_overview_data () {
 async function load_overview_data() {
 	debug_function("load_overview_data()");
 
-	add_tab("overview_data", "Overview", "<div class='best_result_txt'></div></div><div class='parameters_txt'></div><div class='overview_table'>");
+	add_tab("overview_data", "Overview", "<div class='best_result_txt'></div><div class='parameters_txt'></div><div class='overview_table'></div>");
 
 	var res = await _get_overview_data();
 

@@ -499,7 +499,7 @@ function add_tab(tab_id, tab_name, tab_html_content) {
 	$(container_id).append(tabContent);
 
 	$(container_id).tabs("refresh");
-	debug(`#${tab_id} added`);
+	debug(`Tab ${tab_name} (#${tab_id}) added`);
 
 	open_first_tab_when_none_is_open();
 }

@@ -1207,6 +1207,23 @@ if [[ -z $account ]]; then
 	fi
 fi
 
+if [[ -z $follow ]]; then
+	_follow=$(get_config_from_config_file "follow" 0 2>/dev/null)
+	if [[ -n $_follow ]]; then
+		follow=$_follow
+	fi
+
+	shopt -s nocasematch
+
+	if [[ "$follow" =~ ^(true|1)$ ]]; then
+		follow=1
+	else
+		follow=0
+	fi
+
+	shopt -u nocasematch
+fi
+
 if [[ -z $force_local_execution ]]; then
 	_force_local_execution=$(get_config_from_config_file "force_local_execution" 0 2>/dev/null)
 	if [[ -n $_force_local_execution ]]; then

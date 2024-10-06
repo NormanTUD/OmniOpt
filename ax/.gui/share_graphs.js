@@ -927,6 +927,7 @@ function replaceZeroWithNull(arr) {
 };
 
 async function fetchJsonFromUrl(url) {
+	debug(`fetchJsonFromUrl("${url}")`);
 	try {
 		const response = await fetch(url);
 		if (!response.ok) {

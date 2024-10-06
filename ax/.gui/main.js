@@ -1,5 +1,52 @@
 let logs = [];
 
+function generateStackTraceTable(stacktrace) {
+	if (!stacktrace || stacktrace.trim() === "") {
+		return "";
+	}
+
+	const lines = stacktrace.split("\n").filter(line => line.trim() !== "");
+
+	let html = `
+		<table border="1" cellpadding="5" cellspacing="0">
+			<thead>
+			    <tr>
+				<th>Function</th>
+				<th>File</th>
+				<th>Line</th>
+				<th>Column</th>
+			    </tr>
+			</thead>
+		<tbody>
+	`;
+
+	lines.forEach(line => {
+		const match = line.match(/(.*?)@(.+?):(\d+):(\d+)/);
+		if (match) {
+			const functionName = match[1] || "(anonymous)";
+			const fileName = match[2];
+			const lineNumber = match[3];
+			const columnNumber = match[4];
+
+			html += `
+				<tr class='stacktrace_table'>
+					<td>${functionName}</td>
+					<td>${fileName}</td>
+					<td>${lineNumber}</td>
+					<td>${columnNumber}</td>
+				</tr>
+			`;
+		}
+	});
+
+	html += `
+		</tbody>
+	</table>
+	`;
+
+	return html;
+}
+
 function log(message) {
 	console.log(message);
 	appendLog('log', message, new Error().stack);
@@ -36,9 +83,7 @@ function appendLog(type, message, stacktrace) {
 	$('#statusLogs').append(`
 		<div class="log-entry ${type}" data-stacktrace="${stacktrace || ''}">
 			${logMessage}
-			<div class="stacktrace" style="display:none; font-size:12px; color:#ccc; margin-top:5px; white-space:pre-wrap;">
-				${stacktrace ? stacktrace : ''}
-			</div>
+			<div class="stacktrace" style="display:none; font-size:12px; color:#ccc; margin-top:5px; white-space:pre-wrap;">${stacktrace ? generateStackTraceTable(stacktrace) : ''}</div>
 		</div>
 	`);
 

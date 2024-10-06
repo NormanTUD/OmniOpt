@@ -329,3 +329,8 @@ a, a:visited, a:active, a:hover, a:link {
 .ui-tabs .ui-tabs-nav li {
 	user-select: none;
 }
+
+.stacktrace_table {
+	background-color: black !important;
+	color: white !important;
+}

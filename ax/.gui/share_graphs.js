@@ -586,7 +586,7 @@ async function load_results () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		error(`load_results: Could not plot seemingly empty data: no raw found`);
+		warn(`load_results: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -667,7 +667,7 @@ async function load_parameter () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		error(`load_parameter: Could not plot seemingly empty data: no raw found`);
+		warn(`load_parameter: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -725,7 +725,7 @@ async function load_next_trials () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		error(`load_next_trials: Could not plot seemingly empty data: no raw found`);
+		warn(`load_next_trials: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -740,7 +740,7 @@ async function load_job_infos () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		error(`load_job_infos: Could not plot seemingly empty data: no raw found`);
+		warn(`load_job_infos: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -755,7 +755,7 @@ async function load_best_result () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		error(`load_best_result: Could not plot seemingly empty data: no raw found`);
+		warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -770,12 +770,12 @@ async function plot_planned_vs_real_worker_over_time () {
 	}
 
 	if(!Object.keys(data).includes("data")) {
-		error(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
+		warn(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
 		return;
 	}
 
 	if(!data.data.length) {
-		error(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
+		warn(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
 		return;
 	}
 

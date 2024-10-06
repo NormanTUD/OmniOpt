@@ -334,3 +334,11 @@ a, a:visited, a:active, a:hover, a:link {
 	background-color: black !important;
 	color: white !important;
 }
+
+#breadcrumb {
+	user-select: none;
+}
+
+#statusBar {
+	user-select: none;
+}

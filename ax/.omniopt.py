@@ -3738,10 +3738,10 @@ def get_parameters_from_outfile(stdout_path):
                     return params
         return None
     except FileNotFoundError:
-        original_print(f"The file {stdout_path} was not found.")
+        original_print(f"get_parameters_from_outfile: The file {stdout_path} was not found.")
         return None
     except Exception as e:
-        print(f"There was an error: {e}")
+        print(f"get_parameters_from_outfile: There was an error: {e}")
         return None
 
 def get_hostname_from_outfile(stdout_path):
@@ -5152,6 +5152,12 @@ def run_tests():
     _print_best_result(_example_csv_file, False, False)
 
     nr_errors += is_equal("get_workers_string()", get_workers_string(), "")
+
+    nr_errors += is_equal(
+        "get_parameters_from_outfile()",
+        get_parameters_from_outfile(""),
+        None
+    )
 
     my_exit(nr_errors)
 

@@ -475,30 +475,32 @@ function sleep(ms) {
 }
 
 function add_tab(tab_id, tab_name, tab_html_content) {
-	if($("#main_tabbed").length) {
-		$("#main_tabbed").tabs();
+	var container_id = "#main_tabbed";
+
+	if ($(container_id).length) {
+		$(container_id).tabs();
 	}
 
-	if ($("#" + tab_id + "-content").length > 0) {
+	if ($(container_id + " #" + tab_id + "-content").length > 0) {
 		console.log(`#${tab_id} already exists.`);
-		return;                                        
-	}                            
-
-	if ($("#main_tabbed ul").length === 0) {
-		$("#main_tabbed").prepend('<ul class="ui-tabs-nav ui-helper-hidden ui-helper-clearfix"></ul>');
+		return;
 	}
 
-	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');                                                                                                                   
-	$("#main_tabbed ul").append(tabButton);         
+	if ($(container_id + " ul.ui-tabs-nav").length === 0) {
+		$(container_id).prepend('<ul class="ui-tabs-nav ui-helper-hidden ui-helper-clearfix"></ul>');
+	}
+
+	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');
+	$(container_id + " ul").append(tabButton);
 
 	var tabContent = $('<div id="' + tab_id + '-content">' + tab_html_content + '</div>');
-	$("#main_tabbed").append(tabContent);             
+	$(container_id).append(tabContent);
 
-	$("#main_tabbed").tabs("refresh"); 
-	console.log(`#${tab_id} added`);                                           
+	$(container_id).tabs("refresh");
+	console.log(`#${tab_id} added`);
 
 	open_first_tab_when_none_is_open();
-} 
+}
 
 function remove_tab(tab_id) {
 	var tabSelector = "#" + tab_id + "-tab";

@@ -597,8 +597,6 @@ async function plot_parallel_plot () {
 	parallel_plot(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 
 	apply_theme_based_on_system_preferences();
-
-	$("#out_files_tabs").tabs();
 }
 
 async function load_results () {
@@ -676,8 +674,6 @@ async function plot_all_possible () {
 	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 
 	apply_theme_based_on_system_preferences();
-
-	$("#out_files_tabs").tabs();
 }
 
 function convertUnixTimeToReadable(unixTime) {
@@ -712,6 +708,8 @@ async function load_out_files () {
 
 	add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
 	$("#out_files_content").html(data.raw);
+
+	$("#out_files_tabs").tabs();
 }
 
 async function load_evaluation_errors_and_oo_errors () {
@@ -1063,7 +1061,6 @@ async function load_all_data() {
 
 		promises.push(load_overview_data());
 		promises.push(load_evaluation_errors_and_oo_errors());
-		promises.push(load_out_files());
 		promises.push(load_best_result());
 		promises.push(load_job_infos());
 		promises.push(load_next_trials());
@@ -1074,6 +1071,7 @@ async function load_all_data() {
 			await promises[i];
 		}
 
+		await load_out_files();
 		initialize_autotables();
 
 		removeSpinnerOverlay();

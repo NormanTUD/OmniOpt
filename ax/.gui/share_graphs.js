@@ -704,6 +704,11 @@ async function load_out_files () {
 	if(!data) {
 		return;
 	}
+	
+	if(!Object.keys(data).includes("raw")) {
+		warn(`load_out_files: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
 
 	add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
 	$("#out_files_content").html(data.raw);

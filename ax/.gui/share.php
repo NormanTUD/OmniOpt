@@ -22,7 +22,7 @@
 				var tab_id = tab_ids[i];
 				$("#" + tab_id).tabs();
 			} catch (e) {
-				console.warn(e);
+				warn(e);
 			}
 		}
 	}
@@ -38,10 +38,10 @@
 				if(typeof(_active_tab) == "number") {
 					activeTabIndices[tab_id] = _active_tab;
 				} else {
-					console.warn(`Error while saveActiveTab: typeof(activeTabIndices[${tab_id}]) == ${typeof(activeTabIndices[tab_id])}:`, activeTabIndices[tab_id]);
+					warn(`Error while saveActiveTab: typeof(activeTabIndices[${tab_id}]) == ${typeof(activeTabIndices[tab_id])}:`, activeTabIndices[tab_id]);
 				}
 			} catch (e) {
-				console.warn(e);
+				warn(e);
 			}
 		}
 	}
@@ -63,7 +63,7 @@
 						log(`Set ${_tab_id} to ${_saved_active_tab}`);
 					} catch (e) {
 						if(!("" + e).includes("cannot call methods on tabs prior to initialization")) {
-							console.error(e);
+							error(e);
 						}
 					}
 				} else {
@@ -85,6 +85,8 @@
 		while (currently_switching) {
 			await sleep(10_000);
 		}
+
+		log(msg);
 
 		currently_switching = true;
 		var queryString = window.location.search;
@@ -120,7 +122,7 @@
 			},
 			error: function() {
 				showSpinnerOverlay(msg);
-				console.error('Error loading the content.');
+				error('Error loading the content.');
 				$('#share_main').html('Error loading the requested content!').show();
 				removeSpinnerOverlay();
 				currently_switching = false;
@@ -156,15 +158,17 @@
 		var newHash = getHashUrlContent(hashUrl);
 
 		if (newHash !== last_hash) {
-			console.log(`${new Date().toString()}: Hash changed, reloading content.`);
+			log(`Hash changed, reloading content.`);
 			last_hash = newHash;
 			load_all_data();
 		} else {
-			console.log(`${new Date().toString()}: Hash unchanged, no reload necessary.`);
+			log(`Hash unchanged, no reload necessary.`);
 		}
 	}
 
 	$(document).ready(function() {
+		add_status_bar();
+
 		load_content("Loading OmniOpt-Share...");
 
 		var share_internal_url = window.location.toString();

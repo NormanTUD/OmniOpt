@@ -90,8 +90,7 @@
             var initialized = false;
             var shown_operation_insecure_without_server = false;
 
-            var l = console.log;
-            var log = console.log;
+            var l = log;
 
             var tableData = [
                 { label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true, "help": "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
@@ -275,10 +274,10 @@
                                 }
                             });
                         } else {
-                            console.error(`No partition info`)
+                            error(`No partition info`)
                         }
                     } else {
-                        console.error(`Cannot find ${partition} in partition_data.`)
+                        error(`Cannot find ${partition} in partition_data.`)
                     }
 
                     update_url();
@@ -1025,7 +1024,7 @@
                     var parameterName = $(this).find(".parameterName").val();
 
                     if(parameterName && !parameterName.match(/^\w+$/)) {
-                        //console.error(`Parameter name "${parameterName}" does have invalid characters. Must be all letters.`)
+                        //error(`Parameter name "${parameterName}" does have invalid characters. Must be all letters.`)
                     } else if (parameterName) {
                         if (option === "range") {
                             var minValue = $(this).find(".minValue").val();
@@ -1067,7 +1066,7 @@
                             log(err);
                             shown_operation_insecure_without_server = true;
                         } else if (!err.includes("The operation is insecure")) {
-                            console.error(err);
+                            error(err);
                         }
                     }
                 }

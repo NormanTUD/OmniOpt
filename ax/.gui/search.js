@@ -1,4 +1,3 @@
-var log = console.log;
 var l = log;
 
 var searchTimer;

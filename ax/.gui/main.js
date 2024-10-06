@@ -1,3 +1,110 @@
+let logs = []; // Array zum Speichern der Logs
+
+function log(message) {
+	console.log(message);
+	appendLog('log', message);
+}
+
+function error(message) {
+	console.error(message);
+	appendLog('error', message);
+}
+
+function warn(message) {
+	console.warn(message);
+	appendLog('warn', message);
+}
+
+function debug(message) {
+	console.debug(message);
+	appendLog('debug', message);
+}
+
+// Fügt den Log zur Statusbar hinzu
+function appendLog(type, message) {
+	if($("#statusBar").length == 0) { add_status_bar() };
+	const timestamp = new Date().toLocaleTimeString();
+	const logMessage = `[${timestamp}] ${message}`;
+	logs.push({ type, message: logMessage });
+	$('#statusLogs').append(`<div class="log-entry ${type}">${logMessage}</div>`);
+	$('#currentStatus').text(`${message}`);
+}
+
+function inject_status_bar_css () {
+	const css = `
+		#statusBar {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			background-color: #333;
+			color: white;
+			padding: 10px;
+			font-family: Arial, sans-serif;
+			z-index: 1000;
+			box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.5);
+		}
+
+		#statusBar .toggleMenu {
+			cursor: pointer;
+			float: right;
+			margin-right: 10px;
+			background-color: #444;
+			padding: 5px;
+			border-radius: 50%;
+		}
+
+		#statusLogs {
+			display: none;
+			background-color: #222;
+			max-height: 200px;
+			overflow-y: auto;
+			padding: 10px;
+			margin-top: 10px;
+			border-top: 1px solid #444;
+		}
+
+		.log-entry {
+			padding: 5px 0;
+			font-size: 14px;
+		}
+
+		.log-entry.log {
+			color: #00ff00;
+		}
+
+		.log-entry.error {
+			color: #ff0000;
+		}
+		
+		.log-entry.warn {
+			color: #ffff00;
+		}
+
+		.log-entry.debug {
+			color: #00ffff;
+		}
+	`;
+	$('<style></style>').text(css).appendTo('head');
+}
+
+function add_status_bar () {
+	$('body').append(`
+		<div id="statusBar">
+			<span id="currentStatus">Ready</span>
+			<div class="toggleMenu">▼</div>
+			<div id="statusLogs"></div>
+		</div>
+	`);
+
+	$('.toggleMenu').click(function() {
+		$('#statusLogs').slideToggle();
+		$(this).text($(this).text() === '▼' ? '▲' : '▼');
+	});
+
+	inject_status_bar_css();
+}
+
 function showSpinnerOverlay(text) {
 	if (document.getElementById('spinner-overlay')) {
 		return;
@@ -47,7 +154,7 @@ function find_closest_element_behind_and_copy_content_to_clipboard (clicked_elem
 		prev_element = $(clicked_element).prev();
 
 		if(!prev_element) {
-			console.error(`Could not find ${element_to_search_for_class} from clicked_element:`, clicked_element);
+			error(`Could not find ${element_to_search_for_class} from clicked_element:`, clicked_element);
 			return;
 		}
 	}
@@ -70,7 +177,7 @@ function parse_csv(csv) {
 		var rows = csv.trim().split('\n').map(row => row.split(','));
 		return rows;
 	} catch (error) {
-		console.error("Error parsing CSV:", error);
+		error("Error parsing CSV:", error);
 		return [];
 	}
 }
@@ -253,10 +360,12 @@ function generateTOC() {
 
 		$tocDiv.html($tocContainer);
 	} catch (error) {
-		console.error('Error generating TOC:', error);
+		error('Error generating TOC:', error);
 	}
 }
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+

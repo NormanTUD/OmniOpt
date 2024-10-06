@@ -522,12 +522,12 @@ async function plot_parallel_plot () {
 	replaceZeroWithNull(_results_csv_json.data);
 
 	if(!Object.keys(_results_csv_json).includes("data")) {
-		log(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json: no data found`);
+		error(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
 	}
 	
 	if(!_results_csv_json.data.length) {
-		log(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json`);
+		error(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
 
@@ -584,7 +584,7 @@ async function load_results () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`load_results: Could not plot seemingly empty data: no raw found`);
+		error(`load_results: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -603,12 +603,12 @@ async function plot_all_possible () {
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
 	if(!Object.keys(_results_csv_json).includes("data")) {
-		log(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
+		error(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
 	}
 
 	if(!_results_csv_json.data.length) {
-		log(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
+		error(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
 
@@ -629,7 +629,7 @@ async function plot_all_possible () {
 	var result_idx = header_line.indexOf("result");
 
 	if(result_idx < 0) {
-		console.error("Cannot find result column index!");
+		error("Cannot find result column index!");
 		return;
 	}
 
@@ -664,7 +664,7 @@ async function load_parameter () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`load_parameter: Could not plot seemingly empty data: no raw found`);
+		error(`load_parameter: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -700,13 +700,13 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
+		error(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
 
 	if($(`#${_divname}`).length == 0) {
-		console.error(`Could not find #${_divname}`);
+		error(`Could not find #${_divname}`);
 	} else {
 		$(`#${_divname}`).html(`<pre>${data.raw}</pre>`);
 	}
@@ -721,7 +721,7 @@ async function load_next_trials () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`load_next_trials: Could not plot seemingly empty data: no raw found`);
+		error(`load_next_trials: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -735,7 +735,7 @@ async function load_job_infos () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`load_job_infos: Could not plot seemingly empty data: no raw found`);
+		error(`load_job_infos: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -749,7 +749,7 @@ async function load_best_result () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		log(`load_best_result: Could not plot seemingly empty data: no raw found`);
+		error(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -765,12 +765,12 @@ async function plot_planned_vs_real_worker_over_time () {
 	}
 
 	if(!Object.keys(data).includes("data")) {
-		log(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
+		error(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
 		return;
 	}
 
 	if(!data.data.length) {
-		log(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
+		error(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
 		return;
 	}
 
@@ -835,12 +835,12 @@ async function plot_cpu_gpu_graph() {
 	replaceZeroWithNull(cpu_ram_usage_json.data);
 
 	if(!Object.keys(cpu_ram_usage_json).includes("data")) {
-		log(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+		error(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
 		return;
 	}
 	
 	if(!cpu_ram_usage_json.data.length) {
-		log(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json`);
+		error(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json`);
 		return;
 	}
 
@@ -1029,7 +1029,7 @@ async function load_all_data() {
 
 function copy_button (name_to_search_for) {
 	if(!name_to_search_for) {
-		console.error("Empty name_to_search_for in copy_button");
+		error("Empty name_to_search_for in copy_button");
 		console.trace();
 		return "";
 	}

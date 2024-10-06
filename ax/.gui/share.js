@@ -1,5 +1,3 @@
-var log = console.log;
-
 var current_folder = ""
 
 function parsePathAndGenerateLink(path) {

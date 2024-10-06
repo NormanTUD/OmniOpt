@@ -9,9 +9,9 @@
 		// Durchlaufe alle Unterordner in der angegebenen Struktur
 		foreach (glob("$dir/*/*/*", GLOB_ONLYDIR) as $subdir) {
 			// Prüfe das Alter des Ordners
-			if (is_dir($subdir) && (filemtime($subdir) < ($currentTime - $threshold))) {
+			$dir_date = filemtime($subdir);
+			if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
 				// Ordner ist älter als 30 Tage
-				echo "Alter Ordner gefunden: $subdir\n";
 				// Füge den Ordner zur Liste der zu löschenden Ordner hinzu
 				$oldDirectories[] = $subdir;
 
@@ -27,4 +27,5 @@
 	$oldDirs = checkOldDirectories($directoryToCheck);
 
 	echo json_encode($oldDirs);
+	echo "\n";
 ?>

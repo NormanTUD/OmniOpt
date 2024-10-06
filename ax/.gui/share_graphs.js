@@ -857,8 +857,10 @@ async function plot_planned_vs_real_worker_over_time () {
 		},
 	};
 
-	add_tab("worker_usage", "Worker-Usage", "<div id='worker_usage_plot'></div>");
+	add_tab("worker_usage", "Worker-Usage", "<div id='worker_usage_plot'></div><div id='worker_usage_raw'></div>");
 	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
+
+	$("#worker_usage_raw").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 async function plot_cpu_gpu_graph() {

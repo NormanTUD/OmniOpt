@@ -1000,31 +1000,35 @@ async function fetchJsonFromUrlFilenameOnly(filename) {
 }
 
 async function load_all_data() {
-	showSpinnerOverlay("Loading data...")
+	var urlParams = new URLSearchParams(window.location.search);
 
-	var promises = [];
+	if(urlParams.get("user_id")) {
+		showSpinnerOverlay("Loading data...")
 
-	promises.push(plot_all_possible());
-	promises.push(plot_cpu_gpu_graph());
-	promises.push(plot_parallel_plot());
-	promises.push(plot_planned_vs_real_worker_over_time());
+		var promises = [];
 
-	promises.push(load_overview_data());
-	promises.push(load_evaluation_errors_and_oo_errors());
-	promises.push(load_out_files());
-	promises.push(load_best_result());
-	promises.push(load_job_infos());
-	promises.push(load_next_trials());
-	promises.push(load_results());
-	promises.push(load_parameter());
+		promises.push(plot_all_possible());
+		promises.push(plot_cpu_gpu_graph());
+		promises.push(plot_parallel_plot());
+		promises.push(plot_planned_vs_real_worker_over_time());
 
-	for (var i = 0; i < promises.length; i++) {
-		await promises[i];
+		promises.push(load_overview_data());
+		promises.push(load_evaluation_errors_and_oo_errors());
+		promises.push(load_out_files());
+		promises.push(load_best_result());
+		promises.push(load_job_infos());
+		promises.push(load_next_trials());
+		promises.push(load_results());
+		promises.push(load_parameter());
+
+		for (var i = 0; i < promises.length; i++) {
+			await promises[i];
+		}
+
+		initialize_autotables();
+
+		removeSpinnerOverlay();
 	}
-
-	initialize_autotables();
-
-	removeSpinnerOverlay();
 }
 
 function copy_button (name_to_search_for) {

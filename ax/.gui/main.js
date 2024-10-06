@@ -80,16 +80,14 @@ function appendLog(type, message, stacktrace) {
 	const logMessage = `[${timestamp}] ${message}`;
 	logs.push({ type, message: logMessage, stacktrace });
 
-	// Append log message
-	$('#statusLogs').append(`
+	$('#statusLogs').prepend(`
 		<div class="log-entry ${type}" data-stacktrace="${stacktrace || ''}">
 			${logMessage}
 			<div class="stacktrace" style="display:none; font-size:12px; color:#ccc;">${stacktrace ? generateStackTraceTable(stacktrace) : ''}</div>
 		</div>
 	`);
 
-	// Toggle stacktrace on log entry click
-	$('.log-entry').last().click(function() {
+	$('.log-entry').first().click(function() {
 		$(this).find('.stacktrace').slideToggle();
 	});
 

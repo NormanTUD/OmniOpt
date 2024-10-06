@@ -85,6 +85,10 @@
 		<td>Disable tests for <samp>.tests/pre-commit</samp>-hook</td>
 	</tr>
 	<tr>
+		<td><samp>export NO_NO_RESULT_ERROR=1</samp></td>
+		<td>Disable errors to stdout for plots when no results are found</td>
+	</tr>
+	<tr>
 		<td><samp>export SHOW_COMMAND_BEFORE_EXECUTION=1</samp></td>
 		<td>Show <samp>omniopt_plot</samp>-commands before executing them</td>
 	</tr>

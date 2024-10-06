@@ -1,3 +1,4 @@
+"use strict";
 var theme = "light";
 
 function set_cookie(name, value, days = 365) {

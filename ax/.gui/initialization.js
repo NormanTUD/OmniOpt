@@ -1,3 +1,4 @@
+"use strict";
 $(document).ready(function() {
 	apply_theme_based_on_system_preferences();
 

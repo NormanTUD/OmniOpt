@@ -1,3 +1,4 @@
+"use strict";
 let logs = [];
 
 function generateStackTraceTable(stacktrace) {

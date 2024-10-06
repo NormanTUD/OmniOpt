@@ -1,3 +1,5 @@
+"use strict";
+
 var hashcache = [];
 
 function get_width() {

@@ -16,7 +16,7 @@ function warn(message) {
 }
 
 function debug(message) {
-	const debugInfo = `Memory: ${window.performance.memory ? window.performance.memory.usedJSHeapSize : 'N/A'} bytes | Time: ${performance.now().toFixed(2)} ms`;
+	const debugInfo = `Time: ${performance.now().toFixed(2)} ms`;
 	console.debug(message + " | " + debugInfo);
 	appendLog('debug', message + " | " + debugInfo);
 }

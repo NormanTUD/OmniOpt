@@ -1141,16 +1141,6 @@ else
 	exit 19
 fi
 
-if [[ -z $gpus ]]; then
-	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
-		gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
-	fi
-fi
-
-if [[ -z $gpus ]]; then
-	gpus=0
-fi
-
 if [[ $tests -eq 0 ]]; then
 	if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
 		if [[ "$continue_previous_job" == "" ]]; then
@@ -1239,6 +1229,16 @@ if [[ -z $force_local_execution ]]; then
 	fi
 
 	shopt -u nocasematch
+fi
+
+if [[ -z $gpus ]]; then
+	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
+		gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
+	fi
+fi
+
+if [[ -z $gpus ]]; then
+	gpus=0
 fi
 
 set -e

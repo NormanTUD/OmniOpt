@@ -1,4 +1,4 @@
-absl
+absl-py
 decorator
 six
 tensorflow

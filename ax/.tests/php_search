@@ -61,7 +61,7 @@ exit_code=$?
 unset regex
 
 if [[ $exit_code -eq 0 ]]; then
-	green_text "php .gui/search.php without result succeeded"
+	green_text "php .gui/search.php simple regex succeeded"
 else
 	error_msg="php .gui/search failed. Got: $php_result, expected: $expected_no_result"
 	red_text "$error_msg"

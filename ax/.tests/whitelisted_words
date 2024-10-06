@@ -310,6 +310,8 @@ cpos
 cProps
 cpu
 cpuRamChart
+cpuRamChartContainer
+cpuRamChartRawData
 cpus
 createBreadcrumb
 createImageBitmap

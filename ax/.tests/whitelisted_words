@@ -1969,3 +1969,7 @@ zIndices
 zipContents
 zipWriter
 zsh
+statusBar
+currentStatus
+toggleMenu
+statusLogs

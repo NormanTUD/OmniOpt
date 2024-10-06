@@ -1,4 +1,4 @@
-let logs = []; // Array zum Speichern der Logs
+let logs = [];
 
 function log(message) {
 	console.log(message);
@@ -21,7 +21,6 @@ function debug(message) {
 	appendLog('debug', message + " | " + debugInfo);
 }
 
-// Fügt den Log zur Statusbar hinzu
 function appendLog(type, message) {
 	if($("#statusBar").length == 0) { add_status_bar() };
 	const timestamp = new Date().toLocaleTimeString();
@@ -29,23 +28,22 @@ function appendLog(type, message) {
 	logs.push({ type, message: logMessage });
 	$('#statusLogs').append(`<div class="log-entry ${type}">${logMessage}</div>`);
 
-	// Färbe den aktuellen Status entsprechend der Log-Art
 	let statusColor;
 	switch(type) {
 		case 'log':
-			statusColor = '#00ff00'; // Grün für normale Logs
+			statusColor = '#00ff00';
 			break;
 		case 'error':
-			statusColor = '#ff0000'; // Rot für Fehler
+			statusColor = '#ff0000';
 			break;
 		case 'warn':
-			statusColor = '#ffff00'; // Gelb für Warnungen
+			statusColor = '#ffff00';
 			break;
 		case 'debug':
-			statusColor = '#00ffff'; // Cyan für Debug-Infos
+			statusColor = '#00ffff';
 			break;
 		default:
-			statusColor = '#ffffff'; // Weiß als Standard
+			statusColor = '#ffffff';
 	}
 
 	$('#currentStatus').html(`<span style="color:${statusColor};">${message}</span>`);

@@ -538,7 +538,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 async function plot_parallel_plot () {
 	debug_function("plot_parallel_plot()");
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
-	if(!_results_csv_json) {
+	if(!_results_csv_json || !_results_csv_json.data) {
 		return;
 	}
 

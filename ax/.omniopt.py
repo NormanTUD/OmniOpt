@@ -5151,6 +5151,8 @@ def run_tests():
 
     _print_best_result(_example_csv_file, False, False)
 
+    nr_errors += is_equal("get_workers_string()", get_workers_string(), "")
+
     my_exit(nr_errors)
 
 if __name__ == "__main__":

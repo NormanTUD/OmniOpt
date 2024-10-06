@@ -2,36 +2,50 @@ let logs = [];
 
 function log(message) {
 	console.log(message);
-	appendLog('log', message);
+	appendLog('log', message, new Error().stack);
 }
 
 function error(message) {
 	console.error(message);
-	appendLog('error', message);
+	appendLog('error', message, new Error().stack);
 }
 
 function warn(message) {
 	console.warn(message);
-	appendLog('warn', message);
+	appendLog('warn', message, new Error().stack);
 }
 
 function debug_function(message) {
 	console.debug(message);
-	appendLog('debug_function', message);
+	appendLog('debug_function', message, new Error().stack);
 }
 
 function debug(message) {
 	console.debug(message);
-	appendLog('debug', message);
+	appendLog('debug', message, new Error().stack);
 }
 
-function appendLog(type, message) {
+function appendLog(type, message, stacktrace) {
 	if($("#statusBar").length == 0) { add_status_bar() };
 
 	const timestamp = new Date().toLocaleTimeString();
 	const logMessage = `[${timestamp}] ${message}`;
-	logs.push({ type, message: logMessage });
-	$('#statusLogs').append(`<div class="log-entry ${type}">${logMessage}</div>`);
+	logs.push({ type, message: logMessage, stacktrace });
+
+	// Append log message
+	$('#statusLogs').append(`
+		<div class="log-entry ${type}" data-stacktrace="${stacktrace || ''}">
+			${logMessage}
+			<div class="stacktrace" style="display:none; font-size:12px; color:#ccc; margin-top:5px; white-space:pre-wrap;">
+				${stacktrace ? stacktrace : ''}
+			</div>
+		</div>
+	`);
+
+	// Toggle stacktrace on log entry click
+	$('.log-entry').last().click(function() {
+		$(this).find('.stacktrace').slideToggle();
+	});
 
 	let statusColor;
 	switch(type) {
@@ -94,6 +108,7 @@ function inject_status_bar_css () {
 		.log-entry {
 			padding: 5px 0;
 			font-size: 14px;
+			cursor: pointer;
 		}
 
 		.log-entry.log {
@@ -114,6 +129,11 @@ function inject_status_bar_css () {
 
 		.log-entry.debug {
 			color: #00ffff;
+		}
+
+		.stacktrace {
+			display: none;
+			color: #ccc;
 		}
 	`;
 
@@ -136,7 +156,6 @@ function add_status_bar () {
 
 	inject_status_bar_css();
 }
-
 
 function showSpinnerOverlay(text) {
 	if (document.getElementById('spinner-overlay')) {

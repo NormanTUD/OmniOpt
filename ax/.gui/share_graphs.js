@@ -943,13 +943,13 @@ async function plot_cpu_gpu_graph() {
 
 	const data = [ramTrace, cpuTrace];
 
-	add_tab("cpu_ram_usage", "CPU/RAM Usage", "<div id='cpuRamChart'></div>");
+	add_tab("cpu_ram_usage", "CPU/RAM Usage", "<div id='cpuRamChartContainer'><div id='cpuRamChart'></div><div id='cpuRamChartRawData'></div></div>");
 
 	if($("#cpuRamChart").length) {
 		Plotly.newPlot('cpuRamChart', data, layout);
 	}
 
-	//$("#cpuRamChartRawData").html(cpu_ram_usage_json.raw + copy_button("stdout_file"));
+	$("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 function replaceZeroWithNull(arr) {

@@ -725,6 +725,20 @@
 	}
 
 	function show_run($folder) {
+		$html = "<div id='main_tabbed' style='width: fit-content'>\n";
+		$html .= '<ul style="max-height: 200px; overflow: auto;">' . "\n";
+		$html .= "</ul>\n";
+		$html .= "</div>";
+		$html .= "<script>";
+		$html .= "$(function() {";
+		$html .= '    $("#out_files_tabs").tabs();';
+		$html .= "});";
+		$html .= "</script>";
+
+		print $html;
+
+		return;
+
 		$run_files = glob("$folder/*");
 
 		$html = "";

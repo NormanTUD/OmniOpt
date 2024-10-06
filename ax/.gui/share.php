@@ -159,6 +159,10 @@
 	}
 
 	$(document).ready(function() {
+		if($("#main_tabbed").length) {
+			$("#main_tabbed").tabs();
+		}
+
 		load_content("Loading OmniOpt-Share...");
 
 		var share_internal_url = window.location.toString();

@@ -475,20 +475,30 @@ function sleep(ms) {
 }
 
 function add_tab(tab_id, tab_name, tab_html_content) {
-	if ($("#" + tab_id + "-content").length > 0) {
-		console.log(`#${tab_id} already exists.`);
-		return;
+	if($("#main_tabbed").length) {
+		$("#main_tabbed").tabs();
 	}
 
-	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');
-	$("#main_tabbed ul").append(tabButton);
+	if ($("#" + tab_id + "-content").length > 0) {
+		console.log(`#${tab_id} already exists.`);
+		return;                                        
+	}                            
+
+	if ($("#main_tabbed ul").length === 0) {
+		$("#main_tabbed").prepend('<ul class="ui-tabs-nav ui-helper-hidden ui-helper-clearfix"></ul>');
+	}
+
+	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');                                                                                                                   
+	$("#main_tabbed ul").append(tabButton);         
 
 	var tabContent = $('<div id="' + tab_id + '-content">' + tab_html_content + '</div>');
-	$("#main_tabbed").append(tabContent);
+	$("#main_tabbed").append(tabContent);             
 
-	$("#main_tabbed").tabs("refresh");
-	log(`#${tab_id} added`);
-}
+	$("#main_tabbed").tabs("refresh"); 
+	console.log(`#${tab_id} added`);                                           
+
+	open_first_tab_when_none_is_open();
+} 
 
 function remove_tab(tab_id) {
 	var tabSelector = "#" + tab_id + "-tab";
@@ -507,4 +517,10 @@ function remove_tab(tab_id) {
 	}
 
 	$("#main_tabbed").tabs("refresh");
+}
+
+function open_first_tab_when_none_is_open() {
+	if($("#main_tabbed").tabs("option", "active") === false) {
+		$("#main_tabbed").tabs("option", "active", 0);
+	}
 }

@@ -2190,7 +2190,7 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
             if failed_jobs() >= 1:
                 failed_error_str = f", failed: {failed_jobs()}"
 
-        table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}{failed_error_str}):")
+        table = Table(show_header=True, header_style="bold", title=f"Best result ({total_str}{failed_error_str}):")
 
         k = 0
         for key in best_params["parameters"].keys():

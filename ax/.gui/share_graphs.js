@@ -142,6 +142,10 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 	$('#parallel_plot_container').html(new_plot_div);
 
+	if(!$("#parallel_plot").length) {
+		add_tab("parallel_plot", "Parallel Plot", "<div id='parallel_plot_container'><div id='parallel-plot'></div></div>")
+	}
+
 	// Render the plot with Plotly
 	if ($("#parallel_plot_container").length) {
 		Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
@@ -159,6 +163,9 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {
 				for (var k = j + 1; k < _paramKeys.length; k++) {
+					if(!$("#scatter_plot_3d_container").length) {
+						add_tab("scatter_plot_3d", "3d-Scatter-Plot", "<div id='scatter_plot_3d_container'></div>")
+					}
 					var map_x = mappingKeyNameToIndex[_paramKeys[i]];
 					var map_y = mappingKeyNameToIndex[_paramKeys[j]];
 					var map_z = mappingKeyNameToIndex[_paramKeys[k]];
@@ -372,6 +379,9 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
+			if(!$("#scatter_plot_2d_container").length) {
+				add_tab("scatter_plot_2d", "2d-Scatter-Plot", "<div id='scatter_plot_2d_container'></div>")
+			}
 			var map_x = mappingKeyNameToIndex[_paramKeys[i]];
 			var map_y = mappingKeyNameToIndex[_paramKeys[j]];
 
@@ -604,6 +614,8 @@ async function load_results () {
 		return;
 	}
 
+	add_tab("results", "Results", "<div id='results_csv'></div>");
+
 	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
 }
 
@@ -685,6 +697,7 @@ async function load_parameter () {
 		return;
 	}
 
+	add_tab("parameters", "Parameters", "<div id='parameters_txt'></div>");
 	$("#parameters_txt").html(`<pre>${data.raw}</pre>`);
 }
 
@@ -697,6 +710,7 @@ async function load_out_files () {
 		return;
 	}
 
+	add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
 	$("#out_files_content").html(data.raw);
 }
 
@@ -744,6 +758,8 @@ async function load_next_trials () {
 		return;
 	}
 
+	add_tab("next_trials", "Next-Trials", "<div id='next_trials_csv'></div>");
+
 	$("#next_trials_csv").html(`${data.raw}`);
 }
 
@@ -759,6 +775,7 @@ async function load_job_infos () {
 		return;
 	}
 
+	add_tab("job_infos", "Job-Infos", "<div id='job_infos_csv'></div>");
 	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>`);
 }
 
@@ -774,6 +791,7 @@ async function load_best_result () {
 		return;
 	}
 
+	add_tab("best_result", "Best Result", "<div id='best_result_txt'></div>");
 	$("#best_result_txt").html(`<pre>${data.raw}</pre>`);
 }
 
@@ -838,6 +856,7 @@ async function plot_planned_vs_real_worker_over_time () {
 		},
 	};
 
+	add_tab("worker_usage", "Worker-Usage", "<div id='worker_usage_plot'></div>");
 	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
 
 	initialize_autotables();
@@ -925,6 +944,8 @@ async function plot_cpu_gpu_graph() {
 
 	const data = [ramTrace, cpuTrace];
 
+	add_tab("cpu_ram_usage", "CPU/RAM Usage", "<div id='cpuRamChart'></div>");
+
 	if($("#cpuRamChart").length) {
 		Plotly.newPlot('cpuRamChart', data, layout);
 	}
@@ -981,6 +1002,9 @@ async function _get_overview_data () {
 
 async function load_overview_data() {
 	debug_function("load_overview_data()");
+
+	add_tab("overview_data", "Overview", "<div id='overview_table'></div>");
+
 	var res = await _get_overview_data();
 
 	// Create a table

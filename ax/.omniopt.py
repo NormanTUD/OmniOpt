@@ -3790,6 +3790,8 @@ def finish_previous_jobs(new_msgs):
 
                         #update_progress_bar(progress_bar, 1)
                         update_progress_bar(progress_bar, 1)
+
+                        live_share()
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                 else:
@@ -3804,6 +3806,7 @@ def finish_previous_jobs(new_msgs):
                         orchestrate_job(job, trial_index)
 
                     failed_jobs(1)
+                    live_share()
 
                 global_vars["jobs"].remove((job, trial_index))
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError) as error:
@@ -3858,8 +3861,6 @@ def finish_previous_jobs(new_msgs):
     jobs_finished += this_jobs_finished
 
     clean_completed_jobs()
-
-    live_share()
 
 def check_orchestrator(stdout_path, trial_index):
     behavs = []
@@ -4845,6 +4846,8 @@ def main():
         wait_for_jobs_to_complete(num_parallel_jobs)
 
     wait_for_jobs_to_complete(0)
+
+    live_share()
 
     end_program(RESULT_CSV_FILE)
 

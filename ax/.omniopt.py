@@ -683,7 +683,6 @@ def print_logo():
         'ghostbusters',
         'kitty',
         'milk',
-        'octopus',
         'pig',
         'stegosaurus',
         'stimpy',

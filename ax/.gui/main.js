@@ -209,6 +209,8 @@ function add_status_bar () {
 	});
 
 	inject_status_bar_css();
+
+	$("body").css("margin-bottom", "100px")
 }
 
 function showSpinnerOverlay(text) {

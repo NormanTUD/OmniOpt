@@ -590,7 +590,6 @@ async function load_results () {
 		return;
 	}
 
-
 	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
 }
 
@@ -672,7 +671,6 @@ async function load_parameter () {
 		return;
 	}
 
-
 	$("#parameters_txt").html(`<pre>${data.raw}</pre>`);
 }
 
@@ -710,7 +708,6 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 		warn(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
-
 
 	if($(`#${_divname}`).length == 0) {
 		error(`Could not find #${_divname}`);
@@ -761,7 +758,6 @@ async function load_best_result () {
 		error(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
-
 
 	$("#best_result_txt").html(`<pre>${data.raw}</pre>`);
 }

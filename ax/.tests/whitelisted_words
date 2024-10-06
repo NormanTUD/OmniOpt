@@ -342,6 +342,7 @@ currentOptgroup
 currentScript
 currentSpacing
 currentSrc
+currentStatus
 currentText
 currentURL
 curRows
@@ -1647,6 +1648,8 @@ startPosition
 startValue
 stat
 stateful
+statusBar
+statusLogs
 statusText
 stddev
 stderr
@@ -1773,6 +1776,7 @@ todaygetDate
 todaygetMonth
 todo
 toFocus
+toggleMenu
 toHide
 toleranceMode
 toml
@@ -1969,7 +1973,3 @@ zIndices
 zipContents
 zipWriter
 zsh
-statusBar
-currentStatus
-toggleMenu
-statusLogs

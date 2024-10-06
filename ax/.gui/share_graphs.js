@@ -700,7 +700,7 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		error(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
+		warn(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -1002,7 +1002,7 @@ async function fetchJsonFromUrlFilenameOnly(filename) {
 async function load_all_data() {
 	var urlParams = new URLSearchParams(window.location.search);
 
-	if(urlParams.get("user_id")) {
+	if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {
 		showSpinnerOverlay("Loading data...")
 
 		var promises = [];

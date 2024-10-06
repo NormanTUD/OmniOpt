@@ -23,6 +23,7 @@ function debug(message) {
 
 function appendLog(type, message) {
 	if($("#statusBar").length == 0) { add_status_bar() };
+
 	const timestamp = new Date().toLocaleTimeString();
 	const logMessage = `[${timestamp}] ${message}`;
 	logs.push({ type, message: logMessage });
@@ -104,6 +105,7 @@ function inject_status_bar_css () {
 			color: #00ffff;
 		}
 	`;
+
 	$('<style></style>').text(css).appendTo('head');
 }
 

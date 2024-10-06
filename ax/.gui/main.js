@@ -90,7 +90,7 @@ function inject_status_bar_css () {
 
 function add_status_bar () {
 	$('body').append(`
-		<div id="statusBar">
+		<div id="statusBar" class="invert_in_dark_mode">
 			<span id="currentStatus">Ready</span>
 			<div class="toggleMenu">▼</div>
 			<div id="statusLogs"></div>

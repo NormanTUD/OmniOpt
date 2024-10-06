@@ -177,8 +177,6 @@
 
 		var auto_update = getParameterByName('update');
 
-		log("Loaded OmniOpt-Share");
-
 		if (auto_update) {
 			var interval = 5000;
 			setInterval(function() {

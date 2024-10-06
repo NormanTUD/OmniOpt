@@ -143,7 +143,11 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 	$('#parallel_plot_container').html(new_plot_div);
 
 	// Render the plot with Plotly
-	Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
+	if ($("#parallel_plot_container").length) {
+		Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
+	} else {
+		error("Cannot find #parallel_plot_container");
+	}
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
@@ -316,13 +320,17 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 
 					// Create a new div for the plot
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${x_name}_${y_name}_${z_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-					$('#scatter_plot_3d_container').append(new_plot_div);
+					if($('#scatter_plot_3d_container').length) {
+						$('#scatter_plot_3d_container').append(new_plot_div);
 
-					// Plot the 3D scatter plot using Plotly
-					Plotly.newPlot(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, [trace3d], layout3d);
+						// Plot the 3D scatter plot using Plotly
+						Plotly.newPlot(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, [trace3d], layout3d);
 
-					// Add the current key to the list of already existing plots
-					already_existing_plots.push(_key);
+						// Add the current key to the list of already existing plots
+						already_existing_plots.push(_key);
+					} else {
+						error("Cannot find #scatter_plot_3d_container");
+					}
 				}
 			}
 		}
@@ -504,11 +512,15 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 			$('#scatter_plot_2d_container').append(new_plot_div);
 
-			// Plot the 2D scatter plot using Plotly
-			Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
+			if ($('#scatter_plot_2d_container').length) {
+				// Plot the 2D scatter plot using Plotly
+				Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
 
-			// Add the current key to the list of already existing plots
-			already_existing_plots.push(_key);
+				// Add the current key to the list of already existing plots
+				already_existing_plots.push(_key);
+			} else {
+				error("Cannot find #scatter_plot_2d_container");
+			}
 		}
 	}
 }

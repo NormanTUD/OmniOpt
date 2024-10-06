@@ -170,14 +170,12 @@ try:
             required = self.parser.add_argument_group('Required arguments', "These options have to be set")
             required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
             optional = self.parser.add_argument_group('Optional', "These options are optional")
-            slurm = self.parser.add_argument_group('Slurm', "Parameters related to Slurm")
+            slurm = self.parser.add_argument_group('SLURM', "Parameters related to SLURM")
             installing = self.parser.add_argument_group('Installing', "Parameters related to installing")
             debug = self.parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
-            required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
             required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
             required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
-            required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
             required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
             required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
             required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
@@ -214,6 +212,8 @@ try:
             optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
             optional.add_argument('--workdir', help='Work dir (not yet implemented! TODO)', action='store_true', default=False)
 
+            slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
+            slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
             slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
             slurm.add_argument('--time', help='Time for the main job', default="", type=str)
             slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
@@ -1096,8 +1096,8 @@ def check_slurm_job_id():
             print_red("Not a valid SLURM_JOB_ID.")
         elif slurm_job_id is None:
             print_red(
-                "You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. "
-                "This may cause the system to slow down for all other users. It is recommended you run the main script in a Slurm job."
+                "You are on a system that has SLURM available, but you are not running the main-script in a SLURM-Environment. "
+                "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM_JOB_ID job."
             )
 
 def create_folder_and_file(folder):

@@ -17,11 +17,6 @@
 				<td colspan="3">Required Arguments</td>
 			</tr>
 			<tr>
-				<td><samp>--num_parallel_jobs NUM_PARALLEL_JOBS</samp></td>
-				<td>Number of parallel slurm jobs (only used when Slurm is installed).</td>
-				<td><samp>20</samp></td>
-			</tr>
-			<tr>
 				<td><samp>--num_random_steps NUM_RANDOM_STEPS</samp></td>
 				<td>Number of random steps to start with.</td>
 				<td><samp>20</samp></td>
@@ -30,11 +25,6 @@
 				<td><samp>--max_eval MAX_EVAL</samp></td>
 				<td>Maximum number of evaluations.</td>
 				<td>-</td>
-			</tr>
-			<tr>
-				<td><samp>--worker_timeout WORKER_TIMEOUT</samp></td>
-				<td>Timeout for slurm jobs (i.e., for each single point to be optimized).</td>
-				<td><samp>30</samp></td>
 			</tr>
 			<tr>
 				<td><samp>--run_program RUN_PROGRAM [RUN_PROGRAM ...]</samp></td>
@@ -214,7 +204,17 @@
 				<td><samp>None</samp></td>
 			</tr>
 			<tr class="section-header invert_in_dark_mode">
-				<td colspan="3">Slurm</td>
+				<td colspan="3">SLURM</td>
+			</tr>
+			<tr>
+				<td><samp>--worker_timeout WORKER_TIMEOUT</samp></td>
+				<td>Timeout for slurm jobs (i.e., for each single point to be optimized).</td>
+				<td><samp>30</samp></td>
+			</tr>
+			<tr>
+				<td><samp>--num_parallel_jobs NUM_PARALLEL_JOBS</samp></td>
+				<td>Number of parallel slurm jobs (only used when SLURM is installed).</td>
+				<td><samp>20</samp></td>
 			</tr>
 			<tr>
 				<td><samp>--auto_exclude_defective_hosts</samp></td>

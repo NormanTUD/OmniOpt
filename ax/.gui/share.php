@@ -33,12 +33,8 @@
 				var tab_id = tab_ids[i];
 				var _active_tab = $("#" + tab_id).tabs().tabs("option", "active");
 
-				log(`Checking tab ${tab_id}:`, _active_tab);
-
 				if(typeof(_active_tab) == "number") {
 					activeTabIndices[tab_id] = _active_tab;
-				} else {
-					warn(`Error while saveActiveTab: typeof(activeTabIndices[${tab_id}]) == ${typeof(activeTabIndices[tab_id])}:`, activeTabIndices[tab_id]);
 				}
 			} catch (e) {
 				warn(e);
@@ -69,8 +65,6 @@
 				} else {
 					log(`Error: _saved_active_tab is not an integer, but ${typeof(_saved_active_tab)}:`, _saved_active_tab);
 				}
-			} else {
-				log(`No saved active tab for #${tab_id}`);
 			}
 		}
 	}
@@ -182,6 +176,8 @@
 		last_hash = getHashUrlContent(hashUrl);
 
 		var auto_update = getParameterByName('update');
+
+		log("Loaded OmniOpt-Share");
 
 		if (auto_update) {
 			var interval = 5000;

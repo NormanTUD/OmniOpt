@@ -474,4 +474,37 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function add_tab(tab_id, tab_name, tab_html_content) {
+	if ($("#" + tab_id + "-content").length > 0) {
+		console.log(`#${tab_id} already exists.`);
+		return;
+	}
 
+	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');
+	$("#main_tabbed ul").append(tabButton);
+
+	var tabContent = $('<div id="' + tab_id + '-content">' + tab_html_content + '</div>');
+	$("#main_tabbed").append(tabContent);
+
+	$("#main_tabbed").tabs("refresh");
+	log(`#${tab_id} added`);
+}
+
+function remove_tab(tab_id) {
+	var tabSelector = "#" + tab_id + "-tab";
+	var contentSelector = "#" + tab_id + "-content";
+
+	if ($(tabSelector).length > 0) {
+		$(tabSelector).remove();
+	} else {
+		log(`#${tab_id} doesn't exist`);
+	}
+
+	if ($(contentSelector).length > 0) {
+		$(contentSelector).remove();
+	} else {
+		log(`#${tab_id} doesn't exist`);
+	}
+
+	$("#main_tabbed").tabs("refresh");
+}

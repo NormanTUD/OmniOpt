@@ -717,6 +717,7 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 }
 
 async function load_next_trials () {
+	debug_function("load_next_trials()");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`get_next_trials.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
@@ -1038,6 +1039,8 @@ async function load_all_data() {
 		initialize_autotables();
 
 		removeSpinnerOverlay();
+
+		log("Loaded page");
 	}
 }
 

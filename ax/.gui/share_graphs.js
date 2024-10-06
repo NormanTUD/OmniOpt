@@ -693,8 +693,8 @@ async function load_parameter () {
 		return;
 	}
 
-	add_tab("parameters", "Parameters", "<div id='parameters_txt'></div>");
-	$("#parameters_txt").html(`<pre>${data.raw}</pre>`);
+	add_tab("parameters", "Parameters", "<div class='parameters_txt'></div>");
+	$(".parameters_txt").html(`<pre>${data.raw}</pre>`);
 }
 
 async function load_out_files () {
@@ -789,8 +789,8 @@ async function load_best_result () {
 		return;
 	}
 
-	add_tab("best_result", "Best Result", "<div id='best_result_txt'></div>");
-	$("#best_result_txt").html(`<pre>${data.raw}</pre>`);
+	add_tab("best_result", "Best Result", "<div class='best_result_txt'></div>");
+	$(".best_result_txt").html(`<pre>${data.raw}</pre>`);
 }
 
 async function plot_planned_vs_real_worker_over_time () {
@@ -856,8 +856,6 @@ async function plot_planned_vs_real_worker_over_time () {
 
 	add_tab("worker_usage", "Worker-Usage", "<div id='worker_usage_plot'></div>");
 	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
-
-	initialize_autotables();
 }
 
 async function plot_cpu_gpu_graph() {
@@ -949,8 +947,6 @@ async function plot_cpu_gpu_graph() {
 	}
 
 	//$("#cpuRamChartRawData").html(cpu_ram_usage_json.raw + copy_button("stdout_file"));
-	
-	//initialize_autotables();
 }
 
 function replaceZeroWithNull(arr) {
@@ -1001,7 +997,7 @@ async function _get_overview_data () {
 async function load_overview_data() {
 	debug_function("load_overview_data()");
 
-	add_tab("overview_data", "Overview", "<div id='overview_table'></div>");
+	add_tab("overview_data", "Overview", "<div class='best_result_txt'></div></div><div class='parameters_txt'></div><div class='overview_table'>");
 
 	var res = await _get_overview_data();
 
@@ -1033,7 +1029,7 @@ async function load_overview_data() {
 	table.appendChild(dataRow);
 
 	// Insert table into the #overview_table element
-	$('#overview_table').html(table);
+	$('.overview_table').html(table);
 }
 
 async function fetchJsonFromUrlFilenameOnly(filename) {
@@ -1072,6 +1068,7 @@ async function load_all_data() {
 		}
 
 		await load_out_files();
+
 		initialize_autotables();
 
 		removeSpinnerOverlay();

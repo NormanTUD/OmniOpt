@@ -1207,6 +1207,23 @@ if [[ -z $account ]]; then
 	fi
 fi
 
+if [[ -z $force_local_execution ]]; then
+	_force_local_execution=$(get_config_from_config_file "force_local_execution" 0 2>/dev/null)
+	if [[ -n $_force_local_execution ]]; then
+		force_local_execution=$_force_local_execution
+	fi
+
+	shopt -s nocasematch
+
+	if [[ "$force_local_execution" =~ ^(true|1)$ ]]; then
+		force_local_execution=1
+	else
+		force_local_execution=0
+	fi
+
+	shopt -u nocasematch
+fi
+
 set -e
 trap 'calltracer' ERR
 

@@ -44,6 +44,7 @@ function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
+	debug_function("parallel_plot()");
 	// Function to map string values to unique indices
 	function mapStrings(values) {
 		var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
@@ -144,7 +145,7 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	log("scatter_3d");
+	debug_function("scatter_3d()");
 	var already_existing_plots = [];
 	$('#scatter_plot_3d_container').html("");
 
@@ -162,7 +163,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 
 					var _key = [x_name, y_name, z_name].sort().join("!!!");
 					if (already_existing_plots.includes(_key)) {
-						log(`Key already exists: ${_key}`);
+						warn(`Key already exists: ${_key}`);
 						continue;
 					}
 
@@ -327,7 +328,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 }
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	log("scatter");
+	debug_function("scatter()");
 	var already_existing_plots = [];
 	$('#scatter_plot_2d_container').html("");
 
@@ -370,7 +371,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			var _key = [x_name, y_name].sort().join("!!!");
 
 			if (already_existing_plots.includes(_key)) {
-				log(`Key already exists: ${_key}`);
+				warn(`Key already exists: ${_key}`);
 				continue;
 			}
 
@@ -511,7 +512,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 }
 
 async function plot_parallel_plot () {
-	log("plot_parallel_plot");
+	debug_function("plot_parallel_plot()");
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
 	if(!_results_csv_json) {
 		return;
@@ -577,9 +578,10 @@ async function plot_parallel_plot () {
 }
 
 async function load_results () {
+	debug_function("load_results()");
 	var data = await fetchJsonFromUrlFilenameOnly(`results.csv`);
 	if(!data) {
-		log("load_results: Could not fetch results.csv");
+		warn("load_results: Could not fetch results.csv");
 		return;
 	}
 
@@ -593,7 +595,8 @@ async function load_results () {
 }
 
 async function plot_all_possible () {
-	log("plot_all_possible");
+	debug_function("plot_all_possible()");
+
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`results.csv`)
 
 	if(!_results_csv_json) {
@@ -658,6 +661,7 @@ function convertUnixTimeToReadable(unixTime) {
 }
 
 async function load_parameter () {
+	debug_function("load_parameter()");
 	var data = await fetchJsonFromUrlFilenameOnly(`parameters.txt`)
 	if(!data) {
 		return;
@@ -673,6 +677,7 @@ async function load_parameter () {
 }
 
 async function load_out_files () {
+	debug_function("load_out_files()");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
@@ -684,6 +689,7 @@ async function load_out_files () {
 }
 
 async function load_evaluation_errors_and_oo_errors () {
+	debug_function("load_evaluation_errors_and_oo_errors()");
 	var p = [];
 	p.push(_load_evaluation_errors_and_oo_errors("evaluation_errors.log", "evaluation_errors"));
 	p.push(_load_evaluation_errors_and_oo_errors("oo_errors.txt", "oo_errors"));
@@ -694,6 +700,7 @@ async function load_evaluation_errors_and_oo_errors () {
 }
 
 async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
+	debug_function("_load_evaluation_errors_and_oo_errors()");
 	var data = await fetchJsonFromUrlFilenameOnly(`${_fn}`)
 	if(!data) {
 		return;
@@ -729,6 +736,7 @@ async function load_next_trials () {
 }
 
 async function load_job_infos () {
+	debug_function("load_job_infos()");
 	var data = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
 	if(!data) {
 		return;
@@ -743,6 +751,7 @@ async function load_job_infos () {
 }
 
 async function load_best_result () {
+	debug_function("load_best_result()");
 	var data = await fetchJsonFromUrlFilenameOnly(`best_result.txt`)
 	if(!data) {
 		return;
@@ -758,7 +767,7 @@ async function load_best_result () {
 }
 
 async function plot_planned_vs_real_worker_over_time () {
-	log("plot_planned_vs_real_worker_over_time");
+	debug_function("plot_planned_vs_real_worker_over_time()");
 	var data = await fetchJsonFromUrlFilenameOnly(`worker_usage.csv`)
 	if(!data) {
 		return;
@@ -824,7 +833,7 @@ width: get_width(),
 }
 
 async function plot_cpu_gpu_graph() {
-	log("plot_cpu_gpu_graph");
+	debug_function("plot_cpu_gpu_graph()");
 	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`)
 	if(!cpu_ram_usage_json) {
 		return;
@@ -951,6 +960,7 @@ async function fetchJsonFromUrl(url) {
 }
 
 async function _get_overview_data () {
+	debug_function("_get_overview_data()");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var _res = await fetchJsonFromUrl(`get_overview_data.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)

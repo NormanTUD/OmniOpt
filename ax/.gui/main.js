@@ -15,6 +15,11 @@ function warn(message) {
 	appendLog('warn', message);
 }
 
+function debug_function(message) {
+	console.debug(message);
+	appendLog('debug_function', message);
+}
+
 function debug(message) {
 	const debugInfo = `Time: ${performance.now().toFixed(2)} ms`;
 	console.debug(message + " | " + debugInfo);
@@ -39,6 +44,9 @@ function appendLog(type, message) {
 			break;
 		case 'warn':
 			statusColor = '#ffff00';
+			break;
+		case 'debug_function':
+			statusColor = '#ff8800';
 			break;
 		case 'debug':
 			statusColor = '#00ffff';
@@ -99,6 +107,10 @@ function inject_status_bar_css () {
 		
 		.log-entry.warn {
 			color: #ffff00;
+		}
+
+		.log-entry.debug_function {
+			color: #ff8800;
 		}
 
 		.log-entry.debug {

@@ -80,8 +80,6 @@
 			await sleep(10_000);
 		}
 
-		log(msg);
-
 		currently_switching = true;
 		var queryString = window.location.search;
 		var requestUrl = 'share_internal.php' + queryString;
@@ -161,8 +159,6 @@
 	}
 
 	$(document).ready(function() {
-		add_status_bar();
-
 		load_content("Loading OmniOpt-Share...");
 
 		var share_internal_url = window.location.toString();

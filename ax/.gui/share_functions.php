@@ -477,7 +477,6 @@
 			#$_part = "<div id='cpuRamChartRawData'></div>\n";
 			#$_part .= "<pre class='stdout_file invert_in_dark_mode autotable'>" . htmlentities(file_get_contents($file)) . "</pre>\n";
 			#$_part .= copy_button("stdout_file");
-			$_part .= "<script>plot_cpu_gpu_graph();</script>\n";
 
 			$header = get_header_file($file);
 			$_hash = hash('md5', "$header - $file");

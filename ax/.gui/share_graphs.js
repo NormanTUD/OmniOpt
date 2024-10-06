@@ -810,7 +810,7 @@ async function plot_planned_vs_real_worker_over_time () {
 		yaxis: {
 			title: 'Nr. Worker'
 		},
-width: get_width(),
+		width: get_width(),
 		height: get_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
@@ -965,6 +965,7 @@ async function _get_overview_data () {
 }
 
 async function load_overview_data() {
+	debug_function("load_overview_data()");
 	var res = await _get_overview_data();
 
 	// Create a table
@@ -999,6 +1000,7 @@ async function load_overview_data() {
 }
 
 async function fetchJsonFromUrlFilenameOnly(filename) {
+	debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var _res = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`)
@@ -1007,6 +1009,7 @@ async function fetchJsonFromUrlFilenameOnly(filename) {
 }
 
 async function load_all_data() {
+	debug_function("load_all_data()");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {

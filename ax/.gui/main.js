@@ -21,9 +21,8 @@ function debug_function(message) {
 }
 
 function debug(message) {
-	const debugInfo = `Time: ${performance.now().toFixed(2)} ms`;
-	console.debug(message + " | " + debugInfo);
-	appendLog('debug', message + " | " + debugInfo);
+	console.debug(message);
+	appendLog('debug', message);
 }
 
 function appendLog(type, message) {

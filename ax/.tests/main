@@ -518,9 +518,15 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test search space exhaustion (sbatch with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=$NUM_GPUS --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3 --live_share --send_anonymized_usage_stats --max_nr_of_zero_results 3" 87
 
-	_test "Load from toml" "./omniopt --config_toml .tests/example_config.toml" 0
-	_test "Load from yaml" "./omniopt --config_yaml .tests/example_config.yaml" 0
-	_test "Load from json" "./omniopt --config_json .tests/example_config.json" 0
+	if command -v nvidia-smi 2>/dev/null >/dev/null; then
+		_test "Load from toml" "./omniopt --config_toml .tests/example_config_gpu.toml" 0
+		_test "Load from yaml" "./omniopt --config_yaml .tests/example_config_gpu.yaml" 0
+		_test "Load from json" "./omniopt --config_json .tests/example_config_gpu.json" 0
+	else
+		_test "Load from toml" "./omniopt --config_toml .tests/example_config_cpu.toml" 0
+		_test "Load from yaml" "./omniopt --config_yaml .tests/example_config_cpu.yaml" 0
+		_test "Load from json" "./omniopt --config_json .tests/example_config_cpu.json" 0
+	fi
 
 	if command -v sbatch 2>/dev/null >/dev/null; then
 		#excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')

@@ -16,7 +16,10 @@
 	<tr>
 		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt</th>
 	</tr>
-
+	<tr>
+		<td><samp>export OO_NO_LOGO=1</samp></td>
+		<td>Disables showing the logo</td>
+	</tr>
 	<tr>
 		<td><samp>export OO_MAIN_TESTS=1</samp></td>
 		<td>Sets the user-id to <samp>affed00faffed00faffed00faffed00f</samp>, so the statistics can determine whether you are a real user or a test-user</td>

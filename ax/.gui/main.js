@@ -118,6 +118,10 @@ function appendLog(type, message, stacktrace) {
 
 function inject_status_bar_css () {
 	const css = `
+		#currentStatus {
+			cursor: pointer;
+		}
+
 		#statusBar {
 			position: fixed;
 			bottom: 0;
@@ -193,6 +197,10 @@ function add_status_bar () {
 			<div id="statusLogs"></div>
 		</div>
 	`);
+
+	$('#currentStatus').click(function() {
+		$('#statusLogs').slideToggle();
+	});
 
 	$('.toggleMenu').click(function() {
 		$('#statusLogs').slideToggle();

@@ -693,7 +693,6 @@ async function load_parameter () {
 		return;
 	}
 
-	add_tab("parameters", "Parameters", "<div class='parameters_txt'></div>");
 	$(".parameters_txt").html(`<pre>${data.raw}</pre>`);
 }
 
@@ -789,7 +788,6 @@ async function load_best_result () {
 		return;
 	}
 
-	add_tab("best_result", "Best Result", "<div class='best_result_txt'></div>");
 	$(".best_result_txt").html(`<pre>${data.raw}</pre>`);
 }
 

@@ -84,7 +84,7 @@ function appendLog(type, message, stacktrace) {
 	$('#statusLogs').append(`
 		<div class="log-entry ${type}" data-stacktrace="${stacktrace || ''}">
 			${logMessage}
-			<div class="stacktrace" style="display:none; font-size:12px; color:#ccc; margin-top:5px; white-space:pre-wrap;">${stacktrace ? generateStackTraceTable(stacktrace) : ''}</div>
+			<div class="stacktrace" style="display:none; font-size:12px; color:#ccc;">${stacktrace ? generateStackTraceTable(stacktrace) : ''}</div>
 		</div>
 	`);
 

@@ -462,6 +462,8 @@ _test "Testing defective toml file" "./omniopt --config_toml .tests/defective_ex
 _test "Testing defective yaml file" "./omniopt --config_yaml .tests/defective_example_config.yaml --follow" 5 104
 _test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json --follow" 5 104
 
+_test "Testing non-existant json config file" "./omniopt --config_json /dev/idontexist.json" 5
+
 _test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs 1 --num_random_steps 2 --max_eval 3" 0
 
 if [[ $quick -eq 0 ]]; then

@@ -982,6 +982,7 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		--debug)
 			debug=1
+			set_debug
 			;;
 
 		*)
@@ -1035,10 +1036,6 @@ function get_config_from_config_file {
 		fi
 	fi
 }
-
-if [[ "$debug" -eq "1" ]]; then
-	set_debug
-fi
 
 git_hash="NOT_DETERMININABLE"
 
@@ -1151,10 +1148,6 @@ if [[ -d ".git" ]]; then
 			fi
 		fi
 	fi
-fi
-
-if [[ "$debug" -eq "1" ]]; then
-	set_debug
 fi
 
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
@@ -1343,10 +1336,6 @@ else
 	exit 2
 fi
 
-if [[ "$debug" -eq "1" ]]; then
-	set_debug
-fi
-
 mycd "$ORIGINAL_PWD"
 
 if [[ "$workdir" != "" ]]; then
@@ -1419,10 +1408,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 	for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 		unset "$i"
 	done
-
-	if [[ "$debug" -eq "1" ]]; then
-		set_debug
-	fi
 
 	if [[ -n $SLURM_JOB_ID ]]; then
 		echo -e "To cancel, press \033[1mCTRL\e[0m \033[1mc\e[0m, then run '\e[31mscancel $SLURM_JOB_ID\e[0m'"
@@ -1588,10 +1573,6 @@ else
 				done
 				set -e
 
-				if [[ "$debug" -eq 1 ]]; then
-					set_debug
-				fi
-
 				printf "\r"
 
 				_tput el
@@ -1604,9 +1585,6 @@ else
 					tail -n1000000 -f "$LOG_PATH" || true
 					exec 2>&3          # restore stderr to saved
 					exec 3>&-          # close saved version
-					if [[ "$debug" -eq "1" ]]; then
-						set_debug
-					fi
 
 					exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:" | sed -e 's#Exit-Code:\s*##i')
 				else
@@ -1625,10 +1603,6 @@ else
 				done
 
 				echo ""
-
-				if [[ "$debug" -eq 1 ]]; then
-					set_debug
-				fi
 
 				yellow_text "Done waiting for job to end"
 

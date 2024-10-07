@@ -520,7 +520,7 @@ def run_live_share_command():
         # Environment variable USER
         _user = os.getenv('USER')
         if _user is None:
-            raise ValueError("Environment variable 'USER' not found.")
+            _user = 'defaultuser'
 
         _command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
 

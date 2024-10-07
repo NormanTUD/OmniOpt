@@ -6,7 +6,6 @@ cd $SCRIPT_DIR
 
 cd ..
 
-
 for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort); do
 	if echo "$(file $i)" | grep "Bourne" 2>/dev/null >/dev/null; then
 		if cat $i | grep -- "--help" 2>/dev/null >/dev/null; then

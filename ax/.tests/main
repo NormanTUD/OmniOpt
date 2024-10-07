@@ -453,7 +453,7 @@ _test "Find typos in bash" "bash .tests/find_typos_in_bash" 0
 _test "Find typos in js" "bash .tests/find_typos_in_js" 0
 _test "Find typos in php" "bash .tests/find_typos_in_php" 0
 
-if [[ -z $CI ]] && ! grep -q docker /proc/1/cgroup; then
+if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
 	_test "Linkchecker" ".tests/linkchecker" 0
 fi
 
@@ -588,7 +588,7 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 1 16
 
-		if [[ -z $CI ]] && grep -q docker /proc/1/cgroup; then
+		if [[ -z $CI ]] && [[ -e /.dockerenv ]] && command -v docker 2>/dev/null >/dev/null; then
 			_test "Docker" "bash omniopt_docker ./.tests/main --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error" 0
 		fi
 

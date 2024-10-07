@@ -3,7 +3,6 @@
 #SBATCH --signal=B:USR1@200
 
 {
-RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
@@ -33,7 +32,7 @@ if command -v uuidgen 2>/dev/null >/dev/null; then
 	#exec 1> >(tee -ia $bash_logname)
 	#exec 2> >(tee -ia $bash_logname >&2)
 
-	echo "Using $bash_logname as log"
+	#echo "Using $bash_logname as log"
 else
 	echo "uuidgen is not installed. It's recommended you install it." >&2
 fi

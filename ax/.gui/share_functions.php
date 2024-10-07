@@ -504,19 +504,25 @@
 		foreach ($offered_files as $offered_file) {
 			$file = $offered_file["file"];
 			$filename = $offered_file["filename"];
-			if ($file && file_exists($file)) {
-				$content = file_get_contents($file);
-				$content_encoding = mb_detect_encoding($content);
-				if ($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
-					if (filesize($file)) {
-						move_uploaded_file($file, "$userFolder/$filename");
-						$added_files++;
+
+			if ($file) {
+				if(file_exists($file)) {
+					$content = file_get_contents($file);
+					$content_encoding = mb_detect_encoding($content);
+					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+						if (filesize($file)) {
+							move_uploaded_file($file, "$userFolder/$filename");
+							$added_files++;
+						} else {
+							$empty_files[] = $filename;
+						}
 					} else {
-						$empty_files[] = $filename;
+						dier("$filename: \$content was not ASCII, but $content_encoding");
 					}
-				} else {
-					dier("$filename: \$content was not ASCII, but $content_encoding");
+
 				}
+			} else {
+				#print("\$file was empty ($filename)\n");
 			}
 		}
 

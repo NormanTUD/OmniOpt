@@ -46,6 +46,7 @@ function help {
 	echo "  --debug                                            Enable debug options"
 	echo "  --no_color                                         Disables color output"
 	echo "  --username=s3811141                                Specify username (with or without = sign)"
+	echo "  --outfile=path/to/outfile.txt                      Path to the outfile"
 
 	exit $exit_code
 }
@@ -72,8 +73,9 @@ for arg in "$@"; do
 		function red_text {
 			echoerr -e "$1"
 		}
+        elif [[ "$arg" == --outfile=* ]]; then
+                outfile="${arg#--outfile=}"
         elif [[ "$arg" == --username=* ]]; then
-                # Handle the case where username is provided with `=`
                 username="${arg#--username=}"
                 DONT_ASK_USERNAME=1
         elif [ -d "$arg" ]; then
@@ -138,6 +140,12 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 					fi
 				done
 			done
+		fi
+
+		if [[ -n $outfile ]]; then
+			if [[ -e "$outfile" ]]; then
+				curl_options+=("-F" "outfile.txt=@$outfile")
+			fi
 		fi
 
 		if [[ "$k" -eq "0" ]]; then

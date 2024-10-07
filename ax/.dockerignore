@@ -1,6 +1,2 @@
 runs
 .logs
-Dockerfile
-omniopt_docker
-.dockerignore
-docker-compose.yml

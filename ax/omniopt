@@ -280,7 +280,6 @@ function send_status_report {
 export NO_WHIPTAIL=1
 
 function displaytime {
-	unset_debug
 	local T=$1
 		local D=$((T/60/60/24))
 		local H=$((T/60/60%24))
@@ -1124,7 +1123,6 @@ if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
 	exit 19
 fi
 
-unset_debug
 if [[ -d ".git" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then
 		if [[ ! -e .dont_ask_upgrade_omniopt ]]; then
@@ -1337,8 +1335,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	set -e
 fi
 
-unset_debug
-
 if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
 	#echo "source $SCRIPT_DIR/.shellscript_functions"
 	source "$SCRIPT_DIR/.shellscript_functions"
@@ -1420,7 +1416,6 @@ kill_tail_when_squeue_job_empty () {
 
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
 	# To start all subjobs independently from the omniopt job, unset all SLURM variables
-	unset_debug
 	for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 		unset "$i"
 	done
@@ -1446,8 +1441,6 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
 		EXIT_CODE=$?
 	fi
-
-	unset_debug
 
 	set -e
 
@@ -1523,8 +1516,6 @@ else
 				estimated_start_time=""
 				estimated_start_time_original=""
 				_remaining_time=""
-
-				unset_debug
 
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)
@@ -1606,7 +1597,6 @@ else
 				_tput el
 
 				if [[ -e "$LOG_PATH" ]]; then
-					unset_debug
 					kill_tail_when_squeue_job_empty "$started_job_nr" &
 					# weird exec stuff for disabling the "Terminated" message coming from kill
 					exec 3>&2          # 3 is now a copy of 2
@@ -1627,8 +1617,6 @@ else
 			if command -v squeue 2>/dev/null >/dev/null; then
 				WAIT_NUM_SECONDS=10
 				yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
-
-				unset_debug
 
 				echo ""
 

@@ -519,10 +519,11 @@
 					} else {
 						dier("$filename: \$content was not ASCII, but $content_encoding");
 					}
-
+				} else {
+					print("$file does not exist");
 				}
 			} else {
-				#print("\$file was empty ($filename)\n");
+				print("\$file was empty ($filename)\n");
 			}
 		}
 

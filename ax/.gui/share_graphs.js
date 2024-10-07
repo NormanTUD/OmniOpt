@@ -542,10 +542,6 @@ async function plot_parallel_plot () {
 		return;
 	}
 
-	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
-
-	replaceZeroWithNull(_results_csv_json.data);
-
 	if(!Object.keys(_results_csv_json).includes("data")) {
 		error(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
@@ -555,6 +551,11 @@ async function plot_parallel_plot () {
 		error(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
+
+	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
+
+	replaceZeroWithNull(_results_csv_json.data);
+
 
 	var header_line = _results_csv_json.data.shift();
 
@@ -626,17 +627,17 @@ async function plot_all_possible () {
 		return;
 	}
 
-	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
-
 	if(!Object.keys(_results_csv_json).includes("data")) {
-		error(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
+		warn(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
 		return;
 	}
 
-	if(!_results_csv_json.data.length) {
-		error(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
+	if(!Object.keys(_results_csv_json).includes("data") && !results_csv_json.data.length) {
+		warn(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
 		return;
 	}
+
+	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
 	var header_line = _results_csv_json.data.shift();
 
@@ -870,19 +871,19 @@ async function plot_cpu_gpu_graph() {
 		return;
 	}
 
-	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values))
-
-	replaceZeroWithNull(cpu_ram_usage_json.data);
-
 	if(!Object.keys(cpu_ram_usage_json).includes("data")) {
-		error(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+		warn(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
 		return;
 	}
 	
-	if(!cpu_ram_usage_json.data.length) {
-		error(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json`);
+	if(!Object.keys(cpu_ram_usage_json).includes("data") || !cpu_ram_usage_json.data.length) {
+		warn(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json`);
 		return;
 	}
+
+	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values))
+
+	replaceZeroWithNull(cpu_ram_usage_json.data);
 
 	const validCpuEntries = cpu_ram_usage_json.data.filter(entry => entry[2] !== null && entry[2] !== undefined);
 
@@ -1006,35 +1007,40 @@ async function load_overview_data() {
 
 	var res = await _get_overview_data();
 
-	// Create a table
-	var table = document.createElement('table');
-	table.style.width = '100%';
-	table.style.borderCollapse = 'collapse';
+	log(res);
+	if(!Object.keys(res).includes("error")) {
+		// Create a table
+		var table = document.createElement('table');
+		table.style.width = '100%';
+		table.style.borderCollapse = 'collapse';
 
-	// Create table headers
-	var headerRow = document.createElement('tr');
-	['Failed', 'Succeeded', 'Total'].forEach(function (heading) {
-		var th = document.createElement('th');
-		th.style.border = '1px solid black';
-		th.style.padding = '8px';
-		th.textContent = heading;
-		headerRow.appendChild(th);
-	});
-	table.appendChild(headerRow);
+		// Create table headers
+		var headerRow = document.createElement('tr');
+		['Failed', 'Succeeded', 'Total'].forEach(function (heading) {
+			var th = document.createElement('th');
+			th.style.border = '1px solid black';
+			th.style.padding = '8px';
+			th.textContent = heading;
+			headerRow.appendChild(th);
+		});
+		table.appendChild(headerRow);
 
-	// Create a data row
-	var dataRow = document.createElement('tr');
-	[res.failed, res.succeeded, res.total].forEach(function (value) {
-		var td = document.createElement('td');
-		td.style.border = '1px solid black';
-		td.style.padding = '8px';
-		td.textContent = value;
-		dataRow.appendChild(td);
-	});
-	table.appendChild(dataRow);
+		// Create a data row
+		var dataRow = document.createElement('tr');
+		[res.failed, res.succeeded, res.total].forEach(function (value) {
+			var td = document.createElement('td');
+			td.style.border = '1px solid black';
+			td.style.padding = '8px';
+			td.textContent = value;
+			dataRow.appendChild(td);
+		});
+		table.appendChild(dataRow);
 
-	// Insert table into the #overview_table element
-	$('.overview_table').html(table);
+		// Insert table into the #overview_table element
+		$('.overview_table').html(table);
+	} else {
+		$('.overview_table').html(`Error: <span class="error_line">${res.error}</span>`);
+	}
 }
 
 async function fetchJsonFromUrlFilenameOnly(filename) {

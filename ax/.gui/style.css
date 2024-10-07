@@ -345,3 +345,8 @@ a, a:visited, a:active, a:hover, a:link {
 #statusBar {
 	user-select: none;
 }
+
+.error_line {
+	background-color: red !important;
+	color: white !important;
+}

@@ -3,6 +3,22 @@
 #SBATCH --signal=B:USR1@200
 
 {
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m' # Keine Farbe (Reset)
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 RUN_UUID=
 bash_logname=
 if command -v uuidgen 2>/dev/null >/dev/null; then
@@ -264,7 +280,7 @@ function send_status_report {
 export NO_WHIPTAIL=1
 
 function displaytime {
-	set +x
+	unset_debug
 	local T=$1
 		local D=$((T/60/60/24))
 		local H=$((T/60/60%24))
@@ -1022,7 +1038,7 @@ function get_config_from_config_file {
 }
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
 
 git_hash="NOT_DETERMININABLE"
@@ -1108,7 +1124,7 @@ if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
 	exit 19
 fi
 
-set +x
+unset_debug
 if [[ -d ".git" ]]; then
 	if command -v whiptail 2>/dev/null >/dev/null; then
 		if [[ ! -e .dont_ask_upgrade_omniopt ]]; then
@@ -1140,7 +1156,7 @@ if [[ -d ".git" ]]; then
 fi
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
 
 args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
@@ -1321,7 +1337,8 @@ if [ -n "${SLURM_JOB_ID:-}" ] ; then
 	set -e
 fi
 
-set +x
+unset_debug
+
 if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
 	#echo "source $SCRIPT_DIR/.shellscript_functions"
 	source "$SCRIPT_DIR/.shellscript_functions"
@@ -1331,7 +1348,7 @@ else
 fi
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
 
 mycd "$ORIGINAL_PWD"
@@ -1403,13 +1420,13 @@ kill_tail_when_squeue_job_empty () {
 
 if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
 	# To start all subjobs independently from the omniopt job, unset all SLURM variables
-	set +x
+	unset_debug
 	for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 		unset "$i"
 	done
 
 	if [[ "$debug" -eq "1" ]]; then
-		set -x
+		set_debug
 	fi
 
 	if [[ -n $SLURM_JOB_ID ]]; then
@@ -1430,7 +1447,7 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 		EXIT_CODE=$?
 	fi
 
-	set +x
+	unset_debug
 
 	set -e
 
@@ -1507,7 +1524,7 @@ else
 				estimated_start_time_original=""
 				_remaining_time=""
 
-				set +x
+				unset_debug
 
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)
@@ -1581,7 +1598,7 @@ else
 				set -e
 
 				if [[ "$debug" -eq 1 ]]; then
-					set -x
+					set_debug
 				fi
 
 				printf "\r"
@@ -1589,7 +1606,7 @@ else
 				_tput el
 
 				if [[ -e "$LOG_PATH" ]]; then
-					set +x
+					unset_debug
 					kill_tail_when_squeue_job_empty "$started_job_nr" &
 					# weird exec stuff for disabling the "Terminated" message coming from kill
 					exec 3>&2          # 3 is now a copy of 2
@@ -1598,7 +1615,7 @@ else
 					exec 2>&3          # restore stderr to saved
 					exec 3>&-          # close saved version
 					if [[ "$debug" -eq "1" ]]; then
-						set -x
+						set_debug
 					fi
 
 					exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:" | sed -e 's#Exit-Code:\s*##i')
@@ -1611,7 +1628,7 @@ else
 				WAIT_NUM_SECONDS=10
 				yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
 
-				set +x
+				unset_debug
 
 				echo ""
 
@@ -1622,7 +1639,7 @@ else
 				echo ""
 
 				if [[ "$debug" -eq 1 ]]; then
-					set -x
+					set_debug
 				fi
 
 				yellow_text "Done waiting for job to end"

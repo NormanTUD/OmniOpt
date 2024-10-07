@@ -1858,6 +1858,7 @@ USR
 utilizationgpu
 utilizationmemory
 uuid
+uuidgen
 val
 validationSplit
 validHandle
@@ -1975,4 +1976,3 @@ zIndices
 zipContents
 zipWriter
 zsh
-uuidgen

@@ -1163,7 +1163,7 @@ elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; th
 	true
 else
 	red_text "Error: Of these settings, maximally one can be set: --config_toml, --config_json, --config_yaml."
-	exit 19
+	exit 5
 fi
 
 if [[ $tests -eq 0 ]]; then

@@ -32,6 +32,8 @@ if command -v uuidgen 2>/dev/null >/dev/null; then
 
 	#exec 1> >(tee -ia $bash_logname)
 	#exec 2> >(tee -ia $bash_logname >&2)
+
+	echo "Using $bash_logname as log"
 else
 	echo "uuidgen is not installed. It's recommended you install it." >&2
 fi
@@ -1351,11 +1353,19 @@ fi
 
 if [[ "$help" -eq "1" ]]; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		python3 $SCRIPT_DIR/.omniopt.py --help
+		if [[ -n $bash_logname ]]; then
+			python3 $SCRIPT_DIR/.omniopt.py --help 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+		else
+			python3 $SCRIPT_DIR/.omniopt.py --help
+		fi
 	else
-		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-		coverage run -p "$SCRIPT_DIR/.omniopt.py" --help
+		if [[ -n $bash_logname ]]; then
+			coverage run -p "$SCRIPT_DIR/.omniopt.py" --help 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+		else
+			coverage run -p "$SCRIPT_DIR/.omniopt.py" --help
+		fi
 	fi
+
 	exit 0
 fi
 
@@ -1363,21 +1373,39 @@ if [[ "$tests" -eq "1" ]]; then
 	exit_code=0
 	if [[ $run_tests_that_fail_on_taurus -eq 0 ]]; then
 		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
-			exit_code=$?
+			if [[ -n $bash_logname ]]; then
+				python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""  2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+				exit_code=$?
+			else
+				python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+				exit_code=$?
+			fi
 		else
-			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-			coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
-			exit_code=$?
+			if [[ -n $bash_logname ]]; then
+				coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+				exit_code=$?
+			else
+				coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+				exit_code=$?
+			fi
 		fi
 	else
 		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
-			exit_code=$?
+			if [[ -n $bash_logname ]]; then
+				python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+				exit_code=$?
+			else
+				python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
+				exit_code=$?
+			fi
 		else
-			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-			coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
-			exit_code=$?
+			if [[ -n $bash_logname ]]; then
+				coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+				exit_code=$?
+			else
+				coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
+				exit_code=$?
+			fi
 		fi
 	fi
 	exit $exit_code
@@ -1415,12 +1443,17 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 
 	IFS=$' '
 	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
-	#echo "python3 $SCRIPT_DIR/.omniopt.py $args_string"
 
 	set +e
+
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		python3 "$SCRIPT_DIR/.omniopt.py" $args_string
-		EXIT_CODE=$?
+		if [[ -n $bash_logname ]]; then
+			python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+			EXIT_CODE=$?
+		else
+			python3 "$SCRIPT_DIR/.omniopt.py" $args_string
+			EXIT_CODE=$?
+		fi
 	else
 		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string

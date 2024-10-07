@@ -3737,7 +3737,7 @@ def get_parameters_from_outfile(stdout_path):
                     return params
         return None
     except FileNotFoundError:
-        original_print(f"get_parameters_from_outfile: The file {stdout_path} was not found.")
+        original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
         return None
     except Exception as e:
         print(f"get_parameters_from_outfile: There was an error: {e}")

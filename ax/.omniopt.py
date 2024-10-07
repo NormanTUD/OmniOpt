@@ -32,7 +32,6 @@ SHOWN_END_TABLE = False
 max_eval = None
 random_steps = None
 progress_bar = None
-SUM_OF_VALUES_FOR_TQDM = 0
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -2936,14 +2935,6 @@ def update_progress_bar(_progress_bar, nr):
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
 
-    global SUM_OF_VALUES_FOR_TQDM
-
-    SUM_OF_VALUES_FOR_TQDM += nr
-
-    if SUM_OF_VALUES_FOR_TQDM > max_eval:
-        print_debug(f"Reaching upper limit for tqdm: SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {max_eval}")
-        return
-
     _progress_bar.update(nr)
 
 def get_current_model():
@@ -4170,7 +4161,6 @@ def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
         ("_max_eval", _max_eval),
         ("_progress_bar.total", _progress_bar.total),
         ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
-        ("SUM_OF_VALUES_FOR_TQDM", SUM_OF_VALUES_FOR_TQDM),
         ("_ret", _ret)
     ]
 
@@ -4189,8 +4179,7 @@ def break_run_search(_name, _max_eval, _progress_bar):
         (lambda: count_done_jobs() >= max_eval, f"3. count_done_jobs() {count_done_jobs()} >= max_eval {max_eval}"),
         (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > _max_eval {_max_eval} + 1"),
         (lambda: submitted_jobs() >= max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {max_eval} + 1"),
-        (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(count_done_jobs() {count_done_jobs()} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"),
-        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > _max_eval {_max_eval}")
+        (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(count_done_jobs() {count_done_jobs()} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})")
     ]
 
     for condition_func, debug_msg in conditions:

@@ -16,7 +16,7 @@ import yaml
 import toml
 
 jobs_finished = 0
-run_uuid = str(uuid.uuid4())
+run_uuid = os.getenv("RUN_UUID", str(uuid.uuid4()))
 shown_live_share_counter = 0
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []

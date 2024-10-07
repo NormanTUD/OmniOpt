@@ -1422,17 +1422,15 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 
 	set +e
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		python3 "$SCRIPT_DIR/.omniopt.py" $args_string &
+		python3 "$SCRIPT_DIR/.omniopt.py" $args_string
+		EXIT_CODE=$?
 	else
 		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string &
+		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
+		EXIT_CODE=$?
 	fi
-	python_pid=$!
 
 	set +x
-	wait $python_pid
-
-	EXIT_CODE=$?
 
 	set -e
 

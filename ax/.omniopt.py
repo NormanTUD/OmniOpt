@@ -5036,6 +5036,8 @@ def run_tests():
 
     nr_errors = 0
 
+    nr_errors += is_equal('compare_parameters("x", "y")', compare_parameters("x", "y"), '')
+
     nr_errors += is_equal('extract_info("OO-Info: SLURM_JOB_ID: 123")', json.dumps(extract_info("OO-Info: SLURM_JOB_ID: 123")), '[["OO_Info_SLURM_JOB_ID"], ["123"]]')
 
     if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:

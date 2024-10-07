@@ -15,7 +15,7 @@ if command -v uuidgen 2>/dev/null >/dev/null; then
 	export bash_logname
 
 	#exec 1> >(tee -ia $bash_logname)
-	#exec 2> >(tee -ia $bash_logname >& 2)
+	#exec 2> >(tee -ia $bash_logname >&2)
 else
 	echo "uuidgen is not installed. It's recommended you install it." >&2
 fi

@@ -20,7 +20,6 @@ run_uuid = os.getenv("RUN_UUID", str(uuid.uuid4()))
 shown_live_share_counter = 0
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
-IS_IN_EVALUATE = False
 END_PROGRAM_RAN = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
 ax_client = None
@@ -1764,8 +1763,6 @@ def extract_info(data):
     return names, values
 
 def evaluate(parameters):
-    global IS_IN_EVALUATE
-
     start_nvidia_smi_thread()
 
     return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
@@ -1777,8 +1774,6 @@ def evaluate(parameters):
 
     if _test_gpu is not None:
         return _test_gpu
-
-    IS_IN_EVALUATE = True
 
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 
@@ -1844,7 +1839,6 @@ def evaluate(parameters):
             print_debug(f"evaluate: CURRENT_RUN_FOLDER {CURRENT_RUN_FOLDER} could not be found")
 
         if isinstance(result, (int, float)):
-            IS_IN_EVALUATE = False
             return {"result": float(result)}
 
         write_failed_logs(parameters, "No Result")
@@ -1857,8 +1851,6 @@ def evaluate(parameters):
     except SignalINT:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "INT-signal")
-
-    IS_IN_EVALUATE = False
 
     return return_in_case_of_error
 
@@ -2398,10 +2390,6 @@ def end_program(csv_file_path, _force=False, exit_code=None):
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
-        return
-
-    if IS_IN_EVALUATE and not _force:
-        print_debug("IS_IN_EVALUATE true, returning end_program")
         return
 
     if END_PROGRAM_RAN and not _force:
@@ -4053,7 +4041,6 @@ def save_state_files():
 
 def execute_evaluation(_params):
     global global_vars
-    global IS_IN_EVALUATE
 
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
 
@@ -4126,7 +4113,6 @@ def execute_evaluation(_params):
             print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
     except (SignalUSR, SignalINT, SignalCONT):
         print_red("\n⚠ Detected signal. Will exit.")
-        IS_IN_EVALUATE = False
         end_program(RESULT_CSV_FILE, 1)
     except Exception as e:
         tb = traceback.format_exc()
@@ -5183,7 +5169,6 @@ if __name__ == "__main__":
                 main()
             except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
-                IS_IN_EVALUATE = False
 
                 end_program(RESULT_CSV_FILE, 1)
             except SearchSpaceExhausted:

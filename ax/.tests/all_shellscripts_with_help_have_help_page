@@ -12,7 +12,7 @@ for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v "^omniopt$
 			bashscript_that_has_help="$i"
 
 			echo "$bashscript_that_has_help"
-			$bashscript_that_has_help --help
+			bash $bashscript_that_has_help --help
 		fi
 	fi
 done

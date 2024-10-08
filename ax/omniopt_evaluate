@@ -58,12 +58,12 @@ function this_help {
 	cat <<'EOF'
 This helps graphically to use OmniOpt.
 
---projectdir=/path/to/projects/                     Path to available projects
---nogauge                                           Disables the gauges
---help                                              This help
---dont_load_modules                                 Don't load modules
---no_upgrade                                        Disables upgrades
---debug                                             Enables debugging
+  --projectdir=/path/to/projects/                   Path to available projects
+  --nogauge                                         Disables the gauges
+  --help                                            This help
+  --dont_load_modules                               Don't load modules
+  --no_upgrade                                      Disables upgrades
+  --debug                                           Enables debugging
 EOF
 }
 

@@ -46,9 +46,9 @@ for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v "^omniopt$
 			bashscript_that_has_help="$i"
 
 			yellow_text "bash $bashscript_that_has_help --help"
-			output=$(bash $bashscript_that_has_help --help)
+			output="$(bash $bashscript_that_has_help --help)"
 
-			echo $output
+			echo "$output"
 
 			exit_code=$?
 

@@ -625,7 +625,7 @@ async function load_results () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		warn(`load_results: Could not plot seemingly empty data: no raw found`);
+		//warn(`load_results: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -792,7 +792,7 @@ async function load_job_infos () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		warn(`load_job_infos: Could not plot seemingly empty data: no raw found`);
+		//warn(`load_job_infos: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -808,7 +808,7 @@ async function load_best_result () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
+		//warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 

@@ -150,7 +150,7 @@
 		var newHash = getHashUrlContent(hashUrl);
 
 		if (newHash !== last_hash) {
-			log(`Hash changed, reloading content.`);
+			//log(`Hash changed, reloading content.`);
 			last_hash = newHash;
 			load_all_data();
 		}

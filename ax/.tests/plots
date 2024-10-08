@@ -112,9 +112,9 @@ done
 
 if [[ "$help" -eq "1" ]]; then
 	echo ".tests/plots:"
-	echo "--keep_tmp                            Keep tmp files"
-	echo "--test_types=a|b|c                    A regex for filetypes to be tested"
-	echo "--quick                               Disables some slow tests"
+	echo "--keep_tmp                                           Keep tmp files"
+	echo "--test_types=a|b|c                                   A regex for filetypes to be tested"
+	echo "--quick                                              Disables some slow tests"
 	exit 0
 fi
 

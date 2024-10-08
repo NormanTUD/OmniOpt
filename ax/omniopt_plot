@@ -122,7 +122,7 @@ function inputbox {
 	if [[ $exitstatus == 0 ]]; then
 		echo "$RESULT"
 	else
-		echo "You chose to cancel (1)"
+		yellow_text "You chose to cancel (1)"
 		exit 1
 	fi
 }
@@ -231,7 +231,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--run_dir)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --run_dir requires a value"
+				red_text "Error: --run_dir requires a value"
 				exit 1
 			fi
 			run_dir="${args[k]}"
@@ -249,7 +249,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--save_to_file)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --save_to_file requires a value"
+				red_text "Error: --save_to_file requires a value"
 				exit 1
 			fi
 			_save_to_file="${args[k]}"
@@ -267,7 +267,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--min)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --min requires a value"
+				red_text "Error: --min requires a value"
 				exit 1
 			fi
 			min="${args[k]}"
@@ -285,7 +285,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--max)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --max requires a value"
+				red_text "Error: --max requires a value"
 				exit 1
 			fi
 			max="${args[k]}"
@@ -302,7 +302,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--plot_type)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --plot_type requires a value"
+				red_text "Error: --plot_type requires a value"
 				exit 1
 			fi
 			plot_type="${args[k]}"
@@ -357,7 +357,7 @@ if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
 
 	joined_plot_types=${joined_plot_types%, }
 
-	echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+	red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
 	exit 99
 fi
 
@@ -410,7 +410,7 @@ function menu {
 	done
 
 	if [ ${#whiptail_args[@]} -eq 0 ]; then
-		echo "It seems like the run folder $run_dir does not have any plotable data."
+		red_text "It seems like the run folder $run_dir does not have any plotable data."
 		exit 3
 	fi
 
@@ -472,7 +472,7 @@ function menu {
 			exit $?
 		fi
 
-		echo "This exit should never be reached"
+		red_text "This exit should never be reached"
 		exit
 	fi
 
@@ -498,17 +498,17 @@ function menu {
 
 if [[ "$plot_type" == "menu" ]]; then
 	if [[ "$run_dir" == "" ]]; then
-		echo "--run_dir is missing"
+		red_text "--run_dir is missing"
 		exit 1
 	fi
 
 	if [[ -f "$run_dir" ]]; then
-		echo "--run_dir is a file"
+		red_text "--run_dir is a file"
 		exit 1
 	fi
 
 	if [[ ! -d "$run_dir" ]]; then
-		echo "--run_dir is not a directory"
+		red_text "--run_dir is not a directory"
 		exit 1
 	fi
 
@@ -524,7 +524,7 @@ if [[ "$plot_type" != "menu" ]]; then
 
 		joined_plot_types=${joined_plot_types%, }
 
-		echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+		red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
 		exit 5
 	fi
 fi

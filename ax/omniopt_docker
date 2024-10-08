@@ -11,7 +11,7 @@ cd "$SCRIPT_DIR"
 help_message() {
 	echo "Usage: docker [OPTIONS]"
 	echo "Options:"
-	echo "  --help             Show this help message"
+	echo "  --help             This help"
 }
 
 function _mkdir {

@@ -53,7 +53,7 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
-        echo "  --help                                             this help"
+        echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode"
         exit $1
 }

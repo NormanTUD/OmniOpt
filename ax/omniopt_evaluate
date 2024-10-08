@@ -69,7 +69,7 @@ EOF
 
 for i in "$@"; do
     case $i in
-        -d|--debug)
+        --debug)
             DEBUG=1
 	    set_debug
             ;;

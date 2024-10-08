@@ -198,11 +198,18 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 
 // Function to create tick values dynamically
 function createTicks(values, maxTicks) {
+	const min = Math.min(...values);
+	const max = Math.max(...values);
+
+	const step = (max - min) / (maxTicks - 1);
+
 	let ticks = [];
-	let step = Math.ceil(values.length / maxTicks);
-	for (let i = 0; i < values.length; i += step) {
-		ticks.push(values[i]);
+	for (let i = 0; i < maxTicks; i++) {
+		ticks.push(min + step * i);
 	}
+
+	ticks[ticks.length - 1] = max;
+
 	return ticks;
 }
 

@@ -23,7 +23,7 @@ function help () {
         echo "  --int_param_two=(INT)"
         echo "  --float_param=(FLOAT)"
         echo "  --choice_param=(STRING)                            Must be 1, 2, 4, 8, 16 or hallo"
-        echo "  --fail_or_not=0|1                                         Whether to fail or not"
+        echo "  --fail_or_not=0|1                                  Whether to fail or not"
         echo "  --help                                             this help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1

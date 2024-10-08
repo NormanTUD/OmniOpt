@@ -41,6 +41,8 @@ for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v "^omniopt$
 
 			if [[ $exit_code != 0 ]]; then
 				red_text "bash $bashscript_that_has_help --help failed with exit-code $exit_code"
+
+				exit 1
 			fi
 		fi
 	fi

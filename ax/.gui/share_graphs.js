@@ -880,96 +880,116 @@ async function plot_planned_vs_real_worker_over_time () {
 	$("#worker_usage_raw").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
-async function plot_cpu_gpu_graph() {
-	//debug_function("plot_cpu_gpu_graph()");
-	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`)
-	if(!cpu_ram_usage_json) {
-		return;
-	}
+async function plot_cpu_ram_graph() {
+    //debug_function("plot_cpu_ram_graph()");
+    var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`);
+    if (!cpu_ram_usage_json) {
+        return;
+    }
 
-	if(!Object.keys(cpu_ram_usage_json).includes("data")) {
-		warn(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
-		return;
-	}
-	
-	if(!Object.keys(cpu_ram_usage_json).includes("data") || !cpu_ram_usage_json.data.length) {
-		warn(`plot_cpu_gpu_graph: Could not plot seemingly empty cpu_ram_usage_json`);
-		return;
-	}
+    if (!Object.keys(cpu_ram_usage_json).includes("data")) {
+        warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+        return;
+    }
 
-	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values))
+    if (!Object.keys(cpu_ram_usage_json).includes("data") || !cpu_ram_usage_json.data.length) {
+        warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json`);
+        return;
+    }
 
-	replaceZeroWithNull(cpu_ram_usage_json.data);
+    convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values));
 
-	const validCpuEntries = cpu_ram_usage_json.data.filter(entry => entry[2] !== null && entry[2] !== undefined);
+    replaceZeroWithNull(cpu_ram_usage_json.data);
 
-	// Filtered timestamps and CPU usage data
-	const timestamps_cpu = validCpuEntries.map(entry => new Date(entry[0] * 1000));
-	const cpuUsage = validCpuEntries.map(entry => entry[2]);
+    const validCpuEntries = cpu_ram_usage_json.data.filter(entry => entry[2] !== null && entry[2] !== undefined);
 
-	// RAM data remains the same
-	const timestamps_ram = cpu_ram_usage_json.data.map(entry => new Date(entry[0] * 1000));
-	const ramUsage = cpu_ram_usage_json.data.map(entry => entry[1]);
+    // Filtered timestamps and CPU usage data
+    const timestamps_cpu = validCpuEntries.map(entry => new Date(entry[0] * 1000));
+    const cpuUsage = validCpuEntries.map(entry => entry[2]);
 
-	// RAM Usage Plot
-	const ramTrace = {
-		x: timestamps_ram,
-		y: ramUsage,
-		type: 'scatter',
-		mode: 'lines',
-		name: 'RAM Usage (MB)',
-		line: { color: 'lightblue' },
-		yaxis: 'y1'
-	};
+    // RAM data remains the same
+    const timestamps_ram = cpu_ram_usage_json.data.map(entry => new Date(entry[0] * 1000));
+    const ramUsage = cpu_ram_usage_json.data.map(entry => entry[1]);
 
-	// CPU Usage Plot
-	const cpuTrace = {
-		x: timestamps_cpu,
-		y: cpuUsage,
-		type: 'scatter',
-		mode: 'lines',
-		name: 'CPU Usage (%)',
-		line: { color: 'orange' },
-		yaxis: 'y2'
-	};
+    // RAM Usage Plot
+    const ramTrace = {
+        x: timestamps_ram,
+        y: ramUsage,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'RAM Usage (MB)',
+        line: { color: 'lightblue' }
+    };
 
-	const layout = {
-		title: 'CPU and RAM Usage Over Time by the main worker',
-		xaxis: {
-			title: 'Time',
-			type: 'date'
-		},
-		yaxis: {
-			title: 'RAM Usage (MB)',
-			showline: true,
-			side: 'left'
-		},
-		yaxis2: {
-			title: 'CPU Usage (%)',
-			overlaying: 'y',
-			side: 'right',
-			showline: true
-		},
-		showlegend: true,
-		legend: {
-			x: 0.1,
-			y: 1.1,
-			orientation: 'h'
-		},
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
-	};
+    // CPU Usage Plot
+    const cpuTrace = {
+        x: timestamps_cpu,
+        y: cpuUsage,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'CPU Usage (%)',
+        line: { color: 'orange' }
+    };
 
-	const data = [ramTrace, cpuTrace];
+    const ramLayout = {
+        title: 'RAM Usage Over Time by the main worker',
+        xaxis: {
+            title: 'Time',
+            type: 'date'
+        },
+        yaxis: {
+            title: 'RAM Usage (MB)',
+            showline: true
+        },
+        showlegend: true,
+        legend: {
+            x: 0.1,
+            y: 1.1,
+            orientation: 'h'
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)'
+    };
 
-	add_tab("cpu_ram_usage", "CPU/RAM Usage", "<div id='cpuRamChartContainer'><div id='cpuRamChart'></div><div id='cpuRamChartRawData'></div></div>");
+    const cpuLayout = {
+        title: 'CPU Usage Over Time by the main worker',
+        xaxis: {
+            title: 'Time',
+            type: 'date'
+        },
+        yaxis: {
+            title: 'CPU Usage (%)',
+            showline: true
+        },
+        showlegend: true,
+        legend: {
+            x: 0.1,
+            y: 1.1,
+            orientation: 'h'
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)'
+    };
 
-	if($("#cpuRamChart").length) {
-		Plotly.newPlot('cpuRamChart', data, layout);
-	}
+    add_tab("cpu_ram_usage", "CPU/RAM Usage", `
+        <div id='cpuRamChartContainer'>
+            <div id='ramChart'></div>
+            <div id='cpuChart'></div>
+            <div id='cpuRamChartRawData'></div>
+        </div>
+    `);
 
-	$("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
+    if ($("#ramChart").length) {
+        Plotly.newPlot('ramChart', [ramTrace], ramLayout);
+    }
+
+    if ($("#cpuChart").length) {
+        Plotly.newPlot('cpuChart', [cpuTrace], cpuLayout);
+    }
+
+    $("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
 }
+
 
 function replaceZeroWithNull(arr) {
 	if (Array.isArray(arr)) {
@@ -1086,7 +1106,7 @@ async function load_all_data() {
 		promises.push(load_parameter());
 
 		promises.push(plot_all_possible());
-		promises.push(plot_cpu_gpu_graph());
+		promises.push(plot_cpu_ram_graph());
 		promises.push(plot_parallel_plot());
 		promises.push(plot_planned_vs_real_worker_over_time());
 

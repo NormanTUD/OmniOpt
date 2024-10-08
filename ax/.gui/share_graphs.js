@@ -47,121 +47,150 @@ function getUniqueValues(arr) {
 }
 
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	//debug_function("parallel_plot()");
-	// Function to map string values to unique indices
+    var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-	var data_md5 = md5(JSON.stringify(_results_csv_json));
+    if ($('#parallel_plot_container').data("md5") == data_md5) {
+        return;
+    }
 
-	if($('#parallel_plot_container').data("md5") == data_md5) {
-		return;
-	}
+    // Helper function to handle null/undefined and convert to valid strings or numeric values
+    function cleanValue(value) {
+        if (value === null || value === undefined || value === '') {
+            return 'N/A'; // Placeholder for missing data
+        }
+        return value;
+    }
 
-	function mapStrings(values) {
-		var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
-		uniqueStrings.sort(); // Alphabetically sort the strings
-		var stringMapping = {};
-		uniqueStrings.forEach((str, idx) => {
-			stringMapping[str] = idx; // Map string to its index
-		});
-		return stringMapping;
-	}
+    // Function to map string values to unique indices, including 'N/A' if present
+    function mapStrings(values) {
+        var cleanedValues = values.map(cleanValue);
+        var uniqueStrings = [...new Set(cleanedValues)];
+        uniqueStrings.sort(); // Sort alphabetically
+        return uniqueStrings.reduce((acc, str, idx) => {
+            acc[str] = idx;
+            return acc;
+        }, {});
+    }
 
-	// Check if a value is fully numeric
-	function isFullyNumeric(values) {
-		return values.every(v => !isNaN(parseFloat(v)) && isFinite(v));
-	}
+    // Function to create dimensions for the parallel plot
+    var dimensions = paramKeys.map(function(key) {
+        var idx = mappingKeyNameToIndex[key];
 
-	// Function to create dimensions for parallel plot
-	var dimensions = paramKeys.map(function(key) {
-		var idx = mappingKeyNameToIndex[key];
+        // Extract and clean values from the results
+        var values = _results_csv_json.map(function(row) {
+            return cleanValue(row[idx]);
+        });
 
-		// Extract values from the results
-		var values = _results_csv_json.map(function(row) {
-			return row[idx];
-		});
+        // Handle string mapping for the 'choice_param' and similar fields
+        if (key === 'choice_param') {
+            // Ensure both 'hallo' and '16' are treated as strings
+            var stringMapping = mapStrings(values);
 
-		// Separate numeric and string values
-		var numericValues = values.filter(value => !isNaN(parseFloat(value)) && isFinite(value)).map(parseFloat);
-		var stringMapping = mapStrings(values);
+            // Map all values (strings) to their corresponding indices
+            var valueIndices = values.map(function(value) {
+                return stringMapping[cleanValue(value)];
+            });
 
-		// Map all values (strings and numbers) to indices
-		var valueIndices = values.map(function(value) {
-			var parsedValue = parseFloat(value);
-			return isNaN(parsedValue) ? stringMapping[value] : parsedValue;
-		});
+            var uniqueValues = Object.keys(stringMapping).sort();
+            return {
+                range: [0, uniqueValues.length - 1],
+                label: key,
+                values: valueIndices,
+                tickvals: Object.values(stringMapping),
+                ticktext: uniqueValues
+            };
+        }
 
-		// Return a dimension configuration
-		if (isFullyNumeric(values)) {
-			// If all values are numeric, use a numeric range
-			return {
-				range: [Math.min(...numericValues), Math.max(...numericValues)],
-				label: key,
-				values: valueIndices,
-				tickvals: numericValues,
-				ticktext: numericValues.map(v => v.toLocaleString()) // Format large numbers
-			};
-		} else {
-			// For mixed or string values, use the string mapping with indices
-			var uniqueValues = Object.keys(stringMapping).sort();
-			return {
-				range: [0, uniqueValues.length - 1],
-				label: key,
-				values: valueIndices,
-				tickvals: Object.values(stringMapping),
-				ticktext: uniqueValues
-			};
-		}
-	});
+        // For other parameters, continue normal numeric handling or string mapping
+        var numericValues = values.filter(value => !isNaN(parseFloat(value))).map(parseFloat);
 
-	// Add the result dimension (color scale) to the plot
-	dimensions.push({
-		range: [minResult, maxResult],
-		label: 'result',
-		values: resultValues,
-		colorscale: 'Jet',
-		tickvals: resultValues,
-		ticktext: resultValues.map(v => v.toLocaleString()) // Format result values
-	});
+        // If fully numeric, handle normally
+        if (numericValues.length === values.length) {
+            return {
+                range: [Math.min(...numericValues), Math.max(...numericValues)],
+                label: key,
+                values: numericValues
+            };
+        }
 
-	// Parallel coordinates trace
-	var traceParallel = {
-		type: 'parcoords',
-		line: {
-			color: resultValues,
-			colorscale: 'Jet',
-			showscale: true,
-			cmin: minResult,
-			cmax: maxResult
-		},
-		dimensions: dimensions
-	};
+        // Otherwise, map non-numeric values as strings
+        var stringMapping = mapStrings(values);
+        var valueIndices = values.map(function(value) {
+            var parsedValue = parseFloat(value);
+            if (!isNaN(parsedValue)) {
+                return parsedValue;
+            } else {
+                return stringMapping[cleanValue(value)];
+            }
+        });
 
-	// Layout for the parallel coordinates plot
-	var layoutParallel = {
-		title: 'Parallel Coordinates Plot',
-		width: get_width(),
-		height: get_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)',
-		showlegend: false
-	};
+        return {
+            range: [0, Object.keys(stringMapping).length - 1],
+            label: key,
+            values: valueIndices,
+            tickvals: Object.values(stringMapping),
+            ticktext: Object.keys(stringMapping)
+        };
+    });
 
-	// Create a new div for the plot
-	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-	$('#parallel_plot_container').html(new_plot_div);
+    // Add the result dimension (color scale)
+    dimensions.push({
+        range: [minResult, maxResult],
+        label: 'result',
+        values: resultValues,
+        colorscale: 'Jet',
+        tickvals: resultValues,
+        ticktext: resultValues.map(v => v.toLocaleString()) // Format large numbers
+    });
 
-	if(!$("#parallel_plot").length) {
-		add_tab("parallel_plot", "Parallel Plot", "<div id='parallel_plot_container'><div id='parallel-plot'></div></div>")
-	}
+    // Parallel coordinates trace
+    var traceParallel = {
+        type: 'parcoords',
+        line: {
+            color: resultValues,
+            colorscale: 'Jet',
+            showscale: true,
+            cmin: minResult,
+            cmax: maxResult
+        },
+        dimensions: dimensions
+    };
 
-	// Render the plot with Plotly
-	if ($("#parallel_plot_container").length) {
-		Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel);
-	} else {
-		error("Cannot find #parallel_plot_container");
-	}
+    // Layout for the parallel plot
+    var layoutParallel = {
+        title: 'Parallel Coordinates Plot',
+        width: get_width(),
+        height: get_height(),
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        showlegend: false
+    };
 
-	$('#parallel_plot_container').data("md5", data_md5);
+    // Create a new div for the plot
+    var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+    $('#parallel_plot_container').html(new_plot_div);
+
+    if (!$("#parallel_plot").length) {
+        add_tab("parallel_plot", "Parallel Plot", "<div id='parallel_plot_container'><div id='parallel-plot'></div></div>");
+    }
+
+    // Debugging: Console logs for verification
+    console.log("Dimensions:", dimensions);
+    console.log("TraceParallel:", traceParallel);
+    console.log("LayoutParallel:", layoutParallel);
+
+    // Render the plot with Plotly
+    if ($("#parallel_plot_container").length) {
+        Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel).then(function() {
+            console.log("Plot erfolgreich erstellt.");
+        }).catch(function(err) {
+            console.error("Fehler beim Erstellen des Plots:", err);
+        });
+    } else {
+        error("Cannot find #parallel_plot_container");
+    }
+
+    $('#parallel_plot_container').data("md5", data_md5);
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {

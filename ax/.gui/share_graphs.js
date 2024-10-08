@@ -371,6 +371,12 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	//debug_function("scatter()");
 	var already_existing_plots = [];
+	var data_md5 = md5(JSON.stringify(_results_csv_json));
+
+	if($('#scatter_plot_2d_container').data("md5") == data_md5) {
+		return;
+	}
+
 	$('#scatter_plot_2d_container').html("");
 
 	// Function to map string values to unique negative numbers starting just below the minimum numeric value
@@ -557,6 +563,8 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			}
 		}
 	}
+
+	$('#scatter_plot_2d_container').data("md5", data_md5);
 }
 
 async function plot_parallel_plot () {

@@ -482,7 +482,7 @@ function add_tab(tab_id, tab_name, tab_html_content) {
 	}
 
 	if ($(container_id + " #" + tab_id + "-content").length > 0) {
-		warn(`#${tab_id} already exists.`);
+		//warn(`#${tab_id} already exists.`);
 		return;
 	}
 

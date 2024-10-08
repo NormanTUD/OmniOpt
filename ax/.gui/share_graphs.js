@@ -250,10 +250,25 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						mode: 'markers',
 						type: 'scatter3d',
 						marker: {
-							color: colors
+							size: 5, // Set marker size
+							color: resultValues, // Use resultValues for color mapping
+							colorscale: [
+								[0, 'rgb(0, 255, 0)'],  // Green at the lowest value (0)
+								[0.5, 'rgb(255, 255, 0)'],  // Yellow in the middle (0.5)
+								[1, 'rgb(255, 0, 0)']  // Red at the highest value (1)
+							], // Custom color scale (green -> yellow -> red)
+							cmin: minResult, // Minimum result value
+							cmax: maxResult, // Maximum result value
+							colorbar: {
+								title: 'Result Value', // Title of the colorbar
+								tickvals: [minResult, maxResult], // Show only min and max ticks
+								ticktext: [`Min (${minResult})`, `Max (${maxResult})`], // Label for min and max
+								len: 0.8 // Length of the colorbar
+							}
 						},
 						text: hoverText, // Show the original values in hover info
-						hoverinfo: 'text'
+						hoverinfo: 'text',
+						showlegend: false // No need for a legend here
 					};
 
 					// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)

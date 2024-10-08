@@ -584,7 +584,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 						}
 					});
 					// Reduce tick count if too many numeric values
-					return reduceNumericTicks(tickvals, ticktext, 10); // Max 10 ticks for numeric values
+					return reduceNumericTicks(tickvals, ticktext, 1000);
 				}
 
 				return { tickvals, ticktext };

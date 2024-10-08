@@ -46,6 +46,16 @@ function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
 
+function every_array_element_is_a_number (arr) {
+		for (var i = 0; i < arr.length; i++) {
+			if (isNaN(arr[i]) || typeof(arr[i]) != "number") {
+				return false;
+			}
+		}
+		
+		return true;
+}
+
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
     var data_md5 = md5(JSON.stringify(_results_csv_json));
 
@@ -81,12 +91,10 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
             return cleanValue(row[idx]);
         });
 
-        // Handle string mapping for the 'choice_param' and similar fields
-        if (key === 'choice_param') {
-            // Ensure both 'hallo' and '16' are treated as strings
-            var stringMapping = mapStrings(values);
+		var stringMapping = mapStrings(values);
 
-            // Map all values (strings) to their corresponding indices
+        if (!every_array_element_is_a_number(values)) {
+			// Map all values (strings) to their corresponding indices
             var valueIndices = values.map(function(value) {
                 return stringMapping[cleanValue(value)];
             });
@@ -114,7 +122,6 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
         }
 
         // Otherwise, map non-numeric values as strings
-        var stringMapping = mapStrings(values);
         var valueIndices = values.map(function(value) {
             var parsedValue = parseFloat(value);
             if (!isNaN(parsedValue)) {
@@ -175,9 +182,9 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
     }
 
     // Debugging: Console logs for verification
-    console.log("Dimensions:", dimensions);
-    console.log("TraceParallel:", traceParallel);
-    console.log("LayoutParallel:", layoutParallel);
+    //console.log("Dimensions:", dimensions);
+    //console.log("TraceParallel:", traceParallel);
+    //console.log("LayoutParallel:", layoutParallel);
 
     // Render the plot with Plotly
     if ($("#parallel_plot_container").length) {
@@ -686,6 +693,10 @@ async function load_results () {
 	add_tab("results", "Results", "<div id='results_csv'></div>");
 
 	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
+}
+
+function isFullyNumeric(values) {
+	return values.every(value => !isNaN(parseFloat(value)) && isFinite(value));
 }
 
 async function plot_all_possible () {

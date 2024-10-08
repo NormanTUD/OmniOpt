@@ -141,6 +141,7 @@ binaryCrossentropy
 bla
 BLA
 blockHeight
+blockSize
 blocksPerRow
 blockWidth
 blurEvent
@@ -209,7 +210,9 @@ catN
 cc
 cd
 cdata
+cfg
 ch
+Chainable
 changefunctionevent
 changeMonth
 changeYear
@@ -276,6 +279,8 @@ colspanTd
 columnRuleColor
 combobox
 commandline
+CommonJS
+Concat
 concatted
 config
 connectToSortable
@@ -310,6 +315,7 @@ countParametersByFunctionName
 cpos
 cProps
 cpu
+cpuChart
 cpuRamChart
 cpuRamChartContainer
 cpuRamChartRawData
@@ -317,6 +323,7 @@ cpus
 createBreadcrumb
 createImageBitmap
 crossorigin
+CryptoJS
 csize
 css
 cssHook
@@ -455,6 +462,7 @@ Documentevaluate
 documentready
 doesn
 doesnt
+doFlush
 DOM
 DOMContentLoaded
 dont
@@ -717,6 +725,7 @@ Handdrawn
 hardRefresh
 hardSigmoid
 hasDatepicker
+hasher
 hasTabindex
 hasWebGL
 havent
@@ -728,9 +737,12 @@ helperIsFunction
 heNormal
 heUniform
 hexscatter
+hexStr
+hexString
 hideIfNoPrevNext
 HIDEMAXVALUESINPLOT
 Hitchcock
+HMAC
 HMS
 HMSf
 hname
@@ -996,6 +1008,7 @@ memorytotal
 memoryused
 menuitem
 mergeMode
+messageUpdate
 meta
 methodValue
 metrices
@@ -1067,10 +1080,12 @@ myKeyboard
 mymodel
 myOffset
 mysqli
+MyType
 nameEQ
 NameError
 navbarSelected
 navigationAsDateFormat
+nBytes
 ne
 nearBottom
 nearestNeighbor
@@ -1285,6 +1300,7 @@ pointwiseConstraint
 pointwiseInitializer
 pointwiseRegularizer
 poisson
+polyfil
 poolSize
 popstate
 popup
@@ -1321,6 +1337,7 @@ printf
 printfrunning
 PrismJS
 PRNG
+processedData
 profilekernelsmapk
 profilenewBytes
 profilenewTensors
@@ -1328,6 +1345,7 @@ progressbar
 Progressbar
 Projectdir
 PROJECTDIR
+propertyName
 protobuf
 ProxiedPrototype
 pstate
@@ -1351,6 +1369,7 @@ queueLength
 queueMicrotask
 quickfix
 quot
+ramChart
 Randomizer
 randomNormal
 randomUniform
@@ -1572,6 +1591,7 @@ shutil
 sigabrt
 sigalrm
 sigbus
+sigBytes
 SIGCHLD
 SIGCONT
 sigfpe
@@ -1696,6 +1716,7 @@ subscriptable
 substring
 sudo
 Sunday
+supertype
 suppressDisabledCheck
 suppressInput
 suppressKeyPress
@@ -1937,6 +1958,8 @@ windowonresize
 withinOffset
 Wk
 wname
+wordArray
+WordArray
 workaround
 workdir
 wouldn
@@ -1980,5 +2003,4 @@ zIndices
 zipContents
 zipWriter
 zsh
-ramChart
-cpuChart
+endian

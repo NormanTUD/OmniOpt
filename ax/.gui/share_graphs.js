@@ -158,6 +158,12 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	//debug_function("scatter_3d()");
 	var already_existing_plots = [];
+	var data_md5 = md5(JSON.stringify(_results_csv_json));
+
+	if($('#scatter_plot_3d_container').data("md5") == data_md5) {
+		return;
+	}
+
 	$('#scatter_plot_3d_container').html("");
 
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
@@ -358,6 +364,8 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 			}
 		}
 	}
+
+	$('#scatter_plot_3d_container').data("md5", data_md5);
 }
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {

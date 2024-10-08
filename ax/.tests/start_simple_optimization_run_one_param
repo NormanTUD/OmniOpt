@@ -201,7 +201,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 		--help*)
-			help 1
+			help 0
 			;;
 		--debug)
 			debug=1

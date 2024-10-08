@@ -37,9 +37,9 @@ cd $SCRIPT_DIR
 
 cd ..
 
-set_debug
+#set_debug
 
-for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v "^omniopt$" | grep -v plot_documentation_has_all_plot_types | grep -v all_shellscripts_with_help_have_help_page); do
+for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v "^omniopt$" | grep -v plot_documentation_has_all_plot_types | grep -v help_page); do
 	if echo "$(file $i)" | grep "Bourne" 2>/dev/null >/dev/null; then
 		if cat $i | grep -- "--help" 2>/dev/null >/dev/null; then
 			error=0

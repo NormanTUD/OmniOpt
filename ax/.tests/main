@@ -213,7 +213,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 		--help*)
-			help 1
+			help 0
 			;;
 		--exit_on_first_error)
 			exit_on_first_error=1

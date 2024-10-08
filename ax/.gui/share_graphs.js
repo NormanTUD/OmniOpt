@@ -990,7 +990,6 @@ async function plot_cpu_ram_graph() {
     $("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
 }
 
-
 function replaceZeroWithNull(arr) {
 	if (Array.isArray(arr)) {
 		for (let i = 0; i < arr.length; i++) {

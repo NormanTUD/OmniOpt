@@ -805,7 +805,7 @@ async function plot_planned_vs_real_worker_over_time () {
 	}
 
 	if(!Object.keys(data).includes("data")) {
-		warn(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
+		//warn(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data: no data found`);
 		return;
 	}
 

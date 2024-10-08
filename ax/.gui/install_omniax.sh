@@ -1,5 +1,29 @@
 #!/bin/bash
 
+{
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
+function echoerr() {
+	echo "$@" 1>&2
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
 START_COMMAND_BASE64=$1
 
 export reservation=""
@@ -9,13 +33,13 @@ for i in $@; do
 			reservation="${i#*=}"
 			;;
 		--debug)
-			set -x
+			set_debug
 			;;
 	esac
 done
 
 if [[ -z $START_COMMAND_BASE64 ]]; then
-	echo "Missing argument for start-command (must be in base64)"
+	red_text "Missing argument for start-command (must be in base64)"
 	exit 1
 fi
 
@@ -23,7 +47,7 @@ set -o pipefail
 set -u
 
 function calltracer () {
-        echo 'Last file/last line:'
+        yellow_text 'Last file/last line:'
         caller
 }
 trap 'calltracer' ERR
@@ -119,3 +143,4 @@ if [[ $? -eq 0 ]]; then
 else
 	echo_red "Error: $START_COMMAND_BASE64 was not valid base64 code"
 fi
+}

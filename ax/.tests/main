@@ -1,6 +1,21 @@
 #!/bin/bash
 
 {
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
@@ -85,7 +100,7 @@ function help () {
         echo "  --run_with_coverage                                Allows to use coverage instead of python3 for coverage testing unit test coverage"
         echo "  --quick                                            Only run quick tests"
         echo "  --reallyquick                                      Only run really quick tests"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 
@@ -264,7 +279,7 @@ if [[ "$max_eval" -lt "1" ]]; then
 fi
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"
@@ -602,7 +617,6 @@ if [[ $superquick -eq 0 ]]; then
 
 	fi
 fi
-
 
 #if [ ${#errors[@]} -eq 0 ]; then
 #	green_text "No errors"

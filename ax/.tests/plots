@@ -1,5 +1,20 @@
 #!/bin/bash
 {
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export PRINT_SEPERATOR=""
 export NO_RUNTIME=1
 export NO_NO_RESULT_ERROR=1
@@ -70,7 +85,6 @@ generate_progress_bar() {
 	echo "[${bar}] ($current_progress/$total_progress)"
 }
 
-
 help=0
 
 args=("$@")
@@ -103,7 +117,7 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 		--debug)
-			set -x
+			set_debug
 			shift
 			;;
 	esac
@@ -148,7 +162,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
 cd ..
-
 
 expected_plot_types=()
 
@@ -217,7 +230,6 @@ for projectname in "${test_projects[@]}"; do
 					if [[ $quick -eq 0 ]]; then
 						has_min=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--min" | wc -l)
 						has_max=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--max" | wc -l)
-
 
 						if [[ $has_min -gt 0 ]] && [[ $has_max -gt 0 ]]; then
 							_commands+=("$_command --min=-99999999999999999999999999999999999999999999999999999999999 --max=99999999999999999999999999999999999999999999999999999999999")
@@ -350,7 +362,6 @@ done
 PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
 
 green_reset_line "$PROGRESSBAR $i tests ran, ${#errors[@]} failed\n"
-
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

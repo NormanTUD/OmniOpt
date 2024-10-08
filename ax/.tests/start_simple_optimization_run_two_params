@@ -1,5 +1,20 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 
 int_re='^[+-]?[0-9]+$'
@@ -18,7 +33,6 @@ function red_text {
 function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
-
 
 function calltracer () {
 	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
@@ -40,7 +54,7 @@ function help () {
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
         echo "  --help                                             this help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 
@@ -225,13 +239,11 @@ if [[ "$max_eval" -lt "1" ]]; then
 fi
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
-
 
 PARTITION="alpha"
 TESTNAME=__main__tests__two_params
-
 
 if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"

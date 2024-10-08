@@ -27,7 +27,7 @@ try:
     parser.add_argument('--conv_filters', type=int, help='Number of conv filters per', default=4)
     parser.add_argument('--dense', type=int, help='Number of dense layers', default=2)
     parser.add_argument('--dense_units', type=int, help='Number of dense units per layer', default=32)
-    parser.add_argument('--debug', action='store_true', help='Enables debug mode (set -x)')
+    parser.add_argument('--debug', action='store_true', help='Enables debug mode')
 
     args = parser.parse_args()
 

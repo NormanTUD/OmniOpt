@@ -1,5 +1,6 @@
 #!/bin/bash
 
+{
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
@@ -13,6 +14,18 @@ function set_debug {
 
 function unset_debug {
 	trap - DEBUG
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
 }
 
 RUN_VIA_RUNSH=1
@@ -139,7 +152,6 @@ function ask_min_max {
 		fi
 	fi
 
-
 	if [ -n "$max" ]; then
 		# Check if $max is a number (integer or float, positive or negative)
 		if [[ ! "$max" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
@@ -162,7 +174,6 @@ function ask_min_max {
 	fi
 }
 
-
 function displaytime {
 	local T=$1
 	local D=$((T/60/60/24))
@@ -184,14 +195,6 @@ whiptail_args=()
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tac); do
 	expected_plot_types+=("$possible_plot_type")
 done
-
-function echoerr() {
-	echo "$@" 1>&2
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
 
 set -e
 set -o pipefail
@@ -328,7 +331,6 @@ while [ $k -lt ${#args[@]} ]; do
 			else
 				plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
 			fi
-
 
 			;;
 	esac
@@ -517,7 +519,6 @@ fi
 
 cd "$ORIGINAL_PWD"
 
-
 if [[ "$plot_type" != "menu" ]]; then
 	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
 		joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
@@ -565,3 +566,4 @@ if [[ -z $NO_RUNTIME ]]; then
 fi
 
 exit $exit_code
+}

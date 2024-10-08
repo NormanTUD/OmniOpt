@@ -1,5 +1,20 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 EXPECTED_TO_FAIL=0
 
@@ -41,7 +56,7 @@ function help () {
         echo "  --nosuccess                                        Don't run successful tests"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
         echo "  --help                                             This help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 
@@ -97,7 +112,7 @@ for i in $@; do
 			help 0
 			;;
 		--debug)
-			set -x
+			set_debug
 			;;
 		--gpus=*)
 			NUM_GPUS="${i#*=}"

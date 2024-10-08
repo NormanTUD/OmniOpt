@@ -8,6 +8,21 @@ function red_text {
         echoerr -e "\e[31m$1\e[0m"
 }
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 set -e
 set -o pipefail
 
@@ -24,7 +39,7 @@ function help () {
         echo "  --param_three=(FLOAT)                              Any float"
         echo "  --param_four=(FLOAT)                               Must be 1, 2, 4, 8, 16 or hallo"
         echo "  --help                                             This help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 export param=
@@ -53,7 +68,7 @@ for i in $@; do
                         help 0
                         ;;
                 --debug)
-                        set -x
+			set_debug
                         ;;
                 *)
                         red_text "Unknown parameter $i" >&2
@@ -109,7 +124,6 @@ sub shekel {
 
         return $outer_sum;
 }
-
 
 print qq#RESULT: #.shekel(@ARGV).qq#\n#;
 ' -- $param $param_two $param_three $param_four

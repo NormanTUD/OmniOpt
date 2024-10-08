@@ -19,11 +19,11 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
-        echo "  --param=(FLOAT)"
-        echo "  --param_two=(FLOAT)"
-        echo "  --param_three=(FLOAT)"
-        echo "  --param_four=(FLOAT)                            Must be 1, 2, 4, 8, 16 or hallo"
-        echo "  --help                                             this help"
+        echo "  --param=(FLOAT)                                    Any float"
+        echo "  --param_two=(FLOAT)                                Any float"
+        echo "  --param_three=(FLOAT)                              Any float"
+        echo "  --param_four=(FLOAT)                               Must be 1, 2, 4, 8, 16 or hallo"
+        echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }

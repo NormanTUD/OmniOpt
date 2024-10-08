@@ -43,7 +43,7 @@ function help () {
 	echo "  --time=(INT)                                       Time each subjob should run"
 	echo "  --allow_failure                                    Adds a param to randomly fail"
 	echo "  --force_local_execution                            Execute locally even when slurm is installed"
-	echo "  --help                                             this help"
+	echo "  --help                                             This help"
 	echo "  --debug                                            Enables debug mode (set -x)"
 	exit $1
 }

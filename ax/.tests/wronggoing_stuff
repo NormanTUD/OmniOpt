@@ -40,7 +40,7 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
         echo "  --nosuccess                                        Don't run successful tests"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
-        echo "  --help                                             this help"
+        echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }

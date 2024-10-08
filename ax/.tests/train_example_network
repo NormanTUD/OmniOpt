@@ -57,7 +57,7 @@ export num_random_steps=$num_parallel_jobs
 function help () {
         echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
         echo "Possible options:"
-        echo "  --help                                             this help"
+        echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode (set -x)"
 	echo "  --num_parallel_jobs=n                              Number of parallel jobs (default: $num_parallel_jobs)"
 	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout (default: $worker_timeout)"

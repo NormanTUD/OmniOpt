@@ -40,7 +40,7 @@ function help () {
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
-        echo "  --help                                             this help"
+        echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode (set -x)"
         exit $1
 }

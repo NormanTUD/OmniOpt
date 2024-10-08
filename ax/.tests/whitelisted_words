@@ -403,6 +403,7 @@ decille
 def
 defaultDate
 defaultMode
+defaultuser
 Deffered
 delaybetween
 delayedShow
@@ -755,6 +756,7 @@ hyperparameters
 iconPosition
 iconSpace
 idname
+IDONTEXIST
 idx
 ie
 ifevttargeterror
@@ -1650,6 +1652,7 @@ startDate
 startPosition
 startValue
 stat
+stateFINISHED
 stateful
 statusBar
 statusLogs

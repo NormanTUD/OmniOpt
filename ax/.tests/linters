@@ -20,8 +20,8 @@ function _help {
 	exit_code=$?
 
 	echo ".tests/linters"
-	echo "--quick                                  Disable slow tests"
-	echo "--help                                   This help"
+	echo "--quick                                              Disable slow tests"
+	echo "--help                                               This help"
 
 	exit $exit_code
 }

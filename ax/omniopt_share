@@ -1,5 +1,21 @@
 #!/bin/bash
 
+{
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 no_color=0
 DEBUG=0
 update=0
@@ -55,7 +71,7 @@ function help {
 for arg in "$@"; do
         if [ "$arg" == "--debug" ]; then
                 DEBUG=1
-                set -x
+		set_debug
         elif [ "$arg" == "--help" ]; then
                 help 0
         elif [ "$arg" == "--update" ]; then
@@ -214,3 +230,4 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 	fi
 	k=$(($k+1))
 done
+}

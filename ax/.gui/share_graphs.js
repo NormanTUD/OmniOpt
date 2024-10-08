@@ -181,11 +181,6 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		add_tab("parallel_plot", "Parallel Plot", "<div id='parallel_plot_container'><div id='parallel-plot'></div></div>");
 	}
 
-	// Debugging: Console logs for verification
-	//console.log("Dimensions:", dimensions);
-	//console.log("TraceParallel:", traceParallel);
-	//console.log("LayoutParallel:", layoutParallel);
-
 	// Render the plot with Plotly
 	if ($("#parallel_plot_container").length) {
 		Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel).then(function() {

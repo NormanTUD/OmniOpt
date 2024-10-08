@@ -49,6 +49,13 @@ function getUniqueValues(arr) {
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	//debug_function("parallel_plot()");
 	// Function to map string values to unique indices
+
+	var data_md5 = md5(JSON.stringify(_results_csv_json));
+
+	if($('#parallel_plot_container').data("md5") == data_md5) {
+		return;
+	}
+
 	function mapStrings(values) {
 		var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
 		uniqueStrings.sort(); // Alphabetically sort the strings
@@ -153,6 +160,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 	} else {
 		error("Cannot find #parallel_plot_container");
 	}
+
+	$('#parallel_plot_container').data("md5", data_md5);
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {

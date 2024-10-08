@@ -779,7 +779,7 @@ async function load_job_infos () {
 	}
 
 	add_tab("job_infos", "Job-Infos", "<div id='job_infos_csv'></div>");
-	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>`);
+	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
 }
 
 async function load_best_result () {

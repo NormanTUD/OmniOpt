@@ -20,6 +20,8 @@ if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
         <script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
         <script src="<?php print $dir_path; ?>/darkmode.js"></script>
         <script src="<?php print $dir_path; ?>/jquery.dataTables.min.js"></script>
+        <script src="<?php print $dir_path; ?>/crypto-core.js"></script>
+        <script src="<?php print $dir_path; ?>/md5.js"></script>
         <script src="<?php print $dir_path; ?>/main.js"></script>
         <script src="<?php print $dir_path; ?>/search.js"></script>
         <script src="<?php print $dir_path; ?>/initialization.js"></script>

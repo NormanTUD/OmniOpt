@@ -526,3 +526,7 @@ function open_first_tab_when_none_is_open() {
 		$("#main_tabbed").tabs("option", "active", 0);
 	}
 }
+
+function md5 (str) {
+	return CryptoJS.MD5(str).toString();
+}

@@ -48,6 +48,8 @@ for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v "^omniopt$
 			yellow_text "bash $bashscript_that_has_help --help"
 			output=$(bash $bashscript_that_has_help --help)
 
+			echo $output
+
 			exit_code=$?
 
 			if [[ -z $output ]]; then

@@ -710,7 +710,9 @@ async function load_parameter () {
 		return;
 	}
 
-	$(".parameters_txt").html(`<pre>${data.raw}</pre>`);
+	if (data.raw != "null" && data.raw !== null) {
+		$(".parameters_txt").html(`<pre>${data.raw}</pre>`);
+	}
 }
 
 async function load_out_files () {
@@ -810,7 +812,9 @@ async function load_best_result () {
 		return;
 	}
 
-	$(".best_result_txt").html(`<pre>${data.raw}</pre>`);
+	if (data.raw != "null" && data.raw !== null) {
+		$(".best_result_txt").html(`<pre>${data.raw}</pre>`);
+	}
 }
 
 async function plot_planned_vs_real_worker_over_time () {

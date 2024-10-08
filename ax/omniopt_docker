@@ -142,7 +142,7 @@ fi
 _mkdir $HOME/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
-	omniopt*|./.tests/*)
+	./omniopt*|omniopt*|./.tests/*|.tests/*)
 		if [[ -z $DISPLAY ]]; then
 			docker run \
 				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
@@ -171,7 +171,7 @@ case "$ORIGINAL_ARGS" in
 		fi
 		;;
 	*)
-		echo "Error: The argument does not start with one of the valid prefixes, i.e. 'omniopt*' or './.tests/*'. Argument was: $ORIGINAL_ARGS"
+		echo "Error: The argument does not start with one of the valid prefixes, i.e. 'omniopt*', '.tests/' or './.tests/*'. Argument was: $ORIGINAL_ARGS"
 		exit 1
 		;;
 esac

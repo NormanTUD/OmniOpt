@@ -56,33 +56,13 @@ function apt_get_update () {
 
 # Check if Docker is installed
 if ! command -v docker &>/dev/null; then
-	if command -v apt >/dev/null; then
-		if [[ ! -e /etc/apt/sources.list ]]; then
-			echo "/etc/apt/sources.list not found. Cannot continue. You must install docker manually."
-			exit 1
-		fi
-		echo "Docker not found. Installing Docker..."
-		if [[ -e /etc/apt/sources.list ]]; then
-			echo "Enabling non-free repository..."
-			sudo sed -i 's/main$/main contrib non-free/g' /etc/apt/sources.list || {
-				echo "Could not edit /etc/apt/sources.list. Exiting."
-				exit 10
-			}
-			echo "Enabled! non-free repository."
-		fi
+	curl -fsSL "https://get.docker.com" | bash
 
-		UPDATED_PACKAGES=0
-		apt_get_update
+	exit_code=$?
 
-
-		# Install Docker
-		sudo apt install -y docker.io || {
-			echo "sudo apt install -y docker.io failed. Try adding the repository for docker manually."
-			exit 3
-		}
-	else
-		echo "Can only auto-install docker on debian systems. You need to install docker yourself on your distro."
-		exit 11
+	if [[ $exit_code -ne 0 ]]; then
+		echo "Failed to install docker"
+		exit 2
 	fi
 fi
 

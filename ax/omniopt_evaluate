@@ -55,7 +55,6 @@ This helps graphically to use OmniOpt.
 
 --nogauge                                                   Disables the gauges
 
--h                                                          This help
 --help
 
 --d                                                         Enable set -x debugging
@@ -88,7 +87,7 @@ for i in "$@"; do
             UPGRADE=0
             ;;
 
-        -h|--help)
+        --help)
             this_help
             exit 0
             ;;

@@ -45,6 +45,7 @@ function isNumeric(value) {
 function getUniqueValues(arr) {
 	return [...new Set(arr)];
 }
+
 function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	//debug_function("parallel_plot()");
 	// Function to map string values to unique indices

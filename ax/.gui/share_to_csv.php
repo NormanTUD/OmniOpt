@@ -77,18 +77,49 @@
 		exit(1);
 	}
 
+	function removeDuplicateCsvRows($csvString) {
+		$rows = explode("\n", $csvString);
+		$uniqueRows = array();
+		$header = null;
+
+		foreach ($rows as $row) {
+			$row = trim($row);
+			if (empty($row)) {
+				continue;
+			}
+
+			$rowArray = str_getcsv($row);
+
+			if ($header === null) {
+				$header = $rowArray;
+				$uniqueRows[] = implode(',', $header);
+			} else {
+				$rowString = implode(',', $rowArray);
+				if (!in_array($rowString, $uniqueRows)) {
+					$uniqueRows[] = $rowString;
+				}
+			}
+		}
+
+		return implode("\n", $uniqueRows);
+	}
+
 	if(preg_match("/\.csv$/", $share_file)) {
+		$raw_file = json_decode(loadCsvToJson($share_file));
+
 		echo json_encode(
 			array(
-				"data" => json_decode(loadCsvToJson($share_file)),
-				"raw" => remove_ansi_colors(file_get_contents($share_file)),
+				"data" => $raw_file,
+				"raw" => removeDuplicateCsvRows(remove_ansi_colors(file_get_contents($share_file))),
 				"hash" => hash("md5", file_get_contents($share_file))
 			)
 		);
 	} else {
+		$raw_file = remove_ansi_colors(file_get_contents($share_file));
+
 		echo json_encode(
 			array(
-				"raw" => remove_ansi_colors(file_get_contents($share_file)),
+				"raw" => $raw,
 				"hash" => hash("md5", file_get_contents($share_file))
 			)
 		);

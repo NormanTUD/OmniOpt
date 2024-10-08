@@ -104,8 +104,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 				range: [0, uniqueValues.length - 1],
 				label: key,
 				values: valueIndices,
-				tickvals: Object.values(stringMapping),
-				ticktext: uniqueValues
+				tickvals: Object.values(stringMapping).slice(0, 20), // Limit ticks to 20
+				ticktext: uniqueValues.slice(0, 20) // Limit ticks to 20
 			};
 		}
 
@@ -117,7 +117,9 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 			return {
 				range: [Math.min(...numericValues), Math.max(...numericValues)],
 				label: key,
-				values: numericValues
+				values: numericValues,
+				tickvals: createTicks(numericValues, 20), // Create ticks
+				ticktext: createTickText(createTicks(numericValues, 20)) // Create tick labels
 			};
 		}
 
@@ -135,8 +137,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 			range: [0, Object.keys(stringMapping).length - 1],
 			label: key,
 			values: valueIndices,
-			tickvals: Object.values(stringMapping),
-			ticktext: Object.keys(stringMapping)
+			tickvals: Object.values(stringMapping).slice(0, 20), // Limit ticks to 20
+			ticktext: Object.keys(stringMapping).slice(0, 20) // Limit ticks to 20
 		};
 	});
 
@@ -146,8 +148,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		label: 'result',
 		values: resultValues,
 		colorscale: 'Jet',
-		tickvals: resultValues,
-		ticktext: resultValues.map(v => v.toLocaleString()) // Format large numbers
+		tickvals: createTicks(resultValues, 20), // Create ticks for results
+		ticktext: createTickText(createTicks(resultValues, 20)) // Create tick labels for results
 	});
 
 	// Parallel coordinates trace
@@ -192,6 +194,21 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 	}
 
 	$('#parallel_plot_container').data("md5", data_md5);
+}
+
+// Function to create tick values dynamically
+function createTicks(values, maxTicks) {
+	let ticks = [];
+	let step = Math.ceil(values.length / maxTicks);
+	for (let i = 0; i < values.length; i += step) {
+		ticks.push(values[i]);
+	}
+	return ticks;
+}
+
+// Function to create tick text
+function createTickText(ticks) {
+	return ticks.map(v => v.toLocaleString()); // Format large numbers
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
@@ -626,7 +643,6 @@ async function plot_parallel_plot () {
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
 
 	replaceZeroWithNull(_results_csv_json.data);
-
 
 	var header_line = _results_csv_json.data.shift();
 

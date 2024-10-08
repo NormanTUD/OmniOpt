@@ -811,10 +811,12 @@ async function load_out_files () {
 		return;
 	}
 
-	add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
-	$("#out_files_content").html(data.raw);
+	if(data.raw) {
+		add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
+		$("#out_files_content").html(data.raw);
 
-	$("#out_files_tabs").tabs();
+		$("#out_files_tabs").tabs();
+	}
 }
 
 async function load_evaluation_errors_and_oo_errors () {

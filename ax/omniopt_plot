@@ -330,7 +330,7 @@ if [[ "$help" -eq 1 ]]; then
 		echo "omniopt_plot: Plot omniopt runs"
 		echo "Basic usage: bash omniopt_plot --run_dir=runs/testrun/0 --plot_type=scatter"
 		echo "Possible options for plot_type:"
-		echo "- $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tr '\n' ',' | sed -e 's#,$##' -e 's#,#\n- #g')"
+		echo "  - $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tr '\n' ',' | sed -e 's#,$##' -e 's#,#\n  - #g')"
 		echo "For specific options, use bash omniopt_plot --plot_type=scatter --help"
 	fi
 

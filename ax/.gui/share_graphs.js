@@ -1253,7 +1253,7 @@ function delete_old_files () {
 				var jsonResponse = JSON.parse(xhr.responseText);
 
 				jsonResponse.forEach(function(entry) {
-					log(entry);
+					console.log("Deleted entry");
 				});
 
 			} catch (e) {

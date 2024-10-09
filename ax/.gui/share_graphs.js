@@ -104,8 +104,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 				range: [0, uniqueValues.length - 1],
 				label: key,
 				values: valueIndices,
-				tickvals: Object.values(stringMapping).slice(0, 20), // Limit ticks to 20
-				ticktext: uniqueValues.slice(0, 20) // Limit ticks to 20
+				tickvals: Object.values(stringMapping).slice(0, 1000), // Limit ticks to 1000
+				ticktext: uniqueValues.slice(0, 1000) // Limit ticks to 1000
 			};
 		}
 
@@ -118,8 +118,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 				range: [Math.min(...numericValues), Math.max(...numericValues)],
 				label: key,
 				values: numericValues,
-				tickvals: createTicks(numericValues, 20), // Create ticks
-				ticktext: createTickText(createTicks(numericValues, 20)) // Create tick labels
+				tickvals: createTicks(numericValues, 1000), // Create ticks
+				ticktext: createTickText(createTicks(numericValues, 1000)) // Create tick labels
 			};
 		}
 
@@ -137,8 +137,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 			range: [0, Object.keys(stringMapping).length - 1],
 			label: key,
 			values: valueIndices,
-			tickvals: Object.values(stringMapping).slice(0, 20), // Limit ticks to 20
-			ticktext: Object.keys(stringMapping).slice(0, 20) // Limit ticks to 20
+			tickvals: Object.values(stringMapping).slice(0, 1000), // Limit ticks to 1000
+			ticktext: Object.keys(stringMapping).slice(0, 1000) // Limit ticks to 1000
 		};
 	});
 
@@ -148,8 +148,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		label: 'result',
 		values: resultValues,
 		colorscale: 'Jet',
-		tickvals: createTicks(resultValues, 20), // Create ticks for results
-		ticktext: createTickText(createTicks(resultValues, 20)) // Create tick labels for results
+		tickvals: createTicks(resultValues, 1000), // Create ticks for results
+		ticktext: createTickText(createTicks(resultValues, 1000)) // Create tick labels for results
 	});
 
 	// Parallel coordinates trace

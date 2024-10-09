@@ -119,7 +119,7 @@
 
 		echo json_encode(
 			array(
-				"raw" => $raw,
+				"raw" => $raw_file,
 				"hash" => hash("md5", file_get_contents($share_file))
 			)
 		);

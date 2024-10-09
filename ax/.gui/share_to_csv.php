@@ -73,7 +73,7 @@
 
 	$share_file = "$share_dir/" . $vars["filename"];
 	if(!file_exists($share_file)) {
-		print json_encode(["error" => "E: $share_dir is not a file"]);
+		print json_encode(["error" => "E: $share_file is not a file"]);
 		exit(1);
 	}
 

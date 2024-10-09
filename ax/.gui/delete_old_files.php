@@ -1,5 +1,22 @@
 <?php
-	header('Content-Type: application/json');
+	function rrmdir($dir) {
+		if (is_dir($dir)) {
+			$objects = scandir($dir);
+
+			foreach ($objects as $object) {
+				if ($object != '.' && $object != '..') {
+					if (filetype($dir.'/'.$object) == 'dir') {
+						rrmdir($dir.'/'.$object);
+					} else {
+						unlink($dir.'/'.$object);
+					}
+				}
+			}
+
+			reset($objects);
+			rmdir($dir);
+		}
+	}
 
 	function checkOldDirectories($dir) {
 		$oldDirectories = [];
@@ -15,7 +32,7 @@
 
 			if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
 				$oldDirectories[] = $subdir;
-				rmdir($subdir);
+				rrmdir($subdir);
 			}
 		}
 
@@ -25,6 +42,7 @@
 	$directoryToCheck = 'shares';
 	$oldDirs = checkOldDirectories($directoryToCheck);
 
+	header('Content-Type: application/json');
 	echo json_encode($oldDirs, JSON_PRETTY_PRINT);
 	echo "\n";
 ?>

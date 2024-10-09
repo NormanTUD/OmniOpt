@@ -28,7 +28,7 @@ h2 {
 }
 
 body {
-	font-family: Verdana, sans-serif;
+	font-family:  Verdana, sans-serif;
 }
 
 .dark_code_bg {
@@ -349,4 +349,8 @@ a, a:visited, a:active, a:hover, a:link {
 .error_line {
 	background-color: red !important;
 	color: white !important;
+}
+
+.best_result_txt, .parameters_txt {
+	text-align: center;
 }

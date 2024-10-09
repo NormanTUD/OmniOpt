@@ -18,10 +18,10 @@ function unset_debug {
 	trap - DEBUG
 }
 
-RUN_UUID=
+export RUN_UUID=
 bash_logname=
 if command -v uuidgen 2>/dev/null >/dev/null; then
-	RUN_UUID=$(uuidgen)
+	export RUN_UUID=$(uuidgen)
 
 	mkdir -p .logs
 

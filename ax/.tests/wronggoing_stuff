@@ -183,7 +183,7 @@ cd ..
 EXPECTED_TO_FAIL=1
 ./omniopt \
 	--max_nr_of_zero_results 3 \
-	--send_anonymized_usage_stats \
+	--live_share --send_anonymized_usage_stats \
 	--partition=$PARTITION \
 	--gpus=$NUM_GPUS \
 	--experiment_name=test_wronggoing_stuff \

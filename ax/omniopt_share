@@ -160,7 +160,7 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 
 		if [[ -n $outfile ]]; then
 			if [[ -e "$outfile" ]]; then
-				curl_options+=("-F" "outfile.txt=@$outfile")
+				curl_options+=("-F" "outfile.out=@$outfile")
 			fi
 		fi
 
@@ -194,20 +194,21 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 
 		url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
 
-		if [[ "$update" -eq "1" ]]; then
-			run_uuid_path="$RUN_DIR/state_files/run_uuid"
-			url="$url&update=1";
+		run_uuid_path="$RUN_DIR/state_files/run_uuid"
+		url="$url&update=1";
 
-			if [[ -e $run_uuid_path ]]; then
-				run_uuid=$(cat "$run_uuid_path")
-				url="$url&update_uuid=$run_uuid"
+		if [[ -e $run_uuid_path ]]; then
+			run_uuid=$(cat "$run_uuid_path")
+			url="$url&update_uuid=$run_uuid"
 
-				curl_options+=("-F" "run_uuid=@$run_uuid_path")
-			else
-				red_text "Cannot find file $RUN_DIR/state_files/run_uuid: Cannot update.\n"
-				exit 1
+			curl_options+=("-F" "run_uuid=@$run_uuid_path")
+
+			if [[ -e ".logs/$run_uuid" ]]; then
+				curl_options+=("-F" "outfile.out=@.logs/$run_uuid")
+				exit 0
 			fi
 		fi
+
 
 		if [[ $DEBUG -eq 1 ]]; then
 			echo "DEBUG: curl -s ${curl_options[@]} $url"

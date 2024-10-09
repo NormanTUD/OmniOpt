@@ -45,8 +45,8 @@
 
 	$share_on_list_publically = $_GET['share_on_list_publically'] ?? null;
 
-	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url", "cpu_ram_usage", "get_next_trials", "run_uuid", "outfile", "oo_errors", "evaluation_errors"];
-	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt", "cpu_ram_usage.csv", "get_next_trials.csv", "run_uuid", "outfile.txt", "oo_errors.txt", "evaluation_errors.log"];
+	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url", "cpu_ram_usage", "get_next_trials", "run_uuid", "outfile", "oo_errors", "evaluation_errors", "outfile"];
+	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt", "cpu_ram_usage.csv", "get_next_trials.csv", "run_uuid", "outfile.txt", "oo_errors.txt", "evaluation_errors.log", "outfile.out"];
 
 	$GLOBALS["time_start"] = microtime(true);
 

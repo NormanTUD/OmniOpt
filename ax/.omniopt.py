@@ -522,10 +522,6 @@ def run_live_share_command():
 
         _command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
 
-        #bash_logname = os.getenv("bash_logname")
-        #if bash_logname:
-        #    _command = f"{_command} --outfile={bash_logname}";
-
         print_debug(f"run_live_share_command: {_command}")
 
         result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

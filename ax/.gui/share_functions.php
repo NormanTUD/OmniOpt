@@ -522,8 +522,6 @@
 				} else {
 					print("$file does not exist");
 				}
-			#} else {
-			#	print("\$file was empty ($filename)\n");
 			}
 		}
 

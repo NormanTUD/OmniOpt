@@ -62,7 +62,6 @@ function help {
 	echo "  --debug                                            Enable debug options"
 	echo "  --no_color                                         Disables color output"
 	echo "  --username=s3811141                                Specify username (with or without = sign)"
-	echo "  --outfile=path/to/outfile.txt                      Path to the outfile"
 
 	exit $exit_code
 }
@@ -89,8 +88,6 @@ for arg in "$@"; do
 		function red_text {
 			echoerr -e "$1"
 		}
-        elif [[ "$arg" == --outfile=* ]]; then
-                outfile="${arg#--outfile=}"
         elif [[ "$arg" == --username=* ]]; then
                 username="${arg#--username=}"
                 DONT_ASK_USERNAME=1
@@ -158,12 +155,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			done
 		fi
 
-		if [[ -n $outfile ]]; then
-			if [[ -e "$outfile" ]]; then
-				curl_options+=("-F" "outfile.out=@$outfile")
-			fi
-		fi
-
 		if [[ "$k" -eq "0" ]]; then
 			if [[ -z $DONT_ASK_USERNAME ]]; then
 				eval "$(resize)"
@@ -207,7 +198,7 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			curl_options+=("-F" "run_uuid=@$run_uuid_path")
 
 			if [[ -e ".logs/$run_uuid" ]]; then
-				curl_options+=("-F" "outfile.out=@.logs/$run_uuid")
+				curl_options+=("-F" "outfile=@.logs/$run_uuid")
 			fi
 		fi
 

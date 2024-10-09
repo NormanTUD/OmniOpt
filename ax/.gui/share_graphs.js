@@ -850,6 +850,27 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 	}
 }
 
+async function load_outfile () {
+	//debug_function("load_outfile()");
+	var data = await fetchJsonFromUrlFilenameOnly(`outfile.out`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		//warn(`load_outfile: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	add_tab("outfile", "Outfile", `<div id='outfile'></div>`);
+
+	if($(`#outfile`).length == 0) {
+		error(`Could not find #outfile`);
+	} else {
+		$(`#outfile`).html(`<pre>${data.raw}</pre>`);
+	}
+}
+
 async function load_next_trials () {
 	//debug_function("load_next_trials()");
 	var urlParams = new URLSearchParams(window.location.search);

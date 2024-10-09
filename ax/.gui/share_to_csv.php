@@ -14,11 +14,25 @@
 				die("$name must consist of numbers, letters or underscore!");
 			}
 		} else if ($name == "filename") {
-			if(!preg_match("/^[a-zA-Z_0-9]+\.(?:txt|csv|log)$/", $val)) {
-				die("$name must consist of numbers, letters or underscore, and end with .{txt,csv,log}!");
+			if(!preg_match("/^[a-zA-Z_0-9]+\.(?:txt|csv|log|out)$/", $val)) {
+				print json_encode(
+					array(
+						"raw" => null,
+						"error" => "$name must consist of numbers, letters or underscore, and end with .{txt,csv,log}!"
+					)
+				);
+
+				exit(1);
 			}
 		} else {
-			dier("Unknown name $name");
+			print json_encode(
+				array(
+					"raw" => null,
+					"error" => "Unknown name $name"
+				)
+			);
+
+			exit(1);
 		}
 	}
 

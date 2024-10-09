@@ -1232,8 +1232,6 @@ async function load_all_data() {
 
 		//log("Loaded page");
 	}
-
-	delete_old_files();
 }
 
 function copy_button (name_to_search_for) {
@@ -1244,24 +1242,4 @@ function copy_button (name_to_search_for) {
 	}
 
 	return `<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, "${name_to_search_for}")'>📋 Copy raw data to clipboard</button>`;
-}
-
-function delete_old_files () {
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "delete_old_files.php", true);
-	xhr.onreadystatechange = function () {
-		if (xhr.readyState === 4 && xhr.status === 200) {
-			try {
-				var jsonResponse = JSON.parse(xhr.responseText);
-
-				jsonResponse.forEach(function(entry) {
-					console.log(`Deleted share ${entry}`);
-				});
-
-			} catch (e) {
-				console.error("Error parsing JSON response:", e);
-			}
-		}
-	};
-	xhr.send();
 }

@@ -852,7 +852,7 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 
 async function load_outfile () {
 	//debug_function("load_outfile()");
-	var data = await fetchJsonFromUrlFilenameOnly(`outfile.out`)
+	var data = await fetchJsonFromUrlFilenameOnly(`outfile`)
 	if(!data) {
 		return;
 	}
@@ -1212,6 +1212,7 @@ async function load_all_data() {
 		promises.push(load_job_infos());
 		promises.push(load_next_trials());
 		promises.push(load_results());
+		promises.push(load_outfile());
 		promises.push(load_parameter());
 
 		promises.push(plot_all_possible());

@@ -14,11 +14,11 @@
 				die("$name must consist of numbers, letters or underscore!");
 			}
 		} else if ($name == "filename") {
-			if(!preg_match("/^[a-zA-Z_0-9]+\.(?:txt|csv|log|out)$/", $val)) {
+			if(!preg_match("/^[a-zA-Z_0-9]+(?:\.(?:txt|csv|log|out))?$/", $val)) {
 				print json_encode(
 					array(
 						"raw" => null,
-						"error" => "$name must consist of numbers, letters or underscore, and end with .{txt,csv,log}!"
+						"error" => "$name must consist of numbers, letters or underscore, and end with .{txt,csv,log}, if it has an ending!"
 					)
 				);
 

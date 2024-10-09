@@ -754,7 +754,7 @@ async function plot_all_possible () {
 	var result_idx = header_line.indexOf("result");
 
 	if(result_idx < 0) {
-		error("Cannot find result column index!");
+		//error("Cannot find result column index!");
 		return;
 	}
 

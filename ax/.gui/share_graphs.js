@@ -822,15 +822,15 @@ async function load_out_files () {
 async function load_evaluation_errors_and_oo_errors () {
 	//debug_function("load_evaluation_errors_and_oo_errors()");
 	var p = [];
-	p.push(_load_evaluation_errors_and_oo_errors("evaluation_errors.log", "evaluation_errors"));
-	p.push(_load_evaluation_errors_and_oo_errors("oo_errors.txt", "oo_errors"));
+	p.push(_load_evaluation_errors_and_oo_errors("eval_errors", "Evaluation-Errors", "evaluation_errors.log", "evaluation_errors"));
+	p.push(_load_evaluation_errors_and_oo_errors("oo_errors", "OmniOpt-Errors", "oo_errors.txt", "oo_errors"));
 
 	for (var i = 0; i < p.length; i++) {
 		await p[i];
 	}
 }
 
-async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
+async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divname) {
 	//debug_function("_load_evaluation_errors_and_oo_errors()");
 	var data = await fetchJsonFromUrlFilenameOnly(`${_fn}`)
 	if(!data) {
@@ -841,6 +841,8 @@ async function _load_evaluation_errors_and_oo_errors (_fn, _divname) {
 		//warn(`_load_evaluation_errors_and_oo_errors: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
+
+	add_tab(tab_div, title, `<div id='${_divname}'></div>`);
 
 	if($(`#${_divname}`).length == 0) {
 		error(`Could not find #${_divname}`);

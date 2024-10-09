@@ -18,10 +18,11 @@ function unset_debug {
 	trap - DEBUG
 }
 
-export RUN_UUID=
 bash_logname=
 if command -v uuidgen 2>/dev/null >/dev/null; then
-	export RUN_UUID=$(uuidgen)
+	if [[ -z $RUN_UUID ]]; then
+		export RUN_UUID=$(uuidgen)
+	fi
 
 	mkdir -p .logs
 
@@ -255,8 +256,6 @@ function send_status_report {
 			anon_user=$(get_anon_user_id)
 		fi
 
-		run_uuid=$(uuidgen)
-
 		if [[ -z $git_hash ]]; then
 			git_hash=$(git rev-parse HEAD)
 		fi
@@ -265,7 +264,7 @@ function send_status_report {
 			exit_code="-1"
 		fi
 
-		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$run_uuid&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
+		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$RUN_UUID&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
 		url="$BASEURL/usage_stats.php?$stats_params"
 
 		curl -s "$url" 2>/dev/null >/dev/null

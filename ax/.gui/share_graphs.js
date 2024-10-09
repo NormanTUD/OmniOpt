@@ -1232,6 +1232,8 @@ async function load_all_data() {
 
 		//log("Loaded page");
 	}
+
+	delete_old_files();
 }
 
 function copy_button (name_to_search_for) {
@@ -1253,7 +1255,7 @@ function delete_old_files () {
 				var jsonResponse = JSON.parse(xhr.responseText);
 
 				jsonResponse.forEach(function(entry) {
-					console.log("Deleted entry");
+					console.log(`Deleted share ${entry}`);
 				});
 
 			} catch (e) {

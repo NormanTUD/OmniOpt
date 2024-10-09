@@ -195,7 +195,10 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
 
 		run_uuid_path="$RUN_DIR/state_files/run_uuid"
-		url="$url&update=1";
+
+		if [[ $update -eq 1 ]]; then
+			url="$url&update=1";
+		fi
 
 		if [[ -e $run_uuid_path ]]; then
 			run_uuid=$(cat "$run_uuid_path")

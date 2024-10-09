@@ -21,7 +21,8 @@ function unset_debug {
 bash_logname=
 if command -v uuidgen 2>/dev/null >/dev/null; then
 	if [[ -z $RUN_UUID ]]; then
-		export RUN_UUID=$(uuidgen)
+		RUN_UUID=$(uuidgen)
+		export RUN_UUID
 	fi
 
 	mkdir -p .logs

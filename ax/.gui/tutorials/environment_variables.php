@@ -17,6 +17,10 @@
 		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt</th>
 	</tr>
 	<tr>
+		<td><samp>export RUN_UUID=$(uuidgen)</samp></td>
+		<td>Sets the UUID for the run. Default is a new one via <samp>uuidgen</samp></td>
+	</tr>
+	<tr>
 		<td><samp>export OO_NO_LOGO=1</samp></td>
 		<td>Disables showing the logo</td>
 	</tr>

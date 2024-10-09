@@ -9,6 +9,7 @@
 	ini_set('display_errors', 1);
 
 	include_once "_functions.php";
+	include_once "share_functions.php";
 
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 	$sharesPath = './shares/';
@@ -38,6 +39,8 @@
 
 		print("Using sharesPath $sharesPath\n");
 	}
+
+	delete_old_shares();
 
 	$user_id = get_or_env("user_id");
 

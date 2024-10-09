@@ -1,6 +1,7 @@
 "use strict";
 
 var hashcache = [];
+var max_nr_ticks = 1000;
 
 function get_width() {
 	return Math.max(1200, parseInt(0.95 * window.innerWidth));
@@ -104,8 +105,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 				range: [0, uniqueValues.length - 1],
 				label: key,
 				values: valueIndices,
-				tickvals: Object.values(stringMapping).slice(0, 1000), // Limit ticks to 1000
-				ticktext: uniqueValues.slice(0, 1000) // Limit ticks to 1000
+				tickvals: Object.values(stringMapping).slice(0, max_nr_ticks), // Limit ticks to 1000
+				ticktext: uniqueValues.slice(0, max_nr_ticks) // Limit ticks to 1000
 			};
 		}
 
@@ -118,8 +119,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 				range: [Math.min(...numericValues), Math.max(...numericValues)],
 				label: key,
 				values: numericValues,
-				tickvals: createTicks(numericValues, 1000), // Create ticks
-				ticktext: createTickText(createTicks(numericValues, 1000)) // Create tick labels
+				tickvals: createTicks(numericValues, max_nr_ticks), // Create ticks
+				ticktext: createTickText(createTicks(numericValues, max_nr_ticks)) // Create tick labels
 			};
 		}
 
@@ -137,8 +138,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 			range: [0, Object.keys(stringMapping).length - 1],
 			label: key,
 			values: valueIndices,
-			tickvals: Object.values(stringMapping).slice(0, 1000), // Limit ticks to 1000
-			ticktext: Object.keys(stringMapping).slice(0, 1000) // Limit ticks to 1000
+			tickvals: Object.values(stringMapping).slice(0, max_nr_ticks), // Limit ticks to 1000
+			ticktext: Object.keys(stringMapping).slice(0, max_nr_ticks) // Limit ticks to 1000
 		};
 	});
 
@@ -148,8 +149,8 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		label: 'result',
 		values: resultValues,
 		colorscale: 'Jet',
-		tickvals: createTicks(resultValues, 1000), // Create ticks for results
-		ticktext: createTickText(createTicks(resultValues, 1000)) // Create tick labels for results
+		tickvals: createTicks(resultValues, max_nr_ticks), // Create ticks for results
+		ticktext: createTickText(createTicks(resultValues, max_nr_ticks)) // Create tick labels for results
 	});
 
 	// Parallel coordinates trace
@@ -584,7 +585,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 						}
 					});
 					// Reduce tick count if too many numeric values
-					return reduceNumericTicks(tickvals, ticktext, 1000);
+					return reduceNumericTicks(tickvals, ticktext, max_nr_ticks);
 				}
 
 				return { tickvals, ticktext };

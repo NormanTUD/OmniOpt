@@ -553,12 +553,12 @@ def run_live_share_command():
         if _user is None:
             _user = 'defaultuser'
 
-        _slurm_log_path = slurmlogpath()
+        #_slurm_log_path = slurmlogpath()
 
         _command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
 
-        if _slurm_log_path and os.path.exists(_slurm_log_path):
-            _command = f"{_command} --outfile={_slurm_log_path}"
+        #if _slurm_log_path and os.path.exists(_slurm_log_path):
+        #    _command = f"{_command} --outfile={_slurm_log_path}"
 
         print_debug(f"run_live_share_command: {_command}")
 

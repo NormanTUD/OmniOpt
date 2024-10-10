@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+import sys
+
 try:
     import argparse
     import datetime
@@ -8,7 +10,6 @@ try:
     import os
     import platform
     import random
-    import sys
     from inspect import currentframe, getframeinfo
     from pathlib import Path
     import json

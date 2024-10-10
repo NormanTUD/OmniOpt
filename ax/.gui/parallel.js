@@ -47,8 +47,9 @@ function createMapping(header_line) {
 }
 
 function extractParameterKeys(header_line) {
-	const excludedKeys = ['trial_index', 'arm_name', 'run_time', 'trial_status', 'generation_method', 'result', 'start_time', 'end_time', 'program_string', 'hostname', 'signal', 'exit_code'];
-	return header_line.filter(key => !excludedKeys.includes(key));
+    const excludedKeys = ['trial_index', 'arm_name', 'run_time', 'trial_status', 'generation_method', 'result', 'start_time', 'end_time', 'program_string', 'hostname', 'signal', 'exit_code'];
+    // Filter out any keys that are in the excludedKeys list
+    return excludedKeys; // Now return excluded keys directly
 }
 
 function extractResultValues(data, result_idx) {
@@ -57,14 +58,19 @@ function extractResultValues(data, result_idx) {
 }
 
 function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
-	let data_md5 = md5(JSON.stringify(data));
-	if ($('#parallel_plot_container').data("md5") == data_md5) return;
+    let data_md5 = md5(JSON.stringify(data));
+    if ($('#parallel_plot_container').data("md5") == data_md5) return;
 
-	let dimensions = createDimensions(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
-	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
-	let layout = createParallelLayout();
+    // Filter out excluded columns (hostname, program_string, start_time, etc.)
+    let excludedKeys = extractParameterKeys(header_line); // Use this to get the list of excluded keys
+    let filtered_header_line = header_line.filter(key => !excludedKeys.includes(key));
 
-	renderParallelPlot(trace, layout, data_md5);
+    // Now create dimensions only with the filtered header line
+    let dimensions = createDimensions(filtered_header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
+    let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
+    let layout = createParallelLayout();
+
+    renderParallelPlot(trace, layout, data_md5);
 }
 
 function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
@@ -88,8 +94,8 @@ function createNumericDimension(key, values) {
 		range: [Math.min(...numericValues), Math.max(...numericValues)],
 		label: key,
 		values: numericValues,
-		tickvals: createTicks(numericValues, max_nr_ticks),
-		ticktext: createTickText(createTicks(numericValues, max_nr_ticks))
+		tickvals: createTicks(numericValues), // Ensure all numeric values are sorted and displayed
+		ticktext: createTickText(createTicks(numericValues)) // Show all ticks with full precision
 	};
 }
 
@@ -101,8 +107,8 @@ function createStringDimension(key, values, stringMapping) {
 		range: [0, uniqueValues.length - 1],
 		label: key,
 		values: valueIndices,
-		tickvals: Object.values(stringMapping).slice(0, max_nr_ticks),
-		ticktext: uniqueValues.slice(0, max_nr_ticks)
+		tickvals: Object.values(stringMapping), // Show all unique values
+		ticktext: uniqueValues // Ensure all string values are displayed
 	};
 }
 
@@ -112,8 +118,8 @@ function createResultDimension(resultValues, minResult, maxResult) {
 		label: 'result',
 		values: resultValues,
 		colorscale: 'Jet',
-		tickvals: createTicks(resultValues, max_nr_ticks),
-		ticktext: createTickText(createTicks(resultValues, max_nr_ticks))
+		tickvals: createTicks(resultValues), // Ensure full range of results is displayed
+		ticktext: createTickText(createTicks(resultValues)) // Show all results with precision
 	};
 }
 
@@ -177,16 +183,14 @@ function mapStrings(values) {
 	}, {});
 }
 
-// Function to create tick values dynamically
-function createTicks(values, maxTicks) {
+function createTicks(values) {
 	const min = Math.min(...values);
 	const max = Math.max(...values);
-	const step = (max - min) / (maxTicks - 1);
+	const step = (max - min) / (values.length - 1); // Adjusted to show all values
 
-	return Array.from({ length: maxTicks }, (_, i) => (min + step * i).toFixed(2));
+	return Array.from({ length: values.length }, (_, i) => (min + step * i).toFixed(2));
 }
 
-// Function to create tick text
 function createTickText(ticks) {
-	return ticks.map(v => v.toLocaleString()); // Format large numbers
+	return ticks.map(v => v.toLocaleString()); // Ensure precise display of numbers
 }

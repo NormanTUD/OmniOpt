@@ -814,7 +814,7 @@ async function load_out_files () {
 
 	if(data.raw) {
 		add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
-		log(data.raw);
+		//log(data.raw);
 		$("#out_files_content").html(data.raw);
 
 		$("#out_files_tabs").tabs();
@@ -1212,8 +1212,6 @@ function convert_ansi_to_html () {
 		var html = e.innerHTML;
 
 		var res = ansi_to_html(parseAnsiToVirtualTerminal(html));
-
-		log(res);
 
 		e.innerHTML = res;
 	});

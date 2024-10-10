@@ -2413,7 +2413,7 @@ def show_end_table_and_save_end_files(csv_file_path):
         for column in columns:
             table.add_column(column)
         for row in worker_percentage_usage:
-            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%', style='bright_green')
+            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%')
         console.print(table)
 
     return _exit

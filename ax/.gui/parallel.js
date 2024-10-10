@@ -61,4 +61,3 @@ async function plot_parallel_plot () {
 
 	apply_theme_based_on_system_preferences();
 }
-

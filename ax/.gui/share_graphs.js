@@ -874,7 +874,7 @@ async function load_outfile () {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
 		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
 		converted = removeTrailingWhitespaces(converted);
-		$(`#outfile`).html(`<pre>${converted}</pre>`);
+		$(`#outfile`).html(`<pre style='white-space: break-spaces;'>${converted}</pre>`);
 	}
 }
 

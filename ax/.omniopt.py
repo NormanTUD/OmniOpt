@@ -88,6 +88,25 @@ def is_slurm_job():
 
 args = None
 
+LOG_DIR = ".logs"
+try:
+    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+except Exception as ee:
+    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
+
+LOG_I = 0
+logfile = f'{LOG_DIR}/{LOG_I}'
+logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
+while os.path.exists(logfile):
+    LOG_I = LOG_I + 1
+    logfile = f'{LOG_DIR}/{LOG_I}'
+
+logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
+logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
+logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
+logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
+LOGFILE_DEBUG_GET_NEXT_TRIALS = None
+
 def _sleep(t: int):
     if args is not None and not args.no_sleep:
         time.sleep(t)
@@ -108,6 +127,15 @@ def _debug(msg, _lvl=0, eee=None):
         original_print("_debug: Error trying to write log file: " + str(e))
 
         _debug(msg, _lvl + 1, e)
+
+def get_functions_stack_array():
+    stack = inspect.stack()
+    function_names = []
+    for frame_info in stack[1:]:
+        if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
+            if frame_info.function != "wrapper":
+                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
+    return "Function stack: " + (" -> ".join(function_names) + ":")
 
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -461,35 +489,7 @@ except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
 
-LOG_DIR = ".logs"
-try:
-    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
-except Exception as ee:
-    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
-
-LOG_I = 0
-logfile = f'{LOG_DIR}/{LOG_I}'
-logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-while os.path.exists(logfile):
-    LOG_I = LOG_I + 1
-    logfile = f'{LOG_DIR}/{LOG_I}'
-
-logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
-logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
-logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
-LOGFILE_DEBUG_GET_NEXT_TRIALS = None
-
 NVIDIA_SMI_LOGS_BASE = None
-
-def get_functions_stack_array():
-    stack = inspect.stack()
-    function_names = []
-    for frame_info in stack[1:]:
-        if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
-            if frame_info.function != "wrapper":
-                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
-    return "Function stack: " + (" -> ".join(function_names) + ":")
 
 def append_and_read(file, nr=0, recursion=0):
     try:
@@ -1263,6 +1263,91 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
+def get_bounds(this_args, j):
+    try:
+        lower_bound = float(this_args[j + 2])
+    except Exception:
+        print_red(f"\n⚠ {this_args[j + 2]} is not a number")
+        my_exit(181)
+
+    try:
+        upper_bound = float(this_args[j + 3])
+    except Exception:
+        print_red(f"\n⚠ {this_args[j + 3]} is not a number")
+        my_exit(181)
+
+    return lower_bound, upper_bound
+
+def adjust_bounds_for_value_type(value_type, lower_bound, upper_bound):
+    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
+
+    if value_type == "int":
+        lower_bound = math.floor(lower_bound)
+        upper_bound = math.ceil(upper_bound)
+
+    return lower_bound, upper_bound
+
+def create_param(name, lower_bound, upper_bound, value_type, log_scale):
+    return {
+        "name": name,
+        "type": "range",
+        "bounds": [lower_bound, upper_bound],
+        "value_type": value_type,
+        "log_scale": log_scale
+    }
+
+def handle_grid_search(name, lower_bound, upper_bound, value_type):
+    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
+
+    if value_type == "int":
+        values = [int(value) for value in values]
+
+    values = sorted(set(values))
+    values = [str(helpers.to_int_when_possible(value)) for value in values]
+
+    return {
+        "name": name,
+        "type": "choice",
+        "is_ordered": True,
+        "values": values
+    }
+
+def get_bounds_from_previous_data(name, lower_bound, upper_bound):
+    lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
+    upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
+    return lower_bound, upper_bound
+
+def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning):
+    old_lower_bound = lower_bound
+    old_upper_bound = upper_bound
+
+    if args.continue_previous_job:
+        if old_lower_bound != lower_bound:
+            print_yellow(f"⚠ previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
+            search_space_reduction_warning = True
+
+        if old_upper_bound != upper_bound:
+            print_yellow(f"⚠ previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
+            search_space_reduction_warning = True
+
+    return search_space_reduction_warning
+
+def get_value_type_and_log_scale(this_args, j):
+    skip = 5
+    try:
+        value_type = this_args[j + 4]
+    except Exception:
+        value_type = "float"
+        skip = 4
+
+    try:
+        log_scale = this_args[j + 5].lower() == "true"
+    except Exception:
+        log_scale = False
+        skip = 5
+
+    return skip, value_type, log_scale
+
 def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
     check_range_params_length(this_args)
@@ -1294,102 +1379,9 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
     j += skip
     return j, params, search_space_reduction_warning
 
-
-def get_bounds(this_args, j):
-    try:
-        lower_bound = float(this_args[j + 2])
-    except Exception:
-        print_red(f"\n⚠ {this_args[j + 2]} is not a number")
-        my_exit(181)
-
-    try:
-        upper_bound = float(this_args[j + 3])
-    except Exception:
-        print_red(f"\n⚠ {this_args[j + 3]} is not a number")
-        my_exit(181)
-
-    return lower_bound, upper_bound
-
-
-def get_value_type_and_log_scale(this_args, j):
-    skip = 5
-    try:
-        value_type = this_args[j + 4]
-    except Exception:
-        value_type = "float"
-        skip = 4
-
-    try:
-        log_scale = this_args[j + 5].lower() == "true"
-    except Exception:
-        log_scale = False
-        skip = 5
-
-    return skip, value_type, log_scale
-
-
 def validate_value_type(value_type):
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
-
-
-def adjust_bounds_for_value_type(value_type, lower_bound, upper_bound):
-    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
-
-    if value_type == "int":
-        lower_bound = math.floor(lower_bound)
-        upper_bound = math.ceil(upper_bound)
-
-    return lower_bound, upper_bound
-
-
-def get_bounds_from_previous_data(name, lower_bound, upper_bound):
-    lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
-    upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
-    return lower_bound, upper_bound
-
-
-def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning):
-    old_lower_bound = lower_bound
-    old_upper_bound = upper_bound
-
-    if args.continue_previous_job:
-        if old_lower_bound != lower_bound:
-            print_yellow(f"⚠ previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
-            search_space_reduction_warning = True
-
-        if old_upper_bound != upper_bound:
-            print_yellow(f"⚠ previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
-            search_space_reduction_warning = True
-
-    return search_space_reduction_warning
-
-
-def create_param(name, lower_bound, upper_bound, value_type, log_scale):
-    return {
-        "name": name,
-        "type": "range",
-        "bounds": [lower_bound, upper_bound],
-        "value_type": value_type,
-        "log_scale": log_scale
-    }
-
-
-def handle_grid_search(name, lower_bound, upper_bound, value_type):
-    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
-
-    if value_type == "int":
-        values = [int(value) for value in values]
-
-    values = sorted(set(values))
-    values = [str(helpers.to_int_when_possible(value)) for value in values]
-
-    return {
-        "name": name,
-        "type": "choice",
-        "is_ordered": True,
-        "values": values
-    }
 
 def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning):
     if len(this_args) != 3:

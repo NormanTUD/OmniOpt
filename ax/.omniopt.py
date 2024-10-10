@@ -17,6 +17,7 @@ try:
     import toml
 except ModuleNotFoundError:
     print("toml could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly.")
+    print("Exit-Code: 1")
     sys.exit(1)
 
 jobs_finished = 0

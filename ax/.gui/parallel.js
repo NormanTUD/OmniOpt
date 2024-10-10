@@ -1,165 +1,124 @@
-async function plot_parallel_plot () {
-	//debug_function("plot_parallel_plot()");
-	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
-	if(!_results_csv_json || !_results_csv_json.data) {
-		return;
-	}
+async function plot_parallel_plot() {
+	// Fetch and validate data
+	let _results_csv_json = await fetchData('job_infos.csv');
+	if (!_results_csv_json) return;
 
-	if(!Object.keys(_results_csv_json).includes("data")) {
-		error(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json: no data found`);
-		return;
-	}
-	
-	if(!_results_csv_json.data.length) {
-		error(`plot_parallel_plot: Could not plot seemingly empty _results_csv_json`);
-		return;
-	}
+	// Preprocess data
+	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = preprocessData(_results_csv_json);
 
-	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
-
-	replaceZeroWithNull(_results_csv_json.data);
-
-	var header_line = _results_csv_json.data.shift();
-
-	var mappingKeyNameToIndex = {};
-
-	for (var i = 0; i < header_line.length; i++) {
-		mappingKeyNameToIndex[header_line[i]] = i;
-	}
-
-	// Extract parameter names
-	var paramKeys = header_line.filter(function(key) {
-		return ![
-			'trial_index',
-			'arm_name',
-			'run_time',
-			'trial_status',
-			'generation_method',
-			'result',
-			'start_time',
-			'end_time',
-			'program_string',
-			'hostname',
-			'signal',
-			'exit_code'
-		].includes(key);
-	});
-
-	var result_idx = header_line.indexOf("result");
-
-	// Get result values for color mapping
-	var resultValues = _results_csv_json.data.map(function(row) {
-		return parseFloat(row[result_idx]);
-	});
-
-	resultValues = resultValues.filter(value => value !== undefined && !isNaN(value));
-
-	var minResult = Math.min.apply(null, resultValues);
-	var maxResult = Math.max.apply(null, resultValues);
-
-	parallel_plot(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
+	// Generate the plot
+	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 
 	apply_theme_based_on_system_preferences();
 }
 
-function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	var data_md5 = md5(JSON.stringify(_results_csv_json));
-
-	if ($('#parallel_plot_container').data("md5") == data_md5) {
-		return;
+async function fetchData(filename) {
+	let jsonData = await fetchJsonFromUrlFilenameOnly(filename);
+	if (!jsonData || !jsonData.data || !jsonData.data.length) {
+		error(`Could not plot: empty or invalid data from ${filename}`);
+		return null;
 	}
+	return jsonData;
+}
 
-	// Helper function to handle null/undefined and convert to valid strings or numeric values
-	function cleanValue(value) {
-		if (value === null || value === undefined || value === '') {
-			return 'N/A'; // Placeholder for missing data
-		}
-		return value;
-	}
+function preprocessData(_results_csv_json) {
+	let data = _results_csv_json.data.map(Object.values);
+	convertToIntAndFilter(data);
+	replaceZeroWithNull(data);
 
-	// Function to map string values to unique indices, including 'N/A' if present
-	function mapStrings(values) {
-		var cleanedValues = values.map(cleanValue);
-		var uniqueStrings = [...new Set(cleanedValues)];
-		uniqueStrings.sort(); // Sort alphabetically
-		return uniqueStrings.reduce((acc, str, idx) => {
-			acc[str] = idx;
-			return acc;
-		}, {});
-	}
+	let header_line = data.shift();
+	let mappingKeyNameToIndex = createMapping(header_line);
+	let paramKeys = extractParameterKeys(header_line);
+	let result_idx = header_line.indexOf("result");
+	let resultValues = extractResultValues(data, result_idx);
 
-	// Function to create dimensions for the parallel plot
-	var dimensions = paramKeys.map(function(key) {
-		var idx = mappingKeyNameToIndex[key];
+	let minResult = Math.min(...resultValues);
+	let maxResult = Math.max(...resultValues);
 
-		// Extract and clean values from the results
-		var values = _results_csv_json.map(function(row) {
-			return cleanValue(row[idx]);
-		});
+	return { header_line, data, mappingKeyNameToIndex, paramKeys, resultValues, minResult, maxResult };
+}
 
-		var stringMapping = mapStrings(values);
+function createMapping(header_line) {
+	let mapping = {};
+	header_line.forEach((key, i) => {
+		mapping[key] = i;
+	});
+	return mapping;
+}
 
-		if (!every_array_element_is_a_number(values)) {
-			// Map all values (strings) to their corresponding indices
-			var valueIndices = values.map(function(value) {
-				return stringMapping[cleanValue(value)];
-			});
+function extractParameterKeys(header_line) {
+	const excludedKeys = ['trial_index', 'arm_name', 'run_time', 'trial_status', 'generation_method', 'result', 'start_time', 'end_time', 'program_string', 'hostname', 'signal', 'exit_code'];
+	return header_line.filter(key => !excludedKeys.includes(key));
+}
 
-			var uniqueValues = Object.keys(stringMapping).sort();
-			return {
-				range: [0, uniqueValues.length - 1],
-				label: key,
-				values: valueIndices,
-				tickvals: Object.values(stringMapping).slice(0, max_nr_ticks),
-				ticktext: uniqueValues.slice(0, max_nr_ticks)
-			};
-		}
+function extractResultValues(data, result_idx) {
+	return data.map(row => parseFloat(row[result_idx]))
+		.filter(value => value !== undefined && !isNaN(value));
+}
 
-		// For other parameters, continue normal numeric handling or string mapping
-		var numericValues = values.filter(value => !isNaN(parseFloat(value))).map(parseFloat);
+function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
+	let data_md5 = md5(JSON.stringify(data));
+	if ($('#parallel_plot_container').data("md5") == data_md5) return;
 
-		// If fully numeric, handle normally
-		if (numericValues.length === values.length) {
-			return {
-				range: [Math.min(...numericValues), Math.max(...numericValues)],
-				label: key,
-				values: numericValues,
-				tickvals: createTicks(numericValues, max_nr_ticks), // Create ticks
-				ticktext: createTickText(createTicks(numericValues, max_nr_ticks)) // Create tick labels
-			};
-		}
+	let dimensions = createDimensions(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
+	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
+	let layout = createParallelLayout();
 
-		// Otherwise, map non-numeric values as strings
-		var valueIndices = values.map(function(value) {
-			var parsedValue = parseFloat(value);
-			if (!isNaN(parsedValue)) {
-				return parsedValue;
-			} else {
-				return stringMapping[cleanValue(value)];
-			}
-		});
+	renderParallelPlot(trace, layout, data_md5);
+}
 
-		return {
-			range: [0, Object.keys(stringMapping).length - 1],
-			label: key,
-			values: valueIndices,
-			tickvals: Object.values(stringMapping).slice(0, max_nr_ticks),
-			ticktext: Object.keys(stringMapping).slice(0, max_nr_ticks)
-		};
+function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
+	let dimensions = header_line.map(key => {
+		let idx = mappingKeyNameToIndex[key];
+		let values = cleanValues(data.map(row => row[idx]));
+		let stringMapping = mapStrings(values);
+
+		return (isNumericArray(values))
+			? createNumericDimension(key, values)
+			: createStringDimension(key, values, stringMapping);
 	});
 
-	// Add the result dimension (color scale)
-	dimensions.push({
+	dimensions.push(createResultDimension(resultValues, minResult, maxResult));
+	return dimensions;
+}
+
+function createNumericDimension(key, values) {
+	let numericValues = values.map(parseFloat);
+	return {
+		range: [Math.min(...numericValues), Math.max(...numericValues)],
+		label: key,
+		values: numericValues,
+		tickvals: createTicks(numericValues, max_nr_ticks),
+		ticktext: createTickText(createTicks(numericValues, max_nr_ticks))
+	};
+}
+
+function createStringDimension(key, values, stringMapping) {
+	let valueIndices = values.map(value => stringMapping[cleanValue(value)]);
+	let uniqueValues = Object.keys(stringMapping).sort();
+
+	return {
+		range: [0, uniqueValues.length - 1],
+		label: key,
+		values: valueIndices,
+		tickvals: Object.values(stringMapping).slice(0, max_nr_ticks),
+		ticktext: uniqueValues.slice(0, max_nr_ticks)
+	};
+}
+
+function createResultDimension(resultValues, minResult, maxResult) {
+	return {
 		range: [minResult, maxResult],
 		label: 'result',
 		values: resultValues,
 		colorscale: 'Jet',
-		tickvals: createTicks(resultValues, max_nr_ticks), // Create ticks for results
-		ticktext: createTickText(createTicks(resultValues, max_nr_ticks)) // Create tick labels for results
-	});
+		tickvals: createTicks(resultValues, max_nr_ticks),
+		ticktext: createTickText(createTicks(resultValues, max_nr_ticks))
+	};
+}
 
-	// Parallel coordinates trace
-	var traceParallel = {
+function createParallelTrace(dimensions, resultValues, minResult, maxResult) {
+	return {
 		type: 'parcoords',
 		line: {
 			color: resultValues,
@@ -170,9 +129,10 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		},
 		dimensions: dimensions
 	};
+}
 
-	// Layout for the parallel plot
-	var layoutParallel = {
+function createParallelLayout() {
+	return {
 		title: 'Parallel Coordinates Plot',
 		width: get_width(),
 		height: get_height(),
@@ -180,43 +140,50 @@ function parallel_plot(paramKeys, _results_csv_json, minResult, maxResult, resul
 		plot_bgcolor: 'rgba(0,0,0,0)',
 		showlegend: false
 	};
+}
 
-	// Create a new div for the plot
-	var new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+function renderParallelPlot(trace, layout, data_md5) {
+	let new_plot_div = $(`<div class='share_graph parallel-plot' id='parallel-plot' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 	$('#parallel_plot_container').html(new_plot_div);
 
 	if (!$("#parallel_plot").length) {
 		add_tab("parallel_plot", "Parallel Plot", "<div id='parallel_plot_container'><div id='parallel-plot'></div></div>");
 	}
 
-	// Render the plot with Plotly
-	if ($("#parallel_plot_container").length) {
-		Plotly.newPlot('parallel-plot', [traceParallel], layoutParallel).then(function() {
-		}).catch(function(err) {
-			error("Creating the plot failed:", err);
-		});
-	} else {
-		error("Cannot find #parallel_plot_container");
-	}
+	Plotly.newPlot('parallel-plot', [trace], layout).then(() => {
+		$('#parallel_plot_container').data("md5", data_md5);
+	}).catch(err => {
+		error("Creating the plot failed:", err);
+	});
+}
 
-	$('#parallel_plot_container').data("md5", data_md5);
+function cleanValues(values) {
+	return values.map(cleanValue);
+}
+
+function cleanValue(value) {
+	return (value === null || value === undefined || value === '') ? 'N/A' : value;
+}
+
+function isNumericArray(values) {
+	return values.every(value => !isNaN(parseFloat(value)));
+}
+
+function mapStrings(values) {
+	let uniqueStrings = [...new Set(values.map(cleanValue))].sort();
+	return uniqueStrings.reduce((acc, str, idx) => {
+		acc[str] = idx;
+		return acc;
+	}, {});
 }
 
 // Function to create tick values dynamically
 function createTicks(values, maxTicks) {
 	const min = Math.min(...values);
 	const max = Math.max(...values);
-
 	const step = (max - min) / (maxTicks - 1);
 
-	let ticks = [];
-	for (let i = 0; i < maxTicks; i++) {
-		ticks.push(min + step * i);
-	}
-
-	ticks[ticks.length - 1] = max;
-
-	return ticks;
+	return Array.from({ length: maxTicks }, (_, i) => (min + step * i).toFixed(2));
 }
 
 // Function to create tick text

@@ -544,12 +544,10 @@ function removeAnsiCodes(input) {
 }
 
 function parseAnsiToVirtualTerminal(input) {
-	const rows = [];
+	const rows = [[]];
 	let maxWidth = 0;
 	let cursorX = 0;
 	let cursorY = 0;
-
-	rows.push([]);
 
 	function ensureTerminalSize(y) {
 		while (rows.length <= y) {
@@ -557,35 +555,16 @@ function parseAnsiToVirtualTerminal(input) {
 		}
 	}
 
-	function ensureRowWidth(y, x) {
-		if (rows[y].length < x) {
-			rows[y].length = x;
-		}
-	}
-
 	function handleAnsiCode(code) {
 		const cursorMatch = code.match(/^\[(\d+)?([A-Za-z])/);
 		if (cursorMatch) {
 			const value = parseInt(cursorMatch[1] || "1", 10);
-
 			switch (cursorMatch[2]) {
-				case 'A':  // Cursor up
-					cursorY = Math.max(cursorY - value, 0);
-					break;
-				case 'B':  // Cursor down
-					cursorY += value;
-					ensureTerminalSize(cursorY);
-					break;
-				case 'C':  // Cursor right
-					cursorX += value;
-					break;
-				case 'D':  // Cursor left
-					cursorX = Math.max(cursorX - value, 0);
-					break;
-				case 'K':  // Delete line
-					rows[cursorY] = [];
-					cursorX = 0;
-					break;
+				case 'A': cursorY = Math.max(cursorY - value, 0); break;
+				case 'B': cursorY += value; ensureTerminalSize(cursorY); break;
+				case 'C': cursorX += value; break;
+				case 'D': cursorX = Math.max(cursorX - value, 0); break;
+				case 'K': rows[cursorY] = []; cursorX = 0; break;
 			}
 		}
 	}
@@ -594,40 +573,33 @@ function parseAnsiToVirtualTerminal(input) {
 	while (i < input.length) {
 		const char = input[i];
 
-		if (char === '\x1b' && input[i+1] === '[') {  // ANSI Code
-			const ansiCode = input.substring(i+2).match(/^[^a-zA-Z]*[a-zA-Z]/);
-			if (ansiCode) {
-				const fullCode = ansiCode[0];
-				if (/^[\d;]*[A-DK]$/.test(fullCode)) {
-					handleAnsiCode(fullCode);
-				}
-				i += fullCode.length + 2;
+		if (char === '\x1b' && input[i + 1] === '[') {  
+			const ansiCode = input.substring(i + 2).match(/^[^a-zA-Z]*[a-zA-Z]/);
+			if (ansiCode && /^[\d;]*[A-DK]$/.test(ansiCode[0])) {
+				handleAnsiCode(ansiCode[0]);
+				i += ansiCode[0].length + 2;
 				continue;
 			}
-		} else if (char === '\r') {  // Carriage return
+		} else if (char === '\r') {  
 			cursorX = 0;
-		} else if (char === '\n') {  // Newline
+		} else if (char === '\n') {  
 			cursorY++;
 			cursorX = 0;
 			ensureTerminalSize(cursorY);
 		} else {
 			ensureTerminalSize(cursorY);
-			ensureRowWidth(cursorY, cursorX);
-			rows[cursorY][cursorX] = char;
+			if (cursorX >= rows[cursorY].length) {
+				rows[cursorY][cursorX] = char; // Set char directly
+			} else {
+				rows[cursorY][cursorX] = char; // Overwrite if already exists
+			}
 			cursorX++;
-			maxWidth = Math.max(maxWidth, cursorX);
+			if (cursorX > maxWidth) maxWidth = cursorX;
 		}
-
 		i++;
 	}
 
-	var result = rows.map(line => (line.join('') || '').padEnd(maxWidth, ' ')).join('\n');
-
-	const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
-
-	result = removeTrailingWhitespaces(result);
-
-	return result;
+	return rows.map(line => (line.join('') || '').padEnd(maxWidth, ' ')).join('\n').replace(/\s+$/g, '');
 }
 
 function removeLinesStartingWith(inputString, ...startStrings) {

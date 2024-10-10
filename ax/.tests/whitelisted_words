@@ -490,6 +490,7 @@ droppable
 Droppable
 droppables
 dRow
+Dru
 dtype
 durning
 dw
@@ -528,6 +529,7 @@ embeddingsInitializer
 embeddingsRegularizer
 emessage
 encodings
+endian
 endPosition
 endtime
 endValue
@@ -536,6 +538,7 @@ enhancments
 env
 EOF
 EOFError
+EOS
 epochNr
 epreventDefault
 eq
@@ -546,6 +549,7 @@ ERRORMSG
 errUploading
 errYour
 esac
+ESC
 escapedCharacter
 estatusText
 evals
@@ -761,6 +765,7 @@ html
 HTMLElement
 htmlheadmeta
 http
+https
 Hyperparam
 hyperparameter
 hyperparameterconstellations
@@ -1226,6 +1231,8 @@ origMonth
 origYear
 origyearshtml
 os
+OSC
+OSCURL
 OSError
 oslistdir
 ospathisdir
@@ -1563,6 +1570,7 @@ setResizable
 setTimeout
 sgd
 SGD
+SGR
 shader
 shapeType
 sharedAxes
@@ -1830,6 +1838,7 @@ treeslowly
 trex
 trialindex
 trm
+truecolor
 truetriggerchange
 truncatedNormal
 tu
@@ -2003,4 +2012,3 @@ zIndices
 zipContents
 zipWriter
 zsh
-endian

@@ -530,3 +530,9 @@ function open_first_tab_when_none_is_open() {
 function md5 (str) {
 	return CryptoJS.MD5(str).toString();
 }
+
+function ansi_to_html (ansi) {
+	const ansi_up = new AnsiUp();
+
+	return ansi_up.ansi_to_html(ansi);
+}

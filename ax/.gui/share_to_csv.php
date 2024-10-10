@@ -129,7 +129,7 @@
 			)
 		);
 	} else {
-		$raw_file = remove_ansi_colors(file_get_contents($share_file));
+		$raw_file = file_get_contents($share_file);
 
 		echo json_encode(
 			array(

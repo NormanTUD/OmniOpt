@@ -19,6 +19,7 @@ if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
         <script src="<?php print $dir_path; ?>/prism.js"></script>
         <script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
         <script src="<?php print $dir_path; ?>/darkmode.js"></script>
+        <script src="<?php print $dir_path; ?>/ansi_up.js"></script>
         <script src="<?php print $dir_path; ?>/jquery.dataTables.min.js"></script>
         <script src="<?php print $dir_path; ?>/crypto-core.js"></script>
         <script src="<?php print $dir_path; ?>/md5.js"></script>

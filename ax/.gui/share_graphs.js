@@ -794,7 +794,7 @@ async function load_parameter () {
 	}
 
 	if (data.raw != "null" && data.raw !== null) {
-		$(".parameters_txt").html(`<pre>${data.raw}</pre>`);
+		$(".parameters_txt").html(`<pre>${ansi_to_html(data.raw)}</pre>`);
 	}
 }
 
@@ -847,7 +847,7 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 	if($(`#${_divname}`).length == 0) {
 		error(`Could not find #${_divname}`);
 	} else {
-		$(`#${_divname}`).html(`<pre>${data.raw}</pre>`);
+		$(`#${_divname}`).html(`<pre>${ansi_to_html(data.raw)}</pre>`);
 	}
 }
 
@@ -868,7 +868,7 @@ async function load_outfile () {
 	if($(`#outfile`).length == 0) {
 		error(`Could not find #outfile`);
 	} else {
-		$(`#outfile`).html(`<pre>${data.raw}</pre>`);
+		$(`#outfile`).html(`<pre>${ansi_to_html(data.raw)}</pre>`);
 	}
 }
 
@@ -920,7 +920,7 @@ async function load_best_result () {
 	}
 
 	if (data.raw != "null" && data.raw !== null) {
-		$(".best_result_txt").html(`<pre>${data.raw}</pre>`);
+		$(".best_result_txt").html(`<pre>${ansi_to_html(data.raw)}</pre>`);
 	}
 }
 

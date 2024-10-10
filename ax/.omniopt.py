@@ -46,6 +46,8 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
+dier = helpers.dier
+
 original_print = print
 
 SUPPORTED_MODELS = [
@@ -183,7 +185,7 @@ try:
             required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
             required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 
-            required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) (log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
+            required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
             required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
             optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
@@ -1261,7 +1263,7 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning, log_scale_param=None):
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -1272,10 +1274,6 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
     lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
     skip, value_type, log_scale = get_value_type_and_log_scale(this_args, j)
-
-    # Überschreiben des log_scale Werts, falls der neue Parameter übergeben wird
-    if log_scale_param is not None:
-        log_scale = str(log_scale_param).lower() == "true"
 
     validate_value_type(value_type)
 
@@ -1463,7 +1461,7 @@ def parse_experiment_parameters():
         if "param" in this_args:
             this_args = this_args["param"]
 
-        while j < len(this_args):
+        while j < len(this_args) - 1:
             name = this_args[j]
 
             if name in invalid_names:
@@ -1515,8 +1513,8 @@ def check_if_range_types_are_invalid(value_type, valid_value_types):
         my_exit(181)
 
 def check_range_params_length(this_args):
-    if len(this_args) != 5 and len(this_args) != 4:
-        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
+    if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
+        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
 
 def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
@@ -2851,6 +2849,11 @@ def parse_single_experiment_parameter_table(experiment_parameters):
             _type = ""
             value_type = ""
 
+            log_scale = "❌"
+
+            if param["log_scale"]:
+                log_scale = "✓"
+
             if "parameter_type" in param:
                 _type = param["parameter_type"]["name"].lower()
                 value_type = _type
@@ -2867,14 +2870,14 @@ def parse_single_experiment_parameter_table(experiment_parameters):
             else:
                 _upper = param["bounds"][1]
 
-            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type])
+            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type, log_scale])
         elif "fixed" in _type.lower():
-            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), "", ""])
         elif "choice" in _type.lower():
             values = param["values"]
             values = [str(helpers.to_int_when_possible(item)) for item in values]
 
-            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
         else:
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
@@ -2903,7 +2906,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     rows = parse_single_experiment_parameter_table(experiment_parameters)
 
     table = Table(header_style="bold", title="Experiment parameters:")
-    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type"]
+    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
 
     _param_name = ""
 

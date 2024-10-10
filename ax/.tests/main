@@ -482,6 +482,8 @@ _test "Testing multiple config_json and config_toml" "./omniopt --config_json /d
 
 _test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs 1 --num_random_steps 2 --max_eval 3" 0
 
+_test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int true --parameter y range 5431 1234 float true" 0
+
 if [[ $quick -eq 0 ]]; then
 	_test "Linters" "bash .tests/linters" 0
 else

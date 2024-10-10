@@ -621,8 +621,10 @@
                                 }
                             }
 
+			    var log_scale = $($(".parameterRow")[i]).find(".log_scale").is(":checked") ? "true" : "false";
+
                             if(is_ok) {
-                                _value = `${parameterName} range ${minValue} ${maxValue} ${numberType}`;
+                                _value = `${parameterName} range ${minValue} ${maxValue} ${numberType} ${log_scale}`;
                             }
                         } else if (option === "choice") {
                             var choiceValues = $(this).find(".choiceValues").val();
@@ -802,6 +804,12 @@
                                         <option value="float">Float</option>
                                         <option value="int">Integer</option>
                                     </select>
+                                </td>
+                            </tr>
+                           <tr>
+                                <td>Log-Scale:</td>
+                                <td>
+				    <input onchange="update_command()" type="checkbox" class="log_scale" />
                                 </td>
                             </tr>
                         </table>
@@ -1030,12 +1038,14 @@
                             var minValue = $(this).find(".minValue").val();
                             var maxValue = $(this).find(".maxValue").val();
                             var numberType = $(this).find(".numberTypeSelect").val();
+			    var log_scale = $(this).find(".log_scale").is(":checked") ? "true" : "false";
 
                             params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
                             params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
                             params.push("parameter_" + parameterIndex + "_min=" + encodeURIComponent(minValue));
                             params.push("parameter_" + parameterIndex + "_max=" + encodeURIComponent(maxValue));
                             params.push("parameter_" + parameterIndex + "_number_type=" + encodeURIComponent(numberType));
+                            params.push("parameter_" + parameterIndex + "_log_scale=" + encodeURIComponent(log_scale));
                         } else if (option === "choice") {
                             var choiceValues = $(this).find(".choiceValues").val();
 
@@ -1113,6 +1123,7 @@
                             $(this).find(".minValue").val(urlParams.get("parameter_" + parameterIndex + "_min"));
                             $(this).find(".maxValue").val(urlParams.get("parameter_" + parameterIndex + "_max"));
                             $(this).find(".numberTypeSelect").val(urlParams.get("parameter_" + parameterIndex + "_number_type"));
+                            $(this).find(".log_scale").prop(urlParams.get("parameter_" + parameterIndex + "_log_scale") == "true" ? true : false);
                         } else if (option === 'choice') {
                             $(this).find(".choiceValues").val(urlParams.get("parameter_" + parameterIndex + "_values"));
                         } else if (option === 'fixed') {

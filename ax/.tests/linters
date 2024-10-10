@@ -64,7 +64,7 @@ errors=()
 if [[ "$quick" -eq 0 ]]; then
 	yellow_text "Trying pylint..."
 	.tests/pylint || {
-		red_text "pylint failed"
+		red_text "pylint failed\n"
 		errors+=("pylint failed")
 	}
 

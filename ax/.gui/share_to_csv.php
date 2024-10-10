@@ -121,6 +121,10 @@
 	if(preg_match("/\.csv$/", $share_file)) {
 		$raw_file = json_decode(loadCsvToJson($share_file));
 
+		if(isset($_GET["remove_ansi"])) {
+			$raw_file = remove_ansi_colors($raw_file);
+		}
+
 		echo json_encode(
 			array(
 				"data" => $raw_file,
@@ -130,6 +134,10 @@
 		);
 	} else {
 		$raw_file = file_get_contents($share_file);
+
+		if(isset($_GET["remove_ansi"])) {
+			$raw_file = remove_ansi_colors($raw_file);
+		}
 
 		echo json_encode(
 			array(

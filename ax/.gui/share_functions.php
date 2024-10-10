@@ -244,7 +244,7 @@
 				$error = "&#10060;";
 
 				foreach ($out_or_err_files as $out_or_err_file) {
-					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+					$content = file_get_contents($out_or_err_file);
 
 					$_hash = hash('md5', "$out_or_err_file-$content");
 
@@ -261,10 +261,10 @@
 				$html_part = "";
 
 				foreach ($out_or_err_files as $out_or_err_file) {
-					$content = remove_ansi_colors(file_get_contents($out_or_err_file));
+					$content = file_get_contents($out_or_err_file);
 					$_hash = hash('md5', "$out_or_err_file-$content");
 					$html_part .= "<div id='$_hash'>\n";  // Hier öffnest du einen neuen Container
-					$html_part .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>\n";
+					$html_part .= "<pre class='stdout_file invert_in_dark_mode convert_ansi_to_html'>" . htmlentities($content) . "\n</pre>\n";
 					$html_part .= copy_button("stdout_file");
 					$html_part .= "</div>\n";  // Und hier schließt du ihn
 				}

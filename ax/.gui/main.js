@@ -534,5 +534,92 @@ function md5 (str) {
 function ansi_to_html (ansi) {
 	const ansi_up = new AnsiUp();
 
-	return ansi_up.ansi_to_html(ansi);
+	return parseAnsiToVirtualTerminal(ansi_up.ansi_to_html(ansi));
+}
+
+function removeAnsiCodes(input) {
+	const ansiRegex = /\x1b\[[0-9;]*[A-Za-z]/g;
+
+	return input.replace(ansiRegex, '');
+}
+
+function parseAnsiToVirtualTerminal(input) {
+	const rows = [];
+	let maxWidth = 0;
+	let cursorX = 0;
+	let cursorY = 0;
+
+	rows.push([]);
+
+	function ensureTerminalSize(y) {
+		while (rows.length <= y) {
+			rows.push([]);
+		}
+	}
+
+	function ensureRowWidth(y, x) {
+		if (rows[y].length < x) {
+			rows[y].length = x;
+		}
+	}
+
+	function handleAnsiCode(code) {
+		const cursorMatch = code.match(/^\[(\d+)?([A-Za-z])/);
+		if (cursorMatch) {
+			const value = parseInt(cursorMatch[1] || "1", 10);
+
+			switch (cursorMatch[2]) {
+				case 'A':  // Cursor up
+					cursorY = Math.max(cursorY - value, 0);
+					break;
+				case 'B':  // Cursor down
+					cursorY += value;
+					ensureTerminalSize(cursorY);
+					break;
+				case 'C':  // Cursor right
+					cursorX += value;
+					break;
+				case 'D':  // Cursor left
+					cursorX = Math.max(cursorX - value, 0);
+					break;
+				case 'K':  // Delete line
+					rows[cursorY] = [];
+					cursorX = 0;
+					break;
+			}
+		}
+	}
+
+	let i = 0;
+	while (i < input.length) {
+		const char = input[i];
+
+		if (char === '\x1b' && input[i+1] === '[') {  // ANSI Code
+			const ansiCode = input.substring(i+2).match(/^[^a-zA-Z]*[a-zA-Z]/);
+			if (ansiCode) {
+				const fullCode = ansiCode[0];
+				if (/^[\d;]*[A-DK]$/.test(fullCode)) {
+					handleAnsiCode(fullCode);
+				}
+				i += fullCode.length + 2;
+				continue;
+			}
+		} else if (char === '\r') {  // Carriage return
+			cursorX = 0;
+		} else if (char === '\n') {  // Newline
+			cursorY++;
+			cursorX = 0;
+			ensureTerminalSize(cursorY);
+		} else {
+			ensureTerminalSize(cursorY);
+			ensureRowWidth(cursorY, cursorX);
+			rows[cursorY][cursorX] = char;
+			cursorX++;
+			maxWidth = Math.max(maxWidth, cursorX);
+		}
+
+		i++;
+	}
+
+	return rows.map(line => (line.join('') || '').padEnd(maxWidth, ' ')).join('\n');
 }

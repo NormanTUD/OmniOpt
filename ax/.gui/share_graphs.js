@@ -783,7 +783,7 @@ function convertUnixTimeToReadable(unixTime) {
 
 async function load_parameter () {
 	//debug_function("load_parameter()");
-	var data = await fetchJsonFromUrlFilenameOnly(`parameters.txt`)
+	var data = await fetchJsonFromUrlFilenameOnly(`parameters.txt`, 1)
 	if(!data) {
 		return;
 	}
@@ -794,7 +794,7 @@ async function load_parameter () {
 	}
 
 	if (data.raw != "null" && data.raw !== null) {
-		$(".parameters_txt").html(`<pre>${ansi_to_html(data.raw)}</pre>`);
+		$(".parameters_txt").html(`<pre>${removeAnsiCodes(data.raw)}</pre>`);
 	}
 }
 
@@ -920,7 +920,7 @@ async function load_best_result () {
 	}
 
 	if (data.raw != "null" && data.raw !== null) {
-		$(".best_result_txt").html(`<pre>${ansi_to_html(data.raw)}</pre>`);
+		$(".best_result_txt").html(`<pre>${removeAnsiCodes(data.raw)}</pre>`);
 	}
 }
 
@@ -1189,13 +1189,29 @@ async function load_overview_data() {
 	}
 }
 
-async function fetchJsonFromUrlFilenameOnly(filename) {
+async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false) {
 	//debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var _res = await fetchJsonFromUrl(`share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`)
+	var url = `share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`;
+
+	if(remove_ansi) {
+		url = url + "&remove_ansi=1";
+	}
+
+	var _res = await fetchJsonFromUrl(url);
 
 	return _res;
+}
+
+function convert_ansi_to_html () {
+	$(".convert_ansi_to_html").each(function (i, e) {
+		var html = e.innerHTML;
+
+		var res = parseAnsiToVirtualTerminal(html);	
+
+		e.innerHTML = res;
+	});
 }
 
 async function load_all_data() {
@@ -1233,6 +1249,8 @@ async function load_all_data() {
 
 		//log("Loaded page");
 	}
+
+	convert_ansi_to_html();
 }
 
 function copy_button (name_to_search_for) {

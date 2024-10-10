@@ -866,12 +866,15 @@ async function load_outfile () {
 		return;
 	}
 
-	add_tab("outfile", "Outfile", `<div id='outfile'></div>`);
+	add_tab("outfile", "OmniOpt Main Log", `<div id='outfile'></div>`);
 
 	if($(`#outfile`).length == 0) {
 		error(`Could not find #outfile`);
 	} else {
-		$(`#outfile`).html(`<pre>${ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"))}</pre>`);
+		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
+		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		converted = removeTrailingWhitespaces(converted);
+		$(`#outfile`).html(`<pre>${converted}</pre>`);
 	}
 }
 

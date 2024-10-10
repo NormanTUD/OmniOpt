@@ -231,7 +231,7 @@
 				$_file = $out_or_err_files[0];
 				if (file_exists($_file)) {
 					$content = file_get_contents($_file);
-					$html .= "<pre class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
+					$html .= "<pre style='white-space: preserve-breaks;' class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
 					$html .= copy_button("stdout_file");
 				}
 			} else {
@@ -264,7 +264,7 @@
 					$content = file_get_contents($out_or_err_file);
 					$_hash = hash('md5', "$out_or_err_file-$content");
 					$html_part .= "<div id='$_hash'>\n";  // Hier öffnest du einen neuen Container
-					$html_part .= "<pre class='stdout_file invert_in_dark_mode convert_ansi_to_html'>" . htmlentities($content) . "\n</pre>\n";
+					$html_part .= "<pre style='white-space: preserve-breaks;' class='stdout_file invert_in_dark_mode convert_ansi_to_html'>" . htmlentities($content) . "\n</pre>\n";
 					$html_part .= copy_button("stdout_file");
 					$html_part .= "</div>\n";  // Und hier schließt du ihn
 				}

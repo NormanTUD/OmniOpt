@@ -625,7 +625,7 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 	if($(`#${_divname}`).length == 0) {
 		error(`Could not find #${_divname}`);
 	} else {
-		$(`#${_divname}`).html(`<pre>${ansi_to_html(data.raw)}</pre>`);
+		$(`#${_divname}`).html(`<pre style="white-space: preserve-breaks;">${ansi_to_html(data.raw)}</pre>`);
 	}
 }
 

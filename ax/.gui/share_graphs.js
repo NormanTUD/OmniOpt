@@ -866,7 +866,7 @@ async function load_outfile () {
 		return;
 	}
 
-	add_tab("outfile", "OmniOpt Main Log", `<div id='outfile'></div>`);
+	add_tab("outfile", "Main Log", `<div id='outfile'></div>`);
 
 	if($(`#outfile`).length == 0) {
 		error(`Could not find #outfile`);

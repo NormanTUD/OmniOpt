@@ -814,9 +814,12 @@ async function load_out_files () {
 
 	if(data.raw) {
 		add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
+		log(data.raw);
 		$("#out_files_content").html(data.raw);
 
 		$("#out_files_tabs").tabs();
+
+		convert_ansi_to_html();
 	}
 }
 
@@ -1208,7 +1211,9 @@ function convert_ansi_to_html () {
 	$(".convert_ansi_to_html").each(function (i, e) {
 		var html = e.innerHTML;
 
-		var res = parseAnsiToVirtualTerminal(html);	
+		var res = ansi_to_html(parseAnsiToVirtualTerminal(html));
+
+		log(res);
 
 		e.innerHTML = res;
 	});
@@ -1249,8 +1254,6 @@ async function load_all_data() {
 
 		//log("Loaded page");
 	}
-
-	convert_ansi_to_html();
 }
 
 function copy_button (name_to_search_for) {

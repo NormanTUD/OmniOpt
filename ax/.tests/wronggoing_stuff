@@ -181,12 +181,18 @@ cd ..
 cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
 EXPECTED_TO_FAIL=1
+experiment_name=test_wronggoing_stuff
+
+if [[ $nosuccess -eq 1 ]]; then
+	experiment_name="${experiment_name}_nosuccess"
+fi
+
 ./omniopt \
 	--max_nr_of_zero_results 3 \
 	--live_share --send_anonymized_usage_stats \
 	--partition=$PARTITION \
 	--gpus=$NUM_GPUS \
-	--experiment_name=test_wronggoing_stuff \
+	--experiment_name=$experiment_name \
 	--mem_gb=1 \
 	--time=20 \
 	--worker_timeout=1 \

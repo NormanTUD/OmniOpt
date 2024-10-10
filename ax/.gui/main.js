@@ -629,3 +629,18 @@ function parseAnsiToVirtualTerminal(input) {
 
 	return result;
 }
+
+function removeLinesStartingWith(inputString, ...startStrings) {
+	let lines = inputString.split("\n");
+	let filteredLines = [];
+
+	for (let i = 0; i < lines.length; i++) {
+		let line = lines[i];
+		let startsWithAny = startStrings.some(startString => line.includes(startString));
+		if (!startsWithAny) {
+			filteredLines.push(line);
+		}
+	}
+
+	return filteredLines.join("\n");
+}

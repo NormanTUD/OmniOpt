@@ -871,7 +871,7 @@ async function load_outfile () {
 	if($(`#outfile`).length == 0) {
 		error(`Could not find #outfile`);
 	} else {
-		$(`#outfile`).html(`<pre>${ansi_to_html(data.raw)}</pre>`);
+		$(`#outfile`).html(`<pre>${ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"))}</pre>`);
 	}
 }
 

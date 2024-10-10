@@ -514,39 +514,6 @@ def append_and_read(file, nr=0, recursion=0):
 
     return 0
 
-def slurmlogpath():
-    if os.getenv("SLURM_JOB_ID") is None:
-        return None
-
-    if not SYSTEM_HAS_SBATCH:
-        return None
-
-    if not is_executable_in_path("scontrol"):
-        return None
-
-    job_id = os.getenv("SLURM_JOB_ID")
-
-    try:
-        result = subprocess.run(
-            ["scontrol", "show", "job", job_id],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=True
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing scontrol: {e}")
-        return None
-
-    std_out_pattern = re.compile(r'^\s*StdOut=(.*)$')
-
-    for line in result.stdout.splitlines():
-        match = std_out_pattern.match(line)
-        if match:
-            return match.group(1).strip()
-
-    return None
-
 def run_live_share_command():
     if not CURRENT_RUN_FOLDER:
         return "", ""
@@ -556,8 +523,6 @@ def run_live_share_command():
         _user = os.getenv('USER')
         if _user is None:
             _user = 'defaultuser'
-
-        #_slurm_log_path = slurmlogpath()
 
         _command = f"bash {script_dir}/omniopt_share {CURRENT_RUN_FOLDER} --update --username={_user} --no_color"
 

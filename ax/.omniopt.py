@@ -3794,6 +3794,64 @@ def get_hostname_from_outfile(stdout_path):
     except Exception as e:
         print(f"There was an error: {e}")
         return None
+def handle_successful_job(job, trial_index, raw_result):
+    result = raw_result["result"]
+    if result != VAL_IF_NOTHING_FOUND:
+        ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+        _trial = ax_client.get_trial(trial_index)
+        try:
+            progressbar_description([f"new result: {result}"])
+            _trial.mark_completed(unsafe=True)
+            succeeded_jobs(1)
+            update_progress_bar(progress_bar, 1)
+            live_share()
+        except Exception as e:
+            print(f"ERROR in line {get_line_info()}: {e}")
+        return True
+    else:
+        handle_failed_job(job, trial_index)
+        return False
+
+
+def handle_failed_job(job, trial_index):
+    if job:
+        try:
+            progressbar_description(["job_failed"])
+            ax_client.log_trial_failure(trial_index=trial_index)
+        except Exception as e:
+            print(f"ERROR in line {get_line_info()}: {e}")
+        job.cancel()
+        orchestrate_job(job, trial_index)
+    failed_jobs(1)
+    live_share()
+
+
+def handle_exception(job, trial_index, error):
+    if isinstance(error, (FileNotFoundError, submitit.core.utils.UncompletedJobError)):
+        print_red(str(error))
+        mark_job_as_failed(job, trial_index)
+    elif isinstance(error, ax.exceptions.core.UserInputError):
+        if "None for metric" in str(error):
+            print_red(f"\n⚠ Program output did not contain 'RESULT: <NUMBER>'.\nError: {error}")
+        else:
+            print_red(f"\n⚠ {error}")
+        mark_job_as_failed(job, trial_index)
+    else:
+        raise error
+
+
+def mark_job_as_failed(job, trial_index):
+    if job:
+        try:
+            progressbar_description(["job_failed"])
+            _trial = ax_client.get_trial(trial_index)
+            _trial.mark_failed()
+        except Exception as e:
+            print(f"ERROR in line {get_line_info()}: {e}")
+        job.cancel()
+        orchestrate_job(job, trial_index)
+    failed_jobs(1)
+
 
 def finish_previous_jobs(new_msgs):
     global random_steps
@@ -3802,100 +3860,37 @@ def finish_previous_jobs(new_msgs):
 
     this_jobs_finished = 0
 
-    #print("jobs in finish_previous_jobs:")
-    #print(jobs)
-
     for job, trial_index in global_vars["jobs"][:]:
-        # Poll if any jobs completed
-        # Local and debug jobs don't run until .result() is called.
-        if job is not None and (job.done() or type(job) in [LocalJob, DebugJob]):
+        if job is not None and (job.done() or isinstance(job, (LocalJob, DebugJob))):
             try:
-                result = job.result()
-                raw_result = result
-                result = result["result"]
+                raw_result = job.result()
+                if handle_successful_job(job, trial_index, raw_result):
+                    global_vars["jobs"].remove((job, trial_index))
+                    this_jobs_finished += 1
+            except Exception as e:
+                handle_exception(job, trial_index, e)
                 this_jobs_finished += 1
-                if result != VAL_IF_NOTHING_FOUND:
-                    ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
-
-                    #count_done_jobs(1)
-
-                    _trial = ax_client.get_trial(trial_index)
-                    try:
-                        progressbar_description([f"new result: {result}"])
-                        _trial.mark_completed(unsafe=True)
-                        succeeded_jobs(1)
-
-                        #update_progress_bar(progress_bar, 1)
-                        update_progress_bar(progress_bar, 1)
-
-                        live_share()
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                else:
-                    if job:
-                        try:
-                            progressbar_description(["job_failed"])
-
-                            ax_client.log_trial_failure(trial_index=trial_index)
-                        except Exception as e:
-                            print(f"ERROR in line {get_line_info()}: {e}")
-                        job.cancel()
-                        orchestrate_job(job, trial_index)
-
-                    failed_jobs(1)
-                    live_share()
-
-                global_vars["jobs"].remove((job, trial_index))
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError) as error:
-                print_red(str(error))
-
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        _trial = ax_client.get_trial(trial_index)
-                        _trial.mark_failed()
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-                    orchestrate_job(job, trial_index)
-
-                failed_jobs(1)
-                this_jobs_finished += 1
-
-                global_vars["jobs"].remove((job, trial_index))
-            except ax.exceptions.core.UserInputError as error:
-                if "None for metric" in str(error):
-                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
-                else:
-                    print_red(f"\n⚠ {error}")
-
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        ax_client.log_trial_failure(trial_index=trial_index)
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-                    orchestrate_job(job, trial_index)
-
-                failed_jobs(1)
-                this_jobs_finished += 1
-
                 global_vars["jobs"].remove((job, trial_index))
 
-            if args.verbose:
-                progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
-            save_pd_csv()
-        else:
-            pass
+            save_checkpoints()
 
+    update_progress(this_jobs_finished, new_msgs)
+
+
+def save_checkpoints():
+    if args.verbose:
+        progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
+    save_pd_csv()
+
+
+def update_progress(this_jobs_finished, new_msgs):
     if this_jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
     elif this_jobs_finished > 0:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
 
+    global jobs_finished
     jobs_finished += this_jobs_finished
-
     clean_completed_jobs()
 
 def check_orchestrator(stdout_path, trial_index):

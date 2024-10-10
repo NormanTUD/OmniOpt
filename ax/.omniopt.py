@@ -4027,7 +4027,7 @@ def _orchestrate(stdout_path, trial_index):
 def write_continue_run_uuid_to_file(continue_dir):
     try:
 
-        with open(f'{continue_dir}/state_files/run_uuid') as f:
+        with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
             continue_from_uuid = f.readline()
 
             file_path = f"{CURRENT_RUN_FOLDER}/state_files/uuid_of_continued_run"

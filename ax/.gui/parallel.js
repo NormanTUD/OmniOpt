@@ -87,17 +87,19 @@ function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues
 	dimensions.push(createResultDimension(resultValues, minResult, maxResult));
 	return dimensions;
 }
-
 function createNumericDimension(key, values) {
 	let numericValues = values.map(parseFloat);
+	numericValues.sort((a, b) => a - b); // Sortiere numerische Werte
+
 	return {
 		range: [Math.min(...numericValues), Math.max(...numericValues)],
 		label: key,
 		values: numericValues,
-		tickvals: createTicks(numericValues), // Ensure all numeric values are sorted and displayed
-		ticktext: createTickText(createTicks(numericValues)) // Show all ticks with full precision
+		tickvals: createTicks(numericValues), // Verwende die sortierten Werte für Ticks
+		ticktext: createTickText(createTicks(numericValues)) // Zeige Ticks mit voller Präzision
 	};
 }
+
 
 function createStringDimension(key, values, stringMapping) {
 	let valueIndices = values.map(value => stringMapping[cleanValue(value)]);
@@ -186,9 +188,10 @@ function mapStrings(values) {
 function createTicks(values) {
 	const min = Math.min(...values);
 	const max = Math.max(...values);
-	const step = (max - min) / (values.length - 1); // Adjusted to show all values
+	const numTicks = Math.min(10, values.length); // Maximal 10 Ticks
+	const step = (max - min) / (numTicks - 1);
 
-	return Array.from({ length: values.length }, (_, i) => (min + step * i).toFixed(2));
+	return Array.from({ length: numTicks }, (_, i) => (min + step * i).toFixed(2));
 }
 
 function createTickText(ticks) {

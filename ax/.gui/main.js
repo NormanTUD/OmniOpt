@@ -621,5 +621,11 @@ function parseAnsiToVirtualTerminal(input) {
 		i++;
 	}
 
-	return rows.map(line => (line.join('') || '').padEnd(maxWidth, ' ')).join('\n');
+	var result = rows.map(line => (line.join('') || '').padEnd(maxWidth, ' ')).join('\n');
+
+	const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+
+	result = removeTrailingWhitespaces(result);
+
+	return result;
 }

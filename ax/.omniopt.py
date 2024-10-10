@@ -1261,7 +1261,7 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning, log_scale_param=None):
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -1272,6 +1272,10 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
     lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
     skip, value_type, log_scale = get_value_type_and_log_scale(this_args, j)
+
+    # Überschreiben des log_scale Werts, falls der neue Parameter übergeben wird
+    if log_scale_param is not None:
+        log_scale = str(log_scale_param).lower() == "true"
 
     validate_value_type(value_type)
 

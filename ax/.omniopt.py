@@ -4024,6 +4024,25 @@ def _orchestrate(stdout_path, trial_index):
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 my_exit(210)
 
+def write_continue_run_uuid_to_file(continue_dir):
+    try:
+
+        with open(f'{continue_dir}/state_files/run_uuid') as f:
+            continue_from_uuid = f.readline()
+
+            file_path = f"{CURRENT_RUN_FOLDER}/state_files/uuid_of_continued_run"
+
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            with open(file_path, 'w', encoding="utf-8") as file:
+                file.write(continue_from_uuid)
+
+            return True
+    except Exception as e:
+        print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
+
+        return False
+
 def write_run_uuid_to_file():
     try:
         file_path = f"{CURRENT_RUN_FOLDER}/state_files/run_uuid"
@@ -4844,6 +4863,9 @@ def main():
 
     if ci_env or args.disable_tqdm:
         disable_tqdm = True
+
+    if args.continue_previous_job:
+        write_continue_run_uuid_to_file(args.continue_previous_job)
 
     with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
         write_process_info()

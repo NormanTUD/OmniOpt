@@ -160,6 +160,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>original_ax_client_before_loading_tmp_one.json</i>: Required to re-load generation strategy in continued jobs</li>
 	<li><i>cpu_ram_usage.csv</i>: Logs CPU and RAM usage</li>
 	<li><i>run_uuid</i>: A file containing a <a href='https://de.wikipedia.org/wiki/Universally_Unique_Identifier'>UUID</a> for each run</li>
+	<li><i>uuid_of_continued_run</i>: A file containing a <a href='https://de.wikipedia.org/wiki/Universally_Unique_Identifier'>UUID</a> from the job it has been continued from</li>
 </ul>
 
 <h3 id="single_runs"><samp>single_runs</samp></h3>

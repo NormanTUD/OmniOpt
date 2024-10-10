@@ -1334,6 +1334,29 @@ fi
 
 mycd "$ORIGINAL_PWD"
 
+function _python {
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		if [[ -n $bash_logname ]]; then
+			eval "stdbuf -e 0 -o 0 python3 $* 2> >(tee -a '$bash_logname' >&2) | tee -a '$bash_logname'"
+			exit_code=$?
+		else
+			eval "stdbuf -e 0 -o 0 python3 $*"
+			exit_code=$?
+		fi
+	else
+		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
+		if [[ -n $bash_logname ]]; then
+			eval "stdbuf -e 0 -o 0 coverage run -p $* --help 2> >(tee -a '$bash_logname' >&2) | tee -a '$bash_logname'"
+			exit_code=$?
+		else
+			eval "stdbuf -e 0 -o 0 coverage run -p '$SCRIPT_DIR/.omniopt.py' --help"
+			exit_code=$?
+		fi
+	fi
+
+	return $exit_code
+}
+
 if [[ "$workdir" != "" ]]; then
 	if [[ ! -d "$workdir" ]]; then
 		mkdir -p "$workdir" || {
@@ -1346,19 +1369,7 @@ if [[ "$workdir" != "" ]]; then
 fi
 
 if [[ "$help" -eq "1" ]]; then
-	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		if [[ -n $bash_logname ]]; then
-			stdbuf -e 0 -o 0 python3 $SCRIPT_DIR/.omniopt.py --help 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-		else
-			stdbuf -e 0 -o 0 python3 $SCRIPT_DIR/.omniopt.py --help
-		fi
-	else
-		if [[ -n $bash_logname ]]; then
-			stdbuf -e 0 -o 0 coverage run -p "$SCRIPT_DIR/.omniopt.py" --help 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-		else
-			stdbuf -e 0 -o 0 coverage run -p "$SCRIPT_DIR/.omniopt.py" --help
-		fi
-	fi
+	_python "$SCRIPT_DIR/.omniopt.py --help"
 
 	exit 0
 fi
@@ -1366,41 +1377,10 @@ fi
 if [[ "$tests" -eq "1" ]]; then
 	exit_code=0
 	if [[ $run_tests_that_fail_on_taurus -eq 0 ]]; then
-		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""  2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				exit_code=$?
-			else
-				stdbuf -e 0 -o 0 python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
-				exit_code=$?
-			fi
-		else
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				exit_code=$?
-			else
-				stdbuf -e 0 -o 0 coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
-				exit_code=$?
-			fi
-		fi
+		_python "$SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program '' --experiment_name ''"
 	else
-		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				exit_code=$?
-			else
-				stdbuf -e 0 -o 0 python3 $SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
-				exit_code=$?
-			fi
-		else
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				exit_code=$?
-			else
-				stdbuf -e 0 -o 0 coverage run -p "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
-				exit_code=$?
-			fi
-		fi
+		_python "$SCRIPT_DIR/.omniopt.py --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program '' --experiment_name '' --run_tests_that_fail_on_taurus"
+		exit_code=$?
 	fi
 	exit $exit_code
 fi
@@ -1440,19 +1420,8 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 
 	set +e
 
-	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		if [[ -n $bash_logname ]]; then
-			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-			EXIT_CODE=$?
-		else
-			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
-			EXIT_CODE=$?
-		fi
-	else
-		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
-		EXIT_CODE=$?
-	fi
+	_python "$SCRIPT_DIR/.omniopt.py $args_string"
+	EXIT_CODE=$?
 
 	set -e
 

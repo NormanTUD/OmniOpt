@@ -1685,6 +1685,7 @@ stateful
 statusBar
 statusLogs
 statusText
+stdbuf
 stddev
 stderr
 STDERR

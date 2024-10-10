@@ -2696,133 +2696,149 @@ def check_equation(variables, equation):
         return equation
 
     return False
-
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client
 
-    experiment_args = None
-
     if continue_previous_job:
-        print_debug(f"Load from checkpoint: {continue_previous_job}")
-
-        checkpoint_file = continue_previous_job + "/state_files/checkpoint.json"
-        checkpoint_parameters_filepath = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
-
-        die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
-        die_with_47_if_file_doesnt_exists(checkpoint_file)
-
-        try:
-            f = open(checkpoint_file, encoding="utf-8")
-            experiment_parameters = json.load(f)
-            f.close()
-
-            with open(checkpoint_file, encoding="utf-8") as f:
-                experiment_parameters = json.load(f)
-        except json.decoder.JSONDecodeError:
-            print_red(f"Error parsing checkpoint_file {checkpoint_file}")
-            my_exit(47)
-
-        experiment_args = set_torch_device_to_experiment_args(experiment_args)
-
-        copy_state_files_from_previous_job(continue_previous_job)
-
-        if parameter:
-            for _item in cli_params_experiment_parameters:
-                _replaced = False
-                for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
-                    if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
-                        old_param_json = json.dumps(
-                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
-                        )
-                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
-                        new_param_json = json.dumps(
-                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
-                        )
-                        _replaced = True
-
-                        compared_params = compare_parameters(old_param_json, new_param_json)
-                        if compared_params:
-                            print_yellow(compared_params)
-
-                if not _replaced:
-                    print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
-
-        original_ax_client_file = f"{CURRENT_RUN_FOLDER}/state_files/original_ax_client_before_loading_tmp_one.json"
-        ax_client.save_to_json_file(filepath=original_ax_client_file)
-
-        with open(original_ax_client_file, encoding="utf-8") as f:
-            loaded_original_ax_client_json = json.load(f)
-            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
-
-            if original_generation_strategy:
-                experiment_parameters["generation_strategy"] = original_generation_strategy
-
-        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-
-        ax_client = AxClient.load_from_json_file(tmp_file_path)
-
-        os.unlink(tmp_file_path)
-
-        state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files"
-
-        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-        if not os.path.exists(state_files_folder):
-            os.makedirs(state_files_folder)
-        with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
-            json.dump(experiment_parameters, outfile)
-
-        if not os.path.exists(checkpoint_filepath):
-            print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
-            my_exit(47)
-
-        with open(f'{CURRENT_RUN_FOLDER}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
-            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+        experiment_parameters = load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters, experiment_parameters)
     else:
-        experiment_args = {
-            "name": global_vars["experiment_name"],
-            "parameters": experiment_parameters,
-            "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
-            "choose_generation_strategy_kwargs": {
-                "num_trials": max_eval,
-                "num_initialization_trials": num_parallel_jobs,
-                "max_parallelism_cap": num_parallel_jobs,
-                #"use_batch_trials": True,
-                "max_parallelism_override": -1
-            },
-        }
+        experiment_parameters = initialize_experiment(seed, experiment_constraints, experiment_parameters, minimize_or_maximize)
 
-        if seed:
-            experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
+    return ax_client, experiment_parameters, experiment_parameters
 
-        experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
-        if experiment_constraints and len(experiment_constraints):
-            experiment_args["parameter_constraints"] = []
-            for _l in range(0, len(experiment_constraints)):
-                constraints_string = " ".join(experiment_constraints[_l])
+def load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters, experiment_parameters):
+    checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
+    checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
 
-                variables = [item['name'] for item in experiment_parameters]
+    die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
+    die_with_47_if_file_doesnt_exists(checkpoint_file)
 
-                equation = check_equation(variables, constraints_string)
+    experiment_parameters = load_checkpoint_file(checkpoint_file)
+    
+    experiment_parameters = replace_parameters_if_needed(cli_params_experiment_parameters, experiment_parameters)
+    
+    load_ax_client(continue_previous_job, experiment_parameters)
 
-                if equation:
-                    experiment_args["parameter_constraints"].append(constraints_string)
-                else:
-                    print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
-                    my_exit(19)
+    return experiment_parameters
 
-        try:
-            ax_client.create_experiment(**experiment_args)
-        except ValueError as error:
-            print_red(f"An error has occurred while creating the experiment: {error}")
-            die_something_went_wrong_with_parameters()
-        except TypeError as error:
-            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt.")
-            die_something_went_wrong_with_parameters()
 
-    return ax_client, experiment_parameters, experiment_args
+def load_checkpoint_file(checkpoint_file):
+    try:
+        with open(checkpoint_file, encoding="utf-8") as f:
+            return json.load(f)
+    except json.decoder.JSONDecodeError:
+        print_red(f"Error parsing checkpoint_file {checkpoint_file}")
+        my_exit(47)
+
+
+def replace_parameters_if_needed(cli_params_experiment_parameters, experiment_parameters):
+    if parameter:
+        for _item in cli_params_experiment_parameters:
+            _replaced = False
+            for _item_id_to_overwrite in range(len(experiment_parameters["experiment"]["search_space"]["parameters"])):
+                if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
+                    _replaced = replace_parameter(experiment_parameters, _item_id_to_overwrite, _item)
+            if not _replaced:
+                print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored.")
+    return experiment_parameters
+
+
+def replace_parameter(experiment_parameters, _item_id_to_overwrite, _item):
+    old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+    experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
+    new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+
+    compared_params = compare_parameters(old_param_json, new_param_json)
+    if compared_params:
+        print_yellow(compared_params)
+    return True
+
+
+def load_ax_client(continue_previous_job, experiment_parameters):
+    original_ax_client_file = f"{CURRENT_RUN_FOLDER}/state_files/original_ax_client_before_loading_tmp_one.json"
+    ax_client.save_to_json_file(filepath=original_ax_client_file)
+
+    with open(original_ax_client_file, encoding="utf-8") as f:
+        loaded_original_ax_client_json = json.load(f)
+        original_generation_strategy = loaded_original_ax_client_json.get("generation_strategy")
+
+        if original_generation_strategy:
+            experiment_parameters["generation_strategy"] = original_generation_strategy
+
+    tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+    ax_client = AxClient.load_from_json_file(tmp_file_path)
+    os.unlink(tmp_file_path)
+
+    save_checkpoint(experiment_parameters)
+
+
+def save_checkpoint(experiment_parameters):
+    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files"
+    if not os.path.exists(state_files_folder):
+        os.makedirs(state_files_folder)
+    
+    checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
+    with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
+        json.dump(experiment_parameters, outfile)
+
+    if not os.path.exists(checkpoint_filepath):
+        print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
+        my_exit(47)
+
+    with open(f'{CURRENT_RUN_FOLDER}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+        print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+
+
+def initialize_experiment(seed, experiment_constraints, experiment_parameters, minimize_or_maximize):
+    experiment_args = {
+        "name": global_vars["experiment_name"],
+        "parameters": experiment_parameters,
+        "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+        "choose_generation_strategy_kwargs": {
+            "num_trials": max_eval,
+            "num_initialization_trials": num_parallel_jobs,
+            "max_parallelism_cap": num_parallel_jobs,
+            "max_parallelism_override": -1
+        },
+    }
+
+    if seed:
+        experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
+
+    experiment_args = set_torch_device_to_experiment_args(experiment_args)
+
+    if experiment_constraints:
+        experiment_args["parameter_constraints"] = process_experiment_constraints(experiment_constraints, experiment_parameters)
+
+    try:
+        ax_client.create_experiment(**experiment_args)
+    except (ValueError, TypeError) as error:
+        handle_experiment_creation_error(error)
+
+    return experiment_parameters
+
+
+def process_experiment_constraints(experiment_constraints, experiment_parameters):
+    constraints_list = []
+    for constraint in experiment_constraints:
+        constraints_string = " ".join(constraint)
+        variables = [item['name'] for item in experiment_parameters]
+        equation = check_equation(variables, constraints_string)
+
+        if equation:
+            constraints_list.append(constraints_string)
+        else:
+            print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
+            my_exit(19)
+    return constraints_list
+
+
+def handle_experiment_creation_error(error):
+    print_red(f"An error has occurred while creating the experiment: {error}")
+    die_something_went_wrong_with_parameters()
 
 def get_type_short(typename):
     if typename == "RangeParameter":
@@ -3869,7 +3885,6 @@ def finish_previous_jobs(new_msgs):
 
             if args.verbose:
                 progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
-            save_checkpoint()
             save_pd_csv()
         else:
             pass

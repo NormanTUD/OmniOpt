@@ -106,7 +106,7 @@ echo "=== Current git hash before auto-pulling ==="
 git pull
 
 _mkdir runs
-_mkdir .logs
+_mkdir logs
 
 git rev-parse HEAD > git_hash
 
@@ -145,7 +145,7 @@ case "$ORIGINAL_ARGS" in
 	./omniopt*|omniopt*|./.tests/*|.tests/*)
 		if [[ -z $DISPLAY ]]; then
 			docker run \
-				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
+				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
 				-v /$HOME/.config/matplotlib_docker_omniopt:$HOME/.config/matplotlib:rw \
@@ -154,7 +154,7 @@ case "$ORIGINAL_ARGS" in
 				ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
 			docker run \
-				-v $(pwd)/.logs:/var/opt/omniopt/.logs:rw \
+				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
 				-v $HOME/.config/matplotlib_docker_omniopt:/$HOME/.config/matplotlib:rw \

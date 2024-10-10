@@ -25,9 +25,9 @@ if command -v uuidgen 2>/dev/null >/dev/null; then
 		export RUN_UUID
 	fi
 
-	mkdir -p .logs
+	mkdir -p logs
 
-	bash_logname=".logs/$RUN_UUID"
+	bash_logname="logs/$RUN_UUID"
 
 	export bash_logname
 else
@@ -374,8 +374,8 @@ export CUDA_DEVICE_ORDER=PCI_BUS_ID
 ORIGINAL_PWD="$(pwd)"
 export ORIGINAL_PWD
 
-mkdir -p "$ORIGINAL_PWD/.logs" || {
-	red_text "Failed: mkdir -p $ORIGINAL_PWD/.logs"
+mkdir -p "$ORIGINAL_PWD/logs" || {
+	red_text "Failed: mkdir -p $ORIGINAL_PWD/logs"
 	exit 1
 }
 

@@ -1,27 +1,43 @@
 #!/bin/env python3
 
-import argparse
-import datetime
-import importlib.util
-import inspect
-import os
-import platform
-import random
-import sys
-from inspect import currentframe, getframeinfo
-from pathlib import Path
-import json
-import uuid
-import yaml
 try:
+    import argparse
+    import datetime
+    import importlib.util
+    import inspect
+    import os
+    import platform
+    import random
+    import sys
+    from inspect import currentframe, getframeinfo
+    from pathlib import Path
+    import json
+    import uuid
+    import yaml
+    import re
     import toml
-except ModuleNotFoundError:
-    print("toml could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly.")
+except ModuleNotFoundError as e:
+    print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 1")
     sys.exit(1)
 
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+
+uuid_regex = re.compile(
+    r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+)
+
+new_uuid = str(uuid.uuid4())
+run_uuid = os.getenv("RUN_UUID", new_uuid)
+
+if not uuid_regex.match(run_uuid):
+    print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
+    run_uuid = new_uuid
+
+print(f"Run-UUID: {run_uuid}")
+
 jobs_finished = 0
-run_uuid = os.getenv("RUN_UUID", str(uuid.uuid4()))
 shown_live_share_counter = 0
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
@@ -88,23 +104,17 @@ def is_slurm_job():
 
 args = None
 
-LOG_DIR = ".logs"
+LOG_DIR = "logs"
 try:
     Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
 except Exception as ee:
     original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
 
-LOG_I = 0
-logfile = f'{LOG_DIR}/{LOG_I}'
-logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-while os.path.exists(logfile):
-    LOG_I = LOG_I + 1
-    logfile = f'{LOG_DIR}/{LOG_I}'
-
-logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
-logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
-logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
+logfile = f'{LOG_DIR}/{run_uuid}_log'
+logfile_nr_workers = f'{LOG_DIR}/{run_uuid}_nr_workers'
+logfile_progressbar = f'{LOG_DIR}/{run_uuid}_progressbar'
+logfile_worker_creation_logs = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
+logfile_trial_index_to_param_logs = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
 def _sleep(t: int):
@@ -437,8 +447,6 @@ try:
     with console.status("[bold green]Loading os...") as status:
         from os import listdir
         from os.path import isfile, join
-    with console.status("[bold green]Loading re...") as status:
-        import re
     with console.status("[bold green]Loading socket...") as status:
         import socket
     with console.status("[bold green]Loading stat...") as status:

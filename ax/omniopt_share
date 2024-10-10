@@ -208,8 +208,8 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			fi
 
 			if [[ -z $outfile ]]; then
-				if [[ -e ".logs/$run_uuid" ]]; then
-					curl_options+=("-F" "outfile=@.logs/$run_uuid")
+				if [[ -e "logs/$run_uuid" ]]; then
+					curl_options+=("-F" "outfile=@logs/$run_uuid")
 				fi
 			fi
 		fi

@@ -13,7 +13,11 @@ from pathlib import Path
 import json
 import uuid
 import yaml
-import toml
+try:
+    import toml
+except ModuleNotFoundError:
+    print("toml could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly.")
+    sys.exit(1)
 
 jobs_finished = 0
 run_uuid = os.getenv("RUN_UUID", str(uuid.uuid4()))

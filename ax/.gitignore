@@ -189,3 +189,4 @@ runs_OLD
 ../.omniopt_*
 ../.omniax_*
 myscript.prof
+logs

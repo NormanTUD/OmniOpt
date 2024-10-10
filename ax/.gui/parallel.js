@@ -89,14 +89,14 @@ function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues
 }
 function createNumericDimension(key, values) {
 	let numericValues = values.map(parseFloat);
-	numericValues.sort((a, b) => a - b); // Sortiere numerische Werte
+	numericValues.sort((a, b) => a - b);
 
 	return {
 		range: [Math.min(...numericValues), Math.max(...numericValues)],
 		label: key,
 		values: numericValues,
-		tickvals: createTicks(numericValues), // Verwende die sortierten Werte für Ticks
-		ticktext: createTickText(createTicks(numericValues)) // Zeige Ticks mit voller Präzision
+		tickvals: createTicks(numericValues),
+		ticktext: createTickText(createTicks(numericValues))
 	};
 }
 

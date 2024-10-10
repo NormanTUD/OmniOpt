@@ -874,7 +874,7 @@ async function load_outfile () {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
 		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
 		converted = removeTrailingWhitespaces(converted);
-		$(`#outfile`).html(`<pre style='white-space: break-spaces;'>${converted}</pre>`);
+		$(`#outfile`).html(`<pre class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>`);
 	}
 }
 
@@ -1172,6 +1172,7 @@ async function load_overview_data() {
 			var th = document.createElement('th');
 			th.style.border = '1px solid black';
 			th.style.padding = '8px';
+			th.classList.add("invert_in_dark_mode");
 			th.textContent = heading;
 			headerRow.appendChild(th);
 		});
@@ -1183,6 +1184,7 @@ async function load_overview_data() {
 			var td = document.createElement('td');
 			td.style.border = '1px solid black';
 			td.style.padding = '8px';
+			td.classList.add("invert_in_dark_mode");
 			td.textContent = value;
 			dataRow.appendChild(td);
 		});

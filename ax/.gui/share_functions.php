@@ -621,22 +621,31 @@
 		}
 	}
 
-	function _delete_old_shares ($dir) {
+	function _delete_old_shares($dir) {
 		$oldDirectories = [];
 		$currentTime = time();
+
+		// Helper function to check if a directory is empty
+		function is_dir_empty($dir) {
+			return (is_readable($dir) && count(scandir($dir)) == 2); // Only '.' and '..' are present in an empty directory
+		}
 
 		foreach (glob("$dir/*/*/*", GLOB_ONLYDIR) as $subdir) {
 			$pathParts = explode('/', $subdir);
 			$secondDir = $pathParts[1] ?? '';
 
-			if($secondDir != "s4122485") { // Elias has a beautiful test project which I dont want to get deleted
+			// Skip Elias's project directory
+			if ($secondDir != "s4122485") {
 				$threshold = ($secondDir === 'runner') ? (2 * 3600) : (30 * 24 * 3600);
 
 				$dir_date = filemtime($subdir);
 
+				// Check if the directory is older than the threshold and is either empty or meets the original condition
 				if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
-					$oldDirectories[] = $subdir;
-					rrmdir($subdir);
+					if (is_dir_empty($subdir)) {
+						$oldDirectories[] = $subdir;
+						rrmdir($subdir); // Remove the directory
+					}
 				}
 			}
 		}

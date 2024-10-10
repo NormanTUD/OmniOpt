@@ -885,7 +885,7 @@ async function load_next_trials () {
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		warn(`load_next_trials: Could not plot seemingly empty data: no raw found`);
+		//warn(`load_next_trials: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 

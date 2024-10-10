@@ -1263,9 +1263,37 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 
 def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
     check_factorial_range()
-
     check_range_params_length(this_args)
 
+    lower_bound, upper_bound = get_bounds(this_args, j)
+
+    die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
+
+    lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
+
+    skip, value_type, log_scale = get_value_type_and_log_scale(this_args, j)
+
+    validate_value_type(value_type)
+
+    lower_bound, upper_bound = adjust_bounds_for_value_type(value_type, lower_bound, upper_bound)
+
+    lower_bound, upper_bound = get_bounds_from_previous_data(name, lower_bound, upper_bound)
+
+    search_space_reduction_warning = check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning)
+
+    param = create_param(name, lower_bound, upper_bound, value_type, log_scale)
+
+    if args.gridsearch:
+        param = handle_grid_search(name, lower_bound, upper_bound, value_type)
+
+    global_vars["parameter_names"].append(name)
+    params.append(param)
+
+    j += skip
+    return j, params, search_space_reduction_warning
+
+
+def get_bounds(this_args, j):
     try:
         lower_bound = float(this_args[j + 2])
     except Exception:
@@ -1278,57 +1306,65 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
         print_red(f"\n⚠ {this_args[j + 3]} is not a number")
         my_exit(181)
 
-    die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
+    return lower_bound, upper_bound
 
-    lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
+def get_value_type_and_log_scale(this_args, j):
     skip = 5
-
     try:
         value_type = this_args[j + 4]
     except Exception:
         value_type = "float"
         skip = 4
 
-    log_scale = False
-
     try:
-        log_scale = this_args[j + 5]
-        if log_scale.lower() == "true":
-            log_scale = True
-        elif log_scale.lower() == "false":
-            log_scale = False
-        else:
-            print_red("Parameter 5 (log_scale) must either be true or false, but not something else. Default: false.")
+        log_scale = this_args[j + 5].lower() == "true"
     except Exception:
+        log_scale = False
         skip = 5
 
-    valid_value_types = ["int", "float"]
+    return skip, value_type, log_scale
 
+
+def validate_value_type(value_type):
+    valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-    old_lower_bound = lower_bound
-    old_upper_bound = upper_bound
 
+def adjust_bounds_for_value_type(value_type, lower_bound, upper_bound):
     lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
-
-    lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
-    upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
 
     if value_type == "int":
         lower_bound = math.floor(lower_bound)
         upper_bound = math.ceil(upper_bound)
 
+    return lower_bound, upper_bound
+
+
+def get_bounds_from_previous_data(name, lower_bound, upper_bound):
+    lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
+    upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
+    return lower_bound, upper_bound
+
+
+def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning):
+    old_lower_bound = lower_bound
+    old_upper_bound = upper_bound
+
     if args.continue_previous_job:
-        if old_lower_bound != lower_bound and found_lower_bound_in_file and old_lower_bound < lower_bound:
-            print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
+        if old_lower_bound != lower_bound:
+            print_yellow(f"⚠ previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
             search_space_reduction_warning = True
 
-        if old_upper_bound != upper_bound and found_upper_bound_in_file and old_upper_bound > upper_bound:
-            print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
+        if old_upper_bound != upper_bound:
+            print_yellow(f"⚠ previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
             search_space_reduction_warning = True
 
-    param = {
+    return search_space_reduction_warning
+
+
+def create_param(name, lower_bound, upper_bound, value_type, log_scale):
+    return {
         "name": name,
         "type": "range",
         "bounds": [lower_bound, upper_bound],
@@ -1336,32 +1372,22 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
         "log_scale": log_scale
     }
 
-    if args.gridsearch:
-        values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
-        if value_type == "int":
-            values = [int(value) for value in values]
-            changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
-        else:
-            changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
+def handle_grid_search(name, lower_bound, upper_bound, value_type):
+    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
-        values = sorted(set(values))
-        values = [str(helpers.to_int_when_possible(value)) for value in values]
+    if value_type == "int":
+        values = [int(value) for value in values]
 
-        param = {
-            "name": name,
-            "type": "choice",
-            "is_ordered": True,
-            "values": values
-        }
+    values = sorted(set(values))
+    values = [str(helpers.to_int_when_possible(value)) for value in values]
 
-    global_vars["parameter_names"].append(name)
-
-    params.append(param)
-
-    j += skip
-
-    return j, params, search_space_reduction_warning
+    return {
+        "name": name,
+        "type": "choice",
+        "is_ordered": True,
+        "values": values
+    }
 
 def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning):
     if len(this_args) != 3:

@@ -629,13 +629,15 @@
 			$pathParts = explode('/', $subdir);
 			$secondDir = $pathParts[1] ?? '';
 
-			$threshold = ($secondDir === 'runner') ? (2 * 3600) : (30 * 24 * 3600);
+			if($secondDir != "s4122485") { // Elias has a beautiful test project which I dont want to get deleted
+				$threshold = ($secondDir === 'runner') ? (2 * 3600) : (30 * 24 * 3600);
 
-			$dir_date = filemtime($subdir);
+				$dir_date = filemtime($subdir);
 
-			if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
-				$oldDirectories[] = $subdir;
-				rrmdir($subdir);
+				if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
+					$oldDirectories[] = $subdir;
+					rrmdir($subdir);
+				}
 			}
 		}
 

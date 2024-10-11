@@ -629,6 +629,31 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 	}
 }
 
+async function load_internal_log() {
+	//debug_function("load_internal_log()");
+	var data = await fetchJsonFromUrlFilenameOnly(`log`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		//warn(`load_internal_log: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	add_tab("internal_log", "Debug-Log", `<div id='internal_log_element'></div>`);
+
+	if($(`#internal_log_element`).length == 0) {
+		error(`Could not find #internal_log_element`);
+	} else {
+		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
+		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		converted = removeTrailingWhitespaces(converted);
+		$(`#internal_log_element`).html(`<pre class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}`);
+	}
+}
+
+
 async function load_outfile () {
 	//debug_function("load_outfile()");
 	var data = await fetchJsonFromUrlFilenameOnly(`outfile`)
@@ -1013,6 +1038,7 @@ async function load_all_data() {
 		promises.push(load_next_trials());
 		promises.push(load_results());
 		promises.push(load_outfile());
+		promises.push(load_internal_log());
 		promises.push(load_parameter());
 
 		promises.push(plot_all_possible());

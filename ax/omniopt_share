@@ -212,6 +212,10 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 					curl_options+=("-F" "outfile=@logs/$run_uuid")
 				fi
 			fi
+
+			if [[ -e "logs/${run_uuid}_log" ]]; then
+				curl_options+=("-F" "log=@logs/${run_uuid}_log")
+			fi
 		fi
 
 

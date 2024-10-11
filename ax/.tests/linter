@@ -74,18 +74,22 @@ run_linter() {
 	local linter="$1"
 	local file_args=("$@")
 
-	if [[ "${#file_args[@]}" -gt 1 ]]; then
-		yellow_text "Running $linter on files: ${file_args[*]:1}"
-		.tests/$linter "${file_args[@]:1}" || {
-			red_text "$linter failed\n"
-			errors+=("$linter failed")
-		}
+	if [[ ${#errors[@]} -eq 0 ]]; then
+		if [[ "${#file_args[@]}" -gt 1 ]]; then
+			yellow_text "Running $linter on files: ${file_args[*]:1}"
+			.tests/$linter "${file_args[@]:1}" || {
+				red_text "$linter failed\n"
+				errors+=("$linter failed")
+			}
+		else
+			yellow_text "Running $linter..."
+			.tests/$linter || {
+				red_text "$linter failed\n"
+				errors+=("$linter failed")
+			}
+		fi
 	else
-		yellow_text "Running $linter..."
-		.tests/$linter || {
-			red_text "$linter failed\n"
-			errors+=("$linter failed")
-		}
+		yellow_text "Skipping linter test because there were previous errors..."
 	fi
 }
 

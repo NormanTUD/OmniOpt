@@ -3223,42 +3223,31 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
     try:
         matching_rows = df
-        print_debug(matching_rows)
 
         for param, value in params.items():
             if param in df.columns:
                 if isinstance(value, float):
                     # Log current state before filtering
-                    print_debug(f"Filtering for float parameter '{param}' with value '{value}' and tolerance '{float_tolerance}'")
 
                     is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
-                    print_debug(is_close_array)
 
                     matching_rows = matching_rows[is_close_array]
-                    print_debug(matching_rows)
 
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
                     # Ensure consistent types for comparison
-                    print_debug(f"Filtering for parameter '{param}' with value '{value}'")
                     if matching_rows[param].dtype == np.int64 and isinstance(value, str):
                         value = int(value)
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str):
                         value = float(value)
 
                     matching_rows = matching_rows[matching_rows[param] == value]
-                    print_debug(matching_rows)
 
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
-            else:
-                print_debug(f"Parameter '{param}' not found in DataFrame columns")
 
         if matching_rows.empty:
-            print_debug("No matching rows found after all filters applied")
             return None
 
-        print_debug("Matching rows found")
-        print_debug(matching_rows)
         return matching_rows
     except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")

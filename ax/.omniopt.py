@@ -4117,8 +4117,8 @@ def execute_evaluation(_params):
 
     try:
         _trial.mark_staged()
-    except Exception:
-        print_debug(f"execute_evaluation({_params}: Marking the trial as stged failed with error {e}")
+    except Exception as e:
+        print_debug(f"execute_evaluation({_params}: Marking the trial as staged failed with error {e}")
         pass
     new_job = None
     try:
@@ -4148,7 +4148,7 @@ def execute_evaluation(_params):
 
         try:
             _trial.mark_running(no_runner_required=True)
-        except Exception:
+        except Exception as e:
             print_debug(f"execute_evaluation({_params}): Marking the trial as running failed with {e}")
         trial_counter += 1
 

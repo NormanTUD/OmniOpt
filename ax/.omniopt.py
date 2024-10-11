@@ -1959,13 +1959,13 @@ def disable_logging():
 def display_failed_jobs_table():
     _console = Console()
 
-    failed_jobs_folder = f"{CURRENT_RUN_FOLDER}/failed_logs"
-    header_file = os.path.join(failed_jobs_folder, "headers.csv")
-    parameters_file = os.path.join(failed_jobs_folder, "parameters.csv")
+    failed_jobs_file = f"{CURRENT_RUN_FOLDER}/failed_logs"
+    header_file = os.path.join(failed_jobs_file, "headers.csv")
+    parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
 
     # Assert the existence of the folder and files
-    if not os.path.exists(failed_jobs_folder):
-        print_debug(f"Failed jobs {failed_jobs_folder} folder does not exist.")
+    if not os.path.exists(failed_jobs_file):
+        print_debug(f"Failed jobs {failed_jobs_file} file does not exist.")
         return
 
     if not os.path.isfile(header_file):

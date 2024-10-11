@@ -178,7 +178,8 @@ def wrapper_print_debug(func):
         runtime = end_time - start_time
         runtime_human_readable = f"{runtime:.4f} seconds"
 
-        print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
+        if runtime > 1:
+            print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
 
         return result
     return wrapper

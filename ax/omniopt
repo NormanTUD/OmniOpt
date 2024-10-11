@@ -573,6 +573,12 @@ complex_options_with_files=(
 	"config_toml"
 )
 
+complex_options_with_int=(
+	"mem_gb"
+	"gpus"
+	"main_process_gb"
+)
+
 complex_options=(
 	"workdir"
 	"account"
@@ -582,6 +588,10 @@ complex_options=(
 )
 
 complex_options_str=""
+
+for opt in "${complex_options_with_int[@]}"; do
+	complex_options_str+=$(generate_config_handling_code "$opt" "int")
+done
 
 for opt in "${complex_options_with_files[@]}"; do
 	complex_options_str+=$(generate_config_handling_code "$opt" "file")
@@ -661,117 +671,6 @@ $complex_options_str
 			args_string+=" --continue \$continue_previous_job "
 
 			continue_was_set=1
-
-			;;
-
-		--main_process_gb=*)
-			old_main_process_gb=\$main_process_gb
-			main_process_gb="\${i#*=}"
-			if ! [[ \$main_process_gb =~ \$int_re ]] ; then
-				red_text "error: --main_process_gb not a INT: \$i" >&2
-				myexit 100
-			fi
-
-			if [[ -n \$old_main_process_gb ]]; then
-				red_text "--main_process_gb was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
-			fi
-
-			args_string+=" --main_process_gb=\$main_process_gb "
-
-			;;
-		--main_process_gb)
-			old_main_process_gb=\$main_process_gb
-
-			shift
-			k=\$((k+1))
-
-			main_process_gb="\${args[k]}"
-			if ! [[ \$main_process_gb =~ \$int_re ]] ; then
-				red_text "error: --main_process_gb not a INT: \$i" >&2
-				myexit 100
-			fi
-
-			if [[ -n \$old_main_process_gb ]]; then
-				red_text "--main_process_gb was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
-			fi
-
-			args_string+=" --main_process_gb=\$main_process_gb "
-
-			;;
-
-		--mem_gb=*)
-			old_mem_gb=\$mem_gb
-			mem_gb="\${i#*=}"
-			if ! [[ \$mem_gb =~ \$int_re ]] ; then
-				red_text "error: --mem_gb not a INT: \$i" >&2
-				myexit 100
-			fi
-
-			if [[ -n \$old_mem_gb ]]; then
-				red_text "--mem_gb was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
-			fi
-
-			args_string+=" --mem_gb=\$mem_gb "
-
-			;;
-		--mem_gb)
-			old_mem_gb=\$mem_gb
-
-			shift
-			k=\$((k+1))
-
-			mem_gb="\${args[k]}"
-			if ! [[ \$mem_gb =~ \$int_re ]] ; then
-				red_text "error: --mem_gb not a INT: \$i" >&2
-				myexit 100
-			fi
-
-			if [[ -n \$old_mem_gb ]]; then
-				red_text "--mem_gb was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
-			fi
-
-			args_string+=" --mem_gb=\$mem_gb "
-
-			;;
-
-		--gpus=*)
-			old_gpus=\$gpus
-			gpus="\${i#*=}"
-			if ! [[ \$gpus =~ \$int_re ]] ; then
-				red_text "error: --gpus not a INT: \$i" >&2
-				myexit 100
-			fi
-
-			if [[ -n \$old_gpus ]]; then
-				red_text "--gpus was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
-			fi
-
-			args_string+=" --gpus=\$gpus "
-
-			;;
-		--gpus)
-			old_gpus=\$gpus
-
-			shift
-
-			k=\$((k+1))
-			gpus="\${args[k]}"
-			if ! [[ \$gpus =~ \$int_re ]] ; then
-				red_text "error: --gpus not a INT: \$i" >&2
-				myexit 100
-			fi
-
-			if [[ -n \$old_gpus ]]; then
-				red_text "--gpus was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
-			fi
-
-			args_string+=" --gpus=\$gpus "
 
 			;;
 

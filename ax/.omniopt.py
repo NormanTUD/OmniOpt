@@ -160,7 +160,6 @@ def print_debug(msg):
 
     if stack_trace_element:
         msg = f"{stack_trace_element}"
-        _debug(msg)
     else:
         msg = f"{time_str}:\t{msg}"
 
@@ -4747,8 +4746,6 @@ def check_max_eval(_max_eval):
         my_exit(19)
 
 def main():
-    print_debug("main()")
-
     global RESULT_CSV_FILE
     global ax_client
     global global_vars

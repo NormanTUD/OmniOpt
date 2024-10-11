@@ -4117,7 +4117,7 @@ def execute_evaluation(_params):
         _trial.mark_staged()
     except Exception as e:
         print_debug(f"execute_evaluation({_params}: Marking the trial as staged failed with error: {e}")
-        pass
+
     new_job = None
     try:
         progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])

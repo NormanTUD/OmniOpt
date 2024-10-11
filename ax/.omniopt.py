@@ -150,10 +150,7 @@ def get_functions_stack_array():
 
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #nl = get_nesting_level(inspect.currentframe().f_back)
-    #_tabs = "\t" * nl
-    _tabs = ""
-    msg = f"{time_str}:\t{_tabs}{msg}"
+    msg = f"{time_str}:\t{msg}"
 
     if args is not None and args.debug:
         print(msg)

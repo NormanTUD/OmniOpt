@@ -3917,8 +3917,6 @@ def finish_previous_jobs(new_msgs):
                 this_jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
-            except ax.exceptions.core.UnsupportedError as e:
-                print_debug(f"finish_previous_jobs(): Error: {e}")
 
             if args.verbose:
                 progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
@@ -4149,17 +4147,19 @@ def save_state_files():
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def execute_evaluation(trial_index, parameters, trial_counter, next_nr_steps, phase):
+def execute_evaluation(_params):
     global global_vars
 
-    print_debug(f"execute_evaluation({trial_index}, {parameters}, {trial_counter}, {next_nr_steps}, {phase})")
+    print_debug(f"execute_evaluation({_params})")
+
+    trial_index, parameters, trial_counter, next_nr_steps, phase = _params
 
     _trial = ax_client.get_trial(trial_index)
 
     try:
         _trial.mark_staged()
     except Exception as e:
-        print_debug(f"execute_evaluation({trial_index}, {parameters}, {trial_counter}, {next_nr_steps}, {phase}: Marking the trial as staged failed with error: {e}")
+        print_debug(f"execute_evaluation({_params}: Marking the trial as staged failed with error: {e}")
 
     new_job = None
     try:
@@ -4190,7 +4190,7 @@ def execute_evaluation(trial_index, parameters, trial_counter, next_nr_steps, ph
         try:
             _trial.mark_running(no_runner_required=True)
         except Exception as e:
-            print_debug(f"execute_evaluation({trial_index}, {parameters}, {trial_counter}, {next_nr_steps}, {phase}): Marking the trial as running failed with {e}")
+            print_debug(f"execute_evaluation({_params}): Marking the trial as running failed with {e}")
         trial_counter += 1
 
         progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
@@ -4444,8 +4444,6 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         return 0
 
     trial_index_to_param = None
-
-    threads = []
     try:
         trial_index_to_param = _get_next_trials()
 
@@ -4469,14 +4467,16 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
                 if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                     progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                    _arg = [trial_index, parameters, i, next_nr_steps, phase]
-                    t = threading.Thread(target=execute_evaluation, args=_arg)
-                    threads.append(t)
-                    t.start()
+                    execute_evaluation([
+                        trial_index,
+                        parameters,
+                        i,
+                        next_nr_steps,
+                        phase
+                    ])
                     i += 1
                 else:
                     break
-
     except botorch.exceptions.errors.InputDataError as e:
         print_red(f"Error 1: {e}")
         return 0
@@ -4495,9 +4495,6 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
     ) as e:
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 1)
-
-    for t in threads:
-        t.join()
 
     num_new_keys = 0
 

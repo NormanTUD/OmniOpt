@@ -3917,6 +3917,8 @@ def finish_previous_jobs(new_msgs):
                 this_jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
+            except UnsupportedError as e:
+                print_debug(f"finish_previous_jobs(): Error: {e}")
 
             if args.verbose:
                 progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])

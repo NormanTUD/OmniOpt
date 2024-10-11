@@ -153,7 +153,7 @@ def print_debug(msg):
     #nl = get_nesting_level(inspect.currentframe().f_back)
     #_tabs = "\t" * nl
     _tabs = ""
-    msg = f"{time_str}:{_tabs}{msg}"
+    msg = f"{time_str}:\t{_tabs}{msg}"
 
     if args is not None and args.debug:
         print(msg)

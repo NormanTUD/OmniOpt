@@ -479,7 +479,7 @@ fi
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 _test "Testing defective toml file" "./omniopt --config_toml .tests/defective_example_config.toml --follow" 5 1
 _test "Testing defective yaml file" "./omniopt --config_yaml .tests/defective_example_config.yaml --follow" 5 1
-_test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json --follow" 5 1
+_test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json --follow" 5 104
 
 _test "Testing non-existant json config file" "./omniopt --config_json /dev/idontexist.json" 100
 

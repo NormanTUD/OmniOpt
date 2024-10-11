@@ -776,7 +776,7 @@ function parseLogData(logData) {
 		}
 	});
 
-	return lines;
+	return jsonData;
 }
 
 function addSearchFunctionality(tableContainer, table) {

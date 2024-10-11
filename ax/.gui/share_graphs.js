@@ -629,6 +629,31 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 	}
 }
 
+async function load_progressbar_log() {
+	//debug_function("load_progressbar_log()");
+	var data = await fetchJsonFromUrlFilenameOnly(`progressbar`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		//warn(`load_progressbar_log: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	add_tab("progressbar_log", "Progressbar-Log", `<div id='progressbar_log_element'></div>`);
+
+	if($(`#progressbar_log_element`).length == 0) {
+		error(`Could not find #progressbar_log_element`);
+	} else {
+		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
+		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		converted = removeTrailingWhitespaces(converted);
+		$(`#progressbar_log_element`).html(`<pre class="progressbar_log_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("progressbar_log_class")}`);
+	}
+}
+
+
 async function load_install_errors() {
 	//debug_function("load_install_errors()");
 	var data = await fetchJsonFromUrlFilenameOnly(`install_errors`)
@@ -1063,6 +1088,7 @@ async function load_all_data() {
 		promises.push(load_outfile());
 		promises.push(load_internal_log());
 		promises.push(load_install_errors());
+		promises.push(load_progressbar_log());
 		promises.push(load_parameter());
 
 		promises.push(plot_all_possible());

@@ -213,6 +213,10 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 				fi
 			fi
 
+			if [[ -e "logs/${run_uuid}_progressbar" ]]; then
+				curl_options+=("-F" "progressbar=@logs/${run_uuid}_progressbar")
+			fi
+
 			if [[ -e "logs/${run_uuid}_install_errors" ]]; then
 				curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
 			fi
@@ -220,8 +224,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			if [[ -e "logs/${run_uuid}_log" ]]; then
 				curl_options+=("-F" "log=@logs/${run_uuid}_log")
 			fi
-
-			echo "${curl_options[@]}"
 		fi
 
 

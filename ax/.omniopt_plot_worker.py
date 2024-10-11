@@ -8,7 +8,6 @@ import argparse
 import importlib.util
 import os
 import sys
-import traceback
 from datetime import datetime, timezone
 
 import matplotlib.pyplot as plt
@@ -58,7 +57,7 @@ def filter_valid_data(data, helpers):
 
 def plot_data(data, args):
     plt.figure(figsize=(12, 6))
-    
+
     # Plot Requested Number of Workers
     plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers', color='blue')
 

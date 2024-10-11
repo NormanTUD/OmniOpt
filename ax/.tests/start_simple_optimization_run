@@ -52,27 +52,27 @@ function calltracer () {
 
 trap 'calltracer' ERR
 
-# Hilfe-Funktion
+# Help Function
 function help () {
-    echo "Mögliche Optionen:"
-    echo "  --max_eval=(INT)          Anzahl der maximalen Auswertungen für diesen Test"
-    echo "  --mem_gb=(INT)            Speicher in GB (0 für alles)"
-    echo "  --num_parallel_jobs=(INT) Anzahl der maximalen parallelen Arbeiter für diesen Test"
-    echo "  --num_random_steps=(INT)  Anzahl der zufälligen Schritte"
-    echo "  --model=STR               Modellname"
-    echo "  --gridsearch              Führe Gridsearch durch"
-    echo "  --gpus=(INT)              Anzahl der GPUs pro Arbeiter"
-    echo "  --time=(INT)              Zeit, die jeder Subjob laufen soll"
-    echo "  --allow_failure           Fügt einen Parameter hinzu, um zufällig zu fehlschlagen"
-    echo "  --force_local_execution   Führt lokal aus, selbst wenn Slurm installiert ist"
-    echo "  --all_float=(0|1)         Verwende all_float Logik"
-    echo "  --one_param               Führt die Logik des zweiten Skripts aus"
-    echo "  --help                    Diese Hilfe"
-    echo "  --debug                   Aktiviert den Debug-Modus"
+    echo "Possible options:"
+    echo "  --max_eval=(INT)          Maximum number of evaluations for this test"
+    echo "  --mem_gb=(INT)            Memory in GB (0 for all)"
+    echo "  --num_parallel_jobs=(INT) Maximum number of parallel workers for this test"
+    echo "  --num_random_steps=(INT)  Number of random steps"
+    echo "  --model=STR               Model name"
+    echo "  --gridsearch              Perform grid search"
+    echo "  --gpus=(INT)              Number of GPUs per worker"
+    echo "  --time=(INT)              Time each subjob should run"
+    echo "  --allow_failure           Adds a parameter to randomly fail"
+    echo "  --force_local_execution   Run locally even if Slurm is installed"
+    echo "  --all_float               Use all_float logic"
+    echo "  --one_param               One prameter"
+    echo "  --two_params              Two parameters"
+    echo "  --help                    This help"
+    echo "  --debug                   Enable debug mode"
     exit $1
 }
 
-# GPU-Erkennung
 NUM_GPUS=0
 if command -v nvidia-smi >/dev/null 2>&1; then
     NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
@@ -82,7 +82,6 @@ if [[ "$NUM_GPUS" -ne "0" ]]; then
     NUM_GPUS=1
 fi
 
-# Standardparameter setzen
 export gridsearch=0
 debug=0
 max_eval=30
@@ -180,6 +179,26 @@ function build_omniopt_command_one_param() {
     echo "${cmd[@]}"
 }
 
+# Neue Funktion zum Bauen des OmniOpt-Befehls für --one_param
+function build_omniopt_command_two_params() {
+    local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
+
+    if [[ "$gridsearch" -eq "1" ]]; then
+        cmd+=("--gridsearch")
+    fi
+
+    if [[ "$allow_failure" -eq "1" ]]; then
+        cmd+=("--parameter" "fail_or_not choice \"0,1\"")
+        cmd=("${cmd[@]/--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)/$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='1'  --int_param_two='1'"| base64 -w 0)}")
+    fi
+
+    if [[ "$force_local_execution" -eq "1" ]]; then
+        cmd+=("--force_local_execution")
+    fi
+
+    echo "${cmd[@]}"
+}
+
 # Argument Parsing
 args=("$@")
 k=0
@@ -201,6 +220,9 @@ while [ $k -lt ${#args[@]} ]; do
             ;;
         --one_param)
             one_param=1
+            ;;
+        --two_params)
+            two_params=1
             ;;
         --mem_gb=*|--mem_gb)
             parse_argument "$i" "mem_gb" 1
@@ -236,6 +258,21 @@ while [ $k -lt ${#args[@]} ]; do
     esac
     k=$((k+1))
 done
+
+if [[ $one_param -eq 1 ]] && [[ $two_params -eq 1 ]]; then
+    red_text "--one_param and --two_params cannot be combined."
+    exit 1
+fi
+
+if [[ $one_param -eq 1 ]] && [[ $all_float -eq 1 ]]; then
+    red_text "--one_param cannot be used with --all_float."
+    exit 1
+fi
+
+if [[ $two_params -eq 1 ]] && [[ $all_float -eq 1 ]]; then
+    red_text "--two_params cannot be used with --all_float."
+    exit 1
+fi
 
 # Validierungen
 if [[ "$num_parallel_jobs" -lt "1" ]]; then
@@ -285,12 +322,12 @@ fi
 # Aufbau des OmniOpt-Befehls
 if [[ "$one_param" -eq "1" ]]; then
     omniopt_cmd=$(build_omniopt_command_one_param)
+elif [[ "$all_float" -eq "1" ]]; then
+    omniopt_cmd=$(build_omniopt_command_all_float)
+elif [[ "$two_params" -eq "1" ]]; then
+    omniopt_cmd=$(build_omniopt_command_two_params)
 else
-    if [[ "$all_float" -eq "1" ]]; then
-        omniopt_cmd=$(build_omniopt_command_all_float)
-    else
-        omniopt_cmd=$(build_omniopt_command_standard)
-    fi
+    omniopt_cmd=$(build_omniopt_command_standard)
 fi
 
 # Ausgabe des Befehls und Ausführung

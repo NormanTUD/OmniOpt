@@ -515,11 +515,13 @@ EOF
 )
 	elif [[ $check_type == "file" ]]; then
 		check_code=$(cat <<EOF
-			if ! [[ -e \$i ]] ; then
+			if ! [[ -e "\$$current_var" ]] ; then
 				red_text "error: --$current_var specified the path to a file that doesn't exist: \$i" >&2
 				myexit 100
 			fi
 EOF
+)
+
 	elif [[ $check_type == "" ]]; then
 		true
 	else
@@ -536,10 +538,10 @@ EOF
 			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
 			fi
 
-			args_string+=" \$option_name \${${current_var}_previous} "
+			args_string+=" --$option_name=\${${current_var}_previous} "
 			${current_var}=\${${current_var}_previous}
 
-			$check_code
+$check_code
 
 			;;
 
@@ -556,10 +558,10 @@ EOF
 			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
 			fi
 
-			args_string+=" \$option_name \${${current_var}_previous} "
+			args_string+=" --$option_name=\${${current_var}_previous} "
 			${current_var}=\${${current_var}_previous}
 
-			$check_code
+$check_code
 
 			;;
 EOF
@@ -583,8 +585,6 @@ complex_options_str=""
 
 for opt in "${complex_options_with_files[@]}"; do
 	complex_options_str+=$(generate_config_handling_code "$opt" "file")
-	echo "$complex_options_str"
-	exit
 done
 
 for opt in "${complex_options[@]}"; do

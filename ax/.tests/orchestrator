@@ -155,6 +155,8 @@ cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
 EXPECTED_TO_FAIL=1
 ./omniopt \
+	--live_share \
+	--send_anonymized_usage_stats \
 	--partition=$PARTITION \
 	--experiment_name=test_orchestrator \
 	--mem_gb=5 \

@@ -3195,7 +3195,6 @@ def clean_completed_jobs():
         else:
             print_red(f"File job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-@wrapper_print_debug
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -3291,8 +3290,6 @@ def simulate_load_data_from_existing_run_folders(_paths):
             old_trial = old_trials[old_trial_index]
             trial_status = old_trial.status
             trial_status_str = trial_status.__repr__
-
-            print_debug(f"trial_status_str: {trial_status_str}")
 
             if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
                 continue
@@ -3495,8 +3492,6 @@ def load_data_from_existing_run_folders(_paths):
                 old_trial = old_trials[old_trial_index]
                 trial_status = old_trial.status
                 trial_status_str = trial_status.__repr__
-
-                print_debug(f"trial_status_str: {trial_status_str}")
 
                 if "COMPLETED" not in str(trial_status_str):
                     continue
@@ -5099,12 +5094,14 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
 
         return 1
 
+@wrapper_print_debug
 def get_files_in_dir(mypath):
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
+@wrapper_print_debug
 def test_find_paths(program_code):
     print_debug(f"test_find_paths({program_code})")
     nr_errors = 0
@@ -5133,6 +5130,7 @@ def test_find_paths(program_code):
 
     return nr_errors
 
+@wrapper_print_debug
 def run_tests():
     print_red("This should be red")
     print_yellow("This should be yellow")
@@ -5285,6 +5283,7 @@ def run_tests():
 
     my_exit(nr_errors)
 
+@wrapper_print_debug
 def main_outside():
     print_logo()
 

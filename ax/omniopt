@@ -1216,35 +1216,21 @@ else
 
 	set +e
 
+	sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
+
 	if [[ $gpus -ne 0 ]]; then
-		if [[ -z $account ]]; then
-			if [[ -z $reservation ]]; then
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string"
-			else
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string"
-			fi
-		else
-			if [[ -z $reservation ]]; then
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --reservation=$reservation --job-name $experiment_name --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string"
-			else
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --job-name $experiment_name --time=$formatted_time --gres=gpu:$gpus $SCRIPT_DIR/omniopt $args_string"
-			fi
-		fi
-	else
-		if [[ -z $account ]]; then
-			if [[ -z $reservation ]]; then
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
-			else
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --reservation=$reservation --job-name $experiment_name --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
-			fi
-		else
-			if [[ -z $reservation ]]; then
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --job-name $experiment_name --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
-			else
-				sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --account=$account --reservation=$reservation --job-name $experiment_name --time=$formatted_time $SCRIPT_DIR/omniopt $args_string"
-			fi
-		fi
+	    sbatch_command+=" --gres=gpu:$gpus"
 	fi
+
+	if [[ -n $account ]]; then
+	    sbatch_command+=" --account=$account"
+	fi
+
+	if [[ -n $reservation ]]; then
+	    sbatch_command+=" --reservation=$reservation"
+	fi
+
+	sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
 
 	if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
 		yellow_text "$sbatch_command"

@@ -744,16 +744,18 @@ function createTable(data, id) {
 		timeCell.innerText = item.time;
 		msgCell.innerText = item.msg;
 
-		const formattedStack = item.function_stack
-			.map(func => `${func.function} (Line ${func.line_number})`)
-			.join('\n');
+		if(Object.keys(item).includes("function_stack")) {
+			const formattedStack = item.function_stack
+				.map(func => `${func.function} (Line ${func.line_number})`)
+				.join('\n');
 
-		stackCell.innerText = formattedStack;
+			stackCell.innerText = formattedStack;
 
-		row.appendChild(timeCell);
-		row.appendChild(msgCell);
-		row.appendChild(stackCell);
-		table.appendChild(row);
+			row.appendChild(timeCell);
+			row.appendChild(msgCell);
+			row.appendChild(stackCell);
+			table.appendChild(row);
+		}
 	});
 
 	tableContainer.appendChild(table);

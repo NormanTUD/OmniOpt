@@ -807,7 +807,7 @@ def log_nr_of_workers():
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
         my_exit(99)
     except OSError as e:
-        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
+        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
         my_exit(199)
 
 def log_what_needs_to_be_logged():
@@ -4116,7 +4116,7 @@ def execute_evaluation(_params):
     try:
         _trial.mark_staged()
     except Exception as e:
-        print_debug(f"execute_evaluation({_params}: Marking the trial as staged failed with error {e}")
+        print_debug(f"execute_evaluation({_params}: Marking the trial as staged failed with error: {e}")
         pass
     new_job = None
     try:

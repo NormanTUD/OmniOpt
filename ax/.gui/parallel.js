@@ -15,7 +15,7 @@ async function plot_parallel_plot() {
 async function fetchData(filename) {
 	let jsonData = await fetchJsonFromUrlFilenameOnly(filename);
 	if (!jsonData || !jsonData.data || !jsonData.data.length) {
-		error(`Could not plot: empty or invalid data from ${filename}`);
+		//error(`Could not plot: empty or invalid data from ${filename}`);
 		return null;
 	}
 	return jsonData;

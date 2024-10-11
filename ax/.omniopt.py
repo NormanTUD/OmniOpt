@@ -163,7 +163,7 @@ def print_debug(msg):
     except Exception:
         pass
 
-    _debug("\t" + msg)
+    _debug(msg)
 
 def my_exit(_code=0):
     tb = traceback.format_exc()

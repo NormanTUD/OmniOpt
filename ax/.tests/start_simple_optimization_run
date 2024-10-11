@@ -286,7 +286,7 @@ if [[ "$force_local_execution" -eq "1" ]]; then
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name "${TESTNAME}_local" \
+				--experiment_name "${TESTNAME}_local_allow_failure" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -337,7 +337,7 @@ if [[ "$force_local_execution" -eq "1" ]]; then
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name "${TESTNAME}_local" \
+				--experiment_name "${TESTNAME}_local_allow_failure" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -366,7 +366,7 @@ else
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "${TESTNAME}_gridsearch" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -389,7 +389,7 @@ else
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "${TESTNAME}_allow_failure_grid_search" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -415,7 +415,7 @@ else
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "${TESTNAME}" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \
@@ -438,7 +438,7 @@ else
 				--live_share \
 				--send_anonymized_usage_stats \
 				--partition $PARTITION \
-				--experiment_name $TESTNAME \
+				--experiment_name "${TESTNAME}_allow_failure" \
 				--mem_gb=$mem_gb \
 				--time $time \
 				--worker_timeout=5 \

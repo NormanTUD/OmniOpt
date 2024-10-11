@@ -496,449 +496,244 @@ config_toml=""
 config_yaml=""
 config_json=""
 
-while [ $k -lt ${#args[@]} ]; do
-	i="${args[k]}"
+generate_config_handling_code() {
+    local option_name=$1
+    local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
+    local current_var=${option_name//--/}
 
-	case $i in
-		--config_yaml=*)
-			old_config_yaml=$config_yaml_previous_job
-			config_yaml_previous_job="${i#*=}"
-			config_yaml=$config_yaml_previous_job
+    cat <<EOF
+		    --$option_name=*)
+			${previous_job_var}=\$${current_var}_previous
+			${current_var}_previous="\${i#*=}"
 
-			if [[ -n $old_config_yaml ]]; then
-				red_text "--config_yaml was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--config_yaml=.*\s\s*# #')
+			if [[ -n \${${previous_job_var}} ]]; then
+			    red_text "$option_name was specified more than once. Using the last one."
+			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
 			fi
 
-			args_string+=" --config_yaml $config_yaml_previous_job "
+			args_string+=" \$option_name \${${current_var}_previous} "
+			${current_var}=\${${current_var}_previous}
 
 			;;
 
-		--config_yaml)
-			old_config_yaml=$config_yaml_previous_job
+		    --$option_name)
+			${previous_job_var}=\$${current_var}_previous
 
 			shift
-			k=$((k+1))
+			k=\$((k+1))
 
-			config_yaml_previous_job="${args[k]}"
-			config_yaml=$config_yaml_previous_job
+			${current_var}_previous="\${args[k]}"
 
-			if [[ -n $old_config_yaml ]]; then
-				red_text "--config_yaml was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--config_yaml=.*\s\s*# #')
+			if [[ -n \${${previous_job_var}} ]]; then
+			    red_text "$option_name was specified more than once. Using the last one."
+			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
 			fi
 
-			args_string+=" --config_yaml $config_yaml_previous_job "
+			args_string+=" \$option_name \${${current_var}_previous} "
+			${current_var}=\${${current_var}_previous}
 
 			;;
+EOF
+}
 
-		--config_json=*)
-			old_config_json=$config_json_previous_job
-			config_json_previous_job="${i#*=}"
+complex_options=(
+	"config_yaml"
+	"config_json"
+	"config_toml"
+	"workdir"
+	"account"
+	"experiment_name"
+	"reservation"
+	"time"
+)
 
-			if [[ -n $old_config_json ]]; then
-				red_text "--config_json was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--config_json=.*\s\s*# #')
-			fi
+complex_options_str=""
 
-			args_string+=" --config_json $config_json_previous_job "
-			config_json=$config_json_previous_job
+for opt in "${complex_options[@]}"; do
+	complex_options_str+=$(generate_config_handling_code $opt)
+done
 
-			;;
-
-		--config_json)
-			old_config_json=$config_json_previous_job
-
-			shift
-			k=$((k+1))
-
-			config_json_previous_job="${args[k]}"
-
-			if [[ -n $old_config_json ]]; then
-				red_text "--config_json was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--config_json=.*\s\s*# #')
-			fi
-
-			args_string+=" --config_json $config_json_previous_job "
-			config_json=$config_json_previous_job
-
-			;;
-
-		--config_toml=*)
-			old_config_toml=$config_toml_previous_job
-			config_toml_previous_job="${i#*=}"
-
-			if [[ -n $old_config_toml ]]; then
-				red_text "--config_toml was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--config_toml=.*\s\s*# #')
-			fi
-
-			args_string+=" --config_toml $config_toml_previous_job "
-			config_toml=$config_toml_previous_job
-
-			;;
-
-		--config_toml)
-			old_config_toml=$config_toml_previous_job
-
-			shift
-			k=$((k+1))
-
-			config_toml_previous_job="${args[k]}"
-
-			if [[ -n $old_config_toml ]]; then
-				red_text "--config_toml was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--config_toml=.*\s\s*# #')
-			fi
-
-			args_string+=" --config_toml $config_toml_previous_job "
-			config_toml=$config_toml_previous_job
-
-			;;
-
-		--workdir=*)
-			old_workdir=$workdir_previous_job
-			workdir_previous_job="${i#*=}"
-
-			if [[ -n $old_workdir ]]; then
-				red_text "--workdir was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--workdir=.*\s\s*# #')
-			fi
-
-			args_string+=" --workdir $workdir_previous_job "
-
-			;;
-
-		--workdir)
-			old_workdir=$workdir_previous_job
-
-			shift
-			k=$((k+1))
-
-			workdir_previous_job="${args[k]}"
-
-			if [[ -n $old_workdir ]]; then
-				red_text "--workdir was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--workdir=.*\s\s*# #')
-			fi
-
-			args_string+=" --workdir $workdir_previous_job "
-
-			;;
+PARAM_EVAL=$(cat <<EOF
+while [ \$k -lt \${#args[@]} ]; do
+	i="\${args[k]}"
+	case \$i in
+$complex_options_str
 
 		--continue=*)
-			old_continue=$continue_previous_job
-			continue_previous_job="${i#*=}"
+			old_continue=\$continue_previous_job
+			continue_previous_job="\${i#*=}"
 
-			if [[ -n $old_continue ]]; then
+			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue $continue_previous_job "
+			args_string+=" --continue \$continue_previous_job "
 
 			continue_was_set=1
 
 			;;
 		--continue)
-			old_continue=$continue_previous_job
+			old_continue=\$continue_previous_job
 
 			shift
-			k=$((k+1))
+			k=\$((k+1))
 
-			continue_previous_job="${args[k]}"
+			continue_previous_job="\${args[k]}"
 
-			if [[ -n $old_continue ]]; then
+			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue $continue_previous_job "
+			args_string+=" --continue \$continue_previous_job "
 
 			continue_was_set=1
 
 			;;
 
-		--account=*)
-			old_continue=$account
-			account="${i#*=}"
-
-			if [[ -n $old_continue ]]; then
-				red_text "--account was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--account=.*\s\s*# #')
-			fi
-
-			args_string+=" --account=$account "
-
-			;;
-
-		--account)
-			old_continue=$account
-
-			shift
-			k=$((k+1))
-
-			account="${args[k]}"
-
-			if [[ -n $old_continue ]]; then
-				red_text "--account was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--account.*\s\s*# #')
-			fi
-
-			args_string+=" --account=$account "
-
-			;;
-
-		--reservation=*)
-			old_continue=$reservation
-			reservation="${i#*=}"
-
-			if [[ -n $old_continue ]]; then
-				red_text "--reservation was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--reservation=.*\s\s*# #')
-			fi
-
-			args_string+=" --reservation=$reservation "
-
-			;;
-
-		--reservation)
-			old_continue=$reservation
-
-			shift
-			k=$((k+1))
-
-			reservation="${args[k]}"
-
-			if [[ -n $old_continue ]]; then
-				red_text "--reservation was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--reservation.*\s\s*# #')
-			fi
-
-			args_string+=" --reservation=$reservation "
-
-			;;
-
 		--continue_previous_job=*)
-			old_continue=$continue_previous_job
-			continue_previous_job="${i#*=}"
+			old_continue=\$continue_previous_job
+			continue_previous_job="\${i#*=}"
 
-			if [[ -n $old_continue ]]; then
+			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
-			args_string+=" --continue $continue_previous_job "
+			args_string+=" --continue \$continue_previous_job "
 
 			continue_was_set=1
 
 			;;
 
 		--continue_previous_job)
-			old_continue=$continue_previous_job
+			old_continue=\$continue_previous_job
 
 			shift
-			k=$((k+1))
+			k=\$((k+1))
 
-			continue_previous_job="${args[k]}"
+			continue_previous_job="\${args[k]}"
 
-			if [[ -n $old_continue ]]; then
+			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--continue.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue.*\s\s*# #')
 			fi
 
-			args_string+=" --continue $continue_previous_job "
+			args_string+=" --continue \$continue_previous_job "
 
 			continue_was_set=1
 
 			;;
 
 		--main_process_gb=*)
-			old_main_process_gb=$main_process_gb
-			main_process_gb="${i#*=}"
-			if ! [[ $main_process_gb =~ $int_re ]] ; then
-				red_text "error: --main_process_gb not a INT: $i" >&2
+			old_main_process_gb=\$main_process_gb
+			main_process_gb="\${i#*=}"
+			if ! [[ \$main_process_gb =~ \$int_re ]] ; then
+				red_text "error: --main_process_gb not a INT: \$i" >&2
 				myexit 100
 			fi
 
-			if [[ -n $old_main_process_gb ]]; then
+			if [[ -n \$old_main_process_gb ]]; then
 				red_text "--main_process_gb was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
 			fi
 
-			args_string+=" --main_process_gb=$main_process_gb "
+			args_string+=" --main_process_gb=\$main_process_gb "
 
 			;;
 		--main_process_gb)
-			old_main_process_gb=$main_process_gb
+			old_main_process_gb=\$main_process_gb
 
 			shift
-			k=$((k+1))
+			k=\$((k+1))
 
-			main_process_gb="${args[k]}"
-			if ! [[ $main_process_gb =~ $int_re ]] ; then
-				red_text "error: --main_process_gb not a INT: $i" >&2
+			main_process_gb="\${args[k]}"
+			if ! [[ \$main_process_gb =~ \$int_re ]] ; then
+				red_text "error: --main_process_gb not a INT: \$i" >&2
 				myexit 100
 			fi
 
-			if [[ -n $old_main_process_gb ]]; then
+			if [[ -n \$old_main_process_gb ]]; then
 				red_text "--main_process_gb was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--main_process_gb=[0-9]*\s\s*# #')
 			fi
 
-			args_string+=" --main_process_gb=$main_process_gb "
+			args_string+=" --main_process_gb=\$main_process_gb "
 
 			;;
 
 		--mem_gb=*)
-			old_mem_gb=$mem_gb
-			mem_gb="${i#*=}"
-			if ! [[ $mem_gb =~ $int_re ]] ; then
-				red_text "error: --mem_gb not a INT: $i" >&2
+			old_mem_gb=\$mem_gb
+			mem_gb="\${i#*=}"
+			if ! [[ \$mem_gb =~ \$int_re ]] ; then
+				red_text "error: --mem_gb not a INT: \$i" >&2
 				myexit 100
 			fi
 
-			if [[ -n $old_mem_gb ]]; then
+			if [[ -n \$old_mem_gb ]]; then
 				red_text "--mem_gb was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
 			fi
 
-			args_string+=" --mem_gb=$mem_gb "
+			args_string+=" --mem_gb=\$mem_gb "
 
 			;;
 		--mem_gb)
-			old_mem_gb=$mem_gb
+			old_mem_gb=\$mem_gb
 
 			shift
-			k=$((k+1))
+			k=\$((k+1))
 
-			mem_gb="${args[k]}"
-			if ! [[ $mem_gb =~ $int_re ]] ; then
-				red_text "error: --mem_gb not a INT: $i" >&2
+			mem_gb="\${args[k]}"
+			if ! [[ \$mem_gb =~ \$int_re ]] ; then
+				red_text "error: --mem_gb not a INT: \$i" >&2
 				myexit 100
 			fi
 
-			if [[ -n $old_mem_gb ]]; then
+			if [[ -n \$old_mem_gb ]]; then
 				red_text "--mem_gb was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--mem_gb=[0-9]*\s\s*# #')
 			fi
 
-			args_string+=" --mem_gb=$mem_gb "
+			args_string+=" --mem_gb=\$mem_gb "
 
 			;;
 
 		--gpus=*)
-			old_gpus=$gpus
-			gpus="${i#*=}"
-			if ! [[ $gpus =~ $int_re ]] ; then
-				red_text "error: --gpus not a INT: $i" >&2
+			old_gpus=\$gpus
+			gpus="\${i#*=}"
+			if ! [[ \$gpus =~ \$int_re ]] ; then
+				red_text "error: --gpus not a INT: \$i" >&2
 				myexit 100
 			fi
 
-			if [[ -n $old_gpus ]]; then
+			if [[ -n \$old_gpus ]]; then
 				red_text "--gpus was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
 			fi
 
-			args_string+=" --gpus=$gpus "
+			args_string+=" --gpus=\$gpus "
 
 			;;
 		--gpus)
-			old_gpus=$gpus
+			old_gpus=\$gpus
 
 			shift
 
-			k=$((k+1))
-			gpus="${args[k]}"
-			if ! [[ $gpus =~ $int_re ]] ; then
-				red_text "error: --gpus not a INT: $i" >&2
+			k=\$((k+1))
+			gpus="\${args[k]}"
+			if ! [[ \$gpus =~ \$int_re ]] ; then
+				red_text "error: --gpus not a INT: \$i" >&2
 				myexit 100
 			fi
 
-			if [[ -n $old_gpus ]]; then
+			if [[ -n \$old_gpus ]]; then
 				red_text "--gpus was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--gpus=[0-9]*\s\s*# #')
 			fi
 
-			args_string+=" --gpus=$gpus "
-
-			;;
-
-		--experiment_name=*)
-			old_experiment_name=$experiment_name
-			experiment_name="${i#*=}"
-
-			if [[ -n $old_experiment_name ]]; then
-				red_text "--experiment_name was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--experiment_name=[0-9a-zA-Z_]*\s\s*# #')
-			fi
-
-			args_string+=" --experiment_name=$experiment_name "
-
-			;;
-		--experiment_name)
-			old_experiment_name=$experiment_name
-
-			shift
-
-			k=$((k+1))
-			experiment_name="${args[k]}"
-
-			if [[ -n $old_experiment_name ]]; then
-				red_text "--experiment_name was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--experiment_name=[0-9a-zA-Z_]*\s\s*# #')
-			fi
-
-			args_string+=" --experiment_name=$experiment_name "
-
-			;;
-
-		--root_venv_dir=*)
-			root_venv_dir="${i#*=}"
-
-			args_string+=" --root_venv_dir=$root_venv_dir "
-
-			export root_venv_dir
-
-			;;
-		--root_venv_dir)
-			shift
-
-			k=$((k+1))
-			root_venv_dir="${args[k]}"
-
-			args_string+=" --root_venv_dir=$root_venv_dir "
-
-			export root_venv_dir
-
-			;;
-
-		--time=*)
-			old_time=$time
-			time="${i#*=}"
-
-			if [[ -n $old_time ]]; then
-				red_text "--time was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--time=[0-9a-zA-Z_]*\s\s*# #')
-			fi
-
-			args_string+=" --time=$time "
-
-			;;
-		--time)
-			old_time=$time
-
-			shift
-
-			k=$((k+1))
-			time="${args[k]}"
-
-			if [[ -n $old_time ]]; then
-				red_text "--time was specified more than once. Using the last one."
-				args_string=$(echo "$args_string" | sed -e 's#\s*--time=[0-9a-zA-Z_]*\s\s*# #')
-			fi
-
-			args_string+=" --time=$time "
+			args_string+=" --gpus=\$gpus "
 
 			;;
 
@@ -968,11 +763,7 @@ while [ $k -lt ${#args[@]} ]; do
 			wait_until_ended=1
 			args_string+=" --wait_until_ended "
 			;;
-		-h)
-			help=1
-			args_string+=" --help "
-			;;
-		--help)
+		-h|--help)
 			help=1
 			args_string+=" --help "
 			;;
@@ -981,12 +772,36 @@ while [ $k -lt ${#args[@]} ]; do
 			set_debug
 			;;
 
+		--root_venv_dir=*)
+			root_venv_dir="\${i#*=}"
+
+			args_string+=" --root_venv_dir=\$root_venv_dir "
+
+			export root_venv_dir
+
+			;;
+
+		--root_venv_dir)
+			shift
+
+			k=\$((k+1))
+			root_venv_dir="\${args[k]}"
+
+			args_string+=" --root_venv_dir=\$root_venv_dir "
+
+			export root_venv_dir
+
+			;;
 		*)
-			args_string+=" $i "
+			args_string+=" \$i "
 			;;
 	esac
-	k=$((k+1))
+	k=\$((k+1))
 done
+EOF
+)
+
+eval "$PARAM_EVAL"
 
 function get_config_from_config_file {
 	key="$1"

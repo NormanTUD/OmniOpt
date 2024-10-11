@@ -18,6 +18,7 @@ try:
     import re
     import toml
     import time
+    import asyncio
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 1")
@@ -4812,7 +4813,7 @@ def check_max_eval(_max_eval):
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
-def main():
+async def main():
     global RESULT_CSV_FILE
     global ax_client
     global global_vars
@@ -4931,7 +4932,7 @@ def main():
 
     write_process_info()
 
-    live_share()
+    await live_share()
 
     disable_tqdm = False
 
@@ -4956,7 +4957,7 @@ def main():
 
     wait_for_jobs_to_complete(0)
 
-    live_share()
+    await live_share()
 
     end_program(RESULT_CSV_FILE)
 
@@ -5136,6 +5137,10 @@ def test_find_paths(program_code):
     return nr_errors
 
 def run_tests():
+    print_red("This should be red")
+    print_yellow("This should be yellow")
+    print_green("This should be green")
+
     global global_vars
 
     print(f"Printing test from current line {get_line_info()}")
@@ -5283,21 +5288,17 @@ def run_tests():
 
     my_exit(nr_errors)
 
-if __name__ == "__main__":
+async def main_outside ():
     print_logo()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
         if args.tests:
-            print_red("This should be red")
-            print_yellow("This should be yellow")
-            print_green("This should be green")
-
             run_tests()
         else:
             try:
-                main()
+                await main()
             except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
@@ -5316,3 +5317,7 @@ if __name__ == "__main__":
                     end_program(RESULT_CSV_FILE, 1, 87)
                 else:
                     end_program(RESULT_CSV_FILE, 1)
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main_outside())

@@ -73,3 +73,7 @@
 	color: lightgreen;
 	overflow: auto;
 }
+
+.spinner-overlay {
+	pointer-events: none;
+}

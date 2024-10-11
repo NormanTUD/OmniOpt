@@ -33,7 +33,7 @@ cd ..
 
 state_files=()
 
-for state_file in $(ls runs/*/*/state_files | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
+for state_file in $(ls runs/*/*/state_files | grep -v "^runs" | sort | uniq | grep -v '^\s*$' 2>/dev/null); do
 	state_files+=("$state_file")
 done
 

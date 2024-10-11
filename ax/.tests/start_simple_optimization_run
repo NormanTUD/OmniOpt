@@ -278,7 +278,7 @@ if [[ "$debug" -eq "1" ]]; then
 fi
 
 PARTITION="alpha"
-TESTNAME="__main__tests__"
+TESTNAME="__main__tests__${model}__"
 
 if [[ "$force_local_execution" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_local"
@@ -291,7 +291,7 @@ else
 fi
 
 if [[ "$one_param" -eq "1" ]]; then
-	TESTNAME="__main__tests__one_param"
+	TESTNAME="__main__tests__${model}__one_param"
 
 	if [[ "$force_local_execution" -eq "1" ]]; then
 		TESTNAME="${TESTNAME}_local"

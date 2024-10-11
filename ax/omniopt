@@ -492,6 +492,9 @@ args_string=""
 args=("$@")
 k=0
 
+export args
+export k
+
 config_toml=""
 config_yaml=""
 config_json=""

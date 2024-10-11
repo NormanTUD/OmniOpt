@@ -17,6 +17,7 @@ try:
     import yaml
     import re
     import toml
+    import time
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 1")
@@ -90,7 +91,6 @@ class SignalCONT (Exception):
     pass
 
 try:
-    import time
     import traceback
 
     from rich_argparse import RichHelpFormatter
@@ -168,6 +168,21 @@ def print_debug(msg):
 
     _debug(msg)
 
+def wrapper_print_debug(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+
+        runtime = end_time - start_time
+        runtime_human_readable = f"{runtime:.4f} seconds"
+
+        print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
+
+        return result
+    return wrapper
+
+@wrapper_print_debug
 def my_exit(_code=0):
     tb = traceback.format_exc()
 
@@ -199,6 +214,7 @@ parser = None
 
 try:
     class ConfigLoader:
+        @wrapper_print_debug
         def __init__(self):
             self.parser = argparse.ArgumentParser(
                 prog="omniopt",
@@ -215,6 +231,7 @@ try:
             # Initialize the remaining arguments
             self.add_arguments()
 
+        @wrapper_print_debug
         def add_arguments(self):
             required = self.parser.add_argument_group('Required arguments', "These options have to be set")
             required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
@@ -285,6 +302,7 @@ try:
             debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
             debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
 
+        @wrapper_print_debug
         def load_config(self, config_path, file_format):
             if not os.path.isfile(config_path):
                 print("Exit-Code: 5")
@@ -307,6 +325,7 @@ try:
 
             return {}
 
+        @wrapper_print_debug
         def validate_and_convert(self, config, arg_defaults):
             """
             Validates the config data and converts them to the right types based on argparse defaults.
@@ -333,6 +352,7 @@ try:
 
             return converted_config
 
+        @wrapper_print_debug
         def merge_args_with_config(self, config, cli_args):
             """ Merge CLI args with config file args (CLI takes precedence) """
             arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
@@ -347,6 +367,7 @@ try:
 
             return cli_args
 
+        @wrapper_print_debug
         def parse_arguments(self):
             # First, parse the CLI arguments to check if config files are provided
             _args = self.parser.parse_args()
@@ -531,6 +552,7 @@ def append_and_read(file, nr=0, recursion=0):
 
     return 0
 
+@wrapper_print_debug
 def run_live_share_command():
     if not CURRENT_RUN_FOLDER:
         return "", ""
@@ -563,6 +585,7 @@ def run_live_share_command():
 
     return "", ""
 
+@wrapper_print_debug
 def live_share():
     global shown_live_share_counter
 
@@ -579,7 +602,10 @@ def live_share():
 
     shown_live_share_counter = shown_live_share_counter + 1
 
+@wrapper_print_debug
 def save_pd_csv():
+    print_debug("save_pd_csv()")
+
     pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
     pd_json = f'{CURRENT_RUN_FOLDER}/state_files/pd.json'
 
@@ -642,6 +668,7 @@ already_inserted_param_hashes = {}
 already_inserted_param_data = []
 
 def print_logo():
+    print_debug("print_logo()")
     if os.environ.get('NO_OO_LOGO') is not None:
         return
 
@@ -756,6 +783,7 @@ def write_worker_usage():
         if is_slurm_job():
             print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
+@wrapper_print_debug
 def log_system_usage():
     if not CURRENT_RUN_FOLDER:
         return
@@ -810,6 +838,7 @@ def log_nr_of_workers():
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
         my_exit(199)
 
+@wrapper_print_debug
 def log_what_needs_to_be_logged():
     if "write_worker_usage" in globals():
         try:
@@ -1058,12 +1087,14 @@ if not args.tests:
             print_red("--max_eval must be larger than 0")
             my_exit(19)
 
+@wrapper_print_debug
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
+@wrapper_print_debug
 def print_debug_progressbar(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
@@ -1166,6 +1197,7 @@ def get_program_code_from_out_file(f):
 
     return ""
 
+@wrapper_print_debug
 def get_max_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the maximum value in the specified column.
@@ -1191,6 +1223,7 @@ def get_max_column_value(pd_csv, column, _default):
         print_red(f"Error while getting max value from column {column}: {str(e)}")
         raise
 
+@wrapper_print_debug
 def get_min_column_value(pd_csv, column, _default):
     """
     Reads the CSV file and returns the minimum value in the specified column.
@@ -1216,6 +1249,7 @@ def get_min_column_value(pd_csv, column, _default):
         print_red(f"Error while getting min value from column {column}: {str(e)}")
         raise
 
+@wrapper_print_debug
 def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
     found_in_file = False
     if os.path.exists(pd_csv):
@@ -1448,6 +1482,7 @@ def parse_choice_param(params, j, this_args, name, search_space_reduction_warnin
 
     return j, params, search_space_reduction_warning
 
+@wrapper_print_debug
 def parse_experiment_parameters():
     global global_vars
     global changed_grid_search_params
@@ -1547,6 +1582,7 @@ def replace_parameters_in_string(parameters, input_string):
         print_red(f"\n⚠ Error: {e}")
         return None
 
+@wrapper_print_debug
 def execute_bash_code(code):
     try:
         result = subprocess.run(
@@ -1956,6 +1992,7 @@ def disable_logging():
             warnings.filterwarnings("ignore", category=_cat)
             warnings.filterwarnings("ignore", category=_cat, module=_module)
 
+@wrapper_print_debug
 def display_failed_jobs_table():
     _console = Console()
 
@@ -2007,6 +2044,7 @@ def display_failed_jobs_table():
     except Exception as e:
         print_red(f"Error: {str(e)}")
 
+@wrapper_print_debug
 def plot_command(_command, tmp_file, _width=1300):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
     if not _show_sixel_graphics:
@@ -2026,6 +2064,7 @@ def plot_command(_command, tmp_file, _width=1300):
     else:
         print_debug(f"{tmp_file} not found, error: {error}")
 
+@wrapper_print_debug
 def replace_string_with_params(input_string, params):
     try:
         assert isinstance(input_string, str), "Input string must be a string"
@@ -2041,6 +2080,7 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
+@wrapper_print_debug
 def get_best_params_from_csv(csv_file_path, maximize):
     results = {
         "result": None,
@@ -2326,6 +2366,7 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
         _command += f" --save_to_file={tmp_file} "
         plot_command(_command, tmp_file, _width)
 
+@wrapper_print_debug
 def show_sixel_graphics(_pd_csv):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
@@ -2386,6 +2427,7 @@ def show_sixel_graphics(_pd_csv):
                 print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
                 print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
 
+@wrapper_print_debug
 def show_end_table_and_save_end_files(csv_file_path):
     print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
 
@@ -2503,6 +2545,7 @@ def save_checkpoint(trial_nr=0, eee=None):
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 
+@wrapper_print_debug
 def get_tmp_file_from_json(experiment_args):
     _tmp_dir = "/tmp"
     k = 0
@@ -2517,6 +2560,7 @@ def get_tmp_file_from_json(experiment_args):
 
     return f"/{_tmp_dir}/{k}"
 
+@wrapper_print_debug
 def compare_parameters(old_param_json, new_param_json):
     try:
         old_param = json.loads(old_param_json)
@@ -2602,6 +2646,7 @@ def die_with_47_if_file_doesnt_exists(_file):
         print_red(f"Cannot find {_file}")
         my_exit(47)
 
+@wrapper_print_debug
 def copy_state_files_from_previous_job(continue_previous_job):
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
@@ -2614,6 +2659,7 @@ def copy_state_files_from_previous_job(continue_previous_job):
 def die_something_went_wrong_with_parameters():
     my_exit(49)
 
+@wrapper_print_debug
 def check_equation(variables, equation):
     print_debug(f"check_equation({variables}, {equation})")
 
@@ -2704,6 +2750,7 @@ def check_equation(variables, equation):
 
     return False
 
+@wrapper_print_debug
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -2840,6 +2887,7 @@ def get_type_short(typename):
 
     return typename
 
+@wrapper_print_debug
 def parse_single_experiment_parameter_table(experiment_parameters):
     rows = []
 
@@ -2892,6 +2940,7 @@ def parse_single_experiment_parameter_table(experiment_parameters):
 
     return rows
 
+@wrapper_print_debug
 def print_overview_tables(experiment_parameters, experiment_args):
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -2963,6 +3012,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
         with open(f"{CURRENT_RUN_FOLDER}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
+@wrapper_print_debug
 def update_progress_bar(_progress_bar, nr):
     #import traceback
     #print(f"update_progress_bar(_progress_bar, {nr})")
@@ -3039,6 +3089,7 @@ def get_workers_string():
 
     return string
 
+@wrapper_print_debug
 def submitted_jobs(nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
 
@@ -3047,6 +3098,7 @@ def submitted_jobs(nr=0):
 
     return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs', nr)
 
+@wrapper_print_debug
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
     global random_steps
@@ -3117,14 +3169,14 @@ def get_desc_progress_text(new_msgs=[]):
 
     return desc
 
+@wrapper_print_debug
 def progressbar_description(new_msgs=[]):
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
     progress_bar.refresh()
 
-    live_share()
-
+@wrapper_print_debug
 def clean_completed_jobs():
     #for job, trial_index in global_vars["jobs"][:]:
     #    _state = state_from_job(job)
@@ -3145,6 +3197,7 @@ def clean_completed_jobs():
         else:
             print_red(f"File job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
+@wrapper_print_debug
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -3217,6 +3270,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
+@wrapper_print_debug
 def simulate_load_data_from_existing_run_folders(_paths):
     _counter = 0
 
@@ -3270,6 +3324,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
     return _counter
 
+@wrapper_print_debug
 def get_nr_of_imported_jobs():
     nr_jobs = 0
 
@@ -3282,6 +3337,7 @@ def get_nr_of_imported_jobs():
 
     return nr_jobs
 
+@wrapper_print_debug
 def load_existing_job_data_into_ax_client():
     global NR_INSERTED_JOBS
 
@@ -3305,6 +3361,7 @@ def load_existing_job_data_into_ax_client():
         nr_of_imported_jobs = get_nr_of_imported_jobs()
         NR_INSERTED_JOBS += nr_of_imported_jobs
 
+@wrapper_print_debug
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)
     try:
@@ -3335,6 +3392,7 @@ def parse_parameter_type_error(error_message):
         # Logging the error
         return None
 
+@wrapper_print_debug
 def extract_headers_and_rows(data_list):
     try:
         if not data_list:
@@ -3378,6 +3436,7 @@ def get_list_import_as_string(_brackets=True, _comma=False):
 
     return ""
 
+@wrapper_print_debug
 def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result):
     done_converting = False
 
@@ -3401,6 +3460,7 @@ def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_resul
                 print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
+@wrapper_print_debug
 def load_data_from_existing_run_folders(_paths):
     global already_inserted_param_hashes
     global already_inserted_param_data
@@ -3499,6 +3559,7 @@ def load_data_from_existing_run_folders(_paths):
 
         console.print(table)
 
+@wrapper_print_debug
 def get_first_line_of_file(file_paths):
     first_line = ""
     if len(file_paths):
@@ -5047,6 +5108,7 @@ def get_files_in_dir(mypath):
     return [mypath + "/" + s for s in onlyfiles]
 
 def test_find_paths(program_code):
+    print_debug(f"test_find_paths({program_code})")
     nr_errors = 0
 
     files = [

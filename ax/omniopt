@@ -692,21 +692,26 @@ $complex_options_str
 		--send_anonymized_usage_stats)
 			SEND_USAGE_STATS=1
 			;;
+
 		--follow)
 			follow=1
 			;;
+
 		--force_local_execution)
 			force_local_execution=1
 			args_string+=" --force_local_execution "
 			;;
+
 		--wait_until_ended)
 			wait_until_ended=1
 			args_string+=" --wait_until_ended "
 			;;
+
 		-h|--help)
 			help=1
 			args_string+=" --help "
 			;;
+
 		--debug)
 			debug=1
 			set_debug
@@ -732,6 +737,7 @@ $complex_options_str
 			export root_venv_dir
 
 			;;
+
 		*)
 			args_string+=" \$i "
 			;;

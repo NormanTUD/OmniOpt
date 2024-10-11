@@ -761,7 +761,7 @@ function createTable(data, id) {
 	addSearchFunctionality(tableContainer, table);
 }
 
-function parseLogData(logData, id) {
+function parseLogData(logData) {
 	const lines = logData.split('\n');
 	const jsonData = [];
 
@@ -775,7 +775,7 @@ function parseLogData(logData, id) {
 		}
 	});
 
-	createTable(jsonData, id);
+	return lines;
 }
 
 function addSearchFunctionality(tableContainer, table) {
@@ -809,15 +809,15 @@ function addSearchFunctionality(tableContainer, table) {
 	});
 }
 
-async function load_internal_log() {
-	//debug_function("load_internal_log()");
+async function load_debug_log() {
+	//debug_function("load_debug_log()");
 	var data = await fetchJsonFromUrlFilenameOnly(`log`)
 	if(!data) {
 		return;
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		//warn(`load_internal_log: Could not plot seemingly empty data: no raw found`);
+		//warn(`load_debug_log: Could not plot seemingly empty data: no raw found`);
 		return;
 	}
 
@@ -831,9 +831,17 @@ async function load_internal_log() {
 		converted = removeTrailingWhitespaces(converted);
 		$(`#internal_log_element`).html(`<pre style="display: none" class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}<div id="internal_log_table"></div>`);
 
+		var id = 'internal_log_table';
 
-		injectStyles();
-		parseLogData(data.raw, 'internal_log_table');
+		var parsed_log_data = parseLogData(data.raw);
+
+		if(parsed_log_data && Object.keys(parsed_log_data)) {
+			injectStyles();
+			createTable(parsed_log_data, id);
+		} else {
+			$("#internal_log_element_class").show();
+			$("#internal_log_table").hide();
+		}
 	}
 }
 
@@ -1221,7 +1229,7 @@ async function load_all_data() {
 		promises.push(load_next_trials());
 		promises.push(load_results());
 		promises.push(load_outfile());
-		promises.push(load_internal_log());
+		promises.push(load_debug_log());
 		promises.push(load_install_errors());
 		promises.push(load_trial_index_to_params_log());
 		promises.push(load_progressbar_log());

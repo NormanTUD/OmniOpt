@@ -607,7 +607,7 @@ if [[ $superquick -eq 0 ]]; then
 		if [[ "$quick" -eq "0" ]]; then
 			_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
 			_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0 87
-			_test "Simple all float run" "bash .tests/start_simple_optimization_run_all_float --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
+			_test "Simple all float run" "bash .tests/start_simple_optimization_run --all_float --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
 			_test "Plot-Tests" "bash .tests/plots" 0
 		else
 			_test "Plot-Tests --quick" "bash .tests/plots --quick" 0

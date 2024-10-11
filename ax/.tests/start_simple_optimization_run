@@ -50,7 +50,7 @@ function help () {
 	echo "Possible options:"
 	echo "  --max_eval=(INT)                                   Number of max evals for this test"
 	echo "  --mem_gb=(INT)                                     Mem in GB (0 for all)"
-	echo "  --num_parallel_jobs (INT)                          Number of max parallel workers for this test"
+	echo "  --num_parallel_jobs=(INT)                          Number of max parallel workers for this test"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --model=STR                                        Model name"
 	echo "  --gridsearch                                       Do gridsearch"
@@ -58,6 +58,7 @@ function help () {
 	echo "  --time=(INT)                                       Time each subjob should run"
 	echo "  --allow_failure                                    Adds a param to randomly fail"
 	echo "  --force_local_execution                            Execute locally even when slurm is installed"
+	echo "  --all_float=(0|1)                                  Use all_float logic"
 	echo "  --help                                             This help"
 	echo "  --debug                                            Enables debug mode"
 	exit $1
@@ -82,6 +83,7 @@ num_random_steps=$num_parallel_jobs
 time=60
 model=BOTORCH_MODULAR
 mem_gb=4
+all_float=0
 
 function parse_argument() {
 	local arg="$1"
@@ -107,7 +109,26 @@ function parse_argument() {
 	eval "$var_name=\"$value\""
 }
 
-function build_omniopt_command() {
+function build_omniopt_command_all_float() {
+	local cmd=("./omniopt" "--partition=$PARTITION" "--experiment_name=example_all_float" "--mem_gb=$mem_gb" "--time=$time" "--worker_timeout=5" "--max_eval=$max_eval" "--num_parallel_jobs=$num_parallel_jobs" "--gpus=$NUM_GPUS" "--num_random_steps=$num_random_steps" "--follow" "--send_anonymized_usage_stats" "--run_program=$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)" | base64 -w 0)" "--cpus_per_task=1" "--nodes_per_job=1" "--model=BOTORCH_MODULAR" "--run_mode=local" "--parameter" "x range -1000 1000 float" "--parameter" "y range -1000 1000 float" "--parameter" "z range -1000 1000 float" "--parameter" "a range -1000 1000 float" "--live_share")
+
+	if [[ "$gridsearch" -eq "1" ]]; then
+		cmd+=("--gridsearch")
+	fi
+
+	if [[ "$allow_failure" -eq "1" ]]; then
+		cmd+=("--parameter" "fail_or_not choice \"0,1\"")
+		cmd=("${cmd[@]/--run_program=$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)" | base64 -w 0)/$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a) --fail_or_not=%(fail_or_not)" | base64 -w 0)}")
+	fi
+
+	if [[ "$force_local_execution" -eq "1" ]]; then
+		cmd+=("--force_local_execution")
+	fi
+
+	echo "${cmd[@]}"
+}
+
+function build_omniopt_command_standard() {
 	local base_cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts" "--hide_ascii_plots")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
@@ -116,8 +137,7 @@ function build_omniopt_command() {
 
 	if [[ "$allow_failure" -eq "1" ]]; then
 		base_cmd+=("--parameter" "fail_or_not choice \"0,1\"")
-		local index=$(echo "${base_cmd[@]}" | grep -o -- '--run_program [^ ]*' | awk '{print NR}')
-		base_cmd=("${base_cmd[@]/%--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0)/$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0)}" )
+		base_cmd=("${base_cmd[@]/--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0)/$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0)}")
 	fi
 
 	if [[ "$force_local_execution" -eq "1" ]]; then
@@ -133,6 +153,9 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--all_float=*|--all_float)
+			all_float=1
+			;;
 		--force_local_execution)
 			force_local_execution=1
 			;;
@@ -162,10 +185,6 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		--gpus=*|--gpus)
 			parse_argument "$i" "NUM_GPUS" 1
-			;;
-		--gpus)
-			k=$((k+1))
-			NUM_GPUS="${args[k]}"
 			;;
 		--help*)
 			help 0
@@ -200,8 +219,6 @@ TESTNAME=__main__tests__
 
 if [[ "$force_local_execution" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_local"
-else
-	TESTNAME="${TESTNAME}"
 fi
 
 if [[ "$gridsearch" -eq "1" ]]; then
@@ -210,6 +227,14 @@ else
 	PARTITION="${PARTITION}_nogridsearch"
 fi
 
-omniopt_cmd=$(build_omniopt_command)
+if [[ "$all_float" -eq "1" ]]; then
+	omniopt_cmd=$(build_omniopt_command_all_float)
+else
+	omniopt_cmd=$(build_omniopt_command_standard)
+fi
+
 green_text "$omniopt_cmd"
 eval "$omniopt_cmd"
+exit_code=$?
+
+exit $exit_code

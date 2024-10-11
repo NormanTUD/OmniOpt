@@ -182,4 +182,6 @@
 			}, interval);
 		}
 	});
+
+	showSpinnerOverlay("Initializing OmniOpt-Share...");
 </script>

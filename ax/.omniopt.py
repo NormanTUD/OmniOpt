@@ -4444,7 +4444,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         return 0
 
     trial_index_to_param = None
-    
+
     threads = []
     try:
         trial_index_to_param = _get_next_trials()

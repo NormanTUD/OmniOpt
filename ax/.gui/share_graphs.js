@@ -773,7 +773,6 @@ function parseLogData(logData) {
 			const jsonObject = JSON.parse(line);
 			jsonData.push(jsonObject);
 		} catch (error) {
-			console.warn(`Error in line ${index + 1}: Invalid JSON`, error);
 		}
 	});
 

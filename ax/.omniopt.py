@@ -170,9 +170,9 @@ def print_debug(msg):
     _debug(msg)
 
 def wrapper_print_debug(func):
-    def wrapper(*args, **kwargs):
+    def wrapper(*__args, **kwargs):
         start_time = time.time()
-        result = func(*args, **kwargs)
+        result = func(*__args, **kwargs)
         end_time = time.time()
 
         runtime = end_time - start_time
@@ -5289,7 +5289,7 @@ def run_tests():
 
     my_exit(nr_errors)
 
-async def main_outside ():
+async def main_outside():
     print_logo()
 
     with warnings.catch_warnings():

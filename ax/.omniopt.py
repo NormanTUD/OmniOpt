@@ -139,26 +139,33 @@ def _debug(msg, _lvl=0, eee=None):
 
         _debug(msg, _lvl + 1, e)
 
-def get_functions_stack_array():
+def _get_debug_json(time_str, msg):
     stack = inspect.stack()
-    function_names = []
+    function_stack = []
+
     for frame_info in stack[1:]:
         if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
             if frame_info.function != "wrapper":
-                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
-    return "Function stack: " + (" -> ".join(function_names) + ":")
+                function_stack.append({
+                    "function": frame_info.function,
+                    "line_number": frame_info.lineno
+                })
+
+    return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}:\t{msg}"
+
+    stack_trace_element = _get_debug_json(time_str, msg)
+
+    if stack_trace_element:
+        msg = f"{stack_trace_element}"
+        _debug(msg)
+    else:
+        msg = f"{time_str}:\t{msg}"
 
     if args is not None and args.debug:
         print(msg)
-
-    try:
-        _debug(f"{time_str}: {get_functions_stack_array()}")
-    except Exception:
-        pass
 
     _debug(msg)
 

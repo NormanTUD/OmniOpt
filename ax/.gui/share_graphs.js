@@ -701,6 +701,114 @@ async function load_install_errors() {
 	}
 }
 
+function injectStyles() {
+	const styles = `
+		#searchContainer {
+			margin-bottom: 10px;
+		}
+		#debug_search {
+			padding: 5px;
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.stacktrace {
+		    white-space: pre-wrap;
+		}
+	`;
+	const styleSheet = document.createElement("style");
+	styleSheet.type = "text/css";
+	styleSheet.innerText = styles;
+	document.head.appendChild(styleSheet);
+}
+
+function createTable(data, id) {
+	const tableContainer = document.createElement("div");
+	const table = document.createElement("table");
+	const headerRow = document.createElement("tr");
+	const headers = ["Time", "Message", "Function Stack"];
+
+	headers.forEach(header => {
+		const th = document.createElement("th");
+		th.innerText = header;
+		headerRow.appendChild(th);
+	});
+	table.appendChild(headerRow);
+
+	data.forEach(item => {
+		const row = document.createElement("tr");
+		const timeCell = document.createElement("td");
+		const msgCell = document.createElement("td");
+		const stackCell = document.createElement("td");
+		stackCell.classList.add("stacktrace");
+
+		timeCell.innerText = item.time;
+		msgCell.innerText = item.msg;
+
+		const formattedStack = item.function_stack
+			.map(func => `${func.function} (Line ${func.line_number})`)
+			.join('\n');
+
+		stackCell.innerText = formattedStack;
+
+		row.appendChild(timeCell);
+		row.appendChild(msgCell);
+		row.appendChild(stackCell);
+		table.appendChild(row);
+	});
+
+	tableContainer.appendChild(table);
+	$("#" + id).html(tableContainer);
+	addSearchFunctionality(tableContainer, table);
+}
+
+function parseLogData(logData, id) {
+	const lines = logData.split('\n');
+	const jsonData = [];
+
+	lines.forEach((line, index) => {
+		if (line.trim() === "") return;
+		try {
+			const jsonObject = JSON.parse(line);
+			jsonData.push(jsonObject);
+		} catch (error) {
+			console.warn(`Error in line ${index + 1}: Invalid JSON`, error);
+		}
+	});
+
+	createTable(jsonData, id);
+}
+
+function addSearchFunctionality(tableContainer, table) {
+	const searchContainer = document.createElement("div");
+	searchContainer.id = "searchContainer";
+
+	const searchInput = document.createElement("input");
+	searchInput.type = "text";
+	searchInput.id = "debug_search";
+	searchInput.placeholder = "Search...";
+	searchContainer.appendChild(searchInput);
+	tableContainer.insertBefore(searchContainer, table);
+
+	searchInput.addEventListener("input", function() {
+		const filter = searchInput.value.toLowerCase();
+		const rows = table.getElementsByTagName("tr");
+
+		for (let i = 1; i < rows.length; i++) {
+			const cells = rows[i].getElementsByTagName("td");
+			let rowContainsSearchTerm = false;
+
+			for (let j = 0; j < cells.length; j++) {
+				if (cells[j].innerText.toLowerCase().includes(filter)) {
+					rowContainsSearchTerm = true;
+					break;
+				}
+			}
+
+			rows[i].style.display = rowContainsSearchTerm ? "" : "none";
+		}
+	});
+}
+
 async function load_internal_log() {
 	//debug_function("load_internal_log()");
 	var data = await fetchJsonFromUrlFilenameOnly(`log`)
@@ -721,7 +829,11 @@ async function load_internal_log() {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
 		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
 		converted = removeTrailingWhitespaces(converted);
-		$(`#internal_log_element`).html(`<pre class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}`);
+		$(`#internal_log_element`).html(`<pre style="display: none" class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}<div id="internal_log_table"></div>`);
+
+
+		injectStyles();
+		parseLogData(data.raw, 'internal_log_table');
 	}
 }
 

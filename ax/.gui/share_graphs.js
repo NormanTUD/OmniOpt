@@ -742,14 +742,14 @@ function createTable(data, id) {
 		stackCell.classList.add("stacktrace");
 
 		timeCell.innerText = item.time;
-		msgCell.innerText = item.msg;
+		msgCell.innerHTML = `<samp>${item.msg}</samp>`;
 
 		if(Object.keys(item).includes("function_stack")) {
 			const formattedStack = item.function_stack
-				.map(func => `${func.function} (Line ${func.line_number})`)
+				.map(func => `<samp>${func.function} (Line ${func.line_number})</samp>`)
 				.join('\n');
 
-			stackCell.innerText = formattedStack;
+			stackCell.innerHTML = formattedStack;
 
 			row.appendChild(timeCell);
 			row.appendChild(msgCell);

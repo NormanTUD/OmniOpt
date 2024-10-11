@@ -2477,7 +2477,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
 
     my_exit(_exit)
 
-def save_checkpoint_internally(trial_nr=0, eee=None):
+def save_checkpoint(trial_nr=0, eee=None):
     if trial_nr > 3:
         if eee:
             print("Error during saving checkpoint: " + str(eee))
@@ -2494,7 +2494,7 @@ def save_checkpoint_internally(trial_nr=0, eee=None):
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
     except Exception as e:
-        save_checkpoint_internally(trial_nr + 1, e)
+        save_checkpoint(trial_nr + 1, e)
 
 def get_tmp_file_from_json(experiment_args):
     _tmp_dir = "/tmp"
@@ -2607,104 +2607,92 @@ def copy_state_files_from_previous_job(continue_previous_job):
 def die_something_went_wrong_with_parameters():
     my_exit(49)
 
-def check_comparison_operators(equation, _errors):
-    """Checks if comparison operators are at the beginning or end of the equation."""
+def check_equation(variables, equation):
+    print_debug(f"check_equation({variables}, {equation})")
+
+    _errors = []
+
+    if not (">=" in equation or "<=" in equation):
+        _errors.append(f"check_equation({variables}, {equation}): if not ('>=' in equation or '<=' in equation)")
+
     comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
     if comparer_at_beginning:
-        _errors.append(f"The restraints {equation} contain comparison operator (<=, >=) at the beginning, which is not valid.")
+        _errors.append(f"The restraints {equation} contained comparison operator like <=, >= at at the beginning. This is not a valid equation.")
 
     comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
     if comparer_at_end:
-        _errors.append(f"The restraints {equation} contain comparison operator (<=, >=) at the end, which is not valid.")
-    
-    return _errors
+        _errors.append(f"The restraints {equation} contained comparison operator like <=, >= at at the end. This is not a valid equation.")
 
-def preprocess_equation(equation):
-    """Prepares the equation by formatting operators and cleaning up whitespace."""
+    if len(_errors):
+        for er in _errors:
+            print_red(er)
+
+        return False
+
     equation = equation.replace("\\*", "*")
     equation = equation.replace(" * ", "*")
+
     equation = equation.replace(">=", " >= ")
     equation = equation.replace("<=", " <= ")
+
     equation = re.sub(r'\s+', ' ', equation)
-    
-    return equation
+    #equation = equation.replace("", "")
 
-
-def split_equation(equation):
-    """Splits the equation into its components, separating numbers, variables, operators, etc."""
     regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
     result_array = re.split(regex_pattern, equation)
-    return [item for item in result_array if item.strip()]
+    result_array = [item for item in result_array if item.strip()]
 
-
-def parse_equation(result_array, variables):
-    """Parses the split equation, identifying numbers, variables, operators, and comparers."""
     parsed = []
     parsed_order = []
+
     comparer_found = False
 
     for item in result_array:
         if item in ["+", "*", "-", "/"]:
             parsed_order.append("operator")
-            parsed.append({"type": "operator", "value": item})
+            parsed.append({
+                "type": "operator",
+                "value": item
+            })
         elif item in [">=", "<="]:
             if comparer_found:
                 print("There is already one comparison operator! Cannot have more than one in an equation!")
-                return False, parsed, parsed_order
+                return False
             comparer_found = True
+
             parsed_order.append("comparer")
-            parsed.append({"type": "comparer", "value": item})
+            parsed.append({
+                "type": "comparer",
+                "value": item
+            })
         elif re.match(r'^\d+$', item):
             parsed_order.append("number")
-            parsed.append({"type": "number", "value": item})
+            parsed.append({
+                "type": "number",
+                "value": item
+            })
         elif item in variables:
             parsed_order.append("variable")
-            parsed.append({"type": "variable", "value": item})
+            parsed.append({
+                "type": "variable",
+                "value": item
+            })
         else:
-            print_red(f"constraint error: Invalid variable {item} in constraint is not defined in the parameters.")
-            return False, parsed, parsed_order
+            print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
+            return False
 
-    return True, parsed, parsed_order
-
-
-def check_equation_structure(parsed_order):
-    """Validates the structure of the parsed equation."""
     parsed_order_string = ";".join(parsed_order)
+
     number_or_variable = "(?:(?:number|variable);*)"
     number_or_variable_and_operator = f"(?:{number_or_variable};operator;*)"
     comparer = "(?:comparer;)"
     equation_part = f"{number_or_variable_and_operator}*{number_or_variable}"
+
     regex_order = f"^{equation_part}{comparer}{equation_part}$"
-    return re.match(regex_order, parsed_order_string)
 
+    order_check = re.match(regex_order, parsed_order_string)
 
-def check_equation(variables, equation):
-    """Main function to check the validity of an equation."""
-    print_debug(f"check_equation({variables}, {equation})")
-    _errors = []
-
-    # Check if equation contains valid comparison operators
-    if not (">=" in equation or "<=" in equation):
-        _errors.append(f"check_equation({variables}, {equation}): Missing comparison operator (>= or <=).")
-    
-    _errors = check_comparison_operators(equation, _errors)
-
-    if len(_errors):
-        for error in _errors:
-            print_red(error)
-        return False
-
-    # Preprocess and split equation
-    equation = preprocess_equation(equation)
-    result_array = split_equation(equation)
-
-    # Parse the equation into components
-    valid, parsed, parsed_order = parse_equation(result_array, variables)
-    if not valid:
-        return False
-
-    # Validate the structure of the equation
-    if check_equation_structure(parsed_order):
+    if order_check:
         return equation
 
     return False
@@ -2714,140 +2702,127 @@ def get_experiment_parameters(_params):
 
     global ax_client
 
+    experiment_args = None
+
     if continue_previous_job:
-        experiment_parameters = load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters, experiment_parameters)
+        print_debug(f"Load from checkpoint: {continue_previous_job}")
+
+        checkpoint_file = continue_previous_job + "/state_files/checkpoint.json"
+        checkpoint_parameters_filepath = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
+
+        die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
+        die_with_47_if_file_doesnt_exists(checkpoint_file)
+
+        try:
+            f = open(checkpoint_file, encoding="utf-8")
+            experiment_parameters = json.load(f)
+            f.close()
+
+            with open(checkpoint_file, encoding="utf-8") as f:
+                experiment_parameters = json.load(f)
+        except json.decoder.JSONDecodeError:
+            print_red(f"Error parsing checkpoint_file {checkpoint_file}")
+            my_exit(47)
+
+        experiment_args = set_torch_device_to_experiment_args(experiment_args)
+
+        copy_state_files_from_previous_job(continue_previous_job)
+
+        if parameter:
+            for _item in cli_params_experiment_parameters:
+                _replaced = False
+                for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
+                    if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
+                        old_param_json = json.dumps(
+                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                        )
+                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
+                        new_param_json = json.dumps(
+                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                        )
+                        _replaced = True
+
+                        compared_params = compare_parameters(old_param_json, new_param_json)
+                        if compared_params:
+                            print_yellow(compared_params)
+
+                if not _replaced:
+                    print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
+
+        original_ax_client_file = f"{CURRENT_RUN_FOLDER}/state_files/original_ax_client_before_loading_tmp_one.json"
+        ax_client.save_to_json_file(filepath=original_ax_client_file)
+
+        with open(original_ax_client_file, encoding="utf-8") as f:
+            loaded_original_ax_client_json = json.load(f)
+            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+
+            if original_generation_strategy:
+                experiment_parameters["generation_strategy"] = original_generation_strategy
+
+        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+
+        ax_client = AxClient.load_from_json_file(tmp_file_path)
+
+        os.unlink(tmp_file_path)
+
+        state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files"
+
+        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
+        if not os.path.exists(state_files_folder):
+            os.makedirs(state_files_folder)
+        with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
+            json.dump(experiment_parameters, outfile)
+
+        if not os.path.exists(checkpoint_filepath):
+            print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
+            my_exit(47)
+
+        with open(f'{CURRENT_RUN_FOLDER}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
     else:
-        experiment_parameters = initialize_experiment(seed, experiment_constraints, experiment_parameters, minimize_or_maximize)
+        experiment_args = {
+            "name": global_vars["experiment_name"],
+            "parameters": experiment_parameters,
+            "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+            "choose_generation_strategy_kwargs": {
+                "num_trials": max_eval,
+                "num_initialization_trials": num_parallel_jobs,
+                "max_parallelism_cap": num_parallel_jobs,
+                #"use_batch_trials": True,
+                "max_parallelism_override": -1
+            },
+        }
 
-    return ax_client, experiment_parameters, experiment_parameters
+        if seed:
+            experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
 
-def load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters, experiment_parameters):
-    checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
-    checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
+        experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
-    die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
-    die_with_47_if_file_doesnt_exists(checkpoint_file)
+        if experiment_constraints and len(experiment_constraints):
+            experiment_args["parameter_constraints"] = []
+            for _l in range(0, len(experiment_constraints)):
+                constraints_string = " ".join(experiment_constraints[_l])
 
-    experiment_parameters = load_checkpoint_file(checkpoint_file)
+                variables = [item['name'] for item in experiment_parameters]
 
-    experiment_parameters = replace_parameters_if_needed(cli_params_experiment_parameters, experiment_parameters)
+                equation = check_equation(variables, constraints_string)
 
-    load_ax_client(experiment_parameters)
+                if equation:
+                    experiment_args["parameter_constraints"].append(constraints_string)
+                else:
+                    print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
+                    my_exit(19)
 
-    return experiment_parameters
+        try:
+            ax_client.create_experiment(**experiment_args)
+        except ValueError as error:
+            print_red(f"An error has occurred while creating the experiment: {error}")
+            die_something_went_wrong_with_parameters()
+        except TypeError as error:
+            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt.")
+            die_something_went_wrong_with_parameters()
 
-def load_checkpoint_file(checkpoint_file):
-    try:
-        with open(checkpoint_file, encoding="utf-8") as f:
-            return json.load(f)
-    except json.decoder.JSONDecodeError:
-        print_red(f"Error parsing checkpoint_file {checkpoint_file}")
-        my_exit(47)
-
-        return {}
-
-def replace_parameters_if_needed(cli_params_experiment_parameters, experiment_parameters):
-    if cli_params_experiment_parameters:
-        for _item in cli_params_experiment_parameters:
-            _replaced = False
-            for _item_id_to_overwrite in range(len(experiment_parameters["experiment"]["search_space"]["parameters"])):
-                if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
-                    _replaced = replace_parameter(experiment_parameters, _item_id_to_overwrite, _item)
-            if not _replaced:
-                print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored.")
-    return experiment_parameters
-
-def replace_parameter(experiment_parameters, _item_id_to_overwrite, _item):
-    old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
-    experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
-    new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
-
-    compared_params = compare_parameters(old_param_json, new_param_json)
-    if compared_params:
-        print_yellow(compared_params)
-    return True
-
-def load_ax_client(experiment_parameters):
-    original_ax_client_file = f"{CURRENT_RUN_FOLDER}/state_files/original_ax_client_before_loading_tmp_one.json"
-
-    global ax_client
-
-    ax_client.save_to_json_file(filepath=original_ax_client_file)
-
-    with open(original_ax_client_file, encoding="utf-8") as f:
-        loaded_original_ax_client_json = json.load(f)
-        original_generation_strategy = loaded_original_ax_client_json.get("generation_strategy")
-
-        if original_generation_strategy:
-            experiment_parameters["generation_strategy"] = original_generation_strategy
-
-    tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-    ax_client = AxClient.load_from_json_file(tmp_file_path)
-    os.unlink(tmp_file_path)
-
-    save_checkpoint(experiment_parameters)
-
-def save_checkpoint(experiment_parameters):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files"
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-    with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
-        json.dump(experiment_parameters, outfile)
-
-    if not os.path.exists(checkpoint_filepath):
-        print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
-        my_exit(47)
-
-    with open(f'{CURRENT_RUN_FOLDER}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
-        print(f"Continuation from checkpoint {args.continue_previous_job}", file=f)
-
-def initialize_experiment(seed, experiment_constraints, experiment_parameters, minimize_or_maximize):
-    experiment_args = {
-        "name": global_vars["experiment_name"],
-        "parameters": experiment_parameters,
-        "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
-        "choose_generation_strategy_kwargs": {
-            "num_trials": max_eval,
-            "num_initialization_trials": num_parallel_jobs,
-            "max_parallelism_cap": num_parallel_jobs,
-            "max_parallelism_override": -1
-        },
-    }
-
-    if seed:
-        experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
-
-    experiment_args = set_torch_device_to_experiment_args(experiment_args)
-
-    if experiment_constraints:
-        experiment_args["parameter_constraints"] = process_experiment_constraints(experiment_constraints, experiment_parameters)
-
-    try:
-        ax_client.create_experiment(**experiment_args)
-    except (ValueError, TypeError) as error:
-        handle_experiment_creation_error(error)
-
-    return experiment_parameters
-
-def process_experiment_constraints(experiment_constraints, experiment_parameters):
-    constraints_list = []
-    for constraint in experiment_constraints:
-        constraints_string = " ".join(constraint)
-        variables = [item['name'] for item in experiment_parameters]
-        equation = check_equation(variables, constraints_string)
-
-        if equation:
-            constraints_list.append(constraints_string)
-        else:
-            print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
-            my_exit(19)
-    return constraints_list
-
-def handle_experiment_creation_error(error):
-    print_red(f"An error has occurred while creating the experiment: {error}")
-    die_something_went_wrong_with_parameters()
+    return ax_client, experiment_parameters, experiment_args
 
 def get_type_short(typename):
     if typename == "RangeParameter":
@@ -3154,7 +3129,7 @@ def clean_completed_jobs():
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
         print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
-        if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
+        if _state in ["completed", "early_stopped", "abandoned"]:
             global_vars["jobs"].remove((job, trial_index))
         elif _state in ["unknown", "pending", "running"]:
             pass
@@ -3804,61 +3779,6 @@ def get_hostname_from_outfile(stdout_path):
         print(f"There was an error: {e}")
         return None
 
-def handle_successful_job(job, trial_index, raw_result):
-    result = raw_result["result"]
-    if result != VAL_IF_NOTHING_FOUND:
-        ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
-        _trial = ax_client.get_trial(trial_index)
-        try:
-            progressbar_description([f"new result: {result}"])
-            _trial.mark_completed(unsafe=True)
-            succeeded_jobs(1)
-            update_progress_bar(progress_bar, 1)
-            live_share()
-        except Exception as e:
-            print(f"ERROR in line {get_line_info()}: {e}")
-        return True
-
-    handle_failed_job(job, trial_index)
-    return False
-
-def handle_failed_job(job, trial_index):
-    if job:
-        try:
-            progressbar_description(["job_failed"])
-            ax_client.log_trial_failure(trial_index=trial_index)
-        except Exception as e:
-            print(f"ERROR in line {get_line_info()}: {e}")
-        job.cancel()
-        orchestrate_job(job, trial_index)
-    failed_jobs(1)
-    live_share()
-
-def handle_exception(job, trial_index, error):
-    if isinstance(error, (FileNotFoundError, submitit.core.utils.UncompletedJobError)):
-        print_red(str(error))
-        mark_job_as_failed(job, trial_index)
-    elif isinstance(error, ax.exceptions.core.UserInputError):
-        if "None for metric" in str(error):
-            print_red(f"\n⚠ Program output did not contain 'RESULT: <NUMBER>'.\nError: {error}")
-        else:
-            print_red(f"\n⚠ {error}")
-        mark_job_as_failed(job, trial_index)
-    else:
-        raise error
-
-def mark_job_as_failed(job, trial_index):
-    if job:
-        try:
-            progressbar_description(["job_failed"])
-            _trial = ax_client.get_trial(trial_index)
-            _trial.mark_failed()
-        except Exception as e:
-            print(f"ERROR in line {get_line_info()}: {e}")
-        job.cancel()
-        orchestrate_job(job, trial_index)
-    failed_jobs(1)
-
 def finish_previous_jobs(new_msgs):
     global random_steps
     global ax_client
@@ -3866,35 +3786,101 @@ def finish_previous_jobs(new_msgs):
 
     this_jobs_finished = 0
 
+    #print("jobs in finish_previous_jobs:")
+    #print(jobs)
+
     for job, trial_index in global_vars["jobs"][:]:
-        if job is not None and (job.done() or isinstance(job, (LocalJob, DebugJob))):
+        # Poll if any jobs completed
+        # Local and debug jobs don't run until .result() is called.
+        if job is not None and (job.done() or type(job) in [LocalJob, DebugJob]):
             try:
-                raw_result = job.result()
-                if handle_successful_job(job, trial_index, raw_result):
-                    global_vars["jobs"].remove((job, trial_index))
-                    this_jobs_finished += 1
-            except Exception as e:
-                handle_exception(job, trial_index, e)
+                result = job.result()
+                raw_result = result
+                result = result["result"]
                 this_jobs_finished += 1
+                if result != VAL_IF_NOTHING_FOUND:
+                    ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+
+                    #count_done_jobs(1)
+
+                    _trial = ax_client.get_trial(trial_index)
+                    try:
+                        progressbar_description([f"new result: {result}"])
+                        _trial.mark_completed(unsafe=True)
+                        succeeded_jobs(1)
+
+                        #update_progress_bar(progress_bar, 1)
+                        update_progress_bar(progress_bar, 1)
+
+                        live_share()
+                    except Exception as e:
+                        print(f"ERROR in line {get_line_info()}: {e}")
+                else:
+                    if job:
+                        try:
+                            progressbar_description(["job_failed"])
+
+                            ax_client.log_trial_failure(trial_index=trial_index)
+                        except Exception as e:
+                            print(f"ERROR in line {get_line_info()}: {e}")
+                        job.cancel()
+                        orchestrate_job(job, trial_index)
+
+                    failed_jobs(1)
+                    live_share()
+
+                global_vars["jobs"].remove((job, trial_index))
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError) as error:
+                print_red(str(error))
+
+                if job:
+                    try:
+                        progressbar_description(["job_failed"])
+                        _trial = ax_client.get_trial(trial_index)
+                        _trial.mark_failed()
+                    except Exception as e:
+                        print(f"ERROR in line {get_line_info()}: {e}")
+                    job.cancel()
+                    orchestrate_job(job, trial_index)
+
+                failed_jobs(1)
+                this_jobs_finished += 1
+
+                global_vars["jobs"].remove((job, trial_index))
+            except ax.exceptions.core.UserInputError as error:
+                if "None for metric" in str(error):
+                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                else:
+                    print_red(f"\n⚠ {error}")
+
+                if job:
+                    try:
+                        progressbar_description(["job_failed"])
+                        ax_client.log_trial_failure(trial_index=trial_index)
+                    except Exception as e:
+                        print(f"ERROR in line {get_line_info()}: {e}")
+                    job.cancel()
+                    orchestrate_job(job, trial_index)
+
+                failed_jobs(1)
+                this_jobs_finished += 1
+
                 global_vars["jobs"].remove((job, trial_index))
 
-            save_checkpoint_internally()
+            if args.verbose:
+                progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
+            save_checkpoint()
+            save_pd_csv()
+        else:
+            pass
 
-    update_progress(this_jobs_finished, new_msgs)
-
-def save_checkpoints():
-    if args.verbose:
-        progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
-    save_pd_csv()
-
-def update_progress(this_jobs_finished, new_msgs):
     if this_jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
     elif this_jobs_finished > 0:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
 
-    global jobs_finished
     jobs_finished += this_jobs_finished
+
     clean_completed_jobs()
 
 def check_orchestrator(stdout_path, trial_index):
@@ -4177,7 +4163,7 @@ def execute_evaluation(_params):
 
             #update_progress_bar(1)
 
-            save_checkpoint_internally()
+            save_checkpoint()
             save_pd_csv()
             trial_counter += 1
         except Exception as e:

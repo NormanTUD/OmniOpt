@@ -836,8 +836,6 @@ async function load_debug_log() {
 
 		var parsed_log_data = parseLogData(data.raw);
 
-		console.log(parsed_log_data);
-
 		if(parsed_log_data && Object.keys(parsed_log_data)) {
 			injectStyles();
 			createTable(parsed_log_data, id);

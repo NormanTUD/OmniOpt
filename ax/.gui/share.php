@@ -176,7 +176,7 @@
 		var auto_update = getParameterByName('update');
 
 		if (auto_update) {
-			var interval = 5000;
+			var interval = 1000;
 			setInterval(function() {
 				fetchHashAndUpdateContent();
 			}, interval);

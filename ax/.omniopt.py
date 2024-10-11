@@ -3116,6 +3116,8 @@ def progressbar_description(new_msgs=[]):
     progress_bar.set_description(desc)
     progress_bar.refresh()
 
+    live_share()
+
 def clean_completed_jobs():
     #for job, trial_index in global_vars["jobs"][:]:
     #    _state = state_from_job(job)

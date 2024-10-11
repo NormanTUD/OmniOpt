@@ -603,8 +603,6 @@ def save_pd_csv():
             json.dump(json_snapshot, json_file, indent=4)
 
         save_experiment(ax_client.experiment, f"{CURRENT_RUN_FOLDER}/state_files/ax_client.experiment.json")
-
-        print_debug("pd.{csv,json} saved")
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:

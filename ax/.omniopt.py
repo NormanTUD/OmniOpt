@@ -602,7 +602,7 @@ def save_pd_csv():
 
         save_experiment(ax_client.experiment, f"{CURRENT_RUN_FOLDER}/state_files/ax_client.experiment.json")
 
-        #print_debug("pd.{csv,json} saved")
+        print_debug("pd.{csv,json} saved")
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:
@@ -3133,7 +3133,7 @@ def clean_completed_jobs():
 
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
-        #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
+        print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
             global_vars["jobs"].remove((job, trial_index))
         elif _state in ["unknown", "pending", "running"]:
@@ -3169,31 +3169,31 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
     try:
         matching_rows = df
-        #print_debug(matching_rows)
+        print_debug(matching_rows)
 
         for param, value in params.items():
             if param in df.columns:
                 if isinstance(value, float):
                     # Log current state before filtering
-                    #print_debug(f"Filtering for float parameter '{param}' with value '{value}' and tolerance '{float_tolerance}'")
+                    print_debug(f"Filtering for float parameter '{param}' with value '{value}' and tolerance '{float_tolerance}'")
 
                     is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
-                    #print_debug(is_close_array)
+                    print_debug(is_close_array)
 
                     matching_rows = matching_rows[is_close_array]
-                    #print_debug(matching_rows)
+                    print_debug(matching_rows)
 
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
                     # Ensure consistent types for comparison
-                    #print_debug(f"Filtering for parameter '{param}' with value '{value}'")
+                    print_debug(f"Filtering for parameter '{param}' with value '{value}'")
                     if matching_rows[param].dtype == np.int64 and isinstance(value, str):
                         value = int(value)
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str):
                         value = float(value)
 
                     matching_rows = matching_rows[matching_rows[param] == value]
-                    #print_debug(matching_rows)
+                    print_debug(matching_rows)
 
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
             else:
@@ -3203,8 +3203,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
             print_debug("No matching rows found after all filters applied")
             return None
 
-        #print_debug("Matching rows found")
-        #print_debug(matching_rows)
+        print_debug("Matching rows found")
+        print_debug(matching_rows)
         return matching_rows
     except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")
@@ -3236,7 +3236,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
             trial_status = old_trial.status
             trial_status_str = trial_status.__repr__
 
-            #print_debug(f"trial_status_str: {trial_status_str}")
+            print_debug(f"trial_status_str: {trial_status_str}")
 
             if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
                 continue
@@ -3249,7 +3249,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
                 tmp_old_res_list = list(set(list(tmp_old_res)))
 
                 if len(tmp_old_res_list) == 1:
-                    #print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
                     old_result_simple = float(tmp_old_res_list[0])
                 else:
                     print_debug(

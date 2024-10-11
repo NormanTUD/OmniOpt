@@ -70,25 +70,14 @@ function calltracer {
 		echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
 		_tput bel
 
-		if [[ -e /tmp/oo_live_share_currently_running ]]; then
-			rm /tmp/oo_live_share_currently_running
+		if [[ -n $BLOCKER ]] && [[ -e $BLOCKER ]]; then
+			rm "$BLOCKER"
 		fi
 	fi
 }
 
 trap 'calltracer' ERR
 trap 'calltracer' EXIT
-
-iii=0
-while [[ -e /tmp/oo_live_share_currently_running ]]; do
-	if [[ $iii -eq 0 ]]; then
-		echo "Waiting until /tmp/oo_live_share_currently_running is gone..."
-	fi
-	sleep 1
-	iii=$(($iii + 1))
-done
-
-touch /tmp/oo_live_share_currently_running 
 
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -183,6 +172,19 @@ source "$SCRIPT_DIR/.shellscript_functions"
 
 k=0
 for RUN_DIR in "${folders_to_share[@]}"; do
+	BLOCKER="/tmp/oo_share_blocker_$(echo $RUN_DIR | md5sum | sed -e 's#\s.*##')"
+
+	iii=0
+	while [[ -e $BLOCKER ]]; do
+		if [[ $iii -eq 0 ]]; then
+			echo "Waiting until $BLOCKER is gone..."
+		fi
+		sleep 1
+		iii=$(($iii + 1))
+	done
+
+	touch $BLOCKER
+
 	ok=1
 
 	if [[ -z $RUN_DIR ]]; then
@@ -321,6 +323,8 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		fi
 	fi
 	k=$(($k+1))
+
+	rm $BLOCKER
 done
 
 disable_calltracer=1

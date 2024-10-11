@@ -393,10 +393,10 @@ function delete_test {
 
 function _test_nr_jobs {
 	_testname=$1
-	JOBNR=$1
-	NRRAND=$2
-	NRNONRAND=$3
-	NRMANUAL=$4
+	JOBNR=$2
+	NRRAND=$3
+	NRNONRAND=$4
+	NRMANUAL=$5
 
 	_test "Testing if there are the right number of jobs in runs/$_testname/$JOBNR/results.csv" "./.tools/phases_overview runs/$_testname/$JOBNR/ $NRRAND $NRNONRAND $NRMANUAL" 0
 }

@@ -586,7 +586,7 @@ def run_live_share_command():
     return "", ""
 
 @wrapper_print_debug
-def live_share():
+async def live_share():
     global shown_live_share_counter
 
     if not args.live_share:

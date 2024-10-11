@@ -185,6 +185,8 @@ def my_exit(_code=0):
 def print_red(text):
     helpers.print_color("red", text)
 
+    print_debug(text)
+
     if CURRENT_RUN_FOLDER:
         try:
             with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
@@ -889,8 +891,12 @@ def _debug_progressbar(msg, _lvl=0, eee=None):
 def print_green(text):
     helpers.print_color("green", text)
 
+    print_debug(text)
+
 def print_yellow(text):
     helpers.print_color("yellow", text)
+
+    print_debug(text)
 
 def decode_if_base64(input_str):
     try:
@@ -3459,7 +3465,7 @@ def load_data_from_existing_run_folders(_paths):
 
                 if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                     if hashed_params_result not in already_inserted_param_hashes.keys():
-                        #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
+                        print_debug(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
                         old_result = {'result': old_result_simple}
 
                         insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result)
@@ -3791,8 +3797,7 @@ def finish_previous_jobs(new_msgs):
 
     this_jobs_finished = 0
 
-    #print("jobs in finish_previous_jobs:")
-    #print(jobs)
+    print_debug(f"jobs in finish_previous_jobs: {jobs}")
 
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
@@ -4104,6 +4109,8 @@ def save_state_files():
 def execute_evaluation(_params):
     global global_vars
 
+    print_debug(f"execute_evaluation({_params})")
+
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
 
     _trial = ax_client.get_trial(trial_index)
@@ -4111,7 +4118,7 @@ def execute_evaluation(_params):
     try:
         _trial.mark_staged()
     except Exception:
-        #print(e)
+        print_debug(f"execute_evaluation({_params}: Marking the trial as stged failed with error {e}")
         pass
     new_job = None
     try:
@@ -4142,8 +4149,7 @@ def execute_evaluation(_params):
         try:
             _trial.mark_running(no_runner_required=True)
         except Exception:
-            #print(f"ERROR in line {get_line_info()}: {e}")
-            pass
+            print_debug(f"execute_evaluation({_params}): Marking the trial as running failed with {e}")
         trial_counter += 1
 
         progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])

@@ -712,7 +712,7 @@ $complex_options_str
 			args_string+=" --help "
 			;;
 
-		--debug)
+		-d|--debug)
 			debug=1
 			set_debug
 			;;

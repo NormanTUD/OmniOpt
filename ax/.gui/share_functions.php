@@ -638,13 +638,15 @@
 			if ($secondDir != "s4122485") {
 				$threshold = ($secondDir === 'runner') ? (2 * 3600) : (30 * 24 * 3600);
 
-				$dir_date = filemtime($subdir);
+				if(is_dir($subdir)) {
+					$dir_date = filemtime($subdir);
 
-				// Check if the directory is older than the threshold and is either empty or meets the original condition
-				if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
-					if (is_dir_empty($subdir)) {
-						$oldDirectories[] = $subdir;
-						rrmdir($subdir); // Remove the directory
+					// Check if the directory is older than the threshold and is either empty or meets the original condition
+					if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
+						if (is_dir_empty($subdir)) {
+							$oldDirectories[] = $subdir;
+							rrmdir($subdir); // Remove the directory
+						}
 					}
 				}
 			}

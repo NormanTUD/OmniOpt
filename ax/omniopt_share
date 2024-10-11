@@ -221,6 +221,10 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 				curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
 			fi
 
+			if [[ -e "logs/${run_uuid}_trial_index_to_param_logs" ]]; then
+				curl_options+=("-F" "trial_index_to_params=@logs/${run_uuid}_trial_index_to_param_logs")
+			fi
+
 			if [[ -e "logs/${run_uuid}_log" ]]; then
 				curl_options+=("-F" "log=@logs/${run_uuid}_log")
 			fi

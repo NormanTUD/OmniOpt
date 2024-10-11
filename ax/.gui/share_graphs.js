@@ -653,6 +653,29 @@ async function load_progressbar_log() {
 	}
 }
 
+async function load_trial_index_to_params_log () {
+	//debug_function("load_trial_index_to_params_log()");
+	var data = await fetchJsonFromUrlFilenameOnly(`trial_index_to_params`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		//warn(`load_trial_index_to_params_log: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	add_tab("trial_index_to_params", "Trial Index to Param", `<div id='trial_index_to_params_element'></div>`);
+
+	if($(`#trial_index_to_params_element`).length == 0) {
+		error(`Could not find #trial_index_to_params_element`);
+	} else {
+		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
+		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		converted = removeTrailingWhitespaces(converted);
+		$(`#trial_index_to_params_element`).html(`<pre class="trial_index_to_params_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("trial_index_to_params_element_class")}`);
+	}
+}
 
 async function load_install_errors() {
 	//debug_function("load_install_errors()");
@@ -1088,6 +1111,7 @@ async function load_all_data() {
 		promises.push(load_outfile());
 		promises.push(load_internal_log());
 		promises.push(load_install_errors());
+		promises.push(load_trial_index_to_params_log());
 		promises.push(load_progressbar_log());
 		promises.push(load_parameter());
 

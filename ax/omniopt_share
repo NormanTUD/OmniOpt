@@ -2,6 +2,61 @@
 
 {
 
+function echoerr {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+function _tput {
+	set +e
+	CHAR=$1
+
+	if ! command -v tput 2>/dev/null >/dev/null; then
+		red_text "tput not installed" >&2
+		set +e
+		return 0
+	fi
+
+	if [[ -z $CHAR ]]; then
+		red_text "No character given" >&2
+		set +e
+		return 0
+	fi
+
+	if ! tty 2>/dev/null >/dev/null; then
+		echo ""
+		set +e
+		return 0
+	fi
+
+	tput "$CHAR"
+	set +e
+}
+
+function displaytime {
+	local T=$1
+	local D=$((T/60/60/24))
+	local H=$((T/60/60%24))
+	local M=$((T/60%60))
+	local S=$((T%60))
+	(( $D > 0 )) && printf '%d days ' $D
+	(( $H > 0 )) && printf '%d hours ' $H
+	(( $M > 0 )) && printf '%d minutes ' $M
+	(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+	printf '%d seconds\n' $S
+}
+
 disable_calltracer=0
 function calltracer {
 	if [[ $disable_calltracer -eq 0 ]]; then
@@ -21,7 +76,6 @@ function calltracer {
 	fi
 }
 
-
 trap 'calltracer' ERR
 trap 'calltracer' EXIT
 
@@ -31,6 +85,7 @@ while [[ -e /tmp/oo_live_share_currently_running ]]; do
 		echo "Waiting until /tmp/oo_live_share_currently_running is gone..."
 	fi
 	sleep 1
+	iii=$(($iii + 1))
 done
 
 touch /tmp/oo_live_share_currently_running 
@@ -68,22 +123,6 @@ function join_by {
 
 RUN_DIR=$1
 
-function echoerr {
-        echo "$@" 1>&2
-}
-
-function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
-}
-
-function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
-
 function help {
 	exit_code=$1
 
@@ -101,7 +140,6 @@ function help {
 
 	exit $exit_code
 }
-
 
 for arg in "$@"; do
         if [ "$arg" == "--debug" ]; then
@@ -156,7 +194,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		red_text "$RUN_DIR does not exist\n"
 		ok=0
 	fi
-
 
 	if [[ "$ok" -eq "1" ]]; then
 		experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
@@ -263,7 +300,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 				curl_options+=("-F" "log=@logs/${run_uuid}_log")
 			fi
 		fi
-
 
 		if [[ $DEBUG -eq 1 ]]; then
 			echo "DEBUG: curl -s ${curl_options[@]} $url"

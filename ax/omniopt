@@ -208,7 +208,7 @@ if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visu
 	echo ""
 fi
 
-SEND_USAGE_STATS=0
+send_anonymized_usage_stats=0
 
 function myexit {
 	CODE=$1
@@ -236,7 +236,7 @@ fi
 function send_status_report {
 	exit_code=$1
 
-	if [[ $SEND_USAGE_STATS -eq "1" ]]; then
+	if [[ $send_anonymized_usage_stats -eq "1" ]]; then
 		BASEURL="https://imageseg.scads.de/omniax"
 
 		if [[ -e "$HOME/.oo_base_url" ]]; then
@@ -499,6 +499,22 @@ config_toml=""
 config_yaml=""
 config_json=""
 
+generate_simple_config_handling_code () {
+	local option_name="$1"
+
+	local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
+	local current_var=${option_name//--/}
+
+	cat <<EOF
+		--$current_var)
+			$current_var=1
+			args_string+=" --$current_var "
+			;;
+
+EOF
+}
+
+
 generate_config_handling_code() {
 	local option_name="$1"
 	local check_type="$2"
@@ -570,6 +586,16 @@ $check_code
 EOF
 }
 
+simple_options=(
+	"force_local_execution"
+	"follow"
+	"send_anonymized_usage_stats"
+	"tests"
+	"run_tests_that_fail_on_taurus"
+	"checkout_to_latest_tested_version"
+	"wait_until_ended"
+)
+
 complex_options_with_files=(
 	"config_yaml"
 	"config_json"
@@ -591,6 +617,10 @@ complex_options=(
 )
 
 complex_options_str=""
+
+for opt in "${simple_options[@]}"; do
+	complex_options_str+=$(generate_simple_config_handling_code "$opt")
+done
 
 for opt in "${complex_options_with_int[@]}"; do
 	complex_options_str+=$(generate_config_handling_code "$opt" "int")
@@ -675,36 +705,6 @@ $complex_options_str
 
 			continue_was_set=1
 
-			;;
-
-		--checkout_to_latest_tested_version)
-			checkout_to_latest_tested_version=1
-			;;
-
-		--run_tests_that_fail_on_taurus)
-			run_tests_that_fail_on_taurus=1
-			;;
-
-		--tests)
-			tests=1
-			;;
-
-		--send_anonymized_usage_stats)
-			SEND_USAGE_STATS=1
-			;;
-
-		--follow)
-			follow=1
-			;;
-
-		--force_local_execution)
-			force_local_execution=1
-			args_string+=" --force_local_execution "
-			;;
-
-		--wait_until_ended)
-			wait_until_ended=1
-			args_string+=" --wait_until_ended "
 			;;
 
 		-h|--help)

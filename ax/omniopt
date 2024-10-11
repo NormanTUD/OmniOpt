@@ -845,7 +845,7 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 					else
 						echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
 					fi
-					fi
+				fi
 			fi
 
 			if [[ "$commits_since_tag" -gt 0 ]]; then
@@ -923,43 +923,37 @@ else
 	exit 5
 fi
 
-if [[ $tests -eq 0 ]]; then
-	if [[ $help -eq 0 ]] && command -v sbatch >/dev/null; then
-		if [[ "$continue_previous_job" == "" ]]; then
-			if [[ -z "$mem_gb" ]]; then
-				set +e
-				mem_gb=$(get_config_from_config_file "mem_gb" 1)
-				set -e
+if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[ "$continue_previous_job" == "" ]]; then
+	set +e
 
-				if [[ -z "$mem_gb" ]]; then
-					red_text "Parameter --mem_gb is missing or empty";
-					myexit 104
-				fi
-			fi
+	if [[ -z "$mem_gb" ]]; then
+		mem_gb=$(get_config_from_config_file "mem_gb" 1)
 
-			if [[ -z "$time" ]]; then
-				set +e
-				time=$(get_config_from_config_file "time" 1)
-				set -e
-
-				if [[ -z "$time" ]]; then
-					red_text "Parameter --time is missing or empty";
-					myexit 104
-				fi
-			fi
-
-			if [[ -z $experiment_name ]]; then
-				set +e
-				experiment_name=$(get_config_from_config_file "experiment_name" 1)
-				set -e
-
-				if [[ -z $experiment_name ]]; then
-					red_text "Parameter --experiment_name is missing or empty"
-					myexit 104
-				fi
-			fi
+		if [[ -z "$mem_gb" ]]; then
+			red_text "Parameter --mem_gb is missing or empty";
+			myexit 104
 		fi
 	fi
+
+	if [[ -z "$time" ]]; then
+		time=$(get_config_from_config_file "time" 1)
+
+		if [[ -z "$time" ]]; then
+			red_text "Parameter --time is missing or empty";
+			myexit 104
+		fi
+	fi
+
+	if [[ -z $experiment_name ]]; then
+		experiment_name=$(get_config_from_config_file "experiment_name" 1)
+
+		if [[ -z $experiment_name ]]; then
+			red_text "Parameter --experiment_name is missing or empty"
+			myexit 104
+		fi
+	fi
+
+	set -e
 fi
 
 trap - ERR

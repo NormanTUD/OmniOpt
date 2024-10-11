@@ -18,7 +18,6 @@ try:
     import re
     import toml
     import time
-    import asyncio
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 1")
@@ -159,10 +158,7 @@ def print_debug(msg):
 
     stack_trace_element = _get_debug_json(time_str, msg)
 
-    if stack_trace_element:
-        msg = f"{stack_trace_element}"
-    else:
-        msg = f"{time_str}:\t{msg}"
+    msg = f"{stack_trace_element}"
 
     if args is not None and args.debug:
         print(msg)
@@ -588,7 +584,7 @@ def run_live_share_command():
     return "", ""
 
 @wrapper_print_debug
-async def live_share():
+def live_share():
     global shown_live_share_counter
 
     if not args.live_share:
@@ -4814,7 +4810,7 @@ def check_max_eval(_max_eval):
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
-async def main():
+def main():
     global RESULT_CSV_FILE
     global ax_client
     global global_vars
@@ -4933,7 +4929,7 @@ async def main():
 
     write_process_info()
 
-    await live_share()
+    live_share()
 
     disable_tqdm = False
 
@@ -4958,7 +4954,7 @@ async def main():
 
     wait_for_jobs_to_complete(0)
 
-    await live_share()
+    live_share()
 
     end_program(RESULT_CSV_FILE)
 
@@ -5289,7 +5285,7 @@ def run_tests():
 
     my_exit(nr_errors)
 
-async def main_outside():
+def main_outside():
     print_logo()
 
     with warnings.catch_warnings():
@@ -5299,7 +5295,7 @@ async def main_outside():
             run_tests()
         else:
             try:
-                await main()
+                main()
             except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
@@ -5320,5 +5316,4 @@ async def main_outside():
                     end_program(RESULT_CSV_FILE, 1)
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main_outside())
+    main_outside()

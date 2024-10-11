@@ -69,10 +69,6 @@ function calltracer {
 		caller
 		echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
 		_tput bel
-
-		if [[ -n $BLOCKER ]] && [[ -e $BLOCKER ]]; then
-			rm "$BLOCKER"
-		fi
 	fi
 }
 
@@ -172,19 +168,6 @@ source "$SCRIPT_DIR/.shellscript_functions"
 
 k=0
 for RUN_DIR in "${folders_to_share[@]}"; do
-	BLOCKER="/tmp/oo_share_blocker_$(echo $RUN_DIR | md5sum | sed -e 's#\s.*##')"
-
-	iii=0
-	while [[ -e $BLOCKER ]]; do
-		if [[ $iii -eq 0 ]]; then
-			echo "Waiting until $BLOCKER is gone..."
-		fi
-		sleep 1
-		iii=$(($iii + 1))
-	done
-
-	touch $BLOCKER
-
 	ok=1
 
 	if [[ -z $RUN_DIR ]]; then
@@ -323,8 +306,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		fi
 	fi
 	k=$(($k+1))
-
-	rm $BLOCKER
 done
 
 disable_calltracer=1

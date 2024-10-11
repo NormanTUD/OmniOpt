@@ -569,7 +569,7 @@ if [[ $superquick -eq 0 ]]; then
 		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0 87
 
-		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 
 		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 

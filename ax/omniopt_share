@@ -1,6 +1,40 @@
 #!/bin/bash
 
 {
+
+disable_calltracer=0
+function calltracer {
+	if [[ $disable_calltracer -eq 0 ]]; then
+		LINE_AND_FUNCTION="$(caller)"
+		if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
+			red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
+		fi
+
+		echo ""
+		caller
+		echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
+		_tput bel
+
+		if [[ -e /tmp/oo_live_share_currently_running ]]; then
+			rm /tmp/oo_live_share_currently_running
+		fi
+	fi
+}
+
+
+trap 'calltracer' ERR
+trap 'calltracer' EXIT
+
+iii=0
+while [[ -e /tmp/oo_live_share_currently_running ]]; do
+	if [[ $iii -eq 0 ]]; then
+		echo "Waiting until /tmp/oo_live_share_currently_running is gone..."
+	fi
+	sleep 1
+done
+
+touch /tmp/oo_live_share_currently_running 
+
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
@@ -252,4 +286,7 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 	fi
 	k=$(($k+1))
 done
+
+disable_calltracer=1
+exit 0
 }

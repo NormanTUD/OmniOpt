@@ -497,11 +497,36 @@ config_yaml=""
 config_json=""
 
 generate_config_handling_code() {
-    local option_name=$1
-    local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
-    local current_var=${option_name//--/}
+	local option_name="$1"
+	local check_type="$2"
 
-    cat <<EOF
+	local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
+	local current_var=${option_name//--/}
+
+	local check_code=""
+
+	if [[ $check_type == "int" ]]; then
+		check_code=$(cat <<EOF
+			if ! [[ \$$current_var =~ \$int_re ]] ; then
+				red_text "error: --$current_var not a INT: \$i" >&2
+				myexit 100
+			fi
+EOF
+)
+	elif [[ $check_type == "file" ]]; then
+		check_code=$(cat <<EOF
+			if ! [[ -e \$i ]] ; then
+				red_text "error: --$current_var specified the path to a file that doesn't exist: \$i" >&2
+				myexit 100
+			fi
+EOF
+	elif [[ $check_type == "" ]]; then
+		true
+	else
+		red_text "Unknown type >$check_type<\n"
+	fi
+
+	cat <<EOF
 		    --$option_name=*)
 			${previous_job_var}=\$${current_var}_previous
 			${current_var}_previous="\${i#*=}"
@@ -514,9 +539,11 @@ generate_config_handling_code() {
 			args_string+=" \$option_name \${${current_var}_previous} "
 			${current_var}=\${${current_var}_previous}
 
+			$check_code
+
 			;;
 
-		    --$option_name)
+		--$option_name)
 			${previous_job_var}=\$${current_var}_previous
 
 			shift
@@ -532,14 +559,19 @@ generate_config_handling_code() {
 			args_string+=" \$option_name \${${current_var}_previous} "
 			${current_var}=\${${current_var}_previous}
 
+			$check_code
+
 			;;
 EOF
 }
 
-complex_options=(
+complex_options_with_files=(
 	"config_yaml"
 	"config_json"
 	"config_toml"
+)
+
+complex_options=(
 	"workdir"
 	"account"
 	"experiment_name"
@@ -549,8 +581,14 @@ complex_options=(
 
 complex_options_str=""
 
+for opt in "${complex_options_with_files[@]}"; do
+	complex_options_str+=$(generate_config_handling_code "$opt" "file")
+	echo "$complex_options_str"
+	exit
+done
+
 for opt in "${complex_options[@]}"; do
-	complex_options_str+=$(generate_config_handling_code $opt)
+	complex_options_str+=$(generate_config_handling_code "$opt")
 done
 
 PARAM_EVAL=$(cat <<EOF

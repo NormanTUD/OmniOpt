@@ -654,6 +654,7 @@ $complex_options_str
 			continue_was_set=1
 
 			;;
+
 		--continue)
 			old_continue=\$continue_previous_job
 

@@ -221,15 +221,21 @@
 			fi
 
 			green_reset_line "${PROGRESSBAR}➤Installing $MODULE$(bg_jobs_str)..."
-			mkdir -p .logs
+			mkdir -p logs
 			export PIP_DISABLE_PIP_VERSION_CHECK=1
-			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> .logs/install_errors || {
+			INSTALL_ERRORS_FILE="logs/install_errors"
+
+			if [[ -n $RUN_UUID ]]; then
+				INSTALL_ERRORS_FILE="logs/${RUN_UUID}_install_errors"
+			fi
+
+			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
 				if [[ "$MODULE" == *">="* || "$MODULE" == *"<="* || "$MODULE" == *"<"* || "$MODULE" == *"=="* ]]; then
 					ppip "$MODULES_WITHOUT_VERSIONS" "$AS_REQUIREMENT_OF" "$NUMBER_OF_MAIN_MODULES"
 				else
-					red_reset_line "❌Failed to install $MODULE. Check .logs/install_errors."
+					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
 					if [[ -n $CI ]]; then
-						cat ".logs/install_errors" 
+						cat "$INSTALL_ERRORS_FILE" 
 					fi
 					exit 3
 				fi

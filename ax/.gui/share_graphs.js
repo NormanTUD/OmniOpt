@@ -629,6 +629,30 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 	}
 }
 
+async function load_install_errors() {
+	//debug_function("load_install_errors()");
+	var data = await fetchJsonFromUrlFilenameOnly(`install_errors`)
+	if(!data) {
+		return;
+	}
+
+	if(!Object.keys(data).includes("raw")) {
+		//warn(`load_install_errors: Could not plot seemingly empty data: no raw found`);
+		return;
+	}
+
+	add_tab("install_errors", "Install errors", `<div id='install_errors_element'></div>`);
+
+	if($(`#install_errors_element`).length == 0) {
+		error(`Could not find #install_errors_element`);
+	} else {
+		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
+		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		converted = removeTrailingWhitespaces(converted);
+		$(`#install_errors_element`).html(`<pre class="install_errors_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("install_errors_class")}`);
+	}
+}
+
 async function load_internal_log() {
 	//debug_function("load_internal_log()");
 	var data = await fetchJsonFromUrlFilenameOnly(`log`)
@@ -652,7 +676,6 @@ async function load_internal_log() {
 		$(`#internal_log_element`).html(`<pre class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}`);
 	}
 }
-
 
 async function load_outfile () {
 	//debug_function("load_outfile()");
@@ -1039,6 +1062,7 @@ async function load_all_data() {
 		promises.push(load_results());
 		promises.push(load_outfile());
 		promises.push(load_internal_log());
+		promises.push(load_install_errors());
 		promises.push(load_parameter());
 
 		promises.push(plot_all_possible());

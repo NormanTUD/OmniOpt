@@ -3797,7 +3797,7 @@ def finish_previous_jobs(new_msgs):
 
     this_jobs_finished = 0
 
-    print_debug(f"jobs in finish_previous_jobs: {jobs}")
+    print_debug(f"jobs in finish_previous_jobs: {global_vars['jobs']}")
 
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed

@@ -4081,24 +4081,27 @@ def _orchestrate(stdout_path, trial_index):
                 print_red(f"Orchestrator: {behav} not yet implemented!")
                 my_exit(210)
 
-def write_continue_run_uuid_to_file(continue_dir):
-    try:
+def write_continue_run_uuid_to_file():
+    if args.continue_previous_job:
+        continue_dir = args.continue_previous_job
 
-        with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
-            continue_from_uuid = f.readline()
+        try:
 
-            file_path = f"{CURRENT_RUN_FOLDER}/state_files/uuid_of_continued_run"
+            with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
+                continue_from_uuid = f.readline()
 
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                file_path = f"{CURRENT_RUN_FOLDER}/state_files/uuid_of_continued_run"
 
-            with open(file_path, 'w', encoding="utf-8") as file:
-                file.write(continue_from_uuid)
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-            return True
-    except Exception as e:
-        print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
+                with open(file_path, 'w', encoding="utf-8") as file:
+                    file.write(continue_from_uuid)
 
-        return False
+                return True
+        except Exception as e:
+            print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
+
+    return False
 
 def write_run_uuid_to_file():
     try:
@@ -4331,8 +4334,8 @@ def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_exec
         if last_time:
             return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
         return base_msg
-    else:
-        return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
+
+    return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
 
 def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
@@ -4342,6 +4345,8 @@ def _fetch_next_trials(nr_of_jobs_to_get):
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)
         my_exit(242)
+
+    return None
 
 def _handle_linalg_error(error):
     """Handles the np.linalg.LinAlgError based on the model being used."""
@@ -4398,7 +4403,7 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
 
     return requested
 
-def get_generation_strategy(num_parallel_jobs, seed, max_eval):
+def get_generation_strategy():
     global random_steps
 
     # Initialize steps for the generation strategy
@@ -4417,18 +4422,18 @@ def get_generation_strategy(num_parallel_jobs, seed, max_eval):
 
     # Add a random generation step if conditions are met
     if random_steps >= 1 and num_imported_jobs < random_steps:
-        steps.append(create_random_generation_step(num_parallel_jobs, max_eval, seed))
+        steps.append(create_random_generation_step())
 
     # Choose a model for the non-random step
     chosen_non_random_model = select_model(args.model)
 
     # Append the Bayesian optimization step
-    steps.append(create_systematic_step(chosen_non_random_model, num_parallel_jobs))
+    steps.append(create_systematic_step(chosen_non_random_model))
 
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)
 
-def create_random_generation_step(num_parallel_jobs, max_eval, seed):
+def create_random_generation_step():
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -4436,7 +4441,7 @@ def create_random_generation_step(num_parallel_jobs, max_eval, seed):
         min_trials_observed=min(max_eval, random_steps),
         max_parallelism=num_parallel_jobs,
         enforce_num_trials=True,
-        model_kwargs={"seed": seed},
+        model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': True},
         should_deduplicate=True
     )
@@ -4458,7 +4463,7 @@ def select_model(model_arg):
 
     return chosen_model
 
-def create_systematic_step(model, num_parallel_jobs):
+def create_systematic_step(model):
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
         model=model,
@@ -4612,14 +4617,6 @@ def get_executor():
 
     if args.exclude:
         print_yellow(f"Excluding the following nodes: {args.exclude}")
-
-def get_steps_from_prev_job(prev_job, nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
-
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
 
 def execute_nvidia_smi():
     if not IS_NVIDIA_SMI_SYSTEM:
@@ -4840,83 +4837,43 @@ def check_max_eval(_max_eval):
     if not _max_eval:
         print_red("--max_eval needs to be set!")
         my_exit(19)
-
 def main():
-    global RESULT_CSV_FILE
-    global ax_client
-    global global_vars
-    global max_eval
-    global global_vars
-    global RUN_FOLDER_NUMBER
-    global CURRENT_RUN_FOLDER
-    global NVIDIA_SMI_LOGS_BASE
-    global LOGFILE_DEBUG_GET_NEXT_TRIALS
-    global random_steps
-
+    global RESULT_CSV_FILE, ax_client, global_vars, max_eval
+    global RUN_FOLDER_NUMBER, CURRENT_RUN_FOLDER, NVIDIA_SMI_LOGS_BASE
+    global LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
     check_if_has_random_steps()
 
-    _debug_worker_creation("time, nr_workers, got, requested, phase")
+    log_worker_creation()
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
-
     check_slurm_job_id()
 
-    CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
-    while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
-        CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
-        RUN_FOLDER_NUMBER = RUN_FOLDER_NUMBER + 1
-
-    RESULT_CSV_FILE = create_folder_and_file(f"{CURRENT_RUN_FOLDER}")
+    set_run_folder()
+    RESULT_CSV_FILE = create_folder_and_file(CURRENT_RUN_FOLDER)
 
     save_state_files()
-
     write_run_uuid_to_file()
 
-    if args.maximize:
-        print_red("--maximize is not fully supported yet!")
+    handle_maximize_argument()
+    print_run_info()
 
-    print(f"[yellow]Run-folder[/yellow]: [underline]{CURRENT_RUN_FOLDER}[/underline]")
-    if args.continue_previous_job:
-        print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
-
-    NVIDIA_SMI_LOGS_BASE = f'{CURRENT_RUN_FOLDER}/gpu_usage_'
-
-    if args.ui_url:
-        with open(f"{CURRENT_RUN_FOLDER}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
-            myfile.write(decode_if_base64(args.ui_url))
+    initialize_nvidia_logs()
+    write_ui_url_if_present()
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{CURRENT_RUN_FOLDER}/get_next_trials.csv'
-
-    experiment_parameters = None
-    cli_params_experiment_parameters = None
-    checkpoint_parameters_filepath = f"{CURRENT_RUN_FOLDER}/state_files/checkpoint.json.parameters.json"
-
-    if args.parameter:
-        experiment_parameters = parse_experiment_parameters()
-        cli_params_experiment_parameters = experiment_parameters
+    experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
     disable_logging()
-
     check_max_eval(max_eval)
 
     random_steps, second_step_steps = get_number_of_steps(max_eval)
-
     add_exclude_to_defective_nodes()
+    handle_random_steps()
 
-    if args.parameter and len(args.parameter) and args.continue_previous_job and random_steps <= 0:
-        print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
-        random_steps = args.num_random_steps
-
-    gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
-
-    ax_client = AxClient(
-        verbose_logging=args.verbose,
-        enforce_sequential_optimization=args.enforce_sequential_optimization,
-        generation_strategy=gs
-    )
+    gs = get_generation_strategy()
+    initialize_ax_client(gs)
 
     minimize_or_maximize = not args.maximize
-
     ax_client, experiment_parameters, experiment_args = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
@@ -4928,66 +4885,105 @@ def main():
     ])
 
     set_orchestrator()
+    print_generation_strategy()
 
+    checkpoint_parameters_filepath = f"{CURRENT_RUN_FOLDER}/state_files/checkpoint.json.parameters.json"
+    save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
+    print_overview_tables(experiment_parameters, experiment_args)
+
+    get_executor()
+    load_existing_job_data_into_ax_client()
+    original_print(f"Run-Program: {global_vars['joined_run_program']}")
+
+    save_global_vars()
+    write_process_info()
+    live_share()
+
+    disable_tqdm = args.disable_tqdm or ci_env
+    run_with_progress_bar(disable_tqdm)
+
+    wait_for_jobs_to_complete(0)
+    live_share()
+    end_program(RESULT_CSV_FILE)
+
+
+def log_worker_creation():
+    _debug_worker_creation("time, nr_workers, got, requested, phase")
+
+def set_run_folder():
+    global CURRENT_RUN_FOLDER, RUN_FOLDER_NUMBER
+    CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+    while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
+        RUN_FOLDER_NUMBER += 1
+        CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+
+def handle_maximize_argument():
+    if args.maximize:
+        print_red("--maximize is not fully supported yet!")
+
+def print_run_info():
+    print(f"[yellow]Run-folder[/yellow]: [underline]{CURRENT_RUN_FOLDER}[/underline]")
+    if args.continue_previous_job:
+        print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
+
+def initialize_nvidia_logs():
+    global NVIDIA_SMI_LOGS_BASE
+    NVIDIA_SMI_LOGS_BASE = f'{CURRENT_RUN_FOLDER}/gpu_usage_'
+
+def write_ui_url_if_present():
+    if args.ui_url:
+        with open(f"{CURRENT_RUN_FOLDER}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
+            myfile.write(decode_if_base64(args.ui_url))
+
+def parse_parameters():
+    experiment_parameters = None
+    cli_params_experiment_parameters = None
+    if args.parameter:
+        experiment_parameters = parse_experiment_parameters()
+        cli_params_experiment_parameters = experiment_parameters
+    return experiment_parameters, cli_params_experiment_parameters
+
+def handle_random_steps():
+    global random_steps
+    if args.parameter and args.continue_previous_job and random_steps <= 0:
+        print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
+        random_steps = args.num_random_steps
+
+def initialize_ax_client(gs):
+    global ax_client
+    ax_client = AxClient(
+        verbose_logging=args.verbose,
+        enforce_sequential_optimization=args.enforce_sequential_optimization,
+        generation_strategy=gs
+    )
+
+def print_generation_strategy():
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-    with open(checkpoint_parameters_filepath, mode="w", encoding="utf-8") as outfile:
+def save_experiment_parameters(filepath, experiment_parameters):
+    with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-    print_overview_tables(experiment_parameters, experiment_args)
-
-    get_executor()
-
-    load_existing_job_data_into_ax_client()
-
-    original_print(f"Run-Program: {global_vars['joined_run_program']}")
-
+def calculate_max_steps(second_step_steps):
     max_nr_steps = second_step_steps
     if count_done_jobs() < random_steps:
         max_nr_steps = (random_steps - count_done_jobs()) + second_step_steps
-        #set_max_eval(max_nr_steps)
+    return max_nr_steps
 
-    prev_steps_nr = 0
-
-    if args.continue_previous_job:
-        prev_steps_nr = get_steps_from_prev_job(args.continue_previous_job)
-
-        max_nr_steps = prev_steps_nr + max_nr_steps
-
-    save_global_vars()
-
-    write_process_info()
-
-    live_share()
-
-    disable_tqdm = False
-
-    if ci_env or args.disable_tqdm:
-        disable_tqdm = True
-
-    if args.continue_previous_job:
-        write_continue_run_uuid_to_file(args.continue_previous_job)
-
+def run_with_progress_bar(disable_tqdm):
     with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar
 
         progressbar_description(["Started OmniOpt2 run..."])
-
         update_progress_bar(progress_bar, count_done_jobs())
 
         run_search(progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
-
-    wait_for_jobs_to_complete(0)
-
-    live_share()
-
-    end_program(RESULT_CSV_FILE)
 
 def _unidiff_output(expected, actual):
     """
@@ -5322,6 +5318,8 @@ def run_tests():
 @wrapper_print_debug
 def main_outside():
     print_logo()
+
+    write_continue_run_uuid_to_file()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

@@ -4478,7 +4478,8 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                     i += 1
                 else:
                     break
-        finish_previous_jobs(["Finishing jobs after starting them"])
+
+                finish_previous_jobs(["finishing jobs after starting them"])
     except botorch.exceptions.errors.InputDataError as e:
         print_red(f"Error 1: {e}")
         return 0

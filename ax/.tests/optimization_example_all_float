@@ -84,6 +84,10 @@ if [[ -z "$a" ]]; then red_text "Parameter --a cannot be empty"; help 1; fi
 
 # https://www.sfu.ca/~ssurjano/shekel.html
 
+if command -v sbatch 2>/dev/null >/dev/null; then
+	sleep 120
+fi
+
 perl -e 'use strict;
 use warnings;
 

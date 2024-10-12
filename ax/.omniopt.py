@@ -4177,11 +4177,11 @@ def execute_evaluation(_params):
                     exclude=excluded_string
             )
 
-        #try:
-        new_job = executor.submit(evaluate, parameters)
-        submitted_jobs(1)
-        #except TypeError as e:
-        #    print_red(f"Error while trying to submit job: {e}")
+        try:
+            new_job = executor.submit(evaluate, parameters)
+            submitted_jobs(1)
+        except Exception as e:
+            print_debug(f"Error while trying to submit job: {e}")
 
         global_vars["jobs"].append((new_job, trial_index))
         if is_slurm_job() and not args.force_local_execution:

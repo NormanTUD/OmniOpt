@@ -633,10 +633,10 @@ fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v coverage 2>/dev/null >/dev/null; then
-		coverage combine
-		coverage report
-		coverage xml
-		coverage html
+		coverage combine 2>/dev/null >/dev/null
+		coverage report 2>/dev/null >/dev/null
+		coverage xml 2>/dev/null >/dev/null
+		coverage html 2>/dev/null >/dev/null
 
 		if [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
 			firefox htmlcov/index.html

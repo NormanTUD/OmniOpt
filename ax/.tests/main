@@ -636,6 +636,7 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v coverage 2>/dev/null >/dev/null; then
 		coverage combine 2>/dev/null >/dev/null
 		coverage xml 2>/dev/null >/dev/null
+		coverage json 2>/dev/null >/dev/null
 		coverage report
 
 		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then

@@ -71,23 +71,24 @@ jobs:
         git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: "Development Build v2.0.${{ github.run_number }}"
+
     - name: Upload coverage to Coveralls
       uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Label PR
       uses: actions/labeler@v3
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         configuration-path: .github/labeler.yml
+
     - name: Upload coverage to GitHub
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: ax/coverage.json
         category: general_checks
+
+    - uses: release-drafter/release-drafter@v5
+      with:
+        configuration: .github/release-drafter.yml

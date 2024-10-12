@@ -1,0 +1,4 @@
+name-template: "Development Build v2.0.${{ github.run_number }}"
+tag-template: "v2.0.${{ github.run_number }}"
+release-notes: |
+  - ${{ change.title }} - ${{ change.body }}

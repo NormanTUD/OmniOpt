@@ -4306,6 +4306,50 @@ def break_run_search(_name, _max_eval, _progress_bar):
 
     return _ret
 
+def _get_last_and_avg_times():
+    """Returns the last and average times from TIME_NEXT_TRIALS_TOOK, or None if empty."""
+    if len(TIME_NEXT_TRIALS_TOOK) == 0:
+        return None, None
+    last_time = TIME_NEXT_TRIALS_TOOK[-1]
+    avg_time = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
+    return last_time, avg_time
+
+
+def _calculate_nr_of_jobs_to_get(max_eval, simulated_jobs, currently_running_jobs):
+    """Calculates the number of jobs to retrieve."""
+    return min(
+        max_eval + simulated_jobs - count_done_jobs(),
+        max_eval + simulated_jobs - submitted_jobs(),
+        num_parallel_jobs - currently_running_jobs
+    )
+
+def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, system_has_sbatch, force_local_execution):
+    """Generates the appropriate message for the number of trials being retrieved."""
+    base_msg = f"getting {nr_of_jobs_to_get} trials "
+
+    if system_has_sbatch and not force_local_execution:
+        if last_time:
+            return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
+        return base_msg
+    else:
+        return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
+
+def _fetch_next_trials(ax_client, nr_of_jobs_to_get):
+    """Attempts to fetch the next trials using the ax_client."""
+    try:
+        trial_index_to_param, _ = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
+        return trial_index_to_param
+    except np.linalg.LinAlgError as e:
+        _handle_linalg_error(e)
+        my_exit(242)
+
+def _handle_linalg_error(error):
+    """Handles the np.linalg.LinAlgError based on the model being used."""
+    if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
+        print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")
+    else:
+        print_red(f"Error: {error}")
+
 def _get_next_trials():
     global global_vars
 
@@ -4314,67 +4358,37 @@ def _get_next_trials():
     if break_run_search("_get_next_trials", max_eval, progress_bar):
         return False
 
-    last_ax_client_time = None
-    ax_client_time_avg = None
-    if len(TIME_NEXT_TRIALS_TOOK):
-        last_ax_client_time = TIME_NEXT_TRIALS_TOOK[len(TIME_NEXT_TRIALS_TOOK) - 1]
-        ax_client_time_avg = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
+    last_ax_client_time, ax_client_time_avg = _get_last_and_avg_times()
 
-    new_msgs = []
-
-    simulated_nr_inserted_jobs = get_nr_of_imported_jobs()
-
+    simulated_jobs = get_nr_of_imported_jobs()
     currently_running_jobs = len(global_vars["jobs"])
 
-    nr_of_jobs_to_get = min(
-        max_eval + simulated_nr_inserted_jobs - count_done_jobs(),
-        max_eval + simulated_nr_inserted_jobs - submitted_jobs(),
-        num_parallel_jobs - currently_running_jobs
-    )
+    nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(max_eval, simulated_jobs, currently_running_jobs)
 
     if nr_of_jobs_to_get == 0:
         return None
 
-    base_msg = f"getting {nr_of_jobs_to_get} trials "
+    # Message handling
+    message = _get_trials_message(
+        nr_of_jobs_to_get,
+        last_ax_client_time,
+        ax_client_time_avg,
+        SYSTEM_HAS_SBATCH,
+        args.force_local_execution
+    )
+    progressbar_description([message])
 
-    if SYSTEM_HAS_SBATCH and not args.force_local_execution:
-        if last_ax_client_time:
-            new_msgs.append(f"{base_msg}(last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
-        else:
-            new_msgs.append(f"{base_msg}")
-    else:
-        nr_of_jobs_to_get = 1
+    # Fetching the next trials
+    start_time = time.time()
+    trial_index_to_param = _fetch_next_trials(ax_client, nr_of_jobs_to_get)
+    end_time = time.time()
 
-        base_msg = f"getting {nr_of_jobs_to_get} trials "
-
-        if last_ax_client_time:
-            new_msgs.append(f"{base_msg}(no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
-        else:
-            new_msgs.append(f"{base_msg}(no sbatch)")
-
-    progressbar_description(new_msgs)
-
-    trial_index_to_param = None
-
-    get_next_trials_time_start = time.time()
-    try:
-        trial_index_to_param, _ = ax_client.get_next_trials(
-            max_trials=nr_of_jobs_to_get
-        )
-    except np.linalg.LinAlgError as e:
-        if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
-            print_red(f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
-        else:
-            print_red(f"Error: {e}")
-        my_exit(242)
-
-    print_debug_get_next_trials(len(trial_index_to_param.items()), nr_of_jobs_to_get, getframeinfo(currentframe()).lineno)
-
-    get_next_trials_time_end = time.time()
-
-    _ax_took = get_next_trials_time_end - get_next_trials_time_start
-
-    TIME_NEXT_TRIALS_TOOK.append(_ax_took)
+    # Log and update timing
+    TIME_NEXT_TRIALS_TOOK.append(end_time - start_time)
+    print_debug_get_next_trials(
+        len(trial_index_to_param.items()), nr_of_jobs_to_get,
+        getframeinfo(currentframe()).lineno
+    )
 
     _log_trial_index_to_param(trial_index_to_param)
 

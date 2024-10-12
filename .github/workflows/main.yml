@@ -62,7 +62,7 @@ jobs:
         pip install --no-cache-dir multidict
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
     - name: Create a new version
       if: ${{ success() }}
       run: |
@@ -77,3 +77,7 @@ jobs:
         automatic_release_tag: "latest"
         prerelease: false
         title: "Development Build v2.0.${{ github.run_number }}"
+    - name: Upload coverage to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

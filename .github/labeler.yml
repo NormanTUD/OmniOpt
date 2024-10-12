@@ -1,4 +1,97 @@
+# Programmiersprachen
 "*.py":
   - "language:python"
 "*.js":
   - "language:javascript"
+"*.ts":
+  - "language:typescript"
+"*.tsx":
+  - "language:typescript"
+"*.java":
+  - "language:java"
+"*.c":
+  - "language:c"
+"*.cpp":
+  - "language:c++"
+"*.hpp":
+  - "language:c++"
+"*.cc":
+  - "language:c++"
+"*.h":
+  - "language:c++"
+"*.cs":
+  - "language:c#"
+"*.rb":
+  - "language:ruby"
+"*.go":
+  - "language:go"
+"*.php":
+  - "language:php"
+"*.swift":
+  - "language:swift"
+"*.kt":
+  - "language:kotlin"
+"*.rs":
+  - "language:rust"
+"*.sh":
+  - "language:shell"
+"*.bash":
+  - "language:shell"
+"*.html":
+  - "language:html"
+"*.htm":
+  - "language:html"
+"*.css":
+  - "language:css"
+"*.scss":
+  - "language:scss"
+"*.json":
+  - "language:json"
+"*.yaml":
+  - "language:yaml"
+"*.yml":
+  - "language:yaml"
+"*.md":
+  - "language:markdown"
+"*.sql":
+  - "language:sql"
+"*.pl":
+  - "language:perl"
+"*.r":
+  - "language:r"
+"*.lua":
+  - "language:lua"
+"*.dart":
+  - "language:dart"
+
+"*.yaml":
+  - "type:configuration"
+"*.yml":
+  - "type:configuration"
+"*.json":
+  - "type:configuration"
+"*.env":
+  - "type:configuration"
+
+"*.md":
+  - "type:documentation"
+
+"/.tests/**":
+  - "type:test"
+  
+"/.gui/**":
+  - "type:gui"
+
+"/.tools/**":
+  - "type:tools"
+  
+"**/Dockerfile":
+  - "type:docker"
+
+".github/workflows/**":
+  - "type:ci-cd"
+
+"*.md":
+  - "documentation"
+"*.dockerfile":
+  - "docker"

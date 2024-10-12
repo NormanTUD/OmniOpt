@@ -1,5 +1,6 @@
 async function plot_parallel_plot() {
 	// Fetch and validate data
+	showSpinnerOverlay("Plotting parallel-plot");
 	let _results_csv_json = await fetchData('job_infos.csv');
 	if (!_results_csv_json) return;
 

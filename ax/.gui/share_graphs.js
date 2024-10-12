@@ -58,7 +58,7 @@ function every_array_element_is_a_number (arr) {
 }
 
 function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	//debug_function("scatter_3d()");
+	showSpinnerOverlay("Plotting 3d scatter...");
 	var already_existing_plots = [];
 	var data_md5 = md5(JSON.stringify(_results_csv_json));
 
@@ -271,7 +271,7 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 }
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	//debug_function("scatter()");
+	showSpinnerOverlay("Plotting 2d scatter...");
 	var already_existing_plots = [];
 	var data_md5 = md5(JSON.stringify(_results_csv_json));
 
@@ -471,7 +471,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 
 
 async function load_results () {
-	//debug_function("load_results()");
+	showSpinnerOverlay("Loading results...");
 	var data = await fetchJsonFromUrlFilenameOnly(`results.csv`);
 	if(!data) {
 		warn("load_results: Could not fetch results.csv");
@@ -493,7 +493,7 @@ function isFullyNumeric(values) {
 }
 
 async function plot_all_possible () {
-	//debug_function("plot_all_possible()");
+	showSpinnerOverlay("Trying to plot all possible plots...");
 
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`results.csv`)
 
@@ -557,7 +557,7 @@ function convertUnixTimeToReadable(unixTime) {
 }
 
 async function load_parameter () {
-	//debug_function("load_parameter()");
+	showSpinnerOverlay("Loading parameters...");
 	var data = await fetchJsonFromUrlFilenameOnly(`parameters.txt`, 1)
 	if(!data) {
 		return;
@@ -574,7 +574,7 @@ async function load_parameter () {
 }
 
 async function load_out_files () {
-	//debug_function("load_out_files()");
+	showSpinnerOverlay("Loading out files...");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
@@ -599,7 +599,7 @@ async function load_out_files () {
 }
 
 async function load_evaluation_errors_and_oo_errors () {
-	//debug_function("load_evaluation_errors_and_oo_errors()");
+	showSpinnerOverlay("Loading evaluation- and OmniOpt2-errors...");
 	var p = [];
 	p.push(_load_evaluation_errors_and_oo_errors("oo_errors", "Evaluation Errors", "oo_errors.txt", "oo_errors"));
 
@@ -630,7 +630,7 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 }
 
 async function load_progressbar_log() {
-	//debug_function("load_progressbar_log()");
+	showSpinnerOverlay("Loading progressbar-log...");
 	var data = await fetchJsonFromUrlFilenameOnly(`progressbar`)
 	if(!data) {
 		return;
@@ -654,7 +654,7 @@ async function load_progressbar_log() {
 }
 
 async function load_trial_index_to_params_log () {
-	//debug_function("load_trial_index_to_params_log()");
+	showSpinnerOverlay("Loading trial index to params log...");
 	var data = await fetchJsonFromUrlFilenameOnly(`trial_index_to_params`)
 	if(!data) {
 		return;
@@ -678,7 +678,7 @@ async function load_trial_index_to_params_log () {
 }
 
 async function load_install_errors() {
-	//debug_function("load_install_errors()");
+	showSpinnerOverlay("Loading install-errors...");
 	var data = await fetchJsonFromUrlFilenameOnly(`install_errors`)
 	if(!data) {
 		return;
@@ -811,7 +811,7 @@ function addSearchFunctionality(tableContainer, table) {
 }
 
 async function load_debug_log() {
-	//debug_function("load_debug_log()");
+	showSpinnerOverlay("Loading debug-log...");
 	var data = await fetchJsonFromUrlFilenameOnly(`log`)
 	if(!data) {
 		return;
@@ -847,7 +847,7 @@ async function load_debug_log() {
 }
 
 async function load_outfile () {
-	//debug_function("load_outfile()");
+	showSpinnerOverlay("Loading outfile...");
 	var data = await fetchJsonFromUrlFilenameOnly(`outfile`)
 	if(!data) {
 		return;
@@ -871,7 +871,7 @@ async function load_outfile () {
 }
 
 async function load_next_trials () {
-	//debug_function("load_next_trials()");
+	showSpinnerOverlay("Loading next-trials-log...");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`get_next_trials.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
@@ -890,7 +890,7 @@ async function load_next_trials () {
 }
 
 async function load_job_infos () {
-	//debug_function("load_job_infos()");
+	showSpinnerOverlay("Loading job-infos...");
 	var data = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
 	if(!data) {
 		return;
@@ -906,7 +906,7 @@ async function load_job_infos () {
 }
 
 async function load_best_result () {
-	//debug_function("load_best_result()");
+	showSpinnerOverlay("Loading best results...")
 	var data = await fetchJsonFromUrlFilenameOnly(`best_result.txt`)
 	if(!data) {
 		return;
@@ -923,7 +923,7 @@ async function load_best_result () {
 }
 
 async function plot_planned_vs_real_worker_over_time () {
-	//debug_function("plot_planned_vs_real_worker_over_time()");
+	showSpinnerOverlay("Plotting planned vs. real workers...");
 	var data = await fetchJsonFromUrlFilenameOnly(`worker_usage.csv`)
 	if(!data) {
 		return;
@@ -990,113 +990,113 @@ async function plot_planned_vs_real_worker_over_time () {
 }
 
 async function plot_cpu_ram_graph() {
-    //debug_function("plot_cpu_ram_graph()");
-    var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`);
-    if (!cpu_ram_usage_json) {
-        return;
-    }
+	showSpinnerOverlay("Plotting CPU/RAM Graph...");
+	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`);
+	if (!cpu_ram_usage_json) {
+		return;
+	}
 
-    if (!Object.keys(cpu_ram_usage_json).includes("data")) {
-        warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
-        return;
-    }
+	if (!Object.keys(cpu_ram_usage_json).includes("data")) {
+		warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+		return;
+	}
 
-    if (!Object.keys(cpu_ram_usage_json).includes("data") || !cpu_ram_usage_json.data.length) {
-        warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json`);
-        return;
-    }
+	if (!Object.keys(cpu_ram_usage_json).includes("data") || !cpu_ram_usage_json.data.length) {
+		warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json`);
+		return;
+	}
 
-    convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values));
+	convertToIntAndFilter(cpu_ram_usage_json.data.map(Object.values));
 
-    replaceZeroWithNull(cpu_ram_usage_json.data);
+	replaceZeroWithNull(cpu_ram_usage_json.data);
 
-    const validCpuEntries = cpu_ram_usage_json.data.filter(entry => entry[2] !== null && entry[2] !== undefined);
+	const validCpuEntries = cpu_ram_usage_json.data.filter(entry => entry[2] !== null && entry[2] !== undefined);
 
-    // Filtered timestamps and CPU usage data
-    const timestamps_cpu = validCpuEntries.map(entry => new Date(entry[0] * 1000));
-    const cpuUsage = validCpuEntries.map(entry => entry[2]);
+	// Filtered timestamps and CPU usage data
+	const timestamps_cpu = validCpuEntries.map(entry => new Date(entry[0] * 1000));
+	const cpuUsage = validCpuEntries.map(entry => entry[2]);
 
-    // RAM data remains the same
-    const timestamps_ram = cpu_ram_usage_json.data.map(entry => new Date(entry[0] * 1000));
-    const ramUsage = cpu_ram_usage_json.data.map(entry => entry[1]);
+	// RAM data remains the same
+	const timestamps_ram = cpu_ram_usage_json.data.map(entry => new Date(entry[0] * 1000));
+	const ramUsage = cpu_ram_usage_json.data.map(entry => entry[1]);
 
-    // RAM Usage Plot
-    const ramTrace = {
-        x: timestamps_ram,
-        y: ramUsage,
-        type: 'scatter',
-        mode: 'lines',
-        name: 'RAM Usage (MB)',
-        line: { color: 'lightblue' }
-    };
+	// RAM Usage Plot
+	const ramTrace = {
+		x: timestamps_ram,
+		y: ramUsage,
+		type: 'scatter',
+		mode: 'lines',
+		name: 'RAM Usage (MB)',
+		line: { color: 'lightblue' }
+	};
 
-    // CPU Usage Plot
-    const cpuTrace = {
-        x: timestamps_cpu,
-        y: cpuUsage,
-        type: 'scatter',
-        mode: 'lines',
-        name: 'CPU Usage (%)',
-        line: { color: 'orange' }
-    };
+	// CPU Usage Plot
+	const cpuTrace = {
+		x: timestamps_cpu,
+		y: cpuUsage,
+		type: 'scatter',
+		mode: 'lines',
+		name: 'CPU Usage (%)',
+		line: { color: 'orange' }
+	};
 
-    const ramLayout = {
-        title: 'RAM Usage Over Time by the main worker',
-        xaxis: {
-            title: 'Time',
-            type: 'date'
-        },
-        yaxis: {
-            title: 'RAM Usage (MB)',
-            showline: true
-        },
-        showlegend: true,
-        legend: {
-            x: 0.1,
-            y: 1.1,
-            orientation: 'h'
-        },
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)'
-    };
+	const ramLayout = {
+		title: 'RAM Usage Over Time by the main worker',
+		xaxis: {
+			title: 'Time',
+			type: 'date'
+		},
+		yaxis: {
+			title: 'RAM Usage (MB)',
+			showline: true
+		},
+		showlegend: true,
+		legend: {
+			x: 0.1,
+			y: 1.1,
+			orientation: 'h'
+		},
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
+	};
 
-    const cpuLayout = {
-        title: 'CPU Usage Over Time by the main worker',
-        xaxis: {
-            title: 'Time',
-            type: 'date'
-        },
-        yaxis: {
-            title: 'CPU Usage (%)',
-            showline: true
-        },
-        showlegend: true,
-        legend: {
-            x: 0.1,
-            y: 1.1,
-            orientation: 'h'
-        },
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)'
-    };
+	const cpuLayout = {
+		title: 'CPU Usage Over Time by the main worker',
+		xaxis: {
+			title: 'Time',
+			type: 'date'
+		},
+		yaxis: {
+			title: 'CPU Usage (%)',
+			showline: true
+		},
+		showlegend: true,
+		legend: {
+			x: 0.1,
+			y: 1.1,
+			orientation: 'h'
+		},
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
+	};
 
-    add_tab("cpu_ram_usage", "CPU/RAM Usage", `
-        <div id='cpuRamChartContainer'>
-            <div id='ramChart'></div>
-            <div id='cpuChart'></div>
-            <div id='cpuRamChartRawData'></div>
-        </div>
+	add_tab("cpu_ram_usage", "CPU/RAM Usage", `
+	<div id='cpuRamChartContainer'>
+	    <div id='ramChart'></div>
+	    <div id='cpuChart'></div>
+	    <div id='cpuRamChartRawData'></div>
+	</div>
     `);
 
-    if ($("#ramChart").length) {
-        Plotly.newPlot('ramChart', [ramTrace], ramLayout);
-    }
+	if ($("#ramChart").length) {
+		Plotly.newPlot('ramChart', [ramTrace], ramLayout);
+	}
 
-    if ($("#cpuChart").length) {
-        Plotly.newPlot('cpuChart', [cpuTrace], cpuLayout);
-    }
+	if ($("#cpuChart").length) {
+		Plotly.newPlot('cpuChart', [cpuTrace], cpuLayout);
+	}
 
-    $("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
+	$("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 function replaceZeroWithNull(arr) {
@@ -1145,7 +1145,7 @@ async function _get_overview_data () {
 }
 
 async function load_overview_data() {
-	//debug_function("load_overview_data()");
+	showSpinnerOverlay("Loading overview data...");
 
 	add_tab("overview_data", "Overview", "<div class='best_result_txt'></div><div class='parameters_txt'></div><div class='overview_table'></div>");
 
@@ -1215,12 +1215,10 @@ function convert_ansi_to_html () {
 }
 
 async function load_all_data() {
-	//debug_function("load_all_data()");
+	showSpinnerOverlay("Loading data...");
 	var urlParams = new URLSearchParams(window.location.search);
 
 	if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {
-		showSpinnerOverlay("Loading data...")
-
 		var promises = [];
 
 		promises.push(load_overview_data());
@@ -1240,12 +1238,11 @@ async function load_all_data() {
 		promises.push(plot_cpu_ram_graph());
 		promises.push(plot_parallel_plot());
 		promises.push(plot_planned_vs_real_worker_over_time());
+		promises.push(load_out_files());
 
 		for (var i = 0; i < promises.length; i++) {
 			await promises[i];
 		}
-
-		await load_out_files();
 
 		initialize_autotables();
 

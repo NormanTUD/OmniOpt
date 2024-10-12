@@ -213,7 +213,9 @@ function add_status_bar () {
 
 function showSpinnerOverlay(text) {
 	if (document.getElementById('spinner-overlay')) {
-		return;
+		$("#spinner-overlay").remove()
+		$("#spinner-container").remove()
+		$("#spinner-text").remove()
 	}
 
 	var overlay = document.createElement('div');

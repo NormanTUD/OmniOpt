@@ -3,6 +3,7 @@
 import sys
 
 try:
+    from concurrent.futures import ThreadPoolExecutor
     import argparse
     import datetime
     import importlib.util
@@ -4467,7 +4468,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         if trial_index_to_param:
             i = 1
-            with concurrent.futures.ProcessPoolExecutor() as con_exe:
+            with ThreadPoolExecutor() as con_exe:
                 for trial_index, parameters in trial_index_to_param.items():
                     if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         break
@@ -4495,16 +4496,16 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                             phase
                         ]
 
-                        results.append(con_exe.submit(execute_evaluation), _args)
+                        results.append(con_exe.submit(execute_evaluation, _args))
 
                         i += 1
                     else:
                         break
 
-                    finish_previous_jobs(["finishing jobs after starting them"])
+            for r in results:
+                r.result()
 
-                for r in results:
-                    r.result()
+            finish_previous_jobs(["finishing jobs after starting them"])
 
     except botorch.exceptions.errors.InputDataError as e:
         print_red(f"Error 1: {e}")

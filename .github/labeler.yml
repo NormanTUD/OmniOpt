@@ -1,0 +1,4 @@
+"*.py":
+  - "language:python"
+"*.js":
+  - "language:javascript"

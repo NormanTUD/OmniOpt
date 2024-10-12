@@ -74,8 +74,10 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
         <div id="scads_bar">
             <a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo"></a>
             <a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo"></a>
-            <a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge"></a>
-            <img src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
+            <table border=0 style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important; display: inline !important;'>
+		    <tr style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'><td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'><a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge"></a></td></tr>
+		    <tr style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'><td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'><img src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit"></td></tr>
+            </table>
 <?php
                 require "searchable_php_files.php";
 

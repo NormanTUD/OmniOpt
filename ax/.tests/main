@@ -632,12 +632,17 @@ fi
 #fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
-	if command -v firefox 2>/dev/null >/dev/null; then
+	if command -v coverage 2>/dev/null >/dev/null; then
 		coverage combine
+		coverage report
 		coverage xml
 		coverage html
 
-		firefox htmlcov/index.html
+		if command -v firefox 2>/dev/null >/dev/null; then
+			firefox htmlcov/index.html
+		fi
+	else
+		red_text "--run_with_coverage was defined, but coverage could not be found"
 	fi
 fi
 

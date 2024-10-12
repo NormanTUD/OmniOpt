@@ -4334,7 +4334,7 @@ def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, system_has_sbatc
     else:
         return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
 
-def _fetch_next_trials(ax_client, nr_of_jobs_to_get):
+def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
         trial_index_to_param, _ = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
@@ -4380,7 +4380,7 @@ def _get_next_trials():
 
     # Fetching the next trials
     start_time = time.time()
-    trial_index_to_param = _fetch_next_trials(ax_client, nr_of_jobs_to_get)
+    trial_index_to_param = _fetch_next_trials(nr_of_jobs_to_get)
     end_time = time.time()
 
     # Log and update timing

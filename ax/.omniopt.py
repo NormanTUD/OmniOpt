@@ -4152,88 +4152,108 @@ def execute_evaluation(_params):
     global global_vars
 
     print_debug(f"execute_evaluation({_params})")
-
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
-
     _trial = ax_client.get_trial(trial_index)
 
-    try:
-        _trial.mark_staged()
-    except Exception as e:
-        print_debug(f"execute_evaluation({_params}: Marking the trial as staged failed with error: {e}")
-
-    new_job = None
-    try:
-        progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
-
-        if args.reservation:
-            os.environ['SBATCH_RESERVATION'] = args.reservation
-
-        if args.account:
-            os.environ['SBATCH_ACCOUNT'] = args.account
-
-        excluded_string = ",".join(count_defective_nodes())
-        if len(excluded_string) > 1:
-            executor.update_parameters(
-                    exclude=excluded_string
-            )
-
+    # Helper function for trial stage marking with exception handling
+    def mark_trial_stage(stage, error_msg):
         try:
-            new_job = executor.submit(evaluate, parameters)
-            submitted_jobs(1)
+            getattr(_trial, stage)()
         except Exception as e:
-            print_debug(f"Error while trying to submit job: {e}")
+            print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
+
+    mark_trial_stage("mark_staged", "Marking the trial as staged failed")
+
+    try:
+        initialize_job_environment(trial_counter, next_nr_steps)
+        new_job = submit_job(parameters)
 
         global_vars["jobs"].append((new_job, trial_index))
         if is_slurm_job() and not args.force_local_execution:
             _sleep(1)
 
-        try:
-            _trial.mark_running(no_runner_required=True)
-        except Exception as e:
-            print_debug(f"execute_evaluation({_params}): Marking the trial as running failed with {e}")
+        mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
-        progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
+        update_progress(trial_counter - 1, next_nr_steps)
     except submitit.core.utils.FailedJobError as error:
-        if "QOSMinGRES" in str(error) and args.gpus == 0:
-            print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-        else:
-            print_red(f"\n⚠ FAILED: {error}")
-
-        try:
-            print_debug("Trying to cancel job that failed")
-            if new_job:
-                try:
-                    ax_client.log_trial_failure(trial_index=trial_index)
-                except Exception as e:
-                    print(f"ERROR in line {get_line_info()}: {e}")
-                new_job.cancel()
-                print_debug("Cancelled failed job")
-
-            global_vars["jobs"].remove((new_job, trial_index))
-            print_debug("Removed failed job")
-
-            #update_progress_bar(1)
-
-            save_checkpoint()
-            save_pd_csv()
-            trial_counter += 1
-        except Exception as e:
-            print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
+        handle_failed_job(error, trial_index, new_job)
+        trial_counter += 1
     except (SignalUSR, SignalINT, SignalCONT):
-        print_red("\n⚠ Detected signal. Will exit.")
-        end_program(RESULT_CSV_FILE, 1)
+        handle_exit_signal()
     except Exception as e:
-        tb = traceback.format_exc()
-        print(tb)
-        print_red(f"\n⚠ Starting job failed with error: {e}")
-
-    #finish_previous_jobs([])
+        handle_generic_error(e)
 
     add_to_phase_counter(phase, 1)
-
     return trial_counter
+
+
+def initialize_job_environment(trial_counter, next_nr_steps):
+    progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
+    set_sbatch_environment()
+    exclude_defective_nodes()
+
+
+def set_sbatch_environment():
+    if args.reservation:
+        os.environ['SBATCH_RESERVATION'] = args.reservation
+    if args.account:
+        os.environ['SBATCH_ACCOUNT'] = args.account
+
+
+def exclude_defective_nodes():
+    excluded_string = ",".join(count_defective_nodes())
+    if len(excluded_string) > 1:
+        executor.update_parameters(exclude=excluded_string)
+
+
+def submit_job(parameters):
+    try:
+        new_job = executor.submit(evaluate, parameters)
+        submitted_jobs(1)
+        return new_job
+    except Exception as e:
+        print_debug(f"Error while trying to submit job: {e}")
+        raise
+
+
+def handle_failed_job(error, trial_index, new_job):
+    if "QOSMinGRES" in str(error) and args.gpus == 0:
+        print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+    else:
+        print_red(f"\n⚠ FAILED: {error}")
+
+    try:
+        cancel_failed_job(trial_index, new_job)
+    except Exception as e:
+        print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
+
+def cancel_failed_job(trial_index, new_job):
+    print_debug("Trying to cancel job that failed")
+    if new_job:
+        try:
+            ax_client.log_trial_failure(trial_index=trial_index)
+        except Exception as e:
+            print(f"ERROR in line {get_line_info()}: {e}")
+        new_job.cancel()
+        print_debug("Cancelled failed job")
+
+    global_vars["jobs"].remove((new_job, trial_index))
+    print_debug("Removed failed job")
+    save_checkpoint()
+    save_pd_csv()
+
+def update_progress(trial_counter, next_nr_steps):
+    progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])
+
+def handle_exit_signal():
+    print_red("\n⚠ Detected signal. Will exit.")
+    end_program(RESULT_CSV_FILE, 1)
+
+def handle_generic_error(e):
+    tb = traceback.format_exc()
+    print(tb)
+    print_red(f"\n⚠ Starting job failed with error: {e}")
 
 def succeeded_jobs(nr=0):
     state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"

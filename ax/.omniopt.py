@@ -4187,12 +4187,10 @@ def execute_evaluation(_params):
     add_to_phase_counter(phase, 1)
     return trial_counter
 
-
 def initialize_job_environment(trial_counter, next_nr_steps):
     progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
     set_sbatch_environment()
     exclude_defective_nodes()
-
 
 def set_sbatch_environment():
     if args.reservation:
@@ -4200,12 +4198,10 @@ def set_sbatch_environment():
     if args.account:
         os.environ['SBATCH_ACCOUNT'] = args.account
 
-
 def exclude_defective_nodes():
     excluded_string = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
         executor.update_parameters(exclude=excluded_string)
-
 
 def submit_job(parameters):
     try:
@@ -4215,7 +4211,6 @@ def submit_job(parameters):
     except Exception as e:
         print_debug(f"Error while trying to submit job: {e}")
         raise
-
 
 def handle_failed_job(error, trial_index, new_job):
     if "QOSMinGRES" in str(error) and args.gpus == 0:

@@ -1208,7 +1208,7 @@ function convert_ansi_to_html () {
 	$(".convert_ansi_to_html").each(function (i, e) {
 		var html = e.innerHTML;
 
-		var res = ansi_to_html(parseAnsiToVirtualTerminal(html));
+		var res = ansi_to_html(html);
 
 		e.innerHTML = res;
 	});

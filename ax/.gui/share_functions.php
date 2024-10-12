@@ -681,11 +681,23 @@
 			if (preg_match('/^\[(\d+)?([A-Za-z])/', $code, $cursorMatch)) {
 				$value = isset($cursorMatch[1]) ? intval($cursorMatch[1]) : 1;
 				switch ($cursorMatch[2]) {
-				case 'A': $cursorY = max($cursorY - $value, 0); break;
-				case 'B': $cursorY += $value; ensureTerminalSize($rows, $cursorY); break;
-				case 'C': $cursorX += $value; break;
-				case 'D': $cursorX = max($cursorX - $value, 0); break;
-				case 'K': $rows[$cursorY] = []; $cursorX = 0; break;
+					case 'A':
+						$cursorY = max($cursorY - $value, 0);
+						break;
+					case 'B':
+						$cursorY += $value;
+						ensureTerminalSize($rows, $cursorY);
+						break;
+					case 'C':
+						$cursorX += $value;
+						break;
+					case 'D':
+						$cursorX = max($cursorX - $value, 0);
+						break;
+					case 'K':
+						$rows[$cursorY] = [];
+						$cursorX = 0;
+						break;
 				}
 			}
 		}

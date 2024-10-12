@@ -4149,6 +4149,15 @@ def save_state_files():
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
+def submit_job(parameters):
+    try:
+        new_job = executor.submit(evaluate, parameters)
+        submitted_jobs(1)
+        return new_job
+    except Exception as e:
+        print_debug(f"Error while trying to submit job: {e}")
+        raise
+
 def execute_evaluation(_params):
     global global_vars
 
@@ -4203,15 +4212,6 @@ def exclude_defective_nodes():
     excluded_string = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
         executor.update_parameters(exclude=excluded_string)
-
-def submit_job(parameters):
-    try:
-        new_job = executor.submit(evaluate, parameters)
-        submitted_jobs(1)
-        return new_job
-    except Exception as e:
-        print_debug(f"Error while trying to submit job: {e}")
-        raise
 
 def handle_failed_job(error, trial_index, new_job):
     if "QOSMinGRES" in str(error) and args.gpus == 0:

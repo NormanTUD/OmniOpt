@@ -4315,7 +4315,7 @@ def _get_last_and_avg_times():
     return last_time, avg_time
 
 
-def _calculate_nr_of_jobs_to_get(max_eval, simulated_jobs, currently_running_jobs):
+def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs):
     """Calculates the number of jobs to retrieve."""
     return min(
         max_eval + simulated_jobs - count_done_jobs(),
@@ -4323,11 +4323,11 @@ def _calculate_nr_of_jobs_to_get(max_eval, simulated_jobs, currently_running_job
         num_parallel_jobs - currently_running_jobs
     )
 
-def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, system_has_sbatch, force_local_execution):
+def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_execution):
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
 
-    if system_has_sbatch and not force_local_execution:
+    if SYSTEM_HAS_SBATCH and not force_local_execution:
         if last_time:
             return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
         return base_msg
@@ -4350,7 +4350,7 @@ def _handle_linalg_error(error):
     else:
         print_red(f"Error: {error}")
 
-def _get_next_trials():
+def _get_next_trials(nr_of_jobs_to_get):
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -4360,11 +4360,6 @@ def _get_next_trials():
 
     last_ax_client_time, ax_client_time_avg = _get_last_and_avg_times()
 
-    simulated_jobs = get_nr_of_imported_jobs()
-    currently_running_jobs = len(global_vars["jobs"])
-
-    nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(max_eval, simulated_jobs, currently_running_jobs)
-
     if nr_of_jobs_to_get == 0:
         return None
 
@@ -4373,7 +4368,6 @@ def _get_next_trials():
         nr_of_jobs_to_get,
         last_ax_client_time,
         ax_client_time_avg,
-        SYSTEM_HAS_SBATCH,
         args.force_local_execution
     )
     progressbar_description([message])
@@ -4476,50 +4470,53 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     trial_index_to_param = None
     try:
-        trial_index_to_param = _get_next_trials()
+        nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
         results = []
 
-        if trial_index_to_param:
-            i = 1
-            with ThreadPoolExecutor() as con_exe:
-                for trial_index, parameters in trial_index_to_param.items():
-                    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                        break
+        for _ in range(nr_of_jobs_to_get):
+            trial_index_to_param = _get_next_trials(1)
 
-                    while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(["finishing prev jobs"])
-
+            if trial_index_to_param:
+                i = 1
+                with ThreadPoolExecutor() as con_exe:
+                    for trial_index, parameters in trial_index_to_param.items():
                         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                             break
 
-                        if is_slurm_job() and not args.force_local_execution:
-                            _sleep(5)
+                        while len(global_vars["jobs"]) > num_parallel_jobs:
+                            finish_previous_jobs(["finishing prev jobs"])
 
-                    if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
-                        break
+                            if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                                break
 
-                    if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                            if is_slurm_job() and not args.force_local_execution:
+                                _sleep(5)
 
-                        _args = [
-                            trial_index,
-                            parameters,
-                            i,
-                            next_nr_steps,
-                            phase
-                        ]
+                        if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
+                            break
 
-                        results.append(con_exe.submit(execute_evaluation, _args))
+                        if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                            progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
 
-                        i += 1
-                    else:
-                        break
+                            _args = [
+                                trial_index,
+                                parameters,
+                                i,
+                                next_nr_steps,
+                                phase
+                            ]
 
-            for r in results:
-                r.result()
+                            results.append(con_exe.submit(execute_evaluation, _args))
 
-            finish_previous_jobs(["finishing jobs after starting them"])
+                            i += 1
+                        else:
+                            break
+
+        for r in results:
+            r.result()
+
+        finish_previous_jobs(["finishing jobs after starting them"])
 
     except botorch.exceptions.errors.InputDataError as e:
         print_red(f"Error 1: {e}")

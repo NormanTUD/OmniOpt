@@ -4463,38 +4463,49 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
     try:
         trial_index_to_param = _get_next_trials()
 
+        results = []
+
         if trial_index_to_param:
             i = 1
-            for trial_index, parameters in trial_index_to_param.items():
-                if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                    break
-
-                while len(global_vars["jobs"]) > num_parallel_jobs:
-                    finish_previous_jobs(["finishing prev jobs"])
-
+            with concurrent.futures.ProcessPoolExecutor() as con_exe:
+                for trial_index, parameters in trial_index_to_param.items():
                     if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         break
 
-                    if is_slurm_job() and not args.force_local_execution:
-                        _sleep(5)
+                    while len(global_vars["jobs"]) > num_parallel_jobs:
+                        finish_previous_jobs(["finishing prev jobs"])
 
-                if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
-                    break
+                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                            break
 
-                if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                    progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                    execute_evaluation([
-                        trial_index,
-                        parameters,
-                        i,
-                        next_nr_steps,
-                        phase
-                    ])
-                    i += 1
-                else:
-                    break
+                        if is_slurm_job() and not args.force_local_execution:
+                            _sleep(5)
 
-                finish_previous_jobs(["finishing jobs after starting them"])
+                    if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
+                        break
+
+                    if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+
+                        _args = [
+                            trial_index,
+                            parameters,
+                            i,
+                            next_nr_steps,
+                            phase
+                        ]
+
+                        results.append(con_exe.submit(execute_evaluation), _args)
+
+                        i += 1
+                    else:
+                        break
+
+                    finish_previous_jobs(["finishing jobs after starting them"])
+
+                for r in results:
+                    r.result()
+
     except botorch.exceptions.errors.InputDataError as e:
         print_red(f"Error 1: {e}")
         return 0

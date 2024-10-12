@@ -638,7 +638,7 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 		coverage xml
 		coverage html
 
-		if command -v firefox 2>/dev/null >/dev/null; then
+		if [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
 			firefox htmlcov/index.html
 		fi
 	else

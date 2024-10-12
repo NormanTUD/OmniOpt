@@ -543,65 +543,6 @@ function removeAnsiCodes(input) {
 	return input.replace(ansiRegex, '');
 }
 
-function parseAnsiToVirtualTerminal(input) {
-	const rows = [[]];
-	let maxWidth = 0;
-	let cursorX = 0;
-	let cursorY = 0;
-
-	function ensureTerminalSize(y) {
-		while (rows.length <= y) {
-			rows.push([]);
-		}
-	}
-
-	function handleAnsiCode(code) {
-		const cursorMatch = code.match(/^\[(\d+)?([A-Za-z])/);
-		if (cursorMatch) {
-			const value = parseInt(cursorMatch[1] || "1", 10);
-			switch (cursorMatch[2]) {
-				case 'A': cursorY = Math.max(cursorY - value, 0); break;
-				case 'B': cursorY += value; ensureTerminalSize(cursorY); break;
-				case 'C': cursorX += value; break;
-				case 'D': cursorX = Math.max(cursorX - value, 0); break;
-				case 'K': rows[cursorY] = []; cursorX = 0; break;
-			}
-		}
-	}
-
-	let i = 0;
-	while (i < input.length) {
-		const char = input[i];
-
-		if (char === '\x1b' && input[i + 1] === '[') {  
-			const ansiCode = input.substring(i + 2).match(/^[^a-zA-Z]*[a-zA-Z]/);
-			if (ansiCode && /^[\d;]*[A-DK]$/.test(ansiCode[0])) {
-				handleAnsiCode(ansiCode[0]);
-				i += ansiCode[0].length + 2;
-				continue;
-			}
-		} else if (char === '\r') {  
-			cursorX = 0;
-		} else if (char === '\n') {  
-			cursorY++;
-			cursorX = 0;
-			ensureTerminalSize(cursorY);
-		} else {
-			ensureTerminalSize(cursorY);
-			if (cursorX >= rows[cursorY].length) {
-				rows[cursorY][cursorX] = char; // Set char directly
-			} else {
-				rows[cursorY][cursorX] = char; // Overwrite if already exists
-			}
-			cursorX++;
-			if (cursorX > maxWidth) maxWidth = cursorX;
-		}
-		i++;
-	}
-
-	return rows.map(line => (line.join('') || '').padEnd(maxWidth, ' ')).join('\n').replace(/\s+$/g, '');
-}
-
 function removeLinesStartingWith(inputString, ...startStrings) {
 	let lines = inputString.split("\n");
 	let filteredLines = [];

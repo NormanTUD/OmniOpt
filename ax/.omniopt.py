@@ -4398,69 +4398,75 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
 
     return requested
 
-def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
+def get_generation_strategy(num_parallel_jobs, seed, max_eval):
     global random_steps
 
-    _steps = []
+    # Initialize steps for the generation strategy
+    steps = []
 
-    nr_of_imported_jobs = get_nr_of_imported_jobs()
+    # Get the number of imported jobs and update max evaluations
+    num_imported_jobs = get_nr_of_imported_jobs()
+    set_max_eval(max_eval + num_imported_jobs)
 
-    set_max_eval(_max_eval + nr_of_imported_jobs)
+    # Initialize random_steps if None
+    random_steps = random_steps or 0
 
-    if random_steps is None:
-        random_steps = 0
-
-    if _max_eval is None:
+    # Set max_eval if it's None
+    if max_eval is None:
         set_max_eval(max(1, random_steps))
 
-    if random_steps >= 1 and nr_of_imported_jobs < random_steps:
-        _steps.append(
-            GenerationStep(
-                model=Models.SOBOL,
-                num_trials=max(_num_parallel_jobs, random_steps),
-                min_trials_observed=min(_max_eval, random_steps),
-                max_parallelism=_num_parallel_jobs, # Max parallelism for this step
-                enforce_num_trials=True,
-                model_kwargs={"seed": seed}, # Any kwargs you want passed into the model
-                model_gen_kwargs={'enforce_num_arms': True}, # Any kwargs you want passed to `modelbridge.gen`
-                should_deduplicate=True
-            )
-        )
+    # Add a random generation step if conditions are met
+    if random_steps >= 1 and num_imported_jobs < random_steps:
+        steps.append(create_random_generation_step(num_parallel_jobs, max_eval, seed))
 
-    chosen_non_random_model = Models.BOTORCH_MODULAR
+    # Choose a model for the non-random step
+    chosen_non_random_model = select_model(args.model)
 
+    # Append the Bayesian optimization step
+    steps.append(create_systematic_step(chosen_non_random_model, num_parallel_jobs))
+
+    # Create and return the GenerationStrategy
+    return GenerationStrategy(steps=steps)
+
+def create_random_generation_step(num_parallel_jobs, max_eval, seed):
+    """Creates a generation step for random models."""
+    return GenerationStep(
+        model=Models.SOBOL,
+        num_trials=max(num_parallel_jobs, random_steps),
+        min_trials_observed=min(max_eval, random_steps),
+        max_parallelism=num_parallel_jobs,
+        enforce_num_trials=True,
+        model_kwargs={"seed": seed},
+        model_gen_kwargs={'enforce_num_arms': True},
+        should_deduplicate=True
+    )
+
+def select_model(model_arg):
+    """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
+    chosen_model = Models.BOTORCH_MODULAR
 
-    if args.model:
-        if str(args.model).upper() in available_models:
-            chosen_non_random_model = Models.__members__[str(args.model).upper()]
+    if model_arg:
+        model_upper = str(model_arg).upper()
+        if model_upper in available_models:
+            chosen_model = Models.__members__[model_upper]
         else:
-            print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+            print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
-        if args.model.lower() != "FACTORIAL" and args.gridsearch:
+        if model_arg.lower() != "factorial" and args.gridsearch:
             print_red("Gridsearch only really works when you chose the FACTORIAL model.")
 
-    # 2. Bayesian optimization step (requires data obtained from previous phase and learns
-    # from all data available at the time of each new candidate generation call)
+    return chosen_model
 
-    #_nr_trials = -1
-
-    _steps.append(
-        GenerationStep(
-            model=chosen_non_random_model,
-            num_trials=-1,
-            max_parallelism=_num_parallel_jobs,
-            #model_kwargs={"seed": seed},
-            model_gen_kwargs={'enforce_num_arms': True},
-            should_deduplicate=True
-        )
+def create_systematic_step(model, num_parallel_jobs):
+    """Creates a generation step for Bayesian optimization."""
+    return GenerationStep(
+        model=model,
+        num_trials=-1,
+        max_parallelism=num_parallel_jobs,
+        model_gen_kwargs={'enforce_num_arms': True},
+        should_deduplicate=True
     )
-
-    gs = GenerationStrategy(
-        steps=_steps
-    )
-
-    return gs
 
 def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar):
     global random_steps

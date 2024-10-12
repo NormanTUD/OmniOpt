@@ -4474,7 +4474,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         results = []
 
-        for _ in range(nr_of_jobs_to_get):
+        for ii in range(nr_of_jobs_to_get):
             trial_index_to_param = _get_next_trials(1)
 
             if trial_index_to_param:
@@ -4497,7 +4497,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                             break
 
                         if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                            progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                            progressbar_description([f"starting parameter set ({ii}/{next_nr_steps})"])
 
                             _args = [
                                 trial_index,

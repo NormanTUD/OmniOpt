@@ -4966,12 +4966,6 @@ def save_experiment_parameters(filepath, experiment_parameters):
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-def calculate_max_steps(second_step_steps):
-    max_nr_steps = second_step_steps
-    if count_done_jobs() < random_steps:
-        max_nr_steps = (random_steps - count_done_jobs()) + second_step_steps
-    return max_nr_steps
-
 def run_with_progress_bar(disable_tqdm):
     with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
         write_process_info()

@@ -4185,6 +4185,8 @@ def execute_evaluation(_params):
     except Exception as e:
         handle_generic_error(e)
 
+    finish_previous_jobs(["finishing jobs after starting them (inside execute_evaluation)"])
+
     add_to_phase_counter(phase, 1)
     return trial_counter
 

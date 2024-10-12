@@ -47,7 +47,7 @@ worker_percentage_usage = []
 END_PROGRAM_RAN = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
 ax_client = None
-TIME_NEXT_TRIALS_TOOK = []
+time_next_trials_took = []
 CURRENT_RUN_FOLDER = None
 RUN_FOLDER_NUMBER = 0
 RESULT_CSV_FILE = None
@@ -4307,11 +4307,11 @@ def break_run_search(_name, _max_eval, _progress_bar):
     return _ret
 
 def _get_last_and_avg_times():
-    """Returns the last and average times from TIME_NEXT_TRIALS_TOOK, or None if empty."""
-    if len(TIME_NEXT_TRIALS_TOOK) == 0:
+    """Returns the last and average times from time_next_trials_took, or None if empty."""
+    if len(time_next_trials_took) == 0:
         return None, None
-    last_time = TIME_NEXT_TRIALS_TOOK[-1]
-    avg_time = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
+    last_time = time_next_trials_took[-1]
+    avg_time = sum(time_next_trials_took) / len(time_next_trials_took)
     return last_time, avg_time
 
 
@@ -4384,7 +4384,7 @@ def _get_next_trials():
     end_time = time.time()
 
     # Log and update timing
-    TIME_NEXT_TRIALS_TOOK.append(end_time - start_time)
+    time_next_trials_took.append(end_time - start_time)
     print_debug_get_next_trials(
         len(trial_index_to_param.items()), nr_of_jobs_to_get,
         getframeinfo(currentframe()).lineno

@@ -3857,6 +3857,7 @@ def finish_previous_jobs(new_msgs):
                     _trial = ax_client.get_trial(trial_index)
                     try:
                         progressbar_description([f"new result: {result}"])
+                        print(traceback.print_stack())
                         _trial.mark_completed(unsafe=True)
                         succeeded_jobs(1)
 

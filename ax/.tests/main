@@ -128,8 +128,8 @@ while [ $k -lt ${#args[@]} ]; do
 		--run_with_coverage)
 			echo "Using *coverage run -p* instead of *python3*"
 			export RUN_WITH_COVERAGE=1
-
 			;;
+
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"
 			if ! [[ $num_random_steps =~ $int_re ]] ; then
@@ -145,8 +145,8 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --mem_gb not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--mem_gb)
 			shift
 			k=$((k+1))
@@ -167,16 +167,16 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --num_random_steps not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--max_eval=*)
 			max_eval="${i#*=}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
 				red_text "error: --max_eval not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--max_eval)
 
 			shift
@@ -187,16 +187,16 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --max_eval not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--gpus=*)
 			NUM_GPUS="${i#*=}"
 			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
 				red_text "error: --gpus not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--gpus)
 			shift
 			k=$((k+1))
@@ -214,8 +214,8 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --num_parallel_jobs not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--num_parallel_jobs)
 			shift
 			k=$((k+1))
@@ -230,6 +230,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--help*)
 			help 0
 			;;
+
 		--exit_on_first_error)
 			exit_on_first_error=1
 			;;

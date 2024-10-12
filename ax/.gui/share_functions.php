@@ -664,3 +664,66 @@
 
 		return $oldDirs;
 	}
+
+	function parseAnsiToVirtualTerminal($input) {
+		$rows = [[]];
+		$maxWidth = 0;
+		$cursorX = 0;
+		$cursorY = 0;
+
+		function ensureTerminalSize(&$rows, $y) {
+			while (count($rows) <= $y) {
+				$rows[] = [];
+			}
+		}
+
+		function handleAnsiCode($code, &$cursorX, &$cursorY, &$rows) {
+			if (preg_match('/^\[(\d+)?([A-Za-z])/', $code, $cursorMatch)) {
+				$value = isset($cursorMatch[1]) ? intval($cursorMatch[1]) : 1;
+				switch ($cursorMatch[2]) {
+				case 'A': $cursorY = max($cursorY - $value, 0); break;
+				case 'B': $cursorY += $value; ensureTerminalSize($rows, $cursorY); break;
+				case 'C': $cursorX += $value; break;
+				case 'D': $cursorX = max($cursorX - $value, 0); break;
+				case 'K': $rows[$cursorY] = []; $cursorX = 0; break;
+				}
+			}
+		}
+
+		$i = 0;
+		$len = strlen($input);
+		while ($i < $len) {
+			$char = $input[$i];
+
+			if ($char === "\x1b" && isset($input[$i + 1]) && $input[$i + 1] === '[') {
+				if (preg_match('/^[^a-zA-Z]*[a-zA-Z]/', substr($input, $i + 2), $ansiCode) && preg_match('/^[\d;]*[A-DK]$/', $ansiCode[0])) {
+					handleAnsiCode($ansiCode[0], $cursorX, $cursorY, $rows);
+					$i += strlen($ansiCode[0]) + 2;
+					continue;
+				}
+			} elseif ($char === "\r") {
+				$cursorX = 0;
+			} elseif ($char === "\n") {
+				$cursorY++;
+				$cursorX = 0;
+				ensureTerminalSize($rows, $cursorY);
+			} else {
+				ensureTerminalSize($rows, $cursorY);
+				if ($cursorX >= count($rows[$cursorY])) {
+					$rows[$cursorY][$cursorX] = $char;
+				} else {
+					$rows[$cursorY][$cursorX] = $char;
+				}
+				$cursorX++;
+				if ($cursorX > $maxWidth) $maxWidth = $cursorX;
+			}
+			$i++;
+		}
+
+		$output = '';
+		foreach ($rows as $line) {
+			$lineStr = implode('', $line);
+			$output .= str_pad($lineStr, $maxWidth, ' ') . "\n";
+		}
+		return rtrim($output);
+	}

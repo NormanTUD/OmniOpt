@@ -534,7 +534,7 @@ function md5 (str) {
 function ansi_to_html (ansi) {
 	const ansi_up = new AnsiUp();
 
-	return parseAnsiToVirtualTerminal(ansi_up.ansi_to_html(ansi));
+	return ansi_up.ansi_to_html(ansi);
 }
 
 function removeAnsiCodes(input) {

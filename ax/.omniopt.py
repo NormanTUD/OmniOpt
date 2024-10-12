@@ -3,7 +3,6 @@
 import sys
 
 try:
-    from concurrent.futures import ThreadPoolExecutor
     import argparse
     import datetime
     import importlib.util
@@ -4149,10 +4148,10 @@ def save_state_files():
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def execute_evaluation(_params):
+def execute_evaluations(_params):
     global global_vars
 
-    print_debug(f"execute_evaluation({_params})")
+    print_debug(f"execute_evaluations({_params})")
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
     _trial = ax_client.get_trial(trial_index)
 
@@ -4161,7 +4160,7 @@ def execute_evaluation(_params):
         try:
             getattr(_trial, stage)()
         except Exception as e:
-            print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
+            print_debug(f"execute_evaluations({_params}): {error_msg} with error: {e}")
 
     mark_trial_stage("mark_staged", "Marking the trial as staged failed")
 
@@ -4185,7 +4184,7 @@ def execute_evaluation(_params):
     except Exception as e:
         handle_generic_error(e)
 
-    finish_previous_jobs(["finishing jobs after starting them (inside execute_evaluation)"])
+    finish_previous_jobs(["finishing jobs after starting them (inside execute_evaluations)"])
 
     add_to_phase_counter(phase, 1)
     return trial_counter
@@ -4208,7 +4207,7 @@ def exclude_defective_nodes():
 
 def submit_job(parameters):
     try:
-        new_job = executor.submit(evaluate, parameters)
+        new_job = executor.map_array(evaluate, parameters)
         submitted_jobs(1)
         return new_job
     except Exception as e:
@@ -4466,46 +4465,44 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
     try:
         trial_index_to_param = _get_next_trials()
 
-        results = []
+        __args = []
 
         if trial_index_to_param:
             i = 1
-            with ThreadPoolExecutor() as con_exe:
-                for trial_index, parameters in trial_index_to_param.items():
+            for trial_index, parameters in trial_index_to_param.items():
+                if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                    break
+
+                while len(global_vars["jobs"]) > num_parallel_jobs:
+                    finish_previous_jobs(["finishing prev jobs"])
+
                     if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                         break
 
-                    while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(["finishing prev jobs"])
+                    if is_slurm_job() and not args.force_local_execution:
+                        _sleep(5)
 
-                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                            break
+                if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
+                    break
 
-                        if is_slurm_job() and not args.force_local_execution:
-                            _sleep(5)
+                if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                    progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
 
-                    if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
-                        break
+                    _args = [
+                        trial_index,
+                        parameters,
+                        i,
+                        next_nr_steps,
+                        phase
+                    ]
 
-                    if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
+                    __args.append(_args)
 
-                        _args = [
-                            trial_index,
-                            parameters,
-                            i,
-                            next_nr_steps,
-                            phase
-                        ]
+                    i += 1
+                else:
+                    break
 
-                        results.append(con_exe.submit(execute_evaluation, _args))
-
-                        i += 1
-                    else:
-                        break
-
-            for r in results:
-                r.result()
+            execute_evaluations(__args)
 
             finish_previous_jobs(["finishing jobs after starting them"])
 

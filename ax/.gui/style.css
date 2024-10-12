@@ -350,7 +350,3 @@ a, a:visited, a:active, a:hover, a:link {
 	background-color: red !important;
 	color: white !important;
 }
-
-.best_result_txt, .parameters_txt {
-	text-align: center;
-}

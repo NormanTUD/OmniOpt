@@ -81,3 +81,7 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Generate release notes
+      uses: mikeal/release-notes-generator@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}

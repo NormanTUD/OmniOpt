@@ -1581,7 +1581,6 @@ def replace_parameters_in_string(parameters, input_string):
         print_red(f"\n⚠ Error: {e}")
         return None
 
-@wrapper_print_debug
 def execute_bash_code(code):
     try:
         result = subprocess.run(

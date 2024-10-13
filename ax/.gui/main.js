@@ -476,9 +476,7 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function add_tab(tab_id, tab_name, tab_html_content) {
-	var container_id = "#main_tabbed";
-
+function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbed") {
 	if ($(container_id).length) {
 		$(container_id).tabs();
 	}

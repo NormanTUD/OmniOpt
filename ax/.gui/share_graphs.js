@@ -574,6 +574,7 @@ async function load_parameter () {
 }
 
 async function load_out_files () {
+	// TODO: Load single files, only load new files, append with add_tab
 	showSpinnerOverlay("Loading out files...");
 	var urlParams = new URLSearchParams(window.location.search);
 

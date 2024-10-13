@@ -642,6 +642,10 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 		coverage json 2>/dev/null >/dev/null
 		coverage report
 
+		if [[ -n $GITHUB_OUTPUT ]]; then
+			coverage report >> "$GITHUB_OUTPUT"
+		fi
+
 		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
 			coverage html 2>/dev/null >/dev/null
 			firefox htmlcov/index.html

@@ -62,7 +62,7 @@ function help () {
 train=1
 predict=0
 
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --train)
                         train=1

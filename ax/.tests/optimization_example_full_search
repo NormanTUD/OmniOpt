@@ -46,7 +46,8 @@ export param=
 export param_two=
 export param_three=
 export param_four=
-for i in $@; do
+
+for i in "$@"; do
         case $i in
                 --param=*)
                         param="${i#*=}"

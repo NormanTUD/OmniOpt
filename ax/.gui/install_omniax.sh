@@ -27,7 +27,7 @@ function red_text {
 START_COMMAND_BASE64=$1
 
 export reservation=""
-for i in $@; do
+for i in "$@"; do
 	case $i in
 		--reservation=*)
 			reservation="${i#*=}"

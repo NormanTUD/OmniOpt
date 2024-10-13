@@ -46,7 +46,7 @@ export x=
 export y=
 export z=
 export a=
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --y=*)
                         y="${i#*=}"

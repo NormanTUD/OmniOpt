@@ -113,12 +113,14 @@ jobs:
       with:
         output_file: "repo_visualizer.svg"
         artifact_name: "repo_visualizer"
+
     - name: Get artifact
       uses: actions/download-artifact@v2
       with:
         name: "repo_visualizer"
         path: "downloads"
 
-    - uses: codeatlasHQ/codebase-visualizer-action@v1-beta
-  	with:
-  	  sub_directory: ax
+    - name: codebase-visualizer
+      uses: codeatlasHQ/codebase-visualizer-action@v1-beta
+      with:
+        sub_directory: ax

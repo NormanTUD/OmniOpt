@@ -1,6 +1,6 @@
 # What is OmniOpt?
 
-# CI Status for OmniOpt2
+## CI Status for OmniOpt2
 
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
 ![Latest Release](https://img.shields.io/github/v/release/NormanTUD/OmniOpt)
@@ -16,7 +16,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
 [![Super-Linter](https://github.com/NormanTUD/OmniOpt/actions/workflows/super-linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
-# Old OmniOpt
+## Old OmniOpt
 
 OmniOpt is a hyperparameter minimizer tool. This means you can give it a program that accepts hyperparameters as
 parameters via the command-line, like
@@ -33,12 +33,12 @@ RESULT: 0.1234
 
 in it's standard output. OmniOpt will try to find the lowest result-value in an intelligent way automatically.
 
-# How to run OmniOpt?
+## How to run OmniOpt?
 
 It's probably easiest to use the GUI available under <https://imageseg.scads.de/omnioptgui/>. Running it manually
 without the GUI is not recommended.
 
-# Something has gone wrong. Where can I check what and fix it?
+## Something has gone wrong. Where can I check what and fix it?
 
 If something has gone wrong, your first step should be looking into the `projects/PROJECTNAME/singlelogs`-folder.
 
@@ -71,7 +71,7 @@ Once a job is started, another one cannot be started on the same `projects`-fold
 
 If this does not help, do not hesitate to contact me at <mailto:norman.koch@tu-dresden.de>.
 
-# What do the files and folders here mean?
+## What do the files and folders here mean?
 
 ## debuglogs
 

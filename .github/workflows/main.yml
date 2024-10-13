@@ -86,6 +86,3 @@ jobs:
     - uses: release-drafter/release-drafter@v5
       with:
         configuration: .github/release-drafter.yml
-
-    - name: Action Cats
-      uses: ruairidhwm/action-cats@1.0.2

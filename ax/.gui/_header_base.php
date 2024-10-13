@@ -72,8 +72,10 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
     </head>
     <body>
         <div id="scads_bar">
-		<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo"></a>
-		<a href="index.php">
+		<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
+			<img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
+		</a>
+		<a style="text-decoration: none;" href="index.php">
 			<img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo">
 		</a>
 		<table border=0 style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important; display: inline !important;'>

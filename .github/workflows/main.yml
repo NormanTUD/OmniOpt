@@ -17,6 +17,13 @@ jobs:
       - name: Run markdownlint
         run: npm install -g markdownlint-cli && markdownlint '**/*.md'
 
+  todo-to-issue:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "TODO to Issue"
+        uses: "alstr/todo-to-issue-action@v5"
+
   build:
     #runs-on: ubuntu-latest 
     runs-on: ${{ matrix.os }}

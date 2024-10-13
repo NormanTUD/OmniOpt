@@ -642,8 +642,8 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 		coverage json 2>/dev/null >/dev/null
 		coverage report
 
-		if [[ -n $GITHUB_OUTPUT ]]; then
-			echo "coverage_report='$(coverage report)'" >> "$GITHUB_OUTPUT"
+		if [[ -n $GITHUB_STEP_SUMMARY ]]; then
+			echo "{$(coverage report)}" >> "$GITHUB_STEP_SUMMARY"
 		fi
 
 		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
@@ -744,8 +744,8 @@ print_table() {
 
 print_table
 
-if [[ -n $GITHUB_OUTPUT ]]; then
-	echo "test_table='$(print_table)'" >> "$GITHUB_OUTPUT"
+if [[ -n $GITHUB_STEP_SUMMARY ]]; then
+	echo "{$(print_table)}" >> "$GITHUB_STEP_SUMMARY"
 fi
 
 echo "\nTest took $(displaytime $SECONDS)"

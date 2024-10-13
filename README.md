@@ -54,7 +54,7 @@ Errors will be printed in red. If there are no errors, look at the first line, i
 Log file: /home/h8/s3811141/test/randomtest_71361/omniopt/debuglogs/0
 ```
 
-This log (the number at the end may vary) contains all debug-outputs. 
+This log (the number at the end may vary) contains all debug-outputs.
 
 A common error may be:
 
@@ -108,10 +108,10 @@ This directory contains the Perl-Modules needed to run OmniOpt.
 ## projects
 
 This is the default directory, in which projects reside. A project must consist of a folder named like
-the project, which contains a `config.ini` file. When a project has run, the folders `mongodb`, 
+the project, which contains a `config.ini` file. When a project has run, the folders `mongodb`,
 `singlelogs` and `logs` are contained within the specific project's folder. `mongodb` contains the database
 on which OmniOpt operates, `singlelogs` contains 3 files for each single run, each starting with a GUID,
-namely the `.stdout`-file, which contains the `STDOUT` of the run, the `.stderr`-file, which contains it's 
+namely the `.stdout`-file, which contains the `STDOUT` of the run, the `.stderr`-file, which contains it's
 `STDERR` and a file without file-ending, which contains both, the `STDOUT` and the `STDERR` also also the
 command-line with the parsed arguments.
 
@@ -170,4 +170,5 @@ Autocompletetion for zsh. Use
 bash zsh/install.sh
 ```
 
-for enabling auto-completion on ZSH after re-starting the ZSH. This must not be done for every repo, once is enough.
+for enabling auto-completion on ZSH after re-starting the ZSH.
+This must not be done for every repo, once is enough.

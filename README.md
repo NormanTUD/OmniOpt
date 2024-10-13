@@ -67,7 +67,7 @@ A common error may be:
 The Job is running right now. It's slurm ID is 19027181. Cannot run repair
 with a database that is running.
 ...
-The file `/home/h8/s3811141/test/randomtest_13749/omniopt/test/projects/gpu_test/mongodb/mongod.lock` already exists!!!
+The file `/path/test/projects/gpu_test/mongodb/mongod.lock` already exists!!!
 
 ```
 

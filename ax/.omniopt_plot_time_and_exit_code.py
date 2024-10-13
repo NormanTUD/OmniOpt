@@ -5,6 +5,8 @@
 # TEST_OUTPUT_MUST_CONTAIN: Distribution of Run Time
 # TEST_OUTPUT_MUST_CONTAIN: Result over Time
 
+# TODO: Check if this script is able to react properly to --maximize'd runs
+
 import argparse
 import importlib.util
 import os

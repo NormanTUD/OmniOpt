@@ -2,6 +2,8 @@
 # EXPECTED FILES: cpu_ram_usage.csv
 # TEST_OUTPUT_MUST_CONTAIN: CPU and RAM Usage over Time
 
+# TODO: Check if this script is able to react properly to --maximize'd runs
+
 import argparse
 import logging
 import os

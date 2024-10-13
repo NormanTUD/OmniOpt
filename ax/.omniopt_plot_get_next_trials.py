@@ -1,10 +1,7 @@
-# DESCRIPTION: Plot get_next_trials got/requested
-# EXPECTED FILES: get_next_trials.csv
-# TEST_OUTPUT_MUST_CONTAIN: Trials Usage Plot
-# TEST_OUTPUT_MUST_CONTAIN: Count
-# TEST_OUTPUT_MUST_CONTAIN: Time
 # TEST_OUTPUT_MUST_CONTAIN: Got
 # TEST_OUTPUT_MUST_CONTAIN: Requested
+
+# TODO: Check if this script is able to react properly to --maximize'd runs
 
 import argparse
 import importlib.util

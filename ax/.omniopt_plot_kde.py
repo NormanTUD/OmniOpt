@@ -3,6 +3,8 @@
 # TEST_OUTPUT_MUST_CONTAIN: Histogram for
 # TEST_OUTPUT_MUST_CONTAIN: Count
 
+# TODO: Check if this script is able to react properly to --maximize'd runs
+
 import argparse
 import importlib.util
 import logging

@@ -4,6 +4,8 @@
 # TEST_OUTPUT_MUST_CONTAIN: mean result
 # TEST_OUTPUT_MUST_CONTAIN: result
 
+# TODO: Check if this script is able to react properly to --maximize'd runs
+
 import argparse
 import importlib.util
 import math

@@ -92,7 +92,7 @@ if [ "$#" -gt 0 ]; then
 	done
 else
 	# No parameters passed, process all Python files (as in original script)
-	for i in $(ls .gui/*/**.php); do
+	for i in .gui/*/**.php; do
 		yellow_text "$BASECOMMAND $i"
 		eval "$BASECOMMAND $i" || {
 			ERRSTR="Failed linting $i: Run '$BASECOMMAND $i' to see details."

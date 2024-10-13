@@ -358,7 +358,7 @@ if [[ "$help" -eq 1 ]]; then
 	exit 0
 fi
 
-if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
+if [[ ! " ${expected_plot_types[*]} " =~ " $plot_type " ]]; then
 	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
 
 	joined_plot_types=${joined_plot_types%, }

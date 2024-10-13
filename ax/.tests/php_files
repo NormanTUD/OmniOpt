@@ -34,7 +34,7 @@ cd $SCRIPT_DIR
 cd ..
 
 if command -v php 2>/dev/null >/dev/null; then
-	for existing_php_file in $(ls .gui/**/*.php); do
+	for existing_php_file in .gui/**/*.php; do
 		if ! php -l $existing_php_file >/dev/null; then
 			errmsg="PHP file $existing_php_file does have syntax errors"
 			red_text "$errmsg"

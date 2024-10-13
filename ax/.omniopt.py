@@ -4127,30 +4127,30 @@ def save_state_files():
         os.makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
-        print(global_vars["joined_run_program"], file=f)
+        original_print(global_vars["joined_run_program"], file=f)
 
     with open(f'{state_files_folder}/experiment_name', mode='w', encoding="utf-8") as f:
-        print(global_vars["experiment_name"], file=f)
+        original_print(global_vars["experiment_name"], file=f)
 
     with open(f'{state_files_folder}/mem_gb', mode='w', encoding='utf-8') as f:
-        print(global_vars["mem_gb"], file=f)
+        original_print(global_vars["mem_gb"], file=f)
 
     with open(f'{state_files_folder}/max_eval', mode='w', encoding='utf-8') as f:
-        print(max_eval, file=f)
+        original_print(max_eval, file=f)
 
     with open(f'{state_files_folder}/gpus', mode='w', encoding='utf-8') as f:
-        print(args.gpus, file=f)
+        original_print(args.gpus, file=f)
 
     with open(f'{state_files_folder}/time', mode='w', encoding='utf-8') as f:
-        print(global_vars["_time"], file=f)
+        original_print(global_vars["_time"], file=f)
 
     with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
         env = dict(os.environ)
         for key in env:
-            print(str(key) + " = " + str(env[key]), file=f)
+            original_print(str(key) + " = " + str(env[key]), file=f)
 
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
-        print("omniopt '" + " ".join(sys.argv[1:]), file=f)
+        original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
 def submit_job(parameters):
     try:

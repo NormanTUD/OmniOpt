@@ -19,7 +19,7 @@ function green_text {
 
 errors=()
 
-for plot_file in $(ls .omniopt_plot*.py); do
+for plot_file in .omniopt_plot*.py; do
 	k=0
 	for j in $(cat $plot_file | grep parser.add | sed -e 's#.*add.argument..##' -e 's#".*##' -e "s#'.*##" -e 's#--#args.#'); do
 		COUNT=$(grep "$j" "$plot_file" | wc -l)

@@ -25,7 +25,6 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   build:
-    #runs-on: ubuntu-latest 
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

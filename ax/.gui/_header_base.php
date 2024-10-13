@@ -82,13 +82,13 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 			<tr style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
 				<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
 					<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
-						<img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
+						<img style="width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
 					</a>
 				</td>
 			</tr>
 			<tr style='background-color: revert !important; border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
 				<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-					<img src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
+					<img style="width: 100% !important;" src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
 				</td>
 			</tr>
 		</table>

@@ -106,3 +106,15 @@ jobs:
     - uses: release-drafter/release-drafter@v5
       with:
         configuration: .github/release-drafter.yml
+
+    - name: Update diagram
+      id: make_diagram
+      uses: githubocto/repo-visualizer@0.7.1
+      with:
+        output_file: "repo_visualizer.svg"
+        artifact_name: "repo_visualizer"
+    - name: Get artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: "repo_visualizer"
+        path: "downloads"

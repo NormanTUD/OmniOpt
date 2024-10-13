@@ -14,7 +14,6 @@
 ![Forks](https://img.shields.io/github/forks/NormanTUD/OmniOpt)
 ![Contributors](https://img.shields.io/github/contributors/NormanTUD/OmniOpt)
 ![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
-[![Super-Linter](https://github.com/NormanTUD/OmniOpt/actions/workflows/super-linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
 ## Old OmniOpt
 

@@ -18,7 +18,6 @@ jobs:
       statuses: write
 
     steps:
-      FILTER_REGEX_EXCLUDE
       - name: Set FILTER_REGEX_EXCLUDE
         run: echo "FILTER_REGEX_EXCLUDE='jquery|'" >> $GITHUB_ENV
       - name: Checkout code

@@ -9,6 +9,14 @@ on:
       - '**'
 
 jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run markdownlint
+        run: npm install -g markdownlint-cli && markdownlint '**/*.md'
+
   build:
     #runs-on: ubuntu-latest 
     runs-on: ${{ matrix.os }}

@@ -275,8 +275,7 @@ try:
             optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
             optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
             optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
-            # TODO: Workdir is not yet implemented
-            optional.add_argument('--workdir', help='Work dir (not yet implemented! TODO)', action='store_true', default=False)
+            optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
 
             slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
             slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)

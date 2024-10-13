@@ -1134,7 +1134,7 @@ function help_and_test_py {
 }
 
 if [[ "$help" -eq "1" ]]; then
-	help_and_test_py "$SCRIPT_DIR/.omniopt.py" --help
+	python3 "$SCRIPT_DIR/.omniopt.py" --help
 
 	exit 0
 fi

@@ -21,13 +21,13 @@
 OmniOpt is a hyperparameter minimizer tool. This means you can give it a program that accepts hyperparameters as
 parameters via the command-line, like
 
-```
+```bash
 python your_program.py --param1=$PARAM1 --param2=$PARAM2 ...
 ```
 
 and returns lines like:
 
-```
+```bash
 RESULT: 0.1234
 ```
 
@@ -50,7 +50,7 @@ program.
 If this folder does not exist or you could not find an error, check the `.out` file in the main directory of OmniOpt.
 Errors will be printed in red. If there are no errors, look at the first line, it looks like this:
 
-```
+```bash
 Log file: /home/h8/s3811141/test/randomtest_71361/omniopt/debuglogs/0
 ```
 
@@ -58,7 +58,7 @@ This log (the number at the end may vary) contains all debug-outputs.
 
 A common error may be:
 
-```
+```bash
 The Job is running right now. It's slurm ID is 19027181. Cannot run repair with a database that is running.
 ...
 The file `/home/h8/s3811141/test/randomtest_13749/omniopt/test/projects/gpu_test/mongodb/mongod.lock` already exists!!!
@@ -87,7 +87,7 @@ This contains the documentation of OmniOpt.
 
 Run this with
 
-```
+```bash
 bash evaluate-run.sh
 ```
 
@@ -137,13 +137,13 @@ This directory contains several tests to ensure that OmniOpt runs properly. It a
 `projects`-folder with very small and simple test-projects that only test OmniOpt. You probably don't need them.
 If you want to test OmniOpt, run
 
-```
+```bash
 perl sbatch.pl --debug --run_full_tests
 ```
 
 for the complete test-suite (with starting `sbatch`-jobs) or
 
-```
+```bash
 perl sbatch.pl --debug --run_tests
 ```
 
@@ -156,7 +156,7 @@ This directory contains different scripts to abstract away Taurus-specifics. Lik
 to load a certain number of modules in a certain order, before `python3 script/plot3.py` works. But because that's
 really annoying to remember, just use
 
-```
+```bash
 perl tools/plot.pl --project=testproject --projectdir=./projects/
 ```
 
@@ -166,7 +166,7 @@ or use the `evaluate-run.sh`.
 
 Autocompletetion for zsh. Use
 
-```
+```bash
 bash zsh/install.sh
 ```
 

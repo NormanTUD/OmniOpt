@@ -21,8 +21,8 @@ try:
     import time
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
-    print("Exit-Code: 1")
-    sys.exit(1)
+    print("Exit-Code: 2")
+    sys.exit(2)
 
 YELLOW = "\033[93m"
 RESET = "\033[0m"
@@ -438,13 +438,13 @@ except ModuleNotFoundError as ee:
     my_exit(31)
 except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(128 + 2)
+    my_exit(130)
 except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(128 + 10)
+    my_exit(138)
 except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(128 + 18)
+    my_exit(146)
 except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
@@ -512,13 +512,13 @@ except ModuleNotFoundError as ee:
     my_exit(31)
 except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(128 + 2)
+    my_exit(130)
 except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(128 + 10)
+    my_exit(138)
 except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(128 + 18)
+    my_exit(146)
 except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)

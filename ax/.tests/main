@@ -486,6 +486,8 @@ _test "Testing defective json file" "./omniopt --config_json .tests/defective_ex
 
 _test "Testing non-existant json config file" "./omniopt --config_json /dev/idontexist.json" 100
 
+_test "Find undocumented exit codes" ".tests/find_undocumented_exit_codes" 0
+
 if ! command -v sbatch 2>/dev/null >/dev/null; then
 	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3" 0
 fi

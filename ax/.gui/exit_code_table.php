@@ -11,6 +11,7 @@
                     $exit_code_info,
                     [
                     0 => "Seems to have worked properly",
+                    1 => "Could not create log dir",
                     2 => "Loading of Environment failed",
                     3 => "Invalid exit code detected",
                     4 => "Failed loading modules",
@@ -34,8 +35,11 @@
                     103 => "--time is not in minutes or HH:MM format.",
                     104 => "One of the parameters --mem_gb, --time, or --experiment_name is missing.",
                     105 => "Continued job error: previous job has missing state files.",
+		    130 => "Interrupt-Signal detected",
 		    133 => "Error loading --config_toml, --config_json or --config_yaml",
+		    138 => "USR-Signal detected.",
                     142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why.",
+                    146 => "CONT-Signal detected.",
                     181 => "Error parsing --parameter. Check output for more details.",
                     191 => "Could not create workdir ",
                     192 => "Unknown data type (--tests).",
@@ -46,6 +50,7 @@
                     210 => "Unknown orchestrator mode",
                     211 => "Git checkout failed (--checkout_to_latest_tested_version)",
                     233 => "No random steps set.",
+                    242 => "Error at fetching new trials.",
                     243 => "Job was not found in squeue anymore, it may got cancelled before it ran."
                     ]
                 );

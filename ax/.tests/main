@@ -737,7 +737,7 @@ print_table() {
 
 print_table
 
-echo "Test took $(displaytime $SECONDS)"
+echo "\nTest took $(displaytime $SECONDS)"
 
 exit ${#errors[@]}
 }

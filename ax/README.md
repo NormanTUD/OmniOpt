@@ -24,7 +24,8 @@ Basically the same as OmniOpt, but based on ax/botorch instead of hyperopt
     --parameter param range 0 1000 float
 ```
 
-This will automatically install all dependencies. Internally, it calls a pythonscript.
+This will automatically install all dependencies. Internally, it calls a
+python-script.
 
 ## Show results
 
@@ -42,7 +43,9 @@ This will automatically install all dependencies. Internally, it calls a pythons
 
 ## Run tests
 
-Runs the main test suite. Runs an optimization, continues it, tries to continue one that doesn't exit, and runs a job with many different faulty jobs that fail in all sorts of ways (to test how OmniOpt2 reacts to it).
+Runs the main test suite. Runs an optimization, continues it, tries to
+continue one that doesn't exit, and runs a job with many different faulty jobs
+that fail in all sorts of ways (to test how OmniOpt2 reacts to it).
 
 ```command
 ./tests/main_tests

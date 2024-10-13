@@ -108,12 +108,6 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Label PR
-      uses: actions/labeler@v3
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        configuration-path: .github/labeler.yml
-
     - name: Get Cover 
       uses: orgoro/coverage@v3.2
       with:
@@ -123,21 +117,3 @@ jobs:
     - uses: release-drafter/release-drafter@v5
       with:
         configuration: .github/release-drafter.yml
-
-    - name: Update diagram
-      id: make_diagram
-      uses: githubocto/repo-visualizer@0.7.1
-      with:
-        output_file: "repo_visualizer.svg"
-        artifact_name: "repo_visualizer"
-
-    - name: Get artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: "repo_visualizer"
-        path: "downloads"
-
-    - name: codebase-visualizer
-      uses: codeatlasHQ/codebase-visualizer-action@v1-beta
-      with:
-        sub_directory: ax

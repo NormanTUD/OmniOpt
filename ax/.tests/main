@@ -740,6 +740,10 @@ print_table() {
 
 print_table
 
+if [[ -n $GITHUB_OUTPUT ]]; then
+	print_table >> "$GITHUB_OUTPUT"
+fi
+
 echo "\nTest took $(displaytime $SECONDS)"
 
 exit ${#errors[@]}

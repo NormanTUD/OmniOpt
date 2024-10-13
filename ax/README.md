@@ -18,10 +18,13 @@ Basically the same as OmniOpt, but based on ax/botorch instead of hyperopt
 ## Main program
 
 ```command
-./omniopt --partition=alpha --experiment_name=example --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=1 --follow --run_program=ZWNobyAiUkVTVUxUOiAlKHBhcmFtKSI= --parameter param range 0 1000 float
+./omniopt --partition=alpha --experiment_name=example --mem_gb=1 --time=60 \
+    --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=1 \
+    --follow --run_program=ZWNobyAiUkVTVUxUOiAlKHBhcmFtKSI= \
+    --parameter param range 0 1000 float
 ```
 
-This will automatically install all dependencies. Internally, it calls a pythonscript. 
+This will automatically install all dependencies. Internally, it calls a pythonscript.
 
 ## Show results
 
@@ -59,7 +62,7 @@ Runs the main test suite. Runs an optimization, continues it, tries to continue 
 | 3         | Invalid exit code detected                                                                       |
 | 4         | Failed loading modules                                                                           |
 | 5         | Errors regarding toml or yaml config files                                                       |
-| 6         | Error creating logs dir                                                                         |
+| 6         | Error creating logs dir                                                                          |
 | 10        | Usually only returned by dier (for debugging).                                                   |
 | 11        | Required program not found (check logs)                                                          |
 | 12        | Error with pip, check logs                                                                       |

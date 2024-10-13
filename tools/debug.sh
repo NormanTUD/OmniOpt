@@ -132,7 +132,7 @@ function empty {
         return
 
     # Return true if var is 0.0 (0 as a float)
-    elif [ "$var" == 0.0 2> /dev/null ]
+    elif [ "$var" == 0 ]
     then
         echo "1"
         return

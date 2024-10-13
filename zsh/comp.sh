@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function _sbatch_pl {
     _describe 'command' "(
         '--help:This help'

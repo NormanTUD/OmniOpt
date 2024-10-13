@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Set FILTER_REGEX_EXCLUDE
-        run: echo "FILTER_REGEX_EXCLUDE='jquery|'" >> $GITHUB_ENV
+        run: echo "FILTER_REGEX_EXCLUDE='jquery|tex|plotly|tooltipster|crypto|ansi|md5'" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v4
         with:

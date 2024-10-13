@@ -494,6 +494,7 @@ _test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_
 
 if [[ $quick -eq 0 ]]; then
 	_test "Linter" "bash .tests/linter" 0
+	_test "lint_python" ".tests/lint_python" 0
 else
 	_test "Linter (quick)" "bash .tests/linter --quick" 0
 fi

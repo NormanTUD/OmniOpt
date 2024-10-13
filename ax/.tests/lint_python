@@ -45,7 +45,7 @@ source .shellscript_functions
 
 errors=()
 
-for i in $(ls .*.py); do
+for i in .*.py; do
 	ruff check $i || {
 		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'ruff check $i' to see details."
 		red_text "\n$ERRSTR"

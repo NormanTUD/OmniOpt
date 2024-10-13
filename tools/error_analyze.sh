@@ -54,7 +54,7 @@ export project_has_run=1
 export whiptail_only_on_error=0
 export no_ssh_key_errors=0
 
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --projectdir=*)
                         projectdir="${i#*=}"

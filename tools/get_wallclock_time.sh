@@ -49,7 +49,7 @@ function help () {
 }
 export projectdir=projects
 export project
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --projectdir=*)
                         projectdir="${i#*=}"

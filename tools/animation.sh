@@ -40,7 +40,7 @@ export maxvalue=9999999999999
 export create_video=0
 export MONGOTIMEOUT=1
 
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --create_video)
                         create_video=1

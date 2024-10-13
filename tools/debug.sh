@@ -11,7 +11,7 @@ export SECONDS=0
 
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
 module () {
-    eval `$LMOD_CMD sh "$@"`
+	eval $($LMOD_CMD sh "$@")
 }
 
 function print_success {
@@ -49,12 +49,12 @@ function check_for_program {
 }
 
 function module_already_loaded {
-    if check_for_module; then
-        NUMBEROFMODULESFOUND=$(eval `/usr/share/lmod/lmod/libexec/lmod $SHELL list` | grep "$1" | wc -l | awk '{print $1}')
-        echo $NUMBEROFMODULESFOUND
-    else
-        echo 0
-    fi
+	if check_for_module; then
+		NUMBEROFMODULESFOUND=$(eval $(/usr/share/lmod/lmod/libexec/lmod $SHELL list) | grep "$1" | wc -l | awk '{print $1}')
+		echo $NUMBEROFMODULESFOUND
+	else
+		echo 0
+	fi
 }
 
 function check_for_srun {
@@ -126,7 +126,7 @@ function empty {
         return
 
     # Return true if var is zero (0 as an integer or "0" as a string)
-    elif [ "$var" == 0 2> /dev/null ]
+    elif [ "$var" == 0 ]
     then
         echo "1"
         return

@@ -940,7 +940,8 @@ function single_job_tasks {
 	gobacktolist_running_slurm_jobs="$2"
 
     if [[ -z $chosenjob ]]; then
-        exit "No job chosen!!!"
+        echo "No job chosen!!!"
+	exit 1
     fi
 
     if ! command -v scontrol &> /dev/null; then
@@ -1630,7 +1631,7 @@ if [[ $sourced == "0" ]]; then
                 eval `resize`
                 if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
                     git pull
-                    bash evaluate-run.sh --dont_load_modules --no_upgrade $@
+                    bash evaluate-run.sh --dont_load_modules --no_upgrade "$@"
                     bash zsh/install.sh
                     exit
                 else

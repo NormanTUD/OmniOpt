@@ -81,7 +81,7 @@ export nosuccess=0
 args=("$@")
 int_re='^[+-]?[0-9]+$'
 
-for i in $@; do
+for i in "$@"; do
         case $i in
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"

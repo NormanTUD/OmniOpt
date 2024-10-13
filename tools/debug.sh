@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function humanreadabletime {
     date +"%Y-%m-%d %H:%m:%S (%s)"
 }
@@ -94,7 +96,7 @@ function module_use {
 }
 
 function load_source {
-	if [ -n $1 ]; then
+	if [[ -n $1 ]]; then
 		if [ -f $1 ]; then
 			if bash -n $1; then
 				if source $1; then
@@ -194,8 +196,8 @@ function mycopy {
 }
 
 function run_python3 {
-        print_debug "python3 $@"
-        python3 $@
+        print_debug "python3 $*"
+        python3 "$*"
 }
 
 function mysrunmultiplegpu {

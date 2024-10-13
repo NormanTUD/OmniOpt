@@ -118,3 +118,7 @@ jobs:
       with:
         name: "repo_visualizer"
         path: "downloads"
+
+    - uses: codeatlasHQ/codebase-visualizer-action@v1-beta
+  	with:
+  	  sub_directory: ax

@@ -83,12 +83,6 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         configuration-path: .github/labeler.yml
 
-    - name: Upload coverage to GitHub
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: ax/coverage.json
-        category: general_checks
-
     - uses: release-drafter/release-drafter@v5
       with:
         configuration: .github/release-drafter.yml

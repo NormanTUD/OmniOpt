@@ -638,6 +638,7 @@ PARAM_EVAL=$(cat <<EOF
 while [ \$k -lt \${#args[@]} ]; do
 	i="\${args[k]}"
 	case \$i in
+
 $complex_options_str
 
 		--continue=*)

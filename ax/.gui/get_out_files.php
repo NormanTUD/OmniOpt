@@ -13,54 +13,79 @@
 
 	$sharesPath = "./shares/";
 
-	$run_nr = get_or_env("run_nr");
-	$user_id = get_or_env("user_id");
-	$experiment_name = get_or_env("experiment_name");
-	$environment_share_path = get_or_env("share_path");
+	try {
+		$run_nr = validate_param("run_nr", "/^\d+$/", "Invalid run_nr");
+		$user_id = validate_param("user_id", "/^[a-zA-Z0-9_]+$/", "Invalid user_id");
+		$experiment_name = validate_param("experiment_name", "/^[a-zA-Z0-9_]+$/", "Invalid experiment_name");
+		$environment_share_path = get_or_env("share_path");
 
-	if($environment_share_path && is_dir($environment_share_path) && !preg_match("/\.\./", $environment_share_path)) {
-		$sharesPath = $environment_share_path;
+		$sharesPath = determine_share_path($environment_share_path, $sharesPath);
+
+		$run_folder_without_shares = build_run_folder_path($user_id, $experiment_name, $run_nr);
+		$run_folder = "$sharesPath/$run_folder_without_shares";
+
+		validate_directory($run_folder);
+
+		$out_or_err_files = find_log_files($run_folder);
+
+		$html = get_out_files_html($out_or_err_files);
+		respond_with_json($html);
+
+	} catch (Exception $e) {
+		respond_with_error($e->getMessage());
 	}
 
-	if(!preg_match("/^\d+$/", $run_nr)) {
-		print json_encode(array("error" => "Invalid run_nr"));
+	function validate_param($param_name, $pattern, $error_message) {
+		$value = get_or_env($param_name);
+		if (!preg_match($pattern, $value)) {
+			throw new Exception($error_message);
+		}
+		return $value;
+	}
+
+	function determine_share_path($environment_share_path, $default_share_path) {
+		if ($environment_share_path && is_dir($environment_share_path) && !preg_match("/\.\./", $environment_share_path)) {
+			return $environment_share_path;
+		}
+		return $default_share_path;
+	}
+
+	function build_run_folder_path($user_id, $experiment_name, $run_nr) {
+		return "$user_id/$experiment_name/$run_nr/";
+	}
+
+	function validate_directory($dir_path) {
+		if (!is_dir($dir_path)) {
+			throw new Exception("$dir_path not found");
+		}
+	}
+
+	function find_log_files($run_folder) {
+		$run_files = glob("$run_folder/*");
+		$out_or_err_files = [];
+
+		foreach ($run_files as $file) {
+			if (preg_match("/\/\.\.\/?/", $file)) {
+				print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
+				continue;
+			}
+			if (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
+				$out_or_err_files[] = $file;
+			}
+		}
+
+		return $out_or_err_files;
+	}
+
+	function respond_with_json($html) {
+		print json_encode(array(
+			"raw" => $html,
+			"hash" => hash("md5", $html)
+		));
 		exit(0);
 	}
 
-	if(!preg_match("/^[a-zA-Z0-9_]+$/", $experiment_name)) {
-		print json_encode(array("error" => "Invalid experiment_name"));
-		exit(0);
-	}
-	
-	if(!preg_match("/^[a-zA-Z0-9_]+$/", $user_id)) {
-		print json_encode(array("error" => "Invalid user_id"));
-		exit(0);
-	}
-
-	$run_folder_without_shares = "$user_id/$experiment_name/$run_nr/";
-
-	$run_folder = "$sharesPath/$run_folder_without_shares";
-
-	if(!is_dir($run_folder)) {
-		print json_encode(array("error" => "$run_folder not found"));
+	function respond_with_error($error_message) {
+		print json_encode(array("error" => $error_message));
 		exit(1);
 	}
-
-	$run_files = glob("$run_folder/*");
-
-	$out_or_err_files = [];
-
-	foreach ($run_files as $file) {
-		if (preg_match("/\/\.\.\/?/", $file)) {
-			print("Invalid file " . htmlentities($file) . " detected. It will be ignored.");
-
-			continue;
-		}
-		if (preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
-			$out_or_err_files[] = $file;
-		}
-	}
-
-	$html = get_out_files_html($out_or_err_files);
-
-	print json_encode(array("raw" => $html, "hash" => hash("md5", $html)));

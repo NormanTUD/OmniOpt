@@ -4565,7 +4565,6 @@ def get_executor():
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
-        #tasks_per_node=args.tasks_per_node,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,
@@ -4574,6 +4573,22 @@ def get_executor():
         slurm_signal_delay_s=args.slurm_signal_delay_s,
         slurm_use_srun=args.slurm_use_srun,
         exclude=args.exclude
+    )
+
+    print_debug(f"""
+        executor.update_parameters(
+            name={f'{global_vars["experiment_name"]}_{run_uuid}'}
+            timeout_min={args.worker_timeout}
+            "slurm_gres={f"gpu:{args.gpus}"}
+            "cpus_per_task={args.cpus_per_task}
+            nodes={args.nodes_per_job}
+            stderr_to_stdout={args.stderr_to_stdout}
+            mem_gb={args.mem_gb}
+            slurm_signal_delay_s={args.slurm_signal_delay_s}
+            "slurm_use_srun={args.slurm_use_srun}
+            exclude={args.exclude}
+        )
+    """
     )
 
     if args.exclude:

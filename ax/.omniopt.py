@@ -19,6 +19,8 @@ try:
     import re
     import toml
     import time
+    import traceback
+    from rich_argparse import RichHelpFormatter
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
@@ -90,14 +92,6 @@ class SignalINT (Exception):
 
 class SignalCONT (Exception):
     pass
-
-try:
-    import traceback
-
-    from rich_argparse import RichHelpFormatter
-except ModuleNotFoundError as ee:
-    print(f"ModuleNotFoundError: {ee}")
-    sys.exit(31)
 
 def is_slurm_job():
     if os.environ.get('SLURM_JOB_ID') is not None:

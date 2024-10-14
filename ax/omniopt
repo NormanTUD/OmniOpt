@@ -124,7 +124,7 @@ function parse_json {
 		return 1
 	fi
 
-	cat "$file" | .tools/jq_$(uname -m) -r '.mem_gb'
+	cat "$file" | .tools/jq_$(uname -m) -r ".$key"
 }
 
 #parse_json ".tests/example_config.json" "mem_gb"

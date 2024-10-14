@@ -1,5 +1,6 @@
 {
   "experiment_name": "__main__tests__",
+  "follow": true,
   "gpus": 1,
   "live_share": true,
   "max_eval": 2,

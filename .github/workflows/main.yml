@@ -114,6 +114,11 @@ jobs:
           coverageFile: ax/coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: release-drafter/release-drafter@v5
-      with:
-        configuration: .github/release-drafter.yml
+
+
+      - uses: release-drafter/release-drafter@v5
+        with:
+            config-name: .github/release-drafter.yml
+        #   disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

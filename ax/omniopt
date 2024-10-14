@@ -127,9 +127,6 @@ function parse_json {
 	cat "$file" | .tools/jq_$(uname -m) -r ".$key" | sed -e 's#^null$##i'
 }
 
-#parse_json ".tests/example_config.json" "mem_gb"
-#exit
-
 function echoerr {
 	echo "$@" 1>&2
 }

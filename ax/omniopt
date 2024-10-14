@@ -535,7 +535,7 @@ EOF
 	elif [[ $check_type == "file" ]]; then
 		check_code=$(cat <<EOF
 			if ! [[ -e "\$$current_var" ]] ; then
-				red_text "error: --$current_var specified the path to a file that doesn't exist: \$i" >&2
+				red_text "error: --$current_var specified the path to a file that doesn't exist: \$current_var" >&2
 				myexit 100
 			fi
 EOF

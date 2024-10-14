@@ -123,6 +123,7 @@ BatchNormalization
 batchnr
 batchsize
 batchSize
+Bayesian
 BC
 beforeActivate
 beforeClose
@@ -1154,6 +1155,7 @@ NotImplementedError
 Nov
 November
 np
+nplinalgLinAlgError
 nr
 Nr
 num
@@ -2017,5 +2019,3 @@ zIndices
 zipContents
 zipWriter
 zsh
-nplinalgLinAlgError
-Bayesian

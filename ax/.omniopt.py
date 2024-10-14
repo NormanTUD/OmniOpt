@@ -391,6 +391,8 @@ try:
 
     loader = ConfigLoader()
     args = loader.parse_arguments()
+
+    dier(args.gpus)
 except KeyboardInterrupt:
     print("Error: Failed to parse arguments because you pressed CTRL-C.")
     my_exit(4)

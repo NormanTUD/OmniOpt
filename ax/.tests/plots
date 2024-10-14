@@ -18,8 +18,6 @@ function unset_debug {
 export PRINT_SEPERATOR=""
 export NO_RUNTIME=1
 export NO_NO_RESULT_ERROR=1
-export DONT_INSTALL_MODULES=1
-export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export PLOT_TESTS=1
 
 test_types_regex=""

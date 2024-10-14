@@ -207,7 +207,6 @@ parser = None
 
 try:
     class ConfigLoader:
-        @wrapper_print_debug
         def __init__(self):
             self.parser = argparse.ArgumentParser(
                 prog="omniopt",
@@ -224,7 +223,6 @@ try:
             # Initialize the remaining arguments
             self.add_arguments()
 
-        @wrapper_print_debug
         def add_arguments(self):
             required = self.parser.add_argument_group('Required arguments', "These options have to be set")
             required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
@@ -295,7 +293,6 @@ try:
             debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
             debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
 
-        @wrapper_print_debug
         def load_config(self, config_path, file_format):
             if not os.path.isfile(config_path):
                 print("Exit-Code: 5")
@@ -318,7 +315,6 @@ try:
 
             return {}
 
-        @wrapper_print_debug
         def validate_and_convert(self, config, arg_defaults):
             """
             Validates the config data and converts them to the right types based on argparse defaults.
@@ -345,7 +341,6 @@ try:
 
             return converted_config
 
-        @wrapper_print_debug
         def merge_args_with_config(self, config, cli_args):
             """ Merge CLI args with config file args (CLI takes precedence) """
             arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
@@ -359,7 +354,6 @@ try:
 
             return cli_args
 
-        @wrapper_print_debug
         def parse_arguments(self):
             # First, parse the CLI arguments to check if config files are provided
             _args = self.parser.parse_args()
@@ -1034,7 +1028,7 @@ if not args.tests:
                 gpus = int(GPUS_FILE_CONTENTS)
                 print(f"Using old run's --gpus: {gpus}")
             else:
-                print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
+                print(f"--gpus: The contents of {gpus_file} do not contain a single number")
         else:
             print(f"neither --gpus nor file {gpus_file} found")
             my_exit(19)

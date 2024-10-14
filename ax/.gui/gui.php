@@ -43,7 +43,7 @@
 
                 var _minutes = parseInt($time_picker_minutes.val())
                 var _hours = parseInt($time_picker_hours.val())
-                
+
                 if (_minutes == -1) {
                     if (_hours > 0) {
                         _hours = _hours - 1;
@@ -56,7 +56,7 @@
                     _hours = _hours + 1;
                     _minutes = 0
                 }
-                
+
                 if (_hours == -1) {
                     if (_hours > 1) {
                         _hours = _hours - 1;
@@ -69,10 +69,6 @@
                 $time_picker_minutes.val(_minutes)
 
                 var new_val = (parseInt(_hours) * 60) + parseInt(_minutes);
-                
-                if (new_val < 5) {
-                    
-                }
 
                 $("#" + original_element_id).val(new_val).trigger("change");
             }
@@ -312,7 +308,7 @@
                     }
                 });
             }
-            
+
             function quote_variables(input) {
                 return input.replace(/(["'])(.*?)\1|%(\((\w+)\)|(\w+))/g, function(match, quotes, insideQuotes, p1, p2, p3) {
                     if (quotes) {

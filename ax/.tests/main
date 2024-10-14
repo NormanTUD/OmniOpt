@@ -748,7 +748,7 @@ if [[ -n $GITHUB_STEP_SUMMARY ]]; then
 	echo "{$(print_table)}" >> "$GITHUB_STEP_SUMMARY"
 fi
 
-echo "\nTest took $(displaytime $SECONDS)"
+echo -e "\nTest took $(displaytime $SECONDS)"
 
 exit ${#errors[@]}
 }

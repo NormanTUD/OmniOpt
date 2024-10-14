@@ -740,7 +740,6 @@ main_pid = os.getpid()
 def set_max_eval(new_max_eval):
     global max_eval
 
-    #import traceback
     #print(f"set_max_eval(new_max_eval: {new_max_eval})")
     #traceback.print_stack()
 
@@ -2990,7 +2989,6 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
 @wrapper_print_debug
 def update_progress_bar(_progress_bar, nr):
-    #import traceback
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
 
@@ -3860,13 +3858,17 @@ def finish_previous_jobs(new_msgs):
                     live_share()
 
                 global_vars["jobs"].remove((job, trial_index))
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError) as error:
-                print_red(str(error))
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+                if "None for metric" in str(error):
+                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                else:
+                    print_red(f"\n⚠ {error}")
 
                 if job:
                     try:
                         progressbar_description(["job_failed"])
                         _trial = ax_client.get_trial(trial_index)
+                        ax_client.log_trial_failure(trial_index=trial_index)
                         _trial.mark_failed()
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
@@ -3877,28 +3879,6 @@ def finish_previous_jobs(new_msgs):
                 this_jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
-            except ax.exceptions.core.UserInputError as error:
-                if "None for metric" in str(error):
-                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
-                else:
-                    print_red(f"\n⚠ {error}")
-
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        ax_client.log_trial_failure(trial_index=trial_index)
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-                    orchestrate_job(job, trial_index)
-
-                failed_jobs(1)
-                this_jobs_finished += 1
-
-                global_vars["jobs"].remove((job, trial_index))
-
-            if args.verbose:
-                progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
             save_checkpoint()
             save_pd_csv()
         else:
@@ -5144,6 +5124,10 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
+
+    nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 

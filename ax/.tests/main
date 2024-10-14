@@ -562,11 +562,7 @@ if [[ $superquick -eq 0 ]]; then
 		_test "Load from json" "./omniopt --config_json .tests/example_config_cpu.json" 0
 	fi
 
-	if command -v sbatch 2>/dev/null >/dev/null; then
-		#excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')
-
-		true
-	else
+	if ! command -v sbatch 2>/dev/null >/dev/null; then
 		_test "Test orchestrator" "./.tests/orchestrator" 0
 	fi
 

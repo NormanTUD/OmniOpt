@@ -4134,6 +4134,8 @@ def execute_evaluation(_params):
 
     mark_trial_stage("mark_staged", "Marking the trial as staged failed")
 
+    new_job = None
+
     try:
         initialize_job_environment(trial_counter, next_nr_steps)
         new_job = submit_job(parameters)
@@ -4194,10 +4196,12 @@ def cancel_failed_job(trial_index, new_job):
         new_job.cancel()
         print_debug("Cancelled failed job")
 
-    global_vars["jobs"].remove((new_job, trial_index))
-    print_debug("Removed failed job")
-    save_checkpoint()
-    save_pd_csv()
+        global_vars["jobs"].remove((new_job, trial_index))
+        print_debug("Removed failed job")
+        save_checkpoint()
+        save_pd_csv()
+    else:
+        print_debug("cancel_failed_job: new_job was undefined")
 
 def update_progress(trial_counter, next_nr_steps):
     progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])

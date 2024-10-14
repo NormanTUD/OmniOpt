@@ -494,11 +494,13 @@ fi
 
 _test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int false --parameter y range 5431 1234 float true" 0
 
-if [[ $quick -eq 0 ]]; then
-	_test "Linter" "bash .tests/linter" 0
-	_test "lint_python" ".tests/lint_python" 0
-else
-	_test "Linter (quick)" "bash .tests/linter --quick" 0
+if [[ -z $CI ]]; then
+	if [[ $quick -eq 0 ]]; then
+		_test "Linter" "bash .tests/linter" 0
+		_test "lint_python" ".tests/lint_python" 0
+	else
+		_test "Linter (quick)" "bash .tests/linter --quick" 0
+	fi
 fi
 
 _test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share" 0

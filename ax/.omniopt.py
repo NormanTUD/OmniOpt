@@ -427,23 +427,7 @@ try:
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
             from submitit import DebugJob, LocalJob
-except ModuleNotFoundError as ee:
-    original_print(f"Base modules could not be loaded: {ee}")
-    my_exit(31)
-except SignalINT:
-    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(130)
-except SignalUSR:
-    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(138)
-except SignalCONT:
-    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(146)
-except KeyboardInterrupt:
-    print("\n⚠ You pressed CTRL+C. Program execution halted.")
-    my_exit(0)
 
-try:
     import cowsay
 
     with console.status("[bold green]Loading psutil...") as status:

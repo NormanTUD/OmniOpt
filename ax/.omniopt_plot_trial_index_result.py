@@ -4,8 +4,6 @@
 # TEST_OUTPUT_MUST_CONTAIN: Trial Index
 # TEST_OUTPUT_MUST_CONTAIN: Result
 
-# TODO: Check if this script is able to react properly to --maximize'd runs
-
 import argparse
 import logging
 import os

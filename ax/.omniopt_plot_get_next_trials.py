@@ -1,8 +1,6 @@
 # TEST_OUTPUT_MUST_CONTAIN: Got
 # TEST_OUTPUT_MUST_CONTAIN: Requested
 
-# TODO: Check if this script is able to react properly to --maximize'd runs
-
 import argparse
 import importlib.util
 import os

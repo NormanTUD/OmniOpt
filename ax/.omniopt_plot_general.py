@@ -2,8 +2,6 @@
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Sobol
 
-# TODO: Check if this script is able to react properly to --maximize'd runs
-
 import argparse
 import importlib.util
 import logging

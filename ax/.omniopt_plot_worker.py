@@ -4,8 +4,6 @@
 # TEST_OUTPUT_MUST_CONTAIN: Number of Current Workers
 # TEST_OUTPUT_MUST_CONTAIN: Worker Usage Plot
 
-# TODO: Check if this script is able to react properly to --maximize'd runs
-
 import argparse
 import importlib.util
 import os

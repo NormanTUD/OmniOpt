@@ -579,6 +579,7 @@ async function load_out_files () {
 	var urlParams = new URLSearchParams(window.location.search);
 
 	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+
 	if(!data) {
 		return;
 	}

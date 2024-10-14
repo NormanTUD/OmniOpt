@@ -102,14 +102,18 @@
 
 				initialize_autotables();
 				restoreActiveTab();
-				removeSpinnerOverlay();
 
-				await load_all_data();
+				var urlParams = new URLSearchParams(window.location.search);
+
+				if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {
+					await load_all_data();
+				}
 
 				initialize_tabs();
 
 				$("#share_main").show();
 
+				removeSpinnerOverlay();
 				currently_switching = false;
 			},
 			error: function() {
@@ -135,24 +139,28 @@
 	}
 
 	function fetchHashAndUpdateContent() {
-		if(currently_switching) {
-			return;
-		}
+		var urlParams = new URLSearchParams(window.location.search);
 
-		var share_internal_url = window.location.toString();
-		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
-		var end_sign = "&";
-		if(share_internal_url.endsWith("share_internal.php")) {
-			end_sign = "?";
-		}
-		var hashUrl = share_internal_url + end_sign + 'get_hash_only=1';
+		if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {
+			if(currently_switching) {
+				return;
+			}
 
-		var newHash = getHashUrlContent(hashUrl);
+			var share_internal_url = window.location.toString();
+			share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
+			var end_sign = "&";
+			if(share_internal_url.endsWith("share_internal.php")) {
+				end_sign = "?";
+			}
+			var hashUrl = share_internal_url + end_sign + 'get_hash_only=1';
 
-		if (newHash !== last_hash) {
-			//log(`Hash changed, reloading content.`);
-			last_hash = newHash;
-			load_all_data();
+			var newHash = getHashUrlContent(hashUrl);
+
+			if (newHash !== last_hash) {
+				//log(`Hash changed, reloading content.`);
+				last_hash = newHash;
+				load_all_data();
+			}
 		}
 	}
 
@@ -171,15 +179,19 @@
 		}
 		var hashUrl = share_internal_url + end_sign + 'get_hash_only=1';
 
-		last_hash = getHashUrlContent(hashUrl);
+		var urlParams = new URLSearchParams(window.location.search);
 
-		var auto_update = getParameterByName('update');
+		if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {
+			last_hash = getHashUrlContent(hashUrl);
 
-		if (auto_update) {
-			var interval = 1000;
-			setInterval(function() {
-				fetchHashAndUpdateContent();
-			}, interval);
+			var auto_update = getParameterByName('update');
+
+			if (auto_update) {
+				var interval = 1000;
+				setInterval(function() {
+					fetchHashAndUpdateContent();
+				}, interval);
+			}
 		}
 	});
 

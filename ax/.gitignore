@@ -191,3 +191,4 @@ runs_OLD
 myscript.prof
 None
 logs
+coverage.json

@@ -330,9 +330,7 @@ while [ $k -lt ${#args[@]} ]; do
 				args_string+=" --run_dir=$run_dir"
 			else
 				if [[ "$tmp_run_dir_or_plot_type" != --* ]]; then
-					if [[ -z $plot_type ]] && [[ $plot_type != "menu" ]]; then
-						plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
-					fi
+					plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
 				fi
 			fi
 

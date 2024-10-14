@@ -2,8 +2,6 @@
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: generation_method
 
-# TODO: Check if this script is able to react properly to --maximize'd runs
-
 import argparse
 import importlib.util
 import logging

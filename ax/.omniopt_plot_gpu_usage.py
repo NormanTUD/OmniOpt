@@ -5,8 +5,6 @@
 # TEST_OUTPUT_MUST_CONTAIN: GPU Usage
 # TEST_OUTPUT_MUST_CONTAIN: Time
 
-# TODO: Check if this script is able to react properly to --maximize'd runs
-
 import argparse
 import importlib.util
 import os

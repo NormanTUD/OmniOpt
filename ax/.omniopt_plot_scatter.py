@@ -17,6 +17,8 @@ import traceback
 #from rich.traceback import install
 from rich.pretty import pprint
 
+#install(show_locals=True)
+
 button = None
 
 TEXTBOX_MINIMUM = None
@@ -24,9 +26,6 @@ TEXTBOX_MAXIMUM = None
 
 MAXIMUM_TEXTBOX = None
 MINIMUM_TEXTBOX = None
-
-#install(show_locals=True)
-#install()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"

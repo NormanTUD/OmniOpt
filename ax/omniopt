@@ -1187,6 +1187,10 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 
 	set +e
 
+	if [[ $debug -eq 1 ]]; then
+		echo "args-string: $args_string"
+	fi
+
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		if [[ -n $bash_logname ]]; then
 			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"

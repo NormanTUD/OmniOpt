@@ -349,9 +349,8 @@ try:
             validated_config = self.validate_and_convert(config, arg_defaults)
 
             for key, value in vars(cli_args).items():
-                if value is None or value == "":
-                    if key in validated_config:
-                        setattr(cli_args, key, validated_config[key])
+                if key in validated_config:
+                    setattr(cli_args, key, validated_config[key])
 
             return cli_args
 
@@ -385,6 +384,7 @@ try:
 
     loader = ConfigLoader()
     args = loader.parse_arguments()
+
 except KeyboardInterrupt:
     print("Error: Failed to parse arguments because you pressed CTRL-C.")
     my_exit(4)

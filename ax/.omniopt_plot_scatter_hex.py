@@ -367,21 +367,6 @@ def get_df_filtered(df):
 
     return df_filtered
 
-def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
-    print_debug("get_non_empty_graphs")
-    non_empty_graphs = []
-
-    if len(parameter_combinations) == 1:
-        param = parameter_combinations[0][0]
-        if param in df_filtered and df_filtered[param].notna().any():
-            non_empty_graphs = [(param,)]
-    else:
-        non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
-
-    helpers.die_if_no_nonempty_graph(non_empty_graphs, _exit)
-
-    return non_empty_graphs
-
 def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
     r = helpers.get_r(df_filtered)
@@ -433,7 +418,7 @@ def main():
 
     parameter_combinations = get_parameter_combinations(df_filtered)
 
-    non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, True)
+    non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
     num_subplots = len(non_empty_graphs)
 
@@ -497,11 +482,11 @@ def update_graph(event=None, _min=None, _max=None):
         check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 
         parameter_combinations = get_parameter_combinations(df_filtered)
-        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
+        non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, False)
 
         num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
-        helpers.remove_widgets(fig)
+        helpers.remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX)
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 

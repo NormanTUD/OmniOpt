@@ -456,10 +456,33 @@ def get_num_subplots_rows_and_cols(non_empty_graphs):
 
     return num_subplots, num_cols, num_rows
 
-def remove_widgets(fig):
+def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX):
     for widget in fig.axes:
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
+
+def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
+    non_empty_graphs = []
+
+    if len(parameter_combinations[0]) == 1:
+        param = parameter_combinations[0][0]
+        if param in df_filtered and df_filtered[param].notna().any():
+            non_empty_graphs = [(param,)]
+    else:
+        if len(parameter_combinations) > 1 or type(parameter_combinations[0]) is tuple:
+            non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
+        elif len(parameter_combinations) == 1:
+            non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb].notna().any()]
+        else:
+            print("Error: No non-empty parameter combinations")
+            sys.exit(75)
+
+    if not non_empty_graphs:
+        print('No non-empty graphs to display.')
+        if _exit:
+            sys.exit(2)
+
+    return non_empty_graphs
 
 check_python_version()
 

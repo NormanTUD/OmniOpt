@@ -5,10 +5,10 @@ import sys
 import os
 import importlib.util
 import json
+import difflib
 from rich.progress import Progress
 from rich.console import Console
 from rich.table import Table
-from rich.text import Text
 
 console = Console()
 
@@ -34,6 +34,18 @@ def _is_equal(name, _input, output):
     console.print(f"\nTest OK: {name}", style="bold green")
     return False
 
+def _unidiff_output(expected, actual):
+    """
+    Helper function. Returns a string containing the unified diff of two multiline strings.
+    """
+
+    expected = expected.splitlines(1)
+    actual = actual.splitlines(1)
+
+    diff = difflib.unified_diff(expected, actual)
+
+    return ''.join(diff)
+
 def print_diff(i, o):
     console.print("Should be:", i if not isinstance(i, str) else i.strip(), style="bold yellow")
     console.print("Is:", o if not isinstance(o, str) else o.strip(), style="bold yellow")
@@ -55,13 +67,11 @@ spec.loader.exec_module(helpers)
 
 dier = helpers.dier
 
-def clean_filename(filename):
-    # Entfernt das "_" am Anfang, falls vorhanden
-    if filename.startswith('_'):
-        filename = filename[1:]
-    # Entfernt die Dateiendung (alles nach dem letzten Punkt)
-    filename = os.path.splitext(filename)[0]
-    return filename
+def clean_filename(_filename):
+    if _filename.startswith('_'):
+        _filename = _filename[1:]
+    _filename = os.path.splitext(_filename)[0]
+    return _filename
 
 path = f'{script_dir}/../'
 _glob = f'{path}/.omniopt_plot_*.py'
@@ -87,7 +97,7 @@ error_list = []
 # Ladeprozess mit Progress Bar
 with Progress(transient=True) as progress:
     load_task = progress.add_task("[cyan]Loading files...", total=len(files))
-    
+
     for file in files:
         filename = os.path.basename(file)
         if filename in to_test:

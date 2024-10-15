@@ -56,7 +56,6 @@ try:
 
     import matplotlib
     import matplotlib.pyplot as plt
-    import pandas as pd
     from matplotlib.colors import LinearSegmentedColormap
 except ModuleNotFoundError as ee:
     print(f"Error: {ee}")

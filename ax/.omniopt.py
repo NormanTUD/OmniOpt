@@ -5283,6 +5283,8 @@ Exit-Code: 159
 
     nr_errors += is_equal("get_workers_string()", get_workers_string(), "")
 
+    nr_errors += is_equal("check_file_info('/dev/i/dont/exist')", check_file_info('/dev/i/dont/exist'), "")
+
     nr_errors += is_equal(
         "get_parameters_from_outfile()",
         get_parameters_from_outfile(""),

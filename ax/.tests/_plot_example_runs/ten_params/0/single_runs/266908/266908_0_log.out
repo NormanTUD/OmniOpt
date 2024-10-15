@@ -3,6 +3,7 @@ submitit INFO (2024-06-03 14:18:37,436) - Loading pickle: /home/s3811141/repos/O
 parameters: {'one': 678, 'two': 531, 'three': 569, 'four': 111, 'five': 127, 'six': 854, 'seven': 971, 'eight': 332, 'nine': 235, 'ten': 867.6452040672302}
 Debug-Infos: 
 echo "RESULT: 678531569111127854971332235867.6452040672302"
+hostname: arbeitsrechner
 stdout:
 RESULT: 678531569111127854971332235867.6452040672302
 

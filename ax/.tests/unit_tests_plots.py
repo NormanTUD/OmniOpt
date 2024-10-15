@@ -4,7 +4,6 @@ import glob
 import sys
 import os
 import importlib.util
-import json
 from rich.progress import Progress
 from rich.console import Console
 from rich.table import Table

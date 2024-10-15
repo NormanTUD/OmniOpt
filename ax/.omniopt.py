@@ -1760,7 +1760,7 @@ def count_defective_nodes(file_path=None, entry=None):
         return []
 
 def test_gpu_before_evaluate(return_in_case_of_error):
-    if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
+    if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
             for i in range(torch.cuda.device_count()):
                 tmp = torch.cuda.get_device_properties(i).name

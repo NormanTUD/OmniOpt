@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 
 fig = None
+args = None
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -39,8 +40,6 @@ def parse_arguments():
     parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
-
-args = parse_arguments()
 
 def get_num_rows_cols(num_plots, num_rows, num_cols):
     if num_plots > 1:
@@ -162,6 +161,8 @@ def update_graph():
         print(tb)
 
 if __name__ == "__main__":
+    args = parse_arguments()
+
     setup_logging()
 
     if not args.alpha:

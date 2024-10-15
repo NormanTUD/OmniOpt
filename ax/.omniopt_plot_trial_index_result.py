@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+args = None
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -38,8 +40,6 @@ def parse_arguments():
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
-
-args = parse_arguments()
 
 def filter_data(dataframe, min_value=None, max_value=None):
     if min_value is not None:
@@ -115,6 +115,8 @@ def update_graph():
         print(tb)
 
 if __name__ == "__main__":
+    args = parse_arguments()
+
     setup_logging()
 
     if not os.path.exists(args.run_dir):

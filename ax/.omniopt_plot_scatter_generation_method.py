@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+args = None
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
@@ -32,8 +34,6 @@ def parse_arguments():
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
-
-args = parse_arguments()
 
 def filter_data(dataframe, min_value=None, max_value=None):
     if min_value is not None:
@@ -99,6 +99,8 @@ def update_graph():
         print("An unexpected error occurred: %s" % str(exception))
 
 if __name__ == "__main__":
+    args = parse_arguments()
+
     setup_logging()
 
     if not os.path.exists(args.run_dir):

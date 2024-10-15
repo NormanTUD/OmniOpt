@@ -206,7 +206,7 @@ def print_color(color, text):
         "red": bcolors.red,
         "bold": bcolors.bold,
         "underline": bcolors.underline,
-        "yellow": bcolors.yellow,
+        "yellow": bcolors.yellow
     }
     end_color = bcolors.endc
 
@@ -242,8 +242,7 @@ def create_widgets(_data):
     TEXTBOX_MINIMUM = _plt.axes([0.2, 0.025, 0.1, 0.04])
     MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
 
-    TEXTBOX_MAXIMUM = _plt.axes([0.5, 0.025, 0.1, 0.04]), 
-    dier(TEXTBOX_MAXIMUM)
+    TEXTBOX_MAXIMUM = _plt.axes([0.5, 0.025, 0.1, 0.04])
     MAXIMUM_TEXTBOX = TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM

@@ -266,14 +266,14 @@ def main():
 
     csv_file_path = helpers.get_csv_file_path(args)
 
-    df = helpers.get_data(csv_file_path, args.min, args.max)
+    df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max)
 
     old_headers_string = ','.join(sorted(df.columns))
 
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
-            prev_run_df = helpers.get_data(prev_run_csv_path, args.min, args.max, old_headers_string)
+            prev_run_df = helpers.get_data(NO_RESULT, prev_run_csv_path, args.min, args.max, old_headers_string)
             if prev_run_df is not None:
                 print(f"Loading {prev_run_csv_path} into the dataset")
                 df = df.merge(prev_run_df, how='outer')
@@ -335,7 +335,7 @@ def update_graph(event=None, _min=None, _max=None):
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
         csv_file_path = helpers.get_csv_file_path(args)
-        df = helpers.get_data(csv_file_path, _min, _max)
+        df = helpers.get_data(NO_RESULT, csv_file_path, _min, _max)
 
         old_headers_string = ','.join(sorted(df.columns))
 
@@ -343,7 +343,7 @@ def update_graph(event=None, _min=None, _max=None):
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
                 prev_run_csv_path = prev_run[0] + "/results.csv"
-                prev_run_df = helpers.get_data(prev_run_csv_path, _min, _max, old_headers_string)
+                prev_run_df = helpers.get_data(NO_RESULT, prev_run_csv_path, _min, _max, old_headers_string)
                 if prev_run_df:
                     df = df.merge(prev_run_df, how='outer')
 

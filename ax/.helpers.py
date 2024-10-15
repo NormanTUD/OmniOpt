@@ -1,4 +1,3 @@
-import pandas as pd
 import json
 import math
 import difflib
@@ -12,9 +11,7 @@ from importlib.metadata import version
 from pprint import pprint
 from matplotlib.widgets import Button, TextBox
 import numpy as np
-
-val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
-NO_RESULT = "{:.0e}".format(val_if_nothing_found)
+import pandas as pd
 
 def check_environment_variable(variable_name):
     try:
@@ -525,7 +522,7 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
 def contains_strings(series):
     return series.apply(lambda x: isinstance(x, str)).any()
 
-def get_data(csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False):
+def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False):
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 

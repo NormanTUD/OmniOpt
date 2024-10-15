@@ -1167,15 +1167,7 @@ def get_program_code_from_out_file(f):
 
     return ""
 
-@wrapper_print_debug
-def get_max_column_value(pd_csv, column, _default):
-    """
-    Reads the CSV file and returns the maximum value in the specified column.
-
-    :param pd_csv: The path to the CSV file.
-    :param column: The column name for which the maximum value is to be found.
-    :return: The maximum value in the specified column.
-    """
+def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
     assert isinstance(pd_csv, str), "pd_csv must be a string"
     assert isinstance(column, str), "column must be a string"
 
@@ -1187,37 +1179,24 @@ def get_max_column_value(pd_csv, column, _default):
         if column not in df.columns:
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
             return _default
-        max_value = df[column].max()
-        return max_value
+        if _type == "min":
+            min_value = df[column].min()
+        elif _type == "max":
+            min_value = df[column].max()
+        else:
+            dier(f"get_min_or_max_column_value: Unknown type {_type}")
+        return min_value
     except Exception as e:
-        print_red(f"Error while getting max value from column {column}: {str(e)}")
+        print_red(f"Error while getting {_type} value from column {column}: {str(e)}")
         raise
+
+@wrapper_print_debug
+def get_max_column_value(pd_csv, column, _default):
+    return get_min_or_max_column_value(pd_csv, column, _default, "max")
 
 @wrapper_print_debug
 def get_min_column_value(pd_csv, column, _default):
-    """
-    Reads the CSV file and returns the minimum value in the specified column.
-
-    :param pd_csv: The path to the CSV file.
-    :param column: The column name for which the minimum value is to be found.
-    :return: The minimum value in the specified column.
-    """
-    assert isinstance(pd_csv, str), "pd_csv must be a string"
-    assert isinstance(column, str), "column must be a string"
-
-    if not os.path.exists(pd_csv):
-        raise FileNotFoundError(f"CSV file {pd_csv} not found")
-
-    try:
-        df = pd.read_csv(pd_csv, float_precision='round_trip')
-        if column not in df.columns:
-            print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
-            return _default
-        min_value = df[column].min()
-        return min_value
-    except Exception as e:
-        print_red(f"Error while getting min value from column {column}: {str(e)}")
-        raise
+    return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @wrapper_print_debug
 def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):

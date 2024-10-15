@@ -137,6 +137,7 @@ def save_to_file_or_show_canvas():
 
 def update_graph():
     pd_csv = args.run_dir + "/results.csv"
+
     try:
         dataframe = None
 

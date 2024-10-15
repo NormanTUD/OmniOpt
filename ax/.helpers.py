@@ -93,26 +93,20 @@ def looks_like_number (x):
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
 def to_int_when_possible(val):
-    # Überprüfung, ob der Wert ein Integer ist oder ein Float, der eine ganze Zahl sein könnte
     if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
         return int(val)
 
-    # Überprüfung auf nicht-numerische Zeichenketten
     if type(val) is str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
         return val
 
     try:
-        # Versuche, den Wert als Float zu interpretieren
         val = float(val)
-        # Bestimmen der Anzahl der Dezimalstellen, um die Genauigkeit der Ausgabe zu steuern
         if '.' in str(val):
             decimal_places = len(str(val).split('.')[1])
-            # Formatieren des Floats mit der exakten Anzahl der Dezimalstellen, ohne wissenschaftliche Notation
             formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
             return formatted_value if formatted_value else '0'
         return int(val)
     except Exception:
-        # Falls ein Fehler auftritt, gebe den ursprünglichen Wert zurück
         return val
 
 def dier (msg):
@@ -129,14 +123,11 @@ def convert_string_to_number(input_string):
     try:
         assert isinstance(input_string, str), "Input must be a string"
 
-        # Replace commas with dots
         input_string = input_string.replace(",", ".")
 
-        # Regular expression patterns for int and float
         float_pattern = re.compile(r"[+-]?\d*\.\d+")
         int_pattern = re.compile(r"[+-]?\d+")
 
-        # Search for float pattern
         float_match = float_pattern.search(input_string)
         if float_match:
             number_str = float_match.group(0)
@@ -146,7 +137,6 @@ def convert_string_to_number(input_string):
             except ValueError as e:
                 print(f"Failed to convert {number_str} to float: {e}")
 
-        # If no float found, search for int pattern
         int_match = int_pattern.search(input_string)
         if int_match:
             number_str = int_match.group(0)
@@ -228,7 +218,6 @@ def print_color(color, text):
         print(text)
 
 def check_python_version():
-    # python3 version
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7"]
     if python_version not in supported_versions:
@@ -236,14 +225,11 @@ def check_python_version():
 
 def create_widgets(_data):
     plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox = _data
-    # Create a Button and set its position
-    button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
-    button = Button(button_ax, 'Update Graph')
+    button, button_ax = Button(button_ax, 'Update Graph'), plt.axes([0.8, 0.025, 0.1, 0.04])
+
     button.on_clicked(update_graph)
 
-    # Create TextBoxes and set their positions
-    max_string = ""
-    min_string = ""
+    max_string, min_string = "", ""
 
     if looks_like_float(args.max):
         max_string = str(args.max)
@@ -251,11 +237,9 @@ def create_widgets(_data):
     if looks_like_float(args.min):
         min_string = str(args.min)
 
-    TEXTBOX_MINIMUM = plt.axes([0.2, 0.025, 0.1, 0.04])
-    MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
+    TEXTBOX_MINIMUM, MINIMUM_TEXTBOX = plt.axes([0.2, 0.025, 0.1, 0.04]), TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
 
-    TEXTBOX_MAXIMUM = plt.axes([0.5, 0.025, 0.1, 0.04])
-    MAXIMUM_TEXTBOX = TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
+    TEXTBOX_MAXIMUM, MAXIMUM_TEXTBOX = plt.axes([0.5, 0.025, 0.1, 0.04]), TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 

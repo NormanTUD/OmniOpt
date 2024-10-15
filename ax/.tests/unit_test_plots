@@ -11,11 +11,21 @@ source .shellscript_functions
 exit_code=0
 
 if command -v python3 2>/dev/null >/dev/null; then
-	if [[ -n $1 ]]; then
-		python3 .tests/unit_tests_plots.py $*
+	if [[ -z $RUN_WITH_COVERAGE ]]; then
+		if [[ -n $1 ]]; then
+			python3 .tests/unit_tests_plots.py $*
+			exit_code=$?
+		else
+			python3 .tests/unit_tests_plots.py .*.py
+			exit_code=$?
+		fi
 	else
-		python3 .tests/unit_tests_plots.py .*.py
-		exit_code=$?
+		if [[ -n $1 ]]; then
+			coverage run -p .tests/unit_tests_plots.py $*
+		else
+			coverage run -p .tests/unit_tests_plots.py .*.py
+			exit_code=$?
+		fi
 	fi
 else
 	echo "Warning: python3 is not installed. Cannot run find_typos_in_python"

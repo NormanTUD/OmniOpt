@@ -74,6 +74,10 @@ loaded_files = []
 to_test = {
     ".omniopt_plot_kde.py": {
         "get_num_rows_cols(1, 1, 1)": (1, 1)
+    },
+    ".omniopt_plot_get_next_trials.py": {
+        "is_valid_time_format('hallo')": False,
+        "is_valid_time_format('2024-01-01 20:20:02')": True
     }
 }
 
@@ -86,13 +90,15 @@ with Progress(transient=True) as progress:
     
     for file in files:
         filename = os.path.basename(file)
-        loaded_files.append(f"{filename}")
-        spec = importlib.util.spec_from_file_location(
-            name=clean_filename(file),
-            location=loaded_files[len(loaded_files) - 1],
-        )
-        mods[filename] = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mods[filename])
+        if filename in to_test:
+            loaded_files.append(f"{filename}")
+            spec = importlib.util.spec_from_file_location(
+                name=clean_filename(file),
+                location=loaded_files[len(loaded_files) - 1],
+            )
+            mods[filename] = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mods[filename])
+
         progress.update(load_task, advance=1)
 
 # Testen der geladenen Module mit Progress Bar

@@ -23,16 +23,16 @@ spec.loader.exec_module(helpers)
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+def is_valid_time_format(time_string):
+    try:
+        datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+        return True
+    except ValueError:
+        return False
+
 def parse_log_file(args, log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
-
-        def is_valid_time_format(time_string):
-            try:
-                datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
-                return True
-            except ValueError:
-                return False
 
         valid_time_mask = data['time'].apply(is_valid_time_format)
         if not valid_time_mask.all():

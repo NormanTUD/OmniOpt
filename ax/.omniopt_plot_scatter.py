@@ -309,6 +309,7 @@ def update_graph(event=None, _min=None, _max=None):
         plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
+
         set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
         plt.draw()

@@ -8,7 +8,6 @@
 
 import argparse
 import importlib.util
-import math
 import os
 import signal
 import sys
@@ -328,10 +327,7 @@ def main():
 
     non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
-    num_subplots = len(non_empty_graphs)
-
-    num_cols = math.ceil(math.sqrt(num_subplots))
-    num_rows = math.ceil(num_subplots / num_cols)
+    num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
     global fig
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))

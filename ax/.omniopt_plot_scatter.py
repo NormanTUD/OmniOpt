@@ -8,7 +8,6 @@
 
 import argparse
 import importlib.util
-import math
 import os
 import signal
 import sys

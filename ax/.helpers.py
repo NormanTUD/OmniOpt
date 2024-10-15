@@ -1,4 +1,5 @@
 import json
+from itertools import combinations
 import math
 import difflib
 import logging
@@ -585,6 +586,20 @@ def show_legend(_args, _fig, _scatter, axs):
             cbar.formatter.set_useMathText(False)
         except Exception as e:
             print_color("red", f"ERROR: show_legend failed with error: {e}")
+
+def get_parameter_combinations(df_filtered):
+    r = get_r(df_filtered)
+
+    df_filtered_cols = df_filtered.columns.tolist()
+
+    del df_filtered_cols[df_filtered_cols.index("result")]
+
+    parameter_combinations = list(combinations(df_filtered_cols, r))
+
+    if len(parameter_combinations) == 0:
+        parameter_combinations = [*df_filtered_cols]
+
+    return parameter_combinations
 
 check_python_version()
 

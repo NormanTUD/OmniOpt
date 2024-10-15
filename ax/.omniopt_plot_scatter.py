@@ -52,8 +52,6 @@ MINIMUM_TEXTBOX = None
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 try:
-    from itertools import combinations
-
     import matplotlib
     import matplotlib.pyplot as plt
     from matplotlib.colors import LinearSegmentedColormap
@@ -235,21 +233,6 @@ def get_args():
 
     return args
 
-def get_parameter_combinations(df_filtered):
-    print_debug("get_parameter_combinations")
-    r = helpers.get_r(df_filtered)
-
-    df_filtered_cols = df_filtered.columns.tolist()
-
-    del df_filtered_cols[df_filtered_cols.index("result")]
-
-    parameter_combinations = list(combinations(df_filtered_cols, r))
-
-    if len(parameter_combinations) == 0:
-        parameter_combinations = [*df_filtered_cols]
-
-    return parameter_combinations
-
 def use_matplotlib():
     global args
     print_debug("use_matplotlib")
@@ -283,7 +266,7 @@ def main():
 
     helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
-    parameter_combinations = get_parameter_combinations(df_filtered)
+    parameter_combinations = helpers.get_parameter_combinations(df_filtered)
 
     non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
@@ -352,7 +335,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 
-        parameter_combinations = get_parameter_combinations(df_filtered)
+        parameter_combinations = helpers.get_parameter_combinations(df_filtered)
         non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, False)
 
         num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)

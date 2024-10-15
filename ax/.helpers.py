@@ -640,7 +640,7 @@ def get_color_list(df, _args, _plt):
 
     cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
 
-    return cmap, norm
+    return cmap, norm, colors
 
 check_python_version()
 

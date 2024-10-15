@@ -157,7 +157,7 @@ def plot_graphs(params):
     df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols = params
     print_debug("plot_graphs")
 
-    cmap, norm = helpers.get_color_list(df, args, plt)
+    cmap, norm, colors = helpers.get_color_list(df, args, plt)
 
     if num_subplots == 1 and (type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1):
         plot_single_graph([axs, df_filtered, colors, cmap, norm, non_empty_graphs])

@@ -438,8 +438,6 @@ try:
         from itertools import combinations
     with console.status("[bold green]Loading signal...") as status:
         import signal
-    with console.status("[bold green]Loading difflib...") as status:
-        import difflib
     with console.status("[bold green]Loading warnings...") as status:
         import warnings
     with console.status("[bold green]Loading pandas...") as status:

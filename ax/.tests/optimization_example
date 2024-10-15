@@ -38,6 +38,7 @@ function help () {
         echo "  --int_param_two=(INT)"
         echo "  --float_param=(FLOAT)"
         echo "  --choice_param=(STRING)                            Must be 1, 2, 4, 8, 16 or hallo"
+        echo "  --fixed_param                                      Will be ignored"
         echo "  --fail_or_not=0|1                                  Whether to fail or not"
         echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode"
@@ -47,26 +48,37 @@ export int_param=
 export int_param_two=
 export float_param=
 export choice_param=
+export fixed_param=
 export fail_or_not=0
 
 for i in "$@"; do
         case $i in
+                --fixed_param=*)
+			fixed_param="${i#*=}"
+                        shift
+                        ;;
+
+
                 --int_param_two=*)
                         int_param_two="${i#*=}"
                         shift
                         ;;
+
                 --int_param=*)
                         int_param="${i#*=}"
                         shift
                         ;;
+
                 --float_param=*)
                         float_param="${i#*=}"
                         shift
                         ;;
+
                 --choice_param=*)
                         choice_param="${i#*=}"
                         shift
                         ;;
+
                 --fail_or_not=*)
                         new_param="${i#*=}"
 			if [[ "$new_param" == *"1"* ]]; then
@@ -74,12 +86,15 @@ for i in "$@"; do
 			fi
                         shift
                         ;;
+
                 -h|--help)
                         help 0
                         ;;
+
                 --debug)
 			set_debug
                         ;;
+
                 *)
                         red_text "Unknown parameter $i" >&2
                         help 1

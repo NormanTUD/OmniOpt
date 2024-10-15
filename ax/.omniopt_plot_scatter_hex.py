@@ -405,15 +405,6 @@ def get_args():
 
     return args
 
-def get_csv_file_path():
-    global args
-    print_debug("get_csv_file_path")
-    pd_csv = "results.csv"
-    csv_file_path = os.path.join(args.run_dir, pd_csv)
-    check_dir_and_csv(csv_file_path)
-
-    return csv_file_path
-
 def get_df_filtered(df):
     print_debug("get_df_filtered")
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
@@ -478,7 +469,7 @@ def main():
 
     use_matplotlib()
 
-    csv_file_path = get_csv_file_path()
+    csv_file_path = helpers.get_csv_file_path(args)
 
     df = get_data(csv_file_path, args.min, args.max)
 
@@ -548,7 +539,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
-        csv_file_path = get_csv_file_path()
+        csv_file_path = helpers.get_csv_file_path(args)
         df = get_data(csv_file_path, _min, _max)
 
         old_headers_string = ','.join(sorted(df.columns))

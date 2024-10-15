@@ -271,6 +271,13 @@ def save_to_file (_fig, _args, _plt):
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
+def get_csv_file_path(_args):
+    pd_csv = "results.csv"
+    csv_file_path = os.path.join(_args.run_dir, pd_csv)
+    check_dir_and_csv(csv_file_path)
+
+    return csv_file_path
+
 check_python_version()
 
 warn_versions()

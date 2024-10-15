@@ -438,7 +438,7 @@ def use_matplotlib():
         sys.exit(33)
 
 def main():
-    global args, fig
+    global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, args, fig
     use_matplotlib()
 
     csv_file_path = helpers.get_csv_file_path(args)
@@ -484,8 +484,6 @@ def main():
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else:
-        global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
-
         button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph])
 
         if not args.no_plt_show:

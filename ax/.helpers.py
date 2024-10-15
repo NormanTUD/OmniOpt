@@ -224,9 +224,9 @@ def check_python_version():
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def create_widgets(_data):
-    plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph = _data
+    _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph = _data
 
-    button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
+    button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
     button = Button(button_ax, 'Update Graph')
 
     button.on_clicked(update_graph)
@@ -239,10 +239,11 @@ def create_widgets(_data):
     if looks_like_float(args.min):
         min_string = str(args.min)
 
-    TEXTBOX_MINIMUM = plt.axes([0.2, 0.025, 0.1, 0.04])
+    TEXTBOX_MINIMUM = _plt.axes([0.2, 0.025, 0.1, 0.04])
     MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
 
-    TEXTBOX_MAXIMUM = plt.axes([0.5, 0.025, 0.1, 0.04]), 
+    TEXTBOX_MAXIMUM = _plt.axes([0.5, 0.025, 0.1, 0.04]), 
+    dier(TEXTBOX_MAXIMUM)
     MAXIMUM_TEXTBOX = TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
@@ -290,13 +291,13 @@ def get_csv_file_path(_args):
     return csv_file_path
 
 def prepare_graph_update (MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _args, get_df_filtered, check_min_and_max, get_parameter_combinations, get_non_empty_graphs, button):
-    if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
-        _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
+    if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
+        _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 
-    if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
-        _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
+    if MAXIMUM_TEXTBOX and looks_like_float(MAXIMUM_TEXTBOX.text):
+        _max = convert_string_to_number(MAXIMUM_TEXTBOX.text)
 
-    csv_file_path = helpers.get_csv_file_path(_args)
+    csv_file_path = get_csv_file_path(_args)
     df = get_data(csv_file_path, _min, _max)
 
     old_headers_string = ','.join(sorted(df.columns))

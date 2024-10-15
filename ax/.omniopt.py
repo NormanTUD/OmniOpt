@@ -2857,10 +2857,10 @@ def parse_single_experiment_parameter_table(experiment_parameters):
             _type = ""
             value_type = ""
 
-            log_scale = "❌"
+            log_scale = "No"
 
             if param["log_scale"]:
-                log_scale = "✓"
+                log_scale = "Yes"
 
             if "parameter_type" in param:
                 _type = param["parameter_type"]["name"].lower()

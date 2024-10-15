@@ -3212,6 +3212,20 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         raise
 
 @wrapper_print_debug
+def get_old_result_simple(this_path, old_arm_parameter):
+    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
+    tmp_old_res_list = list(set(list(tmp_old_res)))
+
+    if len(tmp_old_res_list) == 1:
+        print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+        old_result_simple = float(tmp_old_res_list[0])
+    else:
+        print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+        old_result_simple = None
+
+    return old_result_simple
+
+@wrapper_print_debug
 def simulate_load_data_from_existing_run_folders(_paths):
     _counter = 0
 
@@ -3242,15 +3256,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
             old_result_simple = None
             try:
-                tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
-                tmp_old_res_list = list(set(list(tmp_old_res)))
-
-                if len(tmp_old_res_list) == 1:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-                    old_result_simple = float(tmp_old_res_list[0])
-                else:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-                    old_result_simple = None
+                old_result_simple = get_old_result_simple(this_path, old_arm_parameter)
             except Exception:
                 pass
 
@@ -3435,22 +3441,14 @@ def load_data_from_existing_run_folders(_paths):
                 trial_status = old_trial.status
                 trial_status_str = trial_status.__repr__
 
-                if "COMPLETED" not in str(trial_status_str):
+                if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
                     continue
 
                 old_arm_parameter = old_trial.arm.parameters
 
                 old_result_simple = None
                 try:
-                    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
-                    tmp_old_res_list = list(set(list(tmp_old_res)))
-
-                    if len(tmp_old_res_list) == 1:
-                        print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-                        old_result_simple = float(tmp_old_res_list[0])
-                    else:
-                        print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-                        old_result_simple = None
+                    old_result_simple = get_old_result_simple(this_path, old_arm_parameter)
                 except Exception:
                     pass
 

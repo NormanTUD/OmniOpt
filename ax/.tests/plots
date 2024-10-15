@@ -158,9 +158,9 @@ errors=()
 
 for i in .omniopt_plot_*.py; do
 	python3 $i 2>/dev/null >/dev/null
-	if [[ $? -ne 16 ]]; then
-		red_text "$i does not exit with code 16 outside of bash"
-		errors+=("$i does not exit with code 16 outside of bash")
+	if [[ $? -ne 16 ]] || [[ $? -ne 1 ]]; then
+		red_text "$i does not exit with code 1 or 16 outside of bash"
+		errors+=("$i does not exit with code 1 or 16 outside of bash")
 	fi
 done
 

@@ -21,8 +21,6 @@ spec.loader.exec_module(helpers)
 dier = helpers.dier
 
 def clean_filename(_filename):
-    if _filename.startswith('_'):
-        _filename = _filename[1:]
     _filename = os.path.splitext(_filename)[0]
     return _filename
 

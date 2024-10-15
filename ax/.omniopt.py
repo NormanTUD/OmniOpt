@@ -5129,6 +5129,12 @@ Exit-Code: 159
 
     nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
 
+    _check_for_basic_string_errors_example_str = """
+    Exec format error
+    """
+
+    nr_errors += is_equal('check_for_basic_string_errors("_check_for_basic_string_errors_example_str", "", [], "")', check_for_basic_string_errors(_check_for_basic_string_errors_example_str, "", [], ""), [f"Was the program compiled for the wrong platform? Current system is {platform.machine()}", "No files could be found in your program string: "])
+
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")

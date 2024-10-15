@@ -54,7 +54,6 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 try:
     import matplotlib
     import matplotlib.pyplot as plt
-    from matplotlib.colors import LinearSegmentedColormap
 except ModuleNotFoundError as ee:
     print(f"Error: {ee}")
     sys.exit(244)
@@ -154,48 +153,11 @@ def plot_single_graph(_params):
 
     return scatter
 
-def get_colors(df):
-    print_debug("get_colors")
-    colors = None
-    try:
-        colors = df["result"]
-    except KeyError as e:
-        if str(e) == "'result'":
-            print("Could not find any results")
-            sys.exit(3)
-        else:
-            print(f"Key-Error: {e}")
-            sys.exit(8)
-
-    return colors
-
 def plot_graphs(params):
+    df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols = params
     print_debug("plot_graphs")
 
-    df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols = params
-
-    colors = get_colors(df)
-
-    if colors is None:
-        print_debug("colors is None. Cannot plot.")
-        sys.exit(3)
-
-    if os.path.exists(args.run_dir + "/maximize"):
-        colors = -1 * colors  # Negate colors for maximum result
-
-    norm = None
-    try:
-        norm = plt.Normalize(colors.min(), colors.max())
-    except Exception:
-        print("Wrong values in csv file")
-        sys.exit(16)
-
-    c = ["darkred", "red", "lightcoral", "palegreen", "green", "darkgreen"]
-    c = c[::-1]
-    v = [0, 0.3, 0.5, 0.7, 0.9, 1]
-    _l = list(zip(v, c))
-
-    cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
+    cmap, norm = helpers.get_color_list(df, args, plt)
 
     if num_subplots == 1 and (type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1):
         plot_single_graph([axs, df_filtered, colors, cmap, norm, non_empty_graphs])

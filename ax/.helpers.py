@@ -11,6 +11,7 @@ import traceback
 from importlib.metadata import version
 from pprint import pprint
 from matplotlib.widgets import Button, TextBox
+from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
 
@@ -183,7 +184,6 @@ def get_result_column_values(df, csv_file_path):
     return result_column_values
 
 def check_path(_path):
-    global args
     if not os.path.exists(_path):
         print(f'The folder {_path} does not exist.')
         sys.exit(1)
@@ -228,7 +228,7 @@ def check_python_version():
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def create_widgets(_data):
-    _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph = _data
+    _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, _args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph = _data
 
     button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
     button = Button(button_ax, 'Update Graph')
@@ -237,11 +237,11 @@ def create_widgets(_data):
 
     max_string, min_string = "", ""
 
-    if looks_like_float(args.max):
-        max_string = str(args.max)
+    if looks_like_float(_args.max):
+        max_string = str(_args.max)
 
-    if looks_like_float(args.min):
-        min_string = str(args.min)
+    if looks_like_float(_args.min):
+        min_string = str(_args.min)
 
     TEXTBOX_MINIMUM = _plt.axes([0.2, 0.025, 0.1, 0.04])
     MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
@@ -600,6 +600,47 @@ def get_parameter_combinations(df_filtered):
         parameter_combinations = [*df_filtered_cols]
 
     return parameter_combinations
+
+def get_colors(df):
+    colors = None
+
+    try:
+        colors = df["result"]
+    except KeyError as e:
+        if str(e) == "'result'":
+            print("Could not find any results")
+            sys.exit(3)
+        else:
+            print(f"Key-Error: {e}")
+            sys.exit(8)
+
+    return colors
+
+def get_color_list(df, _args, _plt):
+    colors = get_colors(df)
+
+    if colors is None:
+        print_color("yellow", "colors is None. Cannot plot.")
+        sys.exit(3)
+
+    if os.path.exists(_args.run_dir + "/state_files/maximize"):
+        colors = -1 * colors  # Negate colors for maximum result
+
+    norm = None
+    try:
+        norm = _plt.Normalize(colors.min(), colors.max())
+    except Exception as e:
+        print_color("red", f"Wrong values in CSV or error parsing CSV file: {e}")
+        sys.exit(16)
+
+    c = ["darkred", "red", "lightcoral", "palegreen", "green", "darkgreen"]
+    c = c[::-1]
+    v = [0, 0.3, 0.5, 0.7, 0.9, 1]
+    _l = list(zip(v, c))
+
+    cmap = LinearSegmentedColormap.from_list('rg', _l, N=256)
+
+    return cmap, norm
 
 check_python_version()
 

@@ -91,6 +91,12 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 					<img style="width: 100% !important;" src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
 				</td>
 			</tr>
+
+			<tr style='background-color: revert !important; border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
+				<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
+					<img style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage">
+				</td>
+			</tr>
 		</table>
 <?php
                 require "searchable_php_files.php";

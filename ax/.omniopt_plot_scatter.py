@@ -195,7 +195,7 @@ def get_data(csv_file_path, _min, _max, old_headers_string=None):
         df.dropna(subset=["result"], inplace=True)
     except pd.errors.EmptyDataError:
         if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_file_path} as no lines to parse.")
+            print(f"{csv_file_path} has no lines to parse.")
         sys.exit(19)
     except pd.errors.ParserError as e:
         if not os.environ.get("PLOT_TESTS"):

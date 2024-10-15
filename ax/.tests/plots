@@ -105,6 +105,11 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			;;
 
+		--run_with_coverage)
+			echo "Using *coverage run -p* instead of *python3*"
+			export RUN_WITH_COVERAGE=1
+			;;
+
 		--test_types=*)
 			test_types_regex="${arg#*=}"
 			shift
@@ -128,6 +133,7 @@ if [[ "$help" -eq "1" ]]; then
 	echo "--keep_tmp                                           Keep tmp files"
 	echo "--test_types=a|b|c                                   A regex for filetypes to be tested"
 	echo "--quick                                              Disables some slow tests"
+	echo "--run_with_coverage                                  Run every python script with coverage"
 	exit 0
 fi
 

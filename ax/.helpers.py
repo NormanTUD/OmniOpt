@@ -1,4 +1,5 @@
 import math
+import difflib
 import logging
 import os
 import platform
@@ -351,6 +352,92 @@ def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max)
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+def print_diff(i, o):
+    if isinstance(i, str):
+        print("Should be:", i.strip())
+    else:
+        print("Should be:", i)
+
+    if isinstance(o, str):
+        print("Is:", o.strip())
+    else:
+        print("Is:", o)
+    if isinstance(i, str) or isinstance(o, str):
+        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
+
+
+def _unidiff_output(expected, actual):
+    """
+    Helper function. Returns a string containing the unified diff of two multiline strings.
+    """
+
+    expected = expected.splitlines(1)
+    actual = actual.splitlines(1)
+
+    diff = difflib.unified_diff(expected, actual)
+
+    return ''.join(diff)
+
+def _is_equal(name, _input, output):
+    _equal_types = [
+        int, str, float, bool
+    ]
+    for equal_type in _equal_types:
+        if type(_input) is equal_type and type(output) and _input != output:
+            print_color("red", f"Failed test (1): {name}")
+            return True
+
+    if type(_input) is not type(output):
+        print_color("red", f"Failed test (4): {name}")
+        return True
+
+    if isinstance(_input, bool) and _input != output:
+        print_color("red", f"Failed test (6): {name}")
+        return True
+
+    if (output is None and _input is not None) or (output is not None and _input is None):
+        print_color("red", f"Failed test (7): {name}")
+        return True
+
+    print_color("green", f"Test OK: {name}")
+    return False
+
+def is_equal(n, o, i):
+    r = _is_equal(n, i, o)
+
+    if r:
+        print_diff(i, o)
+
+    return r
+
+def _is_not_equal(name, _input, output):
+    _equal_types = [
+        int, str, float, bool
+    ]
+    for equal_type in _equal_types:
+        if isinstance(_input, equal_type) and isinstance(output, equal_type) and _input == output:
+            print_color("red", f"Failed test (1): {name}")
+            return True
+
+    if isinstance(_input, bool) and _input == output:
+        print_color("red", f"Failed test (2): {name}")
+        return True
+
+    if not (output is not None and _input is not None):
+        print_color("red", f"Failed test (3): {name}")
+        return True
+
+    print_color("green", f"Test OK: {name}")
+    return False
+
+def is_not_equal(n, i, o):
+    r = _is_not_equal(n, i, o)
+
+    if r:
+        print_diff(i, o)
+
+    return r
 
 check_python_version()
 

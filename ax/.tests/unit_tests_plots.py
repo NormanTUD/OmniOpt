@@ -5,58 +5,11 @@ import sys
 import os
 import importlib.util
 import json
-import difflib
 from rich.progress import Progress
 from rich.console import Console
 from rich.table import Table
 
 console = Console()
-
-def _is_equal(name, _input, output):
-    _equal_types = [int, str, float, bool]
-    for equal_type in _equal_types:
-        if type(_input) is equal_type and _input != output:
-            console.print(f"Failed test (1): {name}", style="bold red")
-            return True
-
-    if type(_input) is not type(output):
-        console.print(f"Failed test (4): {name}", style="bold red")
-        return True
-
-    if isinstance(_input, bool) and _input != output:
-        console.print(f"Failed test (6): {name}", style="bold red")
-        return True
-
-    if (output is None and _input is not None) or (output is not None and _input is None):
-        console.print(f"Failed test (7): {name}", style="bold red")
-        return True
-
-    console.print(f"\nTest OK: {name}", style="bold green")
-    return False
-
-def _unidiff_output(expected, actual):
-    """
-    Helper function. Returns a string containing the unified diff of two multiline strings.
-    """
-
-    expected = expected.splitlines(1)
-    actual = actual.splitlines(1)
-
-    diff = difflib.unified_diff(expected, actual)
-
-    return ''.join(diff)
-
-def print_diff(i, o):
-    console.print("Should be:", i if not isinstance(i, str) else i.strip(), style="bold yellow")
-    console.print("Is:", o if not isinstance(o, str) else o.strip(), style="bold yellow")
-    if isinstance(i, str) or isinstance(o, str):
-        console.print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)), style="bold cyan")
-
-def is_equal(n, o, i):
-    r = _is_equal(n, i, o)
-    if r:
-        print_diff(i, o)
-    return r
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -121,7 +74,7 @@ with Progress(transient=True) as progress:
             for test in to_test[modname]:
                 expected_ret_val = to_test[modname][test]
                 ret_val = eval(f"mod.{test}")
-                if is_equal(test, ret_val, expected_ret_val):
+                if helpers.is_equal(test, ret_val, expected_ret_val):
                     error_list.append((modname, test, ret_val, expected_ret_val))
                     errors += 1
         progress.update(test_task, advance=1)

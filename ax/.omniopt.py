@@ -68,6 +68,8 @@ helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
 dier = helpers.dier
+is_equal = helpers.is_equal
+is_not_equal = helpers.is_not_equal
 
 original_print = print
 
@@ -4931,91 +4933,6 @@ def run_with_progress_bar(disable_tqdm):
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-def _unidiff_output(expected, actual):
-    """
-    Helper function. Returns a string containing the unified diff of two multiline strings.
-    """
-
-    expected = expected.splitlines(1)
-    actual = actual.splitlines(1)
-
-    diff = difflib.unified_diff(expected, actual)
-
-    return ''.join(diff)
-
-def print_diff(i, o):
-    if isinstance(i, str):
-        print("Should be:", i.strip())
-    else:
-        print("Should be:", i)
-
-    if isinstance(o, str):
-        print("Is:", o.strip())
-    else:
-        print("Is:", o)
-    if isinstance(i, str) or isinstance(o, str):
-        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
-
-def _is_equal(name, _input, output):
-    _equal_types = [
-        int, str, float, bool
-    ]
-    for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) and _input != output:
-            print_red(f"Failed test (1): {name}")
-            return True
-
-    if type(_input) is not type(output):
-        print_red(f"Failed test (4): {name}")
-        return True
-
-    if isinstance(_input, bool) and _input != output:
-        print_red(f"Failed test (6): {name}")
-        return True
-
-    if (output is None and _input is not None) or (output is not None and _input is None):
-        print_red(f"Failed test (7): {name}")
-        return True
-
-    print_green(f"Test OK: {name}")
-    return False
-
-def is_equal(n, o, i):
-    r = _is_equal(n, i, o)
-
-    if r:
-        print_diff(i, o)
-
-    return r
-
-def _is_not_equal(name, _input, output):
-    _equal_types = [
-        int, str, float, bool
-    ]
-    for equal_type in _equal_types:
-        if isinstance(_input, equal_type) and isinstance(output, equal_type) and _input == output:
-            print_red(f"Failed test (1): {name}")
-            return True
-
-    if isinstance(_input, bool) and _input == output:
-        print_red(f"Failed test (2): {name}")
-        return True
-
-    if not (output is not None and _input is not None):
-        print_red(f"Failed test (3): {name}")
-        return True
-
-    print_green(f"Test OK: {name}")
-    return False
-
-def is_not_equal(n, i, o):
-    r = _is_not_equal(n, i, o)
-
-    if r:
-        print_diff(i, o)
-
-    return r
-
 def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_yellow(f"Test suite: {_program_name}")
 
@@ -5169,12 +5086,12 @@ Exit-Code: 159
     else:
         print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
 
-    not_equal = [
+    _not_equal = [
         ["nr equal strings", 1, "1"],
         ["unequal strings", "hallo", "welt"]
     ]
 
-    for _item in not_equal:
+    for _item in _not_equal:
         _name = _item[0]
         _should_be = _item[1]
         _is = _item[2]

@@ -157,6 +157,7 @@ fi
 errors=()
 
 for i in .omniopt_plot_*.py; do
+	green_reset_line "Testing the exit code of $i outside of the bash wrapper (should be 1 or 16)..."
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		python3 $i 2>/dev/null >/dev/null
 		exit_code=$?
@@ -164,11 +165,18 @@ for i in .omniopt_plot_*.py; do
 		coverage run -p $i 2>/dev/null >/dev/null
 		exit_code=$?
 	fi
+	green_reset_line "$i exited with $exit_code"
 	if [[ $exit_code -ne 16 ]] && [[ $exit_code -ne 1 ]]; then
 		red_text "$i does not exit with code 1 or 16 outside of bash (has: $exit_code)\n"
 		errors+=("$i does not exit with code 1 or 16 outside of bash (has: $exit_code)")
 	fi
 done
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
 
 function join_by {
 	local d=${1-} f=${2-}
@@ -176,12 +184,6 @@ function join_by {
 		printf %s "$f" "${@/#/$d}"
 	fi
 }
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-cd $SCRIPT_DIR
-
-cd ..
 
 expected_plot_types=()
 
@@ -272,7 +274,7 @@ done
 
 i=0
 for _command in "${_commands[@]}"; do
-	this_img=$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')
+	this_img="PLOT_TESTS/$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')"
 	possible_plot_type=$(echo $_command | sed -e 's#.*--plot_type=##' -e 's#\s.*##')
 	projectname=$(echo $_command | sed -e 's#.*--run_dir=##' -e 's#\s.*##' -e 's#.*/\(.*\)/[0-9]*$#\1#')
 	has_min=$(echo $_command | grep -- "--min" | wc -l)
@@ -401,5 +403,10 @@ else
 fi
 
 echo ""
+
+if [[ -d PLOT_TESTS ]]; then
+	rm PLOT_TESTS
+fi
+
 exit ${#errors[@]}
 }

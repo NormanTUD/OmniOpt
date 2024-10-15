@@ -330,6 +330,23 @@ def prepare_graph_update (MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _args, get_df_filter
 
     return axs, df_filtered, num_rows, num_cols
 
+def drop_empty_results (NO_RESULT, df):
+    negative_rows_to_remove = df[df["result"].astype(str) == '-' + NO_RESULT].index
+    positive_rows_to_remove = df[df["result"].astype(str) == NO_RESULT].index
+
+    df.drop(negative_rows_to_remove, inplace=True)
+    df.drop(positive_rows_to_remove, inplace=True)
+
+    return df
+
+def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
+    for i in range(len(parameter_combinations), num_rows * num_cols):
+        row = i // num_cols
+        col = i % num_cols
+        axs[row, col].set_visible(False)
+
+    return axs
+
 check_python_version()
 
 warn_versions()

@@ -207,23 +207,12 @@ def get_data(csv_file_path, _min, _max, old_headers_string=None):
         sys.exit(7)
 
     try:
-        negative_rows_to_remove = df[df["result"].astype(str) == '-' + NO_RESULT].index
-        positive_rows_to_remove = df[df["result"].astype(str) == NO_RESULT].index
-
-        df.drop(negative_rows_to_remove, inplace=True)
-        df.drop(positive_rows_to_remove, inplace=True)
+        df = helpers.drop_empty_results(NO_RESULT, df)
     except KeyError:
         print(f"column named `result` could not be found in {csv_file_path}.")
         sys.exit(6)
 
     return df
-
-def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
-    print_debug("hide_empty_plots()")
-    for i in range(len(parameter_combinations), num_rows * num_cols):
-        row = i // num_cols
-        col = i % num_cols
-        axs[row, col].set_visible(False)
 
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
@@ -341,7 +330,7 @@ def plot_graphs(params):
     else:
         plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows])
 
-    hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+    axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
 def get_args():
     global args

@@ -242,7 +242,7 @@ def main():
 
     old_headers_string = ','.join(sorted(df.columns))
 
-    df = helpers.merge_df_with_old_data(args, df, NO_RESULT, _min, _max, old_headers_string)
+    df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
 
     nr_of_items_before_filtering = len(df)
     df_filtered = helpers.get_df_filtered(args, df)

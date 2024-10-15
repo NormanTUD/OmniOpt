@@ -132,6 +132,11 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			;;
 
+		--exit_on_first_error)
+			exit_on_first_error=1
+			shift
+			;;
+
 		--help|-h)
 			help=1
 			shift
@@ -150,6 +155,7 @@ if [[ "$help" -eq "1" ]]; then
 	echo "--keep_tmp                                           Keep tmp files"
 	echo "--test_types=a|b|c                                   A regex for filetypes to be tested"
 	echo "--quick                                              Disables some slow tests"
+	echo "--exit_on_first_error                                Exits on first error"
 	echo "--run_with_coverage                                  Run every python script with coverage"
 	exit 0
 fi
@@ -169,6 +175,10 @@ for i in .omniopt_plot_*.py; do
 	if [[ $exit_code -ne 16 ]] && [[ $exit_code -ne 1 ]]; then
 		red_text "$i does not exit with code 1 or 16 outside of bash (has: $exit_code)\n"
 		errors+=("$i does not exit with code 1 or 16 outside of bash (has: $exit_code)")
+
+		if [[ $exit_on_first_error ]]; then
+			exit 1
+		fi
 	fi
 done
 
@@ -274,108 +284,112 @@ done
 
 i=0
 for _command in "${_commands[@]}"; do
-	this_img="$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')"
-	possible_plot_type=$(echo $_command | sed -e 's#.*--plot_type=##' -e 's#\s.*##')
-	projectname=$(echo $_command | sed -e 's#.*--run_dir=##' -e 's#\s.*##' -e 's#.*/\(.*\)/[0-9]*$#\1#')
-	has_min=$(echo $_command | grep -- "--min" | wc -l)
-	has_max=$(echo $_command | grep -- "--max" | wc -l)
-
-	msg=""
-
-	if [[ $has_min -gt 0 ]]; then
-		msg="--min"
-	fi
-
-	if [[ $has_max -gt 0 ]]; then
-		msg="$msg, --max"
-	fi
-
-	msg=$(echo "$msg" | sed -e 's#^, ##' -e 's#^#(#' -e 's#$#)#' -e 's#()##')
-	if [[ -n $msg ]]; then
-		msg=" $msg"
-	fi
-
-	PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
-	green_reset_line "$PROGRESSBAR Plot-Tests $possible_plot_type/$this_img$msg"
-
-	if [[ -n $SHOW_COMMAND_BEFORE_EXECUTION ]]; then
-		echo ""
-		echo "$_command"
-	fi
-
-	START_TIME=$SECONDS
-	$_command
-	_exit_code=$?
-
-	END_TIME=$SECONDS
-	RUN_TIME=$(($END_TIME-$START_TIME))
-
-	if [[ "$projectname" == "nonutf8" ]]; then
-		if [[ "$_exit_code" -ne 7 ]]; then
-			echo ""
-			red_text "$_command failed. Required exit-code: 7, got exit-code $_exit_code (took $RUN_TIME seconds)"
-			errors+=("$_command failed. Required exit-code: 7, got exit-code $_exit_code (took $RUN_TIME seconds)")
-		fi
-	elif [[ "$projectname" == "empty_resultsfile" ]]; then
-		if [[ "$_exit_code" -ne 19 ]]; then
-			echo ""
-			red_text "$_command failed. Required exit-code: 19, got exit-code $_exit_code (took $RUN_TIME seconds)"
-			errors+=("$_command failed. Required exit-code: 19, got exit-code $_exit_code (took $RUN_TIME seconds)")
-		fi
+	if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
+		echo "Skipping command $_command because an error has occured earlier and --exit_on_first_error is set"
 	else
-		if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
-			true # Do nothing here. Do not count jobs in these folders as fails
-		else
-			if [[ "$_exit_code" -ne 0 ]]; then
-				echo ""
-				red_text "$_command failed (took $RUN_TIME seconds)"
-				errors+=("$_command failed (took $RUN_TIME seconds)")
-			fi
+		this_img="$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')"
+		possible_plot_type=$(echo $_command | sed -e 's#.*--plot_type=##' -e 's#\s.*##')
+		projectname=$(echo $_command | sed -e 's#.*--run_dir=##' -e 's#\s.*##' -e 's#.*/\(.*\)/[0-9]*$#\1#')
+		has_min=$(echo $_command | grep -- "--min" | wc -l)
+		has_max=$(echo $_command | grep -- "--max" | wc -l)
+
+		msg=""
+
+		if [[ $has_min -gt 0 ]]; then
+			msg="--min"
 		fi
 
-		if [[ -e "$this_img" ]]; then
-			if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
+		if [[ $has_max -gt 0 ]]; then
+			msg="$msg, --max"
+		fi
+
+		msg=$(echo "$msg" | sed -e 's#^, ##' -e 's#^#(#' -e 's#$#)#' -e 's#()##')
+		if [[ -n $msg ]]; then
+			msg=" $msg"
+		fi
+
+		PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
+		green_reset_line "$PROGRESSBAR Plot-Tests $possible_plot_type/$this_img$msg"
+
+		if [[ -n $SHOW_COMMAND_BEFORE_EXECUTION ]]; then
+			echo ""
+			echo "$_command"
+		fi
+
+		START_TIME=$SECONDS
+		$_command
+		_exit_code=$?
+
+		END_TIME=$SECONDS
+		RUN_TIME=$(($END_TIME-$START_TIME))
+
+		if [[ "$projectname" == "nonutf8" ]]; then
+			if [[ "$_exit_code" -ne 7 ]]; then
 				echo ""
-				red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code (took $RUN_TIME seconds)"
-				errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code (took $RUN_TIME seconds)")
-			else
-				MISSING_OUTPUTS=()
-
-				saved_IFS=$IFS
-				IFS=$'\n'
-				for needed_output in $(cat .omniopt_plot_${possible_plot_type}.py | grep "TEST_OUTPUT_MUST_CONTAIN" | sed -e 's#.*TEST_OUTPUT_MUST_CONTAIN:\s##g'); do
-					if ! grep "$needed_output" "$this_img" 2>/dev/null >/dev/null; then
-						MISSING_OUTPUTS+=("$needed_output")
-					fi
-				done
-
-				if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
-					green_reset_line "$PROGRESSBAR OK Plot-Tests $possible_plot_type/$this_img"
-					if [[ "$keep_tmp" -eq 0 ]]; then
-						rm -f "$this_img" || {
-							echo ""
-							red_text "Could not remove $this_img. ls -aslrt1 (took $RUN_TIME seconds):"
-							ls -aslrt1 "$this_img"
-							exit 5
-						}
-					fi
-				else
-					if [[ "$possible_plot_type" == "no_result" ]]; then
-						missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
-						echo ""
-						red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code (took $RUN_TIME seconds)"
-						errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code (took $RUN_TIME seconds)")
-					fi
-				fi
-				IFS=$saved_IFS
+				red_text "$_command failed. Required exit-code: 7, got exit-code $_exit_code (took $RUN_TIME seconds)"
+				errors+=("$_command failed. Required exit-code: 7, got exit-code $_exit_code (took $RUN_TIME seconds)")
+			fi
+		elif [[ "$projectname" == "empty_resultsfile" ]]; then
+			if [[ "$_exit_code" -ne 19 ]]; then
+				echo ""
+				red_text "$_command failed. Required exit-code: 19, got exit-code $_exit_code (took $RUN_TIME seconds)"
+				errors+=("$_command failed. Required exit-code: 19, got exit-code $_exit_code (took $RUN_TIME seconds)")
 			fi
 		else
 			if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
-				green_reset_line "$PROGRESSBAR OK Plot-Tests $possible_plot_type/$this_img"
+				true # Do nothing here. Do not count jobs in these folders as fails
 			else
-				echo ""
-				red_text "$_command: $this_img does not exist (took $RUN_TIME seconds)"
-				errors+=("$_command: $this_img does not exist (took $RUN_TIME seconds)")
+				if [[ "$_exit_code" -ne 0 ]]; then
+					echo ""
+					red_text "$_command failed (took $RUN_TIME seconds)"
+					errors+=("$_command failed (took $RUN_TIME seconds)")
+				fi
+			fi
+
+			if [[ -e "$this_img" ]]; then
+				if [[ $(cat "$this_img" | grep svg | wc -l 2>/dev/null) -lt 2 ]]; then
+					echo ""
+					red_text "$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code (took $RUN_TIME seconds)"
+					errors+=("$_command: $this_img does not have enough <svg> tags, exit_code: $_exit_code (took $RUN_TIME seconds)")
+				else
+					MISSING_OUTPUTS=()
+
+					saved_IFS=$IFS
+					IFS=$'\n'
+					for needed_output in $(cat .omniopt_plot_${possible_plot_type}.py | grep "TEST_OUTPUT_MUST_CONTAIN" | sed -e 's#.*TEST_OUTPUT_MUST_CONTAIN:\s##g'); do
+						if ! grep "$needed_output" "$this_img" 2>/dev/null >/dev/null; then
+							MISSING_OUTPUTS+=("$needed_output")
+						fi
+					done
+
+					if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
+						green_reset_line "$PROGRESSBAR OK Plot-Tests $possible_plot_type/$this_img"
+						if [[ "$keep_tmp" -eq 0 ]]; then
+							rm -f "$this_img" || {
+								echo ""
+								red_text "Could not remove $this_img. ls -aslrt1 (took $RUN_TIME seconds):"
+								ls -aslrt1 "$this_img"
+								exit 5
+							}
+						fi
+					else
+						if [[ "$possible_plot_type" == "no_result" ]]; then
+							missing_outputs_str=$(join_by ", " $MISSING_OUTPUTS)
+							echo ""
+							red_text "$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code (took $RUN_TIME seconds)"
+							errors+=("$_command: Missing outputs: $missing_outputs_str, exit_code: $_exit_code (took $RUN_TIME seconds)")
+						fi
+					fi
+					IFS=$saved_IFS
+				fi
+			else
+				if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
+					green_reset_line "$PROGRESSBAR OK Plot-Tests $possible_plot_type/$this_img"
+				else
+					echo ""
+					red_text "$_command: $this_img does not exist (took $RUN_TIME seconds)"
+					errors+=("$_command: $this_img does not exist (took $RUN_TIME seconds)")
+				fi
 			fi
 		fi
 	fi

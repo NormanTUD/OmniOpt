@@ -225,7 +225,9 @@ def check_python_version():
 
 def create_widgets(_data):
     plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox = _data
-    button, button_ax = Button(button_ax, 'Update Graph'), plt.axes([0.8, 0.025, 0.1, 0.04])
+
+    button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
+    button = Button(button_ax, 'Update Graph')
 
     button.on_clicked(update_graph)
 

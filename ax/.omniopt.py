@@ -3060,7 +3060,7 @@ def get_desc_progress_text(new_msgs=[]):
     in_brackets = []
 
     if failed_jobs():
-        in_brackets.append(f"{helpers.bcolors.red}failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
+        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
 
     current_model = get_current_model()
 

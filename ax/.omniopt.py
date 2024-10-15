@@ -5113,6 +5113,8 @@ def run_tests():
 
     nr_errors = 0
 
+    nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
+
     nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")

@@ -195,7 +195,7 @@ def get_data(csv_file_path, _min, _max, old_headers_string=None):
         df.dropna(subset=["result"], inplace=True)
     except pd.errors.EmptyDataError:
         if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_file_path} has no lines to parse.")
+            print(f"{csv_file_path} as no lines to parse.")
         sys.exit(19)
     except pd.errors.ParserError as e:
         if not os.environ.get("PLOT_TESTS"):
@@ -372,6 +372,15 @@ def get_args():
 
     return args
 
+def get_csv_file_path():
+    global args
+    print_debug("get_csv_file_path")
+    pd_csv = "results.csv"
+    csv_file_path = os.path.join(args.run_dir, pd_csv)
+    check_dir_and_csv(csv_file_path)
+
+    return csv_file_path
+
 def get_df_filtered(df):
     print_debug("get_df_filtered")
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
@@ -408,13 +417,25 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
             print("Error: No non-empty parameter combinations")
             sys.exit(75)
 
-    helpers.die_if_no_nonempty_graph(non_empty_graphs, _exit)
+    if not non_empty_graphs:
+        print('No non-empty graphs to display.')
+        if _exit:
+            sys.exit(2)
 
     return non_empty_graphs
 
+def get_r(df_filtered):
+    print_debug("get_r")
+    r = 2
+
+    if len(list(df_filtered.columns)) == 1:
+        r = 1
+
+    return r
+
 def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
-    r = helpers.get_r(df_filtered)
+    r = get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()
 
@@ -438,10 +459,10 @@ def use_matplotlib():
         sys.exit(33)
 
 def main():
-    global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, args, fig
+    global args
     use_matplotlib()
 
-    csv_file_path = helpers.get_csv_file_path(args)
+    csv_file_path = get_csv_file_path()
 
     df = get_data(csv_file_path, args.min, args.max)
 
@@ -469,6 +490,8 @@ def main():
     num_cols = math.ceil(math.sqrt(num_subplots))
     num_rows = math.ceil(num_subplots / num_cols)
 
+    global fig
+
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
     plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
@@ -480,11 +503,22 @@ def main():
     set_margins()
 
     fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
-
     if args.save_to_file:
-        helpers.save_to_file(fig, args, plt)
+        fig.set_size_inches(15.5, 9.5)
+
+        _path = os.path.dirname(args.save_to_file)
+        if _path:
+            os.makedirs(_path, exist_ok=True)
+        try:
+            plt.savefig(args.save_to_file)
+        except OSError as e:
+            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
+            sys.exit(199)
+
     else:
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, axs = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, axs])
+        global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
+
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
 
         if not args.no_plt_show:
             plt.show()
@@ -499,7 +533,45 @@ def update_graph(event=None, _min=None, _max=None):
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     try:
-        axs, df_filtered, num_rows, num_cols = prepare_graph_update(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _args, get_df_filtered, check_min_and_max, get_parameter_combinations, get_non_empty_graphs, button, check_dir_and_csv)
+        if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
+            _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
+
+        if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
+            _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
+
+        print_debug(f"update_graph: _min = {_min}, _max = {_max}")
+
+        csv_file_path = get_csv_file_path()
+        df = get_data(csv_file_path, _min, _max)
+
+        old_headers_string = ','.join(sorted(df.columns))
+
+        # Redo previous run merges if needed
+        if len(args.merge_with_previous_runs):
+            for prev_run in args.merge_with_previous_runs:
+                prev_run_csv_path = prev_run[0] + "/results.csv"
+                prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
+                if prev_run_df:
+                    df = df.merge(prev_run_df, how='outer')
+
+        nr_of_items_before_filtering = len(df)
+        df_filtered = get_df_filtered(df)
+
+        check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
+
+        parameter_combinations = get_parameter_combinations(df_filtered)
+        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
+
+        num_subplots = len(non_empty_graphs)
+        num_cols = math.ceil(math.sqrt(num_subplots))
+        num_rows = math.ceil(num_subplots / num_cols)
+
+        # Clear the figure, but keep the widgets
+        for widget in fig.axes:
+            if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
+                widget.remove()
+
+        axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 
         plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
 

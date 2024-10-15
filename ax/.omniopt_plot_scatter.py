@@ -135,21 +135,7 @@ def plot_multiple_graphs(_params):
         col = i % num_cols
         axs[row, col].set_visible(False)
 
-    show_legend(scatter, axs)
-
-def show_legend(_scatter, axs):
-    print_debug("show_legend")
-    global args, fig
-
-    if not args.no_legend:
-        try:
-            cbar = fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
-            cbar.set_label("result", rotation=270, labelpad=15)
-
-            cbar.formatter.set_scientific(False)
-            cbar.formatter.set_useMathText(False)
-        except Exception as e:
-            print_debug(f"ERROR: show_legend failed with error: {e}")
+    helpers.show_legend(args, fig, scatter, axs)
 
 def plot_single_graph(_params):
     axs, df_filtered, colors, cmap, norm, non_empty_graphs = _params

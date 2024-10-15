@@ -578,6 +578,17 @@ def get_data(csv_file_path, _min, _max, old_headers_string=None, drop_columns_wi
 
     return df
 
+def show_legend(_args, _fig, _scatter, axs):
+    if not _args.no_legend:
+        try:
+            cbar = _fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
+            cbar.set_label("result", rotation=270, labelpad=15)
+
+            cbar.formatter.set_scientific(False)
+            cbar.formatter.set_useMathText(False)
+        except Exception as e:
+            print_color("red", f"ERROR: show_legend failed with error: {e}")
+
 check_python_version()
 
 warn_versions()

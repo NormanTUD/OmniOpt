@@ -845,11 +845,15 @@ def print_image_to_cli(image_path, width):
 
         sixel_converter.write(sys.stdout)
         _sleep(2)
+
+        return True
     except Exception as e:
         print_debug(
             f"Error converting and resizing image: "
             f"{str(e)}, width: {width}, image_path: {image_path}"
         )
+
+    return False
 
 def log_message_to_file(_logfile, message, _lvl=0, eee=None):
     assert _logfile is not None, "Logfile path must be provided."
@@ -5116,6 +5120,7 @@ def run_tests():
     nr_errors = 0
 
     nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
+
     res = get_hostname_from_outfile('.tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out')
     nr_errors += is_equal('get_hostname_from_outfile(".tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out")', res, 'arbeitsrechner')
 
@@ -5130,6 +5135,8 @@ Exit-Code: 159
     nr_errors += is_equal(f'check_for_non_zero_exit_codes("{nonzerodebug}")', check_for_non_zero_exit_codes(nonzerodebug), ["Non-zero exit-code detected: 159.  (May mean " + get_exit_codes()[str(159)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"])
 
     nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
+
+    nr_errors += is_equal('print_image_to_cli("", "")', print_image_to_cli("", ""), False)
 
     _check_for_basic_string_errors_example_str = """
     Exec format error

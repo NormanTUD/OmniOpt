@@ -31,7 +31,7 @@ def _is_equal(name, _input, output):
         console.print(f"Failed test (7): {name}", style="bold red")
         return True
 
-    console.print(f"Test OK: {name}", style="bold green")
+    console.print(f"\nTest OK: {name}", style="bold green")
     return False
 
 def print_diff(i, o):

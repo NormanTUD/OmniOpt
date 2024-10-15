@@ -59,7 +59,6 @@ try:
     import matplotlib.pyplot as plt
     import pandas as pd
     from matplotlib.colors import LinearSegmentedColormap
-    from matplotlib.widgets import Button, TextBox
 except ModuleNotFoundError as ee:
     print(f"Error: {ee}")
     sys.exit(244)
@@ -495,7 +494,7 @@ def main():
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph])
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
 
         if not args.no_plt_show:
             plt.show()

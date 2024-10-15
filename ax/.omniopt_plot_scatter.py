@@ -316,25 +316,6 @@ def get_args():
 
     return args
 
-def get_df_filtered(df):
-    print_debug("get_df_filtered")
-    all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
-    columns_to_remove = []
-    existing_columns = df.columns.values.tolist()
-
-    for col in existing_columns:
-        if col in all_columns_to_remove:
-            columns_to_remove.append(col)
-
-    if len(args.allow_axes):
-        for col in existing_columns:
-            if col != "result" and col not in helpers.flatten_extend(args.allow_axes):
-                columns_to_remove.append(col)
-
-    df_filtered = df.drop(columns=columns_to_remove)
-
-    return df_filtered
-
 def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
     r = helpers.get_r(df_filtered)
@@ -379,7 +360,7 @@ def main():
                 df = df.merge(prev_run_df, how='outer')
 
     nr_of_items_before_filtering = len(df)
-    df_filtered = get_df_filtered(df)
+    df_filtered = helpers.get_df_filtered(args, df)
 
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
@@ -448,7 +429,7 @@ def update_graph(event=None, _min=None, _max=None):
                     df = df.merge(prev_run_df, how='outer')
 
         nr_of_items_before_filtering = len(df)
-        df_filtered = get_df_filtered(df)
+        df_filtered = helpers.get_df_filtered(args, df)
 
         check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 

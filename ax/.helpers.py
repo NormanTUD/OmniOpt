@@ -484,6 +484,24 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
 
     return non_empty_graphs
 
+def get_df_filtered(_args, df):
+    all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    columns_to_remove = []
+    existing_columns = df.columns.values.tolist()
+
+    for col in existing_columns:
+        if col in all_columns_to_remove:
+            columns_to_remove.append(col)
+
+    if len(_args.allow_axes):
+        for col in existing_columns:
+            if col != "result" and col not in helpers.flatten_extend(_args.allow_axes):
+                columns_to_remove.append(col)
+
+    df_filtered = df.drop(columns=columns_to_remove)
+
+    return df_filtered
+
 check_python_version()
 
 warn_versions()

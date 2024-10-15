@@ -1,0 +1,13 @@
+#!/bin/bash
+
+count=0
+for helper_function in $(cat .helpers.py | grep "^def " | sed -e 's#^def ##' -e 's#\s*(.*##'); do
+	for anything_but_helper in $(ls .*.py | grep -v helper); do
+		if grep "def $helper_function\s*(" "$anything_but_helper" 2>/dev/null >/dev/null; then
+			echo "$helper_function exists in .helper.py and $anything_but_helper"
+			count=$(($count+1))
+		fi
+	done
+done
+
+exit $count

@@ -245,6 +245,12 @@ def create_widgets(_data):
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
+def die_if_no_nonempty_graph (non_empty_graphs, _exit):
+    if not non_empty_graphs:
+        print('No non-empty graphs to display.')
+        if _exit:
+            sys.exit(2)
+
 check_python_version()
 
 warn_versions()

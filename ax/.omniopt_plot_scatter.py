@@ -417,10 +417,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
             print("Error: No non-empty parameter combinations")
             sys.exit(75)
 
-    if not non_empty_graphs:
-        print('No non-empty graphs to display.')
-        if _exit:
-            sys.exit(2)
+    helpers.die_if_no_nonempty_graph(non_empty_graphs, _exit)
 
     return non_empty_graphs
 

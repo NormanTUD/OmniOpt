@@ -12,6 +12,7 @@
 ![Forks](https://img.shields.io/github/forks/NormanTUD/OmniOpt)
 ![Contributors](https://img.shields.io/github/contributors/NormanTUD/OmniOpt)
 ![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
+[![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
 Basically the same as OmniOpt, but based on ax/botorch instead of hyperopt
 

@@ -3243,9 +3243,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
                     print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
                     old_result_simple = float(tmp_old_res_list[0])
                 else:
-                    print_debug(
-                        f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs."
-                    )
+                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
                     old_result_simple = None
             except Exception:
                 pass

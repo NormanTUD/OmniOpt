@@ -27,9 +27,6 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing CPU and RAM usage data.')
     parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
@@ -96,7 +93,7 @@ def update_graph():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    setup_logging()
+    helpers.setup_logging()
 
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")

@@ -28,9 +28,6 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
@@ -164,7 +161,7 @@ def update_graph():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    setup_logging()
+    helpers.setup_logging()
 
     if not args.alpha:
         logging.error("--alpha cannot be left unset.")

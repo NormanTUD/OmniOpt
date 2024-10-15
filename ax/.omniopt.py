@@ -3154,6 +3154,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     :param float_tolerance: The tolerance for comparing float values.
     :return: The value of the 'result' column from the matched row.
     """
+
     assert isinstance(file_path, str), "file_path must be a string"
     assert isinstance(params, dict), "params must be a dictionary"
 
@@ -3164,7 +3165,8 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     try:
         df = pd.read_csv(file_path, float_precision='round_trip')
     except Exception as e:
-        raise RuntimeError(f"Failed to read the CSV file: {str(e)}") from e
+        print_red(f"Failed to read the CSV file: {str(e)}")
+        return None
 
     if 'result' not in df.columns:
         print_red(f"Error: Could not get old result for {params} in {file_path}")
@@ -5136,6 +5138,7 @@ Exit-Code: 159
     nr_errors += is_equal('check_for_basic_string_errors("_check_for_basic_string_errors_example_str", "", [], "")', check_for_basic_string_errors(_check_for_basic_string_errors_example_str, "", [], ""), [f"Was the program compiled for the wrong platform? Current system is {platform.machine()}", "No files could be found in your program string: "])
 
     nr_errors += is_equal("get_old_result_by_params('', {})", get_old_result_by_params('', {}), None)
+    nr_errors += is_equal("get_old_result_by_params('.tests/_plot_example_runs/empty_resultsfile/0/results.csv', {})", get_old_result_by_params('.tests/_plot_example_runs/empty_resultsfile/0/results.csv', {}), None)
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 

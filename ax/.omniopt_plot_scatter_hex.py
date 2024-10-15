@@ -84,10 +84,11 @@ def set_margins():
 def set_title(df_filtered, result_column_values, num_entries, _min, _max):
     _mean = result_column_values.mean()
     print_debug("set_title")
-    #extreme_index = result_column_values.idxmax() if args.run_dir + "/state_files/maximize" in os.listdir(args.run_dir) else result_column_values.idxmin()
-    extreme_index = result_column_values.idxmin()
+    extreme_index = None
     if os.path.exists(args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
+    else:
+        extreme_index = result_column_values.idxmin()
 
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 

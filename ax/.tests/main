@@ -567,7 +567,7 @@ if [[ $superquick -eq 0 ]]; then
 		_test "Load from json" "./omniopt --config_json .tests/example_config_cpu.json --follow" 0
 	fi
 
-	if ! command -v sbatch 2>/dev/null >/dev/null; then
+	if command -v sbatch 2>/dev/null >/dev/null; then
 		_test "Test orchestrator" "./.tests/orchestrator" 0
 	fi
 

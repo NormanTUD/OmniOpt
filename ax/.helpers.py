@@ -1,3 +1,4 @@
+import pandas as pd
 import json
 import math
 import difflib
@@ -12,6 +13,8 @@ from pprint import pprint
 from matplotlib.widgets import Button, TextBox
 import numpy as np
 
+val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
 def check_environment_variable(variable_name):
     try:
@@ -495,7 +498,7 @@ def get_df_filtered(_args, df):
 
     if len(_args.allow_axes):
         for col in existing_columns:
-            if col != "result" and col not in helpers.flatten_extend(_args.allow_axes):
+            if col != "result" and col not in flatten_extend(_args.allow_axes):
                 columns_to_remove.append(col)
 
     df_filtered = df.drop(columns=columns_to_remove)
@@ -518,6 +521,62 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
                 print(f"No applicable values could be found in {csv_file_path}.")
         if _exit:
             sys.exit(4)
+
+def contains_strings(series):
+    return series.apply(lambda x: isinstance(x, str)).any()
+
+def get_data(csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False):
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0)
+
+        if old_headers_string:
+            df_header_string = ','.join(sorted(df.columns))
+            if df_header_string != old_headers_string:
+                print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers {df_header_string}")
+                return None
+
+        try:
+            if _min is not None:
+                df = df[df["result"] >= _min]
+            if _max is not None:
+                df = df[df["result"] <= _max]
+        except KeyError:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
+            sys.exit(10)
+        if "result" not in df:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
+            sys.exit(10)
+        df.dropna(subset=["result"], inplace=True)
+
+        if drop_columns_with_strings:
+            columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
+            df = df.drop(columns=columns_with_strings)
+
+        if len(df.columns.tolist()) <= 1 and len(columns_with_strings) >= 1:
+            print("It seems like all available columns had strings instead of numbers. String columns cannot currently be plotted with scatter_hex.")
+            sys.exit(19)
+    except pd.errors.EmptyDataError:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{csv_file_path} has no lines to parse.")
+        sys.exit(19)
+    except pd.errors.ParserError as e:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
+        sys.exit(12)
+    except UnicodeDecodeError:
+        if not os.environ.get("PLOT_TESTS"):
+            print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
+        sys.exit(7)
+
+    try:
+        df = drop_empty_results(NO_RESULT, df)
+    except KeyError:
+        print(f"column named `result` could not be found in {csv_file_path}.")
+        sys.exit(6)
+
+    return df
 
 check_python_version()
 

@@ -104,53 +104,6 @@ def check_args():
 
     helpers.check_path(args.run_dir)
 
-def get_data(csv_file_path, _min, _max, old_headers_string=None):
-    print_debug("get_data")
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0)
-
-        if old_headers_string:
-            df_header_string = ','.join(sorted(df.columns))
-            if df_header_string != old_headers_string:
-                print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers {df_header_string}")
-                return None
-
-        try:
-            if _min is not None:
-                df = df[df["result"] >= _min]
-            if _max is not None:
-                df = df[df["result"] <= _max]
-        except KeyError:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
-            sys.exit(10)
-
-        if "result" not in df:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
-            sys.exit(10)
-        df.dropna(subset=["result"], inplace=True)
-    except pd.errors.EmptyDataError:
-        if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_file_path} has no lines to parse.")
-        sys.exit(19)
-    except pd.errors.ParserError as e:
-        if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
-        sys.exit(12)
-    except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
-        sys.exit(7)
-
-    try:
-        df = helpers.drop_empty_results(NO_RESULT, df)
-    except KeyError:
-        print(f"column named `result` could not be found in {csv_file_path}.")
-        sys.exit(6)
-
-    return df
-
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
 
@@ -329,14 +282,14 @@ def main():
 
     csv_file_path = helpers.get_csv_file_path(args)
 
-    df = get_data(csv_file_path, args.min, args.max)
+    df = helpers.get_data(csv_file_path, args.min, args.max)
 
     old_headers_string = ','.join(sorted(df.columns))
 
     if len(args.merge_with_previous_runs):
         for prev_run in args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
-            prev_run_df = get_data(prev_run_csv_path, args.min, args.max, old_headers_string)
+            prev_run_df = helpers.get_data(prev_run_csv_path, args.min, args.max, old_headers_string)
             if prev_run_df is not None:
                 print(f"Loading {prev_run_csv_path} into the dataset")
                 df = df.merge(prev_run_df, how='outer')
@@ -398,7 +351,7 @@ def update_graph(event=None, _min=None, _max=None):
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
         csv_file_path = helpers.get_csv_file_path(args)
-        df = get_data(csv_file_path, _min, _max)
+        df = helpers.get_data(csv_file_path, _min, _max)
 
         old_headers_string = ','.join(sorted(df.columns))
 
@@ -406,7 +359,7 @@ def update_graph(event=None, _min=None, _max=None):
         if len(args.merge_with_previous_runs):
             for prev_run in args.merge_with_previous_runs:
                 prev_run_csv_path = prev_run[0] + "/results.csv"
-                prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
+                prev_run_df = helpers.get_data(prev_run_csv_path, _min, _max, old_headers_string)
                 if prev_run_df:
                     df = df.merge(prev_run_df, how='outer')
 

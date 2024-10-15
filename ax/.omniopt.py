@@ -3461,7 +3461,10 @@ def load_data_from_existing_run_folders(_paths):
                         print_debug(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
                         old_result = {'result': old_result_simple}
 
-                        insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result)
+                        try:
+                            insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result)
+                        except ValueError as e:
+                            print_red(f"Error while trying to insert parameter: {e}")
                     else:
                         print_debug("Prevented inserting a double entry")
                         already_inserted_param_hashes[hashed_params_result] += 1

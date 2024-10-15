@@ -557,9 +557,9 @@ def main():
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
-    if event: # only to fool pylint
+    if event: # only for fooling pylint...
         pass
-    print_debug("update_graph")
+
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     try:

@@ -527,7 +527,6 @@ def main():
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
-    print_debug("update_graph")
     if event: # only for fooling pylint...
         pass
 

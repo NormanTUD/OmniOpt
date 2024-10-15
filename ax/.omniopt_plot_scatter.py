@@ -104,16 +104,6 @@ def check_args():
 
     helpers.check_path(args.run_dir)
 
-def check_dir_and_csv(csv_file_path):
-    print_debug("check_dir_and_csv()")
-    if not os.path.isdir(args.run_dir):
-        print(f"The path {args.run_dir} does not point to a folder. Must be a folder.")
-        sys.exit(11)
-
-    if not os.path.exists(csv_file_path):
-        print(f'The file {csv_file_path} does not exist.')
-        sys.exit(39)
-
 def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
     print_debug("check_min_and_max()")
     if num_entries is None or num_entries == 0:
@@ -326,15 +316,6 @@ def get_args():
 
     return args
 
-def get_csv_file_path():
-    global args
-    print_debug("get_csv_file_path")
-    pd_csv = "results.csv"
-    csv_file_path = os.path.join(args.run_dir, pd_csv)
-    check_dir_and_csv(csv_file_path)
-
-    return csv_file_path
-
 def get_df_filtered(df):
     print_debug("get_df_filtered")
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
@@ -378,18 +359,9 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
 
     return non_empty_graphs
 
-def get_r(df_filtered):
-    print_debug("get_r")
-    r = 2
-
-    if len(list(df_filtered.columns)) == 1:
-        r = 1
-
-    return r
-
 def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
-    r = get_r(df_filtered)
+    r = helpers.get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()
 
@@ -416,7 +388,7 @@ def main():
     global args
     use_matplotlib()
 
-    csv_file_path = get_csv_file_path()
+    csv_file_path = helpers.get_csv_file_path()
 
     df = get_data(csv_file_path, args.min, args.max)
 
@@ -495,7 +467,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
-        csv_file_path = get_csv_file_path()
+        csv_file_path = helpers.get_csv_file_path(args)
         df = get_data(csv_file_path, _min, _max)
 
         old_headers_string = ','.join(sorted(df.columns))

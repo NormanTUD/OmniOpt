@@ -453,6 +453,7 @@ _test "php_search" ".tests/php_search" 0 255
 _test "js_syntax" ".tests/js_syntax" 0 255
 _test "share" ".tests/share" 0 255
 _test "Plot unit tests" ".tests/unit_test_plots" 0 255
+_test "Find double functions that are in helpers and some other python script" ".tests/find_double_function_thats_already_in_helper" 0
 
 _test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
 _test "help page Documentation" "bash .tests/help_page" 0

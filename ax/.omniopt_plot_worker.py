@@ -23,7 +23,6 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-
 def plot_worker_usage(args, pd_csv):
     try:
         data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])

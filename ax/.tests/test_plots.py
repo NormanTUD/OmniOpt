@@ -36,14 +36,14 @@ loaded_files = []
 
 for file in files:
     print(f"Processing file: {file}")
-    loaded_files.append(f"{file}")
+    filename = os.path.basename(file)
+    loaded_files.append(f"{filename}")
     spec = importlib.util.spec_from_file_location(
         name=clean_filename(file),
         location=loaded_files[len(loaded_files) - 1],
     )
-    mods[file] = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mods[file])
+    mods[filename] = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mods[filename])
 
-    dier(help(mods[file]))
-
-print(mods)
+for mod in mods:
+    print(mod)

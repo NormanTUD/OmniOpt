@@ -518,7 +518,9 @@ def main():
             sys.exit(199)
 
     else:
-        create_widgets()
+        global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
+
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets(plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox)
 
         if not args.no_plt_show:
             plt.show()
@@ -583,31 +585,6 @@ def update_graph(event=None, _min=None, _max=None):
     except Exception as e:
         if "invalid command name" not in str(e):
             print(f"Failed to update graph: {e}")
-
-def create_widgets():
-    print_debug("create_widgets()")
-    global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
-
-    # Create a Button and set its position
-    button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
-    button = Button(button_ax, 'Update Graph')
-    button.on_clicked(update_graph)
-
-    # Create TextBoxes and set their positions
-    max_string = ""
-    min_string = ""
-
-    if helpers.looks_like_float(args.max):
-        max_string = str(args.max)
-
-    if helpers.looks_like_float(args.min):
-        min_string = str(args.min)
-
-    TEXTBOX_MINIMUM = plt.axes([0.2, 0.025, 0.1, 0.04])
-    MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
-
-    TEXTBOX_MAXIMUM = plt.axes([0.5, 0.025, 0.1, 0.04])
-    MAXIMUM_TEXTBOX = TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
 if __name__ == "__main__":
     try:

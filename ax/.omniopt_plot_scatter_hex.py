@@ -135,16 +135,6 @@ def check_args():
 
     helpers.check_path(args.run_dir)
 
-def check_dir_and_csv(csv_file_path):
-    print_debug("check_dir_and_csv()")
-    if not os.path.isdir(args.run_dir):
-        print(f"The path {args.run_dir} does not point to a folder. Must be a folder.")
-        sys.exit(11)
-
-    if not os.path.exists(csv_file_path):
-        print(f'The file {csv_file_path} does not exist.')
-        sys.exit(39)
-
 def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
     print_debug("check_min_and_max()")
     if num_entries is None or num_entries == 0:
@@ -516,7 +506,7 @@ def main():
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph])
 
         if not args.no_plt_show:
             plt.show()

@@ -6,7 +6,7 @@ import sys
 import traceback
 from importlib.metadata import version
 from pprint import pprint
-
+from matplotlib.widgets import Button, TextBox
 import numpy as np
 
 
@@ -224,7 +224,7 @@ def check_python_version():
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def create_widgets(_data):
-    plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox = _data
+    plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph = _data
 
     button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
     button = Button(button_ax, 'Update Graph')
@@ -239,9 +239,11 @@ def create_widgets(_data):
     if looks_like_float(args.min):
         min_string = str(args.min)
 
-    TEXTBOX_MINIMUM, MINIMUM_TEXTBOX = plt.axes([0.2, 0.025, 0.1, 0.04]), TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
+    TEXTBOX_MINIMUM = plt.axes([0.2, 0.025, 0.1, 0.04])
+    MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)
 
-    TEXTBOX_MAXIMUM, MAXIMUM_TEXTBOX = plt.axes([0.5, 0.025, 0.1, 0.04]), TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
+    TEXTBOX_MAXIMUM = plt.axes([0.5, 0.025, 0.1, 0.04]), 
+    MAXIMUM_TEXTBOX = TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
@@ -271,12 +273,62 @@ def save_to_file (_fig, _args, _plt):
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
+def check_dir_and_csv(_args, csv_file_path):
+    if not os.path.isdir(_args.run_dir):
+        print(f"The path {_args.run_dir} does not point to a folder. Must be a folder.")
+        sys.exit(11)
+
+    if not os.path.exists(csv_file_path):
+        print(f'The file {csv_file_path} does not exist.')
+        sys.exit(39)
+
 def get_csv_file_path(_args):
     pd_csv = "results.csv"
     csv_file_path = os.path.join(_args.run_dir, pd_csv)
-    check_dir_and_csv(csv_file_path)
+    check_dir_and_csv(_args, csv_file_path)
 
     return csv_file_path
+
+def prepare_graph_update (MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _args, get_df_filtered, check_min_and_max, get_parameter_combinations, get_non_empty_graphs, button):
+    if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
+        _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
+
+    if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
+        _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
+
+    csv_file_path = helpers.get_csv_file_path(_args)
+    df = get_data(csv_file_path, _min, _max)
+
+    old_headers_string = ','.join(sorted(df.columns))
+
+    # Redo previous run merges if needed
+    if len(_args.merge_with_previous_runs):
+        for prev_run in _args.merge_with_previous_runs:
+            prev_run_csv_path = prev_run[0] + "/results.csv"
+            prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
+            if prev_run_df:
+                df = df.merge(prev_run_df, how='outer')
+
+    nr_of_items_before_filtering = len(df)
+    df_filtered = get_df_filtered(df)
+
+    check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
+
+    parameter_combinations = get_parameter_combinations(df_filtered)
+    non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
+
+    num_subplots = len(non_empty_graphs)
+    num_cols = math.ceil(math.sqrt(num_subplots))
+    num_rows = math.ceil(num_subplots / num_cols)
+
+    # Clear the figure, but keep the widgets
+    for widget in fig.axes:
+        if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
+            widget.remove()
+
+    axs = fig.subplots(num_rows, num_cols)  # Create new subplots
+
+    return axs, df_filtered, num_rows, num_cols
 
 check_python_version()
 

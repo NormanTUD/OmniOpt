@@ -486,7 +486,7 @@ def main():
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph])
 
         if not args.no_plt_show:
             plt.show()
@@ -501,45 +501,7 @@ def update_graph(event=None, _min=None, _max=None):
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     try:
-        if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
-            _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
-
-        if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
-            _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
-
-        print_debug(f"update_graph: _min = {_min}, _max = {_max}")
-
-        csv_file_path = helpers.get_csv_file_path(args)
-        df = get_data(csv_file_path, _min, _max)
-
-        old_headers_string = ','.join(sorted(df.columns))
-
-        # Redo previous run merges if needed
-        if len(args.merge_with_previous_runs):
-            for prev_run in args.merge_with_previous_runs:
-                prev_run_csv_path = prev_run[0] + "/results.csv"
-                prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
-                if prev_run_df:
-                    df = df.merge(prev_run_df, how='outer')
-
-        nr_of_items_before_filtering = len(df)
-        df_filtered = get_df_filtered(df)
-
-        check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
-
-        parameter_combinations = get_parameter_combinations(df_filtered)
-        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
-
-        num_subplots = len(non_empty_graphs)
-        num_cols = math.ceil(math.sqrt(num_subplots))
-        num_rows = math.ceil(num_subplots / num_cols)
-
-        # Clear the figure, but keep the widgets
-        for widget in fig.axes:
-            if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
-                widget.remove()
-
-        axs = fig.subplots(num_rows, num_cols)  # Create new subplots
+        axs, df_filtered, num_rows, num_cols = prepare_graph_update(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _args, get_df_filtered, check_min_and_max, get_parameter_combinations, get_non_empty_graphs, button, check_dir_and_csv)
 
         plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
 

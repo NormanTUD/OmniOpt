@@ -27,9 +27,6 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
@@ -148,7 +145,7 @@ def update_graph():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    setup_logging()
+    helpers.setup_logging()
 
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")

@@ -1,4 +1,5 @@
 import math
+import logging
 import os
 import platform
 import re
@@ -347,6 +348,9 @@ def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max)
         title += f", mean result = {to_int_when_possible(_mean)}"
 
     return title
+
+def setup_logging():
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 check_python_version()
 

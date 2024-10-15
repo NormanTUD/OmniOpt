@@ -104,24 +104,6 @@ def check_args():
 
     helpers.check_path(args.run_dir)
 
-def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
-    print_debug("check_min_and_max()")
-    if num_entries is None or num_entries == 0:
-        if nr_of_items_before_filtering:
-            if _min and not _max:
-                print("Using --min filtered out all results")
-            elif not _min and _max:
-                print("Using --max filtered out all results")
-            elif _min and _max:
-                print("Using --min and --max filtered out all results")
-            else:
-                print("For some reason, there were values in the beginning but not after filtering")
-        else:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"No applicable values could be found in {csv_file_path}.")
-        if _exit:
-            sys.exit(4)
-
 def get_data(csv_file_path, _min, _max, old_headers_string=None):
     print_debug("get_data")
     try:
@@ -362,7 +344,7 @@ def main():
     nr_of_items_before_filtering = len(df)
     df_filtered = helpers.get_df_filtered(args, df)
 
-    check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
+    helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
     parameter_combinations = get_parameter_combinations(df_filtered)
 
@@ -431,7 +413,7 @@ def update_graph(event=None, _min=None, _max=None):
         nr_of_items_before_filtering = len(df)
         df_filtered = helpers.get_df_filtered(args, df)
 
-        check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
+        helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
 
         parameter_combinations = get_parameter_combinations(df_filtered)
         non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, False)

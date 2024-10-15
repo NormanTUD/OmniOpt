@@ -502,6 +502,23 @@ def get_df_filtered(_args, df):
 
     return df_filtered
 
+def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
+    if num_entries is None or num_entries == 0:
+        if nr_of_items_before_filtering:
+            if _min and not _max:
+                print("Using --min filtered out all results")
+            elif not _min and _max:
+                print("Using --max filtered out all results")
+            elif _min and _max:
+                print("Using --min and --max filtered out all results")
+            else:
+                print("For some reason, there were values in the beginning but not after filtering")
+        else:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"No applicable values could be found in {csv_file_path}.")
+        if _exit:
+            sys.exit(4)
+
 check_python_version()
 
 warn_versions()

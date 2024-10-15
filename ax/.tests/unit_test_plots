@@ -12,13 +12,14 @@ exit_code=0
 
 if command -v python3 2>/dev/null >/dev/null; then
 	if [[ -n $1 ]]; then
-		python3 .tests/find_typos_in_python.py $*
+		python3 .tests/unit_tests_plots.py $*
 	else
-		python3 .tests/find_typos_in_python.py .*.py
+		python3 .tests/unit_tests_plots.py .*.py
 		exit_code=$?
 	fi
 else
 	echo "Warning: python3 is not installed. Cannot run find_typos_in_python"
 fi
+
 
 exit $exit_code

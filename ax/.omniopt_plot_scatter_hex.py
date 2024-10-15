@@ -41,8 +41,6 @@ spec.loader.exec_module(helpers)
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
-# idee: single plots zeichnen und mit plotext anzeigen, so dass man einen überblick kriegt
-
 args = None
 
 def print_debug(msg):

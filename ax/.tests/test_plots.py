@@ -34,6 +34,10 @@ files = glob.glob(_glob)
 mods = {}
 loaded_files = []
 
+to_test = {
+    
+}
+
 for file in files:
     print(f"Processing file: {file}")
     filename = os.path.basename(file)
@@ -45,5 +49,6 @@ for file in files:
     mods[filename] = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mods[filename])
 
-for mod in mods:
-    print(mod)
+for modname, mod in mods:
+    if modname in to_test:
+        print(mod)

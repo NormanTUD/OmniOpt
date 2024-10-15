@@ -119,7 +119,7 @@ def plot_histograms(dataframe):
 
 def save_to_file_or_show_canvas():
     if args.save_to_file:
-        save_to_file (fig, args, plt):
+        save_to_file (fig, args, plt)
     else:
         fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
         if not args.no_plt_show:

@@ -385,10 +385,10 @@ def use_matplotlib():
         sys.exit(33)
 
 def main():
-    global args
+    global args, fig
     use_matplotlib()
 
-    csv_file_path = helpers.get_csv_file_path()
+    csv_file_path = helpers.get_csv_file_path(args)
 
     df = get_data(csv_file_path, args.min, args.max)
 
@@ -411,12 +411,7 @@ def main():
 
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
-    num_subplots = len(non_empty_graphs)
-
-    num_cols = math.ceil(math.sqrt(num_subplots))
-    num_rows = math.ceil(num_subplots / num_cols)
-
-    global fig
+    num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
@@ -459,11 +454,7 @@ def update_graph(event=None, _min=None, _max=None):
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     try:
-        if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
-            _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
-
-        if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
-            _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
+        _min, _max = helpers.set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
@@ -488,14 +479,9 @@ def update_graph(event=None, _min=None, _max=None):
         parameter_combinations = get_parameter_combinations(df_filtered)
         non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
 
-        num_subplots = len(non_empty_graphs)
-        num_cols = math.ceil(math.sqrt(num_subplots))
-        num_rows = math.ceil(num_subplots / num_cols)
+        num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
-        # Clear the figure, but keep the widgets
-        for widget in fig.axes:
-            if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
-                widget.remove()
+        helpers.remove_widgets(fig)
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 

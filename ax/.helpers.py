@@ -440,6 +440,27 @@ def is_not_equal(n, i, o):
 
     return r
 
+def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max):
+    if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
+        _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
+
+    if MAXIMUM_TEXTBOX and looks_like_float(MAXIMUM_TEXTBOX.text):
+        _max = convert_string_to_number(MAXIMUM_TEXTBOX.text)
+
+    return _min, _max
+
+def get_num_subplots_rows_and_cols(non_empty_graphs):
+    num_subplots = len(non_empty_graphs)
+    num_cols = math.ceil(math.sqrt(num_subplots))
+    num_rows = math.ceil(num_subplots / num_cols)
+
+    return num_subplots, num_cols, num_rows
+
+def remove_widgets(fig):
+    for widget in fig.axes:
+        if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
+            widget.remove()
+
 check_python_version()
 
 warn_versions()

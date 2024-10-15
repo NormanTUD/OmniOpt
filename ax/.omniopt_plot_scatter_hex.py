@@ -468,17 +468,13 @@ def main():
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
+    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
+
     if event: # only for fooling pylint...
         pass
 
-    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
-
     try:
-        if MINIMUM_TEXTBOX and helpers.looks_like_float(MINIMUM_TEXTBOX.text):
-            _min = helpers.convert_string_to_number(MINIMUM_TEXTBOX.text)
-
-        if MAXIMUM_TEXTBOX and helpers.looks_like_float(MAXIMUM_TEXTBOX.text):
-            _max = helpers.convert_string_to_number(MAXIMUM_TEXTBOX.text)
+        _min, _max = helpers.set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
 
         print_debug(f"update_graph: _min = {_min}, _max = {_max}")
 
@@ -503,14 +499,9 @@ def update_graph(event=None, _min=None, _max=None):
         parameter_combinations = get_parameter_combinations(df_filtered)
         non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, False)
 
-        num_subplots = len(non_empty_graphs)
-        num_cols = math.ceil(math.sqrt(num_subplots))
-        num_rows = math.ceil(num_subplots / num_cols)
+        num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
-        # Clear the figure, but keep the widgets
-        for widget in fig.axes:
-            if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
-                widget.remove()
+        helpers.remove_widgets(fig)
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 

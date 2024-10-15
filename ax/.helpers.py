@@ -306,6 +306,48 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
 
     return axs
 
+def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max):
+    _mean = result_column_values.mean()
+
+    extreme_index = None
+    if os.path.exists(_args.run_dir + "/state_files/maximize"):
+        extreme_index = result_column_values.idxmax()
+    else:
+        extreme_index = result_column_values.idxmin()
+
+    extreme_values = df_filtered.loc[extreme_index].to_dict()
+
+    title = "Minimum"
+    if os.path.exists(_args.run_dir + "/state_files/maximize"):
+        title = "Maximum"
+
+    extreme_values_items = extreme_values.items()
+
+    title_values = []
+
+    for _l in extreme_values_items:
+        if "result" not in _l:
+            key = _l[0]
+            value = to_int_when_possible(_l[1])
+            title_values.append(f"{key} = {value}")
+
+    title += " of f("
+    title += ', '.join(title_values)
+    title += f") = {to_int_when_possible(result_column_values[extreme_index])}"
+
+    title += f"\nNumber of evaluations shown: {num_entries}"
+
+    if _min is not None:
+        title += f", show min = {to_int_when_possible(_min)}"
+
+    if _max is not None:
+        title += f", show max = {to_int_when_possible(_max)}"
+
+    if _mean is not None:
+        title += f", mean result = {to_int_when_possible(_mean)}"
+
+    return title
+
 check_python_version()
 
 warn_versions()

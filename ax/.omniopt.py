@@ -3942,6 +3942,19 @@ def is_already_in_defective_nodes(hostname):
 
     return False
 
+def orchestrator_start_trial(params_from_out_file, trial_index):
+    global global_vars
+
+    new_job = executor.submit(evaluate, params_from_out_file)
+    submitted_jobs(1)
+
+    _trial = ax_client.get_trial(trial_index)
+
+    _trial.mark_staged(unsafe=True)
+    _trial.mark_running(unsafe=True, no_runner_required=True)
+
+    global_vars["jobs"].append((new_job, trial_index))
+
 def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)
 
@@ -3961,14 +3974,7 @@ def _orchestrate(stdout_path, trial_index):
             elif behav == "Restart":
                 params_from_out_file = get_parameters_from_outfile(stdout_path)
                 if params_from_out_file:
-                    new_job = executor.submit(evaluate, params_from_out_file)
-
-                    _trial = ax_client.get_trial(trial_index)
-
-                    _trial.mark_staged(unsafe=True)
-                    _trial.mark_running(unsafe=True, no_runner_required=True)
-
-                    global_vars["jobs"].append((new_job, trial_index))
+                    orchestrator_start_trial(params_from_out_file, trial_index)
                 else:
                     print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
@@ -3982,15 +3988,7 @@ def _orchestrate(stdout_path, trial_index):
 
                     params_from_out_file = get_parameters_from_outfile(stdout_path)
                     if params_from_out_file:
-                        new_job = executor.submit(evaluate, params_from_out_file)
-                        submitted_jobs(1)
-
-                        _trial = ax_client.get_trial(trial_index)
-
-                        _trial.mark_staged(unsafe=True)
-                        _trial.mark_running(unsafe=True, no_runner_required=True)
-
-                        global_vars["jobs"].append((new_job, trial_index))
+                        orchestrator_start_trial(params_from_out_file, trial_index)
                     else:
                         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 

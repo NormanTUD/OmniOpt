@@ -224,7 +224,7 @@ def check_python_version():
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def create_widgets(_data):
-    _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, axs = _data
+    _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph = _data
 
     button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
     button = Button(button_ax, 'Update Graph')

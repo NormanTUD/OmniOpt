@@ -651,7 +651,6 @@ def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
                 df = df.merge(prev_run_df, how='outer')
     return df
 
-
 check_python_version()
 
 warn_versions()

@@ -483,7 +483,6 @@ def main():
 
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 

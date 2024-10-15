@@ -129,9 +129,7 @@ def check_args():
 
     if args.min and args.max:
         if args.min > args.max:
-            tmp = args.max
-            args.max = args.min
-            args.min = tmp
+            args.max, args.min = args.min, args.max
         elif args.min == args.max:
             print("Max and min value are the same. May result in empty data")
 

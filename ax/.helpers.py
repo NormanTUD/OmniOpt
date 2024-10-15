@@ -642,6 +642,16 @@ def get_color_list(df, _args, _plt):
 
     return cmap, norm, colors
 
+def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string):
+    if len(_args.merge_with_previous_runs):
+        for prev_run in _args.merge_with_previous_runs:
+            prev_run_csv_path = prev_run[0] + "/results.csv"
+            prev_run_df = get_data(NO_RESULT, prev_run_csv_path, _min, _max, old_headers_string)
+            if prev_run_df:
+                df = df.merge(prev_run_df, how='outer')
+    return df
+
+
 check_python_version()
 
 warn_versions()

@@ -215,13 +215,7 @@ def main():
 
     old_headers_string = ','.join(sorted(df.columns))
 
-    if len(args.merge_with_previous_runs):
-        for prev_run in args.merge_with_previous_runs:
-            prev_run_csv_path = prev_run[0] + "/results.csv"
-            prev_run_df = helpers.get_data(NO_RESULT, prev_run_csv_path, args.min, args.max, old_headers_string)
-            if prev_run_df is not None:
-                print(f"Loading {prev_run_csv_path} into the dataset")
-                df = df.merge(prev_run_df, how='outer')
+    df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
 
     nr_of_items_before_filtering = len(df)
     df_filtered = helpers.get_df_filtered(args, df)
@@ -269,10 +263,10 @@ def main():
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None):
+    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
+
     if event: # only for fooling pylint...
         pass
-
-    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     try:
         _min, _max = helpers.set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
@@ -284,13 +278,7 @@ def update_graph(event=None, _min=None, _max=None):
 
         old_headers_string = ','.join(sorted(df.columns))
 
-        # Redo previous run merges if needed
-        if len(args.merge_with_previous_runs):
-            for prev_run in args.merge_with_previous_runs:
-                prev_run_csv_path = prev_run[0] + "/results.csv"
-                prev_run_df = helpers.get_data(NO_RESULT, prev_run_csv_path, _min, _max, old_headers_string)
-                if prev_run_df:
-                    df = df.merge(prev_run_df, how='outer')
+        df = helpers.merge_df_with_old_data(args, df, NO_RESULT, _min, _max, old_headers_string)
 
         nr_of_items_before_filtering = len(df)
         df_filtered = helpers.get_df_filtered(args, df)
@@ -306,9 +294,9 @@ def update_graph(event=None, _min=None, _max=None):
 
         axs = fig.subplots(num_rows, num_cols)  # Create new subplots
 
-        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
-
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
+
+        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
 
         set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 

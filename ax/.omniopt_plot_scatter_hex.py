@@ -247,7 +247,6 @@ def main():
     nr_of_items_before_filtering = len(df)
     df_filtered = helpers.get_df_filtered(args, df)
 
-
     helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
     parameter_combinations = helpers.get_parameter_combinations(df_filtered)

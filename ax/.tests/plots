@@ -274,7 +274,7 @@ done
 
 i=0
 for _command in "${_commands[@]}"; do
-	this_img="PLOT_TESTS/$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')"
+	this_img="$(echo $_command | sed -e 's#.*--save_to_file=##' -e 's#\s.*##')"
 	possible_plot_type=$(echo $_command | sed -e 's#.*--plot_type=##' -e 's#\s.*##')
 	projectname=$(echo $_command | sed -e 's#.*--run_dir=##' -e 's#\s.*##' -e 's#.*/\(.*\)/[0-9]*$#\1#')
 	has_min=$(echo $_command | grep -- "--min" | wc -l)
@@ -403,10 +403,6 @@ else
 fi
 
 echo ""
-
-if [[ -d PLOT_TESTS ]]; then
-	rm PLOT_TESTS
-fi
 
 exit ${#errors[@]}
 }

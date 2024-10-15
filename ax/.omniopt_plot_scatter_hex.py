@@ -448,18 +448,9 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
 
     return non_empty_graphs
 
-def get_r(df_filtered):
-    print_debug("get_r")
-    r = 2
-
-    if len(list(df_filtered.columns)) == 1:
-        r = 1
-
-    return r
-
 def get_parameter_combinations(df_filtered):
     print_debug("get_parameter_combinations")
-    r = get_r(df_filtered)
+    r = helpers.get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()
 

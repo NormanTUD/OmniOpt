@@ -251,6 +251,15 @@ def die_if_no_nonempty_graph (non_empty_graphs, _exit):
         if _exit:
             sys.exit(2)
 
+def get_r(df_filtered):
+    print_debug("get_r")
+    r = 2
+
+    if len(list(df_filtered.columns)) == 1:
+        r = 1
+
+    return r
+
 check_python_version()
 
 warn_versions()

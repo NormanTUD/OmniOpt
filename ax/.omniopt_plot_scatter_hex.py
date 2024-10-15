@@ -521,16 +521,7 @@ def main():
         fig.canvas.manager.set_window_title("Hex-Scatter: " + str(args.run_dir))
 
     if args.save_to_file:
-        fig.set_size_inches(15.5, 9.5)
-
-        _path = os.path.dirname(args.save_to_file)
-        if _path:
-            os.makedirs(_path, exist_ok=True)
-        try:
-            plt.savefig(args.save_to_file)
-        except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-            sys.exit(199)
+        helpers.save_to_file(fig, args, plt)
 
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM

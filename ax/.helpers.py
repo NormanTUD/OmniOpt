@@ -243,7 +243,7 @@ def create_widgets(_data):
 
     TEXTBOX_MAXIMUM, MAXIMUM_TEXTBOX = plt.axes([0.5, 0.025, 0.1, 0.04]), TextBox(TEXTBOX_MAXIMUM, 'Maximum result:', initial=max_string)
 
-    return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
+    return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
 def die_if_no_nonempty_graph (non_empty_graphs, _exit):
     if not non_empty_graphs:
@@ -259,6 +259,18 @@ def get_r(df_filtered):
         r = 1
 
     return r
+
+def save_to_file (_fig, _args):
+    _fig.set_size_inches(15.5, 9.5)
+
+    _path = os.path.dirname(_args.save_to_file)
+    if _path:
+        os.makedirs(_path, exist_ok=True)
+    try:
+        plt.savefig(_args.save_to_file)
+    except OSError as e:
+        print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
+        sys.exit(199)
 
 check_python_version()
 

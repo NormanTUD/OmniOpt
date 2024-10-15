@@ -447,7 +447,7 @@ def use_matplotlib():
         sys.exit(33)
 
 def main():
-    global args
+    global args, fig
     use_matplotlib()
 
     csv_file_path = get_csv_file_path()
@@ -478,8 +478,6 @@ def main():
     num_cols = math.ceil(math.sqrt(num_subplots))
     num_rows = math.ceil(num_subplots / num_cols)
 
-    global fig
-
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
     plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols])
@@ -491,22 +489,14 @@ def main():
     set_margins()
 
     fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
-    if args.save_to_file:
-        fig.set_size_inches(15.5, 9.5)
 
-        _path = os.path.dirname(args.save_to_file)
-        if _path:
-            os.makedirs(_path, exist_ok=True)
-        try:
-            plt.savefig(args.save_to_file)
-        except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-            sys.exit(199)
+    if args.save_to_file:
+        helpers.save_to_file()
 
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
 
         if not args.no_plt_show:
             plt.show()

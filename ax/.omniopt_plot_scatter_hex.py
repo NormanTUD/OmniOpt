@@ -526,16 +526,16 @@ def main():
         _path = os.path.dirname(args.save_to_file)
         if _path:
             os.makedirs(_path, exist_ok=True)
-
         try:
             plt.savefig(args.save_to_file)
         except OSError as e:
             print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
             sys.exit(199)
+
     else:
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
+        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, Button, update_graph, TextBox])
 
         if not args.no_plt_show:
             plt.show()

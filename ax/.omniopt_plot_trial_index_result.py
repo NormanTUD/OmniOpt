@@ -5,6 +5,7 @@
 # TEST_OUTPUT_MUST_CONTAIN: Result
 
 import argparse
+import importlib.util
 import logging
 import os
 import signal
@@ -16,6 +17,15 @@ import pandas as pd
 import seaborn as sns
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+helpers_file = f"{script_dir}/.helpers.py"
+spec = importlib.util.spec_from_file_location(
+    name="helpers",
+    location=helpers_file,
+)
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')

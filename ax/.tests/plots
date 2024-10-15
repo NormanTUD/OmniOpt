@@ -139,6 +139,14 @@ fi
 
 errors=()
 
+for i in .omniopt_plot_*.py; do
+	python3 $i 2>/dev/null >/dev/null
+	if [[ $? -ne 16 ]]; then
+		red_text "$i does not exit with code 16 outside of bash"
+		errors+=("$i does not exit with code 16 outside of bash")
+	fi
+done
+
 function join_by {
 	local d=${1-} f=${2-}
 	if shift 2; then

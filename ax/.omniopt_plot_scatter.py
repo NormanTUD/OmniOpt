@@ -586,7 +586,7 @@ def update_graph(event=None, _min=None, _max=None):
 
 def create_widgets():
     print_debug("create_widgets()")
-    global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
+    global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
     # Create a Button and set its position
     button_ax = plt.axes([0.8, 0.025, 0.1, 0.04])
@@ -602,12 +602,6 @@ def create_widgets():
 
     if helpers.looks_like_float(args.min):
         min_string = str(args.min)
-
-    global TEXTBOX_MINIMUM
-    global TEXTBOX_MAXIMUM
-
-    global MAXIMUM_TEXTBOX
-    global MINIMUM_TEXTBOX
 
     TEXTBOX_MINIMUM = plt.axes([0.2, 0.025, 0.1, 0.04])
     MINIMUM_TEXTBOX = TextBox(TEXTBOX_MINIMUM, 'Minimum result:', initial=min_string)

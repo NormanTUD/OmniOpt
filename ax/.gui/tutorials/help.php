@@ -303,6 +303,11 @@
 				<td><samp>False</samp></td>
 			</tr>
 			<tr>
+				<td><samp>--raise_in_eval</samp></td>
+				<td>Raise a signal in eval (only useful for debugging and testing)</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--run_tests_that_fail_on_taurus</samp></td>
 				<td>Run tests on Taurus that usually fail</td>
 				<td><samp>False</samp></td>

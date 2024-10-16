@@ -293,6 +293,7 @@ try:
             debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
             debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
             debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
+            debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
 
         def load_config(self, config_path, file_format):
             if not os.path.isfile(config_path):
@@ -1820,6 +1821,8 @@ def evaluate(parameters):
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
     try:
+        if args.raise_in_eval:
+            raise SignalUSR("Raised in eval")
         original_print(f"Parameters: {json.dumps(parameters)}")
 
         parameters_keys = list(parameters.keys())

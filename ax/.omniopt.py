@@ -20,6 +20,7 @@ try:
     import toml
     import time
     import traceback
+    import cowsay
     from rich_argparse import RichHelpFormatter
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
@@ -421,9 +422,6 @@ try:
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
             from submitit import DebugJob, LocalJob
-
-    import cowsay
-
     with console.status("[bold green]Loading psutil...") as status:
         import psutil
     with console.status("[bold green]Loading threading...") as status:

@@ -53,12 +53,6 @@ def get_names_array():
         "memory.used [MiB]"
     ]
 
-def print_if_not_plot_tests_and_exit(msg, exit_code):
-    if not os.environ.get("PLOT_TESTS"):
-        print(msg)
-    if exit_code is not None:
-        sys.exit(exit_code)
-
 def plot_gpu_usage(run_dir):
     global fig
 
@@ -82,13 +76,13 @@ def plot_gpu_usage(run_dir):
                 gpu_data_len += len(df)
 
     if len(_paths) == 0:
-        print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
+        helpers.print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
 
     if not gpu_data:
-        print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
+        helpers.print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
 
     if gpu_data_len < 1:
-        print_if_not_plot_tests_and_exit(f"No valid GPU usage data found (len = {gpu_data_len}).", 19)
+        helpers.print_if_not_plot_tests_and_exit(f"No valid GPU usage data found (len = {gpu_data_len}).", 19)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns

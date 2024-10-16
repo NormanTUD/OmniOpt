@@ -651,6 +651,12 @@ def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
                 df = df.merge(prev_run_df, how='outer')
     return df
 
+def print_if_not_plot_tests_and_exit(msg, exit_code):
+    if not os.environ.get("PLOT_TESTS"):
+        print(msg)
+    if exit_code is not None:
+        sys.exit(exit_code)
+
 check_python_version()
 
 warn_versions()

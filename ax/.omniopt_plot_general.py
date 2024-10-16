@@ -45,7 +45,7 @@ def filter_data(dataframe, min_value=None, max_value=None):
         if max_value is not None:
             dataframe = dataframe[dataframe['result'] <= max_value]
     except KeyError:
-        print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
+        helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
 
     return dataframe
 
@@ -100,12 +100,6 @@ def plot_graph(dataframe, save_to_file=None):
         if not args.no_plt_show:
             plt.show()
 
-def print_if_not_plot_tests_and_exit(msg, exit_code):
-    if not os.environ.get("PLOT_TESTS"):
-        print(msg)
-    if exit_code is not None:
-        sys.exit(exit_code)
-
 def print_traceback():
     tb = traceback.format_exc()
     print(tb)
@@ -117,15 +111,15 @@ def update_graph():
         try:
             dataframe = pd.read_csv(args.run_dir + "/results.csv")
         except pd.errors.EmptyDataError:
-            print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be empty.", 19)
+            helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be empty.", 19)
         except UnicodeDecodeError:
-            print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
+            helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
 
         if args.min is not None or args.max is not None:
             dataframe = filter_data(dataframe, args.min, args.max)
 
         if dataframe.empty:
-            print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
+            helpers.print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
             return
 
         if args.save_to_file:

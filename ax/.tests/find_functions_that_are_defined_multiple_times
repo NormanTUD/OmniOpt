@@ -11,6 +11,13 @@ exclude=(
 	"plot_graph"
 	"plot_graphs"
 	"use_matplotlib"
+	"update_graph"
+	"get_args"
+	"plot_single_graph"
+	"print_debug"
+	"filter_data"
+	"plot_multiple_graphs"
+	"set_margins"
 )
 
 declare -A function_files

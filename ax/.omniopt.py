@@ -952,112 +952,129 @@ def load_global_vars(_file):
         print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
-if not args.tests:
-    if args.continue_previous_job:
-        load_global_vars(f"{args.continue_previous_job}/state_files/global_vars.json")
+def load_or_exit(filepath, error_msg, exit_code):
+    if not os.path.exists(filepath):
+        print_red(error_msg)
+        my_exit(exit_code)
 
-    if args.parameter is None and args.continue_previous_job is None:
-        print_red("Either --parameter or --continue_previous_job is required. Both were not found.")
-        my_exit(19)
-    elif not args.run_program and not args.continue_previous_job:
-        print_red("--run_program needs to be defined when --continue_previous_job is not set")
-        my_exit(19)
-    elif not global_vars["experiment_name"] and not args.continue_previous_job:
-        print_red("--experiment_name needs to be defined when --continue_previous_job is not set")
-        my_exit(19)
-    elif args.continue_previous_job:
-        if not os.path.exists(args.continue_previous_job):
-            print_red(f"The previous job folder {args.continue_previous_job} could not be found!")
-            my_exit(19)
+def get_file_content_or_exit(filepath, error_msg, exit_code):
+    load_or_exit(filepath, error_msg, exit_code)
+    return get_file_as_string(filepath).strip()
 
-        if not global_vars["experiment_name"]:
-            exp_name_file = f"{args.continue_previous_job}/experiment_name"
-            if os.path.exists(exp_name_file):
-                global_vars["experiment_name"] = get_file_as_string(exp_name_file).strip()
-            else:
-                print_red(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
-                my_exit(19)
+def check_param_or_exit(param, error_msg, exit_code):
+    if param is None:
+        print_red(error_msg)
+        my_exit(exit_code)
 
-    if args.mem_gb is None:
-        print_red("--mem_gb needs to be set")
-        my_exit(19)
+def check_continue_previous_job(continue_previous_job):
+    global global_vars
+    if continue_previous_job:
+        load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
 
-    if not args.time:
-        if not args.continue_previous_job:
-            print_yellow("--time needs to be set")
+        # Load experiment name from file if not already set
+        if not global_vars.get("experiment_name"):
+            exp_name_file = f"{continue_previous_job}/experiment_name"
+            global_vars["experiment_name"] = get_file_content_or_exit(
+                exp_name_file,
+                f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.",
+                19
+            )
+    return global_vars
+
+def check_required_parameters(_args):
+    global global_vars
+    check_param_or_exit(
+        _args.parameter or _args.continue_previous_job,
+        "Either --parameter or --continue_previous_job is required. Both were not found.",
+        19
+    )
+    check_param_or_exit(
+        _args.run_program or _args.continue_previous_job,
+        "--run_program needs to be defined when --continue_previous_job is not set",
+        19
+    )
+    check_param_or_exit(
+        global_vars.get("experiment_name") or _args.continue_previous_job,
+        "--experiment_name needs to be defined when --continue_previous_job is not set",
+        19
+    )
+
+def load_time_or_exit(_args):
+    global global_vars
+    if _args.time:
+        global_vars["_time"] = _args.time
+    elif _args.continue_previous_job:
+        time_file = f"{_args.continue_previous_job}/state_files/time"
+        time_content = get_file_content_or_exit(time_file, f"neither --time nor file {time_file} found", 19)
+        if time_content.isdigit():
+            global_vars["_time"] = int(time_content)
+            print_yellow(f"Using old run's --time: {global_vars['_time']}")
         else:
-            time_file = args.continue_previous_job + "/state_files/time"
-            if os.path.exists(time_file):
-                TIME_FILE_CONTENTS = get_file_as_string(time_file).strip()
-                if TIME_FILE_CONTENTS.isdigit():
-                    global_vars["_time"] = int(TIME_FILE_CONTENTS)
-                    print_yellow(f"Using old run's --time: {global_vars['_time']}")
-                else:
-                    print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
-            else:
-                print_yellow(f"neither --time nor file {time_file} found")
-                my_exit(19)
+            print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
-        global_vars["_time"] = args.time
-
-    if not global_vars["_time"]:
         print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
-    if args.mem_gb is None:
-        if not args.continue_previous_job:
-            print_yellow("--mem_gb needs to be set")
-        else:
-            mem_gb_file = args.continue_previous_job + "/state_files/mem_gb"
-            if os.path.exists(mem_gb_file):
-                mem_gb_file_contents = get_file_as_string(mem_gb_file).strip()
-                if mem_gb_file_contents.isdigit():
-                    mem_gb = int(mem_gb_file_contents)
-                    print_yellow(f"Using old run's --mem_gb: {mem_gb}")
-                else:
-                    print_yellow(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
-            else:
-                print_red(f"neither --mem_gb nor file {mem_gb_file} found")
-                my_exit(19)
-    else:
-        mem_gb = int(args.mem_gb)
+def load_mem_gb_or_exit(_args):
+    if _args.mem_gb:
+        return int(_args.mem_gb)
 
-    if args.continue_previous_job and not args.gpus:
-        gpus_file = args.continue_previous_job + "/state_files/gpus"
-        if os.path.exists(gpus_file):
-            GPUS_FILE_CONTENTS = get_file_as_string(gpus_file).strip()
-            if GPUS_FILE_CONTENTS.isdigit():
-                gpus = int(GPUS_FILE_CONTENTS)
-                print_yellow(f"Using old run's --gpus: {gpus}")
-            else:
-                print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
-        else:
-            print_red(f"neither --gpus nor file {gpus_file} found")
-            my_exit(19)
-    else:
-        set_max_eval(args.max_eval)
+    if _args.continue_previous_job:
+        mem_gb_file = f"{_args.continue_previous_job}/state_files/mem_gb"
+        mem_gb_content = get_file_content_or_exit(mem_gb_file, f"neither --mem_gb nor file {mem_gb_file} found", 19)
+        if mem_gb_content.isdigit():
+            mem_gb = int(mem_gb_content)
+            print_yellow(f"Using old run's --mem_gb: {mem_gb}")
+            return mem_gb
 
-    if not args.max_eval:
-        if not args.continue_previous_job:
-            print_yellow("--max_eval needs to be set")
-        else:
-            max_eval_file = args.continue_previous_job + "/state_files/max_eval"
-            if os.path.exists(max_eval_file):
-                MAX_EVAL_FILE_CONTENTS = get_file_as_string(max_eval_file).strip()
-                if MAX_EVAL_FILE_CONTENTS.isdigit():
-                    set_max_eval(int(MAX_EVAL_FILE_CONTENTS))
-                    print_yellow(f"Using old run's --max_eval: {max_eval}")
-                else:
-                    print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
-            else:
-                print_red(f"neither --max_eval nor file {max_eval_file} found")
-                my_exit(19)
-    else:
-        set_max_eval(args.max_eval)
+        print_yellow(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
+        return None
 
-        if max_eval <= 0:
+    print_red("--mem_gb needs to be set")
+    my_exit(19)
+
+    return None
+
+def load_gpus_or_exit(_args):
+    if _args.continue_previous_job and not _args.gpus:
+        gpus_file = f"{_args.continue_previous_job}/state_files/gpus"
+        gpus_content = get_file_content_or_exit(gpus_file, f"neither --gpus nor file {gpus_file} found", 19)
+        if gpus_content.isdigit():
+            gpus = int(gpus_content)
+            print_yellow(f"Using old run's --gpus: {gpus}")
+            return gpus
+
+        print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
+    return _args.gpus
+
+def load_max_eval_or_exit(_args):
+    if _args.max_eval:
+        set_max_eval(_args.max_eval)
+        if _args.max_eval <= 0:
             print_red("--max_eval must be larger than 0")
             my_exit(19)
+    elif _args.continue_previous_job:
+        max_eval_file = f"{_args.continue_previous_job}/state_files/max_eval"
+        max_eval_content = get_file_content_or_exit(max_eval_file, f"neither --max_eval nor file {max_eval_file} found", 19)
+        if max_eval_content.isdigit():
+            set_max_eval(int(max_eval_content))
+            print_yellow(f"Using old run's --max_eval: {max_eval_content}")
+        else:
+            print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
+    else:
+        print_yellow("--max_eval needs to be set")
+
+if not args.tests:
+    global_vars = check_continue_previous_job(args.continue_previous_job)
+    check_required_parameters(args)
+    load_time_or_exit(args)
+
+    args.mem_gb = load_mem_gb_or_exit(args)
+    global_vars["mem_gb"] = args.mem_gb
+    args.gpus = load_gpus_or_exit(args)
+    global_vars["gpus"] = args.gpus
+
+    load_max_eval_or_exit(args)
 
 @wrapper_print_debug
 def print_debug_get_next_trials(got, requested, _line):

@@ -957,7 +957,7 @@ if not args.tests:
         load_global_vars(f"{args.continue_previous_job}/state_files/global_vars.json")
 
     if args.parameter is None and args.continue_previous_job is None:
-        original_print("Either --parameter or --continue_previous_job is required. Both were not found.")
+        print_red("Either --parameter or --continue_previous_job is required. Both were not found.")
         my_exit(19)
     elif not args.run_program and not args.continue_previous_job:
         print_red("--run_program needs to be defined when --continue_previous_job is not set")
@@ -975,7 +975,7 @@ if not args.tests:
             if os.path.exists(exp_name_file):
                 global_vars["experiment_name"] = get_file_as_string(exp_name_file).strip()
             else:
-                original_print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
+                print_red(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
                 my_exit(19)
 
     if args.mem_gb is None:

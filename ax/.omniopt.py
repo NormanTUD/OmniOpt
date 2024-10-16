@@ -2197,6 +2197,12 @@ def count_done_jobs():
 
     return _count_done_jobs(csv_file_path)
 
+def plot_sixel_imgs(csv_file_path):
+    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
+
+    for c in sixel_graphic_commands:
+        plot_params_to_cli(*c)
+
 def _print_best_result(csv_file_path, maximize, print_to_file=True):
     global global_vars
     global SHOWN_END_TABLE
@@ -2250,7 +2256,7 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
             with open(f'{CURRENT_RUN_FOLDER}/best_result.txt', mode="w", encoding="utf-8") as text_file:
                 text_file.write(table_str)
 
-        show_sixel_graphics(csv_file_path)
+        plot_sixel_imgs(csv_file_path)
 
         SHOWN_END_TABLE = True
     except Exception as e:
@@ -2327,12 +2333,14 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
         plot_command(_command, tmp_file, _width)
 
 @wrapper_print_debug
-def show_sixel_graphics(_pd_csv):
+def get_sixel_graphics_data(_pd_csv):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+
+    data = []
 
     if ci_env:
         print("Not printing sixel graphics in CI")
-        return
+        return data
 
     if os.path.exists(_pd_csv) and _show_sixel_graphics:
         x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
@@ -2381,11 +2389,13 @@ def show_sixel_graphics(_pd_csv):
                 if "dpi" in plot:
                     _command += " --dpi=" + str(plot["dpi"])
 
-                plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width)
+                _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
+                data.append(_params)
             except Exception as e:
                 tb = traceback.format_exc()
                 print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
                 print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+    return data
 
 @wrapper_print_debug
 def show_end_table_and_save_end_files(csv_file_path):

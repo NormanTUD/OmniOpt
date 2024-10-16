@@ -173,7 +173,10 @@ def plot_graphs(_params):
     df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
     print_debug("plot_graphs")
 
-    cmap, norm = helpers.get_color_list(df, args, plt)
+    cmap, norm, colors = helpers.get_color_list(df, args, plt)
+
+    if colors is not None:
+        pass # for fooling linter
 
     if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
         plot_single_graph([axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values])

@@ -29,9 +29,7 @@ except ModuleNotFoundError as e:
 YELLOW = "\033[93m"
 RESET = "\033[0m"
 
-uuid_regex = re.compile(
-    r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
-)
+uuid_regex = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
 
 new_uuid = str(uuid.uuid4())
 run_uuid = os.getenv("RUN_UUID", new_uuid)
@@ -1140,21 +1138,15 @@ def create_folder_and_file(folder):
 
     file_path = os.path.join(folder, "results.csv")
 
-    #with open(file_path, mode='w', encoding='utf-8') as file:
-    #    pass
-
     return file_path
 
 def sort_numerically_or_alphabetically(arr):
     try:
-        # Check if all elements can be converted to numbers
         numbers = [float(item) for item in arr]
-        # If successful, order them numerically
-        sorted_arr = sorted(numbers)
     except ValueError:
-        # If there's an error, order them alphabetically
-        sorted_arr = sorted(arr)
+        pass
 
+    sorted_arr = sorted(arr)
     return sorted_arr
 
 def get_program_code_from_out_file(f):

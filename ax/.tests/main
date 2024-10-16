@@ -450,6 +450,10 @@ python3 --version
 
 #_test "php linter" ".tests/phpcs" 0 255
 _test "php_search" ".tests/php_search" 0 255
+if [[ $RUN_WITH_COVERAGE -eq 1 ]]; then
+	_test "Run helpers with coverage, outside of bash" "coverage run -p .helpers.py" 16
+fi
+_test "php_search" ".tests/php_search" 0 255
 _test "js_syntax" ".tests/js_syntax" 0 255
 _test "share" ".tests/share" 0 255
 _test "Plot unit tests" ".tests/unit_test_plots" 0 255

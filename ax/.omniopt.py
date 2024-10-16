@@ -2418,9 +2418,31 @@ def show_end_table_and_save_end_files(csv_file_path):
 
     return _exit
 
-def end_program(csv_file_path, _force=False, exit_code=None):
+def abandon_job(job, trial_index):
     global global_vars
-    global END_PROGRAM_RAN
+
+    if job:
+        try:
+            _trial = ax_client.get_trial(trial_index)
+            _trial.mark_abandoned()
+            global_vars["jobs"].remove((job, trial_index))
+        except Exception as e:
+            print(f"ERROR in line {get_line_info()}: {e}")
+            print_debug(f"ERROR in line {get_line_info()}: {e}")
+            return False
+        job.cancel()
+        return True
+
+    return False
+
+def abandon_all_jobs():
+    for job, trial_index in global_vars["jobs"][:]:
+        abandoned = abandon_job(job, trial_index)
+        if not abandoned:
+            print_debug(f"Job {job} could not be abandoned.")
+
+def end_program(csv_file_path, _force=False, exit_code=None):
+    global global_vars, END_PROGRAM_RAN
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
@@ -2459,15 +2481,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
     except TypeError as e:
         print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
-    for job, trial_index in global_vars["jobs"][:]:
-        if job:
-            try:
-                _trial = ax_client.get_trial(trial_index)
-                _trial.mark_abandoned()
-                global_vars["jobs"].remove((job, trial_index))
-            except Exception as e:
-                print(f"ERROR in line {get_line_info()}: {e}")
-            job.cancel()
+    abandon_all_jobs()
 
     save_pd_csv()
 

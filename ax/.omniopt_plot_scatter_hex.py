@@ -170,6 +170,7 @@ def plot_single_graph(_params):
     return scatter
 
 def plot_graphs(_params):
+    global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
     print_debug("plot_graphs")
 
@@ -292,7 +293,7 @@ def update_graph(event=None, _min=None, _max=None):
         pass
 
     filter_out_strings = True
-    helpers._update_graph(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, NO_RESULT, filter_out_strings)
+    helpers._update_graph(plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button)
 
 if __name__ == "__main__":
     try:

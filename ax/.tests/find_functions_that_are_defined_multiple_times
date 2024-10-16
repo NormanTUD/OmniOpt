@@ -2,7 +2,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 cd ..
 
 exclude=(
@@ -18,11 +18,15 @@ exclude=(
 	"filter_data"
 	"plot_multiple_graphs"
 	"set_margins"
+	"set_title"
+	"check_args"
+	"save_to_file_or_show_canvas"
 )
 
 declare -A function_files
+error_count=0
 
-for i in .*.py; do
+for i in *.py; do
 	functions=$(grep -oP "^def\s+\K\w+" "$i")
 
 	while IFS= read -r function; do
@@ -32,10 +36,15 @@ for i in .*.py; do
 	done <<< "$functions"
 done
 
-echo -e "Functions that appear in multiple files:"
-for function in "${!function_files[@]}"; do
-	files=(${function_files[$function]})
-	if [ "${#files[@]}" -gt 1 ]; then
-		echo "$function: ${function_files[$function]}"
-	fi
-done
+if [ "$error_count" -gt 0 ]; then
+	echo -e "\nTotal errors: $error_count"
+	for function in "${!function_files[@]}"; do
+		files=(${function_files[$function]})
+		if [ "${#files[@]}" -gt 1 ]; then
+			echo "$function: ${function_files[$function]}"
+			((error_count++))
+		fi
+	done
+fi
+
+exit $error_count

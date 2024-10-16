@@ -2398,7 +2398,10 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
 
             maindir = os.path.dirname(os.path.realpath(__file__))
 
-            _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+            if _force:
+                _command = f"bash omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+            else:
+                _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
 
             if "dpi" in plot:
                 _command += " --dpi=" + str(plot["dpi"])
@@ -5092,7 +5095,9 @@ def run_tests():
     ]
 
     got = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
-    nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, "[[\"bash /home/norman/repos/OmniOpt/ax/omniopt_plot --run_dir None --plot_type=trial_index_result\", {\"type\": \"trial_index_result\", \"min_done_jobs\": 2}, \"None/plots/\", \"trial_index_result\", \"None/plots//trial_index_result.png\", 1200], [\"bash /home/norman/repos/OmniOpt/ax/omniopt_plot --run_dir None --plot_type=scatter --dpi=76\", {\"type\": \"scatter\", \"params\": \"--bubblesize=50 --allow_axes %0 --allow_axes %1\", \"iterate_through\": [[\"n_samples\", \"confidence\"], [\"n_samples\", \"feature_proportion\"], [\"n_samples\", \"n_clusters\"], [\"confidence\", \"feature_proportion\"], [\"confidence\", \"n_clusters\"], [\"feature_proportion\", \"n_clusters\"]], \"dpi\": 76, \"filename\": \"plot_%0_%1_%2\"}, \"None/plots/\", \"scatter\", \"None/plots//plot_%0_%1_%2.png\", 1200], [\"bash /home/norman/repos/OmniOpt/ax/omniopt_plot --run_dir None --plot_type=general\", {\"type\": \"general\"}, \"None/plots/\", \"general\", \"None/plots//general.png\", 1200]]")
+    expected = '[["bash omniopt_plot --run_dir None --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "None/plots/", "trial_index_result", "None/plots//trial_index_result.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "None/plots/", "scatter", "None/plots//plot_%0_%1_%2.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=general", {"type": "general"}, "None/plots/", "general", "None/plots//general.png", 1200]]'
+
+    nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, expected)
 
     nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
 

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+exclude=(
+	"main"
+	"parse_arguments"
+	"plot_graph"
+	"plot_graphs"
+	"use_matplotlib"
+)
+
+declare -A function_files
+
+for i in .omniopt*.py; do
+	functions=$(grep -oP "^def\s+\K\w+" "$i")
+
+	while IFS= read -r function; do
+		if [[ ! " ${exclude[@]} " =~ " ${function} " ]]; then
+			function_files["$function"]+="$i "
+		fi
+	done <<< "$functions"
+done
+
+echo -e "Functions that appear in multiple files:"
+for function in "${!function_files[@]}"; do
+	files=(${function_files[$function]})
+	if [ "${#files[@]}" -gt 1 ]; then
+		echo "$function: ${function_files[$function]}"
+	fi
+done

@@ -931,7 +931,7 @@ else:
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
     else:
-        print(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
+        print_red(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         my_exit(44)
 
 if not args.tests and len(global_vars["joined_run_program"]) == 0:
@@ -942,14 +942,14 @@ global_vars["experiment_name"] = args.experiment_name
 
 def load_global_vars(_file):
     if not os.path.exists(_file):
-        print(f"You've tried to continue a non-existing job: {_file}")
+        print_red(f"You've tried to continue a non-existing job: {_file}")
         my_exit(44)
     try:
         global global_vars
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
     except Exception as e:
-        print("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
+        print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
 if not args.tests:
@@ -960,10 +960,10 @@ if not args.tests:
         original_print("Either --parameter or --continue_previous_job is required. Both were not found.")
         my_exit(19)
     elif not args.run_program and not args.continue_previous_job:
-        print("--run_program needs to be defined when --continue_previous_job is not set")
+        print_red("--run_program needs to be defined when --continue_previous_job is not set")
         my_exit(19)
     elif not global_vars["experiment_name"] and not args.continue_previous_job:
-        print("--experiment_name needs to be defined when --continue_previous_job is not set")
+        print_red("--experiment_name needs to be defined when --continue_previous_job is not set")
         my_exit(19)
     elif args.continue_previous_job:
         if not os.path.exists(args.continue_previous_job):
@@ -979,45 +979,45 @@ if not args.tests:
                 my_exit(19)
 
     if args.mem_gb is None:
-        print("--mem_gb needs to be set")
+        print_red("--mem_gb needs to be set")
         my_exit(19)
 
     if not args.time:
         if not args.continue_previous_job:
-            print("--time needs to be set")
+            print_yellow("--time needs to be set")
         else:
             time_file = args.continue_previous_job + "/state_files/time"
             if os.path.exists(time_file):
                 TIME_FILE_CONTENTS = get_file_as_string(time_file).strip()
                 if TIME_FILE_CONTENTS.isdigit():
                     global_vars["_time"] = int(TIME_FILE_CONTENTS)
-                    print(f"Using old run's --time: {global_vars['_time']}")
+                    print_yellow(f"Using old run's --time: {global_vars['_time']}")
                 else:
-                    print(f"Time-setting: The contents of {time_file} do not contain a single number")
+                    print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
             else:
-                print(f"neither --time nor file {time_file} found")
+                print_yellow(f"neither --time nor file {time_file} found")
                 my_exit(19)
     else:
         global_vars["_time"] = args.time
 
     if not global_vars["_time"]:
-        print("Missing --time parameter. Cannot continue.")
+        print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
     if args.mem_gb is None:
         if not args.continue_previous_job:
-            print("--mem_gb needs to be set")
+            print_yellow("--mem_gb needs to be set")
         else:
             mem_gb_file = args.continue_previous_job + "/state_files/mem_gb"
             if os.path.exists(mem_gb_file):
                 mem_gb_file_contents = get_file_as_string(mem_gb_file).strip()
                 if mem_gb_file_contents.isdigit():
                     mem_gb = int(mem_gb_file_contents)
-                    print(f"Using old run's --mem_gb: {mem_gb}")
+                    print_yellow(f"Using old run's --mem_gb: {mem_gb}")
                 else:
-                    print(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
+                    print_yellow(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
             else:
-                print(f"neither --mem_gb nor file {mem_gb_file} found")
+                print_red(f"neither --mem_gb nor file {mem_gb_file} found")
                 my_exit(19)
     else:
         mem_gb = int(args.mem_gb)
@@ -1028,29 +1028,29 @@ if not args.tests:
             GPUS_FILE_CONTENTS = get_file_as_string(gpus_file).strip()
             if GPUS_FILE_CONTENTS.isdigit():
                 gpus = int(GPUS_FILE_CONTENTS)
-                print(f"Using old run's --gpus: {gpus}")
+                print_yellow(f"Using old run's --gpus: {gpus}")
             else:
-                print(f"--gpus: The contents of {gpus_file} do not contain a single number")
+                print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
         else:
-            print(f"neither --gpus nor file {gpus_file} found")
+            print_red(f"neither --gpus nor file {gpus_file} found")
             my_exit(19)
     else:
         set_max_eval(args.max_eval)
 
     if not args.max_eval:
         if not args.continue_previous_job:
-            print("--max_eval needs to be set")
+            print_yellow("--max_eval needs to be set")
         else:
             max_eval_file = args.continue_previous_job + "/state_files/max_eval"
             if os.path.exists(max_eval_file):
                 MAX_EVAL_FILE_CONTENTS = get_file_as_string(max_eval_file).strip()
                 if MAX_EVAL_FILE_CONTENTS.isdigit():
                     set_max_eval(int(MAX_EVAL_FILE_CONTENTS))
-                    print(f"Using old run's --max_eval: {max_eval}")
+                    print_yellow(f"Using old run's --max_eval: {max_eval}")
                 else:
-                    print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
+                    print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
             else:
-                print(f"neither --max_eval nor file {max_eval_file} found")
+                print_red(f"neither --max_eval nor file {max_eval_file} found")
                 my_exit(19)
     else:
         set_max_eval(args.max_eval)
@@ -1142,7 +1142,8 @@ def create_folder_and_file(folder):
 
 def sort_numerically_or_alphabetically(arr):
     try:
-        numbers = [float(item) for item in arr]
+        new_arr = [float(item) for item in arr]
+        arr = new_arr
     except ValueError:
         pass
 

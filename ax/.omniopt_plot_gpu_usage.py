@@ -122,7 +122,7 @@ def plot_gpu_usage(run_dir):
 
 def save_to_file_or_show_canvas():
     if args.save_to_file:
-        helpers.save_to_file (fig, args, plt):
+        helpers.save_to_file(fig, args, plt)
     else:
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
         if not args.no_plt_show:

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+cd ..
+
 exclude=(
 	"main"
 	"parse_arguments"
@@ -10,7 +15,7 @@ exclude=(
 
 declare -A function_files
 
-for i in .omniopt*.py; do
+for i in .*.py; do
 	functions=$(grep -oP "^def\s+\K\w+" "$i")
 
 	while IFS= read -r function; do

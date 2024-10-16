@@ -2198,6 +2198,10 @@ def count_done_jobs():
     return _count_done_jobs(csv_file_path)
 
 def plot_sixel_imgs(csv_file_path):
+    if ci_env:
+        print("Not printing sixel graphics in CI")
+        return
+
     sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
 
     for c in sixel_graphic_commands:
@@ -2270,10 +2274,10 @@ def print_best_result():
 
     return _print_best_result(csv_file_path, args.maximize, True)
 
-def get_plot_types(x_y_combinations):
+def get_plot_types(x_y_combinations, _force=False):
     plot_types = []
 
-    if args.show_sixel_trial_index_result:
+    if args.show_sixel_trial_index_result or _force:
         plot_types.append(
             {
                 "type": "trial_index_result",
@@ -2281,7 +2285,7 @@ def get_plot_types(x_y_combinations):
             }
         )
 
-    if args.show_sixel_scatter:
+    if args.show_sixel_scatter or _force:
         plot_types.append(
             {
                 "type": "scatter",
@@ -2292,7 +2296,7 @@ def get_plot_types(x_y_combinations):
             }
         )
 
-    if args.show_sixel_general:
+    if args.show_sixel_general or _force:
         plot_types.append(
             {
                 "type": "general"
@@ -2333,68 +2337,79 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
         plot_command(_command, tmp_file, _width)
 
 @wrapper_print_debug
-def get_sixel_graphics_data(_pd_csv):
+def get_sixel_graphics_data(_pd_csv, _force=False):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
+
+    if _force:
+        _show_sixel_graphics = True
 
     data = []
 
-    if ci_env:
-        print("Not printing sixel graphics in CI")
+    if not os.path.exists(_pd_csv):
+        print_debug(f"Cannot find path {_pd_csv}")
         return data
 
-    if os.path.exists(_pd_csv) and _show_sixel_graphics:
-        x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
+    if not _show_sixel_graphics:
+        print_debug("_show_sixel_graphics was false. Will not plot.")
+        return data
 
-        plot_types = get_plot_types(x_y_combinations)
+    if len(global_vars["parameter_names"]) == 0:
+        print_debug("Cannot handle empty data in global_vars -> parameter_names")
+        return data
 
-        for plot in plot_types:
-            plot_type = plot["type"]
-            min_done_jobs = 1
+    x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            if "min_done_jobs" in plot:
-                min_done_jobs = plot["min_done_jobs"]
+    plot_types = get_plot_types(x_y_combinations, _force)
 
-            if count_done_jobs() < min_done_jobs:
-                print_debug(
-                    f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
-                )
-                continue
+    for plot in plot_types:
+        plot_type = plot["type"]
+        min_done_jobs = 1
 
-            try:
-                _tmp = f"{CURRENT_RUN_FOLDER}/plots/"
-                _width = 1200
+        if "min_done_jobs" in plot:
+            min_done_jobs = plot["min_done_jobs"]
 
-                if "width" in plot:
-                    _width = plot["width"]
+        if count_done_jobs() < min_done_jobs and not _force:
+            print_debug(
+                f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
+            )
+            continue
 
-                if not os.path.exists(_tmp):
-                    os.makedirs(_tmp)
+        try:
+            _tmp = f"{CURRENT_RUN_FOLDER}/plots/"
+            _width = 1200
 
-                j = 0
-                _fn = plot_type
+            if "width" in plot:
+                _width = plot["width"]
 
-                if "filename" in plot:
-                    _fn = plot['filename']
+            if not os.path.exists(_tmp):
+                os.makedirs(_tmp)
 
-                tmp_file = f"{_tmp}/{_fn}.png"
+            j = 0
+            _fn = plot_type
 
-                while os.path.exists(tmp_file):
-                    j += 1
-                    tmp_file = f"{_tmp}/{_fn}_{j}.png"
+            if "filename" in plot:
+                _fn = plot['filename']
 
-                maindir = os.path.dirname(os.path.realpath(__file__))
+            tmp_file = f"{_tmp}/{_fn}.png"
 
-                _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+            while os.path.exists(tmp_file):
+                j += 1
+                tmp_file = f"{_tmp}/{_fn}_{j}.png"
 
-                if "dpi" in plot:
-                    _command += " --dpi=" + str(plot["dpi"])
+            maindir = os.path.dirname(os.path.realpath(__file__))
 
-                _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
-                data.append(_params)
-            except Exception as e:
-                tb = traceback.format_exc()
-                print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
-                print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+            _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+
+            if "dpi" in plot:
+                _command += " --dpi=" + str(plot["dpi"])
+
+            _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
+            data.append(_params)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
+            print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+
     return data
 
 @wrapper_print_debug
@@ -5066,6 +5081,18 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    nr_errors += is_equal('get_sixel_graphics_data("")', json.dumps(get_sixel_graphics_data('')), json.dumps([]))
+
+    global_vars["parameter_names"] = [
+        "n_samples",
+        "confidence",
+        "feature_proportion",
+        "n_clusters"
+    ]
+
+    got = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
+    nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, "[[\"bash /home/norman/repos/OmniOpt/ax/omniopt_plot --run_dir None --plot_type=trial_index_result\", {\"type\": \"trial_index_result\", \"min_done_jobs\": 2}, \"None/plots/\", \"trial_index_result\", \"None/plots//trial_index_result.png\", 1200], [\"bash /home/norman/repos/OmniOpt/ax/omniopt_plot --run_dir None --plot_type=scatter --dpi=76\", {\"type\": \"scatter\", \"params\": \"--bubblesize=50 --allow_axes %0 --allow_axes %1\", \"iterate_through\": [[\"n_samples\", \"confidence\"], [\"n_samples\", \"feature_proportion\"], [\"n_samples\", \"n_clusters\"], [\"confidence\", \"feature_proportion\"], [\"confidence\", \"n_clusters\"], [\"feature_proportion\", \"n_clusters\"]], \"dpi\": 76, \"filename\": \"plot_%0_%1_%2\"}, \"None/plots/\", \"scatter\", \"None/plots//plot_%0_%1_%2.png\", 1200], [\"bash /home/norman/repos/OmniOpt/ax/omniopt_plot --run_dir None --plot_type=general\", {\"type\": \"general\"}, \"None/plots/\", \"general\", \"None/plots//general.png\", 1200]]")
 
     nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
 

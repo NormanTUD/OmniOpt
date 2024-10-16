@@ -170,7 +170,7 @@ def plot_single_graph(_params):
     return scatter
 
 def plot_graphs(_params):
-    df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
+    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
     print_debug("plot_graphs")
 
     cmap, norm, colors = helpers.get_color_list(df, args, plt)
@@ -263,7 +263,7 @@ def main():
 
     result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-    plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+    plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
     if not args.no_legend:
         set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
@@ -291,42 +291,8 @@ def update_graph(event=None, _min=None, _max=None):
     if event: # only for fooling pylint...
         pass
 
-    try:
-        _min, _max = helpers.set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
-
-        print_debug(f"update_graph: _min = {_min}, _max = {_max}")
-
-        csv_file_path = helpers.get_csv_file_path(args)
-        df = helpers.get_data(NO_RESULT, csv_file_path, _min, _max, None, True)
-
-        old_headers_string = ','.join(sorted(df.columns))
-
-        df = helpers.merge_df_with_old_data(args, df, NO_RESULT, _min, _max, old_headers_string)
-
-        nr_of_items_before_filtering = len(df)
-        df_filtered = helpers.get_df_filtered(args, df)
-
-        helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, False)
-
-        parameter_combinations = helpers.get_parameter_combinations(df_filtered)
-        non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, False)
-
-        num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
-
-        helpers.remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX)
-
-        axs = fig.subplots(num_rows, num_cols)  # Create new subplots
-
-        result_column_values = helpers.get_result_column_values(df, csv_file_path)
-
-        plot_graphs([df, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
-
-        set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
-
-        plt.draw()
-    except Exception as e:
-        if "invalid command name" not in str(e):
-            print(f"Failed to update graph: {e}")
+    filter_out_strings = True
+    helpers._update_graph(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, NO_RESULT, filter_out_strings)
 
 if __name__ == "__main__":
     try:

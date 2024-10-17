@@ -186,7 +186,7 @@ jobs:
     - name: Create a new version
       if: ${{ success() }}
       run: |
-        echo "Creating new version..."
+        echo "Creating new version"
         git tag v2.0.${{ github.run_number }} || true
         git push origin --tags || true
       env:

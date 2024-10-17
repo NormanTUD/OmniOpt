@@ -2035,7 +2035,7 @@ def replace_string_with_params(input_string, params):
         i = 0
         for param in params:
             #print(f"param: {param}, type: {type(param)}")
-            replaced_string = replaced_string.replace(f"%{i}", param)
+            replaced_string = replaced_string.replace(f"%{i}", str(param))
             i += 1
         return replaced_string
     except AssertionError as e:
@@ -5109,6 +5109,10 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    nr_errors += is_equal('replace_string_with_params("hello %0 %1 world", [10, "hello"])', replace_string_with_params("hello %0 %1 world", [10, "hello"]), "hello 10 hello world")
+
+    nr_errors += is_equal('_count_sobol_or_completed("", "")', _count_sobol_or_completed("", ""), 0)
 
     plot_params = get_plot_commands('_command', {"type": "trial_index_result", "min_done_jobs": 2}, '_tmp', 'plot_type', 'tmp_file', 1200)
 

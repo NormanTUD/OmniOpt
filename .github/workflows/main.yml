@@ -99,6 +99,24 @@ jobs:
         os: [ubuntu-24.04, ubuntu-22.04, ubuntu-20.04] #, macos-14]
 
     steps:
+    - name: Cache apt dependencies
+      uses: actions/cache@v3
+      with:
+        path: /tmp/apt-cache
+        key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
+
+    - name: Cache Python packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          $HOME/.cache/pip
+          $HOME/.omniax_*/
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Checkout code
       uses: actions/checkout@v3
 

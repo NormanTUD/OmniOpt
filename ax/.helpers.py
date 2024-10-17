@@ -10,6 +10,7 @@ import sys
 import traceback
 from importlib.metadata import version
 from pprint import pprint
+import matplotlib
 from matplotlib.widgets import Button, TextBox
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
@@ -711,6 +712,16 @@ def set_margins(fig):
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
     return fig
+
+def use_matplotlib(_args):
+    try:
+        if not _args.save_to_file:
+            matplotlib.use('TkAgg')
+    except Exception as e:
+        print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
+        sys.exit(33)
+
+    return matplotlib
 
 check_python_version()
 

@@ -162,18 +162,10 @@ def get_args():
 
     return args
 
-def use_matplotlib():
-    global args
-    try:
-        if not args.save_to_file:
-            matplotlib.use('TkAgg')
-    except Exception:
-        print("An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection")
-        sys.exit(33)
-
 def main():
     global args, fig
-    use_matplotlib()
+
+    matplotlib = helpers.use_matplotlib(args)
 
     csv_file_path = helpers.get_csv_file_path(args)
 

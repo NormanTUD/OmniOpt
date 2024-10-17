@@ -158,6 +158,9 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          flag-name: run-${{ join(matrix.*, '-') }}
+          parallel: true
 
     - uses: release-drafter/release-drafter@v5
       with:
@@ -165,3 +168,14 @@ jobs:
       #   disable-autolabeler: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  finish:
+    needs: main-test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
+        carryforward: "ubuntu-24.04,ubuntu-22.04,ubuntu-20.04"

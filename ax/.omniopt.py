@@ -4899,7 +4899,7 @@ def main():
     try:
         set_global_executor()
     except ModuleNotFoundError as e:
-        print_red(f"set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containining the OmniOpt2 modules.")
+        print_red(f"set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
         sys.exit(244)
 
     load_existing_job_data_into_ax_client()

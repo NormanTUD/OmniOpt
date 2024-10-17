@@ -41,7 +41,6 @@ fig = None
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 try:
-    import matplotlib
     import matplotlib.pyplot as plt
 except ModuleNotFoundError as ee:
     print(f"Error: {ee}")
@@ -196,7 +195,7 @@ def get_args():
 def main():
     global args
 
-    matplotlib = helpers.use_matplotlib(args)
+    helpers.use_matplotlib(args)
 
     csv_file_path = helpers.get_csv_file_path(args)
 

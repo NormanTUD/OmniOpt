@@ -721,8 +721,6 @@ def use_matplotlib(_args):
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-    return matplotlib
-
 check_python_version()
 
 warn_versions()

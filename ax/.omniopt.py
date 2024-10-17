@@ -4579,7 +4579,7 @@ def get_number_of_steps(_max_eval):
 
     return _random_steps, second_step_steps
 
-def get_executor():
+def set_global_executor():
     log_folder = f'{CURRENT_RUN_FOLDER}/single_runs/%j'
     global executor
 
@@ -4896,7 +4896,12 @@ def main():
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
     print_overview_tables(experiment_parameters, experiment_args)
 
-    get_executor()
+    try:
+        set_global_executor()
+    except ModuleNotFoundError as e:
+        print_red(f"set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containining the OmniOpt2 modules.")
+        sys.exit(244)
+
     load_existing_job_data_into_ax_client()
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
 

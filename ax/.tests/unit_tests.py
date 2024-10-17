@@ -24,7 +24,7 @@ def clean_filename(_filename):
     return _filename
 
 path = f'{script_dir}/../'
-_glob = f'{path}/.omniopt_plot_*.py'
+_glob = f'{path}/.*.py'
 
 files = glob.glob(_glob)
 
@@ -38,6 +38,12 @@ to_test = {
     ".omniopt_plot_get_next_trials.py": {
         "is_valid_time_format('hallo')": False,
         "is_valid_time_format('2024-01-01 20:20:02')": True
+    },
+    ".helpers.py": {
+        "check_environment_variable('I_DO_NOT_EXIST')": False,
+        "looks_like_int(1)": True,
+        "to_int_when_possible('hallo')": "hallo",
+        "print_diff('hallo', 'hallo')": None
     }
 }
 

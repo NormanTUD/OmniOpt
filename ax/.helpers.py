@@ -365,9 +365,11 @@ def print_diff(i, o):
         print("Is:", o.strip())
     else:
         print("Is:", o)
-    if isinstance(i, str) or isinstance(o, str):
-        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
 
+    if isinstance(i, str) or isinstance(o, str):
+        output = _unidiff_output(json.dumps(i), json.dumps(o))
+        if output:
+            print("Diff:", output)
 
 def _unidiff_output(expected, actual):
     """

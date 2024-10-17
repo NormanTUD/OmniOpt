@@ -4,7 +4,6 @@ import logging
 import os
 import signal
 import sys
-import traceback
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -43,15 +42,15 @@ def load_data(csv_path):
         return dataframe
     except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
-            logging.error(f"CSV file {csv_path} is empty.")
+            logging.error("CSV file %s is empty.", csv_path)
         sys.exit(19)
     except UnicodeDecodeError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
-            logging.error(f"CSV file {csv_path} contains invalid UTF-8.")
+            logging.error("CSV file %s contains invalid UTF-8.", csv_path)
         sys.exit(7)
     except FileNotFoundError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
-            logging.error(f"CSV file not found: {csv_path}")
+            logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
 
 def plot_graph(dataframe, save_to_file=None):

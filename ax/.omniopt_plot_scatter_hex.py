@@ -168,7 +168,6 @@ def get_args():
     parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
 
     parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
-    parser.add_argument('--debug', help='Enable debug', action='store_true', default=False)
 
     parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
     parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)

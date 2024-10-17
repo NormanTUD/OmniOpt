@@ -4603,6 +4603,7 @@ def set_global_executor():
     else:
         executor = submitit.AutoExecutor(folder=log_folder)
 
+    # TODO: The following settings can be set but arent:
     # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
 
     executor.update_parameters(

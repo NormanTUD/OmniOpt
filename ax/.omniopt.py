@@ -3495,7 +3495,7 @@ def load_data_from_existing_run_folders(_paths):
             old_arm_parameter = old_trial.arm.parameters
             hashed_params_result = generate_hashed_params(old_arm_parameter, this_path)
 
-            if should_insert(hashed_params_result, old_arm_parameter, this_path):
+            if should_insert(hashed_params_result):
                 insert_or_log_result(old_arm_parameter, hashed_params_result)
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
@@ -3507,7 +3507,7 @@ def load_data_from_existing_run_folders(_paths):
             result = None
         return pformat(parameters) + "====" + pformat(result), result
 
-    def should_insert(hashed_params_result, parameters, path):
+    def should_insert(hashed_params_result):
         result = hashed_params_result[1]
         return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
@@ -3537,9 +3537,9 @@ def load_data_from_existing_run_folders(_paths):
                 table.add_row(*row)
             console.print(table)
 
-    with console.status("[bold green]Loading existing jobs into ax_client...") as status:
+    with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
         for path_idx, this_path in enumerate(_paths):
-            status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx))
+            __status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx))
             this_path_json = f"{this_path}/state_files/ax_client.experiment.json"
 
             if not os.path.exists(this_path_json):
@@ -3547,7 +3547,7 @@ def load_data_from_existing_run_folders(_paths):
                 return
 
             old_experiments = load_experiment(this_path_json)
-            load_and_insert_trials(status, old_experiments.trials, this_path, path_idx)
+            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx)
 
     display_table()
 

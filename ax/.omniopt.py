@@ -2342,7 +2342,7 @@ def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
     else:
         _command += f" --save_to_file={tmp_file} "
         plot_commands.append([_command, tmp_file, _width])
-    
+
     return plot_commands
 
 @wrapper_print_debug

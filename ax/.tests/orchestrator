@@ -164,7 +164,7 @@ EXPECTED_TO_FAIL=1
 	--worker_timeout=5 \
 	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=$NUMBER_OF_EVALS \
-	--gpus=0 \
+	--gpus=$NUM_GPUS \
 	--run_program=$(echo -n "./.tests/orchestrator_tests.bin/%(name)" | base64 -w 0) \
 	--parameter name choice $which_programs_string \
 	--num_random_steps=1 \

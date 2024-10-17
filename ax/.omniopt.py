@@ -4019,59 +4019,71 @@ def orchestrator_start_trial(params_from_out_file, trial_index):
 
     global_vars["jobs"].append((new_job, trial_index))
 
+def handle_exclude_node(stdout_path, hostname_from_out_file):
+    if hostname_from_out_file:
+        if not is_already_in_defective_nodes(hostname_from_out_file):
+            print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+            count_defective_nodes(None, hostname_from_out_file)
+        else:
+            print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
+    else:
+        print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
+
+
+def handle_restart(stdout_path, trial_index):
+    params_from_out_file = get_parameters_from_outfile(stdout_path)
+    if params_from_out_file:
+        orchestrator_start_trial(params_from_out_file, trial_index)
+    else:
+        print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+
+
+def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index):
+    if hostname_from_out_file:
+        if not is_already_in_defective_nodes(hostname_from_out_file):
+            print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
+            count_defective_nodes(None, hostname_from_out_file)
+        else:
+            print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes. Job will only be resubmitted.")
+        handle_restart(stdout_path, trial_index)
+    else:
+        print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
+
+
+def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file):
+    if hostname_from_out_file:
+        if not is_already_in_defective_nodes(hostname_from_out_file):
+            print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
+            count_defective_nodes(None, hostname_from_out_file)
+        else:
+            print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again.")
+    else:
+        print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
+
+
 def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)
 
-    if behavs is not None and len(behavs):
-        hostname_from_out_file = get_hostname_from_outfile(stdout_path)
-        for behav in behavs:
-            if behav == "ExcludeNode":
-                if hostname_from_out_file:
-                    if not is_already_in_defective_nodes(hostname_from_out_file):
-                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
-                else:
-                    print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
+    if not behavs:
+        return
 
-            elif behav == "Restart":
-                params_from_out_file = get_parameters_from_outfile(stdout_path)
-                if params_from_out_file:
-                    orchestrator_start_trial(params_from_out_file, trial_index)
-                else:
-                    print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+    hostname_from_out_file = get_hostname_from_outfile(stdout_path)
 
-            elif behav == "RestartOnDifferentNode":
-                if hostname_from_out_file:
-                    if not is_already_in_defective_nodes(hostname_from_out_file):
-                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again. The job only will be resubmitted.")
+    # Behavior handler mapping
+    behavior_handlers = {
+        "ExcludeNode": lambda: handle_exclude_node(stdout_path, hostname_from_out_file),
+        "Restart": lambda: handle_restart(stdout_path, trial_index),
+        "RestartOnDifferentNode": lambda: handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index),
+        "ExcludeNodeAndRestartAll": lambda: handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file)
+    }
 
-                    params_from_out_file = get_parameters_from_outfile(stdout_path)
-                    if params_from_out_file:
-                        orchestrator_start_trial(params_from_out_file, trial_index)
-                    else:
-                        print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
-
-                else:
-                    print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
-
-            elif behav == "ExcludeNodeAndRestartAll":
-                if hostname_from_out_file:
-                    if not is_already_in_defective_nodes(hostname_from_out_file):
-                        print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
-                else:
-                    print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
-
-            else:
-                print_red(f"Orchestrator: {behav} not yet implemented!")
-                my_exit(210)
+    for behav in behavs:
+        handler = behavior_handlers.get(behav)
+        if handler:
+            handler()
+        else:
+            print_red(f"Orchestrator: {behav} not yet implemented!")
+            my_exit(210)
 
 def write_continue_run_uuid_to_file():
     if args.continue_previous_job:

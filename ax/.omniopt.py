@@ -4874,6 +4874,17 @@ def main():
     set_run_folder()
     RESULT_CSV_FILE = create_folder_and_file(CURRENT_RUN_FOLDER)
 
+    if os.getenv("CI"):
+        data_dict = {
+            "param1": "value1",
+            "param2": "value2",
+            "param3": "value3"
+        }
+
+        error_description = "Some error occurred during execution."
+
+        write_failed_logs(data_dict, error_description)
+
     save_state_files()
     write_run_uuid_to_file()
 

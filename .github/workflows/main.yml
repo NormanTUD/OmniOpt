@@ -12,24 +12,6 @@ jobs:
   linkChecker:
     runs-on: ubuntu-latest
     steps:
-    - name: Cache apt dependencies
-      uses: actions/cache@v3
-      with:
-        path: /tmp/apt-cache
-        key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-apt-
-
-    - name: Cache Python packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          $HOME/.cache/pip
-          $HOME/.omniax_*/
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
     - name: Link Checker
       id: lychee
       uses: lycheeverse/lychee-action@v2
@@ -78,6 +60,7 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+
     - name: Checkout code
       uses: actions/checkout@v3
 

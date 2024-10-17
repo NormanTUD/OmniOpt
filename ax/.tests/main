@@ -53,6 +53,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
 
+source .shellscript_functions
+
 function join_by {
 	local d=${1-} f=${2-}
 	if shift 2; then
@@ -403,55 +405,6 @@ function _test_nr_jobs {
 }
 
 PYTHON_OR_COVERAGE=python3
-
-if [[ -n $RUN_WITH_COVERAGE ]]; then
-	PYTHON_OR_COVERAGE="coverage run -p"
-
-	_cluster=""
-
-	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
-		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
-		if [[ -n $MYCLUSTER_HOST ]]; then
-			_cluster="_$MYCLUSTER_HOST"
-		fi
-	fi
-
-	LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
-
-	myml () {
-		if [[ -e $LMOD_DIR/ml_cmd ]]; then
-			eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
-		fi
-	}
-
-	if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-		myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4
-
-		if [[ $(uname -m) == "ppc64le" ]]; then
-			myml GCC/12.2.0 OpenBLAS/0.3.21
-		fi
-	fi
-
-	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
-
-	ROOT_VENV_DIR=$HOME
-	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
-
-	if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
-		ROOT_VENV_DIR=$root_venv_dir
-		VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
-	fi
-
-	if [[ ! -e $VENV_DIR/bin/activate ]]; then
-		echo "$VENV_DIR/bin/activate could not be found. Creating it..."
-
-		python3 -mvenv $VENV_DIR
-	fi
-
-	if [[ -d $VENV_DIR/bin/activate ]]; then
-		source $VENV_DIR/bin/activate
-	fi
-fi
 
 yellow_text "Python-Version:"
 python3 --version

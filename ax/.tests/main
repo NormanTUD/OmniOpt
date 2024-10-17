@@ -442,7 +442,15 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 		VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
 	fi
 
-	source $VENV_DIR/bin/activate
+	if [[ ! -e $VENV_DIR/bin/activate ]]; then
+		echo "$VENV_DIR/bin/activate could not be found. Creating it..."
+
+		python3 -mvenv $VENV_DIR
+	fi
+
+	if [[ -d $VENV_DIR/bin/activate ]]; then
+		source $VENV_DIR/bin/activate
+	fi
 fi
 
 yellow_text "Python-Version:"

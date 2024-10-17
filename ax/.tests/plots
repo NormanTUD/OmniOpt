@@ -188,6 +188,8 @@ cd $SCRIPT_DIR
 
 cd ..
 
+source .shellscript_functions
+
 function join_by {
 	local d=${1-} f=${2-}
 	if shift 2; then
@@ -318,7 +320,7 @@ for _command in "${_commands[@]}"; do
 		fi
 
 		START_TIME=$SECONDS
-		$_command
+		eval "$_command"
 		_exit_code=$?
 
 		END_TIME=$SECONDS

@@ -178,4 +178,4 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
-        carryforward: "ubuntu-24.04,ubuntu-22.04,ubuntu-20.04"
+        carryforward: "run-1,run-2,run-3"

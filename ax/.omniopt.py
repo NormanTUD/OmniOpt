@@ -2208,7 +2208,10 @@ def plot_sixel_imgs(csv_file_path):
     sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
 
     for c in sixel_graphic_commands:
-        plot_params_to_cli(*c)
+        commands = get_plot_commands(*c)
+
+        for command in commands:
+            plot_command(*command)
 
 def _print_best_result(csv_file_path, maximize, print_to_file=True):
     global global_vars
@@ -2308,7 +2311,8 @@ def get_plot_types(x_y_combinations, _force=False):
 
     return plot_types
 
-def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
+def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
+    plot_commands = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
@@ -2334,10 +2338,12 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
                                     tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
                     _iterated_command += f" --save_to_file={tmp_file} "
-                    plot_command(_iterated_command, tmp_file, _width)
+                    plot_commands.append([_iterated_command, tmp_file, _width])
     else:
         _command += f" --save_to_file={tmp_file} "
-        plot_command(_command, tmp_file, _width)
+        plot_commands.append([_command, tmp_file, _width])
+    
+    return plot_commands
 
 @wrapper_print_debug
 def get_sixel_graphics_data(_pd_csv, _force=False):
@@ -5091,6 +5097,10 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    plot_params = get_plot_commands('_command', {"type": "trial_index_result", "min_done_jobs": 2}, '_tmp', 'plot_type', 'tmp_file', 1200)
+
+    nr_errors += is_equal('get_plot_commands', json.dumps(plot_params), json.dumps([['_command --save_to_file=tmp_file ', 'tmp_file', 1200]]))
 
     nr_errors += is_equal('get_sixel_graphics_data("")', json.dumps(get_sixel_graphics_data('')), json.dumps([]))
 

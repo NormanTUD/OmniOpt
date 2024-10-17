@@ -48,15 +48,7 @@ def plot_graph(dataframe, save_to_file=None):
     pair_plot.fig.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
 
     if save_to_file:
-        _path = os.path.dirname(args.save_to_file)
-        if _path:
-            os.makedirs(_path, exist_ok=True)
-        try:
-            pair_plot.savefig(args.save_to_file)
-        except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-            sys.exit(199)
-
+        helpers.save_to_file(pair_plot.fig, args, plt)
     else:
         if not args.no_plt_show:
             plt.show()

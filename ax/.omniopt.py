@@ -57,10 +57,10 @@ random_steps = None
 progress_bar = None
 
 def get_current_run_folder():
-    if not CURRENT_RUN_FOLDER:
-        print("!!!!!!!!!!!!!!!!!!! CURRENT_RUN_FOLDER WAS EMPTY !!!!!!!!!!!!!!!!!!!")
-        tb = traceback.format_exc()
-        print(tb)
+    #if not CURRENT_RUN_FOLDER:
+    #    tb = traceback.format_exc()
+    #    print("!!!!!!!!!!!!!!!!!!! CURRENT_RUN_FOLDER WAS EMPTY !!!!!!!!!!!!!!!!!!!")
+    #    print(tb)
 
     return CURRENT_RUN_FOLDER
 

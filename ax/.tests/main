@@ -382,10 +382,10 @@ function _test {
 
 	echo "Test took $(displaytime $TEST_RUN_TIME)"
 
-	if [[ -d None ]]; then
-		echo "None found. Exiting."
-		exit 0
-	fi
+	#if [[ -d None ]]; then
+	#	echo "None found. Exiting."
+	#	exit 0
+	#fi
 }
 
 PARTITION="alpha"

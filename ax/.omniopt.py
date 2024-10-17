@@ -57,6 +57,11 @@ random_steps = None
 progress_bar = None
 
 def get_current_run_folder():
+    if not CURRENT_RUN_FOLDER:
+        print("!!!!!!!!!!!!!!!!!!! CURRENT_RUN_FOLDER WAS EMPTY !!!!!!!!!!!!!!!!!!!")
+        tb = traceback.format_exc()
+        print(tb)
+
     return CURRENT_RUN_FOLDER
 
 script_dir = os.path.dirname(os.path.realpath(__file__))

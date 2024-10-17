@@ -126,10 +126,7 @@ def plot_multiple_graphs(_params):
 
                     sys.exit(17)
 
-    for i in range(len(parameter_combinations), num_rows * num_cols):
-        row = i // num_cols
-        col = i % num_cols
-        axs[row, col].set_visible(False)
+    axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
     helpers.show_legend(args, fig, scatter, axs)
 
@@ -240,6 +237,7 @@ def main():
     set_margins()
 
     fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
+
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else:

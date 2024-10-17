@@ -158,9 +158,8 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          flag-name: run-${{ join(matrix.*, '-') }}
-          parallel: true
+        flag-name: run-${{ join(matrix.*, '-') }}
+        parallel: true
 
     - uses: release-drafter/release-drafter@v5
       with:

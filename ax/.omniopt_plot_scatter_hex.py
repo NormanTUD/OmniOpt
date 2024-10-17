@@ -41,12 +41,6 @@ val_if_nothing_found = 999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
 args = None
-
-def print_debug(msg):
-    if args.debug:
-        print("DEBUG: ", end="")
-        pprint(msg)
-
 fig = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -65,14 +59,11 @@ if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
 def set_title(df_filtered, result_column_values, num_entries, _min, _max):
-    print_debug("set_title")
-
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     fig.suptitle(title)
 
 def check_args():
-    print_debug("check_args()")
     global args
 
     if args.min and args.max:
@@ -85,7 +76,6 @@ def check_args():
 
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
-    print_debug("plot_multiple_graphs")
     global bins
 
     scatter = None
@@ -133,7 +123,6 @@ def plot_multiple_graphs(_params):
 
 def plot_single_graph(_params):
     axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
-    print_debug("plot_single_graph()")
     _data = df_filtered
 
     _data = _data[:].values
@@ -158,7 +147,6 @@ def plot_single_graph(_params):
 def plot_graphs(_params):
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
-    print_debug("plot_graphs")
 
     cmap, norm, colors = helpers.get_color_list(df, args, plt)
 
@@ -213,7 +201,6 @@ def get_args():
 
 def use_matplotlib():
     global args
-    print_debug("use_matplotlib")
     try:
         if not args.save_to_file:
             matplotlib.use('TkAgg')

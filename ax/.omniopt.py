@@ -3476,90 +3476,80 @@ def load_data_from_existing_run_folders(_paths):
     global double_hashes
     global missing_results
 
-    with console.status("[bold green]Loading existing jobs into ax_client...") as _status:
-        path_idx = 0
-        for this_path in _paths:
-            if len(_paths) > 1:
-                _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}{get_list_import_as_string(False, True)})...")
-            else:
-                _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client{get_list_import_as_string()}...")
+    def update_status(message, path_idx=None, trial_idx=None, total_trials=None):
+        if len(_paths) > 1:
+            folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
+            trial_msg = f", trial {trial_idx + 1}/{total_trials}" if trial_idx is not None else ""
+            return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
+        return f"{message}{get_list_import_as_string()}..."
 
-            this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
+    def load_and_insert_trials(_status, old_trials, this_path, path_idx):
+        trial_idx = 0
+        for old_trial_index, old_trial in old_trials.items():
+            _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
+
+            trial_idx += 1
+            if "COMPLETED".lower() not in str(old_trial.status).lower():
+                continue
+
+            old_arm_parameter = old_trial.arm.parameters
+            hashed_params_result = generate_hashed_params(old_arm_parameter, this_path)
+
+            if should_insert(hashed_params_result, old_arm_parameter, this_path):
+                insert_or_log_result(old_arm_parameter, hashed_params_result)
+            else:
+                log_missing_result(old_arm_parameter, hashed_params_result)
+
+    def generate_hashed_params(parameters, path):
+        try:
+            result = get_old_result_simple(path, parameters)
+        except Exception:
+            result = None
+        return pformat(parameters) + "====" + pformat(result), result
+
+    def should_insert(hashed_params_result, parameters, path):
+        result = hashed_params_result[1]
+        return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
+
+    def insert_or_log_result(parameters, hashed_params_result):
+        try:
+            insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
+            print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
+        except ValueError as e:
+            print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
+        else:
+            already_inserted_param_hashes[hashed_params_result[0]] += 1
+            double_hashes.append(hashed_params_result[0])
+
+    def log_missing_result(parameters, hashed_params_result):
+        print_debug("Prevent inserting a parameter set without result")
+        missing_results.append(hashed_params_result[0])
+        parameters["result"] = hashed_params_result[1]
+        already_inserted_param_data.append(parameters)
+
+    def display_table():
+        headers, rows = extract_headers_and_rows(already_inserted_param_data)
+        if headers and rows:
+            table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
+            for header in headers:
+                table.add_column(header)
+            for row in rows:
+                table.add_row(*row)
+            console.print(table)
+
+    with console.status("[bold green]Loading existing jobs into ax_client...") as status:
+        for path_idx, this_path in enumerate(_paths):
+            status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx))
+            this_path_json = f"{this_path}/state_files/ax_client.experiment.json"
 
             if not os.path.exists(this_path_json):
                 print_red(f"{this_path_json} does not exist, cannot load data from it")
                 return
 
             old_experiments = load_experiment(this_path_json)
+            load_and_insert_trials(status, old_experiments.trials, this_path, path_idx)
 
-            old_trials = old_experiments.trials
-
-            trial_idx = 0
-            for old_trial_index in old_trials:
-                if len(_paths) > 1:
-                    _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
-                else:
-                    _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
-
-                trial_idx += 1
-
-                old_trial = old_trials[old_trial_index]
-                trial_status = old_trial.status
-                trial_status_str = trial_status.__repr__
-
-                if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
-                    continue
-
-                old_arm_parameter = old_trial.arm.parameters
-
-                old_result_simple = None
-                try:
-                    old_result_simple = get_old_result_simple(this_path, old_arm_parameter)
-                except Exception:
-                    pass
-
-                hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
-
-                if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
-                    if hashed_params_result not in already_inserted_param_hashes.keys():
-                        print_debug(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
-                        old_result = {'result': old_result_simple}
-
-                        try:
-                            insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result)
-                        except ValueError as e:
-                            print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
-                    else:
-                        print_debug("Prevented inserting a double entry")
-                        already_inserted_param_hashes[hashed_params_result] += 1
-
-                        double_hashes.append(hashed_params_result)
-
-                        old_arm_parameter_with_result = old_arm_parameter
-                        old_arm_parameter_with_result["result"] = old_result_simple
-                else:
-                    print_debug("Prevent inserting a parameter set without result")
-
-                    missing_results.append(hashed_params_result)
-
-                    old_arm_parameter_with_result = old_arm_parameter
-                    old_arm_parameter_with_result["result"] = old_result_simple
-                    already_inserted_param_data.append(old_arm_parameter_with_result)
-
-            path_idx += 1
-
-    headers, rows = extract_headers_and_rows(already_inserted_param_data)
-
-    if headers and rows:
-        table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
-
-        for header in headers:
-            table.add_column(header)
-
-        for row in rows:
-            table.add_row(*row)
-
-        console.print(table)
+    display_table()
 
 @wrapper_print_debug
 def get_first_line_of_file(file_paths):

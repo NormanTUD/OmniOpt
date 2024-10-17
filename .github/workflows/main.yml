@@ -10,7 +10,6 @@ on:
 
 jobs:
   linkChecker:
-    fail-fast: true
     runs-on: ubuntu-latest
     steps:
     - name: Cache apt dependencies

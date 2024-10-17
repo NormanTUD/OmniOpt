@@ -676,7 +676,7 @@ def _update_graph(_params):
         _min, _max = set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
         df = load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path)
         df_filtered = get_df_filtered(_args, df)
-        
+
         check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings)
         plot_parameters(df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max)
 
@@ -687,7 +687,7 @@ def _update_graph(_params):
 
 def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path):
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
-    
+
     old_headers_string = ','.join(sorted(df.columns))
     return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
 
@@ -701,10 +701,10 @@ def plot_parameters(df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMU
 
     num_subplots, num_cols, num_rows = get_num_subplots_rows_and_cols(non_empty_graphs)
     remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX)
-    
+
     axs = fig.subplots(num_rows, num_cols)
     result_column_values = get_result_column_values(df, get_csv_file_path(_args))
-    
+
     plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 

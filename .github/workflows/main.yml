@@ -10,6 +10,7 @@ on:
 
 jobs:
   linkChecker:
+    fail-fast: true
     runs-on: ubuntu-latest
     steps:
     - name: Cache apt dependencies
@@ -30,17 +31,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-      - name: Link Checker
-        id: lychee
-        uses: lycheeverse/lychee-action@v2
+    - name: Link Checker
+      id: lychee
+      uses: lycheeverse/lychee-action@v2
 
-      - name: Create Issue From File
-        if: env.exit_code != 0
-        uses: peter-evans/create-issue-from-file@v5
-        with:
-          title: Link Checker Report
-          content-filepath: ./lychee/out.md
-          labels: report, automated issue
+    - name: Create Issue From File
+      if: env.exit_code != 0
+      uses: peter-evans/create-issue-from-file@v5
+      with:
+        title: Link Checker Report
+        content-filepath: ./lychee/out.md
+        labels: report, automated issue
 
   markdown-lint:
     runs-on: ubuntu-latest

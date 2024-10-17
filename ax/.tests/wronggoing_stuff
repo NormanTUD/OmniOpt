@@ -189,7 +189,8 @@ fi
 
 ./omniopt \
 	--max_nr_of_zero_results 3 \
-	--live_share --send_anonymized_usage_stats \
+	--live_share \
+	--send_anonymized_usage_stats \
 	--partition=$PARTITION \
 	--gpus=$NUM_GPUS \
 	--experiment_name=$experiment_name \

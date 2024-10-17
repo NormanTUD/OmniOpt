@@ -4307,7 +4307,6 @@ def _get_last_and_avg_times():
     avg_time = sum(time_next_trials_took) / len(time_next_trials_took)
     return last_time, avg_time
 
-
 def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs):
     """Calculates the number of jobs to retrieve."""
     return min(
@@ -4842,6 +4841,7 @@ def check_max_eval(_max_eval):
     if not _max_eval:
         print_red("--max_eval needs to be set!")
         my_exit(19)
+
 def main():
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global RUN_FOLDER_NUMBER, CURRENT_RUN_FOLDER, NVIDIA_SMI_LOGS_BASE
@@ -4910,7 +4910,6 @@ def main():
     wait_for_jobs_to_complete(0)
     live_share()
     end_program(RESULT_CSV_FILE)
-
 
 def log_worker_creation():
     _debug_worker_creation("time, nr_workers, got, requested, phase")

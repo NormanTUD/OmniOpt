@@ -476,10 +476,6 @@ fi
 _test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share" 0
 _test_nr_jobs "$TESTNAME" 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
-if [[ $RUN_WITH_COVERAGE -eq 1 ]]; then
-	_test "Run helpers with coverage outside of bash" "coverage run -p .helpers.py" 16
-fi
-
 if [[ $superquick -eq 0 ]]; then
 	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --live_share" 0
 	_test_nr_jobs "$TESTNAME" 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0

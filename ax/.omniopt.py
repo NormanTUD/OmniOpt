@@ -5102,6 +5102,38 @@ def run_tests():
 
     nr_errors += is_equal('get_plot_commands', json.dumps(plot_params), json.dumps([['_command --save_to_file=tmp_file ', 'tmp_file', 1200]]))
 
+    plot_params_complex = get_plot_commands('_command', {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, '_tmp', 'plot_type', 'tmp_file', 1200)
+
+    expected_plot_params_complex = [['_command --bubblesize=50 --allow_axes n_samples --allow_axes confidence '
+                                     '--save_to_file=_tmp/plot_plot_type_n_samples_confidence.png ',
+                                     '_tmp/plot_plot_type_n_samples_confidence.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes n_samples --allow_axes '
+                                     'feature_proportion '
+                                     '--save_to_file=_tmp/plot_plot_type_n_samples_feature_proportion.png ',
+                                     '_tmp/plot_plot_type_n_samples_feature_proportion.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes n_samples --allow_axes n_clusters '
+                                     '--save_to_file=_tmp/plot_plot_type_n_samples_n_clusters.png ',
+                                     '_tmp/plot_plot_type_n_samples_n_clusters.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes confidence --allow_axes '
+                                     'feature_proportion '
+                                     '--save_to_file=_tmp/plot_plot_type_confidence_feature_proportion.png ',
+                                     '_tmp/plot_plot_type_confidence_feature_proportion.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes confidence --allow_axes n_clusters '
+                                     '--save_to_file=_tmp/plot_plot_type_confidence_n_clusters.png ',
+                                     '_tmp/plot_plot_type_confidence_n_clusters.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes feature_proportion --allow_axes '
+                                     'n_clusters '
+                                     '--save_to_file=_tmp/plot_plot_type_feature_proportion_n_clusters.png ',
+                                     '_tmp/plot_plot_type_feature_proportion_n_clusters.png',
+                                     1200]]
+
+    nr_errors += is_equal("get_plot_commands complex", json.dumps(plot_params_complex), json.dumps(expected_plot_params_complex))
+
     nr_errors += is_equal('get_sixel_graphics_data("")', json.dumps(get_sixel_graphics_data('')), json.dumps([]))
 
     global_vars["parameter_names"] = [

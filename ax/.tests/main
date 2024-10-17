@@ -558,7 +558,7 @@ if [[ $superquick -eq 0 ]]; then
 		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 
 		if [[ "$quick" -eq "0" ]]; then
-			for model_name in $(echo "SOBOL GPEI SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do
+			for model_name in SOBOL GPEI SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED; do
 				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
 			done
 		fi

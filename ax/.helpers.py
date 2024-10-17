@@ -678,7 +678,7 @@ def _update_graph(_params):
         df_filtered = get_df_filtered(_args, df)
 
         check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings)
-        plot_parameters(df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max)
+        plot_parameters([df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max])
 
         plt.draw()
 
@@ -695,7 +695,8 @@ def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strin
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
-def plot_parameters(df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max):
+def plot_parameters(_params):
+    df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
     parameter_combinations = get_parameter_combinations(df_filtered)
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
 

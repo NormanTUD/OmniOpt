@@ -43,7 +43,17 @@ to_test = {
         "check_environment_variable('I_DO_NOT_EXIST')": False,
         "looks_like_int(1)": True,
         "to_int_when_possible('hallo')": "hallo",
-        "print_diff('hallo', 'hallo')": None
+        "print_diff('hallo', 'hallo')": None,
+        "looks_like_int('hallo')": False,
+        "looks_like_int(4.2)": False,
+        "looks_like_int(42)": True,
+        "looks_like_int(False)": False,
+        "convert_string_to_number('10')": 10,
+        "convert_string_to_number('1.1')": 1.1,
+        "convert_string_to_number('hallo')": None,
+        "convert_string_to_number(True)": None,
+        "_is_equal('test', 1, 1)": False,
+        "_is_not_equal('test', 1, 1)": True
     }
 }
 
@@ -77,7 +87,7 @@ with Progress(transient=True) as progress:
             for test in to_test[modname]:
                 expected_ret_val = to_test[modname][test]
                 ret_val = eval(f"mod.{test}")
-                if helpers.is_equal(test, ret_val, expected_ret_val):
+                if helpers.is_equal(f"{modname}.{test}", ret_val, expected_ret_val):
                     error_list.append((modname, test, ret_val, expected_ret_val))
                     errors += 1
         progress.update(test_task, advance=1)

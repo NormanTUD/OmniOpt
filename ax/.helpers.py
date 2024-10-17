@@ -151,9 +151,6 @@ def convert_string_to_number(input_string):
                 return number
             except ValueError as e:
                 print(f"Failed to convert {number_str} to int: {e}")
-
-        return None
-
     except AssertionError as e:
         print(f"Assertion error: {e}")
         return None
@@ -163,7 +160,7 @@ def convert_string_to_number(input_string):
         tb = traceback.format_exc()
         print(tb)
 
-        return None
+    return None
 
 def log_error(error_text):
     print(f"Error: {error_text}", file=sys.stderr)

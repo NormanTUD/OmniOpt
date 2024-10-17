@@ -1,11 +1,18 @@
-import argparse
-import os
-import re
-import sys
-from spellchecker import SpellChecker
-from rich.progress import Progress
-from rich.console import Console
-from rich.table import Table
+try:
+    import argparse
+    import os
+    import re
+    import sys
+    from spellchecker import SpellChecker
+    from rich.progress import Progress
+    from rich.console import Console
+    from rich.table import Table
+except KeyboardInterrupt:
+    print("You cancelled this script.")
+    sys.exit(0)
+except ModuleNotFoundError as e:
+    print(f"At least one module could not be found. Cannot continue. Error: {e}")
+    sys.exit(1)
 
 # Initialize the spellchecker
 spell = SpellChecker(language='en')
@@ -103,4 +110,11 @@ def main():
     sys.exit(file_count_with_errors)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("You cancelled this script.")
+        sys.exit(0)
+    except ModuleNotFoundError as e:
+        print(f"At least one module could not be found. Cannot continue. Error: {e}")
+        sys.exit(1)

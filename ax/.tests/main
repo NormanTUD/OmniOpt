@@ -9,7 +9,7 @@ MAGENTA='\033[0;35m'
 NC='\033[0m'
 
 function set_debug {
-	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO | Exit: $? ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
 }
 
 function unset_debug {
@@ -52,6 +52,13 @@ EXPECTED_TO_FAIL=0
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
+
+cd ..
+
+if [[ ! -e .shellscript_functions ]]; then
+	echo ".shellscript_functions not found. Cannot continue."
+	exit 1
+fi
 
 source .shellscript_functions
 
@@ -327,7 +334,7 @@ function _test {
 	set +e
 
 	START_TIME=$(date +%s)
-	$COMMAND
+	eval "$COMMAND"
 	exit_code=$?
 	END_TIME=$(date +%s)
 	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
@@ -378,8 +385,6 @@ function _test {
 
 PARTITION="alpha"
 
-cd ..
-
 #if [[ "$quick" -eq "0" ]]; then
 #	bash .tests/example_network/install.sh
 #fi
@@ -410,6 +415,7 @@ yellow_text "Python-Version:"
 python3 --version
 
 #_test "php linter" ".tests/phpcs" 0 255
+_test "Plot Documentation" ".tests/plot_documentation_has_all_plot_types" 0
 _test "php_search" ".tests/php_search" 0 255
 _test "php_search" ".tests/php_search" 0 255
 _test "js_syntax" ".tests/js_syntax" 0 255
@@ -418,19 +424,18 @@ _test "find_functions_that_are_defined_multiple_times" ".tests/find_functions_th
 _test "Plot unit tests" ".tests/unit_test_plots" 0 255
 _test "Find double functions that are in helpers and some other python script" ".tests/find_double_function_thats_already_in_helper" 0
 
-_test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
-_test "help page Documentation" "bash .tests/help_page" 0
-_test "folder structure Documentation" "bash .tests/folder_structure" 0
-_test "state_files Documentation" "bash ./.tests/state_files" 0
-_test "php_files syntax check" "bash .tests/php_files" 0
-_test "find_unused_share_functions" "bash .tests/find_unused_share_functions" 0
-_test "Find typos in gui" "bash .tests/find_typos_in_gui .gui" 0
-_test "Find missing env vars documentation" "bash .tests/find_missing_env_vars_documentation" 0
-_test "Find typos in bash" "bash .tests/find_typos_in_bash" 0
-_test "Find typos in js" "bash .tests/find_typos_in_js" 0
-_test "Find typos in php" "bash .tests/find_typos_in_php" 0
+_test "help page Documentation" ".tests/help_page" 0
+_test "folder structure Documentation" ".tests/folder_structure" 0
+_test "state_files Documentation" "./.tests/state_files" 0
+_test "php_files syntax check" ".tests/php_files" 0
+_test "find_unused_share_functions" ".tests/find_unused_share_functions" 0
+_test "Find typos in gui" ".tests/find_typos_in_gui .gui" 0
+_test "Find missing env vars documentation" ".tests/find_missing_env_vars_documentation" 0
+_test "Find typos in bash" ".tests/find_typos_in_bash" 0
+_test "Find typos in js" ".tests/find_typos_in_js" 0
+_test "Find typos in php" ".tests/find_typos_in_php" 0
 
-_test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
+_test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
 export DONT_INSTALL_MODULES=1
 
 TESTNAME="__main__tests__BOTORCH_MODULAR___nogridsearch"
@@ -632,6 +637,8 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 	fi
 fi
 
+unset_debug
+
 IFS=',' read -r -a headers <<< "${LOG_TIMES[0]}"
 
 declare -A max_lengths
@@ -717,9 +724,15 @@ print_table() {
 	done
 
 	printf "%s\n" "$end_line"
+
+
 }
 
 print_table
+
+if [[ $DEBUG -eq 1 ]]; then
+	set_debug
+fi
 
 #if [[ -n $GITHUB_STEP_SUMMARY ]]; then
 #	echo "{$(print_table)}" >> "$GITHUB_STEP_SUMMARY"

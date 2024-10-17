@@ -698,6 +698,18 @@ def _update_graph(_params):
         if "invalid command name" not in str(e):
             print(f"Failed to update graph: {e}")
 
+def set_margins(fig):
+    left = 0.04
+    right = 0.864
+    bottom = 0.171
+    top = 0.9
+    wspace = 0.27
+    hspace = 0.31
+
+    fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
+
+    return fig
+
 check_python_version()
 
 warn_versions()

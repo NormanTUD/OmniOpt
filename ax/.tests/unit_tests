@@ -13,17 +13,17 @@ exit_code=0
 if command -v python3 2>/dev/null >/dev/null; then
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		if [[ -n $1 ]]; then
-			python3 .tests/unit_tests_plots.py $*
+			python3 .tests/unit_tests.py $*
 			exit_code=$?
 		else
-			python3 .tests/unit_tests_plots.py .*.py
+			python3 .tests/unit_tests.py .*.py
 			exit_code=$?
 		fi
 	else
 		if [[ -n $1 ]]; then
-			coverage run -p .tests/unit_tests_plots.py $*
+			coverage run -p .tests/unit_tests.py $*
 		else
-			coverage run -p .tests/unit_tests_plots.py .*.py
+			coverage run -p .tests/unit_tests.py .*.py
 			exit_code=$?
 		fi
 	fi

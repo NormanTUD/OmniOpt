@@ -207,7 +207,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   finish:
-    needs: main-test
+    needs: [main-test, Plots]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:

@@ -520,7 +520,14 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
                 print("For some reason, there were values in the beginning but not after filtering")
         else:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"No applicable values could be found in {csv_file_path} (min: {_min}, max: {_max}.")
+                if _min is not None and _max is not None:
+                    print(f"No applicable values could be found in {csv_file_path} (min: {_min}, max: {_max}).")
+                elif _min is not None:
+                    print(f"No applicable values could be found in {csv_file_path} (min: {_min}).")
+                elif _max is not None:
+                    print(f"No applicable values could be found in {csv_file_path} (max: {_max}).")
+                else:
+                    print(f"No applicable values could be found in {csv_file_path}.")
         if _exit:
             sys.exit(4)
 
@@ -663,40 +670,53 @@ def print_if_not_plot_tests_and_exit(msg, exit_code):
 
 def _update_graph(_params):
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
+
     try:
-        _min, _max = set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
-
         csv_file_path = get_csv_file_path(_args)
-        df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
-
-        old_headers_string = ','.join(sorted(df.columns))
-
-        df = merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
-
-        nr_of_items_before_filtering = len(df)
-        df_filtered = get_df_filtered(_args, df)
-
-        check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
-
-        parameter_combinations = get_parameter_combinations(df_filtered)
-        non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
-
-        num_subplots, num_cols, num_rows = get_num_subplots_rows_and_cols(non_empty_graphs)
-
-        remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX)
-
-        axs = fig.subplots(num_rows, num_cols)  # Create new subplots
-
-        result_column_values = get_result_column_values(df, csv_file_path)
-
-        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
-
-        set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
+        _min, _max = update_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
+        df = load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path)
+        df_filtered = filter_dataframe(_args, df)
+        
+        check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings)
+        plot_parameters(df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max)
 
         plt.draw()
+
     except Exception as e:
-        if "invalid command name" not in str(e):
-            print(f"Failed to update graph: {e}")
+        handle_exception(e)
+
+def update_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max):
+    return set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
+
+def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path):
+    df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
+    
+    old_headers_string = ','.join(sorted(df.columns))
+    return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
+
+def filter_dataframe(_args, df):
+    return get_df_filtered(_args, df)
+
+def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings):
+    nr_of_items_before_filtering = len(df)
+    check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
+
+def plot_parameters(df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max):
+    parameter_combinations = get_parameter_combinations(df_filtered)
+    non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
+
+    num_subplots, num_cols, num_rows = get_num_subplots_rows_and_cols(non_empty_graphs)
+    remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX)
+    
+    axs = fig.subplots(num_rows, num_cols)
+    result_column_values = get_result_column_values(df, get_csv_file_path(_args))
+    
+    plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+    set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
+
+def handle_exception(e):
+    if "invalid command name" not in str(e):
+        print(f"Failed to update graph: {e}")
 
 def set_margins(fig):
     left = 0.04

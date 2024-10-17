@@ -13,11 +13,6 @@ import signal
 import sys
 import traceback
 
-#from rich.traceback import install
-from rich.pretty import pprint
-
-#install(show_locals=True)
-
 button = None
 
 TEXTBOX_MINIMUM = None

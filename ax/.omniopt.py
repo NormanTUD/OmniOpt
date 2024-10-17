@@ -2371,7 +2371,7 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
         if "min_done_jobs" in plot:
             min_done_jobs = plot["min_done_jobs"]
 
-        if count_done_jobs() < min_done_jobs and not _force:
+        if not _force and count_done_jobs() < min_done_jobs:
             print_debug(
                 f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
             )
@@ -2384,7 +2384,7 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
             if "width" in plot:
                 _width = plot["width"]
 
-            if not os.path.exists(_tmp):
+            if not _force and not os.path.exists(_tmp):
                 os.makedirs(_tmp)
 
             j = 0

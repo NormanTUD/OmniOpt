@@ -381,6 +381,11 @@ function _test {
 	LOG_TIMES+=("$failed,$NAME,$TEST_RUN_TIME,$exit_code,$wanted_exit_codes,$failed_true_false")
 
 	echo "Test took $(displaytime $TEST_RUN_TIME)"
+
+	if [[ -d None ]]; then
+		echo "None found. Exiting."
+		exit 0
+	fi
 }
 
 PARTITION="alpha"

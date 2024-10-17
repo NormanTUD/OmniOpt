@@ -411,6 +411,10 @@ def is_equal(n, o, i):
     if r:
         print_diff(i, o)
 
+    if os.path.exists("None"):
+        print("Folder 'None' exists! Exiting.")
+        sys.exit(255)
+
     return r
 
 def _is_not_equal(name, _input, output):

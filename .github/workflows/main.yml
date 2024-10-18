@@ -223,7 +223,7 @@ jobs:
 
 
   finish:
-    needs: [main-test, Plots, markdown-lint, todo-to-issue]
+    needs: [main-test, Plots, markdown-lint, todo-to-issue, Linter]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:

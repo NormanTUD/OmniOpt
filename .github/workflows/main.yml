@@ -189,6 +189,12 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         flag-name: run-${{ join(matrix.*, '-') }}
         parallel: true
+    - uses: release-drafter/release-drafter@v5
+      with:
+          config-name: release-drafter.yml
+      #   disable-autolabeler: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   markdown-lint:
     runs-on: ubuntu-latest
@@ -204,7 +210,6 @@ jobs:
       - uses: "actions/checkout@v4"
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
-
 
   finish:
     needs: [main-test, Plots, markdown-lint, todo-to-issue, Linter]
@@ -225,13 +230,3 @@ jobs:
         git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-    - uses: release-drafter/release-drafter@v5
-      with:
-          config-name: release-drafter.yml
-      #   disable-autolabeler: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-

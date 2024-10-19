@@ -196,6 +196,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Create a new version
+      if: ${{ success() }}
+      run: |
+        echo "Creating new version"
+        git tag v2.0.${{ github.run_number }} || true
+        git push origin --tags || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   markdown-lint:
     runs-on: ubuntu-latest
     steps:
@@ -221,12 +230,3 @@ jobs:
       with:
         parallel-finished: true
         carryforward: "run-1,run-2,run-3,plots"
-
-    - name: Create a new version
-      if: ${{ success() }}
-      run: |
-        echo "Creating new version"
-        git tag v2.0.${{ github.run_number }} || true
-        git push origin --tags || true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

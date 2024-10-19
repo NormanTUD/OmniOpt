@@ -4914,6 +4914,8 @@ def main():
     write_process_info()
     live_share()
 
+    write_continue_run_uuid_to_file()
+
     disable_tqdm = args.disable_tqdm or ci_env
     run_with_progress_bar(disable_tqdm)
 
@@ -5330,8 +5332,6 @@ Exit-Code: 159
 @wrapper_print_debug
 def main_outside():
     print_logo()
-
-    write_continue_run_uuid_to_file()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

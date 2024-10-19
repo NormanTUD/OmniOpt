@@ -733,7 +733,7 @@ def use_matplotlib(_args):
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-def filter_data(dataframe, min_value=None, max_value=None):
+def filter_data(_args, dataframe, min_value=None, max_value=None):
     try:
         if min_value is not None:
             dataframe = dataframe[dataframe['result'] >= min_value]

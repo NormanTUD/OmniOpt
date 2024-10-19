@@ -64,6 +64,14 @@ except ModuleNotFoundError as e:
     print("Exit-Code: 2")
     sys.exit(2)
 
+def makedirs(p):
+    if "None" in p:
+        print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! makedirs: {p}")
+        tb = traceback.format_exc()
+        print(tb)
+    if not os.path.exists(p):
+        os.makedirs(p, exist_ok=True)
+
 YELLOW = "\033[93m"
 RESET = "\033[0m"
 
@@ -148,7 +156,7 @@ args = None
 
 LOG_DIR = "logs"
 try:
-    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+    makedirs(LOG_DIR)
 except Exception as ee:
     original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
 
@@ -560,7 +568,7 @@ def save_pd_csv():
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
     if ax_client is None:
         return pd_csv
@@ -737,7 +745,7 @@ def log_system_usage():
 
     csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
 
-    os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
+    makedirs(os.path.dirname(csv_file_path))
 
     file_exists = os.path.isfile(csv_file_path)
 
@@ -1105,7 +1113,7 @@ if not SYSTEM_HAS_SBATCH:
 def save_global_vars():
     state_files_folder = f"{get_current_run_folder()}/state_files"
     if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
@@ -1127,7 +1135,7 @@ def create_folder_and_file(folder):
 
     try:
         if not os.path.exists(folder):
-            os.makedirs(folder)
+            makedirs(folder)
     except FileExistsError:
         print_red(f"create_folder_and_file({folder}) failed, because the folder already existed. Cannot continue.")
         my_exit(13)
@@ -1698,7 +1706,7 @@ def write_failed_logs(data_dict, error_description=""):
     try:
         # Create directories if they do not exist
         if not os.path.exists(failed_logs_dir):
-            os.makedirs(failed_logs_dir)
+            makedirs(failed_logs_dir)
             print_debug(f"Directory created: {failed_logs_dir}")
 
         # Write headers if the file does not exist
@@ -1729,7 +1737,7 @@ def count_defective_nodes(file_path=None, entry=None):
         file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
     # Sicherstellen, dass das Verzeichnis existiert
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    makedirs(os.path.dirname(file_path))
 
     try:
         with open(file_path, mode='a+', encoding="utf-8") as file:
@@ -2171,7 +2179,7 @@ def failed_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
 
@@ -2371,7 +2379,7 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
                 _width = plot["width"]
 
             if not _force and not os.path.exists(_tmp):
-                os.makedirs(_tmp)
+                makedirs(_tmp)
 
             j = 0
             _fn = plot_type
@@ -2529,7 +2537,7 @@ def save_checkpoint(trial_nr=0, eee=None):
         state_files_folder = f"{get_current_run_folder()}/state_files/"
 
         if not os.path.exists(state_files_folder):
-            os.makedirs(state_files_folder)
+            makedirs(state_files_folder)
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
@@ -2814,7 +2822,7 @@ def get_experiment_parameters(_params):
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         if not os.path.exists(state_files_folder):
-            os.makedirs(state_files_folder)
+            makedirs(state_files_folder)
         with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
             json.dump(experiment_parameters, outfile)
 
@@ -3084,7 +3092,7 @@ def submitted_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
@@ -3959,7 +3967,7 @@ def orchestrate_job(job, trial_index):
 def is_already_in_defective_nodes(hostname):
     file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    makedirs(os.path.dirname(file_path))
 
     if not os.path.isfile(file_path):
         print_red(f"is_already_in_defective_nodes: Error: The file {file_path} does not exist.")
@@ -4062,7 +4070,7 @@ def write_continue_run_uuid_to_file():
 
                 file_path = f"{get_current_run_folder()}/state_files/uuid_of_continued_run"
 
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                makedirs(os.path.dirname(file_path))
 
                 with open(file_path, 'w', encoding="utf-8") as file:
                     file.write(continue_from_uuid)
@@ -4077,7 +4085,7 @@ def write_run_uuid_to_file():
     try:
         file_path = f"{get_current_run_folder()}/state_files/run_uuid"
 
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        makedirs(os.path.dirname(file_path))
 
         with open(file_path, 'w', encoding="utf-8") as file:
             file.write(run_uuid)
@@ -4094,7 +4102,7 @@ def save_state_files():
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
         original_print(global_vars["joined_run_program"], file=f)
@@ -4232,7 +4240,7 @@ def succeeded_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 

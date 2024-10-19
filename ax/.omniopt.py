@@ -15,77 +15,49 @@ try:
         force_terminal=not ci_env
     )
 
-    from concurrent.futures import ThreadPoolExecutor
-    import argparse
-    import datetime
-    import importlib.util
-    import inspect
-    import platform
-    import random
-    from inspect import currentframe, getframeinfo
-    from pathlib import Path
-    import json
-    import uuid
-    import yaml
-    import re
-    import toml
-    import time
-    import traceback
-    import cowsay
-    from rich_argparse import RichHelpFormatter
-
-    with console.status("[bold green]Loading psutil...") as status:
+    with console.status("[bold green]Loading base modules...") as status:
+        from concurrent.futures import ThreadPoolExecutor
+        import argparse
+        import datetime
+        import importlib.util
+        import inspect
+        import platform
+        import random
+        from inspect import currentframe, getframeinfo
+        from pathlib import Path
+        import json
+        import uuid
+        import yaml
+        import re
+        import toml
+        import time
+        import traceback
+        import cowsay
+        from rich_argparse import RichHelpFormatter
         import psutil
-    with console.status("[bold green]Loading threading...") as status:
         import threading
-    with console.status("[bold green]Loading shutil...") as status:
         import shutil
-    with console.status("[bold green]Loading math...") as status:
         import math
-    with console.status("[bold green]Loading itertools...") as status:
         from itertools import combinations
-    with console.status("[bold green]Loading signal...") as status:
         import signal
-    with console.status("[bold green]Loading warnings...") as status:
         import warnings
-    with console.status("[bold green]Loading pandas...") as status:
         import pandas as pd
-    with console.status("[bold green]Loading os...") as status:
         from os import listdir
         from os.path import isfile, join
-    with console.status("[bold green]Loading socket...") as status:
         import socket
-    with console.status("[bold green]Loading stat...") as status:
         import stat
-    with console.status("[bold green]Loading pwd...") as status:
         import pwd
-    with console.status("[bold green]Loading base64...") as status:
         import base64
-    with console.status("[bold green]Loading pformat...") as status:
         from pprint import pformat
-    with console.status("[bold green]Loading sixel...") as status:
         import sixel
-    with console.status("[bold green]Loading PIL...") as status:
         from PIL import Image
-
-    #with console.status("[bold green]Importing rich tracebacks...") as status:
-    #    #from rich.traceback import install
-    #    #install(show_locals=True)
-
-    with console.status("[bold green]Loading rich.table...") as status:
         from rich.table import Table
-    with console.status("[bold green]Loading print from rich...") as status:
         from rich import print
-    with console.status("[bold green]Loading csv...") as status:
         import csv
-    with console.status("[bold green]Loading rich.pretty...") as status:
         from rich.pretty import pprint
-    with console.status("[bold green]Loading subprocess...") as status:
         import subprocess
-    with console.status("[bold green]Loading logging...") as status:
         import logging
         logging.basicConfig(level=logging.ERROR)
-    with console.status("[bold green]Loading tqdm...") as status:
         from tqdm import tqdm
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")

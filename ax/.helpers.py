@@ -740,7 +740,7 @@ def filter_data(dataframe, min_value=None, max_value=None):
         if max_value is not None:
             dataframe = dataframe[dataframe['result'] <= max_value]
     except KeyError:
-        print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
+        print_if_not_plot_tests_and_exit(f"{_args.run_dir}/results.csv seems to have no results column.", 19)
 
     return dataframe
 

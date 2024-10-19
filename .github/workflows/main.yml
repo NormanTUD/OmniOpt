@@ -183,28 +183,12 @@ jobs:
     - name: main test script
       run: |
         ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
-    - name: Create a new version
-      if: ${{ success() }}
-      run: |
-        echo "Creating new version"
-        git tag v2.0.${{ github.run_number }} || true
-        git push origin --tags || true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Upload coverage to Coveralls
       uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         flag-name: run-${{ join(matrix.*, '-') }}
         parallel: true
-
-    - uses: release-drafter/release-drafter@v5
-      with:
-          config-name: release-drafter.yml
-      #   disable-autolabeler: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   markdown-lint:
     runs-on: ubuntu-latest
@@ -232,3 +216,22 @@ jobs:
       with:
         parallel-finished: true
         carryforward: "run-1,run-2,run-3,plots"
+
+    - name: Create a new version
+      if: ${{ success() }}
+      run: |
+        echo "Creating new version"
+        git tag v2.0.${{ github.run_number }} || true
+        git push origin --tags || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+    - uses: release-drafter/release-drafter@v5
+      with:
+          config-name: release-drafter.yml
+      #   disable-autolabeler: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+

@@ -300,6 +300,10 @@ fi
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"
 function _test {
+	if [[ -d None ]]; then
+		echo "None folder exists before (!!!) test $name -> $command"
+		exit 1
+	fi
 	NAME=$1
 	COMMAND=$2
 	WANTED_EXIT_CODE=$3
@@ -392,6 +396,11 @@ function _test {
 	#	echo "None found. Exiting."
 	#	exit 0
 	#fi
+	
+	if [[ -d None ]]; then
+		echo "None folder exists after test $name -> $command"
+		exit 1
+	fi
 }
 
 PARTITION="alpha"

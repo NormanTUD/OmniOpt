@@ -4026,14 +4026,12 @@ def handle_exclude_node(stdout_path, hostname_from_out_file):
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-
 def handle_restart(stdout_path, trial_index):
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
-
 
 def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index):
     if hostname_from_out_file:
@@ -4046,7 +4044,6 @@ def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
-
 def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file):
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
@@ -4056,7 +4053,6 @@ def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file):
             print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again.")
     else:
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
-
 
 def _orchestrate(stdout_path, trial_index):
     behavs = check_orchestrator(stdout_path, trial_index)

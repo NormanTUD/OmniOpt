@@ -38,17 +38,6 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-def filter_data(dataframe, min_value=None, max_value=None):
-    try:
-        if min_value is not None:
-            dataframe = dataframe[dataframe['result'] >= min_value]
-        if max_value is not None:
-            dataframe = dataframe[dataframe['result'] <= max_value]
-    except KeyError:
-        helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
-
-    return dataframe
-
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
@@ -94,10 +83,6 @@ def plot_graph(dataframe, save_to_file=None):
         if not args.no_plt_show:
             plt.show()
 
-def print_traceback():
-    tb = traceback.format_exc()
-    print(tb)
-
 def update_graph():
     try:
         dataframe = None
@@ -110,7 +95,7 @@ def update_graph():
             helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
 
         if args.min is not None or args.max is not None:
-            dataframe = filter_data(dataframe, args.min, args.max)
+            dataframe = helpers.filter_data(dataframe, args.min, args.max)
 
         if dataframe.empty:
             helpers.print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
@@ -128,7 +113,7 @@ def update_graph():
     except Exception as exception:
         logging.error("An unexpected error occurred: %s", str(exception))
 
-        print_traceback()
+        helpers.print_traceback()
 
 if __name__ == "__main__":
     args = parse_arguments()

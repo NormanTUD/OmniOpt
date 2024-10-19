@@ -38,13 +38,6 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-def filter_data(dataframe, min_value=None, max_value=None):
-    if min_value is not None:
-        dataframe = dataframe[dataframe['result'] >= min_value]
-    if max_value is not None:
-        dataframe = dataframe[dataframe['result'] <= max_value]
-    return dataframe
-
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
@@ -83,7 +76,7 @@ def update_graph():
 
         if args.min is not None or args.max is not None:
             try:
-                dataframe = filter_data(dataframe, args.min, args.max)
+                dataframe = helpers.filter_data(dataframe, args.min, args.max)
             except KeyError:
                 if not os.environ.get("PLOT_TESTS"):
                     print(f"{args.run_dir}/results.csv seems have no result column.")

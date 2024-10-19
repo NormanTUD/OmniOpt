@@ -733,6 +733,21 @@ def use_matplotlib(_args):
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
+def filter_data(dataframe, min_value=None, max_value=None):
+    try:
+        if min_value is not None:
+            dataframe = dataframe[dataframe['result'] >= min_value]
+        if max_value is not None:
+            dataframe = dataframe[dataframe['result'] <= max_value]
+    except KeyError:
+        helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
+
+    return dataframe
+
+def print_traceback():
+    tb = traceback.format_exc()
+    print(tb)
+
 check_python_version()
 
 warn_versions()

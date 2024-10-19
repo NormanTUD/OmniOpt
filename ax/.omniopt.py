@@ -98,6 +98,7 @@ def get_current_run_folder():
     #    tb = traceback.format_exc()
     #    print("!!!!!!!!!!!!!!!!!!! CURRENT_RUN_FOLDER WAS EMPTY !!!!!!!!!!!!!!!!!!!")
     #    print(tb)
+    #    sys.exit(1)
 
     return CURRENT_RUN_FOLDER
 

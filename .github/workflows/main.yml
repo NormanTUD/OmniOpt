@@ -222,7 +222,7 @@ jobs:
 
   finish:
     needs: [main-test, Plots, markdown-lint, todo-to-issue, Linter]
-    if: ${{ always() }}
+    if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished

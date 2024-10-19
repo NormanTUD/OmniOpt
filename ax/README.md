@@ -1,17 +1,29 @@
 # OmniOpt2
 
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
+
 ![Latest Release](https://img.shields.io/github/v/release/NormanTUD/OmniOpt)
+
 ![Open Issues](https://img.shields.io/github/issues/NormanTUD/OmniOpt)
+
 ![Open Pull Requests](https://img.shields.io/github/issues-pr/NormanTUD/OmniOpt)
+
 ![License](https://img.shields.io/badge/license-GNU-blue.svg)
+
 ![Bug Issues](https://img.shields.io/github/issues/NormanTUD/OmniOpt/bug)
+
 ![GitHub Repo stars](https://img.shields.io/github/stars/NormanTUD/OmniOpt)
+
 ![Pull Requests](https://img.shields.io/github/issues-pr/NormanTUD/OmniOpt)
+
 ![Stars](https://img.shields.io/github/stars/NormanTUD/OmniOpt)
+
 ![Forks](https://img.shields.io/github/forks/NormanTUD/OmniOpt)
+
 ![Contributors](https://img.shields.io/github/contributors/NormanTUD/OmniOpt)
+
 ![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
+
 [![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
 Basically the same as OmniOpt, but based on ax/botorch instead of hyperopt

@@ -15,55 +15,78 @@ try:
         force_terminal=not ci_env
     )
 
-    modules = [
-        ("psutil", "import psutil"),
-        ("threading", "import threading"),
-        ("shutil", "import shutil"),
-        ("math", "import math"),
-        ("itertools", "from itertools import combinations"),
-        ("signal", "import signal"),
-        ("warnings", "import warnings"),
-        ("pandas", "import pandas as pd"),
-        ("os", "from os import listdir\nfrom os.path import isfile, join"),
-        ("socket", "import socket"),
-        ("stat", "import stat"),
-        ("pwd", "import pwd"),
-        ("base64", "import base64"),
-        ("pformat", "from pprint import pformat"),
-        ("sixel", "import sixel"),
-        ("PIL", "from PIL import Image"),
-        ("rich.table", "from rich.table import Table"),
-        ("rich.print", "from rich import print"),
-        ("csv", "import csv"),
-        ("rich.pretty", "from rich.pretty import pprint"),
-        ("subprocess", "import subprocess"),
-        ("logging", "import logging"),
-        ("tqdm", "from tqdm import tqdm"),
-        ("concurrent.futures", "from concurrent.futures import ThreadPoolExecutor"),
-        ("argparse", "import argparse"),
-        ("datetime", "import datetime"),
-        ("importlib.util", "import importlib.util"),
-        ("inspect", "import inspect\nfrom inspect import currentframe, getframeinfo"),
-        ("platform", "import platform"),
-        ("random", "import random"),
-        ("pathlib", "from pathlib import Path"),
-        ("json", "import json"),
-        ("uuid", "import uuid"),
-        ("yaml", "import yaml"),
-        ("re", "import re"),
-        ("toml", "import toml"),
-        ("time", "import time"),
-        ("traceback", "import traceback"),
-        ("cowsay", "import cowsay"),
-        ("rich_argparse", "from rich_argparse import RichHelpFormatter")
-    ]
+    from concurrent.futures import ThreadPoolExecutor
+    import argparse
+    import datetime
+    import importlib.util
+    import inspect
+    import platform
+    import random
+    from inspect import currentframe, getframeinfo
+    from pathlib import Path
+    import json
+    import uuid
+    import yaml
+    import re
+    import toml
+    import time
+    import traceback
+    import cowsay
+    from rich_argparse import RichHelpFormatter
 
-    for module_name, import_statement in modules:
-        with console.status(f"[bold green]Loading {module_name}...") as status:
-            exec(import_statement)
+    with console.status("[bold green]Loading psutil...") as status:
+        import psutil
+    with console.status("[bold green]Loading threading...") as status:
+        import threading
+    with console.status("[bold green]Loading shutil...") as status:
+        import shutil
+    with console.status("[bold green]Loading math...") as status:
+        import math
+    with console.status("[bold green]Loading itertools...") as status:
+        from itertools import combinations
+    with console.status("[bold green]Loading signal...") as status:
+        import signal
+    with console.status("[bold green]Loading warnings...") as status:
+        import warnings
+    with console.status("[bold green]Loading pandas...") as status:
+        import pandas as pd
+    with console.status("[bold green]Loading os...") as status:
+        from os import listdir
+        from os.path import isfile, join
+    with console.status("[bold green]Loading socket...") as status:
+        import socket
+    with console.status("[bold green]Loading stat...") as status:
+        import stat
+    with console.status("[bold green]Loading pwd...") as status:
+        import pwd
+    with console.status("[bold green]Loading base64...") as status:
+        import base64
+    with console.status("[bold green]Loading pformat...") as status:
+        from pprint import pformat
+    with console.status("[bold green]Loading sixel...") as status:
+        import sixel
+    with console.status("[bold green]Loading PIL...") as status:
+        from PIL import Image
 
+    #with console.status("[bold green]Importing rich tracebacks...") as status:
+    #    #from rich.traceback import install
+    #    #install(show_locals=True)
 
-    logging.basicConfig(level=logging.ERROR)
+    with console.status("[bold green]Loading rich.table...") as status:
+        from rich.table import Table
+    with console.status("[bold green]Loading print from rich...") as status:
+        from rich import print
+    with console.status("[bold green]Loading csv...") as status:
+        import csv
+    with console.status("[bold green]Loading rich.pretty...") as status:
+        from rich.pretty import pprint
+    with console.status("[bold green]Loading subprocess...") as status:
+        import subprocess
+    with console.status("[bold green]Loading logging...") as status:
+        import logging
+        logging.basicConfig(level=logging.ERROR)
+    with console.status("[bold green]Loading tqdm...") as status:
+        from tqdm import tqdm
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")

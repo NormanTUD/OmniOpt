@@ -8,7 +8,6 @@ import logging
 import os
 import signal
 import sys
-import traceback
 
 import matplotlib.pyplot as plt
 import pandas as pd

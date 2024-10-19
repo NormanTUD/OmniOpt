@@ -4,7 +4,6 @@ function get_response {
         d="$1"
         d=$(echo "$d" | jq -Rsa .)
         data="{ \"model\": \"mistral\", \"prompt\": $d }"
-        echo $data
         curl -q http://localhost:11434/api/generate -d "$data" | jq -r '.response' | tr -d '\n'
 }
 

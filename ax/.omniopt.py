@@ -659,6 +659,7 @@ def print_logo():
         "Hyperparameter alchemy in action!",
         "Precision tuning, no shortcuts.",
         "Climbing the hyperparameter mountain... Montana Sacra style!",
+        "better than OmniOpt1!",
         "Optimizing like it's the Matrix, but I am the One.",
         "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
         "Inception-level optimization: going deeper with every layer.",

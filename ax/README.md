@@ -51,6 +51,7 @@ python-script.
 ```command
 ./plot --run_dir runs/example/0
 ```
+
 Or, with --min and --max:
 
 ```command

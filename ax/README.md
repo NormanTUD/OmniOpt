@@ -50,7 +50,10 @@ python-script.
 
 ```command
 ./plot --run_dir runs/example/0
-# Or, with --min and --max:
+```
+Or, with --min and --max:
+
+```command
 ./plot --run_dir runs/example/0 --min 0 --max 100
 ```
 

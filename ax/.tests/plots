@@ -78,12 +78,12 @@ generate_progress_bar() {
 
 	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
 		echo "Error: Both params must be positive integers, but are $current_progress/$total_progress." >&2
-		return 1
+		return 0
 	fi
 
 	if [ "$current_progress" -gt "$total_progress" ]; then
 		echo "Error: the current progress cannot exceed the total progress ($current_progress/$total_progress)." >&2
-		return 1
+		return 0
 	fi
 
 	local bar_length=30

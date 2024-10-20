@@ -224,7 +224,7 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
       - name: "TODO to Issue"
-        uses: "alstr/todo-to-issue-action@v6"
+        uses: "alstr/todo-to-issue-action@v5"
 
   coveralls:
     needs: [main-test, Plots]

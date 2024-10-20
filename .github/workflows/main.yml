@@ -122,7 +122,6 @@ jobs:
 
   main-test:
     runs-on: ${{ matrix.os }}
-    needs: [Plots, Linter]
     strategy:
       fail-fast: true
       matrix:

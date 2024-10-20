@@ -77,6 +77,16 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          $HOME/.cache/pip
+          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
+        key: ${{ runner.os }}-pip-${{ hashFiles('OmniOpt/ax/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ hashFiles('OmniOpt/ax/requirements.txt') }}
+
     - name: Checkout code
       uses: actions/checkout@v4
 

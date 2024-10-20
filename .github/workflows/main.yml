@@ -15,14 +15,6 @@ jobs:
       fail-fast: true
 
     steps:
-    - name: Cache apt dependencies
-      uses: actions/cache@v4
-      with:
-        path: /var/cache/apt/archives/
-        key: ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
-
     - name: Cache Python packages
       uses: actions/cache@v4
       with:
@@ -131,14 +123,6 @@ jobs:
         os: [ubuntu-24.04, ubuntu-22.04, ubuntu-20.04] #, macos-14]
 
     steps:
-    - name: Cache apt dependencies
-      uses: actions/cache@v4
-      with:
-        path: /var/cache/apt/archives/
-        key: ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
-
     - name: Cache Python packages
       uses: actions/cache@v4
       with:

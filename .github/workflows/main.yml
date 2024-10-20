@@ -216,18 +216,18 @@ jobs:
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}
+        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}
         echo "pwd"
         pwd
 
-        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
+        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}/
 
         cd omniopt2.github.io
         # Insert the new link at the top of the index.html file
-        sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
+        sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}_${{ runner.os }}/index.html">Coverage Report for Run #${{ github.run_number }}_${{ runner.os }}</a></li>' index.html
 
         git add .
-        git commit -am "Add coverage report from run ${{ github.run_number }} and update index.html"
+        git commit -am "Add coverage report from run ${{ github.run_number }}_${{ runner.os }} and update index.html"
         git push origin main
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

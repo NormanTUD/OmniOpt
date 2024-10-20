@@ -366,7 +366,7 @@ for _command in "${_commands[@]}"; do
 					done
 
 					if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
-						green_reset_line "$PROGRESSBAR $i/${#_commands[@]}OK Plot-Tests $possible_plot_type/$this_img"
+						green_reset_line "$PROGRESSBAR $i/${#_commands[@]} OK Plot-Tests $possible_plot_type/$this_img"
 						if [[ "$keep_tmp" -eq 0 ]]; then
 							rm -f "$this_img" || {
 								echo ""
@@ -387,7 +387,7 @@ for _command in "${_commands[@]}"; do
 				fi
 			else
 				if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
-					green_reset_line "$PROGRESSBAR $i/${#_commands[@]}OK Plot-Tests $possible_plot_type/$this_img"
+					green_reset_line "$PROGRESSBAR $i/${#_commands[@]} OK Plot-Tests $possible_plot_type/$this_img"
 				else
 					echo ""
 					red_text "$_command: $this_img does not exist (took $RUN_TIME seconds)"

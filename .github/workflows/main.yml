@@ -217,8 +217,6 @@ jobs:
         git config --global user.name "${{ github.actor }}"
 
         mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}
-        echo "pwd"
-        pwd
 
         cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}/
 

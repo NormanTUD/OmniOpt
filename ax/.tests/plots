@@ -72,34 +72,6 @@ function green_reset_line {
 	green_text "$1"
 }
 
-generate_progress_bar() {
-	local current_progress=$1
-	local total_progress=$2
-
-	if ! [[ "$current_progress" =~ ^[0-9]+$ ]] || ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
-		echo "Error: Both params must be positive integers, but are $current_progress/$total_progress." >&2
-		return 0
-	fi
-
-	if [ "$current_progress" -gt "$total_progress" ]; then
-		echo "Error: the current progress cannot exceed the total progress ($current_progress/$total_progress)." >&2
-		return 0
-	fi
-
-	local bar_length=30
-	local filled_length=$((bar_length * current_progress / total_progress))
-	local empty_length=$((bar_length - filled_length))
-
-	local bar=""
-	for ((i = 0; i < filled_length; i++)); do
-		bar="${bar}#"
-	done
-	for ((i = 0; i < empty_length; i++)); do
-		bar="${bar} "
-	done
-
-	echo "[${bar}] ($current_progress/$total_progress)"
-}
 
 help=0
 

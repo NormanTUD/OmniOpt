@@ -256,16 +256,16 @@ jobs:
         echo "ls"
         ls
 
-        echo "ls ../OmniOpt"
-        ls ../OmniOpt
+        echo "ls ../../OmniOpt"
+        ls ../../OmniOpt
 
-        echo "ls ../OmniOpt/ax"
-        ls ../OmniOpt/ax
+        echo "ls ../../OmniOpt/ax"
+        ls ../../OmniOpt/ax
 
-        echo "ls ../OmniOpt/ax/htmlcov"
-        ls ../OmniOpt/ax/htmlcov
+        echo "ls ../../OmniOpt/ax/htmlcov"
+        ls ../../OmniOpt/ax/htmlcov
 
-        cp -r ../OmniOpt/ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
+        cp -r ../../OmniOpt/ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
 
         cd omniopt2.github.io
         # Insert the new link at the top of the index.html file

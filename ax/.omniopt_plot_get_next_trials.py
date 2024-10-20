@@ -23,18 +23,11 @@ spec.loader.exec_module(helpers)
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def is_valid_time_format(time_string):
-    try:
-        datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
-        return True
-    except ValueError:
-        return False
-
 def parse_log_file(args, log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
-        valid_time_mask = data['time'].apply(is_valid_time_format)
+        valid_time_mask = data['time'].apply(helpers.is_valid_time_format)
         if not valid_time_mask.all():
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 helpers.log_error("Some rows have invalid time format and will be removed.")

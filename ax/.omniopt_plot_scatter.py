@@ -58,19 +58,6 @@ def set_title(df_filtered, result_column_values, num_entries, _min, _max):
 
     fig.suptitle(title)
 
-def check_args():
-    global args
-
-    if args.min and args.max:
-        if args.min > args.max:
-            tmp = args.max
-            args.max = args.min
-            args.min = tmp
-        elif args.min == args.max:
-            print("Max and min value are the same. May result in empty data")
-
-    helpers.check_path(args.run_dir)
-
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
 
@@ -157,7 +144,7 @@ def get_args():
         global BUBBLESIZEINPX
         BUBBLESIZEINPX = args.bubblesize
 
-    check_args()
+    helpers.check_args(args)
 
     return args
 

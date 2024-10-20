@@ -748,6 +748,23 @@ def print_traceback():
     tb = traceback.format_exc()
     print(tb)
 
+def is_valid_time_format(time_string):
+    try:
+        datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
+        return True
+    except ValueError:
+        return False
+
+def check_args(_args):
+    if _args.min and _args.max:
+        if _args.min > _args.max:
+            _args.max, _args.min = _args.min, _args.max
+        elif _args.min == _args.max:
+            print("Max and min value are the same. May result in empty data")
+
+    check_path(_args.run_dir)
+
+
 check_python_version()
 
 warn_versions()

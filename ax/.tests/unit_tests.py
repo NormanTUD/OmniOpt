@@ -35,11 +35,9 @@ to_test = {
     ".omniopt_plot_kde.py": {
         "get_num_rows_cols(1, 1, 1)": (1, 1)
     },
-    ".omniopt_plot_get_next_trials.py": {
-        "is_valid_time_format('hallo')": False,
-        "is_valid_time_format('2024-01-01 20:20:02')": True
-    },
     ".helpers.py": {
+        "is_valid_time_format('hallo')": False,
+        "is_valid_time_format('2024-01-01 20:20:02')": True,
         "check_environment_variable('I_DO_NOT_EXIST')": False,
         "looks_like_int(1)": True,
         "to_int_when_possible('hallo')": "hallo",

@@ -57,17 +57,6 @@ def set_title(df_filtered, result_column_values, num_entries, _min, _max):
 
     fig.suptitle(title)
 
-def check_args():
-    global args
-
-    if args.min and args.max:
-        if args.min > args.max:
-            args.max, args.min = args.min, args.max
-        elif args.min == args.max:
-            print("Max and min value are the same. May result in empty data")
-
-    helpers.check_path(args.run_dir)
-
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
     global bins
@@ -188,7 +177,7 @@ def get_args():
         else:
             bins = args.bins
 
-    check_args()
+    helpers.check_args(args)
 
     return args
 

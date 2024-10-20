@@ -21,9 +21,9 @@ jobs:
         path: |
           $HOME/.cache/pip
           $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('OmniOpt/ax/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+          ${{ runner.os }}-pip-${{ hashFiles('OmniOpt/ax/requirements.txt') }}
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -129,9 +129,9 @@ jobs:
         path: |
           $HOME/.cache/pip
           $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('OmniOpt/ax/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+          ${{ runner.os }}-pip-${{ hashFiles('OmniOpt/ax/requirements.txt') }}
 
     - name: Checkout code
       uses: actions/checkout@v4

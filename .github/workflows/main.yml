@@ -209,6 +209,29 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Copy coverage files
+      run: |
+        git clone --depth 1 https://github.com/NormanTUD/omniopt2.github.io.git
+        cd omniopt2.github.io
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}
+        echo "pwd"
+        pwd
+
+        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
+
+        cd omniopt2.github.io
+        # Insert the new link at the top of the index.html file
+        sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
+
+        git add .
+        git commit -am "Add coverage report from run ${{ github.run_number }} and update index.html"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   markdown-lint:
     strategy:
       fail-fast: true
@@ -238,41 +261,3 @@ jobs:
       with:
         parallel-finished: true
         carryforward: "run-1,run-2,run-3,plots"
-    - name: Clone github pages repo
-      run: |
-        git clone --depth 1 https://github.com/NormanTUD/omniopt2.github.io.git
-        cd omniopt2.github.io
-        git config user.name "${{ github.actor }}"
-        git config user.email "${{ github.actor }}@users.noreply.github.com"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Copy coverage files
-      run: |
-        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}
-        echo "pwd"
-        pwd
-
-        echo "ls"
-        ls
-
-        echo "ls ../../OmniOpt"
-        ls ../../OmniOpt
-
-        echo "ls ../../OmniOpt/ax"
-        ls ../../OmniOpt/ax
-
-        echo "ls ../../OmniOpt/ax/htmlcov"
-        ls ../../OmniOpt/ax/htmlcov
-
-        cp -r ../../OmniOpt/ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
-
-        cd omniopt2.github.io
-        # Insert the new link at the top of the index.html file
-        sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
-
-        git add .
-        git commit -am "Add coverage report from run ${{ github.run_number }} and update index.html"
-        git push origin main
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

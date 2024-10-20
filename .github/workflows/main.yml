@@ -215,6 +215,9 @@ jobs:
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
 
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        git config --global user.name "${{ github.actor }}"
+
         mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}
         echo "pwd"
         pwd

@@ -158,6 +158,7 @@ jobs:
 
         git add .
         git commit -am "Add coverage report from run ${{ github.run_number }}_${{ runner.os }} and update index.html"
+        git pull
         git push origin main
 
         cd ..

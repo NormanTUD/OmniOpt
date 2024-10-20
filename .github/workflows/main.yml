@@ -11,6 +11,8 @@ on:
 jobs:
   Plots:
     runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: true
 
     steps:
     - name: Cache apt dependencies
@@ -78,6 +80,8 @@ jobs:
         parallel: true
 
   Linter:
+    strategy:
+      fail-fast: true
     runs-on: "ubuntu-latest"
 
     steps:

@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Cache apt dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/apt-cache
         key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
@@ -24,7 +24,7 @@ jobs:
           ${{ runner.os }}-apt-
 
     - name: Cache Python packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           $HOME/.cache/pip
@@ -132,7 +132,7 @@ jobs:
 
     steps:
     - name: Cache apt dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/apt-cache
         key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
@@ -140,7 +140,7 @@ jobs:
           ${{ runner.os }}-apt-
 
     - name: Cache Python packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           $HOME/.cache/pip
@@ -226,7 +226,7 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
       - name: "TODO to Issue"
-        uses: "alstr/todo-to-issue-action@v5"
+        uses: "alstr/todo-to-issue-action@v6"
 
   coveralls:
     needs: [main-test, Plots]

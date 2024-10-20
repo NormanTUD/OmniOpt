@@ -144,7 +144,7 @@ jobs:
       with:
         path: |
           $HOME/.cache/pip
-          $HOME/.omniax_*/
+          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-

@@ -18,6 +18,8 @@
 
 ## Old OmniOpt
 
+-- deprecated, not supported anymore --
+
 OmniOpt is a hyperparameter minimizer tool. This means you can give it a
 program that accepts hyperparameters as parameters via the command-line, like
 

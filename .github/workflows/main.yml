@@ -229,7 +229,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   coveralls:
-    needs: [main-test, Plots]
+    needs: [main-test, Plots, Linter, markdown-lint, todo-to-issue]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:

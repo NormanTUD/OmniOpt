@@ -118,7 +118,7 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
     - name: Upload coverage to Coveralls
       uses: coverallsapp/github-action@v2
       with:
@@ -146,7 +146,7 @@ jobs:
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git config --global user.name "${{ github.actor }}"
 
-        git clone --depth 1 https://NormanTUD:${{ secrets.GITHUB_TOKEN }}@github.com/omniopt2.github.io.git
+        git clone --depth 1 https://NormanTUD:${{ secrets.GITHUB_TOKEN }}@github.com/NormanTUD/omniopt2.github.io.git
 
         mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}
 

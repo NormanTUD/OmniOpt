@@ -421,23 +421,25 @@ fi
 
 echo ""
 
-if [[ -n $RUN_WITH_COVERAGE ]]; then
-	if command -v coverage 2>/dev/null >/dev/null; then
-		coverage combine 2>/dev/null >/dev/null
-		coverage xml 2>/dev/null >/dev/null
-		coverage json 2>/dev/null >/dev/null
-		coverage report
+if [[ -z $OO_MAIN_TESTS ]]; then
+	if [[ -n $RUN_WITH_COVERAGE ]]; then
+		if command -v coverage 2>/dev/null >/dev/null; then
+			coverage combine 2>/dev/null >/dev/null
+			coverage xml 2>/dev/null >/dev/null
+			coverage json 2>/dev/null >/dev/null
+			coverage report
 
-		if [[ -n $GITHUB_STEP_SUMMARY ]]; then
-			echo "$(coverage report --format=markdown)" >> "$GITHUB_STEP_SUMMARY"
-		fi
+			if [[ -n $GITHUB_STEP_SUMMARY ]]; then
+				echo "$(coverage report --format=markdown)" >> "$GITHUB_STEP_SUMMARY"
+			fi
 
-		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
-			coverage html 2>/dev/null >/dev/null
-			firefox htmlcov/index.html
+			if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
+				coverage html 2>/dev/null >/dev/null
+				firefox htmlcov/index.html
+			fi
+		else
+			red_text "--run_with_coverage was defined, but coverage could not be found"
 		fi
-	else
-		red_text "--run_with_coverage was defined, but coverage could not be found"
 	fi
 fi
 

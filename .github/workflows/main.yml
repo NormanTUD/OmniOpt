@@ -238,12 +238,6 @@ jobs:
       with:
         parallel-finished: true
         carryforward: "run-1,run-2,run-3,plots"
-
-  upload-coverage-to-github-pages:
-    needs: [coveralls, Linter, markdown-lint, todo-to-issue]
-    runs-on: "ubuntu-latest"
-    if: ${{ success() }}
-    steps:
     - name: Clone github pages repo
       run: |
         git clone --depth 1 https://github.com/NormanTUD/omniopt2.github.io.git

@@ -10,7 +10,6 @@ on:
 
 jobs:
   Plots:
-    needs: [Linter]
     runs-on: "ubuntu-latest"
 
     steps:
@@ -207,7 +206,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   markdown-lint:
-    needs: [Linter]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -216,7 +214,6 @@ jobs:
         run: npm install -g markdownlint-cli && markdownlint '**/*.md'
 
   todo-to-issue:
-    needs: [Linter]
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v4"

@@ -210,7 +210,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   markdown-lint:
-    needs: [main-test]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
@@ -220,7 +219,6 @@ jobs:
         run: npm install -g markdownlint-cli && markdownlint '**/*.md'
 
   todo-to-issue:
-    needs: [main-test]
     if: ${{ success() }}
     runs-on: "ubuntu-latest"
     steps:

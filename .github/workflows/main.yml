@@ -224,7 +224,7 @@ jobs:
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
 
-  finish:
+  upload-coverage-to-coveralls:
     needs: [main-test, Plots, markdown-lint, todo-to-issue, Linter]
     if: ${{ success() }}
     runs-on: ubuntu-latest
@@ -234,3 +234,35 @@ jobs:
       with:
         parallel-finished: true
         carryforward: "run-1,run-2,run-3,plots"
+
+  upload-coverage-to-github-pages:
+    needs: [upload-coverage-to-coveralls]
+    if: ${{ success() }}
+  - name: Clone omniopt2.github.io repo
+    run: |
+      git clone https://github.com/USERNAME/omniopt2.github.io.git
+      cd omniopt2.github.io
+      git config user.name "${{ github.actor }}"
+      git config user.email "${{ github.actor }}@users.noreply.github.com"
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  - name: Copy coverage files
+    run: |
+      mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}
+      cp -r ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
+
+  - name: Add link to coverage report in index.html
+    run: |
+      cd omniopt2.github.io
+      # Insert the new link at the top of the index.html file
+      sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
+
+  - name: Commit and Push coverage report and updated index
+    run: |
+      cd omniopt2.github.io
+      git add .
+      git commit -m "Add coverage report from run ${{ github.run_number }} and update index.html"
+      git push origin main
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

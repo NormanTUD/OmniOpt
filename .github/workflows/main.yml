@@ -156,7 +156,6 @@ jobs:
         cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}/_${{ matrix.os }}
 
         cd omniopt2.github.io
-        # Insert the new link at the top of the index.html file
         echo "<li><a href='coverage_reports/${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }}/index.html'>Coverage Report for Run #${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }}</a></li>" >> index.html
 
         git add .

@@ -242,7 +242,7 @@ jobs:
     steps:
     - name: Clone github pages repo
       run: |
-        git clone https://github.com/USERNAME/omniopt2.github.io.git
+        git clone https://github.com/NormanTUD/omniopt2.github.io.git
         cd omniopt2.github.io
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"

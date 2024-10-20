@@ -227,6 +227,10 @@ jobs:
         git add .
         git commit -am "Add coverage report from run ${{ github.run_number }}_${{ runner.os }} and update index.html"
         git push origin main
+
+        cd ..
+
+        rm -rf omniopt2.github.io
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

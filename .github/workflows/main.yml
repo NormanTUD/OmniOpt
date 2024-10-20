@@ -143,8 +143,6 @@ jobs:
 
     - name: Copy coverage files
       run: |
-        git config --global credential
-
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git config --global user.name "${{ github.actor }}"
 

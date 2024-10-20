@@ -9,68 +9,6 @@ on:
       - '**'
 
 jobs:
-  Plots:
-    runs-on: "ubuntu-latest"
-    strategy:
-      fail-fast: true
-
-    steps:
-    - name: Cache Python packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          $HOME/.cache/pip
-          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        if [[ $RUNNER_OS == 'Linux' ]]; then
-          if grep -q '^ID=ubuntu' /etc/os-release; then
-            sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
-            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-          else
-            echo "Invalid OS for pipeline. Only works with Ubuntu"
-            exit 1
-          fi
-        else
-            echo "Invalid OS detected"
-            exit 2
-        fi
-    - name: Creating virtualenv
-      run: |
-        python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-
-        if command -v brew; then
-          pip install psycopg2-binary
-        fi
-    - name: Installing stuff...
-      run: |
-        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-        pip install --no-cache-dir --upgrade pip
-        pip install --no-cache-dir setuptools
-        pip install --no-cache-dir pip wheel
-        pip install --no-cache-dir multidict
-
-    - name: main test script
-      run: |
-        ./ax/.tests/plots --run_with_coverage
-
-    - name: Upload coverage to Coveralls
-      uses: coverallsapp/github-action@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        flag-name: plots
-        parallel: true
-
   Linter:
     strategy:
       fail-fast: true
@@ -180,7 +118,7 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
     - name: Upload coverage to Coveralls
       uses: coverallsapp/github-action@v2
       with:
@@ -250,7 +188,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   covering-uploader:
-    needs: [main-test, Plots, Linter, markdown-lint, todo-to-issue]
+    needs: [main-test, Linter, markdown-lint, todo-to-issue]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
@@ -258,4 +196,4 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
-        carryforward: "run-1,run-2,run-3,plots"
+        carryforward: "run-1,run-2,run-3"

@@ -94,7 +94,7 @@ if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 
 			<tr style='background-color: revert !important; border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
 				<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-					<img style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage">
+					<a href="https://normantud.github.io/omniopt2.github.io/"><img style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage"></a>
 				</td>
 			</tr>
 		</table>

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from itertools import combinations
 import math
 import difflib
@@ -15,7 +16,6 @@ from matplotlib.widgets import Button, TextBox
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
-from datetime import datetime
 
 def check_environment_variable(variable_name):
     try:

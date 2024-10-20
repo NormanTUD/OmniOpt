@@ -256,7 +256,7 @@ jobs:
     - name: Copy coverage files
       run: |
         mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}
-        cp -r ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
+        cp -r OmniOpt/ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
 
     - name: Add link to coverage report in index.html
       run: |

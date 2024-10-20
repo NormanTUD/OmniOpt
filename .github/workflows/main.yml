@@ -224,7 +224,7 @@ jobs:
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
 
-  upload-coverage-to-coveralls:
+  coveralls:
     needs: [main-test, Plots, markdown-lint, todo-to-issue, Linter]
     if: ${{ success() }}
     runs-on: ubuntu-latest
@@ -236,7 +236,7 @@ jobs:
         carryforward: "run-1,run-2,run-3,plots"
 
   upload-coverage-to-github-pages:
-    needs: [upload-coverage-to-coveralls]
+    needs: [coveralls]
     if: ${{ success() }}
     steps:
     - name: Clone github pages repo

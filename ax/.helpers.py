@@ -146,12 +146,7 @@ def convert_string_to_number(input_string):
 
         int_match = int_pattern.search(input_string)
         if int_match:
-            number_str = int_match.group(0)
-            try:
-                number = int(number_str)
-                return number
-            except ValueError as e:
-                print(f"Failed to convert {number_str} to int: {e}")
+            return int(int_match.group(0))
     except AssertionError as e:
         print(f"Assertion error: {e}")
         return None

@@ -442,6 +442,11 @@ _test "php_search" ".tests/php_search" 0 255
 _test "php_search" ".tests/php_search" 0 255
 _test "js_syntax" ".tests/js_syntax" 0 255
 _test "share" ".tests/share" 0 255
+if [[ $RUN_WITH_COVERAGE -eq 1 ]]; then
+	_test "coverage run -p .helpers.py" "coverage run -p .helpers.py" 16
+	export RUN_VIA_RUNSH=1
+	_test "coverage run -p .helpers.py" "coverage run -p .helpers.py" 19
+fi
 _test "find_functions_that_are_defined_multiple_times" ".tests/find_functions_that_are_defined_multiple_times" 0
 _test "Unit tests" ".tests/unit_tests" 0 255
 _test "Find double functions that are in helpers and some other python script" ".tests/find_double_function_thats_already_in_helper" 0

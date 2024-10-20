@@ -4857,7 +4857,7 @@ def main():
             "param3": "value3"
         }
 
-        error_description = "Some error occurred during execution."
+        error_description = "Some error occurred during execution (this is not a real error!)."
 
         write_failed_logs(data_dict, error_description)
 

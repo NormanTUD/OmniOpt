@@ -151,15 +151,15 @@ jobs:
 
         git clone --depth 1 https://NormanTUD:${{ secrets.PRIVKEY }}@github.com/NormanTUD/omniopt2.github.io.git
 
-        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }}
+        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
 
-        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }}
+        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
 
         cd omniopt2.github.io
-        echo "<li><a href='coverage_reports/${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }}/index.html'>Coverage Report for Run #${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }}</a></li>" >> index.html
+        echo "<li><a href='coverage_reports/${{ github.run_number }}/${{ matrix.os }}/index.html'>Coverage Report for Run #${{ github.run_number }}/${{ matrix.os }}</a></li>" >> index.html
 
         git add .
-        git commit -am "Add coverage report from run ${{ github.run_number }}_${{ runner.os }}_${{ matrix.os }} and update index.html"
+        git commit -am "Add coverage report from run ${{ github.run_number }}/${{ matrix.os }} and update index.html"
         git pull
         git push origin main
 

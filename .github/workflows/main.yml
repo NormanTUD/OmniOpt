@@ -256,25 +256,21 @@ jobs:
         echo "ls"
         ls
 
-        echo "ls OmniOpt"
-        ls OmniOpt
+        echo "ls ../OmniOpt"
+        ls ../OmniOpt
 
-        echo "ls OmniOpt/ax"
-        ls OmniOpt/ax
+        echo "ls ../OmniOpt/ax"
+        ls ../OmniOpt/ax
 
-        echo "ls OmniOpt/ax/htmlcov"
-        ls OmniOpt/ax/htmlcov
+        echo "ls ../OmniOpt/ax/htmlcov"
+        ls ../OmniOpt/ax/htmlcov
 
-        cp -r OmniOpt/ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
+        cp -r ../OmniOpt/ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/
 
-    - name: Add link to coverage report in index.html
-      run: |
         cd omniopt2.github.io
         # Insert the new link at the top of the index.html file
         sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
 
-    - name: Commit and Push coverage report and updated index
-      run: |
         cd omniopt2.github.io
         git add .
         git commit -m "Add coverage report from run ${{ github.run_number }} and update index.html"

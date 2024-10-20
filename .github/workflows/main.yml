@@ -149,7 +149,7 @@ jobs:
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git config --global user.name "${{ github.actor }}"
 
-        git clone --depth 1 https://NormanTUD:${{ secrets.GITHUB_TOKEN }}@github.com/NormanTUD/omniopt2.github.io.git
+        git clone --depth 1 https://NormanTUD:${{ secrets.PRIVKEY }}@github.com/NormanTUD/omniopt2.github.io.git
 
         mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}_${{ runner.os }}
 

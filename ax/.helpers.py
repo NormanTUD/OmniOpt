@@ -15,6 +15,7 @@ from matplotlib.widgets import Button, TextBox
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 def check_environment_variable(variable_name):
     try:
@@ -763,7 +764,6 @@ def check_args(_args):
             print("Max and min value are the same. May result in empty data")
 
     check_path(_args.run_dir)
-
 
 check_python_version()
 

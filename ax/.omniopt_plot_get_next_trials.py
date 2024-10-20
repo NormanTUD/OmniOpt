@@ -7,7 +7,6 @@ import os
 import signal
 import sys
 import traceback
-from datetime import datetime
 
 import matplotlib.pyplot as plt
 import pandas as pd

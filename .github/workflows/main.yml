@@ -271,7 +271,6 @@ jobs:
         # Insert the new link at the top of the index.html file
         sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
 
-        cd omniopt2.github.io
         git add .
         git commit -m "Add coverage report from run ${{ github.run_number }} and update index.html"
         git push origin main

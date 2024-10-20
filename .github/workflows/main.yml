@@ -125,6 +125,8 @@ jobs:
 
   main-test:
     runs-on: ${{ matrix.os }}
+    needs: [Plots, markdown-lint, todo-to-issue, Linter]
+    if: ${{ success() }}
     strategy:
       fail-fast: true
       matrix:

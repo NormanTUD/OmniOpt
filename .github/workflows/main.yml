@@ -19,9 +19,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /var/cache/apt/archives/
-        key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
+        key: ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
         restore-keys: |
-          ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
+          ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
 
     - name: Cache Python packages
       uses: actions/cache@v4
@@ -29,9 +29,9 @@ jobs:
         path: |
           $HOME/.cache/pip
           $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -135,9 +135,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /var/cache/apt/archives/
-        key: ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
+        key: ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
         restore-keys: |
-          ${{ runner.os }}-apt-${{ hashFiles('**/apt-dependencies.txt') }}
+          ${{ runner.os }}-apt-${{ hashFiles('ax/apt-dependencies.txt') }}
 
     - name: Cache Python packages
       uses: actions/cache@v4
@@ -145,9 +145,9 @@ jobs:
         path: |
           $HOME/.cache/pip
           $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -211,7 +211,7 @@ jobs:
 
     - name: Copy coverage files
       run: |
-        git clone --depth 1 https://github.com/NormanTUD/omniopt2.github.io.git
+        git clone --depth 1 git@github.com:NormanTUD/omniopt2.github.io.git
 
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         git config --global user.name "${{ github.actor }}"

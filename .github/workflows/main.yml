@@ -240,7 +240,7 @@ jobs:
         carryforward: "run-1,run-2,run-3,plots"
 
   upload-coverage-to-github-pages:
-    needs: [coveralls, Linter]
+    needs: [coveralls, Linter, markdown-linter, todo-to-issue]
     runs-on: "ubuntu-latest"
     if: ${{ success() }}
     steps:

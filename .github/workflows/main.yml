@@ -272,7 +272,7 @@ jobs:
         sed -i '1i <li><a href="coverage_reports/${{ github.run_number }}/index.html">Coverage Report for Run #${{ github.run_number }}</a></li>' index.html
 
         git add .
-        git commit -m "Add coverage report from run ${{ github.run_number }} and update index.html"
+        git commit -am "Add coverage report from run ${{ github.run_number }} and update index.html"
         git push origin main
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

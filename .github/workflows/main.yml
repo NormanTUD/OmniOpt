@@ -125,7 +125,6 @@ jobs:
 
   main-test:
     runs-on: ${{ matrix.os }}
-    if: ${{ success() }}
     strategy:
       fail-fast: true
       matrix:
@@ -212,6 +211,7 @@ jobs:
 
   markdown-lint:
     needs: [main-test]
+    if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -221,6 +221,7 @@ jobs:
 
   todo-to-issue:
     needs: [main-test]
+    if: ${{ success() }}
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v4"

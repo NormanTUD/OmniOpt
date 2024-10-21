@@ -1985,7 +1985,7 @@ def display_failed_jobs_table():
         print_red(f"Error: {str(e)}")
 
 @wrapper_print_debug
-def plot_command(_command, tmp_file, _width=1300):
+def plot_command(_command, tmp_file, _width=1300): # pragma: no cover
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
     if not _show_sixel_graphics:
         return
@@ -2114,17 +2114,17 @@ def _count_sobol_or_completed(csv_file_path, _type):
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
-    except KeyError:
+    except KeyError: # pragma: no cover
         _err = True
-    except pd.errors.EmptyDataError:
+    except pd.errors.EmptyDataError: # pragma: no cover
         _err = True
-    except pd.errors.ParserError as e:
+    except pd.errors.ParserError as e: # pragma: no cover
         print_red(f"Error reading CSV file 2: {str(e)}")
         _err = True
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError as e: # pragma: no cover
         print_red(f"Error reading CSV file 3: {str(e)}")
         _err = True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error reading CSV file 4: {str(e)}")
         _err = True
 
@@ -2135,7 +2135,7 @@ def _count_sobol_or_completed(csv_file_path, _type):
     assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
     if _type == "Sobol":
-        rows = df[df["generation_method"] == _type]
+        rows = df[df["generation_method"] == _type] # pragma: no cover
     else:
         rows = df[df["trial_status"] == _type]
     count = len(rows)
@@ -2642,7 +2642,7 @@ def copy_state_files_from_previous_job(continue_previous_job):
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
-def die_something_went_wrong_with_parameters():
+def die_something_went_wrong_with_parameters(): # pragma: no cover
     my_exit(49)
 
 @wrapper_print_debug

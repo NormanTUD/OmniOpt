@@ -434,13 +434,12 @@ try:
 
     loader = ConfigLoader()
     args = loader.parse_arguments()
-
 except KeyboardInterrupt:
     print("Error: Failed to parse arguments because you pressed CTRL-C.")
     my_exit(4)
 
-try:
-    if not args.tests:
+if not args.tests:
+    try:
         with console.status("[bold green]Loading torch...") as status:
             import torch
         with console.status("[bold green]Loading numpy...") as status:
@@ -459,21 +458,21 @@ try:
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
             from submitit import DebugJob, LocalJob
-except ModuleNotFoundError as ee:
-    original_print(f"Base modules could not be loaded: {ee}")
-    my_exit(31)
-except SignalINT:
-    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(130)
-except SignalUSR:
-    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(138)
-except SignalCONT:
-    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(146)
-except KeyboardInterrupt:
-    print("\n⚠ You pressed CTRL+C. Program execution halted.")
-    my_exit(0)
+    except ModuleNotFoundError as ee:
+        original_print(f"Base modules could not be loaded: {ee}")
+        my_exit(31)
+    except SignalINT:
+        print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+        my_exit(130)
+    except SignalUSR:
+        print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+        my_exit(138)
+    except SignalCONT:
+        print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+        my_exit(146)
+    except KeyboardInterrupt:
+        print("\n⚠ You pressed CTRL+C. Program execution halted.")
+        my_exit(0)
 
 NVIDIA_SMI_LOGS_BASE = None
 
@@ -4235,8 +4234,7 @@ def handle_generic_error(e):
 def succeeded_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
@@ -5095,6 +5093,8 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    nr_errors += is_equal('get_file_as_string("/i/do/not/exist/ANYWHERE/EVER")', get_file_as_string("/i/do/not/exist/ANYWHERE/EVER"), "")
 
     nr_errors += is_equal('makedirs("/proc/AOIKJSDAOLSD")', makedirs("/proc/AOIKJSDAOLSD"), False)
 

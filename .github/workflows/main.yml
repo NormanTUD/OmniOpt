@@ -36,7 +36,7 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring tac
             curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
             sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
           else
@@ -92,7 +92,7 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring tac
             curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
             sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
           else
@@ -166,7 +166,7 @@ jobs:
 
         echo "<html><body>" > "$index_file"
 
-        for run_dir in "$base_dir"/*; do
+        for run_dir in $(ls -d "$base_dir"/* | tac); do
           run_number=$(basename "$run_dir")
 
           echo "<h1>Run #$run_number</h1>" >> "$index_file"

@@ -65,12 +65,16 @@ except ModuleNotFoundError as e:
     sys.exit(2)
 
 def makedirs(p):
-    if "None" in p:
-        print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! makedirs: {p}")
-        tb = traceback.format_exc()
-        print(tb)
     if not os.path.exists(p):
-        os.makedirs(p, exist_ok=True)
+        try:
+            os.makedirs(p, exist_ok=True)
+        except Exception as ee:
+            print(f"Failed to create >{p}<. Error: {ee}")
+
+    if os.path.exists(p):
+        return True
+
+    return False
 
 YELLOW = "\033[93m"
 RESET = "\033[0m"
@@ -102,12 +106,6 @@ random_steps = None
 progress_bar = None
 
 def get_current_run_folder():
-    #if not CURRENT_RUN_FOLDER:
-    #    tb = traceback.format_exc()
-    #    print("!!!!!!!!!!!!!!!!!!! CURRENT_RUN_FOLDER WAS EMPTY !!!!!!!!!!!!!!!!!!!")
-    #    print(tb)
-    #    sys.exit(1)
-
     return CURRENT_RUN_FOLDER
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -155,10 +153,7 @@ def is_slurm_job():
 args = None
 
 LOG_DIR = "logs"
-try:
-    makedirs(LOG_DIR)
-except Exception as ee:
-    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
+makedirs(LOG_DIR)
 
 logfile = f'{LOG_DIR}/{run_uuid}_log'
 logfile_nr_workers = f'{LOG_DIR}/{run_uuid}_nr_workers'
@@ -5100,6 +5095,8 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    nr_errors += is_equal('makedirs("/proc/AOIKJSDAOLSD")', makedirs("/proc/AOIKJSDAOLSD"), False)
 
     nr_errors += is_equal('replace_string_with_params("hello %0 %1 world", [10, "hello"])', replace_string_with_params("hello %0 %1 world", [10, "hello"]), "hello 10 hello world")
 

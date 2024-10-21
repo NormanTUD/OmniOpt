@@ -54,7 +54,8 @@ to_test = {
         "_is_not_equal('test', 1, 1)": True,
         "show_legend(None, None, None, None)": None,
         "print_if_not_plot_tests_and_exit('x', None)": 'x',
-        "_handle_exception('invalid command name')": None
+        "_handle_exception('invalid command name')": None,
+        "print_traceback()": None
     }
 }
 

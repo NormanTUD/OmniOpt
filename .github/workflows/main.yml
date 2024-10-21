@@ -36,10 +36,9 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring ruby ruby-dev
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
             curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
             sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-            gem install bashcov
           else
             echo "Invalid OS for pipeline. Only works with Ubuntu"
             exit 1
@@ -93,10 +92,9 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring ruby ruby-dev
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
             curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
             sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-            gem install bashcov
           else
             echo "Invalid OS for pipeline. Only works with Ubuntu"
             exit 1
@@ -123,7 +121,7 @@ jobs:
 
     - name: main test script
       run: |
-        bashcov ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
     - name: Upload coverage to Coveralls
       uses: coverallsapp/github-action@v2
       with:
@@ -156,7 +154,6 @@ jobs:
         mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
 
         cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
-        cp -r ./ax/coverage/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}_bash
 
         cd omniopt2.github.io
 

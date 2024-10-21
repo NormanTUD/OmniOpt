@@ -1166,17 +1166,22 @@ def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
 
     try:
+        _value = _default
+
         df = pd.read_csv(pd_csv, float_precision='round_trip')
+
         if column not in df.columns:
-            print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
-            return _default
+            print_red(f"Cannot load data from {pd_csv}: column {column} does not exist. Returning default {_default}")
+            return _value
+
         if _type == "min":
-            min_value = df[column].min()
+            _value = df[column].min()
         elif _type == "max":
-            min_value = df[column].max()
+            _value = df[column].max()
         else:
             dier(f"get_min_or_max_column_value: Unknown type {_type}")
-        return min_value
+
+        return _value
     except Exception as e:
         print_red(f"Error while getting {_type} value from column {column}: {str(e)}")
         raise
@@ -5088,6 +5093,20 @@ def run_tests():
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
+
+    #def get_max_column_value(pd_csv, column, _default):
+    try:
+        ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)), '-123')
+
+        if not ie:
+            raise Exception from e
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!).")
+
+    nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)), '17143005390319.627')
+    nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)), '9.865416064838896e+29')
 
     nr_errors += is_equal('get_file_as_string("/i/do/not/exist/ANYWHERE/EVER")', get_file_as_string("/i/do/not/exist/ANYWHERE/EVER"), "")
 

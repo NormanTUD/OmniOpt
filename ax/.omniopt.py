@@ -504,34 +504,32 @@ def append_and_read(file, nr=0, recursion=0):
 
 @wrapper_print_debug
 def run_live_share_command():
-    if not get_current_run_folder():
-        return "", ""
+    if get_current_run_folder():
+        try:
+            # Environment variable USER
+            _user = os.getenv('USER')
+            if _user is None:
+                _user = 'defaultuser'
 
-    try:
-        # Environment variable USER
-        _user = os.getenv('USER')
-        if _user is None:
-            _user = 'defaultuser'
+            _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 
-        _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
+            #if _slurm_log_path and os.path.exists(_slurm_log_path):
+            #    _command = f"{_command} --outfile={_slurm_log_path}"
 
-        #if _slurm_log_path and os.path.exists(_slurm_log_path):
-        #    _command = f"{_command} --outfile={_slurm_log_path}"
+            print_debug(f"run_live_share_command: {_command}")
 
-        print_debug(f"run_live_share_command: {_command}")
+            result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        # Return stdout and stderr
-        return str(result.stdout), str(result.stderr)
-    except subprocess.CalledProcessError as e:
-        if e.stderr:
-            original_print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
-        else:
-            original_print(f"run_live_share_command: command failed with error: {e}")
-        return "", str(e.stderr)
-    except Exception as e:
-        print(f"run_live_share_command: An error occurred: {e}")
+            # Return stdout and stderr
+            return str(result.stdout), str(result.stderr)
+        except subprocess.CalledProcessError as e:
+            if e.stderr:
+                original_print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
+            else:
+                original_print(f"run_live_share_command: command failed with error: {e}")
+            return "", str(e.stderr)
+        except Exception as e:
+            print(f"run_live_share_command: An error occurred: {e}")
 
     return "", ""
 

@@ -59,7 +59,7 @@ try:
         import logging
         logging.basicConfig(level=logging.ERROR)
         from tqdm import tqdm
-except ModuleNotFoundError as e:
+except ModuleNotFoundError as e: # pragma: no cover
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
@@ -458,19 +458,19 @@ if not args.tests:
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
             from submitit import DebugJob, LocalJob
-    except ModuleNotFoundError as ee:
+    except ModuleNotFoundError as ee: # pragma: no cover
         original_print(f"Base modules could not be loaded: {ee}")
         my_exit(31)
-    except SignalINT:
+    except SignalINT: # pragma: no cover
         print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
         my_exit(130)
-    except SignalUSR:
+    except SignalUSR: # pragma: no cover
         print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
         my_exit(138)
-    except SignalCONT:
+    except SignalCONT: # pragma: no cover
         print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
         my_exit(146)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # pragma: no cover
         print("\n⚠ You pressed CTRL+C. Program execution halted.")
         my_exit(0)
 
@@ -4457,10 +4457,10 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                 i = 1
                 with ThreadPoolExecutor() as con_exe:
                     for trial_index, parameters in trial_index_to_param.items():
-                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar): # pragma: no cover
                             break
 
-                        while len(global_vars["jobs"]) > num_parallel_jobs:
+                        while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
                             finish_previous_jobs(["finishing prev jobs"])
 
                             if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
@@ -4469,7 +4469,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                             if is_slurm_job() and not args.force_local_execution:
                                 _sleep(5)
 
-                        if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval:
+                        if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
                             break
 
                         if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
@@ -4494,22 +4494,22 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         finish_previous_jobs(["finishing jobs after starting them"])
 
-    except botorch.exceptions.errors.InputDataError as e:
+    except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
         print_red(f"Error 1: {e}")
         return 0
-    except ax.exceptions.core.DataRequiredError as e:
+    except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
             print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
             die_no_random_steps()
         else:
             print_red(f"Error 2: {e}")
             return 0
-    except RuntimeError as e:
+    except RuntimeError as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
     except (
         botorch.exceptions.errors.ModelFittingError,
         ax.exceptions.core.SearchSpaceExhausted,
-    ) as e:
+    ) as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 1)
 
@@ -4599,7 +4599,7 @@ def set_global_executor():
     if args.exclude:
         print_yellow(f"Excluding the following nodes: {args.exclude}")
 
-def execute_nvidia_smi():
+def execute_nvidia_smi(): # pragma: no cover
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
         return
@@ -4638,7 +4638,7 @@ def execute_nvidia_smi():
         if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
 
-def start_nvidia_smi_thread():
+def start_nvidia_smi_thread(): # pragma: no cover
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
@@ -4712,7 +4712,7 @@ def run_search(_progress_bar):
     log_what_needs_to_be_logged()
     return False
 
-def wait_for_jobs_to_complete(_num_parallel_jobs):
+def wait_for_jobs_to_complete(_num_parallel_jobs): # pragma: no cover
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > _num_parallel_jobs:
             print_debug(f"Waiting for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")

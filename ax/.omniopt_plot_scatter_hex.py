@@ -79,20 +79,20 @@ def plot_multiple_graphs(_params):
                 axs[row][col].set_ylabel(param2)
             except Exception as e:
                 if "'Axes' object is not subscriptable" in str(e):
-                    if bins:
+                    if bins: # pragma: no cover
                         scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
                     else:
                         scatter = axs.hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
                     axs.set_xlabel(param1)
                     axs.set_ylabel(param2)
-                elif "could not convert string to float" in str(e):
+                elif "could not convert string to float" in str(e): # pragma: no cover
                     print("ERROR: " + str(e))
 
                     tb = traceback.format_exc()
                     print(tb)
 
                     sys.exit(177)
-                else:
+                else: # pragma: no cover
                     print("ERROR: " + str(e))
 
                     tb = traceback.format_exc()
@@ -167,7 +167,7 @@ def get_args():
 
     global bins
 
-    if args.bins:
+    if args.bins: # pragma: no cover
         if not (args.bins == "log" or helpers.looks_like_int(args.bins)):
             print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
             sys.exit(193)
@@ -221,7 +221,7 @@ def main():
 
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-    else:
+    else: # pragma: no cover
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
         button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])

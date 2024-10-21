@@ -441,7 +441,7 @@ def is_not_equal(n, i, o):
 
     return r
 
-def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max):
+def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max): # pragma: no cover
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 
@@ -457,7 +457,7 @@ def get_num_subplots_rows_and_cols(non_empty_graphs):
 
     return num_subplots, num_cols, num_rows
 
-def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX):
+def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX): # pragma: no cover
     for widget in fig.axes:
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
@@ -503,7 +503,7 @@ def get_df_filtered(_args, df):
 
     return df_filtered
 
-def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True):
+def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True): # pragma: no cover
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if _min and not _max:
@@ -683,7 +683,7 @@ def _update_graph(_params): # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path):
+def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path): # pragma: no cover
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     old_headers_string = ','.join(sorted(df.columns))
@@ -693,7 +693,7 @@ def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strin
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
-def plot_parameters(_params):
+def plot_parameters(_params): # pragma: no cover
     df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
     parameter_combinations = get_parameter_combinations(df_filtered)
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
@@ -746,7 +746,7 @@ def print_traceback():
     tb = traceback.format_exc()
     print(tb)
 
-def is_valid_time_format(time_string):
+def is_valid_time_format(time_string): # pragma: no cover
     try:
         datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
         return True

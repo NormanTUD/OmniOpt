@@ -167,22 +167,22 @@ jobs:
         echo "<html><body>" > "$index_file"
 
         for run_dir in "$base_dir"/*; do
-        run_number=$(basename "$run_dir")
+          run_number=$(basename "$run_dir")
 
-        echo "<h1>Run #$run_number</h1>" >> "$index_file"
-        echo "<table border='1'>" >> "$index_file"
-        echo "<tr>" >> "$index_file"
+          echo "<h1>Run #$run_number</h1>" >> "$index_file"
+          echo "<table border='1'>" >> "$index_file"
+          echo "<tr>" >> "$index_file"
 
-        for os_dir in "$run_dir"/*; do
-        os=$(basename "$os_dir")
+          for os_dir in "$run_dir"/*; do
+            os=$(basename "$os_dir")
 
-        report_link="coverage_reports/$run_number/$os/index.html"
+            report_link="coverage_reports/$run_number/$os/index.html"
 
-        echo "<td><a href='$report_link'>$os</a></td>" >> "$index_file"
-        done
+            echo "<td><a href='$report_link'>$os</a></td>" >> "$index_file"
+          done
 
-        echo "</tr>" >> "$index_file"
-        echo "</table>" >> "$index_file"
+          echo "</tr>" >> "$index_file"
+          echo "</table>" >> "$index_file"
         done
 
         echo "</body></html>" >> "$index_file"

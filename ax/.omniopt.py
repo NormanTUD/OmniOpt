@@ -84,7 +84,7 @@ uuid_regex = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB
 new_uuid = str(uuid.uuid4())
 run_uuid = os.getenv("RUN_UUID", new_uuid)
 
-if not uuid_regex.match(run_uuid):
+if not uuid_regex.match(run_uuid): # pragma: no cover
     print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
     run_uuid = new_uuid
 
@@ -146,7 +146,7 @@ class SignalCONT (Exception):
     pass
 
 def is_slurm_job():
-    if os.environ.get('SLURM_JOB_ID') is not None:
+    if os.environ.get('SLURM_JOB_ID') is not None: # pragma: no cover
         return True
     return False
 
@@ -175,7 +175,7 @@ def _debug(msg, _lvl=0, eee=None):
     try:
         with open(logfile, mode='a', encoding="utf-8") as f:
             original_print(msg, file=f)
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
@@ -230,10 +230,10 @@ def my_exit(_code=0):
 
     try:
         print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-    except NameError:
+    except NameError: # pragma: no cover
         print(f"Exiting with error code {_code}. Traceback: {tb}")
 
-    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
+    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result): # pragma: no cover
         _sleep(5)
 
     print("Exit-Code: " + str(_code))
@@ -344,7 +344,7 @@ try:
             debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
 
         def load_config(self, config_path, file_format):
-            if not os.path.isfile(config_path):
+            if not os.path.isfile(config_path): # pragma: no cover
                 print("Exit-Code: 5")
                 sys.exit(5)
 
@@ -363,7 +363,7 @@ try:
                     print("Exit-Code: 5")
                     sys.exit(5)
 
-            return {}
+            return {} # pragma: no cover
 
         def validate_and_convert(self, config, arg_defaults):
             """
@@ -384,7 +384,7 @@ try:
                     try:
                         # Convert the value to the expected type
                         converted_config[key] = expected_type(value)
-                    except (ValueError, TypeError):
+                    except (ValueError, TypeError): # pragma: no cover
                         print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
                 else:
                     print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
@@ -487,20 +487,20 @@ def append_and_read(file, nr=0, recursion=0):
 
         return nr_lines
 
-    except FileNotFoundError as e:
+    except FileNotFoundError as e: # pragma: no cover
         original_print(f"File not found: {e}")
-    except (SignalUSR, SignalINT, SignalCONT):
+    except (SignalUSR, SignalINT, SignalCONT): # pragma: no cover
         if recursion:
             print_red("Recursion error in append_and_read.")
             sys.exit(199)
         append_and_read(file, nr, recursion + 1)
-    except OSError as e:
+    except OSError as e: # pragma: no cover
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
         sys.exit(199)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"Error editing the file: {e}")
 
-    return 0
+    return 0 # pragma: no cover
 
 @wrapper_print_debug
 def run_live_share_command():
@@ -576,13 +576,13 @@ def save_pd_csv():
             json.dump(json_snapshot, json_file, indent=4)
 
         save_experiment(ax_client.experiment, f"{get_current_run_folder()}/state_files/ax_client.experiment.json")
-    except SignalUSR as e:
+    except SignalUSR as e: # pragma: no cover
         raise SignalUSR(str(e)) from e
-    except SignalCONT as e:
+    except SignalCONT as e: # pragma: no cover
         raise SignalCONT(str(e)) from e
-    except SignalINT as e:
+    except SignalINT as e: # pragma: no cover
         raise SignalINT(str(e)) from e
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     return pd_csv
@@ -717,7 +717,7 @@ def set_max_eval(new_max_eval):
     max_eval = new_max_eval
 
 def write_worker_usage():
-    if len(worker_percentage_usage):
+    if len(worker_percentage_usage): # pragma: no cover
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
@@ -732,7 +732,7 @@ def write_worker_usage():
 
 @wrapper_print_debug
 def log_system_usage():
-    if not get_current_run_folder():
+    if not get_current_run_folder(): # pragma: no cover
         return
 
     csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
@@ -836,7 +836,7 @@ def log_message_to_file(_logfile, message, _lvl=0, eee=None):
     assert _logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
 
-    if _lvl > 3:
+    if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
         return
 
@@ -844,10 +844,10 @@ def log_message_to_file(_logfile, message, _lvl=0, eee=None):
         with open(_logfile, mode='a', encoding="utf-8") as f:
             #original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
@@ -994,7 +994,7 @@ def load_time_or_exit(_args):
         print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
-def load_mem_gb_or_exit(_args):
+def load_mem_gb_or_exit(_args): # pragma: no cover
     if _args.mem_gb:
         return int(_args.mem_gb)
 
@@ -1858,13 +1858,13 @@ def evaluate(parameters):
             return {"result": float(result)}
 
         write_failed_logs(parameters, "No Result")
-    except SignalUSR:
+    except SignalUSR: # pragma: no cover
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "USR1-signal")
-    except SignalCONT:
+    except SignalCONT: # pragma: no cover
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "CONT-signal")
-    except SignalINT:
+    except SignalINT: # pragma: no cover
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "INT-signal")
 

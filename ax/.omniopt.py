@@ -559,8 +559,7 @@ def save_pd_csv():
 
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     if ax_client is None:
         return pd_csv
@@ -1105,8 +1104,7 @@ if not SYSTEM_HAS_SBATCH:
 
 def save_global_vars():
     state_files_folder = f"{get_current_run_folder()}/state_files"
-    if not os.path.exists(state_files_folder):
-        makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
@@ -1698,9 +1696,7 @@ def write_failed_logs(data_dict, error_description=""):
 
     try:
         # Create directories if they do not exist
-        if not os.path.exists(failed_logs_dir):
-            makedirs(failed_logs_dir)
-            print_debug(f"Directory created: {failed_logs_dir}")
+        makedirs(failed_logs_dir)
 
         # Write headers if the file does not exist
         if not os.path.exists(header_file_path):
@@ -2171,8 +2167,7 @@ def get_random_steps_from_prev_job():
 def failed_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
 
@@ -2529,8 +2524,7 @@ def save_checkpoint(trial_nr=0, eee=None):
     try:
         state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-        if not os.path.exists(state_files_folder):
-            makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
@@ -2814,8 +2808,8 @@ def get_experiment_parameters(_params):
         state_files_folder = f"{get_current_run_folder()}/state_files"
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-        if not os.path.exists(state_files_folder):
-            makedirs(state_files_folder)
+        makedirs(state_files_folder)
+
         with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
             json.dump(experiment_parameters, outfile)
 
@@ -3084,8 +3078,7 @@ def get_workers_string():
 def submitted_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
@@ -4094,8 +4087,7 @@ def save_state_files():
 
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
         original_print(global_vars["joined_run_program"], file=f)

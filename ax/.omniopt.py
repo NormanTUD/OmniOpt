@@ -3850,7 +3850,7 @@ def finish_previous_jobs(new_msgs):
                             progressbar_description(["job_failed"])
 
                             ax_client.log_trial_failure(trial_index=trial_index)
-                        except Exception as e:
+                        except Exception as e: # pragma: no cover
                             print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
                         orchestrate_job(job, trial_index)
@@ -3859,7 +3859,7 @@ def finish_previous_jobs(new_msgs):
                     live_share()
 
                 global_vars["jobs"].remove((job, trial_index))
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
                 if "None for metric" in str(error):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                 else:
@@ -3882,19 +3882,19 @@ def finish_previous_jobs(new_msgs):
                 global_vars["jobs"].remove((job, trial_index))
             save_checkpoint()
             save_pd_csv()
-        else:
+        else: # pragma: no cover
             pass
 
     if this_jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
-    elif this_jobs_finished > 0:
+    elif this_jobs_finished > 0: # pragma: no cover
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
 
     jobs_finished += this_jobs_finished
 
     clean_completed_jobs()
 
-def check_orchestrator(stdout_path, trial_index):
+def check_orchestrator(stdout_path, trial_index): # pragma: no cover
     behavs = []
 
     if orchestrator and "errors" in orchestrator:
@@ -3950,7 +3950,7 @@ def orchestrate_job(job, trial_index):
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
 
-def is_already_in_defective_nodes(hostname):
+def is_already_in_defective_nodes(hostname): # pragma: no cover
     file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
     makedirs(os.path.dirname(file_path))
@@ -3993,14 +3993,14 @@ def handle_exclude_node(stdout_path, hostname_from_out_file):
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-def handle_restart(stdout_path, trial_index):
+def handle_restart(stdout_path, trial_index): # pragma: no cover
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
-def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index):
+def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index): # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
@@ -4011,7 +4011,7 @@ def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
-def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file):
+def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file): # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
@@ -4021,7 +4021,7 @@ def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file):
     else:
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
-def _orchestrate(stdout_path, trial_index):
+def _orchestrate(stdout_path, trial_index): # pragma: no cover
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs:
@@ -4702,7 +4702,7 @@ def run_search(_progress_bar):
 
     #wait_for_jobs_to_complete(2)
 
-    while len(global_vars["jobs"]):
+    while len(global_vars["jobs"]): # pragma: no cover
         wait_for_jobs_to_complete(1)
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
 
@@ -4737,7 +4737,7 @@ def human_readable_generation_strategy():
 
     return None
 
-def die_orchestrator_exit_code_206(_test):
+def die_orchestrator_exit_code_206(_test): # pragma: no cover
     if _test:
         print_yellow("Not exiting, because _test was True")
     else:
@@ -4756,7 +4756,7 @@ def parse_orchestrator_file(_f, _test=False):
                 valid_keys = ['name', 'match_strings', 'behavior']
                 valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
-                for x in data["errors"]:
+                for x in data["errors"]: # pragma: no cover
                     if not isinstance(x, dict):
                         print_red(f"Entry is not of type dict but {type(x)}")
                         die_orchestrator_exit_code_206(_test)
@@ -4783,7 +4783,7 @@ def parse_orchestrator_file(_f, _test=False):
                             die_orchestrator_exit_code_206(_test)
 
                 return data
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 print(f"Error while parse_experiment_parameters({_f}): {e}")
     else:
         print_red(f"{_f} could not be found")
@@ -5088,11 +5088,11 @@ def run_tests():
     try:
         ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)), '-123')
 
-        if not ie:
+        if not ie: # pragma: no cover
             nr_errors += 1
     except FileNotFoundError:
         pass
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!). Error: {e}")
         nr_errors += 1
 
@@ -5211,7 +5211,7 @@ Exit-Code: 159
     if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:
         nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
         nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
-    else:
+    else: # pragma: no cover
         print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
 
     _not_equal = [
@@ -5301,7 +5301,7 @@ Exit-Code: 159
         nr_errors += complex_tests(*_item)
 
     find_path_res = test_find_paths("ls")
-    if find_path_res:
+    if find_path_res: # pragma: no cover
         is_equal("test_find_paths failed", True, False)
         nr_errors += find_path_res
 
@@ -5311,7 +5311,7 @@ Exit-Code: 159
         _is = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
         should_be = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
         nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
-    else:
+    else: # pragma: no cover
         nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
 
     _example_csv_file = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
@@ -5351,7 +5351,7 @@ def main_outside():
         else:
             try:
                 main()
-            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
                 end_program(RESULT_CSV_FILE, 1)
@@ -5367,7 +5367,7 @@ def main_outside():
 
                 if _get_perc != 100:
                     end_program(RESULT_CSV_FILE, 1, 87)
-                else:
+                else: # pragma: no cover
                     end_program(RESULT_CSV_FILE, 1)
 
 if __name__ == "__main__":

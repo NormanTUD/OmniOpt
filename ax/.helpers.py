@@ -594,8 +594,6 @@ def show_legend(_args, _fig, _scatter, axs):
     except Exception as e:
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
-    return None
-
 def get_parameter_combinations(df_filtered):
     r = get_r(df_filtered)
 

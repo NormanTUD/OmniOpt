@@ -666,6 +666,8 @@ def print_if_not_plot_tests_and_exit(msg, exit_code):
     if exit_code is not None:
         sys.exit(exit_code)
 
+    return msg
+
 def _update_graph(_params):
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 

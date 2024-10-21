@@ -5089,11 +5089,12 @@ def run_tests():
         ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)), '-123')
 
         if not ie:
-            raise Exception from e
+            nr_errors += 1
     except FileNotFoundError:
         pass
     except Exception as e:
-        print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!).")
+        print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!). Error: {e}")
+        nr_errors += 1
 
     non_rounded_lower, non_rounded_upper = round_lower_and_upper_if_type_is_int("float", -123.4, 123.4)
     nr_errors += is_equal("non_rounded_lower", non_rounded_lower, -123.4)

@@ -5105,6 +5105,14 @@ def run_tests():
     except Exception as e:
         print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!).")
 
+    non_rounded_lower, non_rounded_upper = round_lower_and_upper_if_type_is_int("float", -123.4, 123.4)
+    nr_errors += is_equal("non_rounded_lower", non_rounded_lower, -123.4)
+    nr_errors += is_equal("non_rounded_upper", non_rounded_upper, 123.4)
+
+    rounded_lower, rounded_upper = round_lower_and_upper_if_type_is_int("int", -123.4, 123.4)
+    nr_errors += is_equal("rounded_lower", rounded_lower, -124)
+    nr_errors += is_equal("rounded_upper", rounded_upper, 124)
+
     nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)), '17143005390319.627')
     nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)), '9.865416064838896e+29')
 

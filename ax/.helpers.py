@@ -27,7 +27,7 @@ def check_environment_variable(variable_name):
 
     return False
 
-if not check_environment_variable("RUN_VIA_RUNSH"):
+if not check_environment_variable("RUN_VIA_RUNSH"): # pragma: no cover
     print("Must be run via the bash script, cannot be run as standalone.")
 
     sys.exit(16)
@@ -36,7 +36,7 @@ def in_venv():
     return sys.prefix != sys.base_prefix
 
 
-if not in_venv():
+if not in_venv(): # pragma: no cover
     print("No venv loaded. Cannot continue.")
     sys.exit(19)
 
@@ -60,12 +60,12 @@ def warn_versions():
         _supported_versions = supported_versions[key]
         try:
             _real_version = version(key)
-            if _real_version not in _supported_versions:
+            if _real_version not in _supported_versions: # pragma: no cover
                 wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported version(s): {', '.join(_supported_versions)}")
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
-    if len(wrns):
+    if len(wrns): # pragma: no cover
         print("- " + ("\n- ".join(wrns)))
 
 def looks_like_float(x):
@@ -116,7 +116,7 @@ def to_int_when_possible(val):
     except Exception:
         return val
 
-def dier (msg):
+def dier(msg): # pragma: no cover
     pprint(msg)
     sys.exit(1)
 
@@ -221,7 +221,7 @@ def check_python_version():
     if python_version not in supported_versions:
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def create_widgets(_data):
+def create_widgets(_data): # pragma: no cover
     _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, _args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph = _data
 
     button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
@@ -666,7 +666,7 @@ def print_if_not_plot_tests_and_exit(msg, exit_code):
 
     return msg
 
-def _update_graph(_params):
+def _update_graph(_params): # pragma: no cover
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 
     try:

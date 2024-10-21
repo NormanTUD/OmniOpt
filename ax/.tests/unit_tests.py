@@ -89,13 +89,13 @@ with Progress(transient=True) as progress:
             for test in to_test[modname]:
                 expected_ret_val = to_test[modname][test]
                 ret_val = eval(f"mod.{test}")
-                if helpers.is_equal(f"{modname}.{test}", ret_val, expected_ret_val):
+                if helpers.is_equal(f"{modname}.{test}", ret_val, expected_ret_val): # pragma: no cover
                     error_list.append((modname, test, ret_val, expected_ret_val))
                     errors += 1
         progress.update(test_task, advance=1)
 
 # Fehleranzeige
-if errors > 0:
+if errors > 0: # pragma: no cover
     console.print(f"{errors} error(s) found", style="bold red")
 
     # Tabelle mit Fehlern

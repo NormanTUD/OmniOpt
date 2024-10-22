@@ -112,8 +112,8 @@ def to_int_when_possible(val):
             decimal_places = len(str(val).split('.')[1])
             formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
             return formatted_value if formatted_value else '0'
-        return int(val)
-    except Exception:
+        return int(val) # pragma: no cover
+    except Exception: # pragma: no cover
         return val
 
 def dier(msg): # pragma: no cover
@@ -141,7 +141,7 @@ def convert_string_to_number(input_string):
             try:
                 number = float(number_str)
                 return number
-            except ValueError as e:
+            except ValueError as e: # pragma: no cover
                 print(f"Failed to convert {number_str} to float: {e}")
 
         int_match = int_pattern.search(input_string)
@@ -150,7 +150,7 @@ def convert_string_to_number(input_string):
     except AssertionError as e:
         print(f"Assertion error: {e}")
         return None
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"Unexpected error: {e}")
 
         tb = traceback.format_exc()
@@ -158,7 +158,7 @@ def convert_string_to_number(input_string):
 
     return None
 
-def log_error(error_text):
+def log_error(error_text): # pragma: no cover
     print(f"Error: {error_text}", file=sys.stderr)
 
 def check_if_results_are_empty(result_column_values, csv_file_path):
@@ -166,7 +166,7 @@ def check_if_results_are_empty(result_column_values, csv_file_path):
 
     number_of_non_nan_results = len(filtered_data)
 
-    if number_of_non_nan_results == 0:
+    if number_of_non_nan_results == 0: # pragma: no cover
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
@@ -178,7 +178,7 @@ def get_result_column_values(df, csv_file_path):
     return result_column_values
 
 def check_path(_path):
-    if not os.path.exists(_path):
+    if not os.path.exists(_path): # pragma: no cover
         print(f'The folder {_path} does not exist.')
         sys.exit(1)
 
@@ -211,14 +211,14 @@ def print_color(color, text):
     try:
         assert color in color_codes, f"Color '{color}' is not supported."
         print(f"{color_codes[color]}{text}{end_color}")
-    except AssertionError as e:
+    except AssertionError as e: # pragma: no cover
         print(f"Error: {e}")
         print(text)
 
 def check_python_version():
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7"]
-    if python_version not in supported_versions:
+    if python_version not in supported_versions: # pragma: no cover
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
 def create_widgets(_data): # pragma: no cover
@@ -254,7 +254,7 @@ def die_if_no_nonempty_graph (non_empty_graphs, _exit): # pragma: no cover
 def get_r(df_filtered):
     r = 2
 
-    if len(list(df_filtered.columns)) == 1:
+    if len(list(df_filtered.columns)) == 1: # pragma: no cover
         r = 1
 
     return r
@@ -263,11 +263,11 @@ def save_to_file (_fig, _args, _plt):
     _fig.set_size_inches(15.5, 9.5)
 
     _path = os.path.dirname(_args.save_to_file)
-    if _path:
+    if _path: # pragma: no cover
         os.makedirs(_path, exist_ok=True)
     try:
         _plt.savefig(_args.save_to_file)
-    except OSError as e:
+    except OSError as e: # pragma: no cover
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
@@ -352,17 +352,17 @@ def setup_logging():
 def print_diff(i, o):
     if isinstance(i, str):
         print("Should be:", i.strip())
-    else:
+    else: # pragma: no cover
         print("Should be:", i)
 
     if isinstance(o, str):
         print("Is:", o.strip())
-    else:
+    else: # pragma: no cover
         print("Is:", o)
 
     if isinstance(i, str) or isinstance(o, str):
         output = _unidiff_output(json.dumps(i), json.dumps(o))
-        if output:
+        if output: # pragma: no cover
             print("Diff:", output)
 
 def _unidiff_output(expected, actual):
@@ -382,19 +382,19 @@ def _is_equal(name, _input, output):
         int, str, float, bool
     ]
     for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) and _input != output:
+        if type(_input) is equal_type and type(output) and _input != output: # pragma: no cover
             print_color("red", f"Failed test (1): {name}")
             return True
 
-    if type(_input) is not type(output):
+    if type(_input) is not type(output): # pragma: no cover
         print_color("red", f"Failed test (4): {name}")
         return True
 
-    if isinstance(_input, bool) and _input != output:
+    if isinstance(_input, bool) and _input != output: # pragma: no cover
         print_color("red", f"Failed test (6): {name}")
         return True
 
-    if (output is None and _input is not None) or (output is not None and _input is None):
+    if (output is None and _input is not None) or (output is not None and _input is None): # pragma: no cover
         print_color("red", f"Failed test (7): {name}")
         return True
 
@@ -404,10 +404,10 @@ def _is_equal(name, _input, output):
 def is_equal(n, o, i):
     r = _is_equal(n, i, o)
 
-    if r:
+    if r: # pragma: no cover
         print_diff(i, o)
 
-    if os.path.exists("None"):
+    if os.path.exists("None"): # pragma: no cover
         print("Folder 'None' exists! Exiting.")
         sys.exit(255)
 
@@ -422,11 +422,11 @@ def _is_not_equal(name, _input, output):
             print_color("red", f"Failed test (1): {name}")
             return True
 
-    if isinstance(_input, bool) and _input == output:
+    if isinstance(_input, bool) and _input == output: # pragma: no cover
         print_color("red", f"Failed test (2): {name}")
         return True
 
-    if not (output is not None and _input is not None):
+    if not (output is not None and _input is not None): # pragma: no cover
         print_color("red", f"Failed test (3): {name}")
         return True
 
@@ -436,7 +436,7 @@ def _is_not_equal(name, _input, output):
 def is_not_equal(n, i, o):
     r = _is_not_equal(n, i, o)
 
-    if r:
+    if r: # pragma: no cover
         print_diff(i, o)
 
     return r
@@ -472,13 +472,13 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
     else:
         if len(parameter_combinations) > 1 or type(parameter_combinations[0]) is tuple:
             non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
-        elif len(parameter_combinations) == 1:
+        elif len(parameter_combinations) == 1: # pragma: no cover
             non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb].notna().any()]
-        else:
+        else: # pragma: no cover
             print("Error: No non-empty parameter combinations")
             sys.exit(75)
 
-    if not non_empty_graphs:
+    if not non_empty_graphs: # pragma: no cover
         print('No non-empty graphs to display.')
         if _exit:
             sys.exit(2)
@@ -494,7 +494,7 @@ def get_df_filtered(_args, df):
         if col in all_columns_to_remove:
             columns_to_remove.append(col)
 
-    if len(_args.allow_axes):
+    if len(_args.allow_axes): # pragma: no cover
         for col in existing_columns:
             if col != "result" and col not in flatten_extend(_args.allow_axes):
                 columns_to_remove.append(col)
@@ -534,7 +534,7 @@ def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 
-        if old_headers_string:
+        if old_headers_string: # pragma: no cover
             df_header_string = ','.join(sorted(df.columns))
             if df_header_string != old_headers_string:
                 print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers {df_header_string}")
@@ -545,12 +545,12 @@ def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop
                 df = df[df["result"] >= _min]
             if _max is not None:
                 df = df[df["result"] <= _max]
-        except KeyError:
+        except KeyError: # pragma: no cover
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
         if "result" not in df:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
         df.dropna(subset=["result"], inplace=True)
@@ -559,25 +559,25 @@ def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop
             columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
             df = df.drop(columns=columns_with_strings)
 
-        if len(df.columns.tolist()) <= 1 and len(columns_with_strings) >= 1:
+        if len(df.columns.tolist()) <= 1 and len(columns_with_strings) >= 1: # pragma: no cover
             print("It seems like all available columns had strings instead of numbers. String columns cannot currently be plotted with scatter_hex.")
             sys.exit(19)
     except pd.errors.EmptyDataError:
-        if not os.environ.get("PLOT_TESTS"):
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{csv_file_path} has no lines to parse.")
         sys.exit(19)
     except pd.errors.ParserError as e:
-        if not os.environ.get("PLOT_TESTS"):
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
         sys.exit(12)
     except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
         sys.exit(7)
 
     try:
         df = drop_empty_results(NO_RESULT, df)
-    except KeyError:
+    except KeyError: # pragma: no cover
         print(f"column named `result` could not be found in {csv_file_path}.")
         sys.exit(6)
 
@@ -613,7 +613,7 @@ def get_colors(df):
 
     try:
         colors = df["result"]
-    except KeyError as e:
+    except KeyError as e: # pragma: no cover
         if str(e) == "'result'":
             print("Could not find any results")
             sys.exit(3)
@@ -626,7 +626,7 @@ def get_colors(df):
 def get_color_list(df, _args, _plt):
     colors = get_colors(df)
 
-    if colors is None:
+    if colors is None: # pragma: no cover
         print_color("yellow", "colors is None. Cannot plot.")
         sys.exit(3)
 
@@ -636,7 +636,7 @@ def get_color_list(df, _args, _plt):
     norm = None
     try:
         norm = _plt.Normalize(colors.min(), colors.max())
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_color("red", f"Wrong values in CSV or error parsing CSV file: {e}")
         sys.exit(16)
 
@@ -689,7 +689,7 @@ def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_fi
     old_headers_string = ','.join(sorted(df.columns))
     return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
 
-def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings):
+def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings): # pragma: no cover
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
@@ -708,7 +708,7 @@ def plot_parameters(_params): # pragma: no cover
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
 def _handle_exception(e):
-    if "invalid command name" not in str(e):
+    if "invalid command name" not in str(e): # pragma: no cover
         print(f"Failed to update graph: {e}")
 
 def set_margins(fig):

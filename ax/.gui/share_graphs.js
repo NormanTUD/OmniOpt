@@ -616,7 +616,7 @@ async function load_out_files () {
 				if($("#" + _new_tab_id).length == 0) {
 					showSpinnerOverlay(`Loading log ${_fn}...`);
 					var _new_tab_title = `${_fn} <span class='invert_in_dark_mode'>${get_checkmark_if_contains_result(_d.data)}</span>`;
-					var _new_tab_content = `<div id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: white; background-color: black;'>${_d.data}</pre></div>`;
+					var _new_tab_content = `<div id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: green; background-color: black;' class='invert_in_dark_mode'>${_d.data}</pre></div>`;
 
 					add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#" + main_tabs_div_id);
 				}

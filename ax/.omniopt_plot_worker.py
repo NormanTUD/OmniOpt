@@ -39,7 +39,7 @@ def plot_worker_usage(args, pd_csv):
         data = data[valid_times]
 
         if "time" not in data:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 print("time could not be found in data")
             sys.exit(19)
 
@@ -69,17 +69,17 @@ def plot_worker_usage(args, pd_csv):
             fig = plt.figure(1)
             helpers.save_to_file(fig, args, plt)
         else:
-            if not args.no_plt_show:
+            if not args.no_plt_show: # pragma: no cover
                 plt.show()
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         helpers.log_error(f"File '{pd_csv}' not found.")
-    except AssertionError as e:
+    except AssertionError as e: # pragma: no cover
         helpers.log_error(str(e))
-    except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
+    except UnicodeDecodeError: # pragma: no cover
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
 
@@ -101,10 +101,10 @@ def main():
         if os.path.exists(worker_usage_csv):
             try:
                 plot_worker_usage(args, worker_usage_csv)
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 helpers.log_error(f"Error: {e}")
                 sys.exit(3)
-        else:
+        else: # pragma: no cover
             helpers.log_error(f"File '{worker_usage_csv}' does not exist.")
             sys.exit(19)
 

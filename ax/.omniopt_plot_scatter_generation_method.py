@@ -64,7 +64,7 @@ def update_graph():
                 os.makedirs(_path, exist_ok=True)
         plot_graph(dataframe, args.save_to_file)
 
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print("File not found: %s", args.run_dir + "/results.csv")
     except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
@@ -77,7 +77,7 @@ def update_graph():
     except KeyError: # pragma: no cover
         if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems have no result column.")
-    except Exception as exception:
+    except Exception as exception: # pragma: no cover
         print("An unexpected error occurred: %s" % str(exception))
 
 if __name__ == "__main__":

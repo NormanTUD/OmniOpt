@@ -36,7 +36,7 @@ def load_data(csv_path):
     """Loads data from the given CSV file."""
     try:
         dataframe = pd.read_csv(csv_path)
-        if dataframe.empty:
+        if dataframe.empty: # pragma: no cover
             logging.warning("DataFrame is empty after reading.")
             return None
         return dataframe

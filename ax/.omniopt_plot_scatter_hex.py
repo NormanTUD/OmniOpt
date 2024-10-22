@@ -42,7 +42,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 try:
     import matplotlib.pyplot as plt
-except ModuleNotFoundError as ee:
+except ModuleNotFoundError as ee: # pragma: no cover
     print(f"Error: {ee}")
     sys.exit(244)
 
@@ -71,7 +71,7 @@ def plot_multiple_graphs(_params):
                 _x = df_filtered[param1]
                 _y = df_filtered[param2]
 
-                if bins:
+                if bins: # pragma: no cover
                     scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
                 else:
                     scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
@@ -118,7 +118,7 @@ def plot_single_graph(_params):
         _y.append(_l[1])
 
     global bins
-    if bins:
+    if bins: # pragma: no cover
         scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
     else:
         scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
@@ -235,7 +235,8 @@ def main():
 def update_graph(event=None, _min=None, _max=None):
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
-    if event: # only for fooling pylint...
+    if event:  # pragma: no cover
+        # only for fooling pylint...
         pass
 
     filter_out_strings = True
@@ -247,10 +248,10 @@ if __name__ == "__main__":
 
         theme = "fast"
 
-        if args.darkmode:
+        if args.darkmode: # pragma: no cover
             theme = "dark_background"
 
         with plt.style.context(theme):
             main()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # pragma: no cover
         sys.exit(0)

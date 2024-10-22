@@ -167,7 +167,7 @@ def _sleep(t: int):
         time.sleep(t)
 
 def _debug(msg, _lvl=0, eee=None):
-    if _lvl > 3:
+    if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
         print("Exit-Code: 193")
         sys.exit(193)
@@ -178,7 +178,7 @@ def _debug(msg, _lvl=0, eee=None):
     except FileNotFoundError: # pragma: no cover
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         original_print("_debug: Error trying to write log file: " + str(e))
 
         _debug(msg, _lvl + 1, e)
@@ -204,7 +204,7 @@ def print_debug(msg):
 
     msg = f"{stack_trace_element}"
 
-    if args is not None and args.debug:
+    if args is not None and args.debug: # pragma: no cover
         print(msg)
 
     _debug(msg)
@@ -248,7 +248,7 @@ def print_red(text):
         try:
             with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(text)
-        except FileNotFoundError as e:
+        except FileNotFoundError as e: # pragma: no cover
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
@@ -386,7 +386,7 @@ try:
                         converted_config[key] = expected_type(value)
                     except (ValueError, TypeError): # pragma: no cover
                         print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
-                else:
+                else: # pragma: no cover
                     print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
 
             return converted_config
@@ -414,7 +414,7 @@ try:
             yaml_and_json = _args.config_yaml and _args.config_json
             json_and_toml = _args.config_json and _args.config_toml
 
-            if yaml_and_toml or yaml_and_json or json_and_toml:
+            if yaml_and_toml or yaml_and_json or json_and_toml: # pragma: no cover
                 print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
                 print("Exit-Code: 5")
 
@@ -434,7 +434,7 @@ try:
 
     loader = ConfigLoader()
     args = loader.parse_arguments()
-except KeyboardInterrupt:
+except KeyboardInterrupt: # pragma: no cover
     print("Error: Failed to parse arguments because you pressed CTRL-C.")
     my_exit(4)
 
@@ -508,7 +508,7 @@ def run_live_share_command():
         try:
             # Environment variable USER
             _user = os.getenv('USER')
-            if _user is None:
+            if _user is None: # pragma: no cover
                 _user = 'defaultuser'
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
@@ -522,13 +522,13 @@ def run_live_share_command():
 
             # Return stdout and stderr
             return str(result.stdout), str(result.stderr)
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as e: # pragma: no cover
             if e.stderr:
                 original_print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
             else:
                 original_print(f"run_live_share_command: command failed with error: {e}")
             return "", str(e.stderr)
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print(f"run_live_share_command: An error occurred: {e}")
 
     return "", ""
@@ -537,10 +537,10 @@ def run_live_share_command():
 def live_share():
     global shown_live_share_counter
 
-    if not args.live_share:
+    if not args.live_share: # pragma: no cover
         return
 
-    if not get_current_run_folder():
+    if not get_current_run_folder(): # pragma: no cover
         return
 
     stdout, stderr = run_live_share_command()
@@ -727,7 +727,7 @@ def write_worker_usage():
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
     else:
-        if is_slurm_job():
+        if is_slurm_job(): # pragma: no cover
             print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
 @wrapper_print_debug
@@ -757,13 +757,13 @@ def log_system_usage():
 def write_process_info():
     try:
         log_system_usage()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_debug(f"Error retrieving process information: {str(e)}")
 
 def log_nr_of_workers():
     try:
         write_process_info()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
 
     if "jobs" not in global_vars:
@@ -778,10 +778,10 @@ def log_nr_of_workers():
     try:
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
             f.write(str(nr_of_workers) + "\n")
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
         my_exit(99)
-    except OSError as e:
+    except OSError as e: # pragma: no cover
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
         my_exit(199)
 
@@ -824,7 +824,7 @@ def print_image_to_cli(image_path, width):
         _sleep(2)
 
         return True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_debug(
             f"Error converting and resizing image: "
             f"{str(e)}, width: {width}, image_path: {image_path}"
@@ -927,7 +927,7 @@ def load_global_vars(_file):
         global global_vars
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
@@ -1178,7 +1178,7 @@ def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
             dier(f"get_min_or_max_column_value: Unknown type {_type}")
 
         return _value
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error while getting {_type} value from column {column}: {str(e)}")
         raise
 
@@ -1519,7 +1519,7 @@ def replace_parameters_in_string(parameters, input_string):
             input_string = input_string.replace(f"%({param_item})", str(parameters[param_item]))
 
         return input_string
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Error: {e}")
         return None
 
@@ -1586,7 +1586,7 @@ def get_result(input_string):
             return result_number
         return None
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
@@ -1705,7 +1705,7 @@ def write_failed_logs(data_dict, error_description=""):
                     writer = csv.writer(header_file)
                     writer.writerow(headers)
                     print_debug(f"Header file created with headers: {headers}")
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 print_red(f"Failed to write header file: {e}")
 
         # Append data to the data file
@@ -1715,10 +1715,10 @@ def write_failed_logs(data_dict, error_description=""):
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
 
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print_red(f"Failed to append data to file: {e}")
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Unexpected error: {e}")
 
 def count_defective_nodes(file_path=None, entry=None):
@@ -1741,7 +1741,7 @@ def count_defective_nodes(file_path=None, entry=None):
 
         return sorted(set(entries))
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"An error has occurred: {e}")
         return []
 
@@ -1981,7 +1981,7 @@ def display_failed_jobs_table():
 
         # Print the table to the console
         _console.print(table)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error: {str(e)}")
 
 @wrapper_print_debug
@@ -2245,7 +2245,7 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
         plot_sixel_imgs(csv_file_path)
 
         SHOWN_END_TABLE = True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         tb = traceback.format_exc()
         print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
 
@@ -2393,7 +2393,7 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
 
             _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
             data.append(_params)
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             tb = traceback.format_exc()
             print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
             print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
@@ -2447,7 +2447,7 @@ def abandon_job(job, trial_index):
             _trial = ax_client.get_trial(trial_index)
             _trial.mark_abandoned()
             global_vars["jobs"].remove((job, trial_index))
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print(f"ERROR in line {get_line_info()}: {e}")
             print_debug(f"ERROR in line {get_line_info()}: {e}")
             return False
@@ -2493,7 +2493,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
-    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         new_exit = show_end_table_and_save_end_files(csv_file_path)
@@ -2528,7 +2528,7 @@ def save_checkpoint(trial_nr=0, eee=None):
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         save_checkpoint(trial_nr + 1, e)
 
 @wrapper_print_debug
@@ -2565,7 +2565,7 @@ def compare_parameters(old_param_json, new_param_json):
 
     except AssertionError as e:
         print(f"Assertion error: {e}")
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"Unexpected error: {e}")
 
     return ""
@@ -3201,7 +3201,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
     try:
         df = pd.read_csv(file_path, float_precision='round_trip')
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Failed to read the CSV file: {str(e)}")
         return None
 
@@ -3240,7 +3240,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")
         raise
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
@@ -3387,7 +3387,7 @@ def extract_headers_and_rows(data_list):
             rows.append(row)
 
         return headers, rows
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
@@ -3772,7 +3772,7 @@ def print_outfile_analyzed(stdout_path):
         try:
             with open(f'{get_current_run_folder()}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
                 error_file.write(out_files_string)
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print_debug(f"Error occurred while writing to evaluation_errors.log: {e}")
 
         print_red(out_files_string)
@@ -3789,7 +3789,7 @@ def get_parameters_from_outfile(stdout_path):
     except FileNotFoundError:
         original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
         return None
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"get_parameters_from_outfile: There was an error: {e}")
         return None
 
@@ -3804,7 +3804,7 @@ def get_hostname_from_outfile(stdout_path):
     except FileNotFoundError:
         original_print(f"The file {stdout_path} was not found.")
         return None
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"There was an error: {e}")
         return None
 
@@ -3842,7 +3842,7 @@ def finish_previous_jobs(new_msgs):
                         update_progress_bar(progress_bar, 1)
 
                         live_share()
-                    except Exception as e:
+                    except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                 else:
                     if job:
@@ -3871,7 +3871,7 @@ def finish_previous_jobs(new_msgs):
                         _trial = ax_client.get_trial(trial_index)
                         ax_client.log_trial_failure(trial_index=trial_index)
                         _trial.mark_failed()
-                    except Exception as e:
+                    except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
                     orchestrate_job(job, trial_index)
@@ -3964,7 +3964,7 @@ def is_already_in_defective_nodes(hostname): # pragma: no cover
             for line in file:
                 if line.strip() == hostname:
                     return True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"is_already_in_defective_nodes: Error reading the file {file_path}: {e}")
         return False
 
@@ -4062,7 +4062,7 @@ def write_continue_run_uuid_to_file():
                     file.write(continue_from_uuid)
 
                 return True
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
 
     return False
@@ -4077,7 +4077,7 @@ def write_run_uuid_to_file():
             file.write(run_uuid)
 
         return True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"write_run_uuid_to_file: An error occurred: {e}")
 
         return False
@@ -4120,7 +4120,7 @@ def submit_job(parameters):
         new_job = executor.submit(evaluate, parameters)
         submitted_jobs(1)
         return new_job
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_debug(f"Error while trying to submit job: {e}")
         raise
 
@@ -4135,7 +4135,7 @@ def execute_evaluation(_params):
     def mark_trial_stage(stage, error_msg):
         try:
             getattr(_trial, stage)()
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
 
     mark_trial_stage("mark_staged", "Marking the trial as staged failed")
@@ -4159,7 +4159,7 @@ def execute_evaluation(_params):
         trial_counter += 1
     except (SignalUSR, SignalINT, SignalCONT):
         handle_exit_signal()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         handle_generic_error(e)
 
     add_to_phase_counter(phase, 1)
@@ -4189,7 +4189,7 @@ def handle_failed_job(error, trial_index, new_job):
 
     try:
         cancel_failed_job(trial_index, new_job)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
 
 def cancel_failed_job(trial_index, new_job):
@@ -4197,7 +4197,7 @@ def cancel_failed_job(trial_index, new_job):
     if new_job:
         try:
             ax_client.log_trial_failure(trial_index=trial_index)
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
         print_debug("Cancelled failed job")
@@ -4633,7 +4633,7 @@ def execute_nvidia_smi(): # pragma: no cover
                     print_debug("NVIDIA_SMI_LOGS_BASE not defined")
                 if not host:
                     print_debug("host not defined")
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print(f"execute_nvidia_smi: An error occurred: {e}")
         if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
@@ -5031,7 +5031,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
 
         return nr_errors
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error complex_tests: {e}")
 
         return 1

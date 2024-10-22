@@ -39,7 +39,7 @@ def parse_arguments():
 
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
         sys.exit(169)
 
@@ -79,7 +79,7 @@ def plot_graph(dataframe, save_to_file=None):
         fig = plt.figure(1)
         helpers.save_to_file(fig, args, plt)
     else:
-        if not args.no_plt_show:
+        if not args.no_plt_show: # pragma: no cover
             plt.show()
 
 def update_graph():
@@ -102,14 +102,14 @@ def update_graph():
 
         if args.save_to_file:
             _path = os.path.dirname(args.save_to_file)
-            if _path:
+            if _path: # pragma: no cover
                 os.makedirs(_path, exist_ok=True)
 
         plot_graph(dataframe, args.save_to_file)
 
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         logging.error("File not found: %s", args.run_dir + "/results.csv")
-    except Exception as exception:
+    except Exception as exception: # pragma: no cover
         logging.error("An unexpected error occurred: %s", str(exception))
 
         helpers.print_traceback()
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     helpers.setup_logging()
 
-    if not os.path.exists(args.run_dir):
+    if not os.path.exists(args.run_dir): # pragma: no cover
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

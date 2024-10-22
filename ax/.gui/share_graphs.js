@@ -569,7 +569,7 @@ async function load_parameter () {
 	}
 
 	if (data.raw != "null" && data.raw !== null) {
-		$(".parameters_txt").html(`<pre>${removeAnsiCodes(data.raw)}</pre>`);
+		$(".parameters_txt").html(`<pre>${removeAnsiCodes(data.raw).replaceAll(/\s*$/g, "")}</pre>`);
 	}
 }
 

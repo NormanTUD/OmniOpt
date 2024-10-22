@@ -481,8 +481,7 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 		$(container_id).tabs();
 	}
 
-	if ($(container_id + " #" + tab_id + "-content").length > 0) {
-		//warn(`#${tab_id} already exists.`);
+	if ($("#" + tab_id + "-content").length > 0) {
 		return;
 	}
 
@@ -497,13 +496,8 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 	$(container_id).append(tabContent);
 
 	$(container_id).tabs("refresh");
-	//debug(`Tab ${tab_name} (#${tab_id}) added`);
-
-	$(container_id).tabs();
 
 	open_first_tab_when_none_is_open();
-
-	$(container_id).tabs("refresh");
 }
 
 function remove_tab(tab_id) {

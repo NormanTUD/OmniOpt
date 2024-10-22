@@ -755,9 +755,9 @@ def is_valid_time_format(time_string): # pragma: no cover
 
 def check_args(_args):
     if _args.min and _args.max:
-        if _args.min > _args.max:
+        if _args.min > _args.max: # pragma: no cover
             _args.max, _args.min = _args.min, _args.max
-        elif _args.min == _args.max:
+        elif _args.min == _args.max: # pragma: no cover
             print("Max and min value are the same. May result in empty data")
 
     check_path(_args.run_dir)

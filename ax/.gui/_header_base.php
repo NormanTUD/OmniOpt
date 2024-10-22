@@ -28,9 +28,6 @@ if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
         <script src="<?php print $dir_path; ?>/search.js"></script>
         <script src="<?php print $dir_path; ?>/initialization.js"></script>
 
-        <script src="<?php print $dir_path; ?>/popper.min.js"></script>
-        <script src="<?php print $dir_path; ?>/bootstrap.min.js"></script>
-
         <link href="<?php print $dir_path; ?>/style.css" rel="stylesheet">
 <?php
 if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {

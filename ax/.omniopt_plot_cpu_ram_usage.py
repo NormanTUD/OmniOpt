@@ -40,15 +40,15 @@ def load_data(csv_path):
             logging.warning("DataFrame is empty after reading.")
             return None
         return dataframe
-    except pd.errors.EmptyDataError:
+    except pd.errors.EmptyDataError: # pragma: no cover
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             logging.error("CSV file %s is empty.", csv_path)
         sys.exit(19)
-    except UnicodeDecodeError:
+    except UnicodeDecodeError: # pragma: no cover
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             logging.error("CSV file %s contains invalid UTF-8.", csv_path)
         sys.exit(7)
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
@@ -69,7 +69,7 @@ def plot_graph(dataframe, save_to_file=None):
     if save_to_file:
         fig = plt.figure(1)
         helpers.save_to_file(fig, args, plt)
-    elif not args.no_plt_show:
+    elif not args.no_plt_show: # pragma: no cover
         plt.show()
 
 def update_graph(csv_path):
@@ -86,7 +86,7 @@ def main():
     load_helpers(os.path.dirname(os.path.realpath(__file__)))
     helpers.setup_logging()
 
-    if not os.path.exists(args.run_dir):
+    if not os.path.exists(args.run_dir): # pragma: no cover
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

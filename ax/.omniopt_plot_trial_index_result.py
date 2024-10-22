@@ -40,7 +40,7 @@ def parse_arguments():
 
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
         sys.exit(169)
 
@@ -55,7 +55,7 @@ def plot_graph(dataframe, save_to_file=None):
     if save_to_file:
         fig = plt.figure(1)
         helpers.save_to_file(fig, args, plt)
-    else:
+    else: # pragma: no cover
         if not args.no_plt_show:
             plt.show()
 
@@ -66,7 +66,7 @@ def update_graph():
         try:
             dataframe = pd.read_csv(args.run_dir + "/results.csv")
         except pd.errors.EmptyDataError:
-            if not os.environ.get("PLOT_TESTS"):
+            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
                 print(f"{args.run_dir}/results.csv seems to be empty.")
             sys.exit(19)
         except UnicodeDecodeError:
@@ -77,21 +77,21 @@ def update_graph():
         if args.min is not None or args.max is not None:
             try:
                 dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
-            except KeyError:
+            except KeyError: # pragma: no cover
                 if not os.environ.get("PLOT_TESTS"):
                     print(f"{args.run_dir}/results.csv seems have no result column.")
                 sys.exit(10)
 
         if dataframe.empty:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                logging.warning("DataFrame is empty after filtering.")
+                logging.warning("DataFrame is empty after filtering.") # pragma: no cover
             return
 
         plot_graph(dataframe, args.save_to_file)
 
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         logging.error("File not found: %s", args.run_dir + "/results.csv")
-    except Exception as exception:
+    except Exception as exception: # pragma: no cover
         logging.error("An unexpected error occurred: %s", str(exception))
 
         tb = traceback.format_exc()
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     helpers.setup_logging()
 
-    if not os.path.exists(args.run_dir):
+    if not os.path.exists(args.run_dir): # pragma: no cover
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

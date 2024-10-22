@@ -70,7 +70,7 @@ def update_graph():
                 print(f"{args.run_dir}/results.csv seems to be empty.")
             sys.exit(19)
         except UnicodeDecodeError:
-            if not os.environ.get("PLOT_TESTS"):
+            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
                 print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
             sys.exit(7)
 

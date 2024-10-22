@@ -28,12 +28,12 @@ def parse_log_file(args, log_file_path):
 
         valid_time_mask = data['time'].apply(helpers.is_valid_time_format)
         if not valid_time_mask.all():
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 helpers.log_error("Some rows have invalid time format and will be removed.")
         data = data[valid_time_mask]
 
         if "time" not in data:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 print("time could not be found in data")
             sys.exit(19)
 
@@ -43,17 +43,17 @@ def parse_log_file(args, log_file_path):
         data = data.sort_values(by='time')
 
         return data
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         helpers.log_error(f"File '{log_file_path}' not found.")
         raise
-    except AssertionError as e:
+    except AssertionError as e: # pragma: no cover
         helpers.log_error(str(e))
         raise
-    except UnicodeDecodeError:
+    except UnicodeDecodeError: # pragma: no cover
         if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
         raise
@@ -81,7 +81,7 @@ def plot_trial_usage(args, log_file_path):
         if args.save_to_file:
             fig = plt.figure(1)
             helpers.save_to_file(fig, args, plt)
-        else:
+        else: # pragma: no cover
             if not args.no_plt_show:
                 plt.show()
     except Exception as e:
@@ -97,7 +97,7 @@ def main():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
-    if args.debug:
+    if args.debug: # pragma: no cover
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
     if args.run_dir:
@@ -105,10 +105,10 @@ def main():
         if os.path.exists(log_file_path):
             try:
                 plot_trial_usage(args, log_file_path)
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 helpers.log_error(f"Error: {e}")
                 sys.exit(3)
-        else:
+        else: # pragma: no cover
             helpers.log_error(f"File '{log_file_path}' does not exist.")
 
 if __name__ == "__main__":

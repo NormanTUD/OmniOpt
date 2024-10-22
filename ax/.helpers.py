@@ -245,7 +245,7 @@ def create_widgets(_data): # pragma: no cover
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-def die_if_no_nonempty_graph (non_empty_graphs, _exit):
+def die_if_no_nonempty_graph (non_empty_graphs, _exit): # pragma: no cover
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
         if _exit:

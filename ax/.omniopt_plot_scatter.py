@@ -42,7 +42,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 try:
     import matplotlib.pyplot as plt
-except ModuleNotFoundError as ee:
+except ModuleNotFoundError as ee: # pragma: no cover
     print(f"Error: {ee}")
     sys.exit(244)
 
@@ -76,7 +76,7 @@ def plot_multiple_graphs(_params):
                     scatter = axs.scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
                     axs.set_xlabel(param1)
                     axs.set_ylabel(param2)
-                else:
+                else: # pragma: no cover
                     print("ERROR: " + str(e))
 
                     tb = traceback.format_exc()
@@ -186,7 +186,7 @@ def main():
 
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-    else:
+    else: # pragma: no cover
         global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
         button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
@@ -197,7 +197,7 @@ def main():
         update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event=None, _min=None, _max=None):
+def update_graph(event=None, _min=None, _max=None): # pragma: no cover
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event: # only for fooling pylint...
@@ -212,10 +212,10 @@ if __name__ == "__main__":
 
         theme = "fast"
 
-        if args.darkmode:
+        if args.darkmode: # pragma: no cover
             theme = "dark_background"
 
         with plt.style.context(theme):
             main()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # pragma: no cover
         sys.exit(0)

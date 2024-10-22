@@ -608,12 +608,13 @@ async function load_out_files () {
 			if(Object.keys(_d).includes("error")) {
 				error(_d.error);
 			} else {
-				if($(`#out_files_${md5(_d.data + _fn)}`).length == 0) {
+				var _new_tab_id = `out_files_${md5(_d.data + _fn)}`;
+				if($("#" + _new_tab_id).length == 0) {
 					showSpinnerOverlay(`Loading log ${_fn}...`);
 					var _new_tab_title = `${_fn} ${get_checkmark_if_contains_result(_d.data)}`;
 					var _new_tab_content = `<div id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: white; background-color: black;'>${_d.data}</pre></div>`;
 
-					add_tab(`out_files_${md5(_d.data + _fn)}`, _new_tab_title, _new_tab_content, "#out_files_content");
+					add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#out_files_content");
 				}
 
 				open_first_tab_when_none_is_open("out_files_content");

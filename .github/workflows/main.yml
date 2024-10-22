@@ -191,6 +191,8 @@ jobs:
 
         git add "$index_file"
 
+        rm "${index_file}.bak"
+
         git add .
         git commit -am "Add coverage report from run ${{ github.run_number }}/${{ matrix.os }} and update index.html"
         git pull

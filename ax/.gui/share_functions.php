@@ -224,41 +224,6 @@
 		return $contents;
 	}
 
-	function get_out_files ($out_or_err_files) {
-		$html = "";
-
-		if (count($out_or_err_files)) {
-			if (count($out_or_err_files) == 1) {
-				$_file = $out_or_err_files[0];
-				if (file_exists($_file)) {
-					$content = file_get_contents($_file);
-					$html .= "<pre style='white-space: preserve-breaks;' class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
-					$html .= copy_button("stdout_file");
-				}
-			} else {
-				$html .= "<div id='single_run_files_container'>\n";
-				$html .= "<h2 id='single_run_files'>Single run output files</h2>\n";
-				$html .= '<div id="out_files_tabs">' . "\n";
-				$html .= get_header_nav_bar($out_or_err_files);
-
-				$html_part = "";
-
-				foreach ($out_or_err_files as $out_or_err_file) {
-					$html_part .= get_out_or_err_html($out_or_err_file);
-				}
-
-				$html .= $html_part;
-
-				$html .= "</div>\n";
-
-				$html .= add_script();
-				$html .= "</div>\n";
-			}
-		}
-
-		return $html;
-	}
-
 	function get_out_file ($fn) {
 		if(!file_exists($fn)) {
 			die("Unknown file path $fn");
@@ -269,41 +234,6 @@
 		$c = htmlentities($c);
 
 		return $c;
-	}
-
-	function get_out_files_html ($out_or_err_files) {
-		$html = "";
-
-		if (count($out_or_err_files)) {
-			if (count($out_or_err_files) == 1) {
-				$_file = $out_or_err_files[0];
-				if (file_exists($_file)) {
-					$content = file_get_contents($_file);
-					$html .= "<pre style='white-space: preserve-breaks;' class='stdout_file invert_in_dark_mode'>" . htmlentities($content) . "\n</pre>";
-					$html .= copy_button("stdout_file");
-				}
-			} else {
-				$html .= "<div id='single_run_files_container'>\n";
-				$html .= "<h2 id='single_run_files'>Single run output files</h2>\n";
-				$html .= '<div id="out_files_tabs">' . "\n";
-				$html .= get_header_nav_bar($out_or_err_files);
-
-				$html_part = "";
-
-				foreach ($out_or_err_files as $out_or_err_file) {
-					$html_part .= get_out_or_err_html($out_or_err_file);
-				}
-
-				$html .= $html_part;
-
-				$html .= "</div>\n";
-
-				$html .= add_script();
-				$html .= "</div>\n";
-			}
-		}
-
-		return $html;
 	}
 
 	function get_header_nav_bar ($out_or_err_files) {

@@ -157,6 +157,8 @@ jobs:
 
         cd omniopt2.github.io
 
+        git config pull.rebase false
+
         git pull
 
         base_dir="coverage_reports"

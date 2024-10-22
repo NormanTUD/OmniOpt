@@ -596,10 +596,12 @@ async function load_out_files () {
 		return;
 	}
 
+	var main_tabs_div_id = "out_files_content";
+
 	if(data.data) {
 		for (var i = 0; i < data.data.length; i++) {
-			if (!$("#out_files_content").length) {
-				add_tab("out_files", "Out-Files", `<div id='out_files_content'></div>`);
+			if (!$("#" + main_tabs_div_id).length) {
+				add_tab("out_files", "Out-Files", `<div id='${main_tabs_div_id}'></div>`);
 			}
 
 			var _fn = data.data[i];
@@ -616,10 +618,10 @@ async function load_out_files () {
 					var _new_tab_title = `${_fn} ${get_checkmark_if_contains_result(_d.data)}`;
 					var _new_tab_content = `<div id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: white; background-color: black;'>${_d.data}</pre></div>`;
 
-					add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#out_files_content");
+					add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#" + main_tabs_div_id);
 				}
 
-				open_first_tab_when_none_is_open("out_files_content");
+				open_first_tab_when_none_is_open(main_tabs_div_id);
 			}
 			
 		}

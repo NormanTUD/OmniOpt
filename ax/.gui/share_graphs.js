@@ -596,7 +596,7 @@ async function load_out_files () {
 		return;
 	}
 
-	var main_tabs_div_id = "out_files_content";
+	var main_tabs_div_id = "internal_out_files_content";
 
 	if(data.data) {
 		for (var i = 0; i < data.data.length; i++) {

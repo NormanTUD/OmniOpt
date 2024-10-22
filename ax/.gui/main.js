@@ -487,7 +487,7 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 	}
 
 	if ($(container_id + " > ul").length === 0) {
-		$(container_id).prepend(`<ul class="ul.ui-tabs-nav"></ul>`);
+		$(container_id).prepend(`<ul style="max-height: 200px; overflow: auto;" role="tablist" class="ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header"></ul>`);
 	}
 
 	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');

@@ -56,7 +56,7 @@ def plot_histograms(dataframe):
     num_rows, num_cols = get_num_rows_cols(num_plots, num_rows, num_cols)
 
     if num_rows == 0 or num_cols == 0:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
         sys.exit(42)
 
@@ -66,7 +66,7 @@ def plot_histograms(dataframe):
     try:
         axes = axes.flatten()
     except Exception as e:
-        if "'Axes' object has no attribute 'flatten'" not in str(e):
+        if "'Axes' object has no attribute 'flatten'" not in str(e): # pragma: no cover
             print(e)
             tb = traceback.format_exc()
             print(tb)
@@ -81,7 +81,7 @@ def plot_histograms(dataframe):
 
         values = dataframe[col]
         if "result" not in dataframe:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 print("KDE: Result column not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
         result_values = dataframe['result']
@@ -120,7 +120,7 @@ def plot_histograms(dataframe):
 def save_to_file_or_show_canvas():
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-    else:
+    else: # pragma: no cover
         fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
         if not args.no_plt_show:
             plt.show()
@@ -134,18 +134,18 @@ def update_graph():
         try:
             dataframe = pd.read_csv(pd_csv)
         except pd.errors.EmptyDataError:
-            if not os.environ.get("PLOT_TESTS"):
+            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
                 print(f"{pd_csv} seems to be empty.")
             sys.exit(19)
         except UnicodeDecodeError:
-            if not os.environ.get("PLOT_TESTS"):
+            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
                 print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
             sys.exit(7)
 
         plot_histograms(dataframe)
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         logging.error("File not found: %s", pd_csv)
-    except Exception as exception:
+    except Exception as exception: # pragma: no cover
         logging.error("An unexpected error occurred: %s", str(exception))
 
         tb = traceback.format_exc()
@@ -156,15 +156,15 @@ if __name__ == "__main__":
 
     helpers.setup_logging()
 
-    if not args.alpha:
+    if not args.alpha: # pragma: no cover
         logging.error("--alpha cannot be left unset.")
         sys.exit(2)
 
-    if args.alpha > 1 or args.alpha < 0:
+    if args.alpha > 1 or args.alpha < 0: # pragma: no cover
         logging.error("--alpha must between 0 and 1")
         sys.exit(3)
 
-    if not os.path.exists(args.run_dir):
+    if not os.path.exists(args.run_dir): # pragma: no cover
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

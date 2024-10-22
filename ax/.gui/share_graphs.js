@@ -1274,11 +1274,12 @@ async function load_all_data() {
 		promises.push(plot_cpu_ram_graph());
 		promises.push(plot_parallel_plot());
 		promises.push(plot_planned_vs_real_worker_over_time());
-		promises.push(load_out_files());
 
 		for (var i = 0; i < promises.length; i++) {
 			await promises[i];
 		}
+
+		await load_out_files();
 
 		initialize_autotables();
 

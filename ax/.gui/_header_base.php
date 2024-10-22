@@ -13,7 +13,6 @@ if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
         <meta charset="UTF-8">
         <title>OmniOpt2</title>
         <link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet">
-        <link href="<?php print $dir_path; ?>/bootstrap.min.css" rel="stylesheet">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
         <script src="<?php print $dir_path; ?>/jquery-3.7.1.js"></script>
         <script src="<?php print $dir_path; ?>/jquery-ui.min.js"></script>

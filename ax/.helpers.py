@@ -725,9 +725,9 @@ def set_margins(fig):
 
 def use_matplotlib(_args):
     try:
-        if not _args.save_to_file:
+        if not _args.save_to_file: # pragma: no cover
             matplotlib.use('TkAgg')
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 

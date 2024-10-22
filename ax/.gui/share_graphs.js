@@ -1192,7 +1192,6 @@ async function load_overview_data() {
 	if(!Object.keys(res).includes("error")) {
 		// Create a table
 		var table = document.createElement('table');
-		table.style.width = '100%';
 		table.style.borderCollapse = 'collapse';
 
 		// Create table headers

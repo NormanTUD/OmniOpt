@@ -597,9 +597,11 @@ async function load_out_files () {
 	}
 
 	if(data.data) {
-		add_tab("out_files", "Out-Files", `<div id='out_files_content'></div>`);
-
 		for (var i = 0; i < data.data.length; i++) {
+			if (!$("#out_files_content").length) {
+				add_tab("out_files", "Out-Files", `<div id='out_files_content'></div>`);
+			}
+
 			var _fn = data.data[i];
 
 			_fn = _fn.replaceAll(/.*\//g, "");

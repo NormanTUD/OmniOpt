@@ -584,17 +584,32 @@ async function load_out_files () {
 		return;
 	}
 	
-	if(!Object.keys(data).includes("raw")) {
-		warn(`load_out_files: Could not plot seemingly empty data: no raw found`);
+	if(!Object.keys(data).includes("data")) {
+		warn(`load_out_files: Could not plot seemingly empty data: no data found`);
 		return;
 	}
 
-	if(data.raw) {
-		add_tab("out_files", "Out-Files", "<div id='out_files_content'></div>");
-		//log(data.raw);
-		$("#out_files_content").html(data.raw);
+	if(data.data) {
+		add_tab("out_files", "Out-Files", `<div id='out_files_content'></div>`);
 
-		$("#out_files_tabs").tabs();
+		for (var i = 0; i < data.data.length; i++) {
+			var _fn = data.data[i];
+
+			_fn = _fn.replaceAll(/.*\//g, "");
+
+			var _d = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`)
+			if(Object.keys(_d).includes("error")) {
+				error(_d.error);
+			} else {
+				if($(`#out_files_${md5(_d.data)}`).length == 0) {
+					showSpinnerOverlay(`Loading log ${_fn}...`);
+					add_tab(`out_files_${md5(_d.data) + _fn}`, `${_fn}`, `<div id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: white; background-color: black;'>${_d.data}</pre></div>`, "#out_files_content");
+				}
+
+				open_first_tab_when_none_is_open("out_files_content");
+			}
+			
+		}
 
 		convert_ansi_to_html();
 	}

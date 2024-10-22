@@ -18,19 +18,27 @@
 		$user_id = validate_param("user_id", "/^[a-zA-Z0-9_]+$/", "Invalid user_id");
 		$experiment_name = validate_param("experiment_name", "/^[a-zA-Z0-9_]+$/", "Invalid experiment_name");
 		$environment_share_path = get_or_env("share_path");
-
+		$fn = get_or_env("fn");
 		$sharesPath = determine_share_path($environment_share_path, $sharesPath);
-
 		$run_folder_without_shares = build_run_folder_path($user_id, $experiment_name, $run_nr);
 		$run_folder = "$sharesPath/$run_folder_without_shares";
 
 		validate_directory($run_folder);
 
-		$out_or_err_files = find_log_files($run_folder);
+		if($fn) {
+			$path = "$run_folder/$fn";
 
-		$html = get_out_files_html($out_or_err_files);
-		respond_with_json($html);
+			if(file_exists($path)) {
+				$out_file = get_out_file($path);
+				respond_with_json($out_file);
+			} else {
+				respond_with_error("Invalid path $path found");
+			}
+		} else {
+			$out_or_err_files = find_log_files($run_folder);
 
+			respond_with_json($out_or_err_files);
+		}
 	} catch (Exception $e) {
 		respond_with_error($e->getMessage());
 	}
@@ -77,10 +85,10 @@
 		return $out_or_err_files;
 	}
 
-	function respond_with_json($html) {
+	function respond_with_json($data) {
 		print json_encode(array(
-			"raw" => $html,
-			"hash" => hash("md5", $html)
+			"data" => $data,
+			"hash" => hash("md5", json_encode($data))
 		));
 		exit(0);
 	}

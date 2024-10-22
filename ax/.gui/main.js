@@ -487,7 +487,7 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 	}
 
 	if ($(container_id + " ul.ui-tabs-nav").length === 0) {
-		$(container_id).prepend('<ul class="ui-tabs-nav ui-helper-hidden ui-helper-clearfix"></ul>');
+		$(container_id).prepend('<ul></ul>');
 	}
 
 	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');
@@ -499,7 +499,11 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 	$(container_id).tabs("refresh");
 	//debug(`Tab ${tab_name} (#${tab_id}) added`);
 
+	$(container_id).tabs();
+
 	open_first_tab_when_none_is_open();
+
+	$(container_id).tabs("refresh");
 }
 
 function remove_tab(tab_id) {
@@ -521,9 +525,9 @@ function remove_tab(tab_id) {
 	$("#main_tabbed").tabs("refresh");
 }
 
-function open_first_tab_when_none_is_open() {
-	if($("#main_tabbed").tabs("option", "active") === false) {
-		$("#main_tabbed").tabs("option", "active", 0);
+function open_first_tab_when_none_is_open(id = "main_tabbed") {
+	if($("#" + id).tabs("option", "active") === false) {
+		$("#" + id).tabs("option", "active", 0);
 	}
 }
 

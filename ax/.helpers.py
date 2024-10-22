@@ -271,7 +271,7 @@ def save_to_file (_fig, _args, _plt):
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
-def check_dir_and_csv(_args, csv_file_path):
+def check_dir_and_csv(_args, csv_file_path): # pragma: no cover
     if not os.path.isdir(_args.run_dir):
         print(f"The path {_args.run_dir} does not point to a folder. Must be a folder.")
         sys.exit(11)
@@ -649,7 +649,7 @@ def get_color_list(df, _args, _plt):
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string):
+def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string): # pragma: no cover
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"

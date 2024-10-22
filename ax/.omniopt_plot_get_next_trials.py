@@ -84,7 +84,7 @@ def plot_trial_usage(args, log_file_path):
         else: # pragma: no cover
             if not args.no_plt_show:
                 plt.show()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 

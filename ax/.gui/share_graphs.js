@@ -574,8 +574,7 @@ async function load_parameter () {
 }
 
 function get_checkmark_if_contains_result(str) {
-	var regex = new RegExp('foo*');
-	var globalRegex = new RegExp('^\s*RESULT:\s*[-]?\d+(\.\d+)\s*$', 'g');
+	var regex = new RegExp(/RESULT:\s*[+-]?\d+(\.\d+)?/, 'g');
 
 	return regex.test(str) ? '✅' : '❌';
 }

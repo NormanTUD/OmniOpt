@@ -601,7 +601,11 @@ async function load_out_files () {
 	if(data.data) {
 		for (var i = 0; i < data.data.length; i++) {
 			if (!$("#" + main_tabs_div_id).length) {
-				add_tab("out_files", "Out-Files", `<div id='${main_tabs_div_id}'></div>`);
+				add_tab("out_files", "Out-Files", `<div id='${main_tabs_div_id}'>    <div>
+        <ul class="nav nav-tabs">
+
+        </ul>
+    </div></div>`);
 			}
 
 			var _fn = data.data[i];

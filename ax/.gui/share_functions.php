@@ -236,52 +236,6 @@
 		return $c;
 	}
 
-	function get_header_nav_bar ($out_or_err_files) {
-		$ok = "&#9989;";
-		$error = "&#10060;";
-
-		$html = '<ul style="max-height: 200px; overflow: auto;">' . "\n";
-		foreach ($out_or_err_files as $out_or_err_file) {
-			$content = file_get_contents($out_or_err_file);
-
-			$_hash = hash('md5', "$out_or_err_file-$content");
-
-			$ok_or_error = $ok;
-
-			if (!checkForResult($content)) {
-				$ok_or_error = $error;
-			}
-
-			$html .= "<li><a href='#$_hash'>" . preg_replace("/_0_.*/", "", preg_replace("/.*\/+/", "", $out_or_err_file)) . "<span class='invert_in_dark_mode'>$ok_or_error</span></a></li>";
-		}
-		$html .= "</ul>";
-
-		return $html;
-	}
-
-	function get_out_or_err_html($out_or_err_file) {
-		$content = file_get_contents($out_or_err_file);
-
-		$_hash = hash('md5', "$out_or_err_file-$content");
-
-		$html_part = "<div id='$_hash'>\n";
-		$html_part .= "	<pre style='white-space: preserve-breaks;' class='stdout_file invert_in_dark_mode convert_ansi_to_html'>" . htmlentities($content) . "\n</pre>\n";
-		$html_part .=	copy_button("stdout_file");
-		$html_part .= "</div>\n";
-
-		return $html_part;
-	}
-
-	function add_script() {
-		$html = "<script>";
-		$html .= "	$(function() {";
-		$html .= '		$("#out_files_tabs").tabs();';
-		$html .= '		$("#main_tabbed").tabs();';
-		$html .= "	});";
-		$html .= "</script>";
-		return $html;
-	}
-
 	function show_run($folder) {
 		$html = "<div id='main_tabbed' style='width: fit-content'>\n";
 		$html .= '<ul style="max-height: 200px; overflow: auto;">' . "\n";

@@ -2,9 +2,13 @@
 	require_once "test_apache_php_config.php";
 	require_once "_functions.php";
 
-	$dir_path = ".";
-	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
-		$dir_path = "..";
+	function get_dir_path () {
+		$dir_path = ".";
+		if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+			$dir_path = "..";
+		}
+
+		return $dir_path;
 	}
 
 	function js ($names) {
@@ -14,7 +18,7 @@
 			}
 		} else {
 ?>
-			<script src="<?php print $dir_path; ?>/<?php print $names; ?>"></script>
+			<script src="<?php print get_dir_path(); ?>/<?php print $names; ?>"></script>
 <?php
 		}
 	}
@@ -24,7 +28,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>OmniOpt2</title>
-		<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet">
+		<link href="<?php print get_dir_path(); ?>/prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<?php js("jquery-3.7.1.js"); ?>
 		<?php js("jquery-ui.min.js"); ?>
@@ -39,15 +43,15 @@
 		<?php js("search.js"); ?>
 		<?php js("initialization.js"); ?>
 
-		<link href="<?php print $dir_path; ?>/style.css" rel="stylesheet">
+		<link href="<?php print get_dir_path(); ?>/style.css" rel="stylesheet">
 <?php
 		if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 ?>
-			    <link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet">
+			    <link href="<?php print get_dir_path(); ?>/tutorial.css" rel="stylesheet">
 <?php
 		}
 ?>
-		<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
+		<link href="<?php print get_dir_path(); ?>/jquery-ui.css" rel="stylesheet">
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;
@@ -89,13 +93,13 @@
 				<tr class="header_table">
 					<td class='header_table'>
 						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
-							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
+							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print get_dir_path(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
 						</a>
 					</td>
 
 					<td class='header_table'>
 						<a style="text-decoration: none;" href="index.php">
-							<img class="img_auto_width invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo">
+							<img class="img_auto_width invert_in_dark_mode" height=73 src="<?php print get_dir_path(); ?>/logo.png" alt="OmniOpt2-Logo">
 						</a>
 					</td>
 
@@ -135,7 +139,7 @@
 
 						$tab_is_active = preg_match("/^$fn.php/", $current_file);
 						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-						$_link = "$dir_path/$fn.php";
+						$_link = get_dir_path() .  "/$fn.php";
 
 						if (!file_exists($_link)) {
 							dier("Coult not find $_link");

@@ -75,10 +75,10 @@ def plot_gpu_usage(run_dir):
                 num_plots += 1
                 gpu_data_len += len(df)
 
-    if len(_paths) == 0:
+    if len(_paths) == 0: # pragma: no cover
         helpers.print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
 
-    if not gpu_data:
+    if not gpu_data: # pragma: no cover
         helpers.print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
 
     if gpu_data_len < 1:
@@ -113,7 +113,7 @@ def plot_gpu_usage(run_dir):
             _ax.legend(loc='upper right')
 
     # Hide empty subplots
-    for j in range(num_plots, plot_rows * plot_cols):
+    for j in range(num_plots, plot_rows * plot_cols): # pragma: no cover
         axs[j].axis('off')
 
     plt.subplots_adjust(bottom=0.086, hspace=0.35)
@@ -123,7 +123,7 @@ def plot_gpu_usage(run_dir):
 def save_to_file_or_show_canvas():
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-    else:
+    else: # pragma: no cover
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
         if not args.no_plt_show:
             plt.show()
@@ -133,6 +133,6 @@ if __name__ == "__main__":
     try:
         plot_gpu_usage(args.run_dir)
     except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)

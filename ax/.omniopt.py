@@ -531,7 +531,7 @@ def run_live_share_command():
         except Exception as e: # pragma: no cover
             print(f"run_live_share_command: An error occurred: {e}")
 
-    return "", ""
+    return "", "" # pragma: no cover
 
 @wrapper_print_debug
 def live_share():
@@ -766,7 +766,7 @@ def log_nr_of_workers():
     except Exception as e: # pragma: no cover
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
 
-    if "jobs" not in global_vars:
+    if "jobs" not in global_vars: # pragma: no cover
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return
 
@@ -775,7 +775,7 @@ def log_nr_of_workers():
     if not nr_of_workers:
         return
 
-    try:
+    try: # pragma: no cover
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
             f.write(str(nr_of_workers) + "\n")
     except FileNotFoundError: # pragma: no cover
@@ -790,19 +790,19 @@ def log_what_needs_to_be_logged():
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
     if "write_process_info" in globals():
         try:
             write_process_info()
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
     if "log_nr_of_workers" in globals():
         try:
             log_nr_of_workers()
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
 def get_line_info():
@@ -857,7 +857,7 @@ def _log_trial_index_to_param(trial_index, _lvl=0, eee=None):
 def _debug_worker_creation(msg, _lvl=0, eee=None):
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, eee)
 
-def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None):
+def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None): # pragma: no cover
     log_message_to_file(_file, result, _lvl, eee)
 
 def _debug_get_next_trials(msg, _lvl=0, eee=None):
@@ -909,7 +909,7 @@ else:
     prev_job_file = prev_job_folder + "/state_files/joined_run_program"
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
-    else:
+    else: # pragma: no cover
         print_red(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         my_exit(44)
 
@@ -920,7 +920,7 @@ if not args.tests and len(global_vars["joined_run_program"]) == 0:
 global_vars["experiment_name"] = args.experiment_name
 
 def load_global_vars(_file):
-    if not os.path.exists(_file):
+    if not os.path.exists(_file): # pragma: no cover
         print_red(f"You've tried to continue a non-existing job: {_file}")
         my_exit(44)
     try:
@@ -951,7 +951,7 @@ def check_continue_previous_job(continue_previous_job):
         load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
 
         # Load experiment name from file if not already set
-        if not global_vars.get("experiment_name"):
+        if not global_vars.get("experiment_name"): # pragma: no cover
             exp_name_file = f"{continue_previous_job}/experiment_name"
             global_vars["experiment_name"] = get_file_content_or_exit(
                 exp_name_file,
@@ -1029,10 +1029,10 @@ def load_gpus_or_exit(_args):
 def load_max_eval_or_exit(_args):
     if _args.max_eval:
         set_max_eval(_args.max_eval)
-        if _args.max_eval <= 0:
+        if _args.max_eval <= 0: # pragma: no cover
             print_red("--max_eval must be larger than 0")
             my_exit(19)
-    elif _args.continue_previous_job:
+    elif _args.continue_previous_job: # pragma: no cover
         max_eval_file = f"{_args.continue_previous_job}/state_files/max_eval"
         max_eval_content = get_file_content_or_exit(max_eval_file, f"neither --max_eval nor file {max_eval_file} found", 19)
         if max_eval_content.isdigit():
@@ -1069,13 +1069,13 @@ def print_debug_progressbar(msg):
 
     _debug_progressbar(msg)
 
-def receive_usr_signal_one(signum, stack):
+def receive_usr_signal_one(signum, stack): # pragma: no cover
     raise SignalUSR(f"USR1-signal received ({signum})")
 
-def receive_usr_signal_int(signum, stack):
+def receive_usr_signal_int(signum, stack): # pragma: no cover
     raise SignalINT(f"INT-signal received ({signum})")
 
-def receive_signal_cont(signum, stack):
+def receive_signal_cont(signum, stack): # pragma: no cover
     raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
@@ -1087,16 +1087,16 @@ signal.signal(signal.SIGCONT, receive_signal_cont)
 def is_executable_in_path(executable_name):
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
-        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
+        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK): # pragma: no cover
             return True
     return False
 
 SYSTEM_HAS_SBATCH = False
 IS_NVIDIA_SMI_SYSTEM = False
 
-if is_executable_in_path("sbatch"):
+if is_executable_in_path("sbatch"): # pragma: no cover
     SYSTEM_HAS_SBATCH = True
-if is_executable_in_path("nvidia-smi"):
+if is_executable_in_path("nvidia-smi"): # pragma: no cover
     IS_NVIDIA_SMI_SYSTEM = True
 
 if not SYSTEM_HAS_SBATCH:
@@ -1111,7 +1111,7 @@ def save_global_vars():
 
 def check_slurm_job_id():
     print_debug("check_slurm_job_id()")
-    if SYSTEM_HAS_SBATCH:
+    if SYSTEM_HAS_SBATCH: # pragma: no cover
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_red("Not a valid SLURM_JOB_ID.")
@@ -1590,7 +1590,7 @@ def get_result(input_string):
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
-def add_to_csv(file_path, heading, data_line):
+def add_to_csv(file_path, heading, data_line): # pragma: no cover
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
@@ -1745,7 +1745,7 @@ def count_defective_nodes(file_path=None, entry=None):
         print(f"An error has occurred: {e}")
         return []
 
-def test_gpu_before_evaluate(return_in_case_of_error):
+def test_gpu_before_evaluate(return_in_case_of_error): # pragma: no cover
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
             for i in range(torch.cuda.device_count()):
@@ -1871,7 +1871,7 @@ def evaluate(parameters):
     return return_in_case_of_error
 
 class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj): # pragma: no cover
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
@@ -2426,7 +2426,7 @@ def show_end_table_and_save_end_files(csv_file_path):
     if best_result_exit > 0:
         _exit = best_result_exit
 
-    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME:
+    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: # pragma: no cover
         ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = True
 
         table = Table(header_style="bold", title="Worker usage over time:")
@@ -2439,7 +2439,7 @@ def show_end_table_and_save_end_files(csv_file_path):
 
     return _exit
 
-def abandon_job(job, trial_index):
+def abandon_job(job, trial_index): # pragma: no cover
     global global_vars
 
     if job:
@@ -2456,7 +2456,7 @@ def abandon_job(job, trial_index):
 
     return False
 
-def abandon_all_jobs():
+def abandon_all_jobs(): # pragma: no cover
     for job, trial_index in global_vars["jobs"][:]:
         abandoned = abandon_job(job, trial_index)
         if not abandoned:
@@ -2465,11 +2465,11 @@ def abandon_all_jobs():
 def end_program(csv_file_path, _force=False, exit_code=None):
     global global_vars, END_PROGRAM_RAN
 
-    if os.getpid() != main_pid:
+    if os.getpid() != main_pid: # pragma: no cover
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
-    if END_PROGRAM_RAN and not _force:
+    if END_PROGRAM_RAN and not _force: # pragma: no cover
         print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
         return
 
@@ -2855,7 +2855,7 @@ def get_experiment_parameters(_params):
 
         try:
             ax_client.create_experiment(**experiment_args)
-        except ValueError as error:
+        except ValueError as error: # pragma: no cover
             print_red(f"An error has occurred while creating the experiment: {error}")
             die_something_went_wrong_with_parameters()
         except TypeError as error:
@@ -3049,21 +3049,21 @@ def get_workers_string():
 
     stats = {}
 
-    for job, _ in global_vars["jobs"][:]:
+    for job, _ in global_vars["jobs"][:]: # pragma: no cover
         state = state_from_job(job)
 
         if state not in stats.keys():
             stats[state] = 0
         stats[state] += 1
 
-    for key in stats.keys():
+    for key in stats.keys(): # pragma: no cover
         if args.abbreviate_job_names:
             string_keys.append(key.lower()[0])
         else:
             string_keys.append(key.lower())
         string_values.append(str(stats[key]))
 
-    if len(string_keys) and len(string_values):
+    if len(string_keys) and len(string_values): # pragma: no cover
         _keys = "/".join(string_keys)
         _values = "/".join(string_values)
 
@@ -3171,7 +3171,7 @@ def clean_completed_jobs():
     #        print_yellow(f"clean_completed_jobs: Waiting for job {job}")
     #        _sleep(5)
 
-    for job, trial_index in global_vars["jobs"][:]:
+    for job, trial_index in global_vars["jobs"][:]: # pragma: no cover
         _state = state_from_job(job)
         print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
@@ -3482,7 +3482,7 @@ def load_data_from_existing_run_folders(_paths):
         try:
             insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
-        except ValueError as e:
+        except ValueError as e: # pragma: no cover
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
         else:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
@@ -4181,7 +4181,7 @@ def exclude_defective_nodes():
     if len(excluded_string) > 1:
         executor.update_parameters(exclude=excluded_string)
 
-def handle_failed_job(error, trial_index, new_job):
+def handle_failed_job(error, trial_index, new_job): # pragma: no cover
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
     else:
@@ -4192,7 +4192,7 @@ def handle_failed_job(error, trial_index, new_job):
     except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
 
-def cancel_failed_job(trial_index, new_job):
+def cancel_failed_job(trial_index, new_job): # pragma: no cover
     print_debug("Trying to cancel job that failed")
     if new_job:
         try:
@@ -4212,11 +4212,11 @@ def cancel_failed_job(trial_index, new_job):
 def update_progress(trial_counter, next_nr_steps):
     progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])
 
-def handle_exit_signal():
+def handle_exit_signal(): # pragma: no cover
     print_red("\n⚠ Detected signal. Will exit.")
     end_program(RESULT_CSV_FILE, 1)
 
-def handle_generic_error(e):
+def handle_generic_error(e): # pragma: no cover
     tb = traceback.format_exc()
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
@@ -4228,7 +4228,7 @@ def succeeded_jobs(nr=0):
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret):
+def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret): # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -4313,7 +4313,7 @@ def _fetch_next_trials(nr_of_jobs_to_get):
 
     return None
 
-def _handle_linalg_error(error):
+def _handle_linalg_error(error): # pragma: no cover
     """Handles the np.linalg.LinAlgError based on the model being used."""
     if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
         print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")

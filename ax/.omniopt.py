@@ -1,5 +1,8 @@
 #!/bin/env python3
 
+# TODO: allow multi-objective optimization; MOO is supported by ax, see.
+# https://botorch.org/tutorials/multi_objective_bo
+
 import sys
 import os
 ci_env = os.getenv("CI", "false").lower() == "true"

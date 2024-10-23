@@ -16,6 +16,7 @@ try:
     )
 
     with console.status("[bold green]Loading base modules...") as status:
+        import threading
         from concurrent.futures import ThreadPoolExecutor
         import argparse
         import datetime
@@ -35,7 +36,6 @@ try:
         import cowsay
         from rich_argparse import RichHelpFormatter
         import psutil
-        import threading
         import shutil
         import math
         from itertools import combinations
@@ -3840,8 +3840,6 @@ def finish_previous_jobs(new_msgs):
 
                         #update_progress_bar(progress_bar, 1)
                         update_progress_bar(progress_bar, 1)
-
-                        live_share()
                     except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                 else:
@@ -3856,8 +3854,6 @@ def finish_previous_jobs(new_msgs):
                         orchestrate_job(job, trial_index)
 
                     failed_jobs(1)
-                    live_share()
-
                 global_vars["jobs"].remove((job, trial_index))
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
                 if "None for metric" in str(error):
@@ -4895,7 +4891,8 @@ def main():
 
     save_global_vars()
     write_process_info()
-    live_share()
+
+    start_live_share_background_job()
 
     write_continue_run_uuid_to_file()
 
@@ -4903,7 +4900,6 @@ def main():
     run_with_progress_bar(disable_tqdm)
 
     wait_for_jobs_to_complete(0)
-    live_share()
     end_program(RESULT_CSV_FILE)
 
 def log_worker_creation():
@@ -5338,6 +5334,24 @@ Exit-Code: 159
     )
 
     my_exit(nr_errors)
+
+def live_share_background(interval):
+    if not args.live_share:
+        return
+
+    while True:
+        live_share()
+        time.sleep(interval)
+
+def start_live_share_background_job():
+    if not args.live_share:
+        return
+
+    live_share()
+
+    interval = 10
+    thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
+    thread.start()
 
 @wrapper_print_debug
 def main_outside():

@@ -6,6 +6,18 @@
 	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
 		$dir_path = "..";
 	}
+
+	function js ($names) {
+		if(is_array($names)) {
+			foreach ($names as $name) {
+				js($name);
+			}
+		} else {
+?>
+			<script src="<?php print $dir_path; ?>/<?php print $names; ?>"></script>
+<?php
+		}
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,18 +26,18 @@
 		<title>OmniOpt2</title>
 		<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
-		<script src="<?php print $dir_path; ?>/jquery-3.7.1.js"></script>
-		<script src="<?php print $dir_path; ?>/jquery-ui.min.js"></script>
-		<script src="<?php print $dir_path; ?>/prism.js"></script>
-		<script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
-		<script src="<?php print $dir_path; ?>/darkmode.js"></script>
-		<script src="<?php print $dir_path; ?>/ansi_up.js"></script>
-		<script src="<?php print $dir_path; ?>/jquery.dataTables.min.js"></script>
-		<script src="<?php print $dir_path; ?>/crypto-core.js"></script>
-		<script src="<?php print $dir_path; ?>/md5.js"></script>
-		<script src="<?php print $dir_path; ?>/main.js"></script>
-		<script src="<?php print $dir_path; ?>/search.js"></script>
-		<script src="<?php print $dir_path; ?>/initialization.js"></script>
+		<?php js("jquery-3.7.1.js"); ?>
+		<?php js("jquery-ui.min.js"); ?>
+		<?php js("prism.js"); ?>
+		<?php js("tooltipster.bundle.min.js"); ?>
+		<?php js("darkmode.js"); ?>
+		<?php js("ansi_up.js"); ?>
+		<?php js("jquery.dataTables.min.js"); ?>
+		<?php js("crypto-core.js"); ?>
+		<?php js("md5.js"); ?>
+		<?php js("main.js"); ?>
+		<?php js("search.js"); ?>
+		<?php js("initialization.js"); ?>
 
 		<link href="<?php print $dir_path; ?>/style.css" rel="stylesheet">
 <?php
@@ -73,64 +85,85 @@
 	</head>
 	<body>
 		<div id="scads_bar">
-			<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
-				<img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
-			</a>
-			<a style="text-decoration: none;" href="index.php">
-				<img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo">
-			</a>
-			<table border=0 style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important; display: inline !important;'>
-				<tr style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-					<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-						<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
-							<img style="width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
+			<table border=0 class="header_table" style='display: inline !important;'>
+				<tr class="header_table">
+					<td class='header_table'>
+						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
+							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
 						</a>
 					</td>
-				</tr>
-				<tr style='background-color: revert !important; border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-					<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-						<img style="width: 100% !important;" src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
-					</td>
-				</tr>
 
-				<tr style='background-color: revert !important; border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-					<td style='border: 0px !important; padding: 0px !important; width: revert !important; min-width: revert !important;'>
-						<a href="https://normantud.github.io/omniopt2.github.io/"><img style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage"></a>
+					<td class='header_table'>
+						<a style="text-decoration: none;" href="index.php">
+							<img class="img_auto_width invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" alt="OmniOpt2-Logo">
+						</a>
+					</td>
+
+					<td class='header_table'>
+						<table border=0 class="header_table" style='display: inline !important;'>
+							<tr class="header_table">
+								<td class='header_table'>
+									<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
+										<img class="img_auto_width" style="width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
+									</a>
+								</td>
+							</tr>
+							<tr class="header_table" style='background-color: revert !important;'>
+								<td class="header_table">
+									<img class="img_auto_width" style="width: 100% !important;" src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
+								</td>
+							</tr>
+
+							<tr class="header_table" style='background-color: revert !important;'>
+								<td class="header_table">
+									<a href="https://normantud.github.io/omniopt2.github.io/">
+										<img class="img_auto_width" style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage">
+									</a>
+								</td>
+							</tr>
+						</table>
+					</td>
+	<?php
+					require "searchable_php_files.php";
+
+					$current_file = basename($_SERVER["PHP_SELF"]);
+
+					foreach ($GLOBALS["files"] as $fn => $n) {
+						if (is_array($n)) {
+							$n = $n["name"];
+						}
+
+						$tab_is_active = preg_match("/^$fn.php/", $current_file);
+						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
+						$_link = "$dir_path/$fn.php";
+
+						if (!file_exists($_link)) {
+							dier("Coult not find $_link");
+						}
+						echo "<td class='header_table'>";
+						echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
+						echo "</td>";
+					}
+
+					$current_tag = get_current_tag();
+
+					if ($current_tag) {
+						echo "<td class='header_table'>";
+						echo " $current_tag";
+						echo "</td>";
+					}
+?>
+					<td class="header_table">
+						<span style="display: inline-grid;">
+							<select id="themeSelect" name="theme">
+								<option value="light">Light Mode</option>
+								<option value="dark">Dark Mode</option>
+							</select>
+						</span>
 					</td>
 				</tr>
 			</table>
-<?php
-			require "searchable_php_files.php";
 
-			$current_file = basename($_SERVER["PHP_SELF"]);
-
-			foreach ($GLOBALS["files"] as $fn => $n) {
-				if (is_array($n)) {
-					$n = $n["name"];
-				}
-
-				$tab_is_active = preg_match("/^$fn.php/", $current_file);
-				$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-				$_link = "$dir_path/$fn.php";
-
-				if (!file_exists($_link)) {
-					dier("Coult not find $_link");
-				}
-				echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
-			}
-
-			$current_tag = get_current_tag();
-
-			if ($current_tag) {
-				echo " $current_tag, ";
-			}
-?>
-		<span style="display: inline-grid;">
-			<select id="themeSelect" name="theme">
-				<option value="light">Light Mode</option>
-				<option value="dark">Dark Mode</option>
-			</select>
-		</span>
 
 		<br>
 		<span style="display: inline-flex;">

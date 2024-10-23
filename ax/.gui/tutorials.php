@@ -64,8 +64,6 @@ if (isset($_GET["tutorial"])) {
     <?php
 }
 ?>
-    <script src="<?php print $dir_path; ?>/prism.js"></script>
-    <script src="<?php print $dir_path; ?>/footer.js"></script>
     </div>
 </body>
 </html>

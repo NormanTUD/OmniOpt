@@ -1,11 +1,11 @@
 <?php
-    require_once "test_apache_php_config.php";
-    require_once "_functions.php";
+	require_once "test_apache_php_config.php";
+	require_once "_functions.php";
 
-    $dir_path = ".";
-if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
-    $dir_path = "..";
-}
+	$dir_path = ".";
+	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+		$dir_path = "..";
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -476,6 +476,9 @@ if not args.tests:
     except KeyboardInterrupt: # pragma: no cover
         print("\n⚠ You pressed CTRL+C. Program execution halted.")
         my_exit(0)
+    except AttributeError:
+        print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
+        my_exit(7)
 
 NVIDIA_SMI_LOGS_BASE = None
 

@@ -86,7 +86,7 @@ def warn_versions():
         "kiwisolver": ["1.4.7"],
         "threadpoolctl": ["3.5.0"],
         "mpmath": ["1.3.0"],
-        "sympy": ["1.13.3", "1.13.3"],
+        "sympy": ["1.13.3", "1.13.1"],
         "setuptools": ["66.1.1", "75.2.0"],
         "torchvision": ["0.19.1"]
     }

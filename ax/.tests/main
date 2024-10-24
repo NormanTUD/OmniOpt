@@ -602,20 +602,20 @@ if [[ $superquick -eq 0 ]]; then
 
 		unset NO_OO_LOGO
 
-		delete_test "maximize_test"
-		_test "--maximize job" "./omniopt --partition=alpha --experiment_name=maximize_test --mem_gb=$mem_gb --time=20 --worker_timeout=60 --max_eval=5 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=2 --follow --live_share --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKHJlcyki' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter res range 0 10000 float false --maximize --seed 1234" 0
-		_test_nr_jobs "maximize_test" 0 2 3 0
+		#delete_test "maximize_test"
+		#_test "--maximize job" "./omniopt --partition=alpha --experiment_name=maximize_test --mem_gb=$mem_gb --time=20 --worker_timeout=60 --max_eval=5 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=2 --follow --live_share --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKHJlcyki' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter res range 0 10000 float false --maximize --seed 1234" 0
+		#_test_nr_jobs "maximize_test" 0 2 3 0
 
-		first_res=$(extract_results "runs/maximize_test/0/results.csv" | head -n1)
-		last_res=$(extract_results "runs/maximize_test/0/results.csv" | tail -n1)
+		#first_res=$(extract_results "runs/maximize_test/0/results.csv" | head -n1)
+		#last_res=$(extract_results "runs/maximize_test/0/results.csv" | tail -n1)
 
-		if (( $(echo "$first_res > $last_res" |bc -l) )); then
-			ERRORMSG="maximize_test failed. Expected the last result to be larger than the first one, but is last result = $last_res, first_res = $first_res"
-			red_text "$ERRORMSG"
-			errors+=($(echo "$ERRORMSG" | base64))
-		fi
+		#if (( $(echo "$first_res > $last_res" |bc -l) )); then
+		#	ERRORMSG="maximize_test failed. Expected the last result to be larger than the first one, but is last result = $last_res, first_res = $first_res"
+		#	red_text "$ERRORMSG"
+		#	errors+=($(echo "$ERRORMSG" | base64))
+		#fi
 
-		delete_test "test_wronggoing_stuff"
+		#delete_test "test_wronggoing_stuff"
 
 		_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0 87
 

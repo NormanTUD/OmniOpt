@@ -231,7 +231,9 @@ for projectname in "${test_projects[@]}"; do
 				if [[ $ALL_FILES_THERE -ne 0 ]]; then
 					_command="bash omniopt_plot --run_dir=$run_dir --save_to_file=$this_img --plot_type=$possible_plot_type"
 
-					if [[ $projectname == "maximize_test" ]] && [[ $possible_plot_type == "cpu_ram_usage" ]]; then
+					allowed_plot_types=("cpu_ram_usage" "get_next_trials")
+
+					if [[ $projectname == "maximize_test" ]] && [[ $possible_plot_type == "cpu_ram_usage" ]] && [[ " ${allowed_plot_types[@]} " =~ " ${possible_plot_type} " ]]; then
 						true
 					else
 						_commands+=("$_command")

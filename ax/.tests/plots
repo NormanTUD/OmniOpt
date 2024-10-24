@@ -372,7 +372,7 @@ for _command in "${_commands[@]}"; do
 	fi
 	i=$(($i+1))
 done
-PROGRESSBAR=$(generate_progress_bar $i $((${#_commands[@]}+1)))
+PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
 
 green_reset_line "$PROGRESSBAR $i tests ran, ${#errors[@]} failed\n"
 

@@ -63,6 +63,7 @@ def plot_multiple_graphs(_params):
 
     scatter = None
 
+    helpers.dier(non_empty_graphs)
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
@@ -136,7 +137,7 @@ def plot_graphs(_params):
     if colors is not None:
         pass # for fooling linter
 
-    if num_subplots == 1 and len(non_empty_graphs[0]) == 1:
+    if num_subplots == 1:
         plot_single_graph([axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values])
     else:
         plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values])

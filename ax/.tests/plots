@@ -285,7 +285,7 @@ for _command in "${_commands[@]}"; do
 
 		nr_cmds=${#_commands[@]}
 
-		PROGRESSBAR=$(generate_progress_bar $i $nr_cmds)
+		PROGRESSBAR=$(generate_progress_bar $(($i+1)) $nr_cmds)
 		green_reset_line "$PROGRESSBAR $i/${#_commands[@]} Plot-Tests $possible_plot_type/$this_img$msg"
 
 		if [[ -n $SHOW_COMMAND_BEFORE_EXECUTION ]]; then

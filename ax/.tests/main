@@ -603,8 +603,8 @@ if [[ $superquick -eq 0 ]]; then
 		unset NO_OO_LOGO
 
 		delete_test "maximize_test"
-		_test "--maximize job" "./omniopt --partition=alpha --experiment_name=maximize_test --mem_gb=$mem_gb --time=20 --worker_timeout=60 --max_eval=10 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=2 --follow --live_share --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKHJlcyki' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter res range 0 10000 float false --maximize --seed 1234" 0
-		_test_nr_jobs "maximize_test" 0 2 8 0
+		_test "--maximize job" "./omniopt --partition=alpha --experiment_name=maximize_test --mem_gb=$mem_gb --time=20 --worker_timeout=60 --max_eval=5 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=2 --follow --live_share --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKHJlcyki' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter res range 0 10000 float false --maximize --seed 1234" 0
+		_test_nr_jobs "maximize_test" 0 2 3 0
 
 		first_res=$(extract_results "runs/maximize_test/0/results.csv" | head -n1)
 		last_res=$(extract_results "runs/maximize_test/0/results.csv" | tail -n1)

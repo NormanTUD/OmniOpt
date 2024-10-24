@@ -191,17 +191,17 @@
 
 		if ! [[ "$NUMBER_OF_INSTALLED_MODULES" =~ ^[0-9]+$ ]]; then
 			echo "Error: NUMBER_OF_INSTALLED_MODULES must be positive integer, but is $NUMBER_OF_INSTALLED_MODULES." >&2
-			return 0
+			return 1
 		fi
 
 		if ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
 			echo "Error: total_progress must be positive integer, but is $total_progress." >&2
-			return 0
+			return 1
 		fi
 
 		if [ "$NUMBER_OF_INSTALLED_MODULES" -gt "$total_progress" ]; then
 			echo "Error: the current progress cannot exceed the total progress ($NUMBER_OF_INSTALLED_MODULES/$total_progress)." >&2
-			return 0
+			return 1
 		fi
 
 		local bar_length=30
@@ -225,17 +225,17 @@
 
 		if ! [[ "$current" =~ ^[0-9]+$ ]]; then
 			echo "Error: current must be positive integer, but is $current." >&2
-			return 0
+			return 1
 		fi
 
 		if ! [[ "$max" =~ ^[0-9]+$ ]]; then
 			echo "Error: max must be positive integer, but is $max." >&2
-			return 0
+			return 1
 		fi
 
 		if [ "$current" -gt "$max" ]; then
 			echo "Error: the current progress cannot exceed the total progress ($current/$max)." >&2
-			return 0
+			return 1
 		fi
 
 		local bar_length=30

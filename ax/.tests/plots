@@ -231,18 +231,22 @@ for projectname in "${test_projects[@]}"; do
 				if [[ $ALL_FILES_THERE -ne 0 ]]; then
 					_command="bash omniopt_plot --run_dir=$run_dir --save_to_file=$this_img --plot_type=$possible_plot_type"
 
-					_commands+=("$_command")
+					if [[ $projectname == "maximize_test" ]] && [[ $possible_plot_type == "cpu_ram_usage" ]]; then
+						true
+					else
+						_commands+=("$_command")
 
-					if [[ $quick -eq 0 ]]; then
-						has_min=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--min" | wc -l)
-						has_max=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--max" | wc -l)
+						if [[ $quick -eq 0 ]]; then
+							has_min=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--min" | wc -l)
+							has_max=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--max" | wc -l)
 
-						if [[ $has_min -gt 0 ]] && [[ $has_max -gt 0 ]]; then
-							_commands+=("$_command --min=-99999999999999999999999999999999999999999999999999999999999 --max=99999999999999999999999999999999999999999999999999999999999")
-						elif [[ $has_min -gt 0 ]]; then
-							_commands+=("$_command --min=-99999999999999999999999999999999999999999999999999999999999")
-						elif [[ $has_max -gt 0 ]]; then
-							_commands+=("$_command --max=99999999999999999999999999999999999999999999999999999999999")
+							if [[ $has_min -gt 0 ]] && [[ $has_max -gt 0 ]]; then
+								_commands+=("$_command --min=-99999999999999999999999999999999999999999999999999999999999 --max=99999999999999999999999999999999999999999999999999999999999")
+							elif [[ $has_min -gt 0 ]]; then
+								_commands+=("$_command --min=-99999999999999999999999999999999999999999999999999999999999")
+							elif [[ $has_max -gt 0 ]]; then
+								_commands+=("$_command --max=99999999999999999999999999999999999999999999999999999999999")
+							fi
 						fi
 					fi
 				else
@@ -340,11 +344,9 @@ for _command in "${_commands[@]}"; do
 					done
 
 					if [[ $projectname -eq "maximize_test" ]]; then
-						if [[ $possible_plot_type != "cpu_ram_usage" ]]; then
-							if ! grep "Maximum of" "$this_img" 2>/dev/null >/dev/null; then
-								MISSING_OUTPUTS+=("Maximum of")
-							fi					
-						fi
+						if ! grep "Maximum of" "$this_img" 2>/dev/null >/dev/null; then
+							MISSING_OUTPUTS+=("Maximum of")
+						fi					
 					fi
 
 					if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then

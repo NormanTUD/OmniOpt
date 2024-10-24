@@ -71,7 +71,7 @@
 			"wget"
 			"whiptail"
 			#"whypending"
-			"xhost"
+			#"xhost"
 		)
 
 		err=0

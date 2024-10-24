@@ -12,6 +12,16 @@ function set_debug {
 	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
 }
 
+function extract_results() {
+	local file="$1"
+	if [[ ! -f "$file" ]]; then
+		echo "File not found!"
+		return 1
+	fi
+
+	awk -F, 'NR==1 {for (i=1; i<=NF; i++) if ($i == "result") col=i} NR>1 {print $col}' "$file"
+}
+
 function unset_debug {
 	trap - DEBUG
 }
@@ -595,6 +605,15 @@ if [[ $superquick -eq 0 ]]; then
 		delete_test "maximize_test"
 		_test "--maximize job" "./omniopt --partition=alpha --experiment_name=maximize_test --mem_gb=$mem_gb --time=20 --worker_timeout=60 --max_eval=4 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=2 --follow --live_share --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKHJlcyki' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter res range 0 10000 float false --maximize" 0
 		_test_nr_jobs "maximize_test" 2 4 0
+
+		first_res=$(extract_results "runs/maximize_test/0/results.csv" | head -n1)
+		last_res=$(extract_results "runs/maximize_test/0/results.csv" | tail -n1)
+
+		if (( $(echo "$first_res > $last_res" |bc -l) )); then
+			ERRORMSG="maximize_test failed. Expected the last result to be larger than the first one, but is last result = $last_res, first_res = $first_res"
+			red_text "$ERRORMSG"
+			errors+=($(echo "$ERRORMSG" | base64))
+		fi
 
 		delete_test "test_wronggoing_stuff"
 

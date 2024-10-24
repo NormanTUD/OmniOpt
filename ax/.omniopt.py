@@ -4902,7 +4902,10 @@ def main():
     write_continue_run_uuid_to_file()
 
     disable_tqdm = args.disable_tqdm or ci_env
-    run_with_progress_bar(disable_tqdm)
+
+    helpers._print_debug_versions(print_debug)
+
+    run_search_with_progress_bar(disable_tqdm)
 
     wait_for_jobs_to_complete(0)
     end_program(RESULT_CSV_FILE)
@@ -4968,7 +4971,7 @@ def save_experiment_parameters(filepath, experiment_parameters):
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-def run_with_progress_bar(disable_tqdm):
+def run_search_with_progress_bar(disable_tqdm):
     with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
         write_process_info()
         global progress_bar

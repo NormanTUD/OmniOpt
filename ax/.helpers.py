@@ -9,7 +9,7 @@ import platform
 import re
 import sys
 import traceback
-from importlib.metadata import version
+from importlib.metadata import version, PackageNotFoundError
 from pprint import pprint
 import matplotlib
 from matplotlib.widgets import Button, TextBox
@@ -761,6 +761,16 @@ def check_args(_args):
             print("Max and min value are the same. May result in empty data")
 
     check_path(_args.run_dir)
+
+def _print_debug_versions(print_debug=print):
+    loaded_modules = list(sys.modules.keys())
+
+    for module_name in loaded_modules:
+        try:
+            module_version = version(module_name)
+            print_debug(f"Module: {module_name}, Version: {module_version}")
+        except Exception as e:
+            pass
 
 check_python_version()
 

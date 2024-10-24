@@ -599,6 +599,7 @@ async function load_out_files () {
 	if(data.data) {
 		var awaits = [];
 		for (var i = 0; i < data.data.length; i++) {
+			showSpinnerOverlay(`Loading log ${i}/${data.data.length}`)
 			if (!$("#" + main_tabs_div_id).length) {
 				add_tab("out_files", "Out-Files", `
 					<div id='${main_tabs_div_id}'>  
@@ -622,6 +623,7 @@ async function load_out_files () {
 		var got_data = [];
 
 		for (var i = 0; i < data.data.length; i++) {
+			showSpinnerOverlay(`Awaiting loading log ${i}/${data.data.length}`)
 			got_data.push(await awaits[i]);
 		}
 

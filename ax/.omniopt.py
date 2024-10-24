@@ -516,9 +516,6 @@ def run_live_share_command():
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 
-            #if _slurm_log_path and os.path.exists(_slurm_log_path):
-            #    _command = f"{_command} --outfile={_slurm_log_path}"
-
             print_debug(f"run_live_share_command: {_command}")
 
             result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -1779,6 +1776,13 @@ def extract_info(data):
 
     return names, values
 
+def ignore_signals():
+    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+
 def evaluate(parameters):
     start_nvidia_smi_thread()
 
@@ -1794,11 +1798,7 @@ def evaluate(parameters):
 
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 
-    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
-    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, signal.SIG_IGN)
-    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+    ignore_signals()
 
     try:
         if args.raise_in_eval:
@@ -2407,11 +2407,7 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
 def show_end_table_and_save_end_files(csv_file_path):
     print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
 
-    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
-    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, signal.SIG_IGN)
-    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+    ignore_signals()
 
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars

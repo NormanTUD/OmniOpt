@@ -4563,7 +4563,7 @@ def set_global_executor():
     # 'nodes': <class 'int'>
     # 'gpus_per_node': <class 'int'>
     # 'tasks_per_node': <class 'int'>
-    # Should they just be None by default if not set in the argparser? Probably
+    # Should they just be None by default if not set in the argparser? No, submitit fails if gpu related stuff is None
 
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',

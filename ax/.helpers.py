@@ -768,28 +768,38 @@ def _print_debug_versions(print_debug=print):
     for module_name in loaded_modules:
         try:
             module_version = version(module_name)
-            print_debug(f"Module: {module_name}, Version: {module_version}")
+            version_info = f"Version: {module_version}"
         except PackageNotFoundError:
-            print_debug(f"Module: {module_name}, Version: Version information not found.")
+            version_info = "Version: Version information not found."
         except Exception:
-            pass  # Ignore errors related to version lookup
+            version_info = ""  # Ignore errors related to version lookup
 
-        # Additional metadata about the module
+        module_info = f"Module: {module_name}"
         module = sys.modules.get(module_name)
         if module:
             # Module file path
-            module_path = getattr(module, '__file__', 'Not a file-based module')
-            print_debug(f"Module: {module_name}, Path: {module_path}")
+            module_path = getattr(module, '__file__', None)
+            if module_path:
+                module_info += f", Path: {module_path}"
 
             # Docstring (documentation)
-            module_doc = getattr(module, '__doc__', 'No documentation available')
+            module_doc = getattr(module, '__doc__', None)
             if module_doc:
                 doc_preview = module_doc.split('\n')[0] if len(module_doc) > 100 else module_doc
-                print_debug(f"Module: {module_name}, Doc: {doc_preview}")
+                module_info += f", Doc: {doc_preview}"
 
             # Check for submodules (imported modules within the module)
             if hasattr(module, '__all__'):
-                print_debug(f"Module: {module_name}, Submodules: {', '.join(module.__all__)}")
+                submodules = ', '.join(module.__all__)
+                module_info += f", Submodules: {submodules}"
+
+        # Concatenate version info if it exists
+        if version_info:
+            module_info += f", {version_info}"
+
+        # Only print if there's something to print
+        if module_info:
+            print_debug(module_info)
 
 check_python_version()
 

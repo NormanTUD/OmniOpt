@@ -247,7 +247,7 @@ for projectname in "${test_projects[@]}"; do
 					fi
 				else
 					missing_files_str=$(join_by "," $missing_files)
-					yellow_text "Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str"
+					#yellow_text "Not all required files are there to test the $possible_plot_type function, missing files: $missing_files_str"
 				fi
 			else
 				yellow_text "Plot-type: $possible_plot_type: --save_to_file is not possible"

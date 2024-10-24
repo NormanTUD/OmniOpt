@@ -818,10 +818,7 @@ def _print_debug_versions(print_debug=print):
         # Only print if there's something to print
         if module_info:
             module_info = f"Module: {module_name}{module_info}"
-            print(module_info)
-            #print_debug(module_info)
-
-    sys.exit(0)
+            print_debug(module_info)
 
 check_python_version()
 

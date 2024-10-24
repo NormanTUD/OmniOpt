@@ -183,7 +183,7 @@
 	NUMBER_OF_INSTALLED_MODULES=0
 	PROGRESSBAR=""
 
-	generate_progress_bar() {
+	generate_progress_bar_setup() {
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 		local total_progress=$1
 
@@ -217,6 +217,40 @@
 		echo "[${bar}] "
 	}
 
+	generate_progress_bar() {
+		local current="$1"
+		local max="$2"
+
+		if ! [[ "$current" =~ ^[0-9]+$ ]]; then
+			echo "Error: current must be positive integer, but is $current." >&2
+			return 0
+		fi
+
+		if ! [[ "$max" =~ ^[0-9]+$ ]]; then
+			echo "Error: max must be positive integer, but is $max." >&2
+			return 0
+		fi
+
+		if [ "$current" -gt "$max" ]; then
+			echo "Error: the current progress cannot exceed the total progress ($current/$max)." >&2
+			return 0
+		fi
+
+		local bar_length=30
+		local filled_length=$((bar_length * current / max))
+		local empty_length=$((bar_length - filled_length))
+
+		local bar=""
+		for ((i = 0; i < filled_length; i++)); do
+			bar="${bar}#"
+		done
+		for ((i = 0; i < empty_length; i++)); do
+			bar="${bar} "
+		done
+
+		echo "[${bar}] "
+	}
+
 	function ppip {
 		MODULE=$1
 		AS_REQUIREMENT_OF=$2
@@ -224,7 +258,7 @@
 
 		set +e
 
-		PROGRESSBAR=$(generate_progress_bar "$NUMBER_OF_MAIN_MODULES")
+		PROGRESSBAR=$(generate_progress_bar_setup "$NUMBER_OF_MAIN_MODULES")
 
 		MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 
@@ -278,7 +312,7 @@
 
 			FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 
-			PROGRESSBAR=$(generate_progress_bar "$NUMBER_OF_MAIN_MODULES")
+			PROGRESSBAR=$(generate_progress_bar_setup "$NUMBER_OF_MAIN_MODULES")
 
 			if [[ -z $CI ]]; then
 				green_reset_line "${PROGRESSBAR}✅$MODULE installed successfully$(bg_jobs_str)"
@@ -323,12 +357,12 @@
 		MAX_NR="${#install_those[@]}"
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
-		PROGRESSBAR=$(generate_progress_bar "$MAX_NR")
+		PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")
 
 		if [[ "$MAX_NR" -ne "$NUMBER_OF_INSTALLED_MODULES" ]]; then
 			for key in "${!install_those[@]}"; do
 				install_this=${install_those[$key]}
-				PROGRESSBAR=$(generate_progress_bar "$MAX_NR")
+				PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")
 				if [[ -z $CI ]]; then
 					green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed$(bg_jobs_str)..."
 				fi

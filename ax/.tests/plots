@@ -340,9 +340,11 @@ for _command in "${_commands[@]}"; do
 					done
 
 					if [[ $projectname -eq "maximize_test" ]]; then
-						if ! grep "Maximum of" "$this_img" 2>/dev/null >/dev/null; then
-							MISSING_OUTPUTS+=("Maximum of")
-						fi					
+						if [[ $possible_plot_type != "cpu_ram_usage" ]]; then
+							if ! grep "Maximum of" "$this_img" 2>/dev/null >/dev/null; then
+								MISSING_OUTPUTS+=("Maximum of")
+							fi					
+						fi
 					fi
 
 					if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then

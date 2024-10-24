@@ -4903,8 +4903,6 @@ def main():
 
     disable_tqdm = args.disable_tqdm or ci_env
 
-    helpers._print_debug_versions(print_debug)
-
     run_search_with_progress_bar(disable_tqdm)
 
     wait_for_jobs_to_complete(0)

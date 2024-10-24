@@ -797,29 +797,6 @@ def check_args(_args):
 
     check_path(_args.run_dir)
 
-def _print_debug_versions(print_debug=print):
-    loaded_modules = list(sys.modules.keys())
-
-    for module_name in loaded_modules:
-        try:
-            module_version = version(module_name)
-            version_info = f"Version: {module_version}"
-        except Exception:
-            version_info = ""
-
-        module = sys.modules.get(module_name)
-
-        module_info = ""
-
-        # Concatenate version info if it exists
-        if version_info:
-            module_info += f", {version_info}"
-
-        # Only print if there's something to print
-        if module_info:
-            module_info = f"Module: {module_name}{module_info}"
-            print_debug(module_info)
-
 check_python_version()
 
 warn_versions()

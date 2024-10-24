@@ -633,7 +633,7 @@ async function load_out_files () {
 			} else {
 				var _new_tab_id = `out_files_${md5(_d.data + _fn)}`;
 				if($("#" + _new_tab_id).length == 0) {
-					showSpinnerOverlay(`Loading log ${_fn}...`);
+					showSpinnerOverlay(`Loading log ${_fn} (${i + 1}/${got_data.length})...`);
 					var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span class='invert_in_dark_mode'>${get_checkmark_if_contains_result(_d.data)}</span>`;
 					var _new_tab_content = `<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${_d.data}</pre></div>`;
 

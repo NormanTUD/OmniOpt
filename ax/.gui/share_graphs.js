@@ -580,7 +580,6 @@ function get_checkmark_if_contains_result(str) {
 }
 
 async function load_out_files () {
-	// TODO: Load single files, only load new files, append with add_tab
 	showSpinnerOverlay("Loading out files...");
 	var urlParams = new URLSearchParams(window.location.search);
 

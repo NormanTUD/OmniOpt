@@ -769,8 +769,27 @@ def _print_debug_versions(print_debug=print):
         try:
             module_version = version(module_name)
             print_debug(f"Module: {module_name}, Version: {module_version}")
-        except Exception as e:
-            pass
+        except PackageNotFoundError:
+            print_debug(f"Module: {module_name}, Version: Version information not found.")
+        except Exception:
+            pass  # Ignore errors related to version lookup
+
+        # Additional metadata about the module
+        module = sys.modules.get(module_name)
+        if module:
+            # Module file path
+            module_path = getattr(module, '__file__', 'Not a file-based module')
+            print_debug(f"Module: {module_name}, Path: {module_path}")
+
+            # Docstring (documentation)
+            module_doc = getattr(module, '__doc__', 'No documentation available')
+            if module_doc:
+                doc_preview = module_doc.split('\n')[0] if len(module_doc) > 100 else module_doc
+                print_debug(f"Module: {module_name}, Doc: {doc_preview}")
+
+            # Check for submodules (imported modules within the module)
+            if hasattr(module, '__all__'):
+                print_debug(f"Module: {module_name}, Submodules: {', '.join(module.__all__)}")
 
 check_python_version()
 

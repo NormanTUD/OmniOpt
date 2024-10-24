@@ -63,7 +63,6 @@ def plot_multiple_graphs(_params):
 
     scatter = None
 
-    helpers.dier(non_empty_graphs)
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols

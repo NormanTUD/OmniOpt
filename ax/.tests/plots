@@ -339,6 +339,12 @@ for _command in "${_commands[@]}"; do
 						fi
 					done
 
+					if [[ $projectname -eq "maximize_test" ]]; then
+						if ! grep "Maximum of" "$this_img" 2>/dev/null >/dev/null; then
+							MISSING_OUTPUTS+=("Maximum of")
+						fi					
+					fi
+
 					if [ ${#MISSING_OUTPUTS[@]} -eq 0 ]; then
 						green_reset_line "$PROGRESSBAR $i/${#_commands[@]} OK Plot-Tests $possible_plot_type/$this_img"
 						if [[ "$keep_tmp" -eq 0 ]]; then

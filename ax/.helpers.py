@@ -61,7 +61,7 @@ def warn_versions():
         "typing_extensions": ["4.12.2"],
         "sqlalchemy": ["1.3.13", "1.4.54"],
         "typing": ["3.7.4.3"],
-        "rich": ["13.8.1", "13.9.3"],
+        "rich": ["13.8.1", "13.9.3", "13.9.2"],
         "toml": ["0.10.2"],
         "cowsay": ["6.1"],
         "pyre_extensions": ["0.0.31"],
@@ -80,14 +80,14 @@ def warn_versions():
         "pyarrow": ["17.0.0"],
         "six": ["1.16.0"],
         "sixel": ["0.2.0"],
-        "packaging": ["24.1"],
+        "packaging": ["24.1", "20.1"],
         "pyparsing": ["3.1.4", "3.2.0"],
         "cycler": ["0.12.1"],
         "kiwisolver": ["1.4.7"],
         "threadpoolctl": ["3.5.0"],
         "mpmath": ["1.3.0"],
         "sympy": ["1.13.3", "1.13.1"],
-        "setuptools": ["66.1.1", "75.2.0"],
+        "setuptools": ["66.1.1", "75.2.0", "58.1.0"],
         "torchvision": ["0.19.1"]
     }
 

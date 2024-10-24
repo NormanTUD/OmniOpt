@@ -1,0 +1,122 @@
+SHELL = /bin/zsh
+LSCOLORS = Gxfxcxdxbxegedabagacad
+CAML_LD_LIBRARY_PATH = /home/norman/.opam/default/lib/stublibs:/usr/local/lib/ocaml/4.05.0/stublibs:/usr/lib/ocaml/stublibs
+WINDOWID = 77594637
+ORIGINAL_PWD = /home/norman/repos/OmniOpt/ax
+QT_ACCESSIBILITY = 1
+OCAML_TOPLEVEL_PATH = /home/norman/.opam/default/lib/toplevel
+COLORTERM = truecolor
+XDG_CONFIG_DIRS = /home/norman/.config/kdedefaults:/etc/xdg:/usr/share/desktop-base/kf5-settings
+LESS = -R
+XDG_SESSION_PATH = /org/freedesktop/DisplayManager/Session1
+GTK_IM_MODULE = fcitx
+NO_TESTS = 1
+PKG_CONFIG_PATH = /home/norman/.opam/default/lib/pkgconfig:
+LANGUAGE = 
+RUN_VIA_RUNSH = 1
+JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64
+SSH_AUTH_SOCK = /tmp/ssh-XXXXXXJYTMrL/agent.7763
+P9K_TTY = old
+SHELL_SESSION_ID = c153d0b2d497465292c95ba24cb6a92a
+OPENAI_API_KEY = gEBbqm5O9AXYZuf0PdDDT3BlbkFJ8LCu58jlnENN36pAOFJ7
+XMODIFIERS = @im=fcitx
+DESKTOP_SESSION = plasma
+SSH_AGENT_PID = 8229
+GTK_RC_FILES = /etc/gtk/gtkrc:/home/norman/.gtkrc:/home/norman/.config/gtkrc
+XCURSOR_SIZE = 48
+EDITOR = vim
+GTK_MODULES = gail:atk-bridge
+XDG_SEAT = seat0
+PWD = /home/norman/repos/OmniOpt/ax
+XDG_SESSION_DESKTOP = KDE
+LOGNAME = norman
+XDG_SESSION_TYPE = x11
+MANPATH = :/home/norman/.opam/default/man
+TESSDATA_PREFIX = /usr/local/share/tessdata/
+GPG_AGENT_INFO = /run/user/1001/gnupg/S.gpg-agent:0:1
+SYSTEMD_EXEC_PID = 8768
+XAUTHORITY = /home/norman/.Xauthority
+OPAM_SWITCH_PREFIX = /home/norman/.opam/default
+GTK2_RC_FILES = /etc/gtk-2.0/gtkrc:/home/norman/.gtkrc-2.0:/home/norman/.config/gtkrc-2.0
+k = 25
+HOME = /home/norman
+IM_CONFIG_PHASE = 1
+LANG = de_DE.UTF-8
+LS_COLORS = 
+rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=
+01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=
+01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.av
+if=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx
+=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;3
+5:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=0
+0;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.swp=00;90:*.tmp=00;90:*.dpkg-dist=00;90:*.dpkg-old=0
+0;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:
+XDG_CURRENT_DESKTOP = KDE
+KONSOLE_DBUS_SERVICE = :1.166
+VIRTUAL_ENV = /home/norman/.omniax_x86_64_Python_3.11.2
+CUDA_DEVICE_ORDER = PCI_BUS_ID
+KONSOLE_DBUS_SESSION = /Sessions/3
+PROFILEHOME = 
+XDG_SEAT_PATH = /org/freedesktop/DisplayManager/Seat0
+PERL5LIB = /home/norman/perl5/lib/perl5
+QTWEBENGINE_DICTIONARIES_PATH = /usr/share/hunspell-bdic/
+INVOCATION_ID = f363221296c747ec809afb86c4cfad5a
+KONSOLE_VERSION = 221203
+MANAGERPID = 6632
+CLUTTER_IM_MODULE = fcitx
+KDE_SESSION_UID = 1001
+PROVIDER = ollama
+HSTR_CONFIG = hicolor
+SDL_IM_MODULE = fcitx
+XDG_SESSION_CLASS = user
+ANDROID_HOME = /home/norman/Android/Sdk
+PYTHONPATH = /home/norman/repos/OmniOpt/ax:/home/norman/.omniax_x86_64_Python_3.11.2:
+TERM = xterm-256color
+ZSH = /home/norman/.oh-my-zsh
+PERL_MB_OPT = --install_base "/home/norman/perl5"
+YoutubeChannelSearcherDir = /home/norman/websites/
+USER = norman
+COLORFGBG = 15;0
+bash_logname = logs/36807f0e-899a-4bae-aed3-27f86919e0c6
+KDE_SESSION_VERSION = 5
+PAM_KWALLET5_LOGIN = /run/user/1001/kwallet5.socket
+PERL_MM_OPT = INSTALL_BASE=/home/norman/perl5
+DISPLAY = :0
+RUN_UUID = 36807f0e-899a-4bae-aed3-27f86919e0c6
+SHLVL = 3
+PAGER = less
+ANDROID_SDK_ROOT = /home/norman/Android/Sdk/
+QT_IM_MODULE = fcitx
+XDG_VTNR = 7
+XDG_SESSION_ID = 4
+VIRTUAL_ENV_PROMPT = (.omniax_x86_64_Python_3.11.2) 
+PYTHONDONTWRITEBYTECODE = 1
+LC_CTYPE = de_DE.UTF-8
+XDG_RUNTIME_DIR = /run/user/1001
+NO_WHIPTAIL = 1
+PS1 = (.omniax_x86_64_Python_3.11.2) 
+P9K_SSH = 0
+QT_AUTO_SCREEN_SCALE_FACTOR = 0
+JOURNAL_STREAM = 8:38894
+XCURSOR_THEME = Win7OS-cursors
+GTK3_MODULES = xapp-gtk3-module
+XDG_DATA_DIRS = /home/norman/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+PERL_LOCAL_LIB_ROOT = /home/norman/perl5
+KDE_FULL_SESSION = true
+PATH = 
+/home/norman/.omniax_x86_64_Python_3.11.2/bin:/home/norman/anaconda3/bin:/home/norman/.opam/default/bin:/home/norman/perl5/bin:/home/norman/.cargo/bin:/home/norman/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/games:/home/norman/.local/b
+in:/home/norman/Android/Sdk/tools:/home/norman/.config/composer/vendor/bin
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1001/bus
+OPAMNOENVNOTICE = true
+KDE_APPLICATIONS_AS_SCOPE = 1
+_JAVA_OPTIONS = -Dawt.useSystemAAFontSettings=on
+ITWORKSONMYMACHINE = 1
+OLDPWD = /home/norman/repos/OmniOpt/ax
+GOPATH = /home/norman/go
+KONSOLE_DBUS_WINDOW = /Windows/1
+_ = /usr/bin/stdbuf
+_STDBUF_O = 0
+_STDBUF_E = 0
+LD_PRELOAD = /usr/libexec/coreutils/libstdbuf.so
+KMP_DUPLICATE_LIB_OK = True
+KMP_INIT_AT_FORK = FALSE

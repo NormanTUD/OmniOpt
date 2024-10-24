@@ -597,6 +597,7 @@ async function load_out_files () {
 	var main_tabs_div_id = "internal_out_files_content";
 
 	if(data.data) {
+		var awaits = [];
 		for (var i = 0; i < data.data.length; i++) {
 			if (!$("#" + main_tabs_div_id).length) {
 				add_tab("out_files", "Out-Files", `
@@ -612,7 +613,21 @@ async function load_out_files () {
 
 			_fn = _fn.replaceAll(/.*\//g, "");
 
-			var _d = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`)
+			var _d = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`);
+
+			awaits.push(_d);
+		}
+
+
+		var got_data = [];
+
+		for (var i = 0; i < data.data.length; i++) {
+			got_data.push(await awaits[i]);
+		}
+
+		for (var i = 0; i < data.data.length; i++) {
+			var _d = got_data[i];
+
 			if(Object.keys(_d).includes("error")) {
 				error(_d.error);
 			} else {

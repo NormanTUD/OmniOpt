@@ -9,7 +9,7 @@ import platform
 import re
 import sys
 import traceback
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import version
 from pprint import pprint
 import matplotlib
 from matplotlib.widgets import Button, TextBox
@@ -54,6 +54,41 @@ def warn_versions():
         "matplotlib": ["3.6.3", "3.7.5", "3.9.0", "3.9.1", "3.9.1.post1", "3.9.2"],
         "submitit": ["1.5.1", "1.5.2"],
         "tqdm": ["4.64.1", "4.66.4", "4.66.5"]
+        "dill": ["0.3.8"],
+        "typeguard": ["2.13.3"],
+        "mypy_extensions": ["1.0.0"],
+        "typing_inspect": ["0.9.0"],
+        "typing_extensions": ["4.12.2"],
+        "sqlalchemy": ["1.3.13"],
+        "typing": ["3.7.4.3"],
+        "rich": ["13.8.1"],
+        "toml": ["0.10.2"],
+        "cowsay": ["6.1"],
+        "pyre_extensions": ["0.0.31"],
+        "scipy": ["1.14.1"],
+        "jaxtyping": ["0.2.34"],
+        "linear_operator": ["0.5.2"],
+        "opt_einsum": ["3.3.0"],
+        "gpytorch": ["1.12"],
+        "multipledispatch": ["1.0.0"],
+        "joblib": ["1.4.2"],
+        "triton": ["3.0.0"],
+        "plotly": ["5.24.1"],
+        "rich_argparse": ["1.5.2"],
+        "pytz": ["2024.2"],
+        "cloudpickle": ["3.0.0"],
+        "pyarrow": ["17.0.0"],
+        "six": ["1.16.0"],
+        "sixel": ["0.2.0"],
+        "packaging": ["24.1"],
+        "pyparsing": ["3.1.4"],
+        "cycler": ["0.12.1"],
+        "kiwisolver": ["1.4.7"],
+        "threadpoolctl": ["3.5.0"],
+        "mpmath": ["1.3.0"],
+        "sympy": ["1.13.3"],
+        "setuptools": ["66.1.1"],
+        "torchvision": ["0.19.1"]
     }
 
     for key in supported_versions.keys():
@@ -769,29 +804,12 @@ def _print_debug_versions(print_debug=print):
         try:
             module_version = version(module_name)
             version_info = f"Version: {module_version}"
-        except PackageNotFoundError:
-            version_info = "Version: Version information not found."
         except Exception:
-            version_info = ""  # Ignore errors related to version lookup
+            version_info = ""
 
-        module_info = f"Module: {module_name}"
         module = sys.modules.get(module_name)
-        if module:
-            # Module file path
-            module_path = getattr(module, '__file__', None)
-            if module_path:
-                module_info += f", Path: {module_path}"
 
-            # Docstring (documentation)
-            module_doc = getattr(module, '__doc__', None)
-            if module_doc:
-                doc_preview = module_doc.split('\n')[0] if len(module_doc) > 100 else module_doc
-                module_info += f", Doc: {doc_preview}"
-
-            # Check for submodules (imported modules within the module)
-            if hasattr(module, '__all__'):
-                submodules = ', '.join(module.__all__)
-                module_info += f", Submodules: {submodules}"
+        module_info = ""
 
         # Concatenate version info if it exists
         if version_info:
@@ -799,7 +817,11 @@ def _print_debug_versions(print_debug=print):
 
         # Only print if there's something to print
         if module_info:
-            print_debug(module_info)
+            module_info = f"Module: {module_name}{module_info}"
+            print(module_info)
+            #print_debug(module_info)
+
+    sys.exit(0)
 
 check_python_version()
 

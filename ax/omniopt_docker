@@ -84,13 +84,15 @@ if ! command -v wget &>/dev/null; then
 	}
 fi
 
-#if ! command -v xhost &>/dev/null; then
-#	apt_get_update
-#	sudo apt-get install -y xhost || {
-#		echo "sudo apt install -y xhost failed"
-#		exit 4
-#	}
-#fi
+if [[ -n $DISPLAY ]]; then
+	if ! command -v xhost &>/dev/null; then
+		apt_get_update
+		sudo apt-get install -y xhost || {
+			echo "sudo apt install -y xhost failed"
+			exit 4
+		}
+	fi
+fi
 
 
 if ! command -v git &>/dev/null; then

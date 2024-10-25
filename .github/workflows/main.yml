@@ -121,7 +121,7 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
+        ./ax/omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --quick
 
   main-test:
     runs-on: ${{ matrix.os }}

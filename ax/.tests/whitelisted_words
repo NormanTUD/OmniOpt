@@ -256,6 +256,7 @@ clipObj
 clipRegex
 closeButton
 closeText
+cloudpickle
 clusterhost
 co
 col
@@ -314,6 +315,7 @@ cornsilk
 cosineProximity
 coult
 countParametersByFunctionName
+cowsay
 cpos
 cProps
 cpu
@@ -711,6 +713,7 @@ gpudisconnected
 gpus
 GPUs
 gpuusagefiles
+gpytorch
 gradCAM
 graphHeight
 graphWidth
@@ -877,7 +880,9 @@ IWILLNEVERFINDANYTHINGHOPEFULLY
 Jan
 January
 JavaScript
+jaxtyping
 Jedi
+joblib
 jobsbatch
 jpeg
 jpg
@@ -912,6 +917,7 @@ keynames
 keypress
 keypresses
 keyup
+kiwisolver
 kn
 ktotalBytesSnapshot
 kullbackLeiblerDivergence
@@ -1081,12 +1087,14 @@ moveBy
 moveTo
 movingMeanInitializer
 movingVarianceInitializer
+mpmath
 mse
 msg
 multdimensional
 multibound
 multiline
 multipe
+multipledispatch
 multiplicator
 mx
 myKeyboard
@@ -1374,10 +1382,13 @@ pwd
 px
 pxsz
 py
+pyarrow
 pyflakes
 Pyflakes
 pylint
+pyparsing
 pythonCode
+pytz
 pyyaml
 QOSMinGRES
 queriesLength
@@ -1516,6 +1527,7 @@ scaleNestedArray
 scattergenerationmethod
 scattergl
 SCIENTIFICNOTATION
+scipy
 scontrol
 scoreMsg
 scp
@@ -1579,6 +1591,7 @@ setImmediate
 setInterval
 setResizable
 setTimeout
+setuptools
 sgd
 SGD
 SGR
@@ -1677,6 +1690,7 @@ sparseCategoricalCrossentropy
 spinbutton
 splitted
 sprintf
+sqlalchemy
 sqrt
 squaredHinge
 squeue
@@ -1748,6 +1762,7 @@ Swal
 Swalfire
 sweetAlert
 SweetAlert
+sympy
 synchronise
 Synchronise
 SyntaxError
@@ -1800,6 +1815,7 @@ theres
 thisitem
 thisvarname
 thompson
+threadpoolctl
 Thresholded
 ThresholdedReLU
 Thu
@@ -1836,6 +1852,7 @@ toPixels
 topNUsers
 topUserBar
 torchautograd
+torchvision
 toShow
 toSortable
 toString
@@ -1862,6 +1879,7 @@ txt
 typeahead
 typeassert
 TypeError
+typeguard
 typeof
 udocumentreturn
 ui
@@ -1920,6 +1938,7 @@ varianceScaling
 varnames
 venv
 Verbot
+versioning
 verticalOffset
 verticalSpacing
 videoElement
@@ -2026,22 +2045,3 @@ zIndices
 zipContents
 zipWriter
 zsh
-versioning
-gpytorch
-cloudpickle
-cowsay
-multipledispatch
-joblib
-setuptools
-jaxtyping
-threadpoolctl
-sqlalchemy
-pytz
-pyparsing
-torchvision
-typeguard
-sympy
-pyarrow
-mpmath
-kiwisolver
-scipy

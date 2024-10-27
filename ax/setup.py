@@ -113,7 +113,7 @@ setup(
     author_email='norman.koch@tu-dresden.de',
     url='https://scads.ai/transfer-2/verfuegbare-software-dienste-en/omniopt/',
     install_requires=install_requires,
-    packages=['omniopt2',],
+    packages=['.',],
     data_files=[('bin', all_needed_files)],
     include_package_data=True,
 )

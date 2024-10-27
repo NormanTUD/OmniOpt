@@ -26,7 +26,7 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
-Basically the same as OmniOpt, but based on ax/botorch instead of hyperopt
+A hyperparameter optimizer for SLURM-based systems. GUI for creating commands is available at https://imageseg.scads.de/omniax/ , where also additional help can be found.
 
 ## Main program
 
@@ -71,5 +71,11 @@ that fail in all sorts of ways (to test how OmniOpt2 reacts to it).
 ## Install from repo
 
 ```command
-`pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2`
+pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2
+```
+
+## Install from pypi
+
+```command
+pip3 install omniopt2
 ```

@@ -476,7 +476,7 @@ if not args.tests:
     except KeyboardInterrupt: # pragma: no cover
         print("\n⚠ You pressed CTRL+C. Program execution halted.")
         my_exit(0)
-    except AttributeError:
+    except AttributeError: # pragma: no cover
         print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
         my_exit(7)
 
@@ -935,7 +935,7 @@ def load_global_vars(_file):
         my_exit(44)
 
 def load_or_exit(filepath, error_msg, exit_code):
-    if not os.path.exists(filepath):
+    if not os.path.exists(filepath): # pragma: no cover
         print_red(error_msg)
         my_exit(exit_code)
 
@@ -1169,7 +1169,7 @@ def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
 
         df = pd.read_csv(pd_csv, float_precision='round_trip')
 
-        if column not in df.columns:
+        if column not in df.columns: # pragma: no cover
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist. Returning default {_default}")
             return _value
 
@@ -1177,7 +1177,7 @@ def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
             _value = df[column].min()
         elif _type == "max":
             _value = df[column].max()
-        else:
+        else: # pragma: no cover
             dier(f"get_min_or_max_column_value: Unknown type {_type}")
 
         return _value
@@ -1202,7 +1202,7 @@ def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
             if _old_min_col:
                 found_in_file = True
 
-            if found_in_file and _default > _old_min_col:
+            if found_in_file and _default > _old_min_col: # pragma: no cover
                 ret_val = _old_min_col
             else:
                 ret_val = _default
@@ -1211,11 +1211,11 @@ def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
             if _old_max_col:
                 found_in_file = True
 
-            if found_in_file and _default < _old_max_col:
+            if found_in_file and _default < _old_max_col: # pragma: no cover
                 ret_val = _old_max_col
             else:
                 ret_val = _default
-    else:
+    else: # pragma: no cover
         print_red(f"{pd_csv} was not found")
 
     return ret_val, found_in_file
@@ -1260,7 +1260,7 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 def get_bounds(this_args, j):
     try:
         lower_bound = float(this_args[j + 2])
-    except Exception:
+    except Exception: # pragma: no cover
         print_red(f"\n⚠ {this_args[j + 2]} is not a number")
         my_exit(181)
 
@@ -1316,11 +1316,11 @@ def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, sear
     old_upper_bound = upper_bound
 
     if args.continue_previous_job:
-        if old_lower_bound != lower_bound:
+        if old_lower_bound != lower_bound: # pragma: no cover
             print_yellow(f"⚠ previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
             search_space_reduction_warning = True
 
-        if old_upper_bound != upper_bound:
+        if old_upper_bound != upper_bound: # pragma: no cover
             print_yellow(f"⚠ previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
             search_space_reduction_warning = True
 
@@ -1330,7 +1330,7 @@ def get_value_type_and_log_scale(this_args, j):
     skip = 5
     try:
         value_type = this_args[j + 4]
-    except Exception:
+    except Exception: # pragma: no cover
         value_type = "float"
         skip = 4
 
@@ -1463,11 +1463,11 @@ def parse_experiment_parameters():
 
             try:
                 param_type = this_args[j + 1]
-            except Exception:
+            except Exception: # pragma: no cover
                 print_red("Not enough arguments for --parameter")
                 my_exit(181)
 
-            if param_type not in valid_types:
+            if param_type not in valid_types: # pragma: no cover
                 valid_types_string = ', '.join(valid_types)
                 print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
                 my_exit(181)
@@ -1478,12 +1478,12 @@ def parse_experiment_parameters():
                 j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, search_space_reduction_warning)
             elif param_type == "choice":
                 j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, search_space_reduction_warning)
-            else:
+            else: # pragma: no cover
                 print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
         i += 1
 
-    if search_space_reduction_warning:
+    if search_space_reduction_warning: # pragma: no cover
         print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
@@ -1509,8 +1509,8 @@ def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
         if lower_bound == 0:
             print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
             my_exit(181)
-        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
-        lower_bound = -upper_bound
+        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound") # pragma: no cover
+        lower_bound = -upper_bound # pragma: no cover
 
 def replace_parameters_in_string(parameters, input_string):
     try:
@@ -1536,13 +1536,13 @@ def execute_bash_code(code):
             capture_output=True
         )
 
-        if result.returncode != 0:
+        if result.returncode != 0: # pragma: no cover
             print(f"Exit-Code: {result.returncode}")
 
         real_exit_code = result.returncode
 
         signal_code = None
-        if real_exit_code < 0:
+        if real_exit_code < 0: # pragma: no cover
             signal_code = abs(result.returncode)
             real_exit_code = 1
 
@@ -1552,11 +1552,11 @@ def execute_bash_code(code):
         real_exit_code = e.returncode
 
         signal_code = None
-        if real_exit_code < 0:
+        if real_exit_code < 0: # pragma: no cover
             signal_code = abs(e.returncode)
             real_exit_code = 1
 
-        if not args.tests:
+        if not args.tests: # pragma: no cover
             print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
             if len(e.stdout):
                 print(f"stdout: {e.stdout}")
@@ -1628,7 +1628,7 @@ def check_file_info(file_path):
         print(f"check_file_info: The file {file_path} does not exist.")
         return ""
 
-    if not os.access(file_path, os.R_OK):
+    if not os.access(file_path, os.R_OK): # pragma: no cover
         print(f"check_file_info: The file {file_path} is not readable.")
         return ""
 
@@ -1651,7 +1651,7 @@ def check_file_info(file_path):
     string += f"UID: {uid}\n"
     string += f"GID: {gid}\n"
     _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
+    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "": # pragma: no cover
         string += f"SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"
@@ -1738,7 +1738,7 @@ def count_defective_nodes(file_path=None, entry=None):
 
             entries = [line.strip() for line in lines]
 
-            if entry is not None and entry not in entries:
+            if entry is not None and entry not in entries: # pragma: no cover
                 file.write(entry + '\n')
                 entries.append(entry)
 

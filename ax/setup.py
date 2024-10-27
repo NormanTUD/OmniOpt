@@ -99,7 +99,7 @@ all_needed_files = bash_files
 all_needed_files.extend(python_files)
 
 all_needed_files.append("requirements.txt")
-all_needed_files.append("apt-requirements.txt")
+#all_needed_files.append("apt-requirements.txt")
 
 print("Copying the following files:")
 print("=====================")

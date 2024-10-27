@@ -281,8 +281,9 @@
 
 	get_nr_of_already_installed_modules () {
 		nr=0
-		for key in "${!install_those[@]}"; do
+		for key in "${install_those[@]}"; do
 			noversion=$(echo "$key" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
+
 			if [[ -z $FROZEN ]]; then
 				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 			fi

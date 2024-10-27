@@ -190,12 +190,12 @@
 		local total_progress=$1
 
 		if ! [[ "$NUMBER_OF_INSTALLED_MODULES" =~ ^[0-9]+$ ]]; then
-			echo "Error: NUMBER_OF_INSTALLED_MODULES must be positive integer, but is $NUMBER_OF_INSTALLED_MODULES." >&2
+			echo "Error: NUMBER_OF_INSTALLED_MODULES must be a positive integer, but is $NUMBER_OF_INSTALLED_MODULES." >&2
 			return 1
 		fi
 
 		if ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
-			echo "Error: total_progress must be positive integer, but is $total_progress." >&2
+			echo "Error: total_progress must be a positive integer, but is $total_progress." >&2
 			return 1
 		fi
 
@@ -204,19 +204,8 @@
 			return 1
 		fi
 
-		local bar_length=30
-		local filled_length=$((bar_length * NUMBER_OF_INSTALLED_MODULES / total_progress))
-		local empty_length=$((bar_length - filled_length))
-
-		local bar=""
-		for ((i = 0; i < filled_length; i++)); do
-			bar="${bar}#"
-		done
-		for ((i = 0; i < empty_length; i++)); do
-			bar="${bar} "
-		done
-
-		echo "[${bar}] "
+		# Call the generate_progress_bar function to print the progress bar
+		generate_progress_bar "$NUMBER_OF_INSTALLED_MODULES" "$total_progress"
 	}
 
 	generate_progress_bar() {
@@ -400,8 +389,8 @@
 	not_found_programs=0
 	
 	for cmd_pkg in "${required_programs[@]}"; do
-		cmd="${cmd_pkg%%:*}"        # Command name
-		pkg="${cmd_pkg##*:}"         # Package name for installation
+		cmd="${cmd_pkg%%:*}"
+		pkg="${cmd_pkg##*:}"
 
 		if ! command -v "$cmd" >/dev/null 2>&1; then
 			red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $pkg' (depending on your distro)\n"

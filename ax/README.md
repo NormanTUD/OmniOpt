@@ -27,8 +27,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
 A hyperparameter optimizer for SLURM-based systems. GUI for creating commands is
-available at https://imageseg.scads.de/omniax/ , where also additional help can
-be found.
+available at [https://imageseg.scads.de/omniax/](https://imageseg.scads.de/omniax/)
+, where also additional help can be found.
 
 ## Main program
 

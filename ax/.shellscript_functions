@@ -52,41 +52,6 @@
 		fi
 	}
 
-	function check_requirement_installments {
-		local required=(
-			#"apt"
-			"cat"
-			#"docker"
-			"findmnt"
-			"git"
-			"grep"
-			"resize"
-			#"sbatch"
-			#"scontrol"
-			"sed"
-			#"squeue"
-			"stdbuf"
-			"tput"
-			"uuidgen"
-			"wget"
-			"whiptail"
-			#"whypending"
-			#"xhost"
-		)
-
-		err=0
-		for checkme in "${required[@]}"; do
-			if ! command -v $checkme 2>/dev/null >/dev/null; then
-				echo "Missing $checkme" >&2
-				err=$(($err+1))
-			fi
-		done
-
-		if [[ $err -ne 0 ]]; then
-			exit $err
-		fi
-	}
-
 	export RUN_VIA_RUNSH=1
 
 	export PYTHONDONTWRITEBYTECODE=1

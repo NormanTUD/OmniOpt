@@ -384,7 +384,7 @@
 		_tput el
 	}
 
-	required_programs=("base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3" "gcc:gcc" "resize:xterm")	
+	required_programs=("stdbuf:coreutils" "findmnt:util-linux" "base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3" "gcc:gcc" "resize:xterm" "cat:coreutils" "ls:coreutils" "wget:wget" "whiptail:whiptail" "grep:grep" "tput:ncurses-bin" "sed:sed")
 	not_found_programs=0
 
 	for cmd_pkg in "${required_programs[@]}"; do
@@ -504,8 +504,6 @@
 	fi
 
 	export PYTHONPATH=$VENV_DIR:$PYTHONPATH
-
-	check_requirement_installments
 
 	#echo "PATH: $PATH"
 	#echo "VIRTUAL_ENV: $VIRTUAL_ENV"

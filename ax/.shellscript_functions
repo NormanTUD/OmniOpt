@@ -384,10 +384,9 @@
 		_tput el
 	}
 
-	required_programs=("base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3")
-
+	required_programs=("base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3" "gcc:gcc" "resize:xterm")	
 	not_found_programs=0
-	
+
 	for cmd_pkg in "${required_programs[@]}"; do
 		cmd="${cmd_pkg%%:*}"
 		pkg="${cmd_pkg##*:}"
@@ -404,16 +403,6 @@
 
 	if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		if [[ ! -d "$VENV_DIR" ]]; then
-			if ! command -v gcc >/dev/null 2>/dev/null; then
-				red_text "❌GCC not found. Try installing with, for example, with 'sudo apt-get install gcc' (depending on your distro)"
-				exit 3
-			fi
-
-			if ! command -v resize >/dev/null 2>/dev/null; then
-				red_text "❌resize not found. Try installing xterm with, for example, with 'sudo apt-get install xterm' (depending on your distro)"
-				#exit 4
-			fi
-
 			if ! python3 -c 'from distutils.sysconfig import get_makefile_filename as m; from os.path import isfile; import sys ; sys.exit(not isfile(m()))' >/dev/null 2>/dev/null; then
 				red_text "❌python3 header files not found. Try installing them, for example, with 'sudo apt-get install python3-dev' (depending on your distro)\n"
 				if [[ "$OSTYPE" == "darwin"* ]]; then

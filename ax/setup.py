@@ -101,7 +101,10 @@ all_needed_files.extend(python_files)
 print("Copying the following files:")
 print("- " + "\n".join(all_needed_files))
 
-setup(name='omniopt2',
+setup(
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
+    name='omniopt2',
     version='0.9',
     description='Automatic hyperparameter optimizer based on Ax/Botorch',
     author='Norman Koch',

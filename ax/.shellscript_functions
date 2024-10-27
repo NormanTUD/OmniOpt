@@ -395,16 +395,23 @@
 		_tput el
 	}
 
-	required_programs=( "base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3" )
+	required_programs=("base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3")
 
+	not_found_programs=0
+	
 	for cmd_pkg in "${required_programs[@]}"; do
 		cmd="${cmd_pkg%%:*}"        # Command name
 		pkg="${cmd_pkg##*:}"         # Package name for installation
 
 		if ! command -v "$cmd" >/dev/null 2>&1; then
-			red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $pkg' (depending on your distro)"
+			red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $pkg' (depending on your distro)\n"
+			not_found_programs=$(($not_found_programs+1))
 		fi
 	done
+	
+	if [[ $not_found_programs -ne 0 ]]; then
+		exit 11
+	fi
 
 	if [[ "$SCRIPT_DIR" != *"$VENV_DIR"* ]]; then
 		if [[ ! -d "$VENV_DIR" ]]; then

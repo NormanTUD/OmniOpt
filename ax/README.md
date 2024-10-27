@@ -70,14 +70,14 @@ that fail in all sorts of ways (to test how OmniOpt2 reacts to it).
 ./tests/main_tests
 ```
 
-## Install from repo
-
-```command
-pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2
-```
-
 ## Install from pypi
 
 ```command
 pip3 install omniopt2
+```
+
+## Install from repo
+
+```command
+pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2
 ```

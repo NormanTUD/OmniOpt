@@ -195,6 +195,7 @@
 		local bar_length=30
 		local filled_length=$((bar_length * current / max))
 		local empty_length=$((bar_length - filled_length))
+		local percentage=$((current * 100 / max))
 
 		local bar=""
 		for ((i = 0; i < filled_length; i++)); do
@@ -204,7 +205,7 @@
 			bar="${bar} "
 		done
 
-		echo "[${bar}] "
+		printf "[%s] %d%%\n" "$bar" "$percentage"
 	}
 
 	function ppip {

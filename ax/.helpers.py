@@ -55,7 +55,7 @@ def warn_versions():
         "submitit": ["1.5.1", "1.5.2"],
         "tqdm": ["4.64.1", "4.66.4", "4.66.5"],
         "dill": ["0.3.8", "0.3.9"],
-        "typeguard": ["2.13.3", "2.13.3", "4.3.0"],
+        "typeguard": ["2.13.3", "2.13.3", "4.3.0", "4.4.0"],
         "mypy_extensions": ["1.0.0"],
         "typing_inspect": ["0.9.0"],
         "typing_extensions": ["4.12.2"],

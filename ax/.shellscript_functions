@@ -198,7 +198,7 @@
 
 		local bar=""
 		for ((i = 0; i < filled_length; i++)); do
-			bar="${bar}#"
+			bar="${bar}━"
 		done
 		for ((i = 0; i < empty_length; i++)); do
 			bar="${bar} "

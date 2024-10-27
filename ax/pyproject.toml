@@ -1,14 +1,17 @@
 [project]
 name = "omniopt2"
 description = "Automatic hyperparameter optimizer based on Ax/Botorch"
-long_description = "Automatic hyperparameter optimizer based on Ax/Botorch"
 authors = [
   {email = "norman.koch@tu-dresden.de"},
   {name = "Norman Koch"}
 ]
 version = "2024.10.27-1"
+
+readme = "README.md"
 dynamic = ["dependencies"]
+
 [tool.setuptools]
 py-modules = []
+
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}

@@ -99,7 +99,9 @@ all_needed_files = bash_files
 all_needed_files.extend(python_files)
 
 print("Copying the following files:")
-print("- " + "\n".join(all_needed_files))
+print("=====================")
+print("\n".join(all_needed_files))
+print("=====================")
 
 setup(
     long_description=open('README.md', encoding="utf-8").read(),
@@ -111,7 +113,7 @@ setup(
     author_email='norman.koch@tu-dresden.de',
     url='https://scads.ai/transfer-2/verfuegbare-software-dienste-en/omniopt/',
     install_requires=install_requires,
-    packages=['.',],
+    packages=['omniopt2',],
     data_files=[('bin', all_needed_files)],
     include_package_data=True,
 )

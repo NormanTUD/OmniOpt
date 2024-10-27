@@ -469,7 +469,4 @@
 	fi
 
 	export PYTHONPATH=$VENV_DIR:$PYTHONPATH
-
-	#echo "PATH: $PATH"
-	#echo "VIRTUAL_ENV: $VIRTUAL_ENV"
 }

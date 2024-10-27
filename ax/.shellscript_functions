@@ -151,8 +151,9 @@
 	PROGRESSBAR=""
 
 	generate_progress_bar_setup() {
-		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 		local total_progress=$1
+
+		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
 		if ! [[ "$NUMBER_OF_INSTALLED_MODULES" =~ ^[0-9]+$ ]]; then
 			echo "Error: NUMBER_OF_INSTALLED_MODULES must be a positive integer, but is $NUMBER_OF_INSTALLED_MODULES." >&2
@@ -280,11 +281,12 @@
 
 	get_nr_of_already_installed_modules () {
 		nr=0
-		for key in $(echo "$install_those"); do
+		for key in "${!install_those[@]}"; do
 			noversion=$(echo "$key" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 			if [[ -z $FROZEN ]]; then
 				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 			fi
+
 			if echo "$FROZEN" | grep -i "$noversion" 2>/dev/null >/dev/null; then
 				nr=$(($nr+1))
 			fi

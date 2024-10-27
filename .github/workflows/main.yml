@@ -67,7 +67,7 @@ jobs:
         ./ax/.tests/linter
 
   docker-test:
-    needs: [main-test, Linter, markdown-lint, todo-to-issue, covering-uploader]
+    needs: [Linter, markdown-lint, todo-to-issue]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true

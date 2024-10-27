@@ -1,41 +1,68 @@
 <?php
-	include_once("_functions.php");
+	require_once "test_apache_php_config.php";
+	require_once "_functions.php";
 
-	$dir_path = ".";
-	if(preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
-		$dir_path = "..";
+	function get_dir_path () {
+		$dir_path = realpath(dirname(__FILE__));
+		if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
+			$dir_path = $dir_path . "/../";
+		}
+
+		return $dir_path;
+	}
+
+	function js ($names) {
+		if(is_array($names)) {
+			foreach ($names as $name) {
+				js($name);
+			}
+		} else {
+			$_p = $names;
+			if (!file_exists($_p)) {
+				dier("$_p not found");
+			}
+?>
+			<script src="<?php print $_p; ?>"></script>
+<?php
+		}
 	}
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<title>OmniOpt2</title>
-		<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
+		<link href="prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
-		<script src="<?php print $dir_path; ?>/jquery-3.7.1.js"></script>
-		<script src="<?php print $dir_path; ?>/jquery-ui.min.js"></script>
-		<script src="<?php print $dir_path; ?>/prism.js"></script>
-		<script src="<?php print $dir_path; ?>/search.js"></script>
-		<script src="<?php print $dir_path; ?>/tooltipster.bundle.min.js"></script>
-		<script src="<?php print $dir_path; ?>/darkmode.js"></script>
-		<link href="<?php print $dir_path; ?>/style.css" rel="stylesheet" />
+		<?php js("jquery-3.7.1.js"); ?>
+		<?php js("jquery-ui.min.js"); ?>
+		<?php js("prism.js"); ?>
+		<?php js("tooltipster.bundle.min.js"); ?>
+		<?php js("darkmode.js"); ?>
+		<?php js("ansi_up.js"); ?>
+		<?php js("jquery.dataTables.min.js"); ?>
+		<?php js("crypto-core.js"); ?>
+		<?php js("md5.js"); ?>
+		<?php js("main.js"); ?>
+		<?php js("search.js"); ?>
+		<?php js("initialization.js"); ?>
+
+		<link href="style.css" rel="stylesheet">
 <?php
-		if(!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
+		if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 ?>
-			<link href="<?php print $dir_path; ?>/tutorial.css" rel="stylesheet" />
+			    <link href="tutorial.css" rel="stylesheet">
 <?php
 		}
 ?>
-		<link href="<?php print $dir_path; ?>/jquery-ui.css" rel="stylesheet">
-		<link href="<?php print $dir_path; ?>/prism.css" rel="stylesheet" />
+		<link href="jquery-ui.css" rel="stylesheet">
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;
 
-				if(document.activeElement == $("body")[0]) {
+				if (document.activeElement == $("body")[0]) {
 					var keycode = e.keyCode;
-					if(keycode >= 97 && keycode <= 122 || keycode == 45) {
+					if (keycode >= 97 && keycode <= 122 || keycode == 45) {
 						e.preventDefault();
 						$("#search").val("");
 						$("#search").val(String.fromCharCode(e.keyCode));
@@ -66,37 +93,93 @@
 	</head>
 	<body>
 		<div id="scads_bar">
-			<a style="margin-right: 20px;" target="_blank" href="https://scads.ai/"><img height=90 class="invert_in_dark_mode" src="<?php print $dir_path; ?>/scads_logo.svg" /></a>
-			<a href="index.php"><img class="invert_in_dark_mode" height=73 src="<?php print $dir_path; ?>/logo.png" /></a>
-<?php
-				include("searchable_php_files.php");
+			<table border=0 class="header_table" style='display: inline !important;'>
+				<tr class="header_table">
+					<td class='header_table'>
+						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
+							<img height=90 class="img_auto_width invert_in_dark_mode" src="scads_logo.svg" alt="ScaDS.ai-Logo">
+						</a>
+					</td>
 
-				$current_file = basename($_SERVER["PHP_SELF"]);
+					<td class='header_table'>
+						<a style="text-decoration: none;" href="index.php">
+							<img class="img_auto_width invert_in_dark_mode" height=73 src="logo.png" alt="OmniOpt2-Logo">
+						</a>
+					</td>
 
-				foreach ($files as $fn => $n) {
-					if (is_array($n)) {
-						$n = $n["name"];
+					<td class='header_table'>
+						<table border=0 class="header_table" style='display: inline !important;'>
+							<tr class="header_table">
+								<td class='header_table'>
+									<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
+										<img class="img_auto_width" style="width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
+									</a>
+								</td>
+							</tr>
+							<tr class="header_table" style='background-color: revert !important;'>
+								<td class="header_table">
+									<img class="img_auto_width" style="width: 100% !important;" src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
+								</td>
+							</tr>
+
+							<tr class="header_table" style='background-color: revert !important;'>
+								<td class="header_table">
+									<a href="https://normantud.github.io/omniopt2.github.io/">
+										<img class="img_auto_width" style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage">
+									</a>
+								</td>
+							</tr>
+						</table>
+					</td>
+	<?php
+					require "searchable_php_files.php";
+
+					$current_file = basename($_SERVER["PHP_SELF"]);
+
+					foreach ($GLOBALS["files"] as $fn => $n) {
+						if (is_array($n)) {
+							$n = $n["name"];
+						}
+
+						$tab_is_active = preg_match("/^$fn.php/", $current_file);
+						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
+						$_link = "$fn.php";
+
+						if (!file_exists($_link)) {
+							dier("Coult not find $_link");
+						}
+						echo "<td class='header_table'>";
+						echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
+						echo "</td>";
 					}
 
-					$tab_is_active = preg_match("/^$fn.php/", $current_file);
-					$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
-					echo "\t<a href='$dir_path/$fn.php' class='tab $tab_class'>$n</a>\n";
-				}
-?>
-			<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions"><img src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" /></a>
-<?php
-			$current_tag = get_current_tag();
+					$current_tag = get_current_tag();
 
-			if($current_tag) {
-				echo " $current_tag";
-			}
+					if ($current_tag) {
+						echo "<td class='header_table'>";
+						echo " $current_tag";
+						echo "</td>";
+					}
 ?>
-			<br>
-			<span style="display: inline-flex;">
-				<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search"></input>
-				<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
-			</span>
-		</div>
-		<div id="searchResults"></div>
+					<td class="header_table">
+						<span style="display: inline-grid;">
+							<select id="themeSelect" name="theme">
+								<option value="light">Light Mode</option>
+								<option value="dark">Dark Mode</option>
+							</select>
+						</span>
+					</td>
+				</tr>
+			</table>
 
-		<div id="mainContent">
+
+		<br>
+		<span style="display: inline-flex;">
+			<img src="images/search.svg" height=32 alt="Search">
+			<input onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search">
+			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
+		</span>
+	</div>
+	<div id="searchResults"></div>
+
+	<div id="mainContent">

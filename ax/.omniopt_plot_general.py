@@ -2,16 +2,18 @@
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Sobol
 
-import os
-import sys
+import argparse
 import importlib.util
 import logging
+import os
 import signal
-import traceback
-import argparse
-import pandas as pd
+import sys
+
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
+
+args = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -24,10 +26,6 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
@@ -39,22 +37,9 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-args = parse_arguments()
-
-def filter_data(dataframe, min_value=None, max_value=None):
-    try:
-        if min_value is not None:
-            dataframe = dataframe[dataframe['result'] >= min_value]
-        if max_value is not None:
-            dataframe = dataframe[dataframe['result'] <= max_value]
-    except KeyError:
-        print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to have no results column.", 19)
-
-    return dataframe
-
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
         sys.exit(169)
 
@@ -91,27 +76,11 @@ def plot_graph(dataframe, save_to_file=None):
     plt.tight_layout()
 
     if save_to_file:
-        _path = os.path.dirname(args.save_to_file)
-        if _path:
-            os.makedirs(_path, exist_ok=True)
-        try:
-            plt.savefig(args.save_to_file)
-        except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-            sys.exit(199)
+        fig = plt.figure(1)
+        helpers.save_to_file(fig, args, plt)
     else:
-        if not args.no_plt_show:
+        if not args.no_plt_show: # pragma: no cover
             plt.show()
-
-def print_if_not_plot_tests_and_exit(msg, exit_code):
-    if not os.environ.get("PLOT_TESTS"):
-        print(msg)
-    if exit_code is not None:
-        sys.exit(exit_code)
-
-def print_traceback():
-    tb = traceback.format_exc()
-    print(tb)
 
 def update_graph():
     try:
@@ -120,35 +89,37 @@ def update_graph():
         try:
             dataframe = pd.read_csv(args.run_dir + "/results.csv")
         except pd.errors.EmptyDataError:
-            print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be empty.", 19)
+            helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be empty.", 19)
         except UnicodeDecodeError:
-            print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
+            helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
 
         if args.min is not None or args.max is not None:
-            dataframe = filter_data(dataframe, args.min, args.max)
+            dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
 
         if dataframe.empty:
-            print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
+            helpers.print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
             return
 
         if args.save_to_file:
             _path = os.path.dirname(args.save_to_file)
-            if _path:
+            if _path: # pragma: no cover
                 os.makedirs(_path, exist_ok=True)
 
         plot_graph(dataframe, args.save_to_file)
 
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         logging.error("File not found: %s", args.run_dir + "/results.csv")
-    except Exception as exception:
+    except Exception as exception: # pragma: no cover
         logging.error("An unexpected error occurred: %s", str(exception))
 
-        print_traceback()
+        helpers.print_traceback()
 
 if __name__ == "__main__":
-    setup_logging()
+    args = parse_arguments()
 
-    if not os.path.exists(args.run_dir):
+    helpers.setup_logging()
+
+    if not os.path.exists(args.run_dir): # pragma: no cover
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

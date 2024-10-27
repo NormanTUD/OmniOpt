@@ -1,0 +1,127 @@
+#!/bin/bash
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+function _help {
+	exit_code=$?
+
+	echo ".tests/linters"
+	echo "--quick                                              Disable slow tests"
+	echo "--help                                               This help"
+	echo "[files]                                              Run linters only on specified files"
+	echo "[linter]                                             Run a specific linter"
+
+	exit $exit_code
+}
+
+# Available linters
+declare -a linters=("pylint" "bandit" "deadcode" "pyflakes" "flake8" "shellcheck")
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+args=("$@")
+k=0
+quick=0
+specific_linter=""
+files=()
+
+# Parse arguments
+while [ $k -lt ${#args[@]} ]; do
+	i="${args[k]}"
+
+	if [[ " ${linters[*]} " == *" $i "* ]]; then
+		specific_linter=$i
+	elif [[ "$i" == "--quick" ]]; then
+		quick=1
+	elif [[ "$i" == "--help" ]]; then
+		_help 0
+	elif [[ -f "$i" ]]; then
+		files+=("$i")
+	else
+		red_text "Unknown parameter or file does not exist: $i"
+		exit 2
+	fi
+	k=$((k+1))
+done
+
+source .shellscript_functions
+
+export DONT_INSTALL_MODULES=1
+export DONT_SHOW_DONT_INSTALL_MESSAGE=1
+
+errors=()
+
+# Function to run linters on specific files or generally
+run_linter() {
+	local linter="$1"
+	local file_args=("$@")
+
+	if [[ ${#errors[@]} -eq 0 ]]; then
+		if [[ "${#file_args[@]}" -gt 1 ]]; then
+			yellow_text "Running $linter on files: ${file_args[*]:1}"
+			.tests/$linter "${file_args[@]:1}" || {
+				red_text "$linter failed\n"
+				errors+=("$linter failed")
+			}
+		else
+			yellow_text "Running $linter..."
+			.tests/$linter || {
+				red_text "$linter failed\n"
+				errors+=("$linter failed")
+			}
+		fi
+	else
+		yellow_text "Skipping linter test because there were previous errors..."
+	fi
+}
+
+# If specific linter is provided, run only that linter
+if [[ -n "$specific_linter" ]]; then
+	run_linter "$specific_linter" "${files[@]}"
+else
+	# Run all linters if no specific one is provided
+	if [[ "$quick" -eq 0 ]]; then
+		run_linter "pylint" "${files[@]}"
+		run_linter "bandit" "${files[@]}"
+		run_linter "deadcode" "${files[@]}"
+	fi
+
+	run_linter "pyflakes" "${files[@]}"
+	run_linter "flake8" "${files[@]}"
+	run_linter "shellcheck" "${files[@]}"
+fi
+
+secs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'Linters test took: %02d:%02d:%02d\n' $hrs $mins $secs
+
+# Handle results
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No linters errors"
+	exit 0
+else
+	red_text "=> LINTERS-ERRORS => LINTERS-ERRORS => LINTERS-ERRORS =>\n"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi

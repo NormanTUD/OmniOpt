@@ -1,10 +1,18 @@
 from pprint import pprint
+import glob
 import os
 import site
 import sys
-from distutils.sysconfig import get_python_lib
+import sysconfig
 
 from setuptools import setup
+
+def is_executable_in_path(executable_name):
+    for path in os.environ.get('PATH', '').split(':'):
+        executable_path = os.path.join(path, executable_name)
+        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
+            return True
+    return False
 
 def dier (msg):
     pprint(msg)
@@ -15,18 +23,42 @@ def dier (msg):
 site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
 def do_nothing(x):
-    pass
+    return x
 
 do_nothing(site.ENABLE_USER_SITE) # to trick linters...
+
+required_programs = [
+    "whiptail",
+    "git",
+    "base64",
+    "curl",
+    "wget",
+    "uuidgen",
+    "python3",
+    "gcc",
+    "resize"
+]
+
+_error = 0
+for rp in required_programs:
+    if not is_executable_in_path(rp):
+        if _error == 0:
+            print("=========================== ERROR WHILE TRYING TO INSTALL OMNIOPT ===========================")
+
+        print(f"Missing required program {rp}")
+        _error = _error + 1
+
+if _error >= 1:
+    sys.exit(_error % 255)
 
 # Warn if we are installing over top of an existing installation. This can
 # cause issues where files that were deleted from a more recent OmniOpt2 are
 # still present in site-packages. See #18115.
 overlay_warning = False
 if "install" in sys.argv:
-    lib_paths = [get_python_lib()]
+    lib_paths = [sysconfig.get_path('purelib')]
     if lib_paths[0].startswith("/usr/lib/"):
-        print("You need to be in a virtuel environment or something similiar to install this package")
+        print("You need to be in a virtual environment or something similar to install this package")
     for lib_path in lib_paths:
         existing_path = os.path.abspath(os.path.join(lib_path, "omniopt2"))
         if os.path.exists(existing_path):
@@ -39,34 +71,53 @@ lib_folder = os.path.dirname(os.path.realpath(__file__))
 requirement_path = f"{lib_folder}/requirements.txt"
 install_requires = []
 if os.path.isfile(requirement_path):
-    with open(requirement_path) as f:
+    with open(requirement_path, mode="r", encoding="utf-8") as f:
         install_requires = f.read().splitlines()
 
+def is_python_script(file_path):
+    if file_path.endswith(".py"):
+        return True
+    return False
 
-setup(name='omniopt',
-    version='0.2',
+def is_bash_script(file_path):
+    if file_path == ".env":
+        return False
+    try:
+        with open(file_path, mode='r', encoding="utf-8") as file:
+            first_line = file.readline()
+            return first_line.startswith("#!") and "bash" in first_line
+    except (IOError, UnicodeDecodeError):
+        return False
+
+# Alle Dateien im Home-Verzeichnis durchsuchen
+all_files = glob.glob("*")
+all_files.extend(glob.glob(".*"))
+bash_files = [f for f in all_files if is_bash_script(f)]
+python_files = [f for f in all_files if is_python_script(f)]
+
+all_needed_files = bash_files
+all_needed_files.extend(python_files)
+
+all_needed_files.append("requirements.txt")
+#all_needed_files.append("apt-requirements.txt")
+
+print("Copying the following files:")
+print("=====================")
+print("\n".join(all_needed_files))
+print("=====================")
+
+setup(
+    long_description=open('README.md', encoding="utf-8").read(),
+    long_description_content_type='text/markdown',
+    name='omniopt2',
+    version='0.9',
     description='Automatic hyperparameter optimizer based on Ax/Botorch',
     author='Norman Koch',
     author_email='norman.koch@tu-dresden.de',
     url='https://scads.ai/transfer-2/verfuegbare-software-dienste-en/omniopt/',
     install_requires=install_requires,
-    packages=[
-        '.',
-    ],
-    data_files=[('bin', [
-        "omniopt_evaluate",
-        "omniopt",
-        "omniopt_plot",
-        ".helpers.py",
-        ".omniopt_plot_general.py",
-        ".omniopt_plot_gpu_usage.py",
-        ".omniopt_plot_kde.py",
-        ".omniopt_plot_scatter.py",
-        ".omniopt_plot_worker.py",
-        ".omniopt.py",
-        ".shellscript_functions",
-        ".general.sh",
-    ])],
+    packages=['.',],
+    data_files=[('bin', all_needed_files)],
     include_package_data=True,
 )
 

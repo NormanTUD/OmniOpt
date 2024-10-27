@@ -3,63 +3,49 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - '**'
   pull_request:
     branches:
-      - main
+      - '**'
 
 jobs:
-  build:
-    #runs-on: ubuntu-latest 
-    runs-on: ${{ matrix.os }}
+  Linter:
     strategy:
-      matrix:
-        os: [ubuntu-24.04, ubuntu-22.04, ubuntu-20.04] #, macos-14]
+      fail-fast: true
+    runs-on: "ubuntu-latest"
+
+    permissions:
+      contents: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Cache pip packages
-      uses: actions/cache@v3
+    - name: Cache Python packages
+      uses: actions/cache@v4
       with:
         path: |
-          ~/.cache/pip
-          ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          $HOME/.cache/pip
+          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
+        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
-    - name: omniopt-venv
-      uses: actions/cache@v3
-      with:
-        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: ${{ runner.os }}-omniax-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-omniax-
-    - name: omniopt-test-venv
-      uses: actions/cache@v3
-      with:
-        path: $HOME/.omniopt_test_install_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: ${{ runner.os }}-omniax-test-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-omniax-test
+          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Install dependencies
       run: |
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
-            sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev
-          elif grep -q '^ID=centos' /etc/os-release; then
-            sudo yum install -y xterm whiptail python3-devel
-          elif grep -q '^ID=debian' /etc/os-release; then
-            sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev
+            sudo apt-get update || sudo apt-get update || sudo apt-get update
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
+            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          else
+            echo "Invalid OS for pipeline. Only works with Ubuntu"
+            exit 1
           fi
         else
-          echo "Detected Mac"
-          brew install postgresql
-          brew install xterm
-          brew install newt
+            echo "Invalid OS detected"
+            exit 2
         fi
     - name: Creating virtualenv
       run: |
@@ -69,36 +55,239 @@ jobs:
         if command -v brew; then
           pip install psycopg2-binary
         fi
-    - name: Upgrading pip
+    - name: Installing stuff...
       run: |
         source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir --upgrade pip
-    - name: Installing setuptools
-      run: |
-        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir setuptools
-    - name: Upgrading wheel
-      run: |
-        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir pip wheel
-    - name: Install multidict
-      run: |
-        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
         pip install --no-cache-dir multidict
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error
+        ./ax/.tests/linter
+
+  docker-test:
+    needs: [Linter, markdown-lint, todo-to-issue]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-24.04] #, ubuntu-22.04, ubuntu-20.04] #, macos-14]
+
+    steps:
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          $HOME/.cache/pip
+          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
+        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        if [[ $RUNNER_OS == 'Linux' ]]; then
+          if grep -q '^ID=ubuntu' /etc/os-release; then
+            sudo apt-get update || sudo apt-get update || sudo apt-get update
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
+            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          else
+            echo "Invalid OS for pipeline. Only works with Ubuntu"
+            exit 1
+          fi
+        else
+            echo "Invalid OS detected"
+            exit 2
+        fi
+    - name: Creating virtualenv
+      run: |
+        python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+
+        if command -v brew; then
+          pip install psycopg2-binary
+        fi
+    - name: Installing stuff...
+      run: |
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        pip install --no-cache-dir --upgrade pip
+        pip install --no-cache-dir setuptools
+        pip install --no-cache-dir pip wheel
+        pip install --no-cache-dir multidict
+
+    - name: main test script
+      run: |
+        ./ax/omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
+
+  main-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-24.04, ubuntu-22.04, ubuntu-20.04] #, macos-14]
+
+    steps:
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          $HOME/.cache/pip
+          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
+        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        if [[ $RUNNER_OS == 'Linux' ]]; then
+          if grep -q '^ID=ubuntu' /etc/os-release; then
+            sudo apt-get update || sudo apt-get update || sudo apt-get update
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
+            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          else
+            echo "Invalid OS for pipeline. Only works with Ubuntu"
+            exit 1
+          fi
+        else
+            echo "Invalid OS detected"
+            exit 2
+        fi
+    - name: Creating virtualenv
+      run: |
+        python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+
+        if command -v brew; then
+          pip install psycopg2-binary
+        fi
+    - name: Installing stuff...
+      run: |
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        pip install --no-cache-dir --upgrade pip
+        pip install --no-cache-dir setuptools
+        pip install --no-cache-dir pip wheel
+        pip install --no-cache-dir multidict
+
+    - name: main test script
+      run: |
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
+    - name: Upload coverage to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        flag-name: run-${{ join(matrix.*, '-') }}
+        parallel: true
+    - uses: release-drafter/release-drafter@v5
+      with:
+          config-name: release-drafter.yml
+      #   disable-autolabeler: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create a new version
       if: ${{ success() }}
       run: |
-        echo "Creating new version..."
+        echo "Creating new version"
         git tag v2.0.${{ github.run_number }} || true
         git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - uses: "marvinpinto/action-automatic-releases@latest"
+
+    - name: Copy coverage files
+      run: |
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        git config --global user.name "${{ github.actor }}"
+
+        git clone --depth 1 https://NormanTUD:${{ secrets.PRIVKEY }}@github.com/NormanTUD/omniopt2.github.io.git
+
+        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
+
+        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
+
+        cd omniopt2.github.io
+
+        git config pull.rebase false
+
+        git pull
+
+        base_dir="coverage_reports"
+        index_file="index.html"
+
+        cp "$index_file" "${index_file}.bak"
+
+        echo "<html><body>" > "$index_file"
+
+        for run_dir in $(ls -d "$base_dir"/* | tac); do
+          run_number=$(basename "$run_dir")
+
+          echo "<h1>Run #$run_number</h1>" >> "$index_file"
+          echo "<table border='1'>" >> "$index_file"
+          echo "<tr>" >> "$index_file"
+
+          for os_dir in "$run_dir"/*; do
+            os=$(basename "$os_dir")
+
+            report_link="coverage_reports/$run_number/$os/index.html"
+
+            echo "<td><a href='$report_link'>$os</a></td>" >> "$index_file"
+          done
+
+          echo "</tr>" >> "$index_file"
+          echo "</table>" >> "$index_file"
+        done
+
+        echo "</body></html>" >> "$index_file"
+
+        git add "$index_file"
+
+        rm "${index_file}.bak"
+
+        git add .
+        git commit -am "Add coverage report from run ${{ github.run_number }}/${{ matrix.os }} and update index.html"
+        git pull
+        git push origin main
+
+        cd ..
+
+        rm -rf omniopt2.github.io
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  markdown-lint:
+    strategy:
+      fail-fast: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run markdownlint
+        run: npm install -g markdownlint-cli && markdownlint '**/*.md'
+
+  todo-to-issue:
+    strategy:
+      fail-fast: true
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "TODO to Issue"
+        uses: "alstr/todo-to-issue-action@v5"
+
+  covering-uploader:
+    needs: [main-test, Linter, markdown-lint, todo-to-issue]
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: "Development Build v2.0.${{ github.run_number }}"
+        parallel-finished: true
+        carryforward: "run-1,run-2,run-3"

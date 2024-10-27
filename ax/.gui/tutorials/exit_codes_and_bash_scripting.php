@@ -1,24 +1,21 @@
-<?php
-	include("../_header_base.php");
-?>
 <h1>Exit-Codes and Bash-scripting</h1>
 
 <div id="toc"></div>
 
 <h2 id="what_are_exit_codes">What are exit-codes?</h2>
 
-<p>Each program on Linux, after it runs, returns a value to the operating system to tell if it has succeeded and if not, what error may have occured.</p>
+<p>Each program on Linux, after it runs, returns a value to the operating system to tell if it has succeeded and if not, what error may have occurred.</p>
 
 <p>0 means 'everything was fine', every other value (possible is 1-255) mean 'something went wrong' and you can assign errors or groups of errors
 to one exit code. This is what OmniOpt2 extensively does, to make scripting it easier.</p>
 
 <h2 id="exit_code_groups">Exit code groups in OmniOpt</h2>
 
-<p>Depending on the error, if any, occured, OmniOpt2 ends with the following exit codes:</p>
+<p>Depending on the error, if any, occurred, OmniOpt2 ends with the following exit codes:</p>
 
 <?php
-	$GLOBALS["HIDE_SUBZERO"] = true; 
-	include("exit_code_table.php");
+    $GLOBALS["HIDE_SUBZERO"] = true;
+    require "exit_code_table.php";
 ?>
 
 <h2 id="how_to_script_omniopt">How to script OmniOpt2 with exit codes</h2>
@@ -31,9 +28,9 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 exit_code=$? # Special bash variable
 
 if [[ $exit_code -eq 0 ]]; then
-	./omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
+    ./omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
 elif [[ $exit_code -eq 87 ]]; then # 87 = Search space exhausted
-	echo "The search space was exhausted. Trying further will not find new points."
-	# OmniOpt call for expanded search space here
+    echo "The search space was exhausted. Trying further will not find new points."
+    # OmniOpt call for expanded search space here
 fi
 </code></pre>

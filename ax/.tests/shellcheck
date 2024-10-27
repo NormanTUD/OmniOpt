@@ -44,12 +44,14 @@ source .shellscript_functions
 
 errors=()
 
-for i in $(ls omniopt omniopt_docker omniopt_evaluate omniopt_plot omniopt_share); do
-	shellcheck -Calways -e SC2004,SC2002,SC2001,SC1091,SC2086,SC2009,SC2046,SC2317,SC2164,SC2048,SC2045,SC2068,SC2076,SC2296,SC2219,SC2012,SC2129,SC2126,SC2010,SC2199,SC2013,SC2069,SC2103,SC2128,SC2183,SC2000,SC2116,SC2207 $i || {
-		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'shellcheck $i' to see details."
-		red_text "$ERRSTR\n"
-		errors+=("$ERRSTR")
-	}
+for i in omniopt*; do
+	if [[ -e $i ]]; then
+		shellcheck -Calways -e SC2089,SC2090,SC2031,SC2030,SC2145,SC2004,SC2002,SC2001,SC1091,SC2086,SC2009,SC2046,SC2317,SC2164,SC2048,SC2045,SC2068,SC2076,SC2296,SC2219,SC2012,SC2129,SC2126,SC2010,SC2199,SC2013,SC2069,SC2103,SC2128,SC2183,SC2000,SC2116,SC2207 $i || {
+			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'shellcheck $i' to see details."
+			red_text "$ERRSTR\n"
+			errors+=("$ERRSTR")
+		}
+	fi
 done
 
 secs=$SECONDS

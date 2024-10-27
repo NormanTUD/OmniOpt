@@ -1,0 +1,9 @@
+xterm
+whiptail
+python3-dev
+php-cli
+unzip curl
+2to3
+python3-lib2to3
+python3-toolz
+php-mbstring

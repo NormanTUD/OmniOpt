@@ -1,4 +1,6 @@
-GENERAL_SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+#!/bin/bash
+
+GENERAL_SCRIPT_DIR=$( cd -- "$( dirname -- ${BASH_SOURCE[0]} )" &> /dev/null && pwd )
 
 echoerr() {
 	echo "$@" 1>&2

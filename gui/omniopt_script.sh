@@ -760,7 +760,7 @@ if ! echo "$CONFIG_FILE" | egrep "^\s*\[DIMENSIONS\]" 2>&1; then
 				else
 					value=$(echo ${i} | base64 --decode | ./jq -r ".$key")
 					if [[ "$key" == "options" ]]; then
-						value=$(echo ${value[@]} | ./jq -r 'join(",")')
+						value="$(echo ${value[@]} | ./jq -r 'join(\",\")')"
 					fi
 					key=$(echo $key | tr '_' ' ' | sed 's/^./\L&/')
 					if [[ "$key" == *"range generator"* ]]; then

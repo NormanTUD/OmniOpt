@@ -19,7 +19,6 @@ textual
 tqdm
 plotille
 seaborn
-pyvista
 pytz
 pyqt5
 psutil
@@ -33,3 +32,14 @@ radon
 vulture
 flake8
 cowsay
+beautifulsoup4
+pyspellchecker
+emoji
+bashlex
+slimit
+hiplot
+html5lib
+lxml
+toml
+linkchecker
+ruff

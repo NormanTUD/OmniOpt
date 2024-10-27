@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $(pwd)
@@ -50,26 +58,20 @@ function this_help {
 	cat <<'EOF'
 This helps graphically to use OmniOpt.
 
--p=/path/                                                   Path to available projects
---projectdir=/path/to/projects/
-
---nogauge                                                   Disables the gauges
-
--h                                                          This help
---help
-
---d                                                         Enable set -x debugging
---dont_load_modules                                         Don't load modules
---no_upgrade                                                Disables upgrades
---debug
+  --projectdir=/path/to/projects/                     Path to available projects
+  --nogauge                                           Disables the gauges
+  --help                                              This help
+  --dont_load_modules                                 Don't load modules
+  --no_upgrade                                        Disables upgrades
+  --debug                                             Enables debugging
 EOF
 }
 
 for i in "$@"; do
     case $i in
-        -d|--debug)
+        --debug)
             DEBUG=1
-            set -x
+	    set_debug
             ;;
 
         --nogauge)
@@ -80,7 +82,7 @@ for i in "$@"; do
             export LOAD_MODULES=0
             ;;
 
-        -p=*|--projectdir=*)
+        --projectdir=*)
             PROJECTDIR="${i#*=}"
             ;;
 
@@ -88,7 +90,7 @@ for i in "$@"; do
             UPGRADE=0
             ;;
 
-        -h|--help)
+        --help)
             this_help
             exit 0
             ;;
@@ -541,7 +543,7 @@ function change_variables {
 			fi
 
 			eval "$(resize)"
-			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge whereever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge wherever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export DISPLAYGAUGE=1
 			else
 				export DISPLAYGAUGE=0
@@ -565,10 +567,10 @@ function change_variables {
 			eval "$(resize)"
 			if (whiptail --title "Enable debug?" --yesno "Do you want to enable debug?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
 				export DEBUG=1
-				set -x
+				set_debug
 			else
 				export DEBUG=0
-				set +x
+				unset_debug
 			fi
 
 			change_variables
@@ -781,7 +783,7 @@ if [[ $sourced == "0" ]]; then
     let stepsize=100/${#modules_to_load[*]}
 
     if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
-        set +x
+	unset_debug
         (
 		for this_module in ${modules_to_load[*]}; do
 			let load_percent=$load_percent+$stepsize
@@ -796,7 +798,7 @@ if [[ $sourced == "0" ]]; then
         ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
 
 	if [[ "$DEBUG" -eq "1" ]]; then
-		set -x
+		set_debug
 	fi
 	else
 		if [[ "$LOAD_MODULES" -eq "1" ]]; then

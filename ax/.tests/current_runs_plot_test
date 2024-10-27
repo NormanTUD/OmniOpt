@@ -25,8 +25,8 @@ if [[ ! -d "runs/" ]]; then
 fi
 
 for plot_type in $(ls .omniopt_plot_*.py | grep -v 3d | sed -e 's#\.omniopt_plot_##' | sed -e 's#\.py##'); do
-	for project in $(ls runs); do
-		for project_nr in $(ls runs/$project); do
+	for project in runs/*; do
+		for project_nr in runs/$project/*; do
 			yellow_text "./omniopt_plot --run_dir runs/$project/$project_nr --plot_type=$plot_type --no_plt_show"
 			./omniopt_plot --run_dir runs/$project/$project_nr --plot_type=$plot_type --no_plt_show
 		done

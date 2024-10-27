@@ -1,0 +1,56 @@
+#!/bin/bash
+
+export disable_folder_creation=1
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+cd .gui
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+if ! command -v node 2>/dev/null >/dev/null; then
+	yellow_text "Cannot run share-test when node is not installed!"
+	exit 255
+fi
+
+ERRORS=()
+
+export share_path=./_share_test_case/
+
+for i in $(ls *.js | grep -v jquery | grep -v init | grep -v plotly | grep -v tooltipster | grep -v initialization | grep -v footer | grep -v core | grep -v md5); do
+	node $i || {
+		error_msg="Node was not able to compile $i"
+		red_text "$error_msg"
+		ERRORS+=("$error_msg")
+	}
+done
+
+if [ ${#ERRORS[@]} -eq 0 ]; then
+	green_text "No errors"
+else
+	red_text "=> ERRORS => ERRORS => ERRORS =>"
+	for i in "${ERRORS[@]}"; do
+		red_text "$i"
+		echo ""
+	done
+fi
+
+exit ${#ERRORS[@]}

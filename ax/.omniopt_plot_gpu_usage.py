@@ -5,13 +5,14 @@
 # TEST_OUTPUT_MUST_CONTAIN: GPU Usage
 # TEST_OUTPUT_MUST_CONTAIN: Time
 
-import os
-import sys
-import importlib.util
-import signal
 import argparse
-import pandas as pd
+import importlib.util
+import os
+import signal
+import sys
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--run_dir', type=str, help='Directory where to search for CSV files')
@@ -20,8 +21,7 @@ parser.add_argument('--no_legend', help='Disables legend (useless here)', action
 parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 
-args = parser.parse_args()
-
+args = None
 fig = None
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -53,12 +53,6 @@ def get_names_array():
         "memory.used [MiB]"
     ]
 
-def print_if_not_plot_tests_and_exit(msg, exit_code):
-    if not os.environ.get("PLOT_TESTS"):
-        print(msg)
-    if exit_code is not None:
-        sys.exit(exit_code)
-
 def plot_gpu_usage(run_dir):
     global fig
 
@@ -81,14 +75,14 @@ def plot_gpu_usage(run_dir):
                 num_plots += 1
                 gpu_data_len += len(df)
 
-    if len(_paths) == 0:
-        print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
+    if len(_paths) == 0: # pragma: no cover
+        helpers.print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
 
-    if not gpu_data:
-        print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
+    if not gpu_data: # pragma: no cover
+        helpers.print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
 
     if gpu_data_len < 1:
-        print_if_not_plot_tests_and_exit(f"No valid GPU usage data foundf (len = {gpu_data_len}).", 19)
+        helpers.print_if_not_plot_tests_and_exit(f"No valid GPU usage data found (len = {gpu_data_len}).", 19)
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns
@@ -119,7 +113,7 @@ def plot_gpu_usage(run_dir):
             _ax.legend(loc='upper right')
 
     # Hide empty subplots
-    for j in range(num_plots, plot_rows * plot_cols):
+    for j in range(num_plots, plot_rows * plot_cols): # pragma: no cover
         axs[j].axis('off')
 
     plt.subplots_adjust(bottom=0.086, hspace=0.35)
@@ -128,23 +122,17 @@ def plot_gpu_usage(run_dir):
 
 def save_to_file_or_show_canvas():
     if args.save_to_file:
-        _path = os.path.dirname(args.save_to_file)
-        if _path:
-            os.makedirs(_path, exist_ok=True)
-        try:
-            plt.savefig(args.save_to_file)
-        except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-            sys.exit(199)
-    else:
+        helpers.save_to_file(fig, args, plt)
+    else: # pragma: no cover
         fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
         if not args.no_plt_show:
             plt.show()
 
 if __name__ == "__main__":
+    args = parser.parse_args()
     try:
         plot_gpu_usage(args.run_dir)
     except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)

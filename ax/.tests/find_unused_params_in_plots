@@ -19,10 +19,10 @@ function green_text {
 
 errors=()
 
-for plot_file in $(ls .omniopt_plot*.py); do
+for plot_file in .omniopt_plot*.py; do
 	k=0
 	for j in $(cat $plot_file | grep parser.add | sed -e 's#.*add.argument..##' -e 's#".*##' -e "s#'.*##" -e 's#--#args.#'); do
-		COUNT=$(grep "$j" "$plot_file" | wc -l)
+		COUNT=$(cat .helpers.py "$plot_file" | grep "$j" | wc -l)
 
 		if [[ $COUNT -eq 0 ]]; then
 			if [[ $k == 0 ]]; then
@@ -38,7 +38,6 @@ for plot_file in $(ls .omniopt_plot*.py); do
 done
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No find_unused_params_in_plots errors"
 	exit 0
 else
 	echo ""

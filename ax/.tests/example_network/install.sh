@@ -56,45 +56,5 @@ if [[ -d $LMOD_DIR ]]; then
 	ml release/24.04 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.9.1
 fi
 
-
-ROOT_VENV_DIR=$HOME
-
-if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
-	ROOT_VENV_DIR=$root_venv_dir
-fi
-
-VENV_DIR=$ROOT_VENV_DIR/.omniopt_test_install_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
-if [[ ! -d "$VENV_DIR" ]]; then
-        green_text "$VENV_DIR not found. Creating virtual environment."
-        python3 -m venv $VENV_DIR
-else
-	green_text "$VENV_DIR already exists"
-fi
-
-source $VENV_DIR/bin/activate || {
-	red_text "Failed to activate $VENV_DIR. Trying to delete it and try again..."
-	rm -rf $VENV_DIR
-        python3 -m venv $VENV_DIR
-
-	source $VENV_DIR/bin/activate || {
-		red_text "Failed to activate $VENV_DIR"
-		exit 2
-	}
-}
-
-FROZEN=$(pip3 freeze)
-
-ppip decorator
-ppip six
-if [[ ! -d $LMOD_DIR ]]; then
-	ppip tensorflow
-fi
-ppip tensorflowjs
-ppip protobuf
-ppip scikit-image
-ppip opencv-python
-ppip keras
-ppip termcolor
-ppip pyyaml
-ppip h5py
-ppip tf_keras
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/.shellscript_functions

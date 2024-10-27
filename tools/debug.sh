@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function humanreadabletime {
     date +"%Y-%m-%d %H:%m:%S (%s)"
 }
@@ -11,7 +13,7 @@ export SECONDS=0
 
 LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
 module () {
-    eval `$LMOD_CMD sh "$@"`
+	eval $($LMOD_CMD sh "$@")
 }
 
 function print_success {
@@ -49,12 +51,12 @@ function check_for_program {
 }
 
 function module_already_loaded {
-    if check_for_module; then
-        NUMBEROFMODULESFOUND=$(eval `/usr/share/lmod/lmod/libexec/lmod $SHELL list` | grep "$1" | wc -l | awk '{print $1}')
-        echo $NUMBEROFMODULESFOUND
-    else
-        echo 0
-    fi
+	if check_for_module; then
+		NUMBEROFMODULESFOUND=$(eval $(/usr/share/lmod/lmod/libexec/lmod $SHELL list) | grep "$1" | wc -l | awk '{print $1}')
+		echo $NUMBEROFMODULESFOUND
+	else
+		echo 0
+	fi
 }
 
 function check_for_srun {
@@ -94,7 +96,7 @@ function module_use {
 }
 
 function load_source {
-	if [ -n $1 ]; then
+	if [[ -n $1 ]]; then
 		if [ -f $1 ]; then
 			if bash -n $1; then
 				if source $1; then
@@ -126,13 +128,13 @@ function empty {
         return
 
     # Return true if var is zero (0 as an integer or "0" as a string)
-    elif [ "$var" == 0 2> /dev/null ]
+    elif [ "$var" == 0 ]
     then
         echo "1"
         return
 
     # Return true if var is 0.0 (0 as a float)
-    elif [ "$var" == 0.0 2> /dev/null ]
+    elif [ "$var" == 0 ]
     then
         echo "1"
         return
@@ -194,8 +196,8 @@ function mycopy {
 }
 
 function run_python3 {
-        print_debug "python3 $@"
-        python3 $@
+        print_debug "python3 $*"
+        python3 "$*"
 }
 
 function mysrunmultiplegpu {

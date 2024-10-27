@@ -1,34 +1,115 @@
 #!/bin/env python3
 
-# Idee: gridsearch implementieren, i.e. range -> choice mit allen werten zwischen low und up
-# Geht, aber was ist mit continued runs?
+# TODO: allow multi-objective optimization; MOO is supported by ax, see.
+# https://botorch.org/tutorials/multi_objective_bo
 
 import sys
-import platform
 import os
-import random
-import importlib.util
-import argparse
-from pathlib import Path
-import datetime
-import inspect
-from inspect import currentframe, getframeinfo
+ci_env = os.getenv("CI", "false").lower() == "true"
 
+console = None
+try:
+    from rich.console import Console
+
+    console = Console(
+        force_interactive=True,
+        soft_wrap=True,
+        color_system="256",
+        force_terminal=not ci_env
+    )
+
+    with console.status("[bold green]Loading base modules...") as status:
+        import threading
+        from concurrent.futures import ThreadPoolExecutor
+        import argparse
+        import datetime
+        import importlib.util
+        import inspect
+        import platform
+        import random
+        from inspect import currentframe, getframeinfo
+        from pathlib import Path
+        import json
+        import uuid
+        import yaml
+        import re
+        import toml
+        import time
+        import traceback
+        import cowsay
+        from rich_argparse import RichHelpFormatter
+        import psutil
+        import shutil
+        import math
+        from itertools import combinations
+        import signal
+        import warnings
+        import pandas as pd
+        from os import listdir
+        from os.path import isfile, join
+        import socket
+        import stat
+        import pwd
+        import base64
+        from pprint import pformat
+        import sixel
+        from PIL import Image
+        from rich.table import Table
+        from rich import print
+        import csv
+        from rich.pretty import pprint
+        import subprocess
+        import logging
+        logging.basicConfig(level=logging.ERROR)
+        from tqdm import tqdm
+except ModuleNotFoundError as e: # pragma: no cover
+    print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
+    print("Exit-Code: 2")
+    sys.exit(2)
+
+def makedirs(p):
+    if not os.path.exists(p):
+        try:
+            os.makedirs(p, exist_ok=True)
+        except Exception as ee:
+            print(f"Failed to create >{p}<. Error: {ee}")
+
+    if os.path.exists(p):
+        return True
+
+    return False
+
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+
+uuid_regex = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+
+new_uuid = str(uuid.uuid4())
+run_uuid = os.getenv("RUN_UUID", new_uuid)
+
+if not uuid_regex.match(run_uuid): # pragma: no cover
+    print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
+    run_uuid = new_uuid
+
+print(f"Run-UUID: {run_uuid}")
+
+jobs_finished = 0
+shown_live_share_counter = 0
 PD_CSV_FILENAME = "results.csv"
 worker_percentage_usage = []
-IS_IN_EVALUATE = False
 END_PROGRAM_RAN = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
 ax_client = None
-TIME_NEXT_TRIALS_TOOK = []
+time_next_trials_took = []
 CURRENT_RUN_FOLDER = None
-RUN_FOLDER_NUMBER = 0
 RESULT_CSV_FILE = None
 SHOWN_END_TABLE = False
 max_eval = None
 random_steps = None
 progress_bar = None
-SUM_OF_VALUES_FOR_TQDM = 0
+
+def get_current_run_folder():
+    return CURRENT_RUN_FOLDER
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -39,6 +120,10 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
+dier = helpers.dier
+is_equal = helpers.is_equal
+is_not_equal = helpers.is_not_equal
+
 original_print = print
 
 SUPPORTED_MODELS = [
@@ -46,11 +131,10 @@ SUPPORTED_MODELS = [
     "GPEI",
     "FACTORIAL",
     "SAASBO",
-    "FULLYBAYESIAN",
     "LEGACY_BOTORCH",
     "BOTORCH_MODULAR",
     "UNIFORM",
-    "BO_MIXED"
+    "BO_MIXED",
 ]
 
 ORCHESTRATE_TODO = {}
@@ -64,313 +148,339 @@ class SignalINT (Exception):
 class SignalCONT (Exception):
     pass
 
-try:
-    import traceback
-    import time
-    from rich_argparse import RichHelpFormatter
-except ModuleNotFoundError as ee:
-    print(f"ModuleNotFoundError: {ee}")
-    sys.exit(31)
-
 def is_slurm_job():
-    if os.environ.get('SLURM_JOB_ID') is not None:
+    if os.environ.get('SLURM_JOB_ID') is not None: # pragma: no cover
         return True
     return False
 
-parser = argparse.ArgumentParser(
-    prog="omniopt",
-    description='A hyperparameter optimizer for slurmbased HPC-systems',
-    epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=0 --follow --run_program=bHMgJyUoYXNkYXNkKSc= --parameter epochs range 0 10 int --parameter epochs range 0 10 int",
-    formatter_class=RichHelpFormatter
-)
+args = None
 
-required = parser.add_argument_group('Required arguments', "These options have to be set")
-required_but_choice = parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
-optional = parser.add_argument_group('Optional', "These options are optional")
-slurm = parser.add_argument_group('Slurm', "Parameters related to Slurm")
-installing = parser.add_argument_group('Installing', "Parameters related to installing")
-debug = parser.add_argument_group('Debug', "These options are mainly useful for debugging")
+LOG_DIR = "logs"
+makedirs(LOG_DIR)
 
-required.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
-required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
-required.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
-required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
-required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
-required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
-
-required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-seperated list of values>", default=None)
-required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
-
-optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
-optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
-optional.add_argument('--seed', help='Seed for random number generator', type=int)
-optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
-optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
-optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
-optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
-optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
-optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
-optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
-optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
-optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
-optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
-optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
-optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
-optional.add_argument('--exclude', help='A comma seperated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
-optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
-optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
-optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
-optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
-optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
-optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
-
-slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
-slurm.add_argument('--time', help='Time for the main job', default="", type=str)
-slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
-slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
-slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
-slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
-slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
-slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-slurm.add_argument('--account', help='Account to be used', type=str, default=None)
-slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-slurm.add_argument('--tasks_per_node', help='ntasks', type=int, default=1)
-
-installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
-
-debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
-debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
-debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
-debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
-debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
-
-args = parser.parse_args()
-
-def my_exit(_code=0):
-    tb = traceback.format_exc()
-
-    try:
-        print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-    except NameError:
-        print(f"Exiting with error code {_code}. Traceback: {tb}")
-
-    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
-        _sleep(5)
-
-    print("Exit-Code: " + str(_code))
-    sys.exit(_code)
-
-console = None
-ci_env = os.getenv("CI", "false").lower() == "true"
-
-try:
-    from rich.console import Console
-
-    console = Console(
-        force_interactive=True,
-        soft_wrap=True,
-        color_system="256",
-        force_terminal=not ci_env
-    )
-
-    if not args.tests:
-        with console.status("[bold green]Loading torch...") as status:
-            import torch
-        with console.status("[bold green]Loading numpy...") as status:
-            import numpy as np
-        with console.status("[bold green]Loading ax...") as status:
-            import ax.modelbridge.generation_node
-            import ax
-            from ax.service.ax_client import AxClient, ObjectiveProperties
-            import ax.exceptions.core
-            from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
-            from ax.modelbridge.registry import Models
-            from ax.storage.json_store.save import save_experiment
-            from ax.storage.json_store.load import load_experiment
-        with console.status("[bold green]Loading botorch...") as status:
-            import botorch
-        with console.status("[bold green]Loading submitit...") as status:
-            import submitit
-            from submitit import LocalJob, DebugJob
-except ModuleNotFoundError as ee:
-    original_print(f"Base modules could not be loaded: {ee}")
-    my_exit(31)
-except SignalINT:
-    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(128 + 2)
-except SignalUSR:
-    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(128 + 10)
-except SignalCONT:
-    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(128 + 18)
-except KeyboardInterrupt:
-    print("\n⚠ You pressed CTRL+C. Program execution halted.")
-    my_exit(0)
-
-try:
-    import cowsay
-
-    with console.status("[bold green]Loading yaml...") as status:
-        import yaml
-    with console.status("[bold green]Loading psutil...") as status:
-        import psutil
-    with console.status("[bold green]Loading uuid...") as status:
-        import uuid
-    with console.status("[bold green]Loading threading...") as status:
-        import threading
-    with console.status("[bold green]Loading shutil...") as status:
-        import shutil
-    with console.status("[bold green]Loading math...") as status:
-        import math
-    with console.status("[bold green]Loading json...") as status:
-        import json
-    with console.status("[bold green]Loading itertools...") as status:
-        from itertools import combinations
-    with console.status("[bold green]Loading signal...") as status:
-        import signal
-    with console.status("[bold green]Loading difflib...") as status:
-        import difflib
-    with console.status("[bold green]Loading warnings...") as status:
-        import warnings
-    with console.status("[bold green]Loading pandas...") as status:
-        import pandas as pd
-    with console.status("[bold green]Loading os...") as status:
-        from os import listdir
-        from os.path import isfile, join
-    with console.status("[bold green]Loading re...") as status:
-        import re
-    with console.status("[bold green]Loading socket...") as status:
-        import socket
-    with console.status("[bold green]Loading stat...") as status:
-        import stat
-    with console.status("[bold green]Loading pwd...") as status:
-        import pwd
-    with console.status("[bold green]Loading base64...") as status:
-        import base64
-    with console.status("[bold green]Loading pformat...") as status:
-        from pprint import pformat
-    with console.status("[bold green]Loading sixel...") as status:
-        import sixel
-    with console.status("[bold green]Loading PIL...") as status:
-        from PIL import Image
-
-    #with console.status("[bold green]Importing rich tracebacks...") as status:
-    #    #from rich.traceback import install
-    #    #install(show_locals=True)
-
-    with console.status("[bold green]Loading rich.table...") as status:
-        from rich.table import Table
-    with console.status("[bold green]Loading print from rich...") as status:
-        from rich import print
-    with console.status("[bold green]Loading csv...") as status:
-        import csv
-    with console.status("[bold green]Loading rich.pretty...") as status:
-        from rich.pretty import pprint
-    with console.status("[bold green]Loading subprocess...") as status:
-        import subprocess
-    with console.status("[bold green]Loading logging...") as status:
-        import logging
-        logging.basicConfig(level=logging.ERROR)
-    with console.status("[bold green]Loading tqdm...") as status:
-        from tqdm import tqdm
-except ModuleNotFoundError as ee:
-    original_print(f"Base modules could not be loaded: {ee}")
-    my_exit(31)
-except SignalINT:
-    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-    my_exit(128 + 2)
-except SignalUSR:
-    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-    my_exit(128 + 10)
-except SignalCONT:
-    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-    my_exit(128 + 18)
-except KeyboardInterrupt:
-    print("\n⚠ You pressed CTRL+C. Program execution halted.")
-    my_exit(0)
-
-LOG_DIR = ".logs"
-try:
-    Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
-except Exception as ee:
-    original_print(f"Could not create logs for {os.path.abspath(LOG_DIR)}: " + str(ee))
-
-LOG_I = 0
-logfile = f'{LOG_DIR}/{LOG_I}'
-logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-while os.path.exists(logfile):
-    LOG_I = LOG_I + 1
-    logfile = f'{LOG_DIR}/{LOG_I}'
-
-logfile_nr_workers = f'{LOG_DIR}/{LOG_I}_nr_workers'
-logfile_progressbar = f'{LOG_DIR}/{LOG_I}_progressbar'
-logfile_worker_creation_logs = f'{LOG_DIR}/{LOG_I}_worker_creation_logs'
-logfile_trial_index_to_param_logs = f'{LOG_DIR}/{LOG_I}_trial_index_to_param_logs'
+logfile = f'{LOG_DIR}/{run_uuid}_log'
+logfile_nr_workers = f'{LOG_DIR}/{run_uuid}_nr_workers'
+logfile_progressbar = f'{LOG_DIR}/{run_uuid}_progressbar'
+logfile_worker_creation_logs = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
+logfile_trial_index_to_param_logs = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
-NVIDIA_SMI_LOGS_BASE = None
-
-def print_red(text):
-    helpers.print_color("red", text)
-
-    if CURRENT_RUN_FOLDER:
-        try:
-            with open(f"{CURRENT_RUN_FOLDER}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
-                myfile.write(text)
-        except FileNotFoundError as e:
-            helpers.print_color("red", f"Error: {e}. This may mean that the {CURRENT_RUN_FOLDER} was deleted during the run. Could not write '{text} to {CURRENT_RUN_FOLDER}/oo_errors.txt'")
-            sys.exit(99)
+def _sleep(t: int):
+    if args is not None and not args.no_sleep:
+        time.sleep(t)
 
 def _debug(msg, _lvl=0, eee=None):
-    if _lvl > 3:
+    if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
+        print("Exit-Code: 193")
         sys.exit(193)
 
     try:
         with open(logfile, mode='a', encoding="utf-8") as f:
             original_print(msg, file=f)
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         original_print("_debug: Error trying to write log file: " + str(e))
 
         _debug(msg, _lvl + 1, e)
 
-def get_functions_stack_array():
+def _get_debug_json(time_str, msg):
     stack = inspect.stack()
-    function_names = []
+    function_stack = []
+
     for frame_info in stack[1:]:
         if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
             if frame_info.function != "wrapper":
-                function_names.insert(0, f"{frame_info.function} ({frame_info.lineno})")
-    return "Function stack: " + (" -> ".join(function_names) + ":")
+                function_stack.append({
+                    "function": frame_info.function,
+                    "line_number": frame_info.lineno
+                })
+
+    return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
 def print_debug(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #nl = get_nesting_level(inspect.currentframe().f_back)
-    #_tabs = "\t" * nl
-    _tabs = ""
-    msg = f"{time_str}:{_tabs}{msg}"
-    if args.debug:
+
+    stack_trace_element = _get_debug_json(time_str, msg)
+
+    msg = f"{stack_trace_element}"
+
+    if args is not None and args.debug: # pragma: no cover
         print(msg)
 
+    _debug(msg)
+
+def wrapper_print_debug(func):
+    def wrapper(*__args, **kwargs):
+        start_time = time.time()
+        result = func(*__args, **kwargs)
+        end_time = time.time()
+
+        runtime = end_time - start_time
+        runtime_human_readable = f"{runtime:.4f} seconds"
+
+        if runtime > 1:
+            print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
+
+        return result
+    return wrapper
+
+@wrapper_print_debug
+def my_exit(_code=0):
+    tb = traceback.format_exc()
+
     try:
-        _debug(f"{time_str}: {get_functions_stack_array()}")
-    except Exception:
-        pass
+        print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
+    except NameError: # pragma: no cover
+        print(f"Exiting with error code {_code}. Traceback: {tb}")
 
-    _debug("\t" + msg)
+    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result): # pragma: no cover
+        _sleep(5)
 
-def _sleep(t: int):
-    if not args.no_sleep:
-        time.sleep(t)
+    print("Exit-Code: " + str(_code))
+    sys.exit(_code)
+
+def print_red(text):
+    helpers.print_color("red", text)
+
+    print_debug(text)
+
+    if get_current_run_folder():
+        try:
+            with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
+                myfile.write(text)
+        except FileNotFoundError as e: # pragma: no cover
+            helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
+            sys.exit(99)
+
+parser = None
+
+try:
+    class ConfigLoader:
+        def __init__(self):
+            self.parser = argparse.ArgumentParser(
+                prog="omniopt",
+                description='A hyperparameter optimizer for slurmbased HPC-systems',
+                epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network ...",
+                formatter_class=RichHelpFormatter
+            )
+
+            # Add config arguments
+            self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
+            self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
+            self.parser.add_argument('--config_json', help='JSON configuration file', type=str)
+
+            # Initialize the remaining arguments
+            self.add_arguments()
+
+        def add_arguments(self):
+            required = self.parser.add_argument_group('Required arguments', "These options have to be set")
+            required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
+            optional = self.parser.add_argument_group('Optional', "These options are optional")
+            slurm = self.parser.add_argument_group('SLURM', "Parameters related to SLURM")
+            installing = self.parser.add_argument_group('Installing', "Parameters related to installing")
+            debug = self.parser.add_argument_group('Debug', "These options are mainly useful for debugging")
+
+            required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
+            required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
+            required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
+            required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
+            required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
+
+            required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
+            required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
+
+            optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+            optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+            optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
+            optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+            optional.add_argument('--seed', help='Seed for random number generator', type=int)
+            optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
+            optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
+            optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
+            optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
+            optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
+            optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
+            optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+            optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
+            optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+            optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
+            optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
+            optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
+            optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
+            optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
+            optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
+            optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
+            optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
+            optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
+            optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
+            optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
+            optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
+            optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
+            optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
+
+            slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
+            slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
+            slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
+            slurm.add_argument('--time', help='Time for the main job', default="", type=str)
+            slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
+            slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
+            slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
+            slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
+            slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
+            slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+            slurm.add_argument('--account', help='Account to be used', type=str, default=None)
+            slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+            #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
+
+            installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
+
+            debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+            debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+            debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
+            debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
+            debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
+            debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
+            debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
+            debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
+
+        def load_config(self, config_path, file_format):
+            if not os.path.isfile(config_path): # pragma: no cover
+                print("Exit-Code: 5")
+                sys.exit(5)
+
+            with open(config_path, mode='r', encoding="utf-8") as file:
+                try:
+                    if file_format == 'yaml':
+                        return yaml.safe_load(file)
+
+                    if file_format == 'toml':
+                        return toml.load(file)
+
+                    if file_format == 'json':
+                        return json.load(file)
+                except (Exception, json.decoder.JSONDecodeError) as e:
+                    print_red(f"Error parsing {file_format} file '{config_path}': {e}")
+                    print("Exit-Code: 5")
+                    sys.exit(5)
+
+            return {} # pragma: no cover
+
+        def validate_and_convert(self, config, arg_defaults):
+            """
+            Validates the config data and converts them to the right types based on argparse defaults.
+            Warns about unknown or unused parameters.
+            """
+            converted_config = {}
+            for key, value in config.items():
+                if key in arg_defaults:
+                    # Get the expected type either from the default value or from the CLI argument itself
+                    default_value = arg_defaults[key]
+                    if default_value is not None:
+                        expected_type = type(default_value)
+                    else:
+                        # Fall back to using the current value's type, assuming it's not None
+                        expected_type = type(value)
+
+                    try:
+                        # Convert the value to the expected type
+                        converted_config[key] = expected_type(value)
+                    except (ValueError, TypeError): # pragma: no cover
+                        print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
+                else: # pragma: no cover
+                    print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
+
+            return converted_config
+
+        def merge_args_with_config(self, config, cli_args):
+            """ Merge CLI args with config file args (CLI takes precedence) """
+            arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
+
+            # Validate and convert the config values
+            validated_config = self.validate_and_convert(config, arg_defaults)
+
+            for key, value in vars(cli_args).items():
+                if key in validated_config:
+                    setattr(cli_args, key, validated_config[key])
+
+            return cli_args
+
+        def parse_arguments(self):
+            # First, parse the CLI arguments to check if config files are provided
+            _args = self.parser.parse_args()
+
+            config = {}
+
+            yaml_and_toml = _args.config_yaml and _args.config_toml
+            yaml_and_json = _args.config_yaml and _args.config_json
+            json_and_toml = _args.config_json and _args.config_toml
+
+            if yaml_and_toml or yaml_and_json or json_and_toml: # pragma: no cover
+                print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
+                print("Exit-Code: 5")
+
+            if _args.config_yaml:
+                config = self.load_config(_args.config_yaml, 'yaml')
+
+            elif _args.config_toml:
+                config = self.load_config(_args.config_toml, 'toml')
+
+            elif _args.config_json:
+                config = self.load_config(_args.config_json, 'json')
+
+            # Merge CLI args with config file (CLI has priority)
+            _args = self.merge_args_with_config(config, _args)
+
+            return _args
+
+    loader = ConfigLoader()
+    args = loader.parse_arguments()
+except KeyboardInterrupt: # pragma: no cover
+    print("Error: Failed to parse arguments because you pressed CTRL-C.")
+    my_exit(4)
+
+if not args.tests:
+    try:
+        with console.status("[bold green]Loading torch...") as status:
+            import torch
+        with console.status("[bold green]Loading numpy...") as status:
+            import numpy as np
+        with console.status("[bold green]Loading ax...") as status:
+            import ax
+            import ax.exceptions.core
+            import ax.modelbridge.generation_node
+            from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
+            from ax.modelbridge.registry import Models
+            from ax.service.ax_client import AxClient, ObjectiveProperties
+            from ax.storage.json_store.load import load_experiment
+            from ax.storage.json_store.save import save_experiment
+        with console.status("[bold green]Loading botorch...") as status:
+            import botorch
+        with console.status("[bold green]Loading submitit...") as status:
+            import submitit
+            from submitit import DebugJob, LocalJob
+    except ModuleNotFoundError as ee: # pragma: no cover
+        original_print(f"Base modules could not be loaded: {ee}")
+        my_exit(31)
+    except SignalINT: # pragma: no cover
+        print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+        my_exit(130)
+    except SignalUSR: # pragma: no cover
+        print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+        my_exit(138)
+    except SignalCONT: # pragma: no cover
+        print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+        my_exit(146)
+    except KeyboardInterrupt: # pragma: no cover
+        print("\n⚠ You pressed CTRL+C. Program execution halted.")
+        my_exit(0)
+    except AttributeError:
+        print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
+        my_exit(7)
+
+NVIDIA_SMI_LOGS_BASE = None
 
 def append_and_read(file, nr=0, recursion=0):
     try:
@@ -383,67 +493,76 @@ def append_and_read(file, nr=0, recursion=0):
 
         return nr_lines
 
-    except FileNotFoundError as e:
+    except FileNotFoundError as e: # pragma: no cover
         original_print(f"File not found: {e}")
-    except (SignalUSR, SignalINT, SignalCONT):
+    except (SignalUSR, SignalINT, SignalCONT): # pragma: no cover
         if recursion:
             print_red("Recursion error in append_and_read.")
             sys.exit(199)
         append_and_read(file, nr, recursion + 1)
-    except OSError as e:
+    except OSError as e: # pragma: no cover
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
         sys.exit(199)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"Error editing the file: {e}")
 
-    return 0
+    return 0 # pragma: no cover
 
-def _count_sobol_steps(csv_file_path):
-    sobol_count = 0
+@wrapper_print_debug
+def run_live_share_command():
+    if get_current_run_folder():
+        try:
+            # Environment variable USER
+            _user = os.getenv('USER')
+            if _user is None: # pragma: no cover
+                _user = 'defaultuser'
 
-    if not os.path.exists(csv_file_path):
-        return sobol_count
+            _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 
-    df = None
+            print_debug(f"run_live_share_command: {_command}")
 
-    _err = False
+            result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
-    except KeyError:
-        _err = True
-    except pd.errors.EmptyDataError:
-        _err = True
-    except pd.errors.ParserError as e:
-        print_red(f"Error reading CSV file 2: {str(e)}")
-        _err = True
-    except UnicodeDecodeError as e:
-        print_red(f"Error reading CSV file 3: {str(e)}")
-        _err = True
-    except Exception as e:
-        print_red(f"Error reading CSV file 4: {str(e)}")
-        _err = True
+            # Return stdout and stderr
+            return str(result.stdout), str(result.stderr)
+        except subprocess.CalledProcessError as e: # pragma: no cover
+            if e.stderr:
+                original_print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
+            else:
+                original_print(f"run_live_share_command: command failed with error: {e}")
+            return "", str(e.stderr)
+        except Exception as e: # pragma: no cover
+            print(f"run_live_share_command: An error occurred: {e}")
 
-    if _err:
-        return 0
+    return "", "" # pragma: no cover
 
-    assert df is not None, "DataFrame should not be None after reading CSV file"
-    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
+@wrapper_print_debug
+def live_share():
+    global shown_live_share_counter
 
-    sobol_rows = df[df["generation_method"] == "Sobol"]
-    sobol_count = len(sobol_rows)
+    if not args.live_share: # pragma: no cover
+        return
 
-    return sobol_count
+    if not get_current_run_folder(): # pragma: no cover
+        return
 
+    stdout, stderr = run_live_share_command()
+
+    if shown_live_share_counter == 0 and stderr:
+        print_yellow(stderr)
+
+    shown_live_share_counter = shown_live_share_counter + 1
+
+@wrapper_print_debug
 def save_pd_csv():
-    pd_csv = f'{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}'
-    pd_json = f'{CURRENT_RUN_FOLDER}/state_files/pd.json'
+    print_debug("save_pd_csv()")
 
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+    pd_csv = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
+    pd_json = f'{get_current_run_folder()}/state_files/pd.json'
 
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
+
+    makedirs(state_files_folder)
 
     if ax_client is None:
         return pd_csv
@@ -459,43 +578,25 @@ def save_pd_csv():
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
-        save_experiment(ax_client.experiment, f"{CURRENT_RUN_FOLDER}/state_files/ax_client.experiment.json")
-
-        #print_debug("pd.{csv,json} saved")
-    except SignalUSR as e:
+        save_experiment(ax_client.experiment, f"{get_current_run_folder()}/state_files/ax_client.experiment.json")
+    except SignalUSR as e: # pragma: no cover
         raise SignalUSR(str(e)) from e
-    except SignalCONT as e:
+    except SignalCONT as e: # pragma: no cover
         raise SignalCONT(str(e)) from e
-    except SignalINT as e:
+    except SignalINT as e: # pragma: no cover
         raise SignalINT(str(e)) from e
-    except Exception as e:
-        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occured: {e}")
+    except Exception as e: # pragma: no cover
+        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     return pd_csv
 
-def count_sobol_steps():
-    csv_file_path = save_pd_csv()
-
-    return _count_sobol_steps(csv_file_path)
-
 def add_to_phase_counter(phase, nr=0, run_folder=""):
     if run_folder == "":
-        run_folder = CURRENT_RUN_FOLDER
+        run_folder = get_current_run_folder()
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
-def get_random_steps_from_prev_job():
-    if not args.continue_previous_job:
-        return count_sobol_steps()
-
-    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
-
-    if not os.path.exists(prev_step_file):
-        return count_sobol_steps()
-
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
-
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
-    print(f"Unspported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
+    print(f"Unsupported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
     my_exit(203)
 
 if args.num_parallel_jobs:
@@ -517,6 +618,7 @@ already_inserted_param_hashes = {}
 already_inserted_param_data = []
 
 def print_logo():
+    print_debug("print_logo()")
     if os.environ.get('NO_OO_LOGO') is not None:
         return
 
@@ -537,6 +639,7 @@ def print_logo():
         "In pursuit of the ultimate accuracy!",
         "May the optimal values be with you.",
         "Tuning up for success!",
+        "Animals are friends, not food!",
         "Hyperparam magic, just add data!",
         "Unlocking the secrets of the grid.",
         "Tuning: because close enough isn't good enough.",
@@ -550,8 +653,8 @@ def print_logo():
         "Hyperparameter alchemy in action!",
         "Precision tuning, no shortcuts.",
         "Climbing the hyperparameter mountain... Montana Sacra style!",
+        "better than OmniOpt1!",
         "Optimizing like it's the Matrix, but I am the One.",
-        "Hyperparameters assemble! (Avengers style)",
         "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
         "Inception-level optimization: going deeper with every layer.",
         "Hyperparameter quest: It's dangerous to go alone, take this!",
@@ -578,7 +681,6 @@ def print_logo():
         'ghostbusters',
         'kitty',
         'milk',
-        'octopus',
         'pig',
         'stegosaurus',
         'stimpy',
@@ -590,8 +692,6 @@ def print_logo():
     char = random.choice(_cn)
 
     cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
-
-print_logo()
 
 process = psutil.Process(os.getpid())
 
@@ -611,20 +711,17 @@ global_vars["parameter_names"] = []
 
 main_pid = os.getpid()
 
-run_uuid = uuid.uuid4()
-
 def set_max_eval(new_max_eval):
     global max_eval
 
-    #import traceback
     #print(f"set_max_eval(new_max_eval: {new_max_eval})")
     #traceback.print_stack()
 
     max_eval = new_max_eval
 
 def write_worker_usage():
-    if len(worker_percentage_usage):
-        csv_filename = f'{CURRENT_RUN_FOLDER}/worker_usage.csv'
+    if len(worker_percentage_usage): # pragma: no cover
+        csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
@@ -633,16 +730,17 @@ def write_worker_usage():
             for row in worker_percentage_usage:
                 csv_writer.writerow(row)
     else:
-        if is_slurm_job():
+        if is_slurm_job(): # pragma: no cover
             print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
+@wrapper_print_debug
 def log_system_usage():
-    if not CURRENT_RUN_FOLDER:
+    if not get_current_run_folder(): # pragma: no cover
         return
 
-    csv_file_path = os.path.join(CURRENT_RUN_FOLDER, "cpu_ram_usage.csv")
+    csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
 
-    os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
+    makedirs(os.path.dirname(csv_file_path))
 
     file_exists = os.path.isfile(csv_file_path)
 
@@ -662,16 +760,16 @@ def log_system_usage():
 def write_process_info():
     try:
         log_system_usage()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_debug(f"Error retrieving process information: {str(e)}")
 
 def log_nr_of_workers():
     try:
         write_process_info()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
 
-    if "jobs" not in global_vars:
+    if "jobs" not in global_vars: # pragma: no cover
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return
 
@@ -680,33 +778,34 @@ def log_nr_of_workers():
     if not nr_of_workers:
         return
 
-    try:
+    try: # pragma: no cover
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
             f.write(str(nr_of_workers) + "\n")
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
-        sys.exit(99)
-    except OSError as e:
-        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
-        sys.exit(199)
+        my_exit(99)
+    except OSError as e: # pragma: no cover
+        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
+        my_exit(199)
 
+@wrapper_print_debug
 def log_what_needs_to_be_logged():
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
     if "write_process_info" in globals():
         try:
             write_process_info()
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
     if "log_nr_of_workers" in globals():
         try:
             log_nr_of_workers()
-        except Exception:
+        except Exception: # pragma: no cover
             pass
 
 def get_line_info():
@@ -717,30 +816,30 @@ def get_line_info():
 def print_image_to_cli(image_path, width):
     print("")
     try:
-        # Einlesen des Bildes um die Dimensionen zu erhalten
         image = Image.open(image_path)
         original_width, original_height = image.size
 
-        # Berechnen der proportionalen Höhe
         height = int((original_height / original_width) * width)
 
-        # Erstellen des SixelConverters mit den neuen Dimensionen
         sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
 
-        # Schreiben der Ausgabe in sys.stdout
         sixel_converter.write(sys.stdout)
         _sleep(2)
-    except Exception as e:
+
+        return True
+    except Exception as e: # pragma: no cover
         print_debug(
             f"Error converting and resizing image: "
             f"{str(e)}, width: {width}, image_path: {image_path}"
         )
 
+    return False
+
 def log_message_to_file(_logfile, message, _lvl=0, eee=None):
     assert _logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
 
-    if _lvl > 3:
+    if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
         return
 
@@ -748,10 +847,10 @@ def log_message_to_file(_logfile, message, _lvl=0, eee=None):
         with open(_logfile, mode='a', encoding="utf-8") as f:
             #original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
@@ -761,7 +860,7 @@ def _log_trial_index_to_param(trial_index, _lvl=0, eee=None):
 def _debug_worker_creation(msg, _lvl=0, eee=None):
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, eee)
 
-def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None):
+def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None): # pragma: no cover
     log_message_to_file(_file, result, _lvl, eee)
 
 def _debug_get_next_trials(msg, _lvl=0, eee=None):
@@ -773,8 +872,12 @@ def _debug_progressbar(msg, _lvl=0, eee=None):
 def print_green(text):
     helpers.print_color("green", text)
 
+    print_debug(text)
+
 def print_yellow(text):
     helpers.print_color("yellow", text)
+
+    print_debug(text)
 
 def decode_if_base64(input_str):
     try:
@@ -798,157 +901,184 @@ def get_file_as_string(f):
 global_vars["joined_run_program"] = ""
 if not args.continue_previous_job:
     if args.run_program:
-        global_vars["joined_run_program"] = " ".join(args.run_program[0])
+        if isinstance(args.run_program, list):
+            global_vars["joined_run_program"] = " ".join(args.run_program[0])
+        else:
+            global_vars["joined_run_program"] = args.run_program
+
         global_vars["joined_run_program"] = decode_if_base64(global_vars["joined_run_program"])
 else:
     prev_job_folder = args.continue_previous_job
     prev_job_file = prev_job_folder + "/state_files/joined_run_program"
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
-    else:
-        print(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
+    else: # pragma: no cover
+        print_red(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         my_exit(44)
+
+if not args.tests and len(global_vars["joined_run_program"]) == 0:
+    print_red("--run_program was empty")
+    my_exit(19)
 
 global_vars["experiment_name"] = args.experiment_name
 
 def load_global_vars(_file):
-    if not os.path.exists(_file):
-        print(f"You've tried to continue a non-existing job: {_file}")
-        sys.exit(44)
+    if not os.path.exists(_file): # pragma: no cover
+        print_red(f"You've tried to continue a non-existing job: {_file}")
+        my_exit(44)
     try:
         global global_vars
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
-    except Exception as e:
-        print("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
+    except Exception as e: # pragma: no cover
+        print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
-if not args.tests:
-    if args.continue_previous_job:
-        load_global_vars(f"{args.continue_previous_job}/state_files/global_vars.json")
+def load_or_exit(filepath, error_msg, exit_code):
+    if not os.path.exists(filepath):
+        print_red(error_msg)
+        my_exit(exit_code)
 
-    if args.parameter is None and args.continue_previous_job is None:
-        original_print("Either --parameter or --continue_previous_job is required. Both were not found.")
-        my_exit(19)
-    elif not args.run_program and not args.continue_previous_job:
-        print("--run_program needs to be defined when --continue_previous_job is not set")
-        my_exit(19)
-    elif not global_vars["experiment_name"] and not args.continue_previous_job:
-        print("--experiment_name needs to be defined when --continue_previous_job is not set")
-        my_exit(19)
-    elif args.continue_previous_job:
-        if not os.path.exists(args.continue_previous_job):
-            print_red(f"The previous job folder {args.continue_previous_job} could not be found!")
-            my_exit(19)
+def get_file_content_or_exit(filepath, error_msg, exit_code):
+    load_or_exit(filepath, error_msg, exit_code)
+    return get_file_as_string(filepath).strip()
 
-        if not global_vars["experiment_name"]:
-            exp_name_file = f"{args.continue_previous_job}/experiment_name"
-            if os.path.exists(exp_name_file):
-                global_vars["experiment_name"] = get_file_as_string(exp_name_file).strip()
-            else:
-                original_print(f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.")
-                my_exit(19)
+def check_param_or_exit(param, error_msg, exit_code):
+    if param is None:
+        print_red(error_msg)
+        my_exit(exit_code)
 
-    if not args.mem_gb:
-        print("--mem_gb needs to be set")
-        my_exit(19)
+def check_continue_previous_job(continue_previous_job):
+    global global_vars
+    if continue_previous_job:
+        load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
 
-    if not args.time:
-        if not args.continue_previous_job:
-            print("--time needs to be set")
+        # Load experiment name from file if not already set
+        if not global_vars.get("experiment_name"): # pragma: no cover
+            exp_name_file = f"{continue_previous_job}/experiment_name"
+            global_vars["experiment_name"] = get_file_content_or_exit(
+                exp_name_file,
+                f"{exp_name_file} not found, and no --experiment_name given. Cannot continue.",
+                19
+            )
+    return global_vars
+
+def check_required_parameters(_args):
+    global global_vars
+    check_param_or_exit(
+        _args.parameter or _args.continue_previous_job,
+        "Either --parameter or --continue_previous_job is required. Both were not found.",
+        19
+    )
+    check_param_or_exit(
+        _args.run_program or _args.continue_previous_job,
+        "--run_program needs to be defined when --continue_previous_job is not set",
+        19
+    )
+    check_param_or_exit(
+        global_vars.get("experiment_name") or _args.continue_previous_job,
+        "--experiment_name needs to be defined when --continue_previous_job is not set",
+        19
+    )
+
+def load_time_or_exit(_args):
+    global global_vars
+    if _args.time:
+        global_vars["_time"] = _args.time
+    elif _args.continue_previous_job:
+        time_file = f"{_args.continue_previous_job}/state_files/time"
+        time_content = get_file_content_or_exit(time_file, f"neither --time nor file {time_file} found", 19)
+        if time_content.isdigit():
+            global_vars["_time"] = int(time_content)
+            print_yellow(f"Using old run's --time: {global_vars['_time']}")
         else:
-            time_file = args.continue_previous_job + "/state_files/time"
-            if os.path.exists(time_file):
-                TIME_FILE_CONTENTS = get_file_as_string(time_file).strip()
-                if TIME_FILE_CONTENTS.isdigit():
-                    global_vars["_time"] = int(TIME_FILE_CONTENTS)
-                    print(f"Using old run's --time: {global_vars['_time']}")
-                else:
-                    print(f"Time-setting: The contents of {time_file} do not contain a single number")
-            else:
-                print(f"neither --time nor file {time_file} found")
-                my_exit(19)
+            print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
-        global_vars["_time"] = args.time
+        print_red("Missing --time parameter. Cannot continue.")
+        my_exit(19)
 
-    if not global_vars["_time"]:
-        print("Missing --time parameter. Cannot continue.")
-        sys.exit(19)
+def load_mem_gb_or_exit(_args): # pragma: no cover
+    if _args.mem_gb:
+        return int(_args.mem_gb)
 
-    if not args.mem_gb:
-        if not args.continue_previous_job:
-            print("--mem_gb needs to be set")
-        else:
-            mem_gb_file = args.continue_previous_job + "/state_files/mem_gb"
-            if os.path.exists(mem_gb_file):
-                mem_gb_file_contents = get_file_as_string(mem_gb_file).strip()
-                if mem_gb_file_contents.isdigit():
-                    mem_gb = int(mem_gb_file_contents)
-                    print(f"Using old run's --mem_gb: {mem_gb}")
-                else:
-                    print(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
-            else:
-                print(f"neither --mem_gb nor file {mem_gb_file} found")
-                my_exit(19)
-    else:
-        mem_gb = int(args.mem_gb)
+    if _args.continue_previous_job:
+        mem_gb_file = f"{_args.continue_previous_job}/state_files/mem_gb"
+        mem_gb_content = get_file_content_or_exit(mem_gb_file, f"neither --mem_gb nor file {mem_gb_file} found", 19)
+        if mem_gb_content.isdigit():
+            mem_gb = int(mem_gb_content)
+            print_yellow(f"Using old run's --mem_gb: {mem_gb}")
+            return mem_gb
 
-    if args.continue_previous_job and not args.gpus:
-        gpus_file = args.continue_previous_job + "/state_files/gpus"
-        if os.path.exists(gpus_file):
-            GPUS_FILE_CONTENTS = get_file_as_string(gpus_file).strip()
-            if GPUS_FILE_CONTENTS.isdigit():
-                gpus = int(GPUS_FILE_CONTENTS)
-                print(f"Using old run's --gpus: {gpus}")
-            else:
-                print(f"gpus-setting: The contents of {gpus_file} do not contain a single number")
-        else:
-            print(f"neither --gpus nor file {gpus_file} found")
-            my_exit(19)
-    else:
-        set_max_eval(args.max_eval)
+        print_yellow(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
+        return None
 
-    if not args.max_eval:
-        if not args.continue_previous_job:
-            print("--max_eval needs to be set")
-        else:
-            max_eval_file = args.continue_previous_job + "/state_files/max_eval"
-            if os.path.exists(max_eval_file):
-                MAX_EVAL_FILE_CONTENTS = get_file_as_string(max_eval_file).strip()
-                if MAX_EVAL_FILE_CONTENTS.isdigit():
-                    set_max_eval(int(MAX_EVAL_FILE_CONTENTS))
-                    print(f"Using old run's --max_eval: {max_eval}")
-                else:
-                    print(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
-            else:
-                print(f"neither --max_eval nor file {max_eval_file} found")
-                my_exit(19)
-    else:
-        set_max_eval(args.max_eval)
+    print_red("--mem_gb needs to be set")
+    my_exit(19)
 
-        if max_eval <= 0:
+    return None
+
+def load_gpus_or_exit(_args):
+    if _args.continue_previous_job and not _args.gpus:
+        gpus_file = f"{_args.continue_previous_job}/state_files/gpus"
+        gpus_content = get_file_content_or_exit(gpus_file, f"neither --gpus nor file {gpus_file} found", 19)
+        if gpus_content.isdigit():
+            gpus = int(gpus_content)
+            print_yellow(f"Using old run's --gpus: {gpus}")
+            return gpus
+
+        print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
+    return _args.gpus
+
+def load_max_eval_or_exit(_args):
+    if _args.max_eval:
+        set_max_eval(_args.max_eval)
+        if _args.max_eval <= 0: # pragma: no cover
             print_red("--max_eval must be larger than 0")
             my_exit(19)
+    elif _args.continue_previous_job: # pragma: no cover
+        max_eval_file = f"{_args.continue_previous_job}/state_files/max_eval"
+        max_eval_content = get_file_content_or_exit(max_eval_file, f"neither --max_eval nor file {max_eval_file} found", 19)
+        if max_eval_content.isdigit():
+            set_max_eval(int(max_eval_content))
+            print_yellow(f"Using old run's --max_eval: {max_eval_content}")
+        else:
+            print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
+    else:
+        print_yellow("--max_eval needs to be set")
 
+if not args.tests:
+    global_vars = check_continue_previous_job(args.continue_previous_job)
+    check_required_parameters(args)
+    load_time_or_exit(args)
+
+    args.mem_gb = load_mem_gb_or_exit(args)
+    global_vars["mem_gb"] = args.mem_gb
+    args.gpus = load_gpus_or_exit(args)
+    global_vars["gpus"] = args.gpus
+
+    load_max_eval_or_exit(args)
+
+@wrapper_print_debug
 def print_debug_get_next_trials(got, requested, _line):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
+@wrapper_print_debug
 def print_debug_progressbar(msg):
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
 
     _debug_progressbar(msg)
 
-def receive_usr_signal_one(signum, stack):
+def receive_usr_signal_one(signum, stack): # pragma: no cover
     raise SignalUSR(f"USR1-signal received ({signum})")
 
-def receive_usr_signal_int(signum, stack):
+def receive_usr_signal_int(signum, stack): # pragma: no cover
     raise SignalINT(f"INT-signal received ({signum})")
 
-def receive_signal_cont(signum, stack):
+def receive_signal_cont(signum, stack): # pragma: no cover
     raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
@@ -960,68 +1090,57 @@ signal.signal(signal.SIGCONT, receive_signal_cont)
 def is_executable_in_path(executable_name):
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
-        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
+        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK): # pragma: no cover
             return True
     return False
 
 SYSTEM_HAS_SBATCH = False
 IS_NVIDIA_SMI_SYSTEM = False
 
-if is_executable_in_path("sbatch"):
+if is_executable_in_path("sbatch"): # pragma: no cover
     SYSTEM_HAS_SBATCH = True
-if is_executable_in_path("nvidia-smi"):
+if is_executable_in_path("nvidia-smi"): # pragma: no cover
     IS_NVIDIA_SMI_SYSTEM = True
 
 if not SYSTEM_HAS_SBATCH:
     num_parallel_jobs = 1
 
 def save_global_vars():
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files"
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    state_files_folder = f"{get_current_run_folder()}/state_files"
+    makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
 def check_slurm_job_id():
     print_debug("check_slurm_job_id()")
-    if SYSTEM_HAS_SBATCH:
+    if SYSTEM_HAS_SBATCH: # pragma: no cover
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_red("Not a valid SLURM_JOB_ID.")
         elif slurm_job_id is None:
             print_red(
-                "You are on a system that has SLURM available, but you are not running the main-script in a Slurm-Environment. "
-                "This may cause the system to slow down for all other users. It is recommended you run the main script in a Slurm job."
+                "You are on a system that has SLURM available, but you are not running the main-script in a SLURM-Environment. "
+                "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM-job."
             )
 
 def create_folder_and_file(folder):
     print_debug(f"create_folder_and_file({folder})")
 
-    try:
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-    except FileExistsError:
-        print_red(f"create_folder_and_file({folder}) failed, because the folder already existed. Cannot continue.")
-        sys.exit(13)
+    makedirs(folder)
 
     file_path = os.path.join(folder, "results.csv")
-
-    #with open(file_path, mode='w', encoding='utf-8') as file:
-    #    pass
 
     return file_path
 
 def sort_numerically_or_alphabetically(arr):
     try:
-        # Check if all elements can be converted to numbers
-        numbers = [float(item) for item in arr]
-        # If successful, order them numerically
-        sorted_arr = sorted(numbers)
+        new_arr = [float(item) for item in arr]
+        arr = new_arr
     except ValueError:
-        # If there's an error, order them alphabetically
-        sorted_arr = sorted(arr)
+        pass
 
+    sorted_arr = sorted(arr)
     return sorted_arr
 
 def get_program_code_from_out_file(f):
@@ -1038,56 +1157,43 @@ def get_program_code_from_out_file(f):
 
     return ""
 
+def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
+    assert isinstance(pd_csv, str), "pd_csv must be a string"
+    assert isinstance(column, str), "column must be a string"
+
+    if not os.path.exists(pd_csv):
+        raise FileNotFoundError(f"CSV file {pd_csv} not found")
+
+    try:
+        _value = _default
+
+        df = pd.read_csv(pd_csv, float_precision='round_trip')
+
+        if column not in df.columns:
+            print_red(f"Cannot load data from {pd_csv}: column {column} does not exist. Returning default {_default}")
+            return _value
+
+        if _type == "min":
+            _value = df[column].min()
+        elif _type == "max":
+            _value = df[column].max()
+        else:
+            dier(f"get_min_or_max_column_value: Unknown type {_type}")
+
+        return _value
+    except Exception as e: # pragma: no cover
+        print_red(f"Error while getting {_type} value from column {column}: {str(e)}")
+        raise
+
+@wrapper_print_debug
 def get_max_column_value(pd_csv, column, _default):
-    """
-    Reads the CSV file and returns the maximum value in the specified column.
+    return get_min_or_max_column_value(pd_csv, column, _default, "max")
 
-    :param pd_csv: The path to the CSV file.
-    :param column: The column name for which the maximum value is to be found.
-    :return: The maximum value in the specified column.
-    """
-    assert isinstance(pd_csv, str), "pd_csv must be a string"
-    assert isinstance(column, str), "column must be a string"
-
-    if not os.path.exists(pd_csv):
-        raise FileNotFoundError(f"CSV file {pd_csv} not found")
-
-    try:
-        df = pd.read_csv(pd_csv, float_precision='round_trip')
-        if column not in df.columns:
-            print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
-            return _default
-        max_value = df[column].max()
-        return max_value
-    except Exception as e:
-        print_red(f"Error while getting max value from column {column}: {str(e)}")
-        raise
-
+@wrapper_print_debug
 def get_min_column_value(pd_csv, column, _default):
-    """
-    Reads the CSV file and returns the minimum value in the specified column.
+    return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
-    :param pd_csv: The path to the CSV file.
-    :param column: The column name for which the minimum value is to be found.
-    :return: The minimum value in the specified column.
-    """
-    assert isinstance(pd_csv, str), "pd_csv must be a string"
-    assert isinstance(column, str), "column must be a string"
-
-    if not os.path.exists(pd_csv):
-        raise FileNotFoundError(f"CSV file {pd_csv} not found")
-
-    try:
-        df = pd.read_csv(pd_csv, float_precision='round_trip')
-        if column not in df.columns:
-            print_red(f"Cannot load data from {pd_csv}: column {column} does not exist")
-            return _default
-        min_value = df[column].min()
-        return min_value
-    except Exception as e:
-        print_red(f"Error while getting min value from column {column}: {str(e)}")
-        raise
-
+@wrapper_print_debug
 def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
     found_in_file = False
     if os.path.exists(pd_csv):
@@ -1151,11 +1257,7 @@ def round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
-    check_factorial_range()
-
-    check_range_params_length(this_args)
-
+def get_bounds(this_args, j):
     try:
         lower_bound = float(this_args[j + 2])
     except Exception:
@@ -1168,76 +1270,112 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
         print_red(f"\n⚠ {this_args[j + 3]} is not a number")
         my_exit(181)
 
-    die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
+    return lower_bound, upper_bound
 
-    lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
+def adjust_bounds_for_value_type(value_type, lower_bound, upper_bound):
+    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
 
+    if value_type == "int":
+        lower_bound = math.floor(lower_bound)
+        upper_bound = math.ceil(upper_bound)
+
+    return lower_bound, upper_bound
+
+def create_param(name, lower_bound, upper_bound, value_type, log_scale):
+    return {
+        "name": name,
+        "type": "range",
+        "bounds": [lower_bound, upper_bound],
+        "value_type": value_type,
+        "log_scale": log_scale
+    }
+
+def handle_grid_search(name, lower_bound, upper_bound, value_type):
+    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
+
+    if value_type == "int":
+        values = [int(value) for value in values]
+
+    values = sorted(set(values))
+    values = [str(helpers.to_int_when_possible(value)) for value in values]
+
+    return {
+        "name": name,
+        "type": "choice",
+        "is_ordered": True,
+        "values": values
+    }
+
+def get_bounds_from_previous_data(name, lower_bound, upper_bound):
+    lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
+    upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
+    return lower_bound, upper_bound
+
+def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning):
+    old_lower_bound = lower_bound
+    old_upper_bound = upper_bound
+
+    if args.continue_previous_job:
+        if old_lower_bound != lower_bound:
+            print_yellow(f"⚠ previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
+            search_space_reduction_warning = True
+
+        if old_upper_bound != upper_bound:
+            print_yellow(f"⚠ previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
+            search_space_reduction_warning = True
+
+    return search_space_reduction_warning
+
+def get_value_type_and_log_scale(this_args, j):
     skip = 5
-
     try:
         value_type = this_args[j + 4]
     except Exception:
         value_type = "float"
         skip = 4
 
-    valid_value_types = ["int", "float"]
+    try:
+        log_scale = this_args[j + 5].lower() == "true"
+    except Exception:
+        log_scale = False
+        skip = 5
 
-    check_if_range_types_are_invalid(value_type, valid_value_types)
+    return skip, value_type, log_scale
 
-    old_lower_bound = lower_bound
-    old_upper_bound = upper_bound
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
+    check_factorial_range()
+    check_range_params_length(this_args)
 
-    lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
+    lower_bound, upper_bound = get_bounds(this_args, j)
 
-    lower_bound, found_lower_bound_in_file = get_bound_if_prev_data("lower", name, lower_bound)
-    upper_bound, found_upper_bound_in_file = get_bound_if_prev_data("upper", name, upper_bound)
+    die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
 
-    if value_type == "int":
-        lower_bound = math.floor(lower_bound)
-        upper_bound = math.ceil(upper_bound)
+    lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
-    if args.continue_previous_job:
-        if old_lower_bound != lower_bound and found_lower_bound_in_file and old_lower_bound < lower_bound:
-            print_yellow(f"⚠ previous jobs contained smaller values for the parameter {name} than are currently possible. The lower bound will be set from {old_lower_bound} to {lower_bound}")
-            search_space_reduction_warning = True
+    skip, value_type, log_scale = get_value_type_and_log_scale(this_args, j)
 
-        if old_upper_bound != upper_bound and found_upper_bound_in_file and old_upper_bound > upper_bound:
-            print_yellow(f"⚠ previous jobs contained larger values for the parameter {name} than are currently possible. The upper bound will be set from {old_upper_bound} to {upper_bound}")
-            search_space_reduction_warning = True
+    validate_value_type(value_type)
 
-    param = {
-        "name": name,
-        "type": "range",
-        "bounds": [lower_bound, upper_bound],
-        "value_type": value_type
-    }
+    lower_bound, upper_bound = adjust_bounds_for_value_type(value_type, lower_bound, upper_bound)
+
+    lower_bound, upper_bound = get_bounds_from_previous_data(name, lower_bound, upper_bound)
+
+    search_space_reduction_warning = check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning)
+
+    param = create_param(name, lower_bound, upper_bound, value_type, log_scale)
 
     if args.gridsearch:
-        values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
-
-        if value_type == "int":
-            values = [int(value) for value in values]
-            changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps, int)"
-        else:
-            changed_grid_search_params[name] = f"Gridsearch from {helpers.to_int_when_possible(lower_bound)} to {helpers.to_int_when_possible(upper_bound)} ({args.max_eval} steps)"
-
-        values = sorted(set(values))
-        values = [str(helpers.to_int_when_possible(value)) for value in values]
-
-        param = {
-            "name": name,
-            "type": "choice",
-            "is_ordered": True,
-            "values": values
-        }
+        param = handle_grid_search(name, lower_bound, upper_bound, value_type)
 
     global_vars["parameter_names"].append(name)
-
     params.append(param)
 
     j += skip
-
     return j, params, search_space_reduction_warning
+
+def validate_value_type(value_type):
+    valid_value_types = ["int", "float"]
+    check_if_range_types_are_invalid(value_type, valid_value_types)
 
 def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning):
     if len(this_args) != 3:
@@ -1288,6 +1426,7 @@ def parse_choice_param(params, j, this_args, name, search_space_reduction_warnin
 
     return j, params, search_space_reduction_warning
 
+@wrapper_print_debug
 def parse_experiment_parameters():
     global global_vars
     global changed_grid_search_params
@@ -1305,7 +1444,11 @@ def parse_experiment_parameters():
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
         j = 0
-        while j < len(this_args):
+
+        if "param" in this_args:
+            this_args = this_args["param"]
+
+        while j < len(this_args) - 1:
             name = this_args[j]
 
             if name in invalid_names:
@@ -1357,8 +1500,8 @@ def check_if_range_types_are_invalid(value_type, valid_value_types):
         my_exit(181)
 
 def check_range_params_length(this_args):
-    if len(this_args) != 5 and len(this_args) != 4:
-        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default) parameters: <NAME> range <START> <END> (<TYPE (int or float)>)")
+    if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
+        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
 
 def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound):
@@ -1379,7 +1522,7 @@ def replace_parameters_in_string(parameters, input_string):
             input_string = input_string.replace(f"%({param_item})", str(parameters[param_item]))
 
         return input_string
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Error: {e}")
         return None
 
@@ -1446,11 +1589,11 @@ def get_result(input_string):
             return result_number
         return None
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
-def add_to_csv(file_path, heading, data_line):
+def add_to_csv(file_path, heading, data_line): # pragma: no cover
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
@@ -1482,11 +1625,11 @@ def find_file_paths(_text):
 
 def check_file_info(file_path):
     if not os.path.exists(file_path):
-        print(f"The file {file_path} does not exist.")
+        print(f"check_file_info: The file {file_path} does not exist.")
         return ""
 
     if not os.access(file_path, os.R_OK):
-        print(f"The file {file_path} is not readable.")
+        print(f"check_file_info: The file {file_path} is not readable.")
         return ""
 
     file_stat = os.stat(file_path)
@@ -1507,13 +1650,15 @@ def check_file_info(file_path):
     string += f"File: {file_path}\n"
     string += f"UID: {uid}\n"
     string += f"GID: {gid}\n"
+    _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
+        string += f"SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"
     string += f"Permissions: {permissions}\n"
     string += f"Owner: {username}\n"
     string += f"Last access: {access_time}\n"
     string += f"Last modification: {modification_time}\n"
-
     string += f"Hostname: {socket.gethostname()}"
 
     return string
@@ -1547,16 +1692,14 @@ def write_failed_logs(data_dict, error_description=""):
         for row in data:
             row.append(error_description)
 
-    failed_logs_dir = os.path.join(CURRENT_RUN_FOLDER, 'failed_logs')
+    failed_logs_dir = os.path.join(get_current_run_folder(), 'failed_logs')
 
     data_file_path = os.path.join(failed_logs_dir, 'parameters.csv')
     header_file_path = os.path.join(failed_logs_dir, 'headers.csv')
 
     try:
         # Create directories if they do not exist
-        if not os.path.exists(failed_logs_dir):
-            os.makedirs(failed_logs_dir)
-            print_debug(f"Directory created: {failed_logs_dir}")
+        makedirs(failed_logs_dir)
 
         # Write headers if the file does not exist
         if not os.path.exists(header_file_path):
@@ -1565,7 +1708,7 @@ def write_failed_logs(data_dict, error_description=""):
                     writer = csv.writer(header_file)
                     writer.writerow(headers)
                     print_debug(f"Header file created with headers: {headers}")
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 print_red(f"Failed to write header file: {e}")
 
         # Append data to the data file
@@ -1575,52 +1718,38 @@ def write_failed_logs(data_dict, error_description=""):
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
 
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print_red(f"Failed to append data to file: {e}")
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Unexpected error: {e}")
 
 def count_defective_nodes(file_path=None, entry=None):
-    """
-    Diese Funktion nimmt optional einen Dateipfad und einen Eintrag entgegen.
-    Sie öffnet die Datei, erstellt sie, wenn sie nicht existiert,
-    prüft, ob der Eintrag bereits als einzelne Zeile in der Datei vorhanden ist,
-    und fügt ihn am Ende hinzu, wenn dies nicht der Fall ist.
-    Schließlich gibt sie eine sortierte Liste aller eindeutigen Einträge in der Datei zurück.
-    Wenn keine Argumente übergeben werden, wird der Dateipfad auf
-    '{CURRENT_RUN_FOLDER}/state_files/defective_nodes' gesetzt und kein Eintrag hinzugefügt.
-    """
-    # Standardpfad für die Datei, wenn keiner angegeben ist
     if file_path is None:
-        file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
+        file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
     # Sicherstellen, dass das Verzeichnis existiert
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    makedirs(os.path.dirname(file_path))
 
     try:
-        # Öffnen der Datei im Modus 'a+' (Anhängen und Lesen)
         with open(file_path, mode='a+', encoding="utf-8") as file:
             file.seek(0)  # Zurück zum Anfang der Datei
             lines = file.readlines()
 
-            # Entfernen von Zeilenumbrüchen und Erstellen einer Liste der Einträge
             entries = [line.strip() for line in lines]
 
-            # Prüfen, ob der Eintrag nicht None und nicht bereits vorhanden ist
             if entry is not None and entry not in entries:
                 file.write(entry + '\n')
                 entries.append(entry)
 
-        # Zurückgeben der sortierten, eindeutigen Liste der Einträge
         return sorted(set(entries))
 
-    except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
+    except Exception as e: # pragma: no cover
+        print(f"An error has occurred: {e}")
         return []
 
-def test_gpu_before_evaluate(return_in_case_of_error):
-    if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts:
+def test_gpu_before_evaluate(return_in_case_of_error): # pragma: no cover
+    if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
             for i in range(torch.cuda.device_count()):
                 tmp = torch.cuda.get_device_properties(i).name
@@ -1635,12 +1764,11 @@ def test_gpu_before_evaluate(return_in_case_of_error):
     return None
 
 def extract_info(data):
-    # Listen für Namen und Werte
     names = []
     values = []
 
     # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
-    pattern = re.compile(r'\s*OO-Info:\s*(\w+):\s*(.+)\s*$', re.IGNORECASE)
+    pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
 
     # Gehe durch jede Zeile im String
     for line in data.splitlines():
@@ -1651,9 +1779,14 @@ def extract_info(data):
 
     return names, values
 
-def evaluate(parameters):
-    global IS_IN_EVALUATE
+def ignore_signals():
+    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
+def evaluate(parameters):
     start_nvidia_smi_thread()
 
     return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
@@ -1666,17 +1799,13 @@ def evaluate(parameters):
     if _test_gpu is not None:
         return _test_gpu
 
-    IS_IN_EVALUATE = True
-
     parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
 
-    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
-    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, signal.SIG_IGN)
-    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+    ignore_signals()
 
     try:
+        if args.raise_in_eval:
+            raise SignalUSR("Raised in eval")
         original_print(f"Parameters: {json.dumps(parameters)}")
 
         parameters_keys = list(parameters.keys())
@@ -1711,6 +1840,11 @@ def evaluate(parameters):
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
 
+        _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+        if _SLURM_JOB_ID:
+            extra_vars_names.append("OO_Info_SLURM_JOB_ID")
+            extra_vars_values.append(_SLURM_JOB_ID)
+
         original_print(f"Result: {result}")
 
         headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names]
@@ -1721,32 +1855,29 @@ def evaluate(parameters):
         headline = ['None' if element is None else element for element in headline]
         values = ['None' if element is None else element for element in values]
 
-        if CURRENT_RUN_FOLDER is not None and os.path.exists(CURRENT_RUN_FOLDER):
-            add_to_csv(f"{CURRENT_RUN_FOLDER}/job_infos.csv", headline, values)
+        if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()):
+            add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
         else:
-            print_debug(f"evaluate: CURRENT_RUN_FOLDER {CURRENT_RUN_FOLDER} could not be found")
+            print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
         if isinstance(result, (int, float)):
-            IS_IN_EVALUATE = False
             return {"result": float(result)}
 
         write_failed_logs(parameters, "No Result")
-    except SignalUSR:
+    except SignalUSR: # pragma: no cover
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "USR1-signal")
-    except SignalCONT:
+    except SignalCONT: # pragma: no cover
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "CONT-signal")
-    except SignalINT:
+    except SignalINT: # pragma: no cover
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "INT-signal")
-
-    IS_IN_EVALUATE = False
 
     return return_in_case_of_error
 
 class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj): # pragma: no cover
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
@@ -1782,6 +1913,7 @@ def disable_logging():
         "ax.modelbridge.cross_validation",
         "ax.modelbridge.dispatch_utils",
         "ax.modelbridge.torch",
+        "ax.modelbridge.generation_node",
 
         "ax.service",
         "ax.service.utils",
@@ -1806,16 +1938,17 @@ def disable_logging():
             warnings.filterwarnings("ignore", category=_cat)
             warnings.filterwarnings("ignore", category=_cat, module=_module)
 
+@wrapper_print_debug
 def display_failed_jobs_table():
     _console = Console()
 
-    failed_jobs_folder = f"{CURRENT_RUN_FOLDER}/failed_logs"
-    header_file = os.path.join(failed_jobs_folder, "headers.csv")
-    parameters_file = os.path.join(failed_jobs_folder, "parameters.csv")
+    failed_jobs_file = f"{get_current_run_folder()}/failed_logs"
+    header_file = os.path.join(failed_jobs_file, "headers.csv")
+    parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
 
     # Assert the existence of the folder and files
-    if not os.path.exists(failed_jobs_folder):
-        print_debug(f"Failed jobs {failed_jobs_folder} folder does not exist.")
+    if not os.path.exists(failed_jobs_file):
+        print_debug(f"Failed jobs {failed_jobs_file} file does not exist.")
         return
 
     if not os.path.isfile(header_file):
@@ -1854,10 +1987,11 @@ def display_failed_jobs_table():
 
         # Print the table to the console
         _console.print(table)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error: {str(e)}")
 
-def plot_command(_command, tmp_file, _width=1300):
+@wrapper_print_debug
+def plot_command(_command, tmp_file, _width=1300): # pragma: no cover
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
     if not _show_sixel_graphics:
         return
@@ -1876,6 +2010,7 @@ def plot_command(_command, tmp_file, _width=1300):
     else:
         print_debug(f"{tmp_file} not found, error: {error}")
 
+@wrapper_print_debug
 def replace_string_with_params(input_string, params):
     try:
         assert isinstance(input_string, str), "Input string must be a string"
@@ -1883,7 +2018,7 @@ def replace_string_with_params(input_string, params):
         i = 0
         for param in params:
             #print(f"param: {param}, type: {type(param)}")
-            replaced_string = replaced_string.replace(f"%{i}", param)
+            replaced_string = replaced_string.replace(f"%{i}", str(param))
             i += 1
         return replaced_string
     except AssertionError as e:
@@ -1891,7 +2026,8 @@ def replace_string_with_params(input_string, params):
         print(error_text)
         raise
 
-def get_best_params(csv_file_path):
+@wrapper_print_debug
+def get_best_params_from_csv(csv_file_path, maximize):
     results = {
         "result": None,
         "parameters": {}
@@ -1926,14 +2062,18 @@ def get_best_params(csv_file_path):
 
         if type(this_line_result) in [float, int]:
             if best_result is None:
-                best_line = this_line
-                best_result = this_line_result
-            elif args.maximize and this_line_result >= best_result:
-                best_line = this_line
-                best_result = this_line_result
-            elif not args.maximize and this_line_result <= best_result:
-                best_line = this_line
-                best_result = this_line_result
+                if this_line is not None and len(this_line) > 0:
+                    best_line = this_line
+                    best_result = this_line_result
+
+            if maximize:
+                if this_line_result >= best_result:
+                    best_line = this_line
+                    best_result = this_line_result
+            else:
+                if this_line_result <= best_result:
+                    best_line = this_line
+                    best_result = this_line_result
 
     if best_line is None:
         print_debug("Could not determine best result")
@@ -1951,17 +2091,27 @@ def get_best_params(csv_file_path):
             "program_string"
         ]:
             if col == "result":
-                results["result"] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+                results["result"] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
             else:
-                results["parameters"][col] = "{:f}".format(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+                results["parameters"][col] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
 
     return results
 
-def _count_done_jobs(csv_file_path):
-    results = 0
+def get_best_params():
+    csv_file_path = save_pd_csv()
+
+    return get_best_params_from_csv(csv_file_path, args.maximize)
+
+def _count_sobol_or_completed(csv_file_path, _type):
+    if _type not in ["Sobol", "COMPLETED"]:
+        print_red(f"_type is not in Sobol or COMPLETED, but is {_type}")
+        return 0
+
+    count = 0
 
     if not os.path.exists(csv_file_path):
-        return results
+        print_debug(f"_count_sobol_or_completed: path '{csv_file_path}' not found")
+        return count
 
     df = None
 
@@ -1970,50 +2120,87 @@ def _count_done_jobs(csv_file_path):
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=["result"], inplace=True)
-    except KeyError:
+    except KeyError: # pragma: no cover
         _err = True
-    except pd.errors.EmptyDataError:
+    except pd.errors.EmptyDataError: # pragma: no cover
         _err = True
-    except pd.errors.ParserError as e:
+    except pd.errors.ParserError as e: # pragma: no cover
         print_red(f"Error reading CSV file 2: {str(e)}")
         _err = True
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError as e: # pragma: no cover
         print_red(f"Error reading CSV file 3: {str(e)}")
         _err = True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error reading CSV file 4: {str(e)}")
         _err = True
 
     if _err:
-        return 1
+        return 0
 
     assert df is not None, "DataFrame should not be None after reading CSV file"
     assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
-    completed_rows = df[df["trial_status"] == "COMPLETED"]
-    completed_rows_count = len(completed_rows)
+    if _type == "Sobol":
+        rows = df[df["generation_method"] == _type] # pragma: no cover
+    else:
+        rows = df[df["trial_status"] == _type]
+    count = len(rows)
 
-    return completed_rows_count
+    return count
+
+def _count_sobol_steps(csv_file_path):
+    return _count_sobol_or_completed(csv_file_path, "Sobol")
+
+def _count_done_jobs(csv_file_path):
+    return _count_sobol_or_completed(csv_file_path, "COMPLETED")
+
+def count_sobol_steps():
+    csv_file_path = save_pd_csv()
+
+    return _count_sobol_steps(csv_file_path)
+
+def get_random_steps_from_prev_job():
+    if not args.continue_previous_job:
+        return count_sobol_steps()
+
+    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
+
+    if not os.path.exists(prev_step_file):
+        return count_sobol_steps()
+
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
 def failed_jobs(nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
-    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/failed_jobs', nr)
+    return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
 
 def count_done_jobs():
     csv_file_path = save_pd_csv()
 
     return _count_done_jobs(csv_file_path)
 
-def print_best_result(csv_file_path):
+def plot_sixel_imgs(csv_file_path):
+    if ci_env:
+        print("Not printing sixel graphics in CI")
+        return
+
+    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
+
+    for c in sixel_graphic_commands:
+        commands = get_plot_commands(*c)
+
+        for command in commands:
+            plot_command(*command)
+
+def _print_best_result(csv_file_path, maximize, print_to_file=True):
     global global_vars
     global SHOWN_END_TABLE
 
     try:
-        best_params = get_best_params(csv_file_path)
+        best_params = get_best_params_from_csv(csv_file_path, maximize)
 
         best_result = None
 
@@ -2026,16 +2213,17 @@ def print_best_result(csv_file_path):
             print_red("Best result could not be determined")
             return 87
 
-        total_str = f"total: {count_done_jobs() - NR_INSERTED_JOBS}"
+        total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
 
         if NR_INSERTED_JOBS:
             total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
 
         failed_error_str = ""
-        if failed_jobs() >= 1:
-            failed_error_str = f", failed: {failed_jobs()}"
+        if print_to_file:
+            if failed_jobs() >= 1:
+                failed_error_str = f", failed: {failed_jobs()}"
 
-        table = Table(show_header=True, header_style="bold", title=f"Best parameter ({total_str}{failed_error_str}):")
+        table = Table(show_header=True, header_style="bold", title=f"Best result ({total_str}{failed_error_str}):")
 
         k = 0
         for key in best_params["parameters"].keys():
@@ -2046,7 +2234,7 @@ def print_best_result(csv_file_path):
         table.add_column("result")
 
         row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
-        row = [*row_without_result, str(best_result)][3:]
+        row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
 
         table.add_row(*row)
 
@@ -2054,26 +2242,30 @@ def print_best_result(csv_file_path):
 
         with console.capture() as capture:
             console.print(table)
-        table_str = capture.get()
 
-        with open(f'{CURRENT_RUN_FOLDER}/best_result.txt', mode="w", encoding="utf-8") as text_file:
-            text_file.write(table_str)
+        if print_to_file:
+            table_str = capture.get()
+            with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+                text_file.write(table_str)
 
-        _pd_csv = f"{CURRENT_RUN_FOLDER}/{PD_CSV_FILENAME}"
-
-        show_sixel_graphics(_pd_csv)
+        plot_sixel_imgs(csv_file_path)
 
         SHOWN_END_TABLE = True
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         tb = traceback.format_exc()
-        print_red(f"[print_best_result] Error during print_best_result: {e}, tb: {tb}")
+        print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
 
     return -1
 
-def get_plot_types(x_y_combinations):
+def print_best_result():
+    csv_file_path = save_pd_csv()
+
+    return _print_best_result(csv_file_path, args.maximize, True)
+
+def get_plot_types(x_y_combinations, _force=False):
     plot_types = []
 
-    if args.show_sixel_trial_index_result:
+    if args.show_sixel_trial_index_result or _force:
         plot_types.append(
             {
                 "type": "trial_index_result",
@@ -2081,7 +2273,7 @@ def get_plot_types(x_y_combinations):
             }
         )
 
-    if args.show_sixel_scatter:
+    if args.show_sixel_scatter or _force:
         plot_types.append(
             {
                 "type": "scatter",
@@ -2092,7 +2284,7 @@ def get_plot_types(x_y_combinations):
             }
         )
 
-    if args.show_sixel_general:
+    if args.show_sixel_general or _force:
         plot_types.append(
             {
                 "type": "general"
@@ -2101,7 +2293,8 @@ def get_plot_types(x_y_combinations):
 
     return plot_types
 
-def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
+def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
+    plot_commands = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
@@ -2127,79 +2320,97 @@ def plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width):
                                     tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
                     _iterated_command += f" --save_to_file={tmp_file} "
-                    plot_command(_iterated_command, tmp_file, _width)
+                    plot_commands.append([_iterated_command, tmp_file, _width])
     else:
         _command += f" --save_to_file={tmp_file} "
-        plot_command(_command, tmp_file, _width)
+        plot_commands.append([_command, tmp_file, _width])
 
-def show_sixel_graphics(_pd_csv):
+    return plot_commands
+
+@wrapper_print_debug
+def get_sixel_graphics_data(_pd_csv, _force=False):
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
-    if ci_env:
-        print("Not printing sixel graphics in CI")
-        return
+    if _force:
+        _show_sixel_graphics = True
 
-    if os.path.exists(_pd_csv) and _show_sixel_graphics:
-        x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
+    data = []
 
-        plot_types = get_plot_types(x_y_combinations)
+    if not os.path.exists(_pd_csv):
+        print_debug(f"Cannot find path {_pd_csv}")
+        return data
 
-        for plot in plot_types:
-            plot_type = plot["type"]
-            min_done_jobs = 1
+    if not _show_sixel_graphics:
+        print_debug("_show_sixel_graphics was false. Will not plot.")
+        return data
 
-            if "min_done_jobs" in plot:
-                min_done_jobs = plot["min_done_jobs"]
+    if len(global_vars["parameter_names"]) == 0:
+        print_debug("Cannot handle empty data in global_vars -> parameter_names")
+        return data
 
-            if count_done_jobs() < min_done_jobs:
-                print_debug(
-                    f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
-                )
-                continue
+    x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
 
-            try:
-                _tmp = f"{CURRENT_RUN_FOLDER}/plots/"
-                _width = 1200
+    plot_types = get_plot_types(x_y_combinations, _force)
 
-                if "width" in plot:
-                    _width = plot["width"]
+    for plot in plot_types:
+        plot_type = plot["type"]
+        min_done_jobs = 1
 
-                if not os.path.exists(_tmp):
-                    os.makedirs(_tmp)
+        if "min_done_jobs" in plot:
+            min_done_jobs = plot["min_done_jobs"]
 
-                j = 0
-                _fn = plot_type
+        if not _force and count_done_jobs() < min_done_jobs:
+            print_debug(
+                f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
+            )
+            continue
 
-                if "filename" in plot:
-                    _fn = plot['filename']
+        try:
+            _tmp = f"{get_current_run_folder()}/plots/"
+            _width = 1200
 
-                tmp_file = f"{_tmp}/{_fn}.png"
+            if "width" in plot:
+                _width = plot["width"]
 
-                while os.path.exists(tmp_file):
-                    j += 1
-                    tmp_file = f"{_tmp}/{_fn}_{j}.png"
+            if not _force and not os.path.exists(_tmp):
+                makedirs(_tmp)
 
-                maindir = os.path.dirname(os.path.realpath(__file__))
+            j = 0
+            _fn = plot_type
 
-                _command = f"bash {maindir}/omniopt_plot --run_dir {CURRENT_RUN_FOLDER} --plot_type={plot_type}"
+            if "filename" in plot:
+                _fn = plot['filename']
 
-                if "dpi" in plot:
-                    _command += " --dpi=" + str(plot["dpi"])
+            tmp_file = f"{_tmp}/{_fn}.png"
 
-                plot_params_to_cli(_command, plot, _tmp, plot_type, tmp_file, _width)
-            except Exception as e:
-                tb = traceback.format_exc()
-                print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
-                print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+            while os.path.exists(tmp_file):
+                j += 1
+                tmp_file = f"{_tmp}/{_fn}_{j}.png"
 
+            maindir = os.path.dirname(os.path.realpath(__file__))
+
+            if _force:
+                _command = f"bash omniopt_plot --run_dir {get_current_run_folder()} --plot_type={plot_type}"
+            else:
+                _command = f"bash {maindir}/omniopt_plot --run_dir {get_current_run_folder()} --plot_type={plot_type}"
+
+            if "dpi" in plot:
+                _command += " --dpi=" + str(plot["dpi"])
+
+            _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
+            data.append(_params)
+        except Exception as e: # pragma: no cover
+            tb = traceback.format_exc()
+            print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
+            print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
+
+    return data
+
+@wrapper_print_debug
 def show_end_table_and_save_end_files(csv_file_path):
     print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
 
-    signal.signal(signal.SIGUSR1, signal.SIG_IGN)
-    signal.signal(signal.SIGUSR2, signal.SIG_IGN)
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, signal.SIG_IGN)
-    signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+    ignore_signals()
 
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars
@@ -2212,12 +2423,12 @@ def show_end_table_and_save_end_files(csv_file_path):
 
     display_failed_jobs_table()
 
-    best_result_exit = print_best_result(csv_file_path)
+    best_result_exit = print_best_result()
 
     if best_result_exit > 0:
         _exit = best_result_exit
 
-    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME:
+    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: # pragma: no cover
         ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = True
 
         table = Table(header_style="bold", title="Worker usage over time:")
@@ -2225,24 +2436,42 @@ def show_end_table_and_save_end_files(csv_file_path):
         for column in columns:
             table.add_column(column)
         for row in worker_percentage_usage:
-            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%', style='bright_green')
+            table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%')
         console.print(table)
 
     return _exit
 
-def end_program(csv_file_path, _force=False, exit_code=None):
+def abandon_job(job, trial_index): # pragma: no cover
     global global_vars
-    global END_PROGRAM_RAN
 
-    if os.getpid() != main_pid:
+    if job:
+        try:
+            _trial = ax_client.get_trial(trial_index)
+            _trial.mark_abandoned()
+            global_vars["jobs"].remove((job, trial_index))
+        except Exception as e: # pragma: no cover
+            print(f"ERROR in line {get_line_info()}: {e}")
+            print_debug(f"ERROR in line {get_line_info()}: {e}")
+            return False
+        job.cancel()
+        return True
+
+    return False
+
+def abandon_all_jobs(): # pragma: no cover
+    for job, trial_index in global_vars["jobs"][:]:
+        abandoned = abandon_job(job, trial_index)
+        if not abandoned:
+            print_debug(f"Job {job} could not be abandoned.")
+
+def end_program(csv_file_path, _force=False, exit_code=None):
+    global global_vars, END_PROGRAM_RAN
+
+    if os.getpid() != main_pid: # pragma: no cover
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
-    if IS_IN_EVALUATE and not _force:
-        print_debug("IS_IN_EVALUATE true, returning end_program")
-        return
-
-    if END_PROGRAM_RAN and not _force:
+    if END_PROGRAM_RAN and not _force: # pragma: no cover
         print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
         return
 
@@ -2251,8 +2480,8 @@ def end_program(csv_file_path, _force=False, exit_code=None):
     _exit = 0
 
     try:
-        if CURRENT_RUN_FOLDER is None:
-            print_debug("[end_program] CURRENT_RUN_FOLDER was empty. Not running end-algorithm.")
+        if get_current_run_folder() is None:
+            print_debug("[end_program] get_current_run_folder() was empty. Not running end-algorithm.")
             return
 
         if ax_client is None:
@@ -2266,7 +2495,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
-    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         new_exit = show_end_table_and_save_end_files(csv_file_path)
@@ -2275,20 +2504,14 @@ def end_program(csv_file_path, _force=False, exit_code=None):
     except TypeError as e:
         print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
-    for job, trial_index in global_vars["jobs"][:]:
-        if job:
-            try:
-                _trial = ax_client.get_trial(trial_index)
-                _trial.mark_abandoned()
-                global_vars["jobs"].remove((job, trial_index))
-            except Exception as e:
-                print(f"ERROR in line {get_line_info()}: {e}")
-            job.cancel()
+    abandon_all_jobs()
 
     save_pd_csv()
 
     if exit_code:
         _exit = exit_code
+
+    live_share()
 
     my_exit(_exit)
 
@@ -2301,16 +2524,16 @@ def save_checkpoint(trial_nr=0, eee=None):
         return
 
     try:
-        state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+        state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-        if not os.path.exists(state_files_folder):
-            os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         ax_client.save_to_json_file(filepath=checkpoint_filepath)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         save_checkpoint(trial_nr + 1, e)
 
+@wrapper_print_debug
 def get_tmp_file_from_json(experiment_args):
     _tmp_dir = "/tmp"
     k = 0
@@ -2325,6 +2548,7 @@ def get_tmp_file_from_json(experiment_args):
 
     return f"/{_tmp_dir}/{k}"
 
+@wrapper_print_debug
 def compare_parameters(old_param_json, new_param_json):
     try:
         old_param = json.loads(old_param_json)
@@ -2343,7 +2567,7 @@ def compare_parameters(old_param_json, new_param_json):
 
     except AssertionError as e:
         print(f"Assertion error: {e}")
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"Unexpected error: {e}")
 
     return ""
@@ -2379,7 +2603,8 @@ def get_ax_param_representation(data):
 
     print("data:")
     pprint(data)
-    helpers.dier(f"Unknown data range {data['type']}")
+    print_red(f"Unknown data range {data['type']}")
+    my_exit(19)
 
     return {} # only for linter, never reached because of die
 
@@ -2409,18 +2634,20 @@ def die_with_47_if_file_doesnt_exists(_file):
         print_red(f"Cannot find {_file}")
         my_exit(47)
 
+@wrapper_print_debug
 def copy_state_files_from_previous_job(continue_previous_job):
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
-        new_state_file = f'{CURRENT_RUN_FOLDER}/state_files/{state_file}'
+        new_state_file = f'{get_current_run_folder()}/state_files/{state_file}'
         die_with_47_if_file_doesnt_exists(old_state_file)
 
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
-def die_something_went_wrong_with_parameters():
+def die_something_went_wrong_with_parameters(): # pragma: no cover
     my_exit(49)
 
+@wrapper_print_debug
 def check_equation(variables, equation):
     print_debug(f"check_equation({variables}, {equation})")
 
@@ -2431,11 +2658,11 @@ def check_equation(variables, equation):
 
     comparer_at_beginning = re.search("^\\s*((<=|>=)|(<=|>=))", equation)
     if comparer_at_beginning:
-        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the beginning. This is not a valid equation.")
+        _errors.append(f"The restraints {equation} contained comparison operator like <=, >= at at the beginning. This is not a valid equation.")
 
     comparer_at_end = re.search("((<=|>=)|(<=|>=))\\s*$", equation)
     if comparer_at_end:
-        _errors.append(f"The restraints {equation} contained comparision operator like <=, >= at at the end. This is not a valid equation.")
+        _errors.append(f"The restraints {equation} contained comparison operator like <=, >= at at the end. This is not a valid equation.")
 
     if len(_errors):
         for er in _errors:
@@ -2470,7 +2697,7 @@ def check_equation(variables, equation):
             })
         elif item in [">=", "<="]:
             if comparer_found:
-                print("There is already one comparision operator! Cannot have more than one in an equation!")
+                print("There is already one comparison operator! Cannot have more than one in an equation!")
                 return False
             comparer_found = True
 
@@ -2511,6 +2738,7 @@ def check_equation(variables, equation):
 
     return False
 
+@wrapper_print_debug
 def get_experiment_parameters(_params):
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -2563,7 +2791,7 @@ def get_experiment_parameters(_params):
                 if not _replaced:
                     print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
-        original_ax_client_file = f"{CURRENT_RUN_FOLDER}/state_files/original_ax_client_before_loading_tmp_one.json"
+        original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
         ax_client.save_to_json_file(filepath=original_ax_client_file)
 
         with open(original_ax_client_file, encoding="utf-8") as f:
@@ -2579,11 +2807,11 @@ def get_experiment_parameters(_params):
 
         os.unlink(tmp_file_path)
 
-        state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files"
+        state_files_folder = f"{get_current_run_folder()}/state_files"
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-        if not os.path.exists(state_files_folder):
-            os.makedirs(state_files_folder)
+        makedirs(state_files_folder)
+
         with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
             json.dump(experiment_parameters, outfile)
 
@@ -2591,7 +2819,7 @@ def get_experiment_parameters(_params):
             print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
             my_exit(47)
 
-        with open(f'{CURRENT_RUN_FOLDER}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+        with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
             print(f"Continuation from checkpoint {continue_previous_job}", file=f)
     else:
         experiment_args = {
@@ -2629,11 +2857,11 @@ def get_experiment_parameters(_params):
 
         try:
             ax_client.create_experiment(**experiment_args)
-        except ValueError as error:
-            print_red(f"An error has occured while creating the experiment: {error}")
+        except ValueError as error: # pragma: no cover
+            print_red(f"An error has occurred while creating the experiment: {error}")
             die_something_went_wrong_with_parameters()
         except TypeError as error:
-            print_red(f"An error has occured while creating the experiment: {error}. This is probably a bug in OmniOpt.")
+            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             die_something_went_wrong_with_parameters()
 
     return ax_client, experiment_parameters, experiment_args
@@ -2647,6 +2875,7 @@ def get_type_short(typename):
 
     return typename
 
+@wrapper_print_debug
 def parse_single_experiment_parameter_table(experiment_parameters):
     rows = []
 
@@ -2664,6 +2893,11 @@ def parse_single_experiment_parameter_table(experiment_parameters):
             _type = ""
             value_type = ""
 
+            log_scale = "No"
+
+            if param["log_scale"]:
+                log_scale = "Yes"
+
             if "parameter_type" in param:
                 _type = param["parameter_type"]["name"].lower()
                 value_type = _type
@@ -2680,20 +2914,21 @@ def parse_single_experiment_parameter_table(experiment_parameters):
             else:
                 _upper = param["bounds"][1]
 
-            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type])
+            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type, log_scale])
         elif "fixed" in _type.lower():
-            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), "", ""])
         elif "choice" in _type.lower():
             values = param["values"]
             values = [str(helpers.to_int_when_possible(item)) for item in values]
 
-            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
         else:
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
 
     return rows
 
+@wrapper_print_debug
 def print_overview_tables(experiment_parameters, experiment_args):
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -2707,7 +2942,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     if args.maximize:
         min_or_max = "maximize"
 
-    with open(f"{CURRENT_RUN_FOLDER}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
+    with open(f"{get_current_run_folder()}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
     if "_type" in experiment_parameters:
@@ -2716,7 +2951,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
     rows = parse_single_experiment_parameter_table(experiment_parameters)
 
     table = Table(header_style="bold", title="Experiment parameters:")
-    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type"]
+    columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
 
     _param_name = ""
 
@@ -2743,7 +2978,7 @@ def print_overview_tables(experiment_parameters, experiment_args):
         console.print(table)
     table_str = capture.get()
 
-    with open(f"{CURRENT_RUN_FOLDER}/parameters.txt", mode="w", encoding="utf-8") as text_file:
+    with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
     if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
@@ -2762,21 +2997,13 @@ def print_overview_tables(experiment_parameters, experiment_args):
 
         console.print(table)
 
-        with open(f"{CURRENT_RUN_FOLDER}/constraints.txt", mode="w", encoding="utf-8") as text_file:
+        with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
+@wrapper_print_debug
 def update_progress_bar(_progress_bar, nr):
-    #import traceback
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
-
-    global SUM_OF_VALUES_FOR_TQDM
-
-    SUM_OF_VALUES_FOR_TQDM += nr
-
-    if SUM_OF_VALUES_FOR_TQDM > max_eval:
-        print_debug(f"Reaching upper limit for tqdm: SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {max_eval}")
-        return
 
     _progress_bar.update(nr)
 
@@ -2793,7 +3020,7 @@ def get_current_model():
 
 def get_best_params_str():
     if count_done_jobs() >= 0:
-        best_params = get_best_params(RESULT_CSV_FILE)
+        best_params = get_best_params()
         if best_params and "result" in best_params:
             best_result = best_params["result"]
             if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
@@ -2824,21 +3051,21 @@ def get_workers_string():
 
     stats = {}
 
-    for job, _ in global_vars["jobs"][:]:
+    for job, _ in global_vars["jobs"][:]: # pragma: no cover
         state = state_from_job(job)
 
         if state not in stats.keys():
             stats[state] = 0
         stats[state] += 1
 
-    for key in stats.keys():
+    for key in stats.keys(): # pragma: no cover
         if args.abbreviate_job_names:
             string_keys.append(key.lower()[0])
         else:
             string_keys.append(key.lower())
         string_values.append(str(stats[key]))
 
-    if len(string_keys) and len(string_values):
+    if len(string_keys) and len(string_values): # pragma: no cover
         _keys = "/".join(string_keys)
         _values = "/".join(string_values)
 
@@ -2849,14 +3076,15 @@ def get_workers_string():
 
     return string
 
+@wrapper_print_debug
 def submitted_jobs(nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
-    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/submitted_jobs', nr)
+    return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
+@wrapper_print_debug
 def get_desc_progress_text(new_msgs=[]):
     global global_vars
     global random_steps
@@ -2867,7 +3095,7 @@ def get_desc_progress_text(new_msgs=[]):
     in_brackets = []
 
     if failed_jobs():
-        in_brackets.append(f"{helpers.bcolors.red}failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
+        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
 
     current_model = get_current_model()
 
@@ -2927,16 +3155,33 @@ def get_desc_progress_text(new_msgs=[]):
 
     return desc
 
+@wrapper_print_debug
 def progressbar_description(new_msgs=[]):
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
     progress_bar.refresh()
 
+@wrapper_print_debug
 def clean_completed_jobs():
-    for job, trial_index in global_vars["jobs"][:]:
-        if state_from_job(job) in ["completed", "early_stopped", "abandoned"]:
+    #for job, trial_index in global_vars["jobs"][:]:
+    #    _state = state_from_job(job)
+    #    if _state != "running":
+    #        print_red(f"clean_completed_jobs: {job} has state {_state}")
+    #    while _state == "running":
+    #        _state = state_from_job(job)
+    #        print_yellow(f"clean_completed_jobs: Waiting for job {job}")
+    #        _sleep(5)
+
+    for job, trial_index in global_vars["jobs"][:]: # pragma: no cover
+        _state = state_from_job(job)
+        print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
+        if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
             global_vars["jobs"].remove((job, trial_index))
+        elif _state in ["unknown", "pending", "running"]:
+            pass
+        else:
+            print_red(f"File job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """
@@ -2948,6 +3193,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     :param float_tolerance: The tolerance for comparing float values.
     :return: The value of the 'result' column from the matched row.
     """
+
     assert isinstance(file_path, str), "file_path must be a string"
     assert isinstance(params, dict), "params must be a dictionary"
 
@@ -2957,8 +3203,9 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
     try:
         df = pd.read_csv(file_path, float_precision='round_trip')
-    except Exception as e:
-        raise RuntimeError(f"Failed to read the CSV file: {str(e)}") from e
+    except Exception as e: # pragma: no cover
+        print_red(f"Failed to read the CSV file: {str(e)}")
+        return None
 
     if 'result' not in df.columns:
         print_red(f"Error: Could not get old result for {params} in {file_path}")
@@ -2966,50 +3213,54 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
     try:
         matching_rows = df
-        print_debug(matching_rows)
 
         for param, value in params.items():
             if param in df.columns:
                 if isinstance(value, float):
                     # Log current state before filtering
-                    print_debug(f"Filtering for float parameter '{param}' with value '{value}' and tolerance '{float_tolerance}'")
 
                     is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
-                    print_debug(is_close_array)
 
                     matching_rows = matching_rows[is_close_array]
-                    print_debug(matching_rows)
 
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
                     # Ensure consistent types for comparison
-                    print_debug(f"Filtering for parameter '{param}' with value '{value}'")
                     if matching_rows[param].dtype == np.int64 and isinstance(value, str):
                         value = int(value)
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str):
                         value = float(value)
 
                     matching_rows = matching_rows[matching_rows[param] == value]
-                    print_debug(matching_rows)
 
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
-            else:
-                print_debug(f"Parameter '{param}' not found in DataFrame columns")
 
         if matching_rows.empty:
-            print_debug("No matching rows found after all filters applied")
             return None
 
-        print_debug("Matching rows found")
-        print_debug(matching_rows)
         return matching_rows
     except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")
         raise
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
+@wrapper_print_debug
+def get_old_result_simple(this_path, old_arm_parameter):
+    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
+    tmp_old_res_list = list(set(list(tmp_old_res)))
+
+    if len(tmp_old_res_list) == 1:
+        print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+        old_result_simple = float(tmp_old_res_list[0])
+    else:
+        print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+        old_result_simple = None
+
+    return old_result_simple
+
+@wrapper_print_debug
 def simulate_load_data_from_existing_run_folders(_paths):
     _counter = 0
 
@@ -3033,8 +3284,6 @@ def simulate_load_data_from_existing_run_folders(_paths):
             trial_status = old_trial.status
             trial_status_str = trial_status.__repr__
 
-            print_debug(f"trial_status_str: {trial_status_str}")
-
             if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
                 continue
 
@@ -3042,17 +3291,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
             old_result_simple = None
             try:
-                tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
-                tmp_old_res_list = list(set(list(tmp_old_res)))
-
-                if len(tmp_old_res_list) == 1:
-                    print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-                    old_result_simple = float(tmp_old_res_list[0])
-                else:
-                    print_debug(
-                        f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs."
-                    )
-                    old_result_simple = None
+                old_result_simple = get_old_result_simple(this_path, old_arm_parameter)
             except Exception:
                 pass
 
@@ -3063,6 +3302,7 @@ def simulate_load_data_from_existing_run_folders(_paths):
 
     return _counter
 
+@wrapper_print_debug
 def get_nr_of_imported_jobs():
     nr_jobs = 0
 
@@ -3075,6 +3315,7 @@ def get_nr_of_imported_jobs():
 
     return nr_jobs
 
+@wrapper_print_debug
 def load_existing_job_data_into_ax_client():
     global NR_INSERTED_JOBS
 
@@ -3098,6 +3339,7 @@ def load_existing_job_data_into_ax_client():
         nr_of_imported_jobs = get_nr_of_imported_jobs()
         NR_INSERTED_JOBS += nr_of_imported_jobs
 
+@wrapper_print_debug
 def parse_parameter_type_error(error_message):
     error_message = str(error_message)
     try:
@@ -3128,6 +3370,7 @@ def parse_parameter_type_error(error_message):
         # Logging the error
         return None
 
+@wrapper_print_debug
 def extract_headers_and_rows(data_list):
     try:
         if not data_list:
@@ -3146,8 +3389,8 @@ def extract_headers_and_rows(data_list):
             rows.append(row)
 
         return headers, rows
-    except Exception as e:
-        print(f"An error occured: {e}")
+    except Exception as e: # pragma: no cover
+        print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
 def get_list_import_as_string(_brackets=True, _comma=False):
@@ -3171,6 +3414,7 @@ def get_list_import_as_string(_brackets=True, _comma=False):
 
     return ""
 
+@wrapper_print_debug
 def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result):
     done_converting = False
 
@@ -3194,105 +3438,89 @@ def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_resul
                 print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
+@wrapper_print_debug
 def load_data_from_existing_run_folders(_paths):
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes
     global missing_results
 
-    #helpers.dier(help(ax_client.experiment.search_space))
-    with console.status("[bold green]Loading existing jobs into ax_client...") as _status:
-        path_idx = 0
-        for this_path in _paths:
-            if len(_paths) > 1:
-                _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}{get_list_import_as_string(False, True)})...")
-            else:
-                _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client{get_list_import_as_string()}...")
+    def update_status(message, path_idx=None, trial_idx=None, total_trials=None):
+        if len(_paths) > 1:
+            folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
+            trial_msg = f", trial {trial_idx + 1}/{total_trials}" if trial_idx is not None else ""
+            return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
+        return f"{message}{get_list_import_as_string()}..."
 
-            this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
+    def load_and_insert_trials(_status, old_trials, this_path, path_idx):
+        trial_idx = 0
+        for old_trial_index, old_trial in old_trials.items():
+            _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
+
+            trial_idx += 1
+            if "COMPLETED".lower() not in str(old_trial.status).lower():
+                continue
+
+            old_arm_parameter = old_trial.arm.parameters
+            hashed_params_result = generate_hashed_params(old_arm_parameter, this_path)
+
+            if should_insert(hashed_params_result):
+                insert_or_log_result(old_arm_parameter, hashed_params_result)
+            else:
+                log_missing_result(old_arm_parameter, hashed_params_result)
+
+    def generate_hashed_params(parameters, path):
+        try:
+            result = get_old_result_simple(path, parameters)
+        except Exception:
+            result = None
+        return pformat(parameters) + "====" + pformat(result), result
+
+    def should_insert(hashed_params_result):
+        result = hashed_params_result[1]
+        return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
+
+    def insert_or_log_result(parameters, hashed_params_result):
+        try:
+            insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
+            print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
+        except ValueError as e: # pragma: no cover
+            print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
+        else:
+            already_inserted_param_hashes[hashed_params_result[0]] += 1
+            double_hashes.append(hashed_params_result[0])
+
+    def log_missing_result(parameters, hashed_params_result):
+        print_debug("Prevent inserting a parameter set without result")
+        missing_results.append(hashed_params_result[0])
+        parameters["result"] = hashed_params_result[1]
+        already_inserted_param_data.append(parameters)
+
+    def display_table():
+        headers, rows = extract_headers_and_rows(already_inserted_param_data)
+        if headers and rows:
+            table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
+            for header in headers:
+                table.add_column(header)
+            for row in rows:
+                table.add_row(*row)
+            console.print(table)
+
+    with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
+        for path_idx, this_path in enumerate(_paths):
+            __status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx))
+            this_path_json = f"{this_path}/state_files/ax_client.experiment.json"
 
             if not os.path.exists(this_path_json):
                 print_red(f"{this_path_json} does not exist, cannot load data from it")
                 return
 
             old_experiments = load_experiment(this_path_json)
+            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx)
 
-            old_trials = old_experiments.trials
+    display_table()
 
-            trial_idx = 0
-            for old_trial_index in old_trials:
-                if len(_paths) > 1:
-                    _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (folder {path_idx + 1}/{len(_paths)}, trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
-                else:
-                    _status.update(f"[bold green]Loading existing jobs from {this_path} into ax_client (trial {trial_idx + 1}/{len(old_trials)}{get_list_import_as_string(False, True)})...")
-
-                trial_idx += 1
-
-                old_trial = old_trials[old_trial_index]
-                trial_status = old_trial.status
-                trial_status_str = trial_status.__repr__
-
-                print_debug(f"trial_status_str: {trial_status_str}")
-
-                if "COMPLETED" not in str(trial_status_str):
-                    continue
-
-                old_arm_parameter = old_trial.arm.parameters
-
-                old_result_simple = None
-                try:
-                    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
-                    tmp_old_res_list = list(set(list(tmp_old_res)))
-
-                    if len(tmp_old_res_list) == 1:
-                        print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-                        old_result_simple = float(tmp_old_res_list[0])
-                    else:
-                        print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-                        old_result_simple = None
-                except Exception:
-                    pass
-
-                hashed_params_result = pformat(old_arm_parameter) + "====" + pformat(old_result_simple)
-
-                if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
-                    if hashed_params_result not in already_inserted_param_hashes.keys():
-                        #print(f"ADDED: old_result_simple: {old_result_simple}, type: {type(old_result_simple)}")
-                        old_result = {'result': old_result_simple}
-
-                        insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result)
-                    else:
-                        print_debug("Prevented inserting a double entry")
-                        already_inserted_param_hashes[hashed_params_result] += 1
-
-                        double_hashes.append(hashed_params_result)
-
-                        old_arm_parameter_with_result = old_arm_parameter
-                        old_arm_parameter_with_result["result"] = old_result_simple
-                else:
-                    print_debug("Prevent inserting a parameter set without result")
-
-                    missing_results.append(hashed_params_result)
-
-                    old_arm_parameter_with_result = old_arm_parameter
-                    old_arm_parameter_with_result["result"] = old_result_simple
-                    already_inserted_param_data.append(old_arm_parameter_with_result)
-
-            path_idx += 1
-
-    headers, rows = extract_headers_and_rows(already_inserted_param_data)
-
-    if headers and rows:
-        table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
-
-        for header in headers:
-            table.add_column(header)
-
-        for row in rows:
-            table.add_row(*row)
-
-        console.print(table)
-
+@wrapper_print_debug
 def get_first_line_of_file(file_paths):
     first_line = ""
     if len(file_paths):
@@ -3544,9 +3772,9 @@ def print_outfile_analyzed(stdout_path):
 
     if len(_strs):
         try:
-            with open(f'{CURRENT_RUN_FOLDER}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
+            with open(f'{get_current_run_folder()}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
                 error_file.write(out_files_string)
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             print_debug(f"Error occurred while writing to evaluation_errors.log: {e}")
 
         print_red(out_files_string)
@@ -3559,13 +3787,12 @@ def get_parameters_from_outfile(stdout_path):
                     params = line.split(":", 1)[1].strip()
                     params = json.loads(params)
                     return params
-        # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
-        original_print(f"The file {stdout_path} was not found.")
+        original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
         return None
-    except Exception as e:
-        print(f"There was an error: {e}")
+    except Exception as e: # pragma: no cover
+        print(f"get_parameters_from_outfile: There was an error: {e}")
         return None
 
 def get_hostname_from_outfile(stdout_path):
@@ -3575,23 +3802,22 @@ def get_hostname_from_outfile(stdout_path):
                 if line.lower().startswith("hostname: "):
                     hostname = line.split(":", 1)[1].strip()
                     return hostname
-        # Wenn keine passende Zeile gefunden wurde, gib None zurück
         return None
     except FileNotFoundError:
         original_print(f"The file {stdout_path} was not found.")
         return None
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print(f"There was an error: {e}")
         return None
 
 def finish_previous_jobs(new_msgs):
     global random_steps
     global ax_client
+    global jobs_finished
 
-    #print("jobs in finish_previous_jobs:")
-    #print(jobs)
+    this_jobs_finished = 0
 
-    jobs_finished = 0
+    print_debug(f"jobs in finish_previous_jobs: {global_vars['jobs']}")
 
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
@@ -3601,7 +3827,7 @@ def finish_previous_jobs(new_msgs):
                 result = job.result()
                 raw_result = result
                 result = result["result"]
-                jobs_finished += 1
+                this_jobs_finished += 1
                 if result != VAL_IF_NOTHING_FOUND:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
@@ -3610,12 +3836,13 @@ def finish_previous_jobs(new_msgs):
                     _trial = ax_client.get_trial(trial_index)
                     try:
                         progressbar_description([f"new result: {result}"])
+                        #print(traceback.print_stack())
                         _trial.mark_completed(unsafe=True)
                         succeeded_jobs(1)
 
                         #update_progress_bar(progress_bar, 1)
                         update_progress_bar(progress_bar, 1)
-                    except Exception as e:
+                    except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                 else:
                     if job:
@@ -3623,32 +3850,14 @@ def finish_previous_jobs(new_msgs):
                             progressbar_description(["job_failed"])
 
                             ax_client.log_trial_failure(trial_index=trial_index)
-                        except Exception as e:
+                        except Exception as e: # pragma: no cover
                             print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
                         orchestrate_job(job, trial_index)
 
                     failed_jobs(1)
-
                 global_vars["jobs"].remove((job, trial_index))
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError) as error:
-                print_red(str(error))
-
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        _trial = ax_client.get_trial(trial_index)
-                        _trial.mark_failed()
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-                    orchestrate_job(job, trial_index)
-
-                failed_jobs(1)
-                jobs_finished += 1
-
-                global_vars["jobs"].remove((job, trial_index))
-            except ax.exceptions.core.UserInputError as error:
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
                 if "None for metric" in str(error):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                 else:
@@ -3657,32 +3866,33 @@ def finish_previous_jobs(new_msgs):
                 if job:
                     try:
                         progressbar_description(["job_failed"])
+                        _trial = ax_client.get_trial(trial_index)
                         ax_client.log_trial_failure(trial_index=trial_index)
-                    except Exception as e:
+                        _trial.mark_failed()
+                    except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
                     orchestrate_job(job, trial_index)
 
                 failed_jobs(1)
-                jobs_finished += 1
+                this_jobs_finished += 1
 
                 global_vars["jobs"].remove((job, trial_index))
-
-            if args.verbose:
-                progressbar_description([f"saving checkpoints and {PD_CSV_FILENAME}"])
             save_checkpoint()
             save_pd_csv()
-        else:
+        else: # pragma: no cover
             pass
 
-    if jobs_finished == 1:
-        progressbar_description([*new_msgs, f"finished {jobs_finished} job"])
-    elif jobs_finished > 0:
-        progressbar_description([*new_msgs, f"finished {jobs_finished} jobs"])
+    if this_jobs_finished == 1:
+        progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
+    elif this_jobs_finished > 0: # pragma: no cover
+        progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
+
+    jobs_finished += this_jobs_finished
 
     clean_completed_jobs()
 
-def check_orchestrator(stdout_path, trial_index):
+def check_orchestrator(stdout_path, trial_index): # pragma: no cover
     behavs = []
 
     if orchestrator and "errors" in orchestrator:
@@ -3738,229 +3948,285 @@ def orchestrate_job(job, trial_index):
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
 
-def is_already_in_defective_nodes(hostname):
-    file_path = os.path.join(CURRENT_RUN_FOLDER, "state_files", "defective_nodes")
+def is_already_in_defective_nodes(hostname): # pragma: no cover
+    file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    makedirs(os.path.dirname(file_path))
 
     if not os.path.isfile(file_path):
-        print_red(f"Error: The file {file_path} does not exist.")
+        print_red(f"is_already_in_defective_nodes: Error: The file {file_path} does not exist.")
         return False
 
     try:
-        # Datei öffnen und Zeilen durchsuchen
         with open(file_path, mode="r", encoding="utf-8") as file:
             for line in file:
-                # Zeilenenden entfernen und auf Übereinstimmung prüfen
                 if line.strip() == hostname:
                     return True
-    except Exception as e:
-        print_red(f"Error reading the file {file_path}: {e}")
+    except Exception as e: # pragma: no cover
+        print_red(f"is_already_in_defective_nodes: Error reading the file {file_path}: {e}")
         return False
 
-    # Wenn keine Übereinstimmung gefunden wurde
     return False
 
-def _orchestrate(stdout_path, trial_index):
+def orchestrator_start_trial(params_from_out_file, trial_index):
+    global global_vars
+
+    new_job = executor.submit(evaluate, params_from_out_file)
+    submitted_jobs(1)
+
+    _trial = ax_client.get_trial(trial_index)
+
+    _trial.mark_staged(unsafe=True)
+    _trial.mark_running(unsafe=True, no_runner_required=True)
+
+    global_vars["jobs"].append((new_job, trial_index))
+
+def handle_exclude_node(stdout_path, hostname_from_out_file):
+    if hostname_from_out_file:
+        if not is_already_in_defective_nodes(hostname_from_out_file):
+            print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+            count_defective_nodes(None, hostname_from_out_file)
+        else:
+            print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
+    else:
+        print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
+
+def handle_restart(stdout_path, trial_index): # pragma: no cover
+    params_from_out_file = get_parameters_from_outfile(stdout_path)
+    if params_from_out_file:
+        orchestrator_start_trial(params_from_out_file, trial_index)
+    else:
+        print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+
+def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index): # pragma: no cover
+    if hostname_from_out_file:
+        if not is_already_in_defective_nodes(hostname_from_out_file):
+            print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
+            count_defective_nodes(None, hostname_from_out_file)
+        else:
+            print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes. Job will only be resubmitted.")
+        handle_restart(stdout_path, trial_index)
+    else:
+        print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
+
+def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file): # pragma: no cover
+    if hostname_from_out_file:
+        if not is_already_in_defective_nodes(hostname_from_out_file):
+            print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
+            count_defective_nodes(None, hostname_from_out_file)
+        else:
+            print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again.")
+    else:
+        print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
+
+def _orchestrate(stdout_path, trial_index): # pragma: no cover
     behavs = check_orchestrator(stdout_path, trial_index)
 
-    if behavs is not None and len(behavs):
-        hostname_from_out_file = get_hostname_from_outfile(stdout_path)
-        for behav in behavs:
-            if behav == "ExcludeNode":
-                if hostname_from_out_file:
-                    if not is_already_in_defective_nodes(hostname_from_out_file):
-                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
-                else:
-                    print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
+    if not behavs:
+        return
 
-            elif behav == "Restart":
-                params_from_out_file = get_parameters_from_outfile(stdout_path)
-                if params_from_out_file:
-                    new_job = executor.submit(evaluate, params_from_out_file)
+    hostname_from_out_file = get_hostname_from_outfile(stdout_path)
 
-                    _trial = ax_client.get_trial(trial_index)
+    # Behavior handler mapping
+    behavior_handlers = {
+        "ExcludeNode": lambda: handle_exclude_node(stdout_path, hostname_from_out_file),
+        "Restart": lambda: handle_restart(stdout_path, trial_index),
+        "RestartOnDifferentNode": lambda: handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index),
+        "ExcludeNodeAndRestartAll": lambda: handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file)
+    }
 
-                    _trial.mark_staged(unsafe=True)
-                    _trial.mark_running(unsafe=True, no_runner_required=True)
+    for behav in behavs:
+        handler = behavior_handlers.get(behav)
+        if handler:
+            handler()
+        else:
+            print_red(f"Orchestrator: {behav} not yet implemented!")
+            my_exit(210)
 
-                    global_vars["jobs"].append((new_job, trial_index))
-                else:
-                    print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+def write_continue_run_uuid_to_file():
+    if args.continue_previous_job:
+        continue_dir = args.continue_previous_job
 
-            elif behav == "RestartOnDifferentNode":
-                if hostname_from_out_file:
-                    if not is_already_in_defective_nodes(hostname_from_out_file):
-                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Will add the node to the defective hosts list and restart it to schedule it on another host.")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again. The job only will be resubmitted.")
+        try:
 
-                    params_from_out_file = get_parameters_from_outfile(stdout_path)
-                    if params_from_out_file:
-                        new_job = executor.submit(evaluate, params_from_out_file)
-                        submitted_jobs(1)
+            with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
+                continue_from_uuid = f.readline()
 
-                        _trial = ax_client.get_trial(trial_index)
+                file_path = f"{get_current_run_folder()}/state_files/uuid_of_continued_run"
 
-                        _trial.mark_staged(unsafe=True)
-                        _trial.mark_running(unsafe=True, no_runner_required=True)
+                makedirs(os.path.dirname(file_path))
 
-                        global_vars["jobs"].append((new_job, trial_index))
-                    else:
-                        print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+                with open(file_path, 'w', encoding="utf-8") as file:
+                    file.write(continue_from_uuid)
 
-                else:
-                    print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
+                return True
+        except Exception as e: # pragma: no cover
+            print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
 
-            elif behav == "ExcludeNodeAndRestartAll":
-                if hostname_from_out_file:
-                    if not is_already_in_defective_nodes(hostname_from_out_file):
-                        print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Will only add {hostname_from_out_file} to unavailable hosts and not currently restart the job")
-                        count_defective_nodes(None, hostname_from_out_file)
-                    else:
-                        print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
-                else:
-                    print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
+    return False
 
-            else:
-                print_red(f"Orchestrator: {behav} not yet implemented!")
-                sys.exit(210)
+def write_run_uuid_to_file():
+    try:
+        file_path = f"{get_current_run_folder()}/state_files/run_uuid"
+
+        makedirs(os.path.dirname(file_path))
+
+        with open(file_path, 'w', encoding="utf-8") as file:
+            file.write(run_uuid)
+
+        return True
+    except Exception as e: # pragma: no cover
+        print(f"write_run_uuid_to_file: An error occurred: {e}")
+
+        return False
 
 def save_state_files():
     global global_vars
 
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
-        print(global_vars["joined_run_program"], file=f)
+        original_print(global_vars["joined_run_program"], file=f)
 
     with open(f'{state_files_folder}/experiment_name', mode='w', encoding="utf-8") as f:
-        print(global_vars["experiment_name"], file=f)
+        original_print(global_vars["experiment_name"], file=f)
 
     with open(f'{state_files_folder}/mem_gb', mode='w', encoding='utf-8') as f:
-        print(global_vars["mem_gb"], file=f)
+        original_print(global_vars["mem_gb"], file=f)
 
     with open(f'{state_files_folder}/max_eval', mode='w', encoding='utf-8') as f:
-        print(max_eval, file=f)
+        original_print(max_eval, file=f)
 
     with open(f'{state_files_folder}/gpus', mode='w', encoding='utf-8') as f:
-        print(args.gpus, file=f)
+        original_print(args.gpus, file=f)
 
     with open(f'{state_files_folder}/time', mode='w', encoding='utf-8') as f:
-        print(global_vars["_time"], file=f)
+        original_print(global_vars["_time"], file=f)
 
     with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
         env = dict(os.environ)
         for key in env:
-            print(str(key) + " = " + str(env[key]), file=f)
+            original_print(str(key) + " = " + str(env[key]), file=f)
 
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
-        print("omniopt '" + " ".join(sys.argv[1:]), file=f)
+        original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
+
+def submit_job(parameters):
+    try:
+        new_job = executor.submit(evaluate, parameters)
+        submitted_jobs(1)
+        return new_job
+    except Exception as e: # pragma: no cover
+        print_debug(f"Error while trying to submit job: {e}")
+        raise
 
 def execute_evaluation(_params):
     global global_vars
-    global IS_IN_EVALUATE
 
+    print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
-
     _trial = ax_client.get_trial(trial_index)
 
-    try:
-        _trial.mark_staged()
-    except Exception:
-        #print(e)
-        pass
+    # Helper function for trial stage marking with exception handling
+    def mark_trial_stage(stage, error_msg):
+        try:
+            getattr(_trial, stage)()
+        except Exception as e: # pragma: no cover
+            print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
+
+    mark_trial_stage("mark_staged", "Marking the trial as staged failed")
+
     new_job = None
+
     try:
-        progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
-
-        if args.reservation:
-            os.environ['SBATCH_RESERVATION'] = args.reservation
-
-        if args.account:
-            os.environ['SBATCH_ACCOUNT'] = args.account
-
-        excluded_string = ",".join(count_defective_nodes())
-        if len(excluded_string) > 1:
-            executor.update_parameters(
-                    exclude=excluded_string
-            )
-
-        #try:
-        new_job = executor.submit(evaluate, parameters)
-        submitted_jobs(1)
-        #except TypeError as e:
-        #    print_red(f"Error while trying to submit job: {e}")
+        initialize_job_environment(trial_counter, next_nr_steps)
+        new_job = submit_job(parameters)
 
         global_vars["jobs"].append((new_job, trial_index))
         if is_slurm_job() and not args.force_local_execution:
             _sleep(1)
 
-        try:
-            _trial.mark_running(no_runner_required=True)
-        except Exception:
-            #print(f"ERROR in line {get_line_info()}: {e}")
-            pass
+        mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
-        progressbar_description([f"started new job ({trial_counter - 1}/{next_nr_steps})"])
+        update_progress(trial_counter - 1, next_nr_steps)
     except submitit.core.utils.FailedJobError as error:
-        if "QOSMinGRES" in str(error) and args.gpus == 0:
-            print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
-        else:
-            print_red(f"\n⚠ FAILED: {error}")
-
-        try:
-            print_debug("Trying to cancel job that failed")
-            if new_job:
-                try:
-                    ax_client.log_trial_failure(trial_index=trial_index)
-                except Exception as e:
-                    print(f"ERROR in line {get_line_info()}: {e}")
-                new_job.cancel()
-                print_debug("Cancelled failed job")
-
-            global_vars["jobs"].remove((new_job, trial_index))
-            print_debug("Removed failed job")
-
-            #update_progress_bar(1)
-
-            save_checkpoint()
-            save_pd_csv()
-            trial_counter += 1
-        except Exception as e:
-            print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
+        handle_failed_job(error, trial_index, new_job)
+        trial_counter += 1
     except (SignalUSR, SignalINT, SignalCONT):
-        print_red("\n⚠ Detected signal. Will exit.")
-        IS_IN_EVALUATE = False
-        end_program(RESULT_CSV_FILE, 1)
-    except Exception as e:
-        tb = traceback.format_exc()
-        print(tb)
-        print_red(f"\n⚠ Starting job failed with error: {e}")
-
-    finish_previous_jobs([])
+        handle_exit_signal()
+    except Exception as e: # pragma: no cover
+        handle_generic_error(e)
 
     add_to_phase_counter(phase, 1)
-
     return trial_counter
 
+def initialize_job_environment(trial_counter, next_nr_steps):
+    progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
+    set_sbatch_environment()
+    exclude_defective_nodes()
+
+def set_sbatch_environment():
+    if args.reservation:
+        os.environ['SBATCH_RESERVATION'] = args.reservation
+    if args.account:
+        os.environ['SBATCH_ACCOUNT'] = args.account
+
+def exclude_defective_nodes():
+    excluded_string = ",".join(count_defective_nodes())
+    if len(excluded_string) > 1:
+        executor.update_parameters(exclude=excluded_string)
+
+def handle_failed_job(error, trial_index, new_job): # pragma: no cover
+    if "QOSMinGRES" in str(error) and args.gpus == 0:
+        print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
+    else:
+        print_red(f"\n⚠ FAILED: {error}")
+
+    try:
+        cancel_failed_job(trial_index, new_job)
+    except Exception as e: # pragma: no cover
+        print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
+
+def cancel_failed_job(trial_index, new_job): # pragma: no cover
+    print_debug("Trying to cancel job that failed")
+    if new_job:
+        try:
+            ax_client.log_trial_failure(trial_index=trial_index)
+        except Exception as e: # pragma: no cover
+            print(f"ERROR in line {get_line_info()}: {e}")
+        new_job.cancel()
+        print_debug("Cancelled failed job")
+
+        global_vars["jobs"].remove((new_job, trial_index))
+        print_debug("Removed failed job")
+        save_checkpoint()
+        save_pd_csv()
+    else:
+        print_debug("cancel_failed_job: new_job was undefined")
+
+def update_progress(trial_counter, next_nr_steps):
+    progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])
+
+def handle_exit_signal(): # pragma: no cover
+    print_red("\n⚠ Detected signal. Will exit.")
+    end_program(RESULT_CSV_FILE, 1)
+
+def handle_generic_error(e): # pragma: no cover
+    tb = traceback.format_exc()
+    print(tb)
+    print_red(f"\n⚠ Starting job failed with error: {e}")
+
 def succeeded_jobs(nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
 
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
+    makedirs(state_files_folder)
 
-    return append_and_read(f'{CURRENT_RUN_FOLDER}/state_files/succeeded_jobs', nr)
+    return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret):
+def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret): # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -3974,7 +4240,6 @@ def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
         ("_max_eval", _max_eval),
         ("_progress_bar.total", _progress_bar.total),
         ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
-        ("SUM_OF_VALUES_FOR_TQDM", SUM_OF_VALUES_FOR_TQDM),
         ("_ret", _ret)
     ]
 
@@ -3986,13 +4251,16 @@ def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 def break_run_search(_name, _max_eval, _progress_bar):
     _ret = False
 
+    _counted_done_jobs = count_done_jobs()
+
     conditions = [
-        (lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= max_eval {_max_eval} + 1"),
+        (lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),
         (lambda: submitted_jobs() >= _progress_bar.total + 1, f"2. submitted_jobs() {submitted_jobs()} >= _progress_bar.total {_progress_bar.total} + 1"),
-        (lambda: count_done_jobs() >= _max_eval, f"3. count_done_jobs() {count_done_jobs()} >= max_eval {_max_eval}"),
-        (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {_max_eval} + 1"),
-        (lambda: 0 >= abs(count_done_jobs() - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(count_done_jobs() {count_done_jobs()} - max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"),
-        (lambda: SUM_OF_VALUES_FOR_TQDM >= _max_eval + 1, f"6. SUM_OF_VALUES_FOR_TQDM {SUM_OF_VALUES_FOR_TQDM} > max_eval {_max_eval}")
+        (lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),
+        (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
+        (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > _max_eval {_max_eval} + 1"),
+        (lambda: submitted_jobs() >= max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {max_eval} + 1"),
+        (lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})")
     ]
 
     for condition_func, debug_msg in conditions:
@@ -4005,7 +4273,52 @@ def break_run_search(_name, _max_eval, _progress_bar):
 
     return _ret
 
-def _get_next_trials():
+def _get_last_and_avg_times():
+    """Returns the last and average times from time_next_trials_took, or None if empty."""
+    if len(time_next_trials_took) == 0:
+        return None, None
+    last_time = time_next_trials_took[-1]
+    avg_time = sum(time_next_trials_took) / len(time_next_trials_took)
+    return last_time, avg_time
+
+def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs):
+    """Calculates the number of jobs to retrieve."""
+    return min(
+        max_eval + simulated_jobs - count_done_jobs(),
+        max_eval + simulated_jobs - submitted_jobs(),
+        num_parallel_jobs - currently_running_jobs
+    )
+
+def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_execution):
+    """Generates the appropriate message for the number of trials being retrieved."""
+    base_msg = f"getting {nr_of_jobs_to_get} trials "
+
+    if SYSTEM_HAS_SBATCH and not force_local_execution:
+        if last_time:
+            return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
+        return base_msg
+
+    return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
+
+def _fetch_next_trials(nr_of_jobs_to_get):
+    """Attempts to fetch the next trials using the ax_client."""
+    try:
+        trial_index_to_param, _ = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
+        return trial_index_to_param
+    except np.linalg.LinAlgError as e:
+        _handle_linalg_error(e)
+        my_exit(242)
+
+    return None
+
+def _handle_linalg_error(error): # pragma: no cover
+    """Handles the np.linalg.LinAlgError based on the model being used."""
+    if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
+        print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")
+    else:
+        print_red(f"Error: {error}")
+
+def _get_next_trials(nr_of_jobs_to_get):
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -4013,58 +4326,31 @@ def _get_next_trials():
     if break_run_search("_get_next_trials", max_eval, progress_bar):
         return False
 
-    last_ax_client_time = None
-    ax_client_time_avg = None
-    if len(TIME_NEXT_TRIALS_TOOK):
-        last_ax_client_time = TIME_NEXT_TRIALS_TOOK[len(TIME_NEXT_TRIALS_TOOK) - 1]
-        ax_client_time_avg = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
+    last_ax_client_time, ax_client_time_avg = _get_last_and_avg_times()
 
-    new_msgs = []
-
-    currently_running_jobs = len(global_vars["jobs"])
-    real_num_parallel_jobs = num_parallel_jobs - currently_running_jobs
-
-    if real_num_parallel_jobs == 0:
+    if nr_of_jobs_to_get == 0:
         return None
 
-    base_msg = f"getting {real_num_parallel_jobs} trials "
+    # Message handling
+    message = _get_trials_message(
+        nr_of_jobs_to_get,
+        last_ax_client_time,
+        ax_client_time_avg,
+        args.force_local_execution
+    )
+    progressbar_description([message])
 
-    if SYSTEM_HAS_SBATCH:
-        if last_ax_client_time:
-            new_msgs.append(f"{base_msg}(last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
-        else:
-            new_msgs.append(f"{base_msg}")
-    else:
-        real_num_parallel_jobs = 1
+    # Fetching the next trials
+    start_time = time.time()
+    trial_index_to_param = _fetch_next_trials(nr_of_jobs_to_get)
+    end_time = time.time()
 
-        if last_ax_client_time:
-            new_msgs.append(f"{base_msg}(no sbatch, last/avg {last_ax_client_time:.2f}s/{ax_client_time_avg:.2f}s)")
-        else:
-            new_msgs.append(f"{base_msg}(no sbatch)")
-
-    progressbar_description(new_msgs)
-
-    trial_index_to_param = None
-
-    get_next_trials_time_start = time.time()
-    try:
-        trial_index_to_param, _ = ax_client.get_next_trials(
-            max_trials=real_num_parallel_jobs
-        )
-    except np.linalg.LinAlgError as e:
-        if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
-            print_red(f"Error: {e}. This may happen because you have the THOMPSON model used. Try another one.")
-        else:
-            print_red(f"Error: {e}")
-        sys.exit(242)
-
-    print_debug_get_next_trials(len(trial_index_to_param.items()), real_num_parallel_jobs, getframeinfo(currentframe()).lineno)
-
-    get_next_trials_time_end = time.time()
-
-    _ax_took = get_next_trials_time_end - get_next_trials_time_start
-
-    TIME_NEXT_TRIALS_TOOK.append(_ax_took)
+    # Log and update timing
+    time_next_trials_took.append(end_time - start_time)
+    print_debug_get_next_trials(
+        len(trial_index_to_param.items()), nr_of_jobs_to_get,
+        getframeinfo(currentframe()).lineno
+    )
 
     _log_trial_index_to_param(trial_index_to_param)
 
@@ -4074,75 +4360,81 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
     if not SYSTEM_HAS_SBATCH:
         return 1
 
-    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval - submitted_jobs())
+    simulated_nr_inserted_jobs = get_nr_of_imported_jobs()
+
+    requested = min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval + simulated_nr_inserted_jobs - submitted_jobs(), max_eval + simulated_nr_inserted_jobs - count_done_jobs())
 
     return requested
 
-def get_generation_strategy(_num_parallel_jobs, seed, _max_eval):
+def get_generation_strategy():
     global random_steps
 
-    _steps = []
+    # Initialize steps for the generation strategy
+    steps = []
 
-    nr_of_imported_jobs = get_nr_of_imported_jobs()
+    # Get the number of imported jobs and update max evaluations
+    num_imported_jobs = get_nr_of_imported_jobs()
+    set_max_eval(max_eval + num_imported_jobs)
 
-    set_max_eval(_max_eval + nr_of_imported_jobs)
+    # Initialize random_steps if None
+    random_steps = random_steps or 0
 
-    if random_steps is None:
-        random_steps = 0
-
-    if _max_eval is None:
+    # Set max_eval if it's None
+    if max_eval is None:
         set_max_eval(max(1, random_steps))
 
-    if random_steps >= 1:
-        # TODO: nicht, wenn continue_previous_job und bereits random_steps schritte erfolgt
-        # 1. Initialization step (does not require pre-existing data and is well-suited for
-        # initial sampling of the search space)
+    # Add a random generation step if conditions are met
+    if random_steps >= 1 and num_imported_jobs < random_steps:
+        steps.append(create_random_generation_step())
 
-        _steps.append(
-            GenerationStep(
-                model=Models.SOBOL,
-                num_trials=max(_num_parallel_jobs, random_steps),
-                min_trials_observed=min(_max_eval, random_steps),
-                max_parallelism=_num_parallel_jobs, # Max parallelism for this step
-                enforce_num_trials=True,
-                model_kwargs={"seed": seed}, # Any kwargs you want passed into the model
-                model_gen_kwargs={'enforce_num_arms': True}, # Any kwargs you want passed to `modelbridge.gen`
-            )
-        )
+    # Choose a model for the non-random step
+    chosen_non_random_model = select_model(args.model)
 
-    chosen_non_random_model = Models.BOTORCH_MODULAR
+    # Append the Bayesian optimization step
+    steps.append(create_systematic_step(chosen_non_random_model))
 
+    # Create and return the GenerationStrategy
+    return GenerationStrategy(steps=steps)
+
+def create_random_generation_step():
+    """Creates a generation step for random models."""
+    return GenerationStep(
+        model=Models.SOBOL,
+        num_trials=max(num_parallel_jobs, random_steps),
+        min_trials_observed=min(max_eval, random_steps),
+        max_parallelism=num_parallel_jobs,
+        enforce_num_trials=True,
+        model_kwargs={"seed": args.seed},
+        model_gen_kwargs={'enforce_num_arms': True},
+        should_deduplicate=True
+    )
+
+def select_model(model_arg):
+    """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
+    chosen_model = Models.BOTORCH_MODULAR
 
-    if args.model:
-        if str(args.model).upper() in available_models:
-            chosen_non_random_model = Models.__members__[str(args.model).upper()]
+    if model_arg:
+        model_upper = str(model_arg).upper()
+        if model_upper in available_models:
+            chosen_model = Models.__members__[model_upper]
         else:
-            print_red(f"⚠ Cannot use {args.model}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+            print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
-        if args.model.lower() != "FACTORIAL" and args.gridsearch:
+        if model_arg.lower() != "factorial" and args.gridsearch:
             print_red("Gridsearch only really works when you chose the FACTORIAL model.")
 
-    # 2. Bayesian optimization step (requires data obtained from previous phase and learns
-    # from all data available at the time of each new candidate generation call)
+    return chosen_model
 
-    #_nr_trials = -1
-
-    _steps.append(
-        GenerationStep(
-            model=chosen_non_random_model,
-            num_trials=-1,
-            max_parallelism=_num_parallel_jobs,
-            #model_kwargs={"seed": seed},
-            model_gen_kwargs={'enforce_num_arms': True}
-        )
+def create_systematic_step(model):
+    """Creates a generation step for Bayesian optimization."""
+    return GenerationStep(
+        model=model,
+        num_trials=-1,
+        max_parallelism=num_parallel_jobs,
+        model_gen_kwargs={'enforce_num_arms': True},
+        should_deduplicate=True
     )
-
-    gs = GenerationStrategy(
-        steps=_steps
-    )
-
-    return gs
 
 def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar):
     global random_steps
@@ -4152,54 +4444,70 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     trial_index_to_param = None
     try:
-        try:
-            trial_index_to_param = _get_next_trials()
+        nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
+
+        results = []
+
+        for ii in range(nr_of_jobs_to_get):
+            trial_index_to_param = _get_next_trials(1)
 
             if trial_index_to_param:
                 i = 1
-                for trial_index, parameters in trial_index_to_param.items():
-                    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                        break
-
-                    while len(global_vars["jobs"]) > num_parallel_jobs:
-                        finish_previous_jobs(["finishing prev jobs"])
-
-                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                with ThreadPoolExecutor() as con_exe:
+                    for trial_index, parameters in trial_index_to_param.items():
+                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar): # pragma: no cover
                             break
 
-                        if is_slurm_job() and not args.force_local_execution:
-                            _sleep(5)
+                        while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
+                            finish_previous_jobs(["finishing prev jobs"])
 
-                    if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                        progressbar_description([f"starting parameter set ({i}/{next_nr_steps})"])
-                        execute_evaluation([
-                            trial_index,
-                            parameters,
-                            i,
-                            next_nr_steps,
-                            phase
-                        ])
-                        i += 1
-                    else:
-                        break
-        except botorch.exceptions.errors.InputDataError as e:
-            print_red(f"Error 1: {e}")
+                            if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                                break
+
+                            if is_slurm_job() and not args.force_local_execution:
+                                _sleep(5)
+
+                        if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
+                            break
+
+                        if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                            progressbar_description([f"starting parameter set ({ii}/{next_nr_steps})"])
+
+                            _args = [
+                                trial_index,
+                                parameters,
+                                i,
+                                next_nr_steps,
+                                phase
+                            ]
+
+                            results.append(con_exe.submit(execute_evaluation, _args))
+
+                            i += 1
+                        else:
+                            break
+
+        for r in results:
+            r.result()
+
+        finish_previous_jobs(["finishing jobs after starting them"])
+
+    except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
+        print_red(f"Error 1: {e}")
+        return 0
+    except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
+        if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
+            print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
+            die_no_random_steps()
+        else:
+            print_red(f"Error 2: {e}")
             return 0
-        except ax.exceptions.core.DataRequiredError as e:
-            if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-                print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
-                die_no_random_steps()
-            else:
-                print_red(f"Error 2: {e}")
-                return 0
-    except RuntimeError as e:
+    except RuntimeError as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
     except (
         botorch.exceptions.errors.ModelFittingError,
         ax.exceptions.core.SearchSpaceExhausted,
-        ax.exceptions.core.DataRequiredError,
-        botorch.exceptions.errors.InputDataError
-    ) as e:
+    ) as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 1)
 
@@ -4245,8 +4553,8 @@ def get_number_of_steps(_max_eval):
 
     return _random_steps, second_step_steps
 
-def get_executor():
-    log_folder = f'{CURRENT_RUN_FOLDER}/single_runs/%j'
+def set_global_executor():
+    log_folder = f'{get_current_run_folder()}/single_runs/%j'
     global executor
 
     if args.force_local_execution:
@@ -4254,12 +4562,15 @@ def get_executor():
     else:
         executor = submitit.AutoExecutor(folder=log_folder)
 
-    # 'nodes': <class 'int'>, 'gpus_per_node': <class 'int'>, 'tasks_per_node': <class 'int'>
+    # TODO: The following settings can be in submitit's executor.update_parameters, set but aren't currently utilized because I am not sure of the defaults:
+    # 'nodes': <class 'int'>
+    # 'gpus_per_node': <class 'int'>
+    # 'tasks_per_node': <class 'int'>
+    # Should they just be None by default if not set in the argparser? No, submitit fails if gpu related stuff is None
 
     executor.update_parameters(
         name=f'{global_vars["experiment_name"]}_{run_uuid}',
         timeout_min=args.worker_timeout,
-        tasks_per_node=args.tasks_per_node,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
         nodes=args.nodes_per_job,
@@ -4270,18 +4581,26 @@ def get_executor():
         exclude=args.exclude
     )
 
+    print_debug(f"""
+        executor.update_parameters(
+            name={f'{global_vars["experiment_name"]}_{run_uuid}'}
+            timeout_min={args.worker_timeout}
+            "slurm_gres={f"gpu:{args.gpus}"}
+            "cpus_per_task={args.cpus_per_task}
+            nodes={args.nodes_per_job}
+            stderr_to_stdout={args.stderr_to_stdout}
+            mem_gb={args.mem_gb}
+            slurm_signal_delay_s={args.slurm_signal_delay_s}
+            "slurm_use_srun={args.slurm_use_srun}
+            exclude={args.exclude}
+        )
+    """
+    )
+
     if args.exclude:
         print_yellow(f"Excluding the following nodes: {args.exclude}")
 
-def get_steps_from_prev_job(prev_job, nr=0):
-    state_files_folder = f"{CURRENT_RUN_FOLDER}/state_files/"
-
-    if not os.path.exists(state_files_folder):
-        os.makedirs(state_files_folder)
-
-    return append_and_read(f"{prev_job}/state_files/submitted_jobs", nr)
-
-def execute_nvidia_smi():
+def execute_nvidia_smi(): # pragma: no cover
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
         return
@@ -4290,31 +4609,37 @@ def execute_nvidia_smi():
         try:
             host = socket.gethostname()
 
-            _file = NVIDIA_SMI_LOGS_BASE + "_" + host + ".csv"
-            noheader = ",noheader"
+            if NVIDIA_SMI_LOGS_BASE and host:
+                _file = NVIDIA_SMI_LOGS_BASE + "_" + host + ".csv"
+                noheader = ",noheader"
 
-            result = subprocess.run([
-                'nvidia-smi',
-                '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
-                f'--format=csv{noheader}'],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            assert result.returncode == 0, "nvidia-smi execution failed"
+                result = subprocess.run([
+                    'nvidia-smi',
+                    '--query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,memory.total,memory.free,memory.used',
+                    f'--format=csv{noheader}'],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                assert result.returncode == 0, "nvidia-smi execution failed"
 
-            output = result.stdout
+                output = result.stdout
 
-            output = output.rstrip('\n')
+                output = output.rstrip('\n')
 
-            if host and output:
-                append_to_nvidia_smi_logs(_file, host, output)
-        except Exception as e:
-            print(f"An error occurred: {e}")
+                if host and output:
+                    append_to_nvidia_smi_logs(_file, host, output)
+            else:
+                if not NVIDIA_SMI_LOGS_BASE:
+                    print_debug("NVIDIA_SMI_LOGS_BASE not defined")
+                if not host:
+                    print_debug("host not defined")
+        except Exception as e: # pragma: no cover
+            print(f"execute_nvidia_smi: An error occurred: {e}")
         if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
 
-def start_nvidia_smi_thread():
+def start_nvidia_smi_thread(): # pragma: no cover
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
@@ -4336,6 +4661,9 @@ def run_search(_progress_bar):
         finish_previous_jobs([])
 
         if break_run_search("run_search", max_eval, _progress_bar):
+            break
+
+        if (jobs_finished - NR_INSERTED_JOBS) >= max_eval:
             break
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -4373,22 +4701,28 @@ def run_search(_progress_bar):
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
-    wait_for_jobs_to_complete(num_parallel_jobs)
+    #wait_for_jobs_to_complete(2)
 
-    while len(global_vars["jobs"]):
+    while len(global_vars["jobs"]): # pragma: no cover
+        wait_for_jobs_to_complete(1)
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+
         if is_slurm_job() and not args.force_local_execution:
             _sleep(1)
 
     log_what_needs_to_be_logged()
     return False
 
-def wait_for_jobs_to_complete(_num_parallel_jobs):
+def wait_for_jobs_to_complete(_num_parallel_jobs): # pragma: no cover
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > _num_parallel_jobs:
+            print_debug(f"Waiting for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
             progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
             if is_slurm_job() and not args.force_local_execution:
                 _sleep(5)
+
+            finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+
             clean_completed_jobs()
 
 def human_readable_generation_strategy():
@@ -4404,7 +4738,13 @@ def human_readable_generation_strategy():
 
     return None
 
-def parse_orchestrator_file(_f):
+def die_orchestrator_exit_code_206(_test): # pragma: no cover
+    if _test:
+        print_yellow("Not exiting, because _test was True")
+    else:
+        my_exit(206)
+
+def parse_orchestrator_file(_f, _test=False):
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -4412,48 +4752,44 @@ def parse_orchestrator_file(_f):
 
                 if "errors" not in data:
                     print_red(f"{_f} file does not contain key 'errors'")
-                    sys.exit(206)
+                    die_orchestrator_exit_code_206(_test)
 
                 valid_keys = ['name', 'match_strings', 'behavior']
                 valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
-                for x in data["errors"]:
+                for x in data["errors"]: # pragma: no cover
                     if not isinstance(x, dict):
                         print_red(f"Entry is not of type dict but {type(x)}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if set(x.keys()) != set(valid_keys):
                         print_red(f"{x.keys()} does not match {valid_keys}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if x["behavior"] not in valid_behaviours:
                         print_red(f"behavior-entry {x['behavior']} is not in valid_behaviours: {', '.join(valid_behaviours)}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if not isinstance(x["name"], str):
                         print_red(f"name-entry is not string but {type(x['name'])}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     if not isinstance(x["match_strings"], list):
                         print_red(f"name-entry is not list but {type(x['match_strings'])}")
-                        sys.exit(206)
+                        die_orchestrator_exit_code_206(_test)
 
                     for y in x["match_strings"]:
                         if not isinstance(y, str):
                             print_red("x['match_strings'] is not a string but {type(x['match_strings'])}")
-                            sys.exit(206)
-
-                #helpers.dier(data)
+                            die_orchestrator_exit_code_206(_test)
 
                 return data
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 print(f"Error while parse_experiment_parameters({_f}): {e}")
-
-                return None
     else:
         print_red(f"{_f} could not be found")
 
-        return None
+    return None
 
 def set_orchestrator():
     global orchestrator
@@ -4482,81 +4818,56 @@ def add_exclude_to_defective_nodes():
 def check_max_eval(_max_eval):
     if not _max_eval:
         print_red("--max_eval needs to be set!")
-        sys.exit(19)
+        my_exit(19)
 
 def main():
-    print_debug("main()")
-
-    global RESULT_CSV_FILE
-    global ax_client
-    global global_vars
-    global max_eval
-    global global_vars
-    global RUN_FOLDER_NUMBER
-    global CURRENT_RUN_FOLDER
+    global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
-    global LOGFILE_DEBUG_GET_NEXT_TRIALS
-    global random_steps
-
+    global LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
     check_if_has_random_steps()
 
-    _debug_worker_creation("time, nr_workers, got, requested, phase")
+    log_worker_creation()
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
-
     check_slurm_job_id()
 
-    CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
-    while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
-        CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
-        RUN_FOLDER_NUMBER = RUN_FOLDER_NUMBER + 1
+    set_run_folder()
+    RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
-    RESULT_CSV_FILE = create_folder_and_file(f"{CURRENT_RUN_FOLDER}")
+    if os.getenv("CI"):
+        data_dict = {
+            "param1": "value1",
+            "param2": "value2",
+            "param3": "value3"
+        }
+
+        error_description = "Some error occurred during execution (this is not a real error!)."
+
+        write_failed_logs(data_dict, error_description)
 
     save_state_files()
+    write_run_uuid_to_file()
 
-    print(f"[yellow]Run-folder[/yellow]: [underline]{CURRENT_RUN_FOLDER}[/underline]")
-    if args.continue_previous_job:
-        print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
+    handle_maximize_argument()
+    print_run_info()
 
-    NVIDIA_SMI_LOGS_BASE = f'{CURRENT_RUN_FOLDER}/gpu_usage_'
+    initialize_nvidia_logs()
+    write_ui_url_if_present()
 
-    if args.ui_url:
-        with open(f"{CURRENT_RUN_FOLDER}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
-            myfile.write(decode_if_base64(args.ui_url))
-
-    LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{CURRENT_RUN_FOLDER}/get_next_trials.csv'
-
-    experiment_parameters = None
-    cli_params_experiment_parameters = None
-    checkpoint_parameters_filepath = f"{CURRENT_RUN_FOLDER}/state_files/checkpoint.json.parameters.json"
-
-    if args.parameter:
-        experiment_parameters = parse_experiment_parameters()
-        cli_params_experiment_parameters = experiment_parameters
+    LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
+    experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
     disable_logging()
-
     check_max_eval(max_eval)
 
     random_steps, second_step_steps = get_number_of_steps(max_eval)
-
     add_exclude_to_defective_nodes()
+    handle_random_steps()
 
-    if args.parameter and len(args.parameter) and args.continue_previous_job and random_steps <= 0:
-        print(f"A parameter has been reset, but the earlier job already had it's random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
-        random_steps = args.num_random_steps
-
-    gs = get_generation_strategy(num_parallel_jobs, args.seed, args.max_eval)
-
-    ax_client = AxClient(
-        verbose_logging=args.verbose,
-        enforce_sequential_optimization=args.enforce_sequential_optimization,
-        generation_strategy=gs
-    )
+    gs = get_generation_strategy()
+    initialize_ax_client(gs)
 
     minimize_or_maximize = not args.maximize
-
     ax_client, experiment_parameters, experiment_args = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
@@ -4568,137 +4879,108 @@ def main():
     ])
 
     set_orchestrator()
+    print_generation_strategy()
 
+    checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
+    save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
+    print_overview_tables(experiment_parameters, experiment_args)
+
+    try:
+        set_global_executor()
+    except ModuleNotFoundError as e:
+        print_red(f"set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
+        sys.exit(244)
+
+    load_existing_job_data_into_ax_client()
+    original_print(f"Run-Program: {global_vars['joined_run_program']}")
+
+    save_global_vars()
+    write_process_info()
+
+    start_live_share_background_job()
+
+    write_continue_run_uuid_to_file()
+
+    disable_tqdm = args.disable_tqdm or ci_env
+
+    run_search_with_progress_bar(disable_tqdm)
+
+    wait_for_jobs_to_complete(0)
+    end_program(RESULT_CSV_FILE)
+
+def log_worker_creation():
+    _debug_worker_creation("time, nr_workers, got, requested, phase")
+
+def set_run_folder():
+    global CURRENT_RUN_FOLDER
+    RUN_FOLDER_NUMBER = 0
+    CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+
+    while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
+        RUN_FOLDER_NUMBER += 1
+        CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+
+def handle_maximize_argument():
+    if args.maximize:
+        print_red("--maximize is not fully supported yet!")
+
+def print_run_info():
+    print(f"[yellow]Run-folder[/yellow]: [underline]{get_current_run_folder()}[/underline]")
+    if args.continue_previous_job:
+        print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
+
+def initialize_nvidia_logs():
+    global NVIDIA_SMI_LOGS_BASE
+    NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
+
+def write_ui_url_if_present():
+    if args.ui_url:
+        with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
+            myfile.write(decode_if_base64(args.ui_url))
+
+def parse_parameters():
+    experiment_parameters = None
+    cli_params_experiment_parameters = None
+    if args.parameter:
+        experiment_parameters = parse_experiment_parameters()
+        cli_params_experiment_parameters = experiment_parameters
+    return experiment_parameters, cli_params_experiment_parameters
+
+def handle_random_steps():
+    global random_steps
+    if args.parameter and args.continue_previous_job and random_steps <= 0:
+        print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
+        random_steps = args.num_random_steps
+
+def initialize_ax_client(gs):
+    global ax_client
+    ax_client = AxClient(
+        verbose_logging=args.verbose,
+        enforce_sequential_optimization=args.enforce_sequential_optimization,
+        generation_strategy=gs
+    )
+
+def print_generation_strategy():
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-    with open(checkpoint_parameters_filepath, mode="w", encoding="utf-8") as outfile:
+def save_experiment_parameters(filepath, experiment_parameters):
+    with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-    print_overview_tables(experiment_parameters, experiment_args)
-
-    get_executor()
-
-    load_existing_job_data_into_ax_client()
-
-    original_print(f"Run-Program: {global_vars['joined_run_program']}")
-
-    max_nr_steps = second_step_steps
-    if count_done_jobs() < random_steps:
-        max_nr_steps = (random_steps - count_done_jobs()) + second_step_steps
-        #set_max_eval(max_nr_steps)
-
-    prev_steps_nr = 0
-
-    if args.continue_previous_job:
-        prev_steps_nr = get_steps_from_prev_job(args.continue_previous_job)
-
-        max_nr_steps = prev_steps_nr + max_nr_steps
-
-    save_global_vars()
-
-    write_process_info()
-
-    with tqdm(total=max_eval, disable=False) as _progress_bar:
+def run_search_with_progress_bar(disable_tqdm):
+    with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar
 
         progressbar_description(["Started OmniOpt2 run..."])
-
         update_progress_bar(progress_bar, count_done_jobs())
 
         run_search(progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
-
-    end_program(RESULT_CSV_FILE)
-
-def _unidiff_output(expected, actual):
-    """
-    Helper function. Returns a string containing the unified diff of two multiline strings.
-    """
-
-    expected = expected.splitlines(1)
-    actual = actual.splitlines(1)
-
-    diff = difflib.unified_diff(expected, actual)
-
-    return ''.join(diff)
-
-def print_diff(i, o):
-    if isinstance(i, str):
-        print("Should be:", i.strip())
-    else:
-        print("Should be:", i)
-
-    if isinstance(o, str):
-        print("Is:", o.strip())
-    else:
-        print("Is:", o)
-    if isinstance(i, str) or isinstance(o, str):
-        print("Diff:", _unidiff_output(json.dumps(i), json.dumps(o)))
-
-def _is_equal(name, _input, output):
-    _equal_types = [
-        int, str, float, bool
-    ]
-    for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) and _input != output:
-            print_red(f"Failed test (1): {name}")
-            return 1
-
-    if type(_input) is not type(output):
-        print_red(f"Failed test (4): {name}")
-        return 1
-
-    if isinstance(_input, bool) and _input != output:
-        print_red(f"Failed test (6): {name}")
-        return 1
-
-    if (output is None and _input is not None) or (output is not None and _input is None):
-        print_red(f"Failed test (7): {name}")
-        return 1
-
-    print_green(f"Test OK: {name}")
-    return 0
-
-def is_equal(n, i, o):
-    r = _is_equal(n, i, o)
-
-    if r:
-        print_diff(i, o)
-
-    return r
-
-def _is_not_equal(name, _input, output):
-    _equal_types = [
-        int, str, float, bool
-    ]
-    for equal_type in _equal_types:
-        if isinstance(_input, equal_type) and isinstance(output, equal_type) and _input == output:
-            print_red(f"Failed test (1): {name}")
-            return 1
-
-    if isinstance(_input, bool) and _input == output:
-        print_red(f"Failed test (2): {name}")
-        return 1
-
-    if not (output is not None and _input is not None):
-        print_red(f"Failed test (3): {name}")
-        return 1
-
-    print_green(f"Test OK: {name}")
-    return 0
-
-def is_not_equal(n, i, o):
-    r = _is_not_equal(n, i, o)
-
-    if r:
-        print_diff(i, o)
-
-    return r
 
 def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_yellow(f"Test suite: {_program_name}")
@@ -4729,32 +5011,43 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         f"{program_path_with_program} 1 2 3 45"
     )
 
-    stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
+    try:
+        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
-    stdout = stdout_stderr_exit_code_signal[0]
-    stderr = stdout_stderr_exit_code_signal[1]
-    exit_code = stdout_stderr_exit_code_signal[2]
-    _signal = stdout_stderr_exit_code_signal[3]
+        print("stdout_stderr_exit_code_signal:")
+        print(stdout_stderr_exit_code_signal)
 
-    res = get_result(stdout)
+        stdout = stdout_stderr_exit_code_signal[0]
+        stderr = stdout_stderr_exit_code_signal[1]
+        exit_code = stdout_stderr_exit_code_signal[2]
+        _signal = stdout_stderr_exit_code_signal[3]
 
-    if res_is_none:
-        nr_errors += is_equal(f"{_program_name} res is None", None, res)
-    else:
-        nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int)))
-    nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
-    nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
-    nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
+        res = get_result(stdout)
 
-    return nr_errors
+        if res_is_none:
+            nr_errors += is_equal(f"{_program_name} res is None", None, res)
+        else:
+            nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int)))
+        nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
+        nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
+        nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
 
+        return nr_errors
+    except Exception as e: # pragma: no cover
+        print_red(f"Error complex_tests: {e}")
+
+        return 1
+
+@wrapper_print_debug
 def get_files_in_dir(mypath):
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
+@wrapper_print_debug
 def test_find_paths(program_code):
+    print_debug(f"test_find_paths({program_code})")
     nr_errors = 0
 
     files = [
@@ -4781,47 +5074,199 @@ def test_find_paths(program_code):
 
     return nr_errors
 
+@wrapper_print_debug
 def run_tests():
-    global global_vars
+    print_red("This should be red")
+    print_yellow("This should be yellow")
+    print_green("This should be green")
 
-    #print_image_to_cli(".tools/slimer.png", 300)
-    #print_image_to_cli(".tools/slimer2.png", 300)
+    global global_vars
 
     print(f"Printing test from current line {get_line_info()}")
 
     nr_errors = 0
 
-    nr_errors += is_not_equal("nr equal string", 1, "1")
+    #def get_max_column_value(pd_csv, column, _default):
+    try:
+        ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)), '-123')
+
+        if not ie: # pragma: no cover
+            nr_errors += 1
+    except FileNotFoundError:
+        pass
+    except Exception as e: # pragma: no cover
+        print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!). Error: {e}")
+        nr_errors += 1
+
+    non_rounded_lower, non_rounded_upper = round_lower_and_upper_if_type_is_int("float", -123.4, 123.4)
+    nr_errors += is_equal("non_rounded_lower", non_rounded_lower, -123.4)
+    nr_errors += is_equal("non_rounded_upper", non_rounded_upper, 123.4)
+
+    rounded_lower, rounded_upper = round_lower_and_upper_if_type_is_int("int", -123.4, 123.4)
+    nr_errors += is_equal("rounded_lower", rounded_lower, -124)
+    nr_errors += is_equal("rounded_upper", rounded_upper, 124)
+
+    nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)), '17143005390319.627')
+    nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)), '9.865416064838896e+29')
+
+    nr_errors += is_equal('get_file_as_string("/i/do/not/exist/ANYWHERE/EVER")', get_file_as_string("/i/do/not/exist/ANYWHERE/EVER"), "")
+
+    nr_errors += is_equal('makedirs("/proc/AOIKJSDAOLSD")', makedirs("/proc/AOIKJSDAOLSD"), False)
+
+    nr_errors += is_equal('replace_string_with_params("hello %0 %1 world", [10, "hello"])', replace_string_with_params("hello %0 %1 world", [10, "hello"]), "hello 10 hello world")
+
+    nr_errors += is_equal('_count_sobol_or_completed("", "")', _count_sobol_or_completed("", ""), 0)
+
+    plot_params = get_plot_commands('_command', {"type": "trial_index_result", "min_done_jobs": 2}, '_tmp', 'plot_type', 'tmp_file', 1200)
+
+    nr_errors += is_equal('get_plot_commands', json.dumps(plot_params), json.dumps([['_command --save_to_file=tmp_file ', 'tmp_file', 1200]]))
+
+    plot_params_complex = get_plot_commands('_command', {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, '_tmp', 'plot_type', 'tmp_file', 1200)
+
+    expected_plot_params_complex = [['_command --bubblesize=50 --allow_axes n_samples --allow_axes confidence '
+                                     '--save_to_file=_tmp/plot_plot_type_n_samples_confidence.png ',
+                                     '_tmp/plot_plot_type_n_samples_confidence.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes n_samples --allow_axes '
+                                     'feature_proportion '
+                                     '--save_to_file=_tmp/plot_plot_type_n_samples_feature_proportion.png ',
+                                     '_tmp/plot_plot_type_n_samples_feature_proportion.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes n_samples --allow_axes n_clusters '
+                                     '--save_to_file=_tmp/plot_plot_type_n_samples_n_clusters.png ',
+                                     '_tmp/plot_plot_type_n_samples_n_clusters.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes confidence --allow_axes '
+                                     'feature_proportion '
+                                     '--save_to_file=_tmp/plot_plot_type_confidence_feature_proportion.png ',
+                                     '_tmp/plot_plot_type_confidence_feature_proportion.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes confidence --allow_axes n_clusters '
+                                     '--save_to_file=_tmp/plot_plot_type_confidence_n_clusters.png ',
+                                     '_tmp/plot_plot_type_confidence_n_clusters.png',
+                                     1200],
+                                    ['_command --bubblesize=50 --allow_axes feature_proportion --allow_axes '
+                                     'n_clusters '
+                                     '--save_to_file=_tmp/plot_plot_type_feature_proportion_n_clusters.png ',
+                                     '_tmp/plot_plot_type_feature_proportion_n_clusters.png',
+                                     1200]]
+
+    nr_errors += is_equal("get_plot_commands complex", json.dumps(plot_params_complex), json.dumps(expected_plot_params_complex))
+
+    nr_errors += is_equal('get_sixel_graphics_data("")', json.dumps(get_sixel_graphics_data('')), json.dumps([]))
+
+    global_vars["parameter_names"] = [
+        "n_samples",
+        "confidence",
+        "feature_proportion",
+        "n_clusters"
+    ]
+
+    got = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
+    expected = '[["bash omniopt_plot --run_dir None --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "None/plots/", "trial_index_result", "None/plots//trial_index_result.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "None/plots/", "scatter", "None/plots//plot_%0_%1_%2.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=general", {"type": "general"}, "None/plots/", "general", "None/plots//general.png", 1200]]'
+
+    nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, expected)
+
+    nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
+
+    res = get_hostname_from_outfile('.tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out')
+    nr_errors += is_equal('get_hostname_from_outfile(".tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out")', res, 'arbeitsrechner')
+
+    nr_errors += is_equal('get_parameters_from_outfile("")', get_parameters_from_outfile(''), None)
+    #res = {"one": 678, "two": 531, "three": 569, "four": 111, "five": 127, "six": 854, "seven": 971, "eight": 332, "nine": 235, "ten": 867.6452040672302}
+    #nr_errors += is_equal('get_parameters_from_outfile("".tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out")', get_parameters_from_outfile(".tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out"), res)
+
+    nonzerodebug = """
+Exit-Code: 159
+    """
+
+    nr_errors += is_equal(f'check_for_non_zero_exit_codes("{nonzerodebug}")', check_for_non_zero_exit_codes(nonzerodebug), ["Non-zero exit-code detected: 159.  (May mean " + get_exit_codes()[str(159)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"])
+
+    nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
+
+    nr_errors += is_equal('print_image_to_cli("", "")', print_image_to_cli("", ""), False)
+    nr_errors += is_equal('print_image_to_cli(".tools/slimer.png", 200)', print_image_to_cli(".tools/slimer.png", 200), True)
+
+    _check_for_basic_string_errors_example_str = """
+    Exec format error
+    """
+
+    nr_errors += is_equal('check_for_basic_string_errors("_check_for_basic_string_errors_example_str", "", [], "")', check_for_basic_string_errors(_check_for_basic_string_errors_example_str, "", [], ""), [f"Was the program compiled for the wrong platform? Current system is {platform.machine()}", "No files could be found in your program string: "])
+
+    nr_errors += is_equal("get_old_result_by_params('', {})", get_old_result_by_params('', {}), None)
+    nr_errors += is_equal("get_old_result_by_params('.tests/_plot_example_runs/empty_resultsfile/0/results.csv', {})", get_old_result_by_params('.tests/_plot_example_runs/empty_resultsfile/0/results.csv', {}), None)
+
+    nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
+
+    nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
+
+    nr_errors += is_equal('load_data_from_existing_run_folders("/dev/i/dont/exist/0")', load_data_from_existing_run_folders("/dev/i/dont/exist/0"), None)
+
+    nr_errors += is_equal('load_data_from_existing_run_folders(["/dev/i/dont/exist/0", "/dev/i/dont/exist/1"])', load_data_from_existing_run_folders(["/dev/i/dont/exist/0", "/dev/i/dont/exist/1"]), None)
+
+    nr_errors += is_equal('get_first_line_of_file_that_contains_string("IDONTEXIST", "HALLO")', get_first_line_of_file_that_contains_string("IDONTEXIST", "HALLO"), "")
+
+    nr_errors += is_equal('compare_parameters("x", "y")', compare_parameters("x", "y"), '')
+
+    nr_errors += is_equal('extract_info("OO-Info: SLURM_JOB_ID: 123")', json.dumps(extract_info("OO-Info: SLURM_JOB_ID: 123")), '[["OO_Info_SLURM_JOB_ID"], ["123"]]')
+
+    if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:
+        nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
+        nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
+    else: # pragma: no cover
+        print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
+
+    _not_equal = [
+        ["nr equal strings", 1, "1"],
+        ["unequal strings", "hallo", "welt"]
+    ]
+
+    for _item in _not_equal:
+        _name = _item[0]
+        _should_be = _item[1]
+        _is = _item[2]
+
+        nr_errors += is_not_equal(_name, _should_be, _is)
 
     nr_errors += is_equal("nr equal nr", 1, 1)
-    nr_errors += is_not_equal("unequal strings", "hallo", "welt")
 
-    nr_errors += is_equal("helpers.convert_string_to_number('123.123')", helpers.convert_string_to_number('123.123'), 123.123)
-    nr_errors += is_equal("helpers.convert_string_to_number('1')", helpers.convert_string_to_number('1'), 1)
-    nr_errors += is_equal("helpers.convert_string_to_number('-1')", helpers.convert_string_to_number('-1'), -1)
-    nr_errors += is_equal("helpers.convert_string_to_number(None)", helpers.convert_string_to_number(None), None)
-    nr_errors += is_equal("get_result(None)", get_result(None), None)
-
-    example_parse_parameter_type_error = "Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>."
     example_parse_parameter_type_error_result = {
         "parameter_name": "xxx",
         "current_type": "int",
         "expected_type": "float"
     }
 
-    nr_errors += is_equal("parse_parameter_type_error(None)", parse_parameter_type_error(None), None)
-    nr_errors += is_equal("parse_parameter_type_error(example_parse_parameter_type_error)", parse_parameter_type_error(example_parse_parameter_type_error), example_parse_parameter_type_error_result)
+    equal = [
+        ["helpers.convert_string_to_number('123.123')", 123.123],
+        ["helpers.convert_string_to_number('1')", 1],
+        ["helpers.convert_string_to_number('-1')", -1],
+        ["helpers.convert_string_to_number(None)", None],
+        ["get_result(None)", None],
+        ["parse_parameter_type_error(None)", None],
+        ["parse_parameter_type_error(\"Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>.\")", example_parse_parameter_type_error_result],
+        ["get_hostname_from_outfile(None)", None],
+        ["get_result(123)", None],
+        ["get_result('RESULT: 10')", 10.0],
+        ["helpers.looks_like_float(10)", True],
+        ["helpers.looks_like_float('hallo')", False],
+        ["helpers.looks_like_int('hallo')", False],
+        ["helpers.looks_like_int('1')", True],
+        ["helpers.looks_like_int(False)", False],
+        ["helpers.looks_like_int(True)", False],
+        ["_count_sobol_steps('/etc/idontexist')", 0],
+        ["_count_done_jobs('/etc/idontexist')", 0],
+        ["get_program_code_from_out_file('/etc/doesntexist')", ""],
+        ["get_type_short('RangeParameter')", "range"],
+        ["get_type_short('ChoiceParameter')", "choice"],
+        ["create_and_execute_next_runs(0, None, None, None)", 0]
+    ]
 
-    nr_errors += is_equal("get_hostname_from_outfile(None)", get_hostname_from_outfile(None), None)
+    for _item in equal:
+        _name = _item[0]
+        _should_be = _item[1]
 
-    nr_errors += is_equal("get_result(123)", get_result(123), None)
-    nr_errors += is_equal("get_result('RESULT: 10')", get_result('RESULT: 10'), 10.0)
-    nr_errors += is_equal("helpers.looks_like_float(10)", helpers.looks_like_float(10), True)
-    nr_errors += is_equal("helpers.looks_like_float('hallo')", helpers.looks_like_float('hallo'), False)
-    nr_errors += is_equal("helpers.looks_like_int('hallo')", helpers.looks_like_int('hallo'), False)
-    nr_errors += is_equal("helpers.looks_like_int('1')", helpers.looks_like_int('1'), True)
-    nr_errors += is_equal("helpers.looks_like_int(False)", helpers.looks_like_int(False), False)
-    nr_errors += is_equal("helpers.looks_like_int(True)", helpers.looks_like_int(True), False)
+        nr_errors += is_equal(_name, eval(_name), _should_be)
+
     nr_errors += is_equal(
         "replace_parameters_in_string({\"x\": 123}, \"echo 'RESULT: %x'\")",
         replace_parameters_in_string({"x": 123}, "echo 'RESULT: %x'"),
@@ -4842,78 +5287,92 @@ def run_tests():
             json.dumps({'result': -0.05})
     )
 
-    nr_errors += is_equal(
-        "_count_sobol_steps('/etc/idontexist')",
-        _count_sobol_steps("/etc/idontexist"),
-        0
-    )
-
-    nr_errors += is_equal(
-        "_count_done_jobs('/etc/idontexist')",
-        _count_done_jobs("/etc/idontexist"),
-        0
-    )
-
-    nr_errors += is_equal(
-        "get_program_code_from_out_file('/etc/doesntexist')",
-        get_program_code_from_out_file("/etc/doesntexist"),
-        ""
-    )
-
-    nr_errors += is_equal("get_type_short('RangeParameter')", get_type_short("RangeParameter"), "range")
-    nr_errors += is_equal(
-        "get_type_short('ChoiceParameter')",
-        get_type_short("ChoiceParameter"),
-        "choice"
-    )
-    nr_errors += is_equal(
-        "create_and_execute_next_runs(0, None, None, None)",
-        create_and_execute_next_runs(0, None, None, None),
-        0
-    )
-
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
-    nr_errors += complex_tests("simple_ok", "hallo", 0, None)
+    _complex_tests = [
+        ["simple_ok", "hallo", 0, None],
+        ["divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True],
+        ["result_but_exit_code_stdout_stderr", "stderr", 5, None],
+        ["exit_code_no_output", "", 5, None, True],
+        ["exit_code_stdout", "STDERR", 5, None, False],
+        ["no_chmod_x", "Permission denied", 126, None, True],
+        ["exit_code_stdout_stderr", "This has stderr", 5, None, True],
+        ["module_not_found", "ModuleNotFoundError", 1, None, True]
+    ]
 
-    nr_errors += complex_tests(
-        "divide_by_0",
-        'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n',
-        255,
-        None,
-        True
-    )
-    nr_errors += complex_tests("result_but_exit_code_stdout_stderr", "stderr", 5, None)
-    nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
-    nr_errors += complex_tests("exit_code_no_output", "", 5, None, True)
-    nr_errors += complex_tests("exit_code_stdout", "STDERR", 5, None, False)
-    nr_errors += complex_tests("no_chmod_x", "Permission denied", 126, None, True)
-    nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
-    nr_errors += complex_tests("exit_code_stdout_stderr", "This has stderr", 5, None, True)
-    nr_errors += complex_tests("module_not_found", "ModuleNotFoundError", 1, None, True)
+    for _item in _complex_tests:
+        nr_errors += complex_tests(*_item)
 
     find_path_res = test_find_paths("ls")
-    if find_path_res:
+    if find_path_res: # pragma: no cover
         is_equal("test_find_paths failed", True, False)
         nr_errors += find_path_res
 
+    orchestrator_yaml = ".tests/example_orchestrator_config.yaml"
+
+    if os.path.exists(orchestrator_yaml):
+        _is = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
+        should_be = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
+        nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
+    else: # pragma: no cover
+        nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
+
+    _example_csv_file = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
+    _best_results_from_example_file_minimize = json.dumps(get_best_params_from_csv(_example_csv_file, False))
+    _expected_best_result_minimize = json.dumps(json.loads('{"result": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
+
+    nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _expected_best_result_minimize, _best_results_from_example_file_minimize)
+
+    _best_results_from_example_file_maximize = json.dumps(get_best_params_from_csv(_example_csv_file, True))
+    _expected_best_result_maximize = json.dumps(json.loads('{"result": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
+
+    nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _expected_best_result_maximize, _best_results_from_example_file_maximize)
+
+    _print_best_result(_example_csv_file, False, False)
+
+    nr_errors += is_equal("get_workers_string()", get_workers_string(), "")
+
+    nr_errors += is_equal("check_file_info('/dev/i/dont/exist')", check_file_info('/dev/i/dont/exist'), "")
+
+    nr_errors += is_equal(
+        "get_parameters_from_outfile()",
+        get_parameters_from_outfile(""),
+        None
+    )
+
     my_exit(nr_errors)
 
-if __name__ == "__main__":
+def live_share_background(interval):
+    if not args.live_share:
+        return
+
+    while True:
+        live_share()
+        time.sleep(interval)
+
+def start_live_share_background_job():
+    if not args.live_share:
+        return
+
+    live_share()
+
+    interval = 10
+    thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
+    thread.start()
+
+@wrapper_print_debug
+def main_outside():
+    print_logo()
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
         if args.tests:
-            print_red("This should be red")
-            print_yellow("This should be yellow")
-            print_green("This should be green")
-
             run_tests()
         else:
             try:
                 main()
-            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
-                IS_IN_EVALUATE = False
 
                 end_program(RESULT_CSV_FILE, 1)
             except SearchSpaceExhausted:
@@ -4928,5 +5387,8 @@ if __name__ == "__main__":
 
                 if _get_perc != 100:
                     end_program(RESULT_CSV_FILE, 1, 87)
-                else:
+                else: # pragma: no cover
                     end_program(RESULT_CSV_FILE, 1)
+
+if __name__ == "__main__":
+    main_outside()

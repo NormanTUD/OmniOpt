@@ -1,0 +1,81 @@
+#!/bin/bash
+
+export disable_folder_creation=1
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+cd .gui
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+if ! command -v php 2>/dev/null >/dev/null; then
+	yellow_text "Cannot run share-test when PHP is not installed!"
+	exit 255
+fi
+
+ERRORS=()
+
+export share_path=_share_test_case
+export user_id=test_user
+export experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather
+export run_nr=0
+
+php_share_internal_startpage_test_user_id=$(php share_internal.php | sed -e 's#<!--\s*[^-]*\s*-->##g' -e 's#^\s*##' | grep -v '^\s*$' | tr '\n' ' ' | sed -e 's#\s\s*# #g' -e 's#\s*$##' -e 's#^\s##' 2>&1)
+expected_share_internal_startpage_test_user_id="Using sharesPath ./_share_test_case/ <script src='plotly-latest.min.js'></script> <script src='share.js'></script> <script src='share_graphs.js'></script> <link href=\"./share.css\" rel=\"stylesheet\" /> <div id=\"breadcrumb\"></div> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather</a><br> <a class='_share_link' href=\"share.php?user_id=test_user&experiment_name=ClusteredStatisticalTestDriftDetectionMethod_Powersupply&share_path=./_share_test_case/\">ClusteredStatisticalTestDriftDetectionMethod_Powersupply</a><br> <script>createBreadcrumb('./test_user//');</script>"
+
+if [[ "$php_share_internal_startpage_test_user" == "$expected_share_internal_startpage_test_user" ]]; then
+	green_text "php .gui/share_internal.php _share_test_case/test_user"
+else
+	error_msg="php .gui/share_internal.php _share_test_case/test_user failed.\nGot:\n$php_share_internal_startpage_test_user\nExpected:\n$expected_share_internal_startpage_test_user"
+	red_text "$error_msg"
+	ERRORS+=("$error_msg")
+fi
+
+original_dir=$(pwd)
+
+share_internal_output=$(php share_internal.php 2>&1)
+
+share_output_must_contain=(
+	"breadcrumb"
+	"createBreadcrumb"
+)
+
+for i in "${share_output_must_contain[@]}"; do
+	if echo "$share_internal_output" | grep "$i" 2>/dev/null >/dev/null; then
+		true
+	else
+		error_msg="php share_internal.php does not contain $i"
+		red_text "$error_msg"
+		ERRORS+=("$error_msg")
+	fi
+done
+
+if [ ${#ERRORS[@]} -eq 0 ]; then
+	green_text "No errors"
+else
+	red_text "=> ERRORS => ERRORS => ERRORS =>"
+	for i in "${ERRORS[@]}"; do
+		red_text "$i"
+		echo ""
+	done
+fi
+
+exit ${#ERRORS[@]}

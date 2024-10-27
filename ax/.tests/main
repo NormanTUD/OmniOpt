@@ -1,5 +1,31 @@
 #!/bin/bash
 
+{
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function extract_results() {
+	local file="$1"
+	if [[ ! -f "$file" ]]; then
+		echo "File not found!"
+		return 1
+	fi
+
+	awk -F, 'NR==1 {for (i=1; i<=NF; i++) if ($i == "result") col=i} NR>1 {print $col}' "$file"
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 export DISABLE_SIXEL_GRAPHICS=1
@@ -8,9 +34,9 @@ LOG_TIMES=()
 LOG_TIMES+=("Failed,Name,TestRunTime,ExitCode,WantedExitCodes,Success")
 
 unshift() {
-	local -n ary=$1       # Referenz auf das Array
-	local element=$2      # Das Element, das an den Anfang eingefügt werden soll
-	ary=("$element" "${ary[@]}")  # Neues Element an den Anfang des Arrays setzen
+	local -n ary=$1
+	local element=$2
+	ary=("$element" "${ary[@]}")
 }
 
 function displaytime {
@@ -36,6 +62,15 @@ EXPECTED_TO_FAIL=0
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
+
+cd ..
+
+if [[ ! -e .shellscript_functions ]]; then
+	echo ".shellscript_functions not found. Cannot continue."
+	exit 1
+fi
+
+source .shellscript_functions
 
 function join_by {
 	local d=${1-} f=${2-}
@@ -66,7 +101,7 @@ function calltracer () {
 	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
 		yellow_text "Git status hash:"
 		git rev-parse HEAD
-		red_text 'Error occured in file/line:'
+		red_text 'Error occurred in file/line:'
 		caller
 	fi
 }
@@ -84,7 +119,8 @@ function help () {
         echo "  --run_with_coverage                                Allows to use coverage instead of python3 for coverage testing unit test coverage"
         echo "  --quick                                            Only run quick tests"
         echo "  --reallyquick                                      Only run really quick tests"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --debug                                            Enables debug mode"
+        echo "  --no_plots                                         Disables plot tests"
         exit $1
 }
 
@@ -101,6 +137,8 @@ superquick=0
 reallyquick=0
 quick=0
 exit_on_first_error=0
+mem_gb=4
+no_plots=0
 
 args=("$@")
 k=0
@@ -111,8 +149,8 @@ while [ $k -lt ${#args[@]} ]; do
 		--run_with_coverage)
 			echo "Using *coverage run -p* instead of *python3*"
 			export RUN_WITH_COVERAGE=1
-
 			;;
+
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"
 			if ! [[ $num_random_steps =~ $int_re ]] ; then
@@ -121,6 +159,26 @@ while [ $k -lt ${#args[@]} ]; do
 			fi
 
 			;;
+
+		--mem_gb=*)
+			mem_gb="${i#*=}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+
+		--mem_gb)
+			shift
+			k=$((k+1))
+
+			mem_gb="${args[k]}"
+			if ! [[ $mem_gb =~ $int_re ]] ; then
+				red_text "error: --mem_gb not a INT: $i" >&2
+				exit 100
+			fi
+			;;
+
 		--num_random_steps)
 			shift
 			k=$((k+1))
@@ -130,16 +188,16 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --num_random_steps not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--max_eval=*)
 			max_eval="${i#*=}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
 				red_text "error: --max_eval not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--max_eval)
 
 			shift
@@ -150,16 +208,16 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --max_eval not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--gpus=*)
 			NUM_GPUS="${i#*=}"
 			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
 				red_text "error: --gpus not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--gpus)
 			shift
 			k=$((k+1))
@@ -177,8 +235,8 @@ while [ $k -lt ${#args[@]} ]; do
 				red_text "error: --num_parallel_jobs not a INT: $i" >&2
 				exit 100
 			fi
-
 			;;
+
 		--num_parallel_jobs)
 			shift
 			k=$((k+1))
@@ -191,8 +249,13 @@ while [ $k -lt ${#args[@]} ]; do
 
 			;;
 		--help*)
-			help 1
+			help 0
 			;;
+
+		--no_plots)
+			no_plots=1
+			;;
+
 		--exit_on_first_error)
 			exit_on_first_error=1
 			;;
@@ -242,15 +305,24 @@ if [[ "$max_eval" -lt "1" ]]; then
 fi
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"
 function _test {
+	if [[ -d None ]]; then
+		echo "None folder exists before (!!!) test $name -> $command"
+		exit 1
+	fi
 	NAME=$1
 	COMMAND=$2
 	WANTED_EXIT_CODE=$3
 	ALTERNATIVE_OK_EXIT_CODE=$4
+
+	if echo "$NAME" | grep -q "," 2>/dev/null >/dev/null; then
+		red_text "The name '$NAME' contains a comma, which, later on, will confuse the table generation tool. Please remove the comma from the name."
+		exit 255
+	fi
 
 	if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
 		yellow_text "Skipping $NAME because of --exit_on_first_error and one test failed..."
@@ -282,7 +354,7 @@ function _test {
 	set +e
 
 	START_TIME=$(date +%s)
-	$COMMAND
+	eval "$COMMAND"
 	exit_code=$?
 	END_TIME=$(date +%s)
 	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
@@ -328,112 +400,126 @@ function _test {
 
 	LOG_TIMES+=("$failed,$NAME,$TEST_RUN_TIME,$exit_code,$wanted_exit_codes,$failed_true_false")
 
-	echo "Test took $(displaytime $TEST_RUN_TIME) seconds"
+	echo "Test took $(displaytime $TEST_RUN_TIME)"
+
+	#if [[ -d None ]]; then
+	#	echo "None found. Exiting."
+	#	exit 0
+	#fi
+	
+	if [[ -d None ]]; then
+		echo "None folder exists after test $name -> $command"
+		exit 1
+	fi
 }
 
 PARTITION="alpha"
-TESTNAME=__main__tests__
 
-cd ..
+#if [[ "$quick" -eq "0" ]]; then
+#	bash .tests/example_network/install.sh
+#fi
 
-if [[ "$quick" -eq "0" ]]; then
-	bash .tests/example_network/install.sh
-fi
-
-if [[ -d "runs/$TESTNAME" ]]; then
-	yellow_text "Deleting old runs/$TESTNAME..."
-	if [[ -d runs/$TESTNAME ]]; then
-		rm -rf runs/$TESTNAME
+function delete_test {
+	tn=$1
+	if [[ -d "runs/$tn" ]]; then
+		yellow_text "Deleting old runs/$tn..."
+		if [[ -d runs/$tn ]]; then
+			rm -rf runs/$tn
+		fi
 	fi
-fi
+}
 
 function _test_nr_jobs {
-	JOBNR=$1
-	NRRAND=$2
-	NRNONRAND=$3
-	NRMANUAL=$4
+	_testname=$1
+	JOBNR=$2
+	NRRAND=$3
+	NRNONRAND=$4
+	NRMANUAL=$5
 
-	_test "Testing if there are the right number of jobs in runs/$TESTNAME/$JOBNR/results.csv" "./.tools/phases_overview runs/__main__tests__/$JOBNR/ $NRRAND $NRNONRAND $NRMANUAL" 0
+	_test "Testing if there are the right number of jobs in runs/$_testname/$JOBNR/results.csv" "./.tools/phases_overview runs/$_testname/$JOBNR/ $NRRAND $NRNONRAND $NRMANUAL" 0
 }
 
 PYTHON_OR_COVERAGE=python3
 
-if [[ -n $RUN_WITH_COVERAGE ]]; then
-	PYTHON_OR_COVERAGE="coverage run -p"
-
-	_cluster=""
-
-	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
-		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
-		if [[ -n $MYCLUSTER_HOST ]]; then
-			_cluster="_$MYCLUSTER_HOST"
-		fi
-	fi
-
-	LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
-
-	myml () {
-		if [[ -e $LMOD_DIR/ml_cmd ]]; then
-			eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
-		fi
-	}
-
-	if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-		myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4
-
-		if [[ $(uname -m) == "ppc64le" ]]; then
-			myml GCC/12.2.0 OpenBLAS/0.3.21
-		fi
-	fi
-
-	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
-
-	ROOT_VENV_DIR=$HOME
-	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
-
-	if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
-		ROOT_VENV_DIR=$root_venv_dir
-		VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
-	fi
-
-	source $VENV_DIR/bin/activate
-fi
-
 yellow_text "Python-Version:"
 python3 --version
 
-_test "Basic tests" "bash omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
-
 export DONT_INSTALL_MODULES=1
 
-_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus $NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-_test_nr_jobs 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
+#_test "php linter" ".tests/phpcs" 0 255
+_test "Plot Documentation" ".tests/plot_documentation_has_all_plot_types" 0
+_test "php_search" ".tests/php_search" 0 255
+_test "php_search" ".tests/php_search" 0 255
+_test "js_syntax" ".tests/js_syntax" 0 255
+_test "share" ".tests/share" 0 255
+_test "find_functions_that_are_defined_multiple_times" ".tests/find_functions_that_are_defined_multiple_times" 0
+_test "Unit tests" ".tests/unit_tests" 0 255
+_test "Find double functions that are in helpers and some other python script" ".tests/find_double_function_thats_already_in_helper" 0
 
-_test "Plot Documentation" "bash .tests/plot_documentation_has_all_plot_types" 0
-_test "help page Documentation" "bash .tests/help_page" 0
-_test "folder structure Documentation" "bash .tests/folder_structure" 0
-_test "state_files Documentation" "bash ./.tests/state_files" 0
-_test "php_files syntax check" "bash .tests/php_files" 0
+_test "help page Documentation" ".tests/help_page" 0
+_test "folder structure Documentation" ".tests/folder_structure" 0
+_test "state_files Documentation" "./.tests/state_files" 0
+_test "php_files syntax check" ".tests/php_files" 0
+_test "find_unused_share_functions" ".tests/find_unused_share_functions" 0
+_test "Find typos in gui" ".tests/find_typos_in_gui .gui" 0
+_test "Find missing env vars documentation" ".tests/find_missing_env_vars_documentation" 0
+_test "Find typos in bash" ".tests/find_typos_in_bash" 0
+_test "Find typos in js" ".tests/find_typos_in_js" 0
+_test "Find typos in php" ".tests/find_typos_in_php" 0
+
+_test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
+
+TESTNAME="__main__tests__BOTORCH_MODULAR___nogridsearch"
+
+rm -rf "runs/$TESTNAME" 2>/dev/null >/dev/null
+
+_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus=$NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval --mem_gb=$mem_gb" 0
+_test_nr_jobs "$TESTNAME" 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
+
+if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
+	_test "Linkchecker" ".tests/linkchecker" 0
+fi
+
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
+_test "Testing defective toml file" "./omniopt --config_toml .tests/defective_example_config.toml --follow" 5 1
+_test "Testing defective yaml file" "./omniopt --config_yaml .tests/defective_example_config.yaml --follow" 5 104
+_test "Testing defective json file" "./omniopt --config_json .tests/defective_example_config.json --follow" 5 104
+
+_test "Testing non-existant json config file" "./omniopt --config_json /dev/idontexist.json" 100
+
+_test "Find undocumented exit codes" ".tests/find_undocumented_exit_codes" 0
+
+if ! command -v sbatch 2>/dev/null >/dev/null; then
+	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3" 0
+fi
+
+_test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int false --parameter y range 5431 1234 float true" 0
+
+if [[ -z $CI ]]; then
+	if [[ $quick -eq 0 ]]; then
+		_test "Linter" "bash .tests/linter" 0
+		_test "lint_python" ".tests/lint_python" 0
+	else
+		_test "Linter (quick)" "bash .tests/linter --quick" 0
+	fi
+fi
+
+_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share" 0
+_test_nr_jobs "$TESTNAME" 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
 if [[ $superquick -eq 0 ]]; then
-	if [[ $quick -eq 0 ]]; then
-		_test "Linters" "bash .tests/linters" 0
-	else
-		_test "Linters (quick)" "bash .tests/linters --quick" 0
-	fi
+	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --live_share" 0
+	_test_nr_jobs "$TESTNAME" 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
 
-	_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval" 0
-	_test_nr_jobs 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
+	_test "--load_previous_job_data test" "./omniopt --partition=alpha --experiment_name=$TESTNAME --mem_gb=$mem_gb --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps=1 --model=BOTORCH_MODULAR --auto_exclude_defective_hosts --hide_ascii_plots --live_share --send_anonymized_usage_stats --load_previous_job_data runs/$TESTNAME/0 --follow" 0
 
-	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --hide_ascii_plots --mem_gb 5 --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float" 0
-	_test_nr_jobs 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
+	_test "Single job fixed param" "./omniopt --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --live_share --follow" 0
 
-	_test "--load_previous_job_data test" "./omniopt --partition=alpha --experiment_name=__main__tests__ --mem_gb=5 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps=1 --model=BOTORCH_MODULAR --auto_exclude_defective_hosts --hide_ascii_plots --load_previous_job_data runs/__main__tests__/0 --follow" 0
+	_test "raise_in_eval" "./omniopt --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --live_share --follow --raise_in_eval" 87
 
-	_test "Test search space exhaustion" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=20 --num_parallel_jobs=5 --gpus=$NUM_GPUS --num_random_steps=10 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
+	_test "Test search space exhaustion" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=20 --num_parallel_jobs=5 --gpus=$NUM_GPUS --num_random_steps=10 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --parameter x choice 0,1 --follow --max_nr_of_zero_results 3 --live_share --send_anonymized_usage_stats" 87
 
-	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=1 --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD --follow" 203
+	_test "Test wrong model name (should fail with 203)" "./omniopt --partition=alpha --gpus=$NUM_GPUS --experiment_name=test_wronggoing_stuff --mem_gb=$mem_gb --time=20 --worker_timeout=1 --max_eval=1 --num_parallel_jobs=10 --run_program=Li8udGVzdHMvdGVzdF93cm9uZ2dvaW5nX3N0dWZmLmJpbi9iaW4vJShwcm9ncmFtKQ== --parameter program choice divide_by_0 --hide_ascii_plots --num_random_steps=5 --model ASDAFASDASD --follow --live_share --send_anonymized_usage_stats" 203
 
 	_test "Test OO without needed params (none at all)" "./omniopt" 19 104
 
@@ -453,7 +539,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Incomplete choice parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice" 181 104
 
-	_test "Incomplete range parameter (mising upper and lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181 104
+	_test "Incomplete range parameter (missing upper and lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range" 181 104
 
 	_test "Incomplete range parameter (missing upper)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181 104
 
@@ -463,35 +549,43 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Invalid range type (upper = lower)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 0" 181 104
 
-	_test "Invalid range type (mising upper limit and type)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181 104
+	_test "Invalid range type (missing upper limit and type)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0" 181 104
 
 	_test "Invalid range type (missing upper limit)" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 float" 181 104
 
-	_test "Invalid constraint" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=0 --num_random_steps=20 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAleCV5Ig==' --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints 'x + y > 10' --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg==" 19
+	_test "Invalid constraint" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=$NUM_GPUS --num_random_steps=20 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAleCV5Ig==' --cpus_per_task=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints 'x + y > 10' --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg== --live_share --send_anonymized_usage_stats" 19
 
-	_test "Valid constraint and seed" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=4 --num_parallel_jobs=2 --gpus=0 --num_random_steps=2 --run_program=ZWNobyAiUkVTVUxUOiAleCV5Ig== --cpus_per_task=1 --tasks_per_node=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints x + y >= 10 --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlM0QlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg== --seed 1234 --verbose_tqdm --show_sixel_general --show_sixel_scatter --show_sixel_trial_index_result" 0
+	_test "Valid constraint and seed" "./omniopt --partition=alpha --experiment_name=constraint_test --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=4 --num_parallel_jobs=2 --gpus=$NUM_GPUS --num_random_steps=2 --run_program=ZWNobyAiUkVTVUxUOiAleCV5Ig== --cpus_per_task=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 0 100 int --parameter y range 0 1000 float --experiment_constraints 'x + y >= 10' --ui_url aHR0cDovL2xvY2FsaG9zdC9vbzJfZ3VpL2d1aS5waHA/cGFydGl0aW9uPWFscGhhJmV4cGVyaW1lbnRfbmFtZT1jb25zdHJhaW50X3Rlc3QmcmVzZXJ2YXRpb249JmFjY291bnQ9Jm1lbV9nYj0xJnRpbWU9NjAmd29ya2VyX3RpbWVvdXQ9NjAmbWF4X2V2YWw9NTAwJm51bV9wYXJhbGxlbF9qb2JzPTIwJmdwdXM9MCZudW1fcmFuZG9tX3N0ZXBzPTIwJmZvbGxvdz0xJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJnJ1bl9wcm9ncmFtPWVjaG8lMjAlMjJSRVNVTFQlM0ElMjAlMjV4JTI1eSUyMiZjcHVzX3Blcl90YXNrPTEmdGFza3NfcGVyX25vZGU9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZtYXhpbWl6ZT0wJmdyaWRzZWFyY2g9MCZtb2RlbD1CT1RPUkNIX01PRFVMQVImcnVuX21vZGU9bG9jYWwmY29uc3RyYWludHM9eCUyMCUyQiUyMHklMjAlM0UlM0QlMjAxMCZwYXJhbWV0ZXJfMF9uYW1lPXgmcGFyYW1ldGVyXzBfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMF9taW49MCZwYXJhbWV0ZXJfMF9tYXg9MTAwJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWludCZwYXJhbWV0ZXJfMV9uYW1lPXkmcGFyYW1ldGVyXzFfdHlwZT1yYW5nZSZwYXJhbWV0ZXJfMV9taW49MCZwYXJhbWV0ZXJfMV9tYXg9MTAwMCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1mbG9hdCZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mg== --seed 1234 --verbose_tqdm --live_share --send_anonymized_usage_stats --follow" 0
 
-	if command -v sbatch 2>/dev/null >/dev/null; then
-		#excluded_host=$(sinfo | grep -v PARTITION | grep mix | sed -e 's#.*mix\s*##' -e 's#,.*##' -e 's#-.*##' -e 's#\[##')
+	_test "Test search space exhaustion (sbatch with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=$mem_gb --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=$NUM_GPUS --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3 --live_share --send_anonymized_usage_stats --max_nr_of_zero_results 3" 87
 
-		#_test "Test search space exhaustion (sbatch, with excluded hosts)" "./omniopt --partition=$PARTITION --experiment_name=small_test_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=500 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpIg== --cpus_per_task=1 --tasks_per_node=1 --exclude=$excluded_host --parameter x choice 0,1 --follow --max_nr_of_zero_results 3" 87
-
-		true
+	if command -v nvidia-smi 2>/dev/null >/dev/null; then
+		_test "Load from toml" "./omniopt --config_toml .tests/example_config_gpu.toml --follow" 0
+		_test "Load from yaml" "./omniopt --config_yaml .tests/example_config_gpu.yaml --follow" 0
+		_test "Load from json" "./omniopt --config_json .tests/example_config_gpu.json --follow" 0
 	else
-		_test "Test orchestrator" "./.tests/orchestrator" 0
+		_test "Load from toml" "./omniopt --config_toml .tests/example_config_cpu.toml --follow" 0
+		_test "Load from yaml" "./omniopt --config_yaml .tests/example_config_cpu.yaml --follow" 0
+		_test "Load from json" "./omniopt --config_json .tests/example_config_cpu.json --follow" 0
 	fi
 
+	_test "Test orchestrator" "./.tests/orchestrator" 0
+
 	if [[ "$reallyquick" -eq "0" ]]; then
-		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps" 0 87
-		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch" 0
+		if [[ -z $CI ]]; then
+			_test "Find typos in python" "bash .tests/find_typos_in_python" 0
+		fi
 
-		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run_one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps" 0
+		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0 87
 
-		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run_two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps" 0 87
+		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+
+		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 
 		if [[ "$quick" -eq "0" ]]; then
-			for model_name in $(echo "SOBOL GPEI SAASBO FULLYBAYESIAN LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED"); do
-				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name" 0
+			for model_name in SOBOL GPEI SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED; do
+				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
 			done
 		fi
 
@@ -500,54 +594,85 @@ if [[ $superquick -eq 0 ]]; then
 			rm -rf runs/__main__I_DO_NOT_EXIST_tests__/0
 		fi
 
-		_test "Continue non-existing job" "bash omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --mem_gb 1 --time 30 --follow --gpus $NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps --max_eval=$max_eval" 105
-		_test "Trying to run 0 random steps (should fail)" "bash omniopt --partition=$PARTITION --experiment_name=$TESTNAME --mem_gb=1 --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus $NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0 --follow" 233
+		_test "Continue non-existing job" "bash omniopt --continue runs/__main__I_DO_NOT_EXIST_tests__/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --mem_gb $mem_gb --time 30 --follow --gpus $NUM_GPUS --hide_ascii_plots --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share --verbose" 105
 
-		TESTNAME="test_wronggoing_stuff"
-		yellow_text "Deleting runs/$TESTNAME/..."
-		if [[ -d runs/$TESTNAME/ ]]; then
-			rm -rf runs/$TESTNAME/
-		fi
+		export NO_OO_LOGO=1
+
+		_test "Trying to run 0 random steps (should fail)" "bash omniopt --partition=$PARTITION --experiment_name=$TESTNAME --mem_gb=$mem_gb --time=60 --worker_timeout=1 --max_eval=2 --num_parallel_jobs=20 --gpus $NUM_GPUS --run_program=Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3bykn --parameter int_param range -5 5 int --parameter float_param range -5 5 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -6 6 int --hide_ascii_plots --num_random_steps=0 --follow --send_anonymized_usage_stats --live_share --debug" 233
+
+		unset NO_OO_LOGO
+
+		#delete_test "maximize_test"
+		#_test "--maximize job" "./omniopt --partition=alpha --experiment_name=maximize_test --mem_gb=$mem_gb --time=20 --worker_timeout=60 --max_eval=5 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=2 --follow --live_share --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKHJlcyki' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter res range 0 10000 float false --maximize --seed 1234" 0
+		#_test_nr_jobs "maximize_test" 0 2 3 0
+
+		#first_res=$(extract_results "runs/maximize_test/0/results.csv" | head -n1)
+		#last_res=$(extract_results "runs/maximize_test/0/results.csv" | tail -n1)
+
+		#if (( $(echo "$first_res > $last_res" |bc -l) )); then
+		#	ERRORMSG="maximize_test failed. Expected the last result to be larger than the first one, but is last result = $last_res, first_res = $first_res"
+		#	red_text "$ERRORMSG"
+		#	errors+=($(echo "$ERRORMSG" | base64))
+		#fi
+
+		#delete_test "test_wronggoing_stuff"
 
 		_test "Test stuff that goes wrong" "bash .tests/wronggoing_stuff --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 0 87
-		#_test_nr_jobs 0 $num_random_steps $((20-$num_random_steps)) 0
 
 		_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 87
-		#_test_nr_jobs 1 1 0 0
 
 		if [[ "$quick" -eq "0" ]]; then
-			_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
-			_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0 87
-			_test "Plot-Tests" "bash .tests/plots" 0
+			#_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
+			#_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0 87
+			_test "Simple all float run" "bash .tests/start_simple_optimization_run --all_float --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
+			if [[ $no_plots -eq 0 ]]; then
+				if [[ $exit_on_first_error -eq 0 ]]; then
+					_test "Plot-Tests" "bash .tests/plots" 0
+				else
+					_test "Plot-Tests" "bash .tests/plots --exit_on_first_error" 0
+				fi
+			fi
 		else
-			_test "Plot-Tests --quick" "bash .tests/plots --quick" 0
+			if [[ $no_plots -eq 0 ]]; then
+				if [[ $exit_on_first_error -eq 0 ]]; then
+					_test "Plot-Tests --quick" "bash .tests/plots --quick" 0
+				else
+					_test "Plot-Tests --quick" "bash .tests/plots --quick --exit_on_first_error" 0
+				fi
+			fi
 		fi
 
-		#_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 16
+		#_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 2 16
+
+		if [[ -z $CI ]] && [[ -e /.dockerenv ]] && command -v docker 2>/dev/null >/dev/null; then
+			_test "Docker" "bash omniopt_docker ./.tests/main --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error" 0
+		fi
+
 	fi
-fi
-
-
-if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No errors"
-else
-	red_text "=> ERRORS => ERRORS => ERRORS =>"
-	for i in "${errors[@]}"; do
-		red_text "$(echo $i | base64 --decode)"
-		echo ""
-	done
-
 fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
-	if command -v firefox 2>/dev/null >/dev/null; then
-		coverage combine
-		coverage xml
-		coverage html
+	if command -v coverage 2>/dev/null >/dev/null; then
+		coverage combine 2>/dev/null >/dev/null
+		coverage xml 2>/dev/null >/dev/null
+		coverage json 2>/dev/null >/dev/null
+		coverage html 2>/dev/null >/dev/null
 
-		firefox htmlcov/index.html
+		coverage report
+
+		if [[ -n $GITHUB_STEP_SUMMARY ]]; then
+			echo "$(coverage report --format=markdown)" >> "$GITHUB_STEP_SUMMARY"
+		fi
+
+		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
+			firefox htmlcov/index.html
+		fi
+	else
+		red_text "--run_with_coverage was defined, but coverage could not be found"
 	fi
 fi
+
+unset_debug
 
 IFS=',' read -r -a headers <<< "${LOG_TIMES[0]}"
 
@@ -556,12 +681,17 @@ for header in "${headers[@]}"; do
 	max_lengths["$header"]=0
 done
 
-for entry in "${LOG_TIMES[@]}"; do
-	IFS=',' read -r -a fields <<< "$entry"
-	for i in "${!fields[@]}"; do
+for entry in "${LOG_TIMES[@]}"; do                     
+	IFS=',' read -r -a fields <<< "$entry"                   
+	for i in "${!fields[@]}"; do    
 		header="${headers[$i]}"
-		[[ ${#fields[$i]} -gt ${max_lengths[$header]} ]] && max_lengths["$header"]=${#fields[$i]}
-	done
+		if [[ -z "${headers[$i]}" ]]; then
+			echo "Error: No header for index $i found"
+		else
+			max_lengths["$header"]=${max_lengths["$header"]:-0}
+			[[ ${#fields[$i]} -gt ${max_lengths["$header"]} ]] && max_lengths["$header"]=${#fields[$i]}
+		fi
+	done          
 done
 
 print_table() {
@@ -629,10 +759,21 @@ print_table() {
 	done
 
 	printf "%s\n" "$end_line"
+
+
 }
 
 print_table
 
-echo "Test took $(displaytime $SECONDS)"
+if [[ $DEBUG -eq 1 ]]; then
+	set_debug
+fi
+
+#if [[ -n $GITHUB_STEP_SUMMARY ]]; then
+#	echo "{$(print_table)}" >> "$GITHUB_STEP_SUMMARY"
+#fi
+
+echo -e "\nTest took $(displaytime $SECONDS)"
 
 exit ${#errors[@]}
+}

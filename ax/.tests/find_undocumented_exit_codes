@@ -1,0 +1,14 @@
+#!/bin/bash
+
+errors=0
+
+for found_exit_code in $(grep -e "exit.[0-9]" omniopt .omniopt.py | sed -e 's#.*exit.##' | sed -e 's#).*##' | sort | grep -v "^0$" | sort -nr | uniq); do
+	if ! cat .gui/exit_code_table.php | sed -e 's#^\s*##' | grep "^$found_exit_code => " 2>/dev/null >/dev/null; then
+		echo -e "Failed: Undocumented exit-code $found_exit_code found"
+		errors=1
+	fi
+done
+
+if [[ $errors -eq 1 ]]; then
+	exit 1
+fi

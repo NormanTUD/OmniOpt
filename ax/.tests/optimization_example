@@ -1,5 +1,20 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 function echoerr() {
         echo "$@" 1>&2
 }
@@ -23,35 +38,47 @@ function help () {
         echo "  --int_param_two=(INT)"
         echo "  --float_param=(FLOAT)"
         echo "  --choice_param=(STRING)                            Must be 1, 2, 4, 8, 16 or hallo"
-        echo "  --fail_or_not=0|1                                         Whether to fail or not"
-        echo "  --help                                             this help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --fixed_param                                      Will be ignored"
+        echo "  --fail_or_not=0|1                                  Whether to fail or not"
+        echo "  --help                                             This help"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 export int_param=
 export int_param_two=
 export float_param=
 export choice_param=
+export fixed_param=
 export fail_or_not=0
 
-for i in $@; do
+for i in "$@"; do
         case $i in
+                --fixed_param=*)
+			fixed_param="${i#*=}"
+                        shift
+                        ;;
+
+
                 --int_param_two=*)
                         int_param_two="${i#*=}"
                         shift
                         ;;
+
                 --int_param=*)
                         int_param="${i#*=}"
                         shift
                         ;;
+
                 --float_param=*)
                         float_param="${i#*=}"
                         shift
                         ;;
+
                 --choice_param=*)
                         choice_param="${i#*=}"
                         shift
                         ;;
+
                 --fail_or_not=*)
                         new_param="${i#*=}"
 			if [[ "$new_param" == *"1"* ]]; then
@@ -59,12 +86,15 @@ for i in $@; do
 			fi
                         shift
                         ;;
+
                 -h|--help)
                         help 0
                         ;;
+
                 --debug)
-                        set -x
+			set_debug
                         ;;
+
                 *)
                         red_text "Unknown parameter $i" >&2
                         help 1
@@ -142,7 +172,6 @@ sub shekel {
 
         return $outer_sum;
 }
-
 
 print qq#RESULT: #.shekel(@ARGV).qq#\n#;
 ' -- $int_param $choice_param $float_param $int_param_two

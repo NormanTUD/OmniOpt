@@ -1,0 +1,73 @@
+#!/bin/bash
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+	if [[ -n $MYCLUSTER_HOST ]]; then
+		_cluster="_$MYCLUSTER_HOST"
+	fi
+fi
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+ROOT_VENV_DIR=$HOME
+
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+fi
+
+VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+errors=()
+
+cd .gui
+
+for funcname in $(cat share_functions.php | grep "function " | sed -e 's#^.*function ##' | sed -e 's#\s*(.*##'); do
+	count=$(cat *.php **/*.php | grep -v function | grep "$funcname" | wc -l)
+
+	if [[ $count == 0 ]]; then
+		"$funcname -> $count"
+		ERRSTR="Function $funcname in share_functions.php is never used anywhere."
+		red_text "$ERRSTR"
+		errors+=("$ERRSTR")
+	fi
+done
+
+secs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'find_unused_share_functions test took: %02d:%02d:%02d\n' $hrs $mins $secs
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No find_unused_share_functions errors"
+	exit 0
+else
+	red_text "=> FIND_UNUSED_SHARE_FUNCTIONS-ERRORS => FIND_UNUSED_SHARE_FUNCTIONS-ERRORS => FIND_UNUSED_SHARE_FUNCTIONS-ERRORS =>\n"
+	for i in "${errors[@]}"; do
+		red_text "$i"
+	done
+
+	exit ${#errors[@]}
+fi

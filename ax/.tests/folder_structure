@@ -33,7 +33,7 @@ cd ..
 
 state_files=()
 
-for state_file in $(ls runs/*/*/state_files | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
+for state_file in $(ls runs/*/*/state_files 2>/dev/null | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
 	state_files+=("$state_file")
 done
 
@@ -42,8 +42,8 @@ for state_file in "${state_files[@]}"; do
 		errmsg="State file $state_file does not appear in .gui/tutorials/folder_structure.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
-	else
-		green_text "$state_file does appear in .gui/tutorials/folder_structure.php"
+	#else
+	#	green_text "$state_file does appear in .gui/tutorials/folder_structure.php"
 	fi
 done
 

@@ -47,7 +47,7 @@ errors=()
 for i in $(ls .*.py | grep -v ".helpers.py"); do
 	pyflakes $i || {
 		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pyflakes $i' to see details."
-		red_text "$ERRSTR"
+		red_text "$ERRSTR\n"
 		errors+=("$ERRSTR")
 	}
 done

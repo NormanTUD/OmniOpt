@@ -1,0 +1,2278 @@
+{
+    "_type": "AxClient",
+    "experiment": {
+        "__type": "Experiment",
+        "name": "maximize_test",
+        "description": null,
+        "experiment_type": null,
+        "search_space": {
+            "__type": "SearchSpace",
+            "parameters": [
+                {
+                    "__type": "RangeParameter",
+                    "name": "res",
+                    "parameter_type": {
+                        "__type": "ParameterType",
+                        "name": "FLOAT"
+                    },
+                    "lower": 0.0,
+                    "upper": 10000.0,
+                    "log_scale": false,
+                    "logit_scale": false,
+                    "digits": null,
+                    "is_fidelity": false,
+                    "target_value": null
+                }
+            ],
+            "parameter_constraints": []
+        },
+        "optimization_config": {
+            "__type": "OptimizationConfig",
+            "objective": {
+                "__type": "Objective",
+                "metric": {
+                    "name": "result",
+                    "lower_is_better": false,
+                    "properties": {},
+                    "__type": "Metric"
+                },
+                "minimize": false
+            },
+            "outcome_constraints": [],
+            "risk_measure": null
+        },
+        "tracking_metrics": [],
+        "runner": null,
+        "status_quo": null,
+        "time_created": {
+            "__type": "datetime",
+            "value": "2024-10-24 11:22:24.418435"
+        },
+        "trials": {
+            "0": {
+                "__type": "Trial",
+                "index": 0,
+                "trial_type": null,
+                "ttl_seconds": null,
+                "status": {
+                    "__type": "TrialStatus",
+                    "name": "COMPLETED"
+                },
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:27.486043"
+                },
+                "time_completed": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:31.792622"
+                },
+                "time_staged": null,
+                "time_run_started": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:27.486157"
+                },
+                "abandoned_reason": null,
+                "failed_reason": null,
+                "run_metadata": {},
+                "stop_metadata": {},
+                "generator_run": {
+                    "__type": "GeneratorRun",
+                    "arms": [
+                        {
+                            "__type": "Arm",
+                            "parameters": {
+                                "res": 5481.485724449158
+                            },
+                            "name": "0_0"
+                        }
+                    ],
+                    "weights": [
+                        1.0
+                    ],
+                    "optimization_config": null,
+                    "search_space": null,
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:27.485920"
+                    },
+                    "model_predictions": null,
+                    "best_arm_predictions": null,
+                    "generator_run_type": null,
+                    "index": 0,
+                    "fit_time": 0.002246429998194799,
+                    "gen_time": 0.002117766001902055,
+                    "model_key": "Sobol",
+                    "model_kwargs": {
+                        "seed": null,
+                        "deduplicate": true,
+                        "init_position": 0,
+                        "scramble": true,
+                        "generated_points": null,
+                        "fallback_to_sample_polytope": false
+                    },
+                    "bridge_kwargs": {
+                        "transforms": [
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 9,
+                                "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 7,
+                                "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 6,
+                                "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 3,
+                                "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 5,
+                                "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 20,
+                                "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 15,
+                                "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                            }
+                        ],
+                        "transform_configs": null,
+                        "status_quo_name": null,
+                        "status_quo_features": null,
+                        "optimization_config": null,
+                        "fit_out_of_design": false,
+                        "fit_abandoned": false,
+                        "fit_tracking_metrics": true,
+                        "fit_on_init": true
+                    },
+                    "gen_metadata": {
+                        "model_fit_quality": null,
+                        "model_std_quality": null,
+                        "model_fit_generalization": null,
+                        "model_std_generalization": null
+                    },
+                    "model_state_after_gen": {
+                        "generated_points": {
+                            "__type": "ndarray",
+                            "value": [
+                                [
+                                    0.5481485724449158
+                                ]
+                            ]
+                        },
+                        "init_position": 1
+                    },
+                    "generation_step_index": 0,
+                    "candidate_metadata_by_arm_signature": null,
+                    "generation_node_name": "GenerationStep_0"
+                },
+                "runner": null,
+                "num_arms_created": 1,
+                "generation_step_index": 0,
+                "properties": {}
+            },
+            "1": {
+                "__type": "Trial",
+                "index": 1,
+                "trial_type": null,
+                "ttl_seconds": null,
+                "status": {
+                    "__type": "TrialStatus",
+                    "name": "COMPLETED"
+                },
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:32.147613"
+                },
+                "time_completed": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:36.479371"
+                },
+                "time_staged": null,
+                "time_run_started": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:32.147695"
+                },
+                "abandoned_reason": null,
+                "failed_reason": null,
+                "run_metadata": {},
+                "stop_metadata": {},
+                "generator_run": {
+                    "__type": "GeneratorRun",
+                    "arms": [
+                        {
+                            "__type": "Arm",
+                            "parameters": {
+                                "res": 2038.3698679506779
+                            },
+                            "name": "1_0"
+                        }
+                    ],
+                    "weights": [
+                        1.0
+                    ],
+                    "optimization_config": null,
+                    "search_space": null,
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:32.147389"
+                    },
+                    "model_predictions": null,
+                    "best_arm_predictions": null,
+                    "generator_run_type": null,
+                    "index": 0,
+                    "fit_time": 0.0033467510002083145,
+                    "gen_time": 0.0011119589980808087,
+                    "model_key": "Sobol",
+                    "model_kwargs": {
+                        "seed": null,
+                        "deduplicate": true,
+                        "init_position": 1,
+                        "scramble": true,
+                        "generated_points": {
+                            "__type": "ndarray",
+                            "value": [
+                                [
+                                    0.5481485724449158
+                                ]
+                            ]
+                        },
+                        "fallback_to_sample_polytope": false
+                    },
+                    "bridge_kwargs": {
+                        "transforms": [
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 9,
+                                "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 7,
+                                "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 6,
+                                "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 3,
+                                "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 5,
+                                "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 20,
+                                "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 15,
+                                "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                            }
+                        ],
+                        "transform_configs": null,
+                        "status_quo_name": null,
+                        "status_quo_features": null,
+                        "optimization_config": null,
+                        "fit_out_of_design": false,
+                        "fit_abandoned": false,
+                        "fit_tracking_metrics": true,
+                        "fit_on_init": true
+                    },
+                    "gen_metadata": {
+                        "model_fit_quality": null,
+                        "model_std_quality": null,
+                        "model_fit_generalization": null,
+                        "model_std_generalization": null
+                    },
+                    "model_state_after_gen": {
+                        "generated_points": {
+                            "__type": "ndarray",
+                            "value": [
+                                [
+                                    0.5481485724449158
+                                ],
+                                [
+                                    0.2038369867950678
+                                ]
+                            ]
+                        },
+                        "init_position": 2
+                    },
+                    "generation_step_index": 0,
+                    "candidate_metadata_by_arm_signature": null,
+                    "generation_node_name": "GenerationStep_0"
+                },
+                "runner": null,
+                "num_arms_created": 1,
+                "generation_step_index": 0,
+                "properties": {}
+            },
+            "2": {
+                "__type": "Trial",
+                "index": 2,
+                "trial_type": null,
+                "ttl_seconds": null,
+                "status": {
+                    "__type": "TrialStatus",
+                    "name": "COMPLETED"
+                },
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:37.422658"
+                },
+                "time_completed": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:41.878599"
+                },
+                "time_staged": null,
+                "time_run_started": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:37.422765"
+                },
+                "abandoned_reason": null,
+                "failed_reason": null,
+                "run_metadata": {},
+                "stop_metadata": {},
+                "generator_run": {
+                    "__type": "GeneratorRun",
+                    "arms": [
+                        {
+                            "__type": "Arm",
+                            "parameters": {
+                                "res": 9530.734106557242
+                            },
+                            "name": "2_0"
+                        }
+                    ],
+                    "weights": [
+                        1.0
+                    ],
+                    "optimization_config": null,
+                    "search_space": null,
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:37.401445"
+                    },
+                    "model_predictions": [
+                        {
+                            "result": [
+                                4618.437730366058
+                            ]
+                        },
+                        {
+                            "result": {
+                                "result": [
+                                    12980134.223000566
+                                ]
+                            }
+                        }
+                    ],
+                    "best_arm_predictions": [
+                        {
+                            "__type": "Arm",
+                            "parameters": {
+                                "res": 5481.485724449158
+                            },
+                            "name": "0_0"
+                        },
+                        [
+                            {
+                                "result": 5112.718465601227
+                            },
+                            {
+                                "result": {
+                                    "result": 1764563.2437137228
+                                }
+                            }
+                        ]
+                    ],
+                    "generator_run_type": null,
+                    "index": 0,
+                    "fit_time": 0.07231381900055567,
+                    "gen_time": 0.4222208409992163,
+                    "model_key": "BoTorch",
+                    "model_kwargs": {
+                        "surrogate_specs": null,
+                        "surrogate": null,
+                        "acquisition_class": null,
+                        "acquisition_options": null,
+                        "botorch_acqf_class": null,
+                        "refit_on_cv": false,
+                        "warm_start_refit": true
+                    },
+                    "bridge_kwargs": {
+                        "transform_configs": null,
+                        "torch_dtype": {
+                            "__type": "torch_dtype",
+                            "value": "torch.float64"
+                        },
+                        "torch_device": null,
+                        "status_quo_name": null,
+                        "status_quo_features": null,
+                        "optimization_config": null,
+                        "fit_out_of_design": false,
+                        "fit_abandoned": false,
+                        "fit_tracking_metrics": true,
+                        "fit_on_init": true,
+                        "default_model_gen_options": null,
+                        "transforms": [
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 9,
+                                "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 7,
+                                "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 6,
+                                "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 3,
+                                "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 5,
+                                "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 20,
+                                "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 15,
+                                "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 4,
+                                "transform_type": "<class 'ax.modelbridge.transforms.ivw.IVW'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 1,
+                                "transform_type": "<class 'ax.modelbridge.transforms.derelativize.Derelativize'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 11,
+                                "transform_type": "<class 'ax.modelbridge.transforms.standardize_y.StandardizeY'>"
+                            }
+                        ]
+                    },
+                    "gen_metadata": {
+                        "expected_acquisition_value": -0.7217456262372979,
+                        "model_fit_quality": 0.9541159833520021,
+                        "model_std_quality": 3.602187038355272,
+                        "model_fit_generalization": -1.0898101123146682,
+                        "model_std_generalization": 1.3866118576604785
+                    },
+                    "model_state_after_gen": {},
+                    "generation_step_index": 1,
+                    "candidate_metadata_by_arm_signature": null,
+                    "generation_node_name": "GenerationStep_1"
+                },
+                "runner": null,
+                "num_arms_created": 1,
+                "generation_step_index": 1,
+                "properties": {}
+            },
+            "3": {
+                "__type": "Trial",
+                "index": 3,
+                "trial_type": null,
+                "ttl_seconds": null,
+                "status": {
+                    "__type": "TrialStatus",
+                    "name": "COMPLETED"
+                },
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:43.320512"
+                },
+                "time_completed": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:47.963896"
+                },
+                "time_staged": null,
+                "time_run_started": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:43.320632"
+                },
+                "abandoned_reason": null,
+                "failed_reason": null,
+                "run_metadata": {},
+                "stop_metadata": {},
+                "generator_run": {
+                    "__type": "GeneratorRun",
+                    "arms": [
+                        {
+                            "__type": "Arm",
+                            "parameters": {
+                                "res": 10000.0
+                            },
+                            "name": "3_0"
+                        }
+                    ],
+                    "weights": [
+                        1.0
+                    ],
+                    "optimization_config": null,
+                    "search_space": null,
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:43.282389"
+                    },
+                    "model_predictions": [
+                        {
+                            "result": [
+                                9356.993159946174
+                            ]
+                        },
+                        {
+                            "result": {
+                                "result": [
+                                    1774910.3970459814
+                                ]
+                            }
+                        }
+                    ],
+                    "best_arm_predictions": [
+                        {
+                            "__type": "Arm",
+                            "parameters": {
+                                "res": 9530.734106557242
+                            },
+                            "name": "2_0"
+                        },
+                        [
+                            {
+                                "result": 9285.993405583802
+                            },
+                            {
+                                "result": {
+                                    "result": 1295458.5012264263
+                                }
+                            }
+                        ]
+                    ],
+                    "generator_run_type": null,
+                    "index": 0,
+                    "fit_time": 0.14505602799908957,
+                    "gen_time": 0.5116815139990649,
+                    "model_key": "BoTorch",
+                    "model_kwargs": {
+                        "surrogate_specs": null,
+                        "surrogate": null,
+                        "acquisition_class": null,
+                        "acquisition_options": null,
+                        "botorch_acqf_class": null,
+                        "refit_on_cv": false,
+                        "warm_start_refit": true
+                    },
+                    "bridge_kwargs": {
+                        "transform_configs": null,
+                        "torch_dtype": {
+                            "__type": "torch_dtype",
+                            "value": "torch.float64"
+                        },
+                        "torch_device": null,
+                        "status_quo_name": null,
+                        "status_quo_features": null,
+                        "optimization_config": null,
+                        "fit_out_of_design": false,
+                        "fit_abandoned": false,
+                        "fit_tracking_metrics": true,
+                        "fit_on_init": true,
+                        "default_model_gen_options": null,
+                        "transforms": [
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 9,
+                                "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 7,
+                                "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 6,
+                                "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 3,
+                                "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 5,
+                                "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 20,
+                                "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 15,
+                                "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 4,
+                                "transform_type": "<class 'ax.modelbridge.transforms.ivw.IVW'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 1,
+                                "transform_type": "<class 'ax.modelbridge.transforms.derelativize.Derelativize'>"
+                            },
+                            {
+                                "__type": "Type[Transform]",
+                                "index_in_registry": 11,
+                                "transform_type": "<class 'ax.modelbridge.transforms.standardize_y.StandardizeY'>"
+                            }
+                        ]
+                    },
+                    "gen_metadata": {
+                        "expected_acquisition_value": -2.576420583472193,
+                        "model_fit_quality": 0.9955883531610568,
+                        "model_std_quality": 5.579060433331151,
+                        "model_fit_generalization": 0.3375323590001643,
+                        "model_std_generalization": 1.5962398357873526
+                    },
+                    "model_state_after_gen": {},
+                    "generation_step_index": 1,
+                    "candidate_metadata_by_arm_signature": null,
+                    "generation_node_name": "GenerationStep_1"
+                },
+                "runner": null,
+                "num_arms_created": 1,
+                "generation_step_index": 1,
+                "properties": {}
+            }
+        },
+        "is_test": false,
+        "data_by_trial": {
+            "0": {
+                "__type": "OrderedDict",
+                "value": [
+                    [
+                        1729761751733,
+                        {
+                            "df": {
+                                "__type": "DataFrame",
+                                "value": "{\"arm_name\":{\"0\":\"0_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":5481.4857244492},\"sem\":{\"0\":null},\"trial_index\":{\"0\":0}}"
+                            },
+                            "description": null,
+                            "__type": "Data"
+                        }
+                    ]
+                ]
+            },
+            "1": {
+                "__type": "OrderedDict",
+                "value": [
+                    [
+                        1729761756417,
+                        {
+                            "df": {
+                                "__type": "DataFrame",
+                                "value": "{\"arm_name\":{\"0\":\"1_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":2038.3698679507},\"sem\":{\"0\":null},\"trial_index\":{\"0\":1}}"
+                            },
+                            "description": null,
+                            "__type": "Data"
+                        }
+                    ]
+                ]
+            },
+            "2": {
+                "__type": "OrderedDict",
+                "value": [
+                    [
+                        1729761761774,
+                        {
+                            "df": {
+                                "__type": "DataFrame",
+                                "value": "{\"arm_name\":{\"0\":\"2_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":9530.7341065572},\"sem\":{\"0\":null},\"trial_index\":{\"0\":2}}"
+                            },
+                            "description": null,
+                            "__type": "Data"
+                        }
+                    ]
+                ]
+            },
+            "3": {
+                "__type": "OrderedDict",
+                "value": [
+                    [
+                        1729761767889,
+                        {
+                            "df": {
+                                "__type": "DataFrame",
+                                "value": "{\"arm_name\":{\"0\":\"3_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":10000.0},\"sem\":{\"0\":null},\"trial_index\":{\"0\":3}}"
+                            },
+                            "description": null,
+                            "__type": "Data"
+                        }
+                    ]
+                ]
+            }
+        },
+        "properties": {
+            "immutable_search_space_and_opt_config": true
+        },
+        "default_data_type": {
+            "__type": "DataType",
+            "name": "DATA"
+        }
+    },
+    "generation_strategy": {
+        "__type": "GenerationStrategy",
+        "db_id": null,
+        "name": "Sobol+BoTorch",
+        "steps": [
+            {
+                "__type": "GenerationStep",
+                "model": {
+                    "__type": "Models",
+                    "name": "SOBOL"
+                },
+                "num_trials": 2,
+                "min_trials_observed": 2,
+                "completion_criteria": [],
+                "max_parallelism": 1,
+                "use_update": false,
+                "enforce_num_trials": true,
+                "model_kwargs": {
+                    "seed": null
+                },
+                "model_gen_kwargs": {
+                    "enforce_num_arms": true
+                },
+                "index": 0,
+                "should_deduplicate": true,
+                "transition_criteria": [
+                    {
+                        "threshold": 2,
+                        "only_in_statuses": null,
+                        "not_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "FAILED"
+                            },
+                            {
+                                "__type": "TrialStatus",
+                                "name": "ABANDONED"
+                            }
+                        ],
+                        "transition_to": "GenerationStep_1",
+                        "block_transition_if_unmet": true,
+                        "block_gen_if_met": true,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": false,
+                        "__type": "MaxTrials"
+                    },
+                    {
+                        "threshold": 2,
+                        "only_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "COMPLETED"
+                            },
+                            {
+                                "__type": "TrialStatus",
+                                "name": "EARLY_STOPPED"
+                            }
+                        ],
+                        "not_in_statuses": null,
+                        "transition_to": "GenerationStep_1",
+                        "block_transition_if_unmet": true,
+                        "block_gen_if_met": false,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": false,
+                        "__type": "MinTrials"
+                    },
+                    {
+                        "threshold": 1,
+                        "only_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "RUNNING"
+                            }
+                        ],
+                        "not_in_statuses": null,
+                        "transition_to": null,
+                        "block_transition_if_unmet": false,
+                        "block_gen_if_met": true,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": true,
+                        "__type": "MaxGenerationParallelism"
+                    }
+                ]
+            },
+            {
+                "__type": "GenerationStep",
+                "model": {
+                    "__type": "Models",
+                    "name": "BOTORCH_MODULAR"
+                },
+                "num_trials": -1,
+                "min_trials_observed": 0,
+                "completion_criteria": [],
+                "max_parallelism": 1,
+                "use_update": false,
+                "enforce_num_trials": true,
+                "model_kwargs": {},
+                "model_gen_kwargs": {
+                    "enforce_num_arms": true
+                },
+                "index": 1,
+                "should_deduplicate": true,
+                "transition_criteria": [
+                    {
+                        "threshold": 1,
+                        "only_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "RUNNING"
+                            }
+                        ],
+                        "not_in_statuses": null,
+                        "transition_to": null,
+                        "block_transition_if_unmet": false,
+                        "block_gen_if_met": true,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": true,
+                        "__type": "MaxGenerationParallelism"
+                    }
+                ]
+            }
+        ],
+        "curr_index": 1,
+        "generator_runs": [
+            {
+                "__type": "GeneratorRun",
+                "arms": [
+                    {
+                        "__type": "Arm",
+                        "parameters": {
+                            "res": 5481.485724449158
+                        },
+                        "name": "0_0"
+                    }
+                ],
+                "weights": [
+                    1.0
+                ],
+                "optimization_config": null,
+                "search_space": null,
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:27.485920"
+                },
+                "model_predictions": null,
+                "best_arm_predictions": null,
+                "generator_run_type": null,
+                "index": 0,
+                "fit_time": 0.002246429998194799,
+                "gen_time": 0.002117766001902055,
+                "model_key": "Sobol",
+                "model_kwargs": {
+                    "seed": null,
+                    "deduplicate": true,
+                    "init_position": 0,
+                    "scramble": true,
+                    "generated_points": null,
+                    "fallback_to_sample_polytope": false
+                },
+                "bridge_kwargs": {
+                    "transforms": [
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 9,
+                            "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 7,
+                            "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 6,
+                            "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 3,
+                            "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 5,
+                            "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 20,
+                            "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 15,
+                            "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                        }
+                    ],
+                    "transform_configs": null,
+                    "status_quo_name": null,
+                    "status_quo_features": null,
+                    "optimization_config": null,
+                    "fit_out_of_design": false,
+                    "fit_abandoned": false,
+                    "fit_tracking_metrics": true,
+                    "fit_on_init": true
+                },
+                "gen_metadata": {
+                    "model_fit_quality": null,
+                    "model_std_quality": null,
+                    "model_fit_generalization": null,
+                    "model_std_generalization": null
+                },
+                "model_state_after_gen": {
+                    "generated_points": {
+                        "__type": "ndarray",
+                        "value": [
+                            [
+                                0.5481485724449158
+                            ]
+                        ]
+                    },
+                    "init_position": 1
+                },
+                "generation_step_index": 0,
+                "candidate_metadata_by_arm_signature": null,
+                "generation_node_name": "GenerationStep_0"
+            },
+            {
+                "__type": "GeneratorRun",
+                "arms": [
+                    {
+                        "__type": "Arm",
+                        "parameters": {
+                            "res": 2038.3698679506779
+                        },
+                        "name": "1_0"
+                    }
+                ],
+                "weights": [
+                    1.0
+                ],
+                "optimization_config": null,
+                "search_space": null,
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:32.147389"
+                },
+                "model_predictions": null,
+                "best_arm_predictions": null,
+                "generator_run_type": null,
+                "index": 0,
+                "fit_time": 0.0033467510002083145,
+                "gen_time": 0.0011119589980808087,
+                "model_key": "Sobol",
+                "model_kwargs": {
+                    "seed": null,
+                    "deduplicate": true,
+                    "init_position": 1,
+                    "scramble": true,
+                    "generated_points": {
+                        "__type": "ndarray",
+                        "value": [
+                            [
+                                0.5481485724449158
+                            ]
+                        ]
+                    },
+                    "fallback_to_sample_polytope": false
+                },
+                "bridge_kwargs": {
+                    "transforms": [
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 9,
+                            "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 7,
+                            "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 6,
+                            "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 3,
+                            "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 5,
+                            "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 20,
+                            "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 15,
+                            "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                        }
+                    ],
+                    "transform_configs": null,
+                    "status_quo_name": null,
+                    "status_quo_features": null,
+                    "optimization_config": null,
+                    "fit_out_of_design": false,
+                    "fit_abandoned": false,
+                    "fit_tracking_metrics": true,
+                    "fit_on_init": true
+                },
+                "gen_metadata": {
+                    "model_fit_quality": null,
+                    "model_std_quality": null,
+                    "model_fit_generalization": null,
+                    "model_std_generalization": null
+                },
+                "model_state_after_gen": {
+                    "generated_points": {
+                        "__type": "ndarray",
+                        "value": [
+                            [
+                                0.5481485724449158
+                            ],
+                            [
+                                0.2038369867950678
+                            ]
+                        ]
+                    },
+                    "init_position": 2
+                },
+                "generation_step_index": 0,
+                "candidate_metadata_by_arm_signature": null,
+                "generation_node_name": "GenerationStep_0"
+            },
+            {
+                "__type": "GeneratorRun",
+                "arms": [
+                    {
+                        "__type": "Arm",
+                        "parameters": {
+                            "res": 9530.734106557242
+                        },
+                        "name": "2_0"
+                    }
+                ],
+                "weights": [
+                    1.0
+                ],
+                "optimization_config": null,
+                "search_space": null,
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:37.401445"
+                },
+                "model_predictions": [
+                    {
+                        "result": [
+                            4618.437730366058
+                        ]
+                    },
+                    {
+                        "result": {
+                            "result": [
+                                12980134.223000566
+                            ]
+                        }
+                    }
+                ],
+                "best_arm_predictions": [
+                    {
+                        "__type": "Arm",
+                        "parameters": {
+                            "res": 5481.485724449158
+                        },
+                        "name": "0_0"
+                    },
+                    [
+                        {
+                            "result": 5112.718465601227
+                        },
+                        {
+                            "result": {
+                                "result": 1764563.2437137228
+                            }
+                        }
+                    ]
+                ],
+                "generator_run_type": null,
+                "index": 0,
+                "fit_time": 0.07231381900055567,
+                "gen_time": 0.4222208409992163,
+                "model_key": "BoTorch",
+                "model_kwargs": {
+                    "surrogate_specs": null,
+                    "surrogate": null,
+                    "acquisition_class": null,
+                    "acquisition_options": null,
+                    "botorch_acqf_class": null,
+                    "refit_on_cv": false,
+                    "warm_start_refit": true
+                },
+                "bridge_kwargs": {
+                    "transform_configs": null,
+                    "torch_dtype": {
+                        "__type": "torch_dtype",
+                        "value": "torch.float64"
+                    },
+                    "torch_device": null,
+                    "status_quo_name": null,
+                    "status_quo_features": null,
+                    "optimization_config": null,
+                    "fit_out_of_design": false,
+                    "fit_abandoned": false,
+                    "fit_tracking_metrics": true,
+                    "fit_on_init": true,
+                    "default_model_gen_options": null,
+                    "transforms": [
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 9,
+                            "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 7,
+                            "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 6,
+                            "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 3,
+                            "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 5,
+                            "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 20,
+                            "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 15,
+                            "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 4,
+                            "transform_type": "<class 'ax.modelbridge.transforms.ivw.IVW'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 1,
+                            "transform_type": "<class 'ax.modelbridge.transforms.derelativize.Derelativize'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 11,
+                            "transform_type": "<class 'ax.modelbridge.transforms.standardize_y.StandardizeY'>"
+                        }
+                    ]
+                },
+                "gen_metadata": {
+                    "expected_acquisition_value": -0.7217456262372979,
+                    "model_fit_quality": 0.9541159833520021,
+                    "model_std_quality": 3.602187038355272,
+                    "model_fit_generalization": -1.0898101123146682,
+                    "model_std_generalization": 1.3866118576604785
+                },
+                "model_state_after_gen": {},
+                "generation_step_index": 1,
+                "candidate_metadata_by_arm_signature": null,
+                "generation_node_name": "GenerationStep_1"
+            },
+            {
+                "__type": "GeneratorRun",
+                "arms": [
+                    {
+                        "__type": "Arm",
+                        "parameters": {
+                            "res": 10000.0
+                        },
+                        "name": "3_0"
+                    }
+                ],
+                "weights": [
+                    1.0
+                ],
+                "optimization_config": null,
+                "search_space": null,
+                "time_created": {
+                    "__type": "datetime",
+                    "value": "2024-10-24 11:22:43.282389"
+                },
+                "model_predictions": [
+                    {
+                        "result": [
+                            9356.993159946174
+                        ]
+                    },
+                    {
+                        "result": {
+                            "result": [
+                                1774910.3970459814
+                            ]
+                        }
+                    }
+                ],
+                "best_arm_predictions": [
+                    {
+                        "__type": "Arm",
+                        "parameters": {
+                            "res": 9530.734106557242
+                        },
+                        "name": "2_0"
+                    },
+                    [
+                        {
+                            "result": 9285.993405583802
+                        },
+                        {
+                            "result": {
+                                "result": 1295458.5012264263
+                            }
+                        }
+                    ]
+                ],
+                "generator_run_type": null,
+                "index": 0,
+                "fit_time": 0.14505602799908957,
+                "gen_time": 0.5116815139990649,
+                "model_key": "BoTorch",
+                "model_kwargs": {
+                    "surrogate_specs": null,
+                    "surrogate": null,
+                    "acquisition_class": null,
+                    "acquisition_options": null,
+                    "botorch_acqf_class": null,
+                    "refit_on_cv": false,
+                    "warm_start_refit": true
+                },
+                "bridge_kwargs": {
+                    "transform_configs": null,
+                    "torch_dtype": {
+                        "__type": "torch_dtype",
+                        "value": "torch.float64"
+                    },
+                    "torch_device": null,
+                    "status_quo_name": null,
+                    "status_quo_features": null,
+                    "optimization_config": null,
+                    "fit_out_of_design": false,
+                    "fit_abandoned": false,
+                    "fit_tracking_metrics": true,
+                    "fit_on_init": true,
+                    "default_model_gen_options": null,
+                    "transforms": [
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 9,
+                            "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 7,
+                            "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 6,
+                            "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 3,
+                            "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 5,
+                            "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 20,
+                            "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 15,
+                            "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 4,
+                            "transform_type": "<class 'ax.modelbridge.transforms.ivw.IVW'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 1,
+                            "transform_type": "<class 'ax.modelbridge.transforms.derelativize.Derelativize'>"
+                        },
+                        {
+                            "__type": "Type[Transform]",
+                            "index_in_registry": 11,
+                            "transform_type": "<class 'ax.modelbridge.transforms.standardize_y.StandardizeY'>"
+                        }
+                    ]
+                },
+                "gen_metadata": {
+                    "expected_acquisition_value": -2.576420583472193,
+                    "model_fit_quality": 0.9955883531610568,
+                    "model_std_quality": 5.579060433331151,
+                    "model_fit_generalization": 0.3375323590001643,
+                    "model_std_generalization": 1.5962398357873526
+                },
+                "model_state_after_gen": {},
+                "generation_step_index": 1,
+                "candidate_metadata_by_arm_signature": null,
+                "generation_node_name": "GenerationStep_1"
+            }
+        ],
+        "had_initialized_model": true,
+        "experiment": {
+            "__type": "Experiment",
+            "name": "maximize_test",
+            "description": null,
+            "experiment_type": null,
+            "search_space": {
+                "__type": "SearchSpace",
+                "parameters": [
+                    {
+                        "__type": "RangeParameter",
+                        "name": "res",
+                        "parameter_type": {
+                            "__type": "ParameterType",
+                            "name": "FLOAT"
+                        },
+                        "lower": 0.0,
+                        "upper": 10000.0,
+                        "log_scale": false,
+                        "logit_scale": false,
+                        "digits": null,
+                        "is_fidelity": false,
+                        "target_value": null
+                    }
+                ],
+                "parameter_constraints": []
+            },
+            "optimization_config": {
+                "__type": "OptimizationConfig",
+                "objective": {
+                    "__type": "Objective",
+                    "metric": {
+                        "name": "result",
+                        "lower_is_better": false,
+                        "properties": {},
+                        "__type": "Metric"
+                    },
+                    "minimize": false
+                },
+                "outcome_constraints": [],
+                "risk_measure": null
+            },
+            "tracking_metrics": [],
+            "runner": null,
+            "status_quo": null,
+            "time_created": {
+                "__type": "datetime",
+                "value": "2024-10-24 11:22:24.418435"
+            },
+            "trials": {
+                "0": {
+                    "__type": "Trial",
+                    "index": 0,
+                    "trial_type": null,
+                    "ttl_seconds": null,
+                    "status": {
+                        "__type": "TrialStatus",
+                        "name": "COMPLETED"
+                    },
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:27.486043"
+                    },
+                    "time_completed": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:31.792622"
+                    },
+                    "time_staged": null,
+                    "time_run_started": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:27.486157"
+                    },
+                    "abandoned_reason": null,
+                    "failed_reason": null,
+                    "run_metadata": {},
+                    "stop_metadata": {},
+                    "generator_run": {
+                        "__type": "GeneratorRun",
+                        "arms": [
+                            {
+                                "__type": "Arm",
+                                "parameters": {
+                                    "res": 5481.485724449158
+                                },
+                                "name": "0_0"
+                            }
+                        ],
+                        "weights": [
+                            1.0
+                        ],
+                        "optimization_config": null,
+                        "search_space": null,
+                        "time_created": {
+                            "__type": "datetime",
+                            "value": "2024-10-24 11:22:27.485920"
+                        },
+                        "model_predictions": null,
+                        "best_arm_predictions": null,
+                        "generator_run_type": null,
+                        "index": 0,
+                        "fit_time": 0.002246429998194799,
+                        "gen_time": 0.002117766001902055,
+                        "model_key": "Sobol",
+                        "model_kwargs": {
+                            "seed": null,
+                            "deduplicate": true,
+                            "init_position": 0,
+                            "scramble": true,
+                            "generated_points": null,
+                            "fallback_to_sample_polytope": false
+                        },
+                        "bridge_kwargs": {
+                            "transforms": [
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 9,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 7,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 6,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 3,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 5,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 20,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 15,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                                }
+                            ],
+                            "transform_configs": null,
+                            "status_quo_name": null,
+                            "status_quo_features": null,
+                            "optimization_config": null,
+                            "fit_out_of_design": false,
+                            "fit_abandoned": false,
+                            "fit_tracking_metrics": true,
+                            "fit_on_init": true
+                        },
+                        "gen_metadata": {
+                            "model_fit_quality": null,
+                            "model_std_quality": null,
+                            "model_fit_generalization": null,
+                            "model_std_generalization": null
+                        },
+                        "model_state_after_gen": {
+                            "generated_points": {
+                                "__type": "ndarray",
+                                "value": [
+                                    [
+                                        0.5481485724449158
+                                    ]
+                                ]
+                            },
+                            "init_position": 1
+                        },
+                        "generation_step_index": 0,
+                        "candidate_metadata_by_arm_signature": null,
+                        "generation_node_name": "GenerationStep_0"
+                    },
+                    "runner": null,
+                    "num_arms_created": 1,
+                    "generation_step_index": 0,
+                    "properties": {}
+                },
+                "1": {
+                    "__type": "Trial",
+                    "index": 1,
+                    "trial_type": null,
+                    "ttl_seconds": null,
+                    "status": {
+                        "__type": "TrialStatus",
+                        "name": "COMPLETED"
+                    },
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:32.147613"
+                    },
+                    "time_completed": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:36.479371"
+                    },
+                    "time_staged": null,
+                    "time_run_started": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:32.147695"
+                    },
+                    "abandoned_reason": null,
+                    "failed_reason": null,
+                    "run_metadata": {},
+                    "stop_metadata": {},
+                    "generator_run": {
+                        "__type": "GeneratorRun",
+                        "arms": [
+                            {
+                                "__type": "Arm",
+                                "parameters": {
+                                    "res": 2038.3698679506779
+                                },
+                                "name": "1_0"
+                            }
+                        ],
+                        "weights": [
+                            1.0
+                        ],
+                        "optimization_config": null,
+                        "search_space": null,
+                        "time_created": {
+                            "__type": "datetime",
+                            "value": "2024-10-24 11:22:32.147389"
+                        },
+                        "model_predictions": null,
+                        "best_arm_predictions": null,
+                        "generator_run_type": null,
+                        "index": 0,
+                        "fit_time": 0.0033467510002083145,
+                        "gen_time": 0.0011119589980808087,
+                        "model_key": "Sobol",
+                        "model_kwargs": {
+                            "seed": null,
+                            "deduplicate": true,
+                            "init_position": 1,
+                            "scramble": true,
+                            "generated_points": {
+                                "__type": "ndarray",
+                                "value": [
+                                    [
+                                        0.5481485724449158
+                                    ]
+                                ]
+                            },
+                            "fallback_to_sample_polytope": false
+                        },
+                        "bridge_kwargs": {
+                            "transforms": [
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 9,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 7,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 6,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 3,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 5,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 20,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 15,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                                }
+                            ],
+                            "transform_configs": null,
+                            "status_quo_name": null,
+                            "status_quo_features": null,
+                            "optimization_config": null,
+                            "fit_out_of_design": false,
+                            "fit_abandoned": false,
+                            "fit_tracking_metrics": true,
+                            "fit_on_init": true
+                        },
+                        "gen_metadata": {
+                            "model_fit_quality": null,
+                            "model_std_quality": null,
+                            "model_fit_generalization": null,
+                            "model_std_generalization": null
+                        },
+                        "model_state_after_gen": {
+                            "generated_points": {
+                                "__type": "ndarray",
+                                "value": [
+                                    [
+                                        0.5481485724449158
+                                    ],
+                                    [
+                                        0.2038369867950678
+                                    ]
+                                ]
+                            },
+                            "init_position": 2
+                        },
+                        "generation_step_index": 0,
+                        "candidate_metadata_by_arm_signature": null,
+                        "generation_node_name": "GenerationStep_0"
+                    },
+                    "runner": null,
+                    "num_arms_created": 1,
+                    "generation_step_index": 0,
+                    "properties": {}
+                },
+                "2": {
+                    "__type": "Trial",
+                    "index": 2,
+                    "trial_type": null,
+                    "ttl_seconds": null,
+                    "status": {
+                        "__type": "TrialStatus",
+                        "name": "COMPLETED"
+                    },
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:37.422658"
+                    },
+                    "time_completed": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:41.878599"
+                    },
+                    "time_staged": null,
+                    "time_run_started": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:37.422765"
+                    },
+                    "abandoned_reason": null,
+                    "failed_reason": null,
+                    "run_metadata": {},
+                    "stop_metadata": {},
+                    "generator_run": {
+                        "__type": "GeneratorRun",
+                        "arms": [
+                            {
+                                "__type": "Arm",
+                                "parameters": {
+                                    "res": 9530.734106557242
+                                },
+                                "name": "2_0"
+                            }
+                        ],
+                        "weights": [
+                            1.0
+                        ],
+                        "optimization_config": null,
+                        "search_space": null,
+                        "time_created": {
+                            "__type": "datetime",
+                            "value": "2024-10-24 11:22:37.401445"
+                        },
+                        "model_predictions": [
+                            {
+                                "result": [
+                                    4618.437730366058
+                                ]
+                            },
+                            {
+                                "result": {
+                                    "result": [
+                                        12980134.223000566
+                                    ]
+                                }
+                            }
+                        ],
+                        "best_arm_predictions": [
+                            {
+                                "__type": "Arm",
+                                "parameters": {
+                                    "res": 5481.485724449158
+                                },
+                                "name": "0_0"
+                            },
+                            [
+                                {
+                                    "result": 5112.718465601227
+                                },
+                                {
+                                    "result": {
+                                        "result": 1764563.2437137228
+                                    }
+                                }
+                            ]
+                        ],
+                        "generator_run_type": null,
+                        "index": 0,
+                        "fit_time": 0.07231381900055567,
+                        "gen_time": 0.4222208409992163,
+                        "model_key": "BoTorch",
+                        "model_kwargs": {
+                            "surrogate_specs": null,
+                            "surrogate": null,
+                            "acquisition_class": null,
+                            "acquisition_options": null,
+                            "botorch_acqf_class": null,
+                            "refit_on_cv": false,
+                            "warm_start_refit": true
+                        },
+                        "bridge_kwargs": {
+                            "transform_configs": null,
+                            "torch_dtype": {
+                                "__type": "torch_dtype",
+                                "value": "torch.float64"
+                            },
+                            "torch_device": null,
+                            "status_quo_name": null,
+                            "status_quo_features": null,
+                            "optimization_config": null,
+                            "fit_out_of_design": false,
+                            "fit_abandoned": false,
+                            "fit_tracking_metrics": true,
+                            "fit_on_init": true,
+                            "default_model_gen_options": null,
+                            "transforms": [
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 9,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 7,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 6,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 3,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 5,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 20,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 15,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 4,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.ivw.IVW'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 1,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.derelativize.Derelativize'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 11,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.standardize_y.StandardizeY'>"
+                                }
+                            ]
+                        },
+                        "gen_metadata": {
+                            "expected_acquisition_value": -0.7217456262372979,
+                            "model_fit_quality": 0.9541159833520021,
+                            "model_std_quality": 3.602187038355272,
+                            "model_fit_generalization": -1.0898101123146682,
+                            "model_std_generalization": 1.3866118576604785
+                        },
+                        "model_state_after_gen": {},
+                        "generation_step_index": 1,
+                        "candidate_metadata_by_arm_signature": null,
+                        "generation_node_name": "GenerationStep_1"
+                    },
+                    "runner": null,
+                    "num_arms_created": 1,
+                    "generation_step_index": 1,
+                    "properties": {}
+                },
+                "3": {
+                    "__type": "Trial",
+                    "index": 3,
+                    "trial_type": null,
+                    "ttl_seconds": null,
+                    "status": {
+                        "__type": "TrialStatus",
+                        "name": "COMPLETED"
+                    },
+                    "time_created": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:43.320512"
+                    },
+                    "time_completed": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:47.963896"
+                    },
+                    "time_staged": null,
+                    "time_run_started": {
+                        "__type": "datetime",
+                        "value": "2024-10-24 11:22:43.320632"
+                    },
+                    "abandoned_reason": null,
+                    "failed_reason": null,
+                    "run_metadata": {},
+                    "stop_metadata": {},
+                    "generator_run": {
+                        "__type": "GeneratorRun",
+                        "arms": [
+                            {
+                                "__type": "Arm",
+                                "parameters": {
+                                    "res": 10000.0
+                                },
+                                "name": "3_0"
+                            }
+                        ],
+                        "weights": [
+                            1.0
+                        ],
+                        "optimization_config": null,
+                        "search_space": null,
+                        "time_created": {
+                            "__type": "datetime",
+                            "value": "2024-10-24 11:22:43.282389"
+                        },
+                        "model_predictions": [
+                            {
+                                "result": [
+                                    9356.993159946174
+                                ]
+                            },
+                            {
+                                "result": {
+                                    "result": [
+                                        1774910.3970459814
+                                    ]
+                                }
+                            }
+                        ],
+                        "best_arm_predictions": [
+                            {
+                                "__type": "Arm",
+                                "parameters": {
+                                    "res": 9530.734106557242
+                                },
+                                "name": "2_0"
+                            },
+                            [
+                                {
+                                    "result": 9285.993405583802
+                                },
+                                {
+                                    "result": {
+                                        "result": 1295458.5012264263
+                                    }
+                                }
+                            ]
+                        ],
+                        "generator_run_type": null,
+                        "index": 0,
+                        "fit_time": 0.14505602799908957,
+                        "gen_time": 0.5116815139990649,
+                        "model_key": "BoTorch",
+                        "model_kwargs": {
+                            "surrogate_specs": null,
+                            "surrogate": null,
+                            "acquisition_class": null,
+                            "acquisition_options": null,
+                            "botorch_acqf_class": null,
+                            "refit_on_cv": false,
+                            "warm_start_refit": true
+                        },
+                        "bridge_kwargs": {
+                            "transform_configs": null,
+                            "torch_dtype": {
+                                "__type": "torch_dtype",
+                                "value": "torch.float64"
+                            },
+                            "torch_device": null,
+                            "status_quo_name": null,
+                            "status_quo_features": null,
+                            "optimization_config": null,
+                            "fit_out_of_design": false,
+                            "fit_abandoned": false,
+                            "fit_tracking_metrics": true,
+                            "fit_on_init": true,
+                            "default_model_gen_options": null,
+                            "transforms": [
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 9,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.remove_fixed.RemoveFixed'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 7,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.choice_encode.OrderedChoiceToIntegerRange'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 6,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.one_hot.OneHot'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 3,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.int_to_float.IntToFloat'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 5,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.log.Log'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 20,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.logit.Logit'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 15,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.unit_x.UnitX'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 4,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.ivw.IVW'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 1,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.derelativize.Derelativize'>"
+                                },
+                                {
+                                    "__type": "Type[Transform]",
+                                    "index_in_registry": 11,
+                                    "transform_type": "<class 'ax.modelbridge.transforms.standardize_y.StandardizeY'>"
+                                }
+                            ]
+                        },
+                        "gen_metadata": {
+                            "expected_acquisition_value": -2.576420583472193,
+                            "model_fit_quality": 0.9955883531610568,
+                            "model_std_quality": 5.579060433331151,
+                            "model_fit_generalization": 0.3375323590001643,
+                            "model_std_generalization": 1.5962398357873526
+                        },
+                        "model_state_after_gen": {},
+                        "generation_step_index": 1,
+                        "candidate_metadata_by_arm_signature": null,
+                        "generation_node_name": "GenerationStep_1"
+                    },
+                    "runner": null,
+                    "num_arms_created": 1,
+                    "generation_step_index": 1,
+                    "properties": {}
+                }
+            },
+            "is_test": false,
+            "data_by_trial": {
+                "0": {
+                    "__type": "OrderedDict",
+                    "value": [
+                        [
+                            1729761751733,
+                            {
+                                "df": {
+                                    "__type": "DataFrame",
+                                    "value": "{\"arm_name\":{\"0\":\"0_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":5481.4857244492},\"sem\":{\"0\":null},\"trial_index\":{\"0\":0}}"
+                                },
+                                "description": null,
+                                "__type": "Data"
+                            }
+                        ]
+                    ]
+                },
+                "1": {
+                    "__type": "OrderedDict",
+                    "value": [
+                        [
+                            1729761756417,
+                            {
+                                "df": {
+                                    "__type": "DataFrame",
+                                    "value": "{\"arm_name\":{\"0\":\"1_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":2038.3698679507},\"sem\":{\"0\":null},\"trial_index\":{\"0\":1}}"
+                                },
+                                "description": null,
+                                "__type": "Data"
+                            }
+                        ]
+                    ]
+                },
+                "2": {
+                    "__type": "OrderedDict",
+                    "value": [
+                        [
+                            1729761761774,
+                            {
+                                "df": {
+                                    "__type": "DataFrame",
+                                    "value": "{\"arm_name\":{\"0\":\"2_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":9530.7341065572},\"sem\":{\"0\":null},\"trial_index\":{\"0\":2}}"
+                                },
+                                "description": null,
+                                "__type": "Data"
+                            }
+                        ]
+                    ]
+                },
+                "3": {
+                    "__type": "OrderedDict",
+                    "value": [
+                        [
+                            1729761767889,
+                            {
+                                "df": {
+                                    "__type": "DataFrame",
+                                    "value": "{\"arm_name\":{\"0\":\"3_0\"},\"metric_name\":{\"0\":\"result\"},\"mean\":{\"0\":10000.0},\"sem\":{\"0\":null},\"trial_index\":{\"0\":3}}"
+                                },
+                                "description": null,
+                                "__type": "Data"
+                            }
+                        ]
+                    ]
+                }
+            },
+            "properties": {
+                "immutable_search_space_and_opt_config": true
+            },
+            "default_data_type": {
+                "__type": "DataType",
+                "name": "DATA"
+            }
+        },
+        "nodes": [
+            {
+                "__type": "GenerationStep",
+                "model": {
+                    "__type": "Models",
+                    "name": "SOBOL"
+                },
+                "num_trials": 2,
+                "min_trials_observed": 2,
+                "completion_criteria": [],
+                "max_parallelism": 1,
+                "use_update": false,
+                "enforce_num_trials": true,
+                "model_kwargs": {
+                    "seed": null
+                },
+                "model_gen_kwargs": {
+                    "enforce_num_arms": true
+                },
+                "index": 0,
+                "should_deduplicate": true,
+                "transition_criteria": [
+                    {
+                        "threshold": 2,
+                        "only_in_statuses": null,
+                        "not_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "FAILED"
+                            },
+                            {
+                                "__type": "TrialStatus",
+                                "name": "ABANDONED"
+                            }
+                        ],
+                        "transition_to": "GenerationStep_1",
+                        "block_transition_if_unmet": true,
+                        "block_gen_if_met": true,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": false,
+                        "__type": "MaxTrials"
+                    },
+                    {
+                        "threshold": 2,
+                        "only_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "COMPLETED"
+                            },
+                            {
+                                "__type": "TrialStatus",
+                                "name": "EARLY_STOPPED"
+                            }
+                        ],
+                        "not_in_statuses": null,
+                        "transition_to": "GenerationStep_1",
+                        "block_transition_if_unmet": true,
+                        "block_gen_if_met": false,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": false,
+                        "__type": "MinTrials"
+                    },
+                    {
+                        "threshold": 1,
+                        "only_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "RUNNING"
+                            }
+                        ],
+                        "not_in_statuses": null,
+                        "transition_to": null,
+                        "block_transition_if_unmet": false,
+                        "block_gen_if_met": true,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": true,
+                        "__type": "MaxGenerationParallelism"
+                    }
+                ]
+            },
+            {
+                "__type": "GenerationStep",
+                "model": {
+                    "__type": "Models",
+                    "name": "BOTORCH_MODULAR"
+                },
+                "num_trials": -1,
+                "min_trials_observed": 0,
+                "completion_criteria": [],
+                "max_parallelism": 1,
+                "use_update": false,
+                "enforce_num_trials": true,
+                "model_kwargs": {},
+                "model_gen_kwargs": {
+                    "enforce_num_arms": true
+                },
+                "index": 1,
+                "should_deduplicate": true,
+                "transition_criteria": [
+                    {
+                        "threshold": 1,
+                        "only_in_statuses": [
+                            {
+                                "__type": "TrialStatus",
+                                "name": "RUNNING"
+                            }
+                        ],
+                        "not_in_statuses": null,
+                        "transition_to": null,
+                        "block_transition_if_unmet": false,
+                        "block_gen_if_met": true,
+                        "use_all_trials_in_exp": false,
+                        "continue_trial_generation": true,
+                        "__type": "MaxGenerationParallelism"
+                    }
+                ]
+            }
+        ],
+        "curr_node_name": "GenerationStep_1"
+    },
+    "_enforce_sequential_optimization": false
+}

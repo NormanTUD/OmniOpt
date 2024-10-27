@@ -1,8 +1,24 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 
 int_re='^[+-]?[0-9]+$'
+
 function echoerr() {
 	echo "$@" 1>&2
 }
@@ -19,35 +35,40 @@ function green_text {
 	echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
-
 function calltracer () {
 	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
 		yellow_text "Git status hash:"
 		git rev-parse HEAD
-		red_text 'Error occured in file/line:'
+		red_text 'Error occurred in file/line:'
 		caller
 	fi
 }
 
 trap 'calltracer' ERR
 
+# Help Function
 function help () {
 	echo "Possible options:"
-	echo "  --max_eval=(INT)                                   Number of max evals for this test"
-	echo "  --num_parallel_jobs (INT)                          Number of max parallel workers for this test"
-	echo "  --num_random_steps=(INT)                           Number of random steps"
-	echo "  --model=STR                                        Model name"
-	echo "  --gridsearch                                       Do gridsearch"
-	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
-	echo "  --time=(INT)                                       Time each subjob should run"
-	echo "  --allow_failure                                    Adds a param to randomly fail"
-	echo "  --help                                             this help"
-	echo "  --debug                                            Enables debug mode (set -x)"
+	echo "  --max_eval=(INT)          Maximum number of evaluations for this test"
+	echo "  --mem_gb=(INT)            Memory in GB (0 for all)"
+	echo "  --num_parallel_jobs=(INT) Maximum number of parallel workers for this test"
+	echo "  --num_random_steps=(INT)  Number of random steps"
+	echo "  --model=STR               Model name"
+	echo "  --gridsearch              Perform grid search"
+	echo "  --gpus=(INT)              Number of GPUs per worker"
+	echo "  --time=(INT)              Time each subjob should run"
+	echo "  --allow_failure           Adds a parameter to randomly fail"
+	echo "  --force_local_execution   Run locally even if SLURM is installed"
+	echo "  --all_float               Use all_float logic"
+	echo "  --one_param               One parameter"
+	echo "  --two_params              Two parameters"
+	echo "  --help                    This help"
+	echo "  --debug                   Enable debug mode"
 	exit $1
 }
 
 NUM_GPUS=0
-if command -v nvidia-smi 2>/dev/null >/dev/null; then
+if command -v nvidia-smi >/dev/null 2>&1; then
 	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
 fi
 
@@ -60,9 +81,113 @@ debug=0
 max_eval=30
 num_parallel_jobs=20
 allow_failure=0
+force_local_execution=0
 num_random_steps=$num_parallel_jobs
 time=60
 model=BOTORCH_MODULAR
+mem_gb=4
+all_float=0
+one_param=0
+
+function parse_argument() {
+	local arg="$1"
+	local var_name="$2"
+	local is_int="$3"
+
+	if [[ "$arg" == *=* ]]; then
+		value="${arg#*=}"
+	else
+		value="$2"
+		shift
+	fi
+
+	if [[ -n $value ]]; then
+		if [[ "$is_int" -eq 1 ]]; then
+			if ! [[ "$value" =~ $int_re ]]; then
+				red_text "Error: --${var_name} must be an integer: $arg" >&2
+				exit 100
+			fi
+		fi
+	fi
+
+	eval "$var_name=\"$value\""
+}
+
+function build_omniopt_command_all_float() {
+	local cmd=("./omniopt" "--partition=$PARTITION" "--experiment_name=example_all_float" "--mem_gb=$mem_gb" "--time=$time" "--worker_timeout=5" "--max_eval=$max_eval" "--num_parallel_jobs=$num_parallel_jobs" "--gpus=$NUM_GPUS" "--num_random_steps=$num_random_steps" "--follow" "--send_anonymized_usage_stats" "--run_program=$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)" | base64 -w 0)" "--cpus_per_task=1" "--nodes_per_job=1" "--model=BOTORCH_MODULAR" "--run_mode=local" "--parameter" "x range -1000 1000 float" "--parameter" "y range -1000 1000 float" "--parameter" "z range -1000 1000 float" "--parameter" "a range -1000 1000 float" "--live_share")
+
+	if [[ "$gridsearch" -eq "1" ]]; then
+		cmd+=("--gridsearch")
+	fi
+
+	if [[ "$allow_failure" -eq "1" ]]; then
+		cmd+=("--parameter" "fail_or_not choice \"0,1\"")
+		cmd=("${cmd[@]/--run_program=$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)" | base64 -w 0)/$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a) --fail_or_not=%(fail_or_not)" | base64 -w 0)}")
+	fi
+
+	if [[ "$force_local_execution" -eq "1" ]]; then
+		cmd+=("--force_local_execution")
+	fi
+
+	echo "${cmd[@]}"
+}
+
+function build_omniopt_command_standard() {
+	local base_cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts" "--hide_ascii_plots")
+
+	if [[ "$gridsearch" -eq "1" ]]; then
+		base_cmd+=("--gridsearch")
+	fi
+
+	if [[ "$allow_failure" -eq "1" ]]; then
+		base_cmd+=("--parameter" "fail_or_not choice \"0,1\"")
+		base_cmd=("${base_cmd[@]/--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0)/$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0)}")
+	fi
+
+	if [[ "$force_local_execution" -eq "1" ]]; then
+		base_cmd+=("--force_local_execution")
+	fi
+
+	echo "${base_cmd[@]}"
+}
+
+function build_omniopt_command_one_param() {
+	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
+
+	if [[ "$gridsearch" -eq "1" ]]; then
+		cmd+=("--gridsearch")
+	fi
+
+	if [[ "$allow_failure" -eq "1" ]]; then
+		cmd+=("--parameter" "fail_or_not choice \"0,1\"")
+		cmd=("${cmd[@]/--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)/$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1' --fail_or_not=%(fail_or_not)" | base64 -w 0)}")
+	fi
+
+	if [[ "$force_local_execution" -eq "1" ]]; then
+		cmd+=("--force_local_execution")
+	fi
+
+	echo "${cmd[@]}"
+}
+
+function build_omniopt_command_two_params() {
+	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
+
+	if [[ "$gridsearch" -eq "1" ]]; then
+		cmd+=("--gridsearch")
+	fi
+
+	if [[ "$allow_failure" -eq "1" ]]; then
+		cmd+=("--parameter" "fail_or_not choice \"0,1\"")
+		cmd=("${cmd[@]/--run_program=$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)/$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='1'  --int_param_two='1'"| base64 -w 0)}")
+	fi
+
+	if [[ "$force_local_execution" -eq "1" ]]; then
+		cmd+=("--force_local_execution")
+	fi
+
+	echo "${cmd[@]}"
+}
 
 args=("$@")
 k=0
@@ -70,247 +195,127 @@ while [ $k -lt ${#args[@]} ]; do
 	i="${args[k]}"
 
 	case $i in
+		--all_float=*|--all_float)
+			all_float=1
+			;;
+		--force_local_execution)
+			force_local_execution=1
+			;;
 		--allow_failure)
 			allow_failure=1
 			;;
 		--gridsearch)
 			gridsearch=1
-			shift
 			;;
-
-		--time=*)
-			time="${i#*=}"
-			if ! [[ $time =~ $int_re ]] ; then
-				red_text "error: --time not a INT: $i" >&2
-				exit 100
-			fi
+		--one_param)
+			one_param=1
 			;;
-		--time)
-			shift
-			k=$((k+1))
-
-			time="${args[k]}"
-			if ! [[ $time =~ $int_re ]] ; then
-				red_text "error: --time not a INT: $i" >&2
-				exit 100
-			fi
+		--two_params)
+			two_params=1
 			;;
-		--max_eval=*)
-			max_eval="${i#*=}"
-			if ! [[ $max_eval =~ $int_re ]] ; then
-				red_text "error: --max_eval not a INT: $i" >&2
-				exit 100
-			fi
+		--mem_gb=*|--mem_gb)
+			parse_argument "$i" "mem_gb" 1
 			;;
-		--max_eval)
-			shift
-			k=$((k+1))
-
-			max_eval="${args[k]}"
-			if ! [[ $max_eval =~ $int_re ]] ; then
-				red_text "error: --max_eval not a INT: $i" >&2
-				exit 100
-			fi
-
+		--time=*|--time)
+			parse_argument "$i" "time" 1
 			;;
-
-		--model=*)
-			model="${i#*=}"
+		--max_eval=*|--max_eval)
+			parse_argument "$i" "max_eval" 1
 			;;
-		--model)
-			shift
-			k=$((k+1))
-
-			model="${args[k]}"
+		--model=*|--model)
+			parse_argument "$i" "model" 0
 			;;
-
-		--num_random_steps=*)
-			num_random_steps="${i#*=}"
-			if ! [[ $num_random_steps =~ $int_re ]] ; then
-				red_text "error: --num_random_steps not a INT: $i" >&2
-				exit 100
-			fi
-
+		--num_random_steps=*|--num_random_steps)
+			parse_argument "$i" "num_random_steps" 1
 			;;
-		--num_random_steps)
-			shift
-			k=$((k+1))
-
-			num_random_steps="${args[k]}"
-			if ! [[ $num_random_steps =~ $int_re ]] ; then
-				red_text "error: --num_random_steps not a INT: $i" >&2
-				exit 100
-			fi
-
+		--num_parallel_jobs=*|--num_parallel_jobs)
+			parse_argument "$i" "num_parallel_jobs" 1
 			;;
-		--num_parallel_jobs=*)
-			num_parallel_jobs="${i#*=}"
-			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
-				red_text "error: --num_parallel_jobs not a INT: $i" >&2
-				exit 100
-			fi
-
+		--gpus=*|--gpus)
+			parse_argument "$i" "NUM_GPUS" 1
 			;;
-		--num_parallel_jobs)
-			shift
-			k=$((k+1))
-
-			num_parallel_jobs="${args[k]}"
-			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
-				red_text "error: --num_parallel_jobs not a INT: $i" >&2
-				exit 100
-			fi
-
-			;;
-		--gpus=*)
-			NUM_GPUS="${i#*=}"
-			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
-				red_text "error: --gpus not a INT: $i" >&2
-				exit 100
-			fi
-
-			;;
-		--gpus)
-			shift
-			k=$((k+1))
-
-			NUM_GPUS="${args[k]}"
-			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
-				red_text "error: --gpus not a INT: $i" >&2
-				exit 100
-			fi
-			;;
-
 		--help*)
-			help 1
+			help 0
 			;;
 		--debug)
 			debug=1
 			;;
-
 		*)
-			red_text "Unknown parameter $i"
+			red_text "Unknown parameter: $i"
 			exit 2
 			;;
 	esac
 	k=$((k+1))
 done
 
+if [[ $one_param -eq 1 ]] && [[ $two_params -eq 1 ]]; then
+	red_text "--one_param and --two_params cannot be combined."
+	exit 1
+fi
+
+if [[ $one_param -eq 1 ]] && [[ $all_float -eq 1 ]]; then
+	red_text "--one_param cannot be used with --all_float."
+	exit 1
+fi
+
+if [[ $two_params -eq 1 ]] && [[ $all_float -eq 1 ]]; then
+	red_text "--two_params cannot be used with --all_float."
+	exit 1
+fi
+
 if [[ "$num_parallel_jobs" -lt "1" ]]; then
-	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs"
+	red_text "num_parallel_jobs must be larger than 1, is $num_parallel_jobs"
 	exit 1
 fi
 
 if [[ "$max_eval" -lt "1" ]]; then
-	red_text "Max_eval must be 1 or more, is $max_eval"
+	red_text "max_eval must be larger than 1, is $max_eval"
 	exit 1
 fi
 
 if [[ "$debug" -eq "1" ]]; then
-	set -x
+	set_debug
 fi
 
-
 PARTITION="alpha"
-TESTNAME=__main__tests__
+TESTNAME="__main__tests__${model}__"
+
+if [[ "$force_local_execution" -eq "1" ]]; then
+	TESTNAME="${TESTNAME}_local"
+fi
 
 if [[ "$gridsearch" -eq "1" ]]; then
 	TESTNAME="${TESTNAME}_gridsearch"
-	if [[ "$allow_failure" -eq "0" ]]; then
-		./omniopt \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=5 \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--gridsearch \
-			--hide_ascii_plots
-		exit_code=$?
-	else
-		./omniopt \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=5 \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--parameter fail_or_not choice "0,1" \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--gridsearch \
-			--hide_ascii_plots
-		exit_code=$?
-	fi
 else
-	if [[ "$allow_failure" -eq "0" ]]; then
-		./omniopt \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=5 \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--hide_ascii_plots
-		exit_code=$?
+	TESTNAME="${TESTNAME}_nogridsearch"
+fi
+
+if [[ "$one_param" -eq "1" ]]; then
+	TESTNAME="__main__tests__${model}__one_param"
+
+	if [[ "$force_local_execution" -eq "1" ]]; then
+		TESTNAME="${TESTNAME}_local"
+	fi
+
+	if [[ "$gridsearch" -eq "1" ]]; then
+		TESTNAME="${TESTNAME}_gridsearch"
 	else
-		./omniopt \
-			--send_anonymized_usage_stats \
-			--partition $PARTITION \
-			--experiment_name $TESTNAME \
-			--mem_gb=5 \
-			--time $time \
-			--worker_timeout=5 \
-			--max_eval $max_eval \
-			--num_parallel_jobs $num_parallel_jobs \
-			--gpus $NUM_GPUS \
-			--run_program $(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --fail_or_not=%(fail_or_not)" | base64 -w 0) \
-			--parameter int_param range -100 10 int \
-			--parameter float_param range -100 10 float \
-			--parameter choice_param choice 1,2,4,8,16,hallo \
-			--parameter int_param_two range -100 10 int \
-			--parameter fail_or_not choice "0,1" \
-			--follow \
-			--num_random_steps $num_random_steps \
-			--model $model \
-			--auto_exclude_defective_hosts \
-			--hide_ascii_plots
-		exit_code=$?
+		TESTNAME="${TESTNAME}_nogridsearch"
 	fi
 fi
+
+if [[ "$one_param" -eq "1" ]]; then
+	omniopt_cmd=$(build_omniopt_command_one_param)
+elif [[ "$all_float" -eq "1" ]]; then
+	omniopt_cmd=$(build_omniopt_command_all_float)
+elif [[ "$two_params" -eq "1" ]]; then
+	omniopt_cmd=$(build_omniopt_command_two_params)
+else
+	omniopt_cmd=$(build_omniopt_command_standard)
+fi
+
+green_text "$omniopt_cmd"
+eval "$omniopt_cmd"
+exit_code=$?
 
 exit $exit_code

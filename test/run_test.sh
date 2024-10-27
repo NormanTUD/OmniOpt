@@ -25,7 +25,7 @@ export projectdir=test/projects/
 export usegpus=0
 export timeparam_str="01:00:00"
 
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --no_quota_test)
                         quota_tests=0

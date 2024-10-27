@@ -1,11 +1,13 @@
 <?php
-	function assertCondition($condition, $errorText) {
+	function assertCondition($condition, $errorText)
+	{
 		if (!$condition) {
 			throw new Exception($errorText);
 		}
 	}
 
-	function parsePath($path) {
+	function parsePath($path)
+	{
 		try {
 			// Prüfen, ob der Pfad mit "shares/" beginnt
 			assertCondition(strpos($path, "shares/") === 0, "Der Pfad muss mit 'shares/' beginnen");
@@ -36,10 +38,11 @@
 		}
 	}
 
-	function scan_share_directories($output, $root_dir, $regex_pattern) {
+	function scan_share_directories($output, $root_dir, $regex_pattern)
+	{
 		// Check if the root directory exists
 		if (!is_dir($root_dir)) {
-			throw new Exception("The root directory does not exist: " . $root_dir);
+			return $output;
 		}
 
 		// Get the list of directories in the root directory
@@ -87,7 +90,7 @@
 					// Check if the run directory name matches the regex pattern
 					if (preg_match($regex_pattern, $run_path, $matches)) {
 						$parsedPath = parsePath($run_path);
-						$url = "share.php?user=".$parsedPath['user']."&experiment=".$parsedPath['directory']."&run_nr=".$parsedPath['file'];
+						$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
 						$entry = [
 							'link' => $url,
 							'content' => "OmniOpt-Share: $run_path"
@@ -102,7 +105,8 @@
 	}
 
 	// Funktion zum Lesen des Inhalts einer Datei
-	function read_file_content($file_path) {
+	function read_file_content($file_path)
+	{
 		try {
 			if (!file_exists($file_path)) {
 				throw new Exception("Datei nicht gefunden: $file_path");
@@ -118,23 +122,56 @@
 		}
 	}
 
-	// Funktion zum Extrahieren von HTML-Code aus PHP-Datei
-	function extract_html_from_php($file_content) {
+	function extract_html_from_php($filename)
+	{
+		// Überprüfen, ob die Datei existiert
+		if (!file_exists($filename)) {
+			return 'Fehler: Datei existiert nicht.';
+		}
+
+		// Initialisiere den Befehl zum Ausführen der PHP-Datei
+		$command = escapeshellcmd("php $filename");
+
+		// Starte die Ausgabe-Pufferung, um den Output des Systemaufrufs zu erfassen
 		ob_start();
-		eval('?>' . implode("\n", $file_content));
-		$html_content = ob_get_clean();
-		$html_content = preg_replace("/<head>.*<\/head>/is", "", $html_content);
-		return $html_content;
+
+		try {
+			// Führe den Systemaufruf aus, um die PHP-Datei auszuführen
+			passthru($command, $return_var);
+
+			// Erfasse den gesamten Output des Systemaufrufs
+			$output = ob_get_clean();
+
+			// Überprüfen, ob die Ausführung erfolgreich war
+			if ($return_var !== 0) {
+				throw new Exception('Fehler beim Ausführen des PHP-Skripts.');
+			}
+
+			// Entferne <head> und dessen Inhalt aus dem HTML-Code
+			$html_content = preg_replace("/<head>.*<\/head>/is", "", $output);
+
+			// Gib den bereinigten HTML-Inhalt zurück
+			return $html_content;
+
+		} catch (Throwable $e) {
+			// Falls ein Fehler auftritt, beende das Buffering und gib den Fehler aus
+			ob_end_clean();
+			return 'Fehler: ' . $e->getMessage();
+		}
 	}
 
+
+
 	// Funktion zum Entfernen von HTML-Tags
-	function strip_html_tags($html_content) {
+	function strip_html_tags($html_content)
+	{
 		$res = strip_tags($html_content);
 		return $res;
 	}
 
 	// Funktion zum Durchsuchen des Textes und Finden der Positionen
-	function search_text_with_context($text_lines, $regex) {
+	function search_text_with_context($text_lines, $regex)
+	{
 		$results = [];
 		foreach ($text_lines as $line_number => $line) {
 			$clean_line = strip_html_tags($line);
@@ -150,7 +187,8 @@
 	}
 
 	// Funktion zum Finden der nächsten vor der Zeile liegenden <h1>, <h2>, ... mit ID
-	function find_nearest_heading($text_lines, $current_line) {
+	function find_nearest_heading($text_lines, $current_line)
+	{
 		for ($i = $current_line; $i >= 0; $i--) {
 			if (preg_match('/<(h[1-6])\s+[^>]*id=["\']([^"\']+)["\']/', $text_lines[$i], $matches)) {
 				return [
@@ -163,7 +201,8 @@
 	}
 
 	// Funktion zum Loggen von Fehlern
-	function log_error($message) {
+	function log_error($message)
+	{
 		error_log($message);
 		header('Content-Type: application/json');
 		echo json_encode(["error" => $message]);
@@ -173,7 +212,7 @@
 	// Hauptprogramm
 	$php_files = []; // Liste der zu durchsuchenden Dateien
 
-	include("searchable_php_files.php");
+	require "searchable_php_files.php";
 
 	foreach ($files as $fn => $n) {
 		if (is_array($n)) {
@@ -186,8 +225,9 @@
 	}
 
 	// Überprüfen und Validieren des regulären Ausdrucks
-	if (isset($_GET['regex'])) {
-		$regex = $_GET['regex'];
+	if (isset($_GET['regex']) || getenv("regex")) {
+		$regex = isset($_GET['regex']) ? $_GET['regex'] : getenv("regex");
+
 		// Hinzufügen von "/" Begrenzer, wenn nicht vorhanden
 		if (substr($regex, 0, 1) !== '/') {
 			$regex = '/' . $regex;
@@ -204,19 +244,19 @@
 		exit(0);
 	}
 
-	$output = [];
+	    $output = [];
 
 	foreach ($php_files as $file_path) {
-		if($file_path != "share.php" && $file_path != "usage_stats.php") {
+		if ($file_path != "share.php" && $file_path != "usage_stats.php") {
 			$file_content = read_file_content($file_path);
 			if ($file_content !== false) {
-				$html_content = extract_html_from_php($file_content);
+				$html_content = extract_html_from_php($file_path);
 				$text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
 
 				$search_results = search_text_with_context($text_lines, $regex);
 				if (!empty($search_results)) {
 					foreach ($search_results as $result) {
-						if($result["line"]) {
+						if ($result["line"]) {
 							$entry = [
 								'content' => $result['line']
 							];
@@ -236,4 +276,3 @@
 
 	header('Content-Type: application/json');
 	echo json_encode($output);
-?>

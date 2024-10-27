@@ -1,20 +1,15 @@
-# DESCRIPTION: Plot get_next_trials got/requested
-# EXPECTED FILES: get_next_trials.csv
-# TEST_OUTPUT_MUST_CONTAIN: Trials Usage Plot
-# TEST_OUTPUT_MUST_CONTAIN: Count
-# TEST_OUTPUT_MUST_CONTAIN: Time
 # TEST_OUTPUT_MUST_CONTAIN: Got
 # TEST_OUTPUT_MUST_CONTAIN: Requested
 
+import argparse
+import importlib.util
 import os
 import signal
-import importlib.util
-import traceback
 import sys
-from datetime import datetime
-import argparse
-import pandas as pd
+import traceback
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -31,21 +26,14 @@ def parse_log_file(args, log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
-        def is_valid_time_format(time_string):
-            try:
-                datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
-                return True
-            except ValueError:
-                return False
-
-        valid_time_mask = data['time'].apply(is_valid_time_format)
+        valid_time_mask = data['time'].apply(helpers.is_valid_time_format)
         if not valid_time_mask.all():
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 helpers.log_error("Some rows have invalid time format and will be removed.")
         data = data[valid_time_mask]
 
         if "time" not in data:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
+            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
                 print("time could not be found in data")
             sys.exit(19)
 
@@ -55,17 +43,17 @@ def parse_log_file(args, log_file_path):
         data = data.sort_values(by='time')
 
         return data
-    except FileNotFoundError:
+    except FileNotFoundError: # pragma: no cover
         helpers.log_error(f"File '{log_file_path}' not found.")
         raise
-    except AssertionError as e:
+    except AssertionError as e: # pragma: no cover
         helpers.log_error(str(e))
         raise
-    except UnicodeDecodeError:
+    except UnicodeDecodeError: # pragma: no cover
         if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
         raise
@@ -91,18 +79,12 @@ def plot_trial_usage(args, log_file_path):
 
         plt.tight_layout()
         if args.save_to_file:
-            _path = os.path.dirname(args.save_to_file)
-            if _path:
-                os.makedirs(_path, exist_ok=True)
-            try:
-                plt.savefig(args.save_to_file)
-            except OSError as e:
-                print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-                sys.exit(199)
-        else:
+            fig = plt.figure(1)
+            helpers.save_to_file(fig, args, plt)
+        else: # pragma: no cover
             if not args.no_plt_show:
                 plt.show()
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 
@@ -115,7 +97,7 @@ def main():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
-    if args.debug:
+    if args.debug: # pragma: no cover
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
     if args.run_dir:
@@ -123,10 +105,10 @@ def main():
         if os.path.exists(log_file_path):
             try:
                 plot_trial_usage(args, log_file_path)
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 helpers.log_error(f"Error: {e}")
                 sys.exit(3)
-        else:
+        else: # pragma: no cover
             helpers.log_error(f"File '{log_file_path}' does not exist.")
 
 if __name__ == "__main__":

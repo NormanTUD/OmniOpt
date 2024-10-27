@@ -1,5 +1,20 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 EXPECTED_TO_FAIL=0
 
@@ -28,7 +43,7 @@ function calltracer () {
 	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
 		yellow_text "Git status hash:"
 		git rev-parse HEAD
-		red_text 'Error occured in file/line:'
+		red_text 'Error occurred in file/line:'
 		caller
 	fi
 }
@@ -40,8 +55,8 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
         echo "  --nosuccess                                        Don't run successful tests"
 	echo "  --gpus=(INT)                                       Nr of GPUs per worker"
-        echo "  --help                                             this help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --help                                             This help"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 
@@ -66,7 +81,7 @@ export nosuccess=0
 args=("$@")
 int_re='^[+-]?[0-9]+$'
 
-for i in $@; do
+for i in "$@"; do
         case $i in
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"
@@ -95,7 +110,7 @@ for i in $@; do
 			help 0
 			;;
 		--debug)
-			set -x
+			set_debug
 			;;
 		--gpus=*)
 			NUM_GPUS="${i#*=}"
@@ -140,6 +155,8 @@ cd ..
 # run_program = ./.tests/test_wronggoing_stuff.bin/bin/%(program)
 EXPECTED_TO_FAIL=1
 ./omniopt \
+	--live_share \
+	--send_anonymized_usage_stats \
 	--partition=$PARTITION \
 	--experiment_name=test_orchestrator \
 	--mem_gb=5 \
@@ -147,7 +164,7 @@ EXPECTED_TO_FAIL=1
 	--worker_timeout=5 \
 	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=$NUMBER_OF_EVALS \
-	--gpus=0 \
+	--gpus=$NUM_GPUS \
 	--run_program=$(echo -n "./.tests/orchestrator_tests.bin/%(name)" | base64 -w 0) \
 	--parameter name choice $which_programs_string \
 	--num_random_steps=1 \

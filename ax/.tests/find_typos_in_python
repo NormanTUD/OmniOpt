@@ -1,0 +1,24 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+exit_code=0
+
+if command -v python3 2>/dev/null >/dev/null; then
+	if [[ -n $1 ]]; then
+		python3 .tests/find_typos_in_python.py $*
+	else
+		python3 .tests/find_typos_in_python.py .*.py
+		exit_code=$?
+	fi
+else
+	echo "Warning: python3 is not installed. Cannot run find_typos_in_python"
+fi
+
+exit $exit_code

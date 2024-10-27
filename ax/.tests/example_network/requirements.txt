@@ -1,0 +1,13 @@
+absl-py
+decorator
+six
+tensorflow
+tensorflowjs
+protobuf
+scikit-image
+opencv-python
+keras
+termcolor
+pyyaml
+h5py
+tf_keras

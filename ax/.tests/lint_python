@@ -45,7 +45,7 @@ source .shellscript_functions
 
 errors=()
 
-for i in $(ls .*.py); do
+for i in .*.py; do
 	ruff check $i || {
 		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'ruff check $i' to see details."
 		red_text "\n$ERRSTR"
@@ -58,7 +58,7 @@ hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-min
 printf 'Lint test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No plot errors"
+	green_text "No lint-python errors"
 	exit 0
 else
 	red_text "=> LINT-ERRORS => LINT-ERRORS => LINT-ERRORS =>\n"

@@ -1,0 +1,1 @@
+{"jobs": [], "_time": "60", "mem_gb": 1, "num_parallel_jobs": null, "parameter_names": ["res"], "joined_run_program": "echo \"RESULT: %(res)\"", "experiment_name": "maximize_test", "gpus": 1}

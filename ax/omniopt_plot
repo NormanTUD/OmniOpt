@@ -1,5 +1,33 @@
 #!/bin/bash
 
+{
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
 RUN_VIA_RUNSH=1
 export RUN_VIA_RUNSH
 
@@ -9,6 +37,84 @@ ORIGINAL_PWD="$(pwd)"
 export ORIGINAL_PWD
 export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
 export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
+
+levenshtein() {
+	local str1="$1"
+	local str2="$2"
+	local len1=${#str1}
+	local len2=${#str2}
+	local i j cost
+
+	declare -A matrix
+	for ((i=0; i<=len1; i++)); do
+		matrix[$i,0]=$i
+	done
+	for ((j=0; j<=len2; j++)); do
+		matrix[0,$j]=$j
+	done
+
+	for ((i=1; i<=len1; i++)); do
+		for ((j=1; j<=len2; j++)); do
+			if [[ "${str1:i-1:1}" == "${str2:j-1:1}" ]]; then
+				cost=0
+			else
+				cost=1
+			fi
+			matrix[$i,$j]=$((
+			$(min $((matrix[$((i-1)),$j]+1)) $((matrix[$i,$((j-1))]+1)) $((matrix[$((i-1)),$((j-1))]+cost)))
+			))
+		done
+	done
+
+	echo "${matrix[$len1,$len2]}"
+}
+
+min() {
+	local min=$1
+	for n in "$@"; do
+		((n < min)) && min=$n
+	done
+	echo "$min"
+}
+
+find_closest_match() {
+	local input="$1"
+	local exact_matches=()
+	local closest=""
+	local closest_dist=-1
+	local dist
+
+	for expected in "${expected_plot_types[@]}"; do
+		if [[ "$expected" == *"$input"* ]]; then
+			exact_matches+=("$expected")
+		fi
+	done
+
+	if [[ ${#exact_matches[@]} -eq 1 ]]; then
+		echo "Found exact substring match: ${exact_matches[0]}" >&2
+		echo "${exact_matches[0]}"
+		return
+	fi
+
+	if [[ ${#exact_matches[@]} -gt 1 ]]; then
+		echo "Multiple exact substring matches found: ${exact_matches[*]}" >&2
+	else
+		# No exact substring match found, proceed with Levenshtein
+		echo "No exact substring match found for >$input<, proceeding with Levenshtein distance..." >&2
+	fi
+
+	for expected in "${expected_plot_types[@]}"; do
+		dist=$(levenshtein "$input" "$expected")
+		if [[ $closest_dist -eq -1 || $dist -lt $closest_dist ]]; then
+			closest_dist=$dist
+			closest="$expected"
+		fi
+	done
+
+	echo "Closest match using Levenshtein: $closest (Distance: $closest_dist)" >&2
+
+	echo "$closest"
+}
 
 if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
 	echo ""
@@ -29,7 +135,7 @@ function inputbox {
 	if [[ $exitstatus == 0 ]]; then
 		echo "$RESULT"
 	else
-		echo "You chose to cancel (1)"
+		yellow_text "You chose to cancel (1)"
 		exit 1
 	fi
 }
@@ -45,7 +151,6 @@ function ask_min_max {
 			min=""
 		fi
 	fi
-
 
 	if [ -n "$max" ]; then
 		# Check if $max is a number (integer or float, positive or negative)
@@ -69,7 +174,6 @@ function ask_min_max {
 	fi
 }
 
-
 function displaytime {
 	local T=$1
 	local D=$((T/60/60/24))
@@ -91,14 +195,6 @@ whiptail_args=()
 for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tac); do
 	expected_plot_types+=("$possible_plot_type")
 done
-
-function echoerr() {
-        echo "$@" 1>&2
-}
-
-function red_text {
-        echoerr -e "\e[31m$1\e[0m"
-}
 
 set -e
 set -o pipefail
@@ -138,7 +234,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--run_dir)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --run_dir requires a value"
+				red_text "Error: --run_dir requires a value"
 				exit 1
 			fi
 			run_dir="${args[k]}"
@@ -156,7 +252,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--save_to_file)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --save_to_file requires a value"
+				red_text "Error: --save_to_file requires a value"
 				exit 1
 			fi
 			_save_to_file="${args[k]}"
@@ -174,7 +270,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--min)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --min requires a value"
+				red_text "Error: --min requires a value"
 				exit 1
 			fi
 			min="${args[k]}"
@@ -192,7 +288,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--max)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --max requires a value"
+				red_text "Error: --max requires a value"
 				exit 1
 			fi
 			max="${args[k]}"
@@ -209,7 +305,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--plot_type)
 			k=$((k+1))
 			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				echo "Error: --plot_type requires a value"
+				red_text "Error: --plot_type requires a value"
 				exit 1
 			fi
 			plot_type="${args[k]}"
@@ -223,21 +319,19 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 		--debug)
-			set -x
+			set_debug
 			shift
 			;;
 		*)
 			tmp_run_dir_or_plot_type="${args[k]}"
+
 			if [[ -d $tmp_run_dir_or_plot_type ]]; then
 				run_dir=$tmp_run_dir_or_plot_type
 				args_string+=" --run_dir=$run_dir"
 			else
-				for expected in "${expected_plot_types[@]}"; do
-					if [[ "$expected" == *"$tmp_run_dir_or_plot_type"* ]]; then
-						plot_type="$expected"
-						break
-					fi
-				done
+				if [[ "$tmp_run_dir_or_plot_type" != --* ]]; then
+					plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
+				fi
 			fi
 
 			;;
@@ -255,7 +349,7 @@ if [[ "$help" -eq 1 ]]; then
 		echo "omniopt_plot: Plot omniopt runs"
 		echo "Basic usage: bash omniopt_plot --run_dir=runs/testrun/0 --plot_type=scatter"
 		echo "Possible options for plot_type:"
-		echo "- $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tr '\n' ',' | sed -e 's#,$##' -e 's#,#\n- #g')"
+		echo "  - $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tr '\n' ',' | sed -e 's#,$##' -e 's#,#\n  - #g')"
 		echo "For specific options, use bash omniopt_plot --plot_type=scatter --help"
 	fi
 
@@ -263,13 +357,11 @@ if [[ "$help" -eq 1 ]]; then
 fi
 
 if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
-	# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
 
-	# Entfernen Sie das letzte "," vom gejointen String
 	joined_plot_types=${joined_plot_types%, }
 
-	echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+	red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
 	exit 99
 fi
 
@@ -311,7 +403,7 @@ function menu {
 			accepts_min_max_string=""
 
 			if [[ "$num_not_disabled_min_param" -ne "0" ]]; then
-				accepts_min_max_string=", honours min/max"
+				accepts_min_max_string=", honors min/max"
 			fi
 
 			whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
@@ -322,7 +414,7 @@ function menu {
 	done
 
 	if [ ${#whiptail_args[@]} -eq 0 ]; then
-		echo "It seems like the run folder $run_dir does not have any plottable data."
+		red_text "It seems like the run folder $run_dir does not have any plotable data."
 		exit 3
 	fi
 
@@ -384,7 +476,7 @@ function menu {
 			exit $?
 		fi
 
-		echo "This exit should never be reached"
+		red_text "This exit should never be reached"
 		exit
 	fi
 
@@ -410,17 +502,17 @@ function menu {
 
 if [[ "$plot_type" == "menu" ]]; then
 	if [[ "$run_dir" == "" ]]; then
-		echo "--run_dir is missing"
+		red_text "--run_dir is missing"
 		exit 1
 	fi
 
 	if [[ -f "$run_dir" ]]; then
-		echo "--run_dir is a file"
+		red_text "--run_dir is a file"
 		exit 1
 	fi
 
 	if [[ ! -d "$run_dir" ]]; then
-		echo "--run_dir is not a directory"
+		red_text "--run_dir is not a directory"
 		exit 1
 	fi
 
@@ -429,16 +521,13 @@ fi
 
 cd "$ORIGINAL_PWD"
 
-
 if [[ "$plot_type" != "menu" ]]; then
 	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
-		# Verbinden Sie die Elemente des Arrays zu einem mit "," getrennten String
 		joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
 
-		# Entfernen Sie das letzte "," vom gejointen String
 		joined_plot_types=${joined_plot_types%, }
 
-		echo "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+		red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
 		exit 5
 	fi
 fi
@@ -469,7 +558,7 @@ if [[ "$exit_code" -ne "0" ]]; then
 		echo_red "$OUTPUT"
 	fi
 else
-	if [[ -n  "$OUTPUT" ]]; then
+	if [[ -n "$OUTPUT" ]]; then
 		echo "$OUTPUT"
 	fi
 fi
@@ -479,3 +568,4 @@ if [[ -z $NO_RUNTIME ]]; then
 fi
 
 exit $exit_code
+}

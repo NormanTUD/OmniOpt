@@ -1,5 +1,20 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 export OO_MAIN_TESTS=1
 
 function echoerr() {
@@ -38,7 +53,7 @@ set -o pipefail
 function calltracer () {
 	yellow_text "Git status hash:"
 	git rev-parse HEAD
-        red_text 'Error occured in file/line:'
+        red_text 'Error occurred in file/line:'
         caller
 }
 
@@ -57,8 +72,8 @@ export num_random_steps=$num_parallel_jobs
 function help () {
         echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
         echo "Possible options:"
-        echo "  --help                                             this help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --help                                             This help"
+        echo "  --debug                                            Enables debug mode"
 	echo "  --num_parallel_jobs=n                              Number of parallel jobs (default: $num_parallel_jobs)"
 	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout (default: $worker_timeout)"
 	echo "  --mem_gb=n                                         Memory in GB (default $mem_gb)"
@@ -82,7 +97,7 @@ int_re='^[+-]?[0-9]+$'
 
 args=("$@")
 
-for i in $@; do
+for i in "$@"; do
         case $i in
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"
@@ -139,7 +154,7 @@ for i in $@; do
                         help 0
                         ;;
                 --debug)
-                        set -x
+			set_debug
                         ;;
                 *)
                         red_text "Unknown parameter $i" >&2
@@ -171,7 +186,7 @@ exit_code=0
 if [[ "$gridsearch" -eq "1" ]]; then
 	if [[ "$follow" -eq "1" ]]; then
 		./omniopt \
-			--send_anonymized_usage_stats \
+			--live_share --send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network_gridsearch \
 			--mem_gb=$mem_gb \
@@ -198,7 +213,7 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	else
 
 		./omniopt \
-			--send_anonymized_usage_stats \
+			--live_share --send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network_gridsearch \
 			--mem_gb=$mem_gb \
@@ -227,7 +242,7 @@ else
 
 	if [[ "$follow" -eq "1" ]]; then
 		./omniopt \
-			--send_anonymized_usage_stats \
+			--live_share --send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network \
 			--mem_gb=$mem_gb \
@@ -253,7 +268,7 @@ else
 	else
 
 		./omniopt \
-			--send_anonymized_usage_stats \
+			--live_share --send_anonymized_usage_stats \
 			--partition=$PARTITION \
 			--experiment_name=example_network \
 			--mem_gb=$mem_gb \

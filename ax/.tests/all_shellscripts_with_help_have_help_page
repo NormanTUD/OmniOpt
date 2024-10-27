@@ -1,0 +1,70 @@
+#!/bin/bash
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+#set_debug
+
+for i in $(grep -ri '#!/bin/bash' | sed -e 's#:.*##' | sort | grep -v plot_documentation_has_all_plot_types | grep -v help_page | grep -v '^omniopt$'); do
+	if echo "$(file $i)" | grep "Bourne" 2>/dev/null >/dev/null; then
+		if cat $i | grep -- "--help" 2>/dev/null >/dev/null; then
+			error=0
+			bashscript_that_has_help="$i"
+
+			yellow_text "bash $bashscript_that_has_help --help"
+			output="$(bash $bashscript_that_has_help --help)"
+
+			echo "$output"
+
+			exit_code=$?
+
+			if [[ -z $output ]]; then
+				red_text "bash $bashscript_that_has_help --help had no output $exit_code"
+				error=1
+			fi
+
+			if [[ $exit_code != 0 ]]; then
+				red_text "bash $bashscript_that_has_help --help failed with exit-code $exit_code"
+				error=1
+			fi
+
+			if [[ $error -eq 1 ]]; then
+				exit 1
+			fi
+		fi
+	fi
+done

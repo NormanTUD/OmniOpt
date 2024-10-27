@@ -1,5 +1,20 @@
 #!/bin/bash
 
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+function set_debug {
+	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+}
+
+function unset_debug {
+	trap - DEBUG
+}
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
@@ -27,27 +42,27 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
-        echo "  --train"
-        echo "  --predict"
-        echo "  --learning_rate=FLOAT"
-        echo "  --epochs=INT"
-        echo "  --validation_split=FLOAT"
-        echo "  --width=INT"
-        echo "  --height=INT"
-        echo "  --data=DIRNAME"
-	echo "  --conv"
-	echo "  --conv_filters"
-	echo "  --dense"
-	echo "  --dense_units"
-        echo "  --help                                             this help"
-        echo "  --debug                                            Enables debug mode (set -x)"
+        echo "  --train                                            Start training"
+        echo "  --predict                                          Start predicting"
+        echo "  --learning_rate=FLOAT                              The learning rate"
+        echo "  --epochs=INT                                       The number of epochs"
+	echo "  --validation_split=FLOAT                           The validation split (between 0 and 1)"
+        echo "  --width=INT                                        Image width"
+        echo "  --height=INT                                       Image height"
+        echo "  --data=DIRNAME                                     Data dir"
+	echo "  --conv                                             Number of convolution layers"
+	echo "  --conv_filters                                     Number of convolution filters"
+	echo "  --dense                                            Number of dense layers"
+	echo "  --dense_units                                      Number of dense neurons"
+        echo "  --help                                             This help"
+        echo "  --debug                                            Enables debug mode"
         exit $1
 }
 
 train=1
 predict=0
 
-for i in $@; do
+for i in "$@"; do
         case $i in
                 --train)
                         train=1
@@ -70,12 +85,12 @@ for i in $@; do
                         help 0
                         ;;
                 --debug)
-                        set -x
+			set_debug
                         ;;
         esac
 done
 
-source $SCRIPT_DIR/install.sh
+source $SCRIPT_DIR/.shellscript_functions
 
 if [[ "$train" == 1 ]]; then
         python3 train.py $*

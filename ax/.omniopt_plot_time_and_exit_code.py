@@ -6,14 +6,15 @@
 # TEST_OUTPUT_MUST_CONTAIN: Result over Time
 
 import argparse
-import os
-import sys
 import importlib.util
+import os
 import signal
+import sys
 from datetime import datetime
-import seaborn as sns
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 from tzlocal import get_localzone
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -39,7 +40,7 @@ def main():
 
     _job_infos_csv = f'{args.run_dir}/job_infos.csv'
 
-    if not os.path.exists(_job_infos_csv):
+    if not os.path.exists(_job_infos_csv): # pragma: no cover
         print(f"Error: {_job_infos_csv} not found")
         sys.exit(1)
 
@@ -48,11 +49,11 @@ def main():
     try:
         df = pd.read_csv(_job_infos_csv)
     except pd.errors.EmptyDataError:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print(f"Could not find values in file {_job_infos_csv}")
         sys.exit(19)
     except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
+        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)
     df = df.sort_values(by='exit_code')
@@ -62,7 +63,7 @@ def main():
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
     if "run_time" not in df:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
         sys.exit(2)
 
@@ -93,17 +94,8 @@ def main():
     axes[1, 1].set_title('Run Time by Hostname')
 
     if args.save_to_file:
-        _path = os.path.dirname(args.save_to_file)
-        if _path:
-            os.makedirs(_path, exist_ok=True)
-
-        try:
-            plt.savefig(args.save_to_file)
-        except OSError as e:
-            print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
-            sys.exit(199)
-
-    else:
+        helpers.save_to_file(fig, args, plt)
+    else: # pragma: no cover
         window_title = f'Times and exit codes for {args.run_dir}'
         fig.canvas.manager.set_window_title(window_title)
         if not args.no_plt_show:

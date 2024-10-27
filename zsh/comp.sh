@@ -1,4 +1,6 @@
-function _sbatch_pl (){
+#!/bin/bash
+
+function _sbatch_pl {
     _describe 'command' "(
         '--help:This help'
         '--worker=10:Number of workers (usually automatically deducted from --ntasks)'
@@ -21,7 +23,7 @@ function _sbatch_pl (){
     )"
 }
 
-function _evaluate_run () {
+function _evaluate_run {
     _describe 'command' "(
         '--projectdir=/path/to/projects/:Path to available projects'
         '--showtestprojects:Show test projects (default is not to show them)'

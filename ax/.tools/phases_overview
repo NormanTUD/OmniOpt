@@ -70,7 +70,7 @@ fi
 
 if [[ ! -z $systematic_phase ]] || [[ ! -z $manual ]] || [[ ! -z $random_phase ]]; then
 	if [ ${#errors[@]} -eq 0 ]; then
-		green_text "No phases-overview errors"
+		green_text "No phases-overview errors for $run_dir"
 		exit 0
 	else
 		red_text "=> phases-overview-ERRORS => phases-overview-ERRORS => phases-overview-ERRORS =>"

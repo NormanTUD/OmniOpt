@@ -98,6 +98,9 @@ python_files = [f for f in all_files if is_python_script(f)]
 all_needed_files = bash_files
 all_needed_files.extend(python_files)
 
+all_needed_files.append("requirements.txt")
+all_needed_files.append("apt-requirements.txt")
+
 print("Copying the following files:")
 print("=====================")
 print("\n".join(all_needed_files))

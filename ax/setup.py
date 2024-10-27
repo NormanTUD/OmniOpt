@@ -102,7 +102,7 @@ print("Copying the following files:")
 print("- " + "\n".join(all_needed_files))
 
 setup(
-    long_description=open('README.md').read(),
+    long_description=open('README.md', encoding="utf-8").read(),
     long_description_content_type='text/markdown',
     name='omniopt2',
     version='0.9',

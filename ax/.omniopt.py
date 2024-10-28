@@ -4687,7 +4687,7 @@ def run_search(_progress_bar):
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
             _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
-            #NR_OF_0_RESULTS += 1
+            NR_OF_0_RESULTS += 1
             progressbar_description([_wrn])
             print_debug(_wrn)
         else:

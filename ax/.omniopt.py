@@ -450,6 +450,7 @@ if not args.tests:
         with console.status("[bold green]Loading ax...") as status:
             import ax
             import ax.exceptions.core
+            import ax.exceptions.generation_strategy
             import ax.modelbridge.generation_node
             from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
             from ax.modelbridge.registry import Models
@@ -4525,7 +4526,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
     except botorch.exceptions.errors.ModelFittingError as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 1)
-    except ax.exceptions.core.SearchSpaceExhausted as e: # pragma: no cover
+    except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints) as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 87)
 

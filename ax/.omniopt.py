@@ -4315,7 +4315,7 @@ def _fetch_next_trials(nr_of_jobs_to_get):
             params, trial_index = ax_client.get_next_trial(force=True)
 
             trials_dict[trial_index] = params
-        except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints) as e: # pragma: no cover
+        except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
             print_red("\n⚠ " + str(e))
 
         return trials_dict, False

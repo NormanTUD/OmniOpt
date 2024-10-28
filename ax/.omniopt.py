@@ -4316,7 +4316,7 @@ def _fetch_next_trials(nr_of_jobs_to_get):
 
             trials_dict[trial_index] = params
         except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
-            print_red("\n⚠ " + str(e))
+            print_red("\n⚠Error 8: " + str(e))
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:

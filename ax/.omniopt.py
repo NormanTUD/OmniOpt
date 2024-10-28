@@ -4515,6 +4515,9 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         if done_optimizing:
             end_program(RESULT_CSV_FILE, 88)
+    except TypeError:
+        print_red(f"Error 4: {e}")
+        return 0
     except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
         print_red(f"Error 1: {e}")
         return 0

@@ -4520,10 +4520,10 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         return 0
     except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-            print_red(f"Error 5: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
+            print_red(f"Error 2: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
             die_no_random_steps()
         else:
-            print_red(f"Error 2: {e}")
+            print_red(f"Error 3: {e}")
             return 0
     except RuntimeError as e: # pragma: no cover
         print_red("\n⚠ " + str(e))

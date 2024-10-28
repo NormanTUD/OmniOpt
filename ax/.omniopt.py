@@ -4522,12 +4522,12 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
             return 0
     except RuntimeError as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
-    except (
-        botorch.exceptions.errors.ModelFittingError,
-        ax.exceptions.core.SearchSpaceExhausted,
-    ) as e: # pragma: no cover
+    except botorch.exceptions.errors.ModelFittingError as e: # pragma: no cover
         print_red("\n⚠ " + str(e))
         end_program(RESULT_CSV_FILE, 1)
+    except ax.exceptions.core.SearchSpaceExhausted as e: # pragma: no cover
+        print_red("\n⚠ " + str(e))
+        end_program(RESULT_CSV_FILE, 87)
 
     num_new_keys = 0
 

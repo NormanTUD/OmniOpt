@@ -320,6 +320,7 @@ try:
             optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
             optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
             optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
+            optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
 
             slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
             slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -4419,7 +4420,7 @@ def create_random_generation_step():
         enforce_num_trials=True,
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
-        should_deduplicate=True
+        should_deduplicate=args.should_deduplicate
     )
 
 def select_model(model_arg):
@@ -4446,7 +4447,7 @@ def create_systematic_step(model):
         num_trials=-1,
         max_parallelism=num_parallel_jobs,
         model_gen_kwargs={'enforce_num_arms': False},
-        should_deduplicate=True
+        should_deduplicate=args.should_deduplicate
     )
 
 def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar):

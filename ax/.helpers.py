@@ -340,8 +340,6 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
     return axs
 
 def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max):
-    _mean = result_column_values.mean()
-
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
@@ -375,9 +373,6 @@ def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if _max is not None:
         title += f", show max = {to_int_when_possible(_max)}"
-
-    if _mean is not None:
-        title += f", mean result = {to_int_when_possible(_mean)}"
 
     return title
 

@@ -4303,7 +4303,7 @@ def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_exec
 def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
-        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {ax_client.get_max_parallelism()}")
+        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {ax_client.get_max_parallelism()}, get_current_trial_generation_limit: {ax_client.get_current_trial_generation_limit}")
         trial_index_to_param, _ = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
         return trial_index_to_param
     except np.linalg.LinAlgError as e:

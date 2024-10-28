@@ -4418,7 +4418,7 @@ def create_random_generation_step():
         max_parallelism=num_parallel_jobs,
         enforce_num_trials=True,
         model_kwargs={"seed": args.seed},
-        model_gen_kwargs={'enforce_num_arms': True},
+        model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=True
     )
 
@@ -4445,7 +4445,7 @@ def create_systematic_step(model):
         model=model,
         num_trials=-1,
         max_parallelism=num_parallel_jobs,
-        model_gen_kwargs={'enforce_num_arms': True},
+        model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=True
     )
 

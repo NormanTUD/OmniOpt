@@ -4304,8 +4304,8 @@ def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
         print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {ax_client.get_max_parallelism()}, get_current_trial_generation_limit: {ax_client.get_current_trial_generation_limit}")
-        trial_index_to_param, _ = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
-        return trial_index_to_param
+        trial_index_to_param, optimization_complete = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
+        return trial_index_to_param, optimization_complete
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)
         my_exit(242)
@@ -4343,7 +4343,7 @@ def _get_next_trials(nr_of_jobs_to_get):
 
     # Fetching the next trials
     start_time = time.time()
-    trial_index_to_param = _fetch_next_trials(nr_of_jobs_to_get)
+    trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
     end_time = time.time()
 
     # Log and update timing
@@ -4355,7 +4355,7 @@ def _get_next_trials(nr_of_jobs_to_get):
 
     _log_trial_index_to_param(trial_index_to_param)
 
-    return trial_index_to_param
+    return trial_index_to_param, optimization_complete
 
 def get_next_nr_steps(_num_parallel_jobs, _max_eval):
     if not SYSTEM_HAS_SBATCH:
@@ -4444,13 +4444,20 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         return 0
 
     trial_index_to_param = None
+
+    done_optimizing = False
+
     try:
         nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
         results = []
 
         for ii in range(nr_of_jobs_to_get):
-            trial_index_to_param = _get_next_trials(1)
+            trial_index_to_param, optimization_complete = _get_next_trials(1)
+
+            if optimization_complete:
+                done_optimizing = True
+                continue
 
             if trial_index_to_param:
                 i = 1
@@ -4493,6 +4500,8 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         finish_previous_jobs(["finishing jobs after starting them"])
 
+        if done_optimizing:
+            end_program(RESULT_CSV_FILE, 88)
     except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
         print_red(f"Error 1: {e}")
         return 0

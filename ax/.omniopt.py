@@ -4516,25 +4516,25 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         if done_optimizing:
             end_program(RESULT_CSV_FILE, 88)
     except TypeError as e:
-        print_red(f"Error 4: {e}")
+        print_red(f"Error 1: {e}")
         return 0
     except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
-        print_red(f"Error 1: {e}")
+        print_red(f"Error 2: {e}")
         return 0
     except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-            print_red(f"Error 2: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
+            print_red(f"Error 3: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
             die_no_random_steps()
         else:
-            print_red(f"Error 3: {e}")
+            print_red(f"Error 4: {e}")
             return 0
     except RuntimeError as e: # pragma: no cover
-        print_red("\n⚠ " + str(e))
+        print_red("\n⚠ Error 5: " + str(e))
     except botorch.exceptions.errors.ModelFittingError as e: # pragma: no cover
-        print_red("\n⚠ " + str(e))
+        print_red("\n⚠ Error 6: " + str(e))
         end_program(RESULT_CSV_FILE, 1)
     except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints) as e: # pragma: no cover
-        print_red("\n⚠ " + str(e))
+        print_red("\n⚠ Error 7" + str(e))
         end_program(RESULT_CSV_FILE, 87)
 
     num_new_keys = 0

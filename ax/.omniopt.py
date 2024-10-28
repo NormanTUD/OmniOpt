@@ -208,7 +208,7 @@ def print_debug(msg):
     msg = f"{stack_trace_element}"
 
     if args is not None and args.debug: # pragma: no cover
-        print(msg)
+        original_print(msg)
 
     _debug(msg)
 

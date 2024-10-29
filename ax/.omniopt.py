@@ -4474,7 +4474,7 @@ def create_systematic_step(model):
     return GenerationStep(
         model=model,
         num_trials=-1,
-        max_parallelism=num_parallel_jobs,
+        max_parallelism=(num_parallel_jobs * 100),
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
     )

@@ -598,34 +598,44 @@ async function load_out_files () {
 
 	if(data.data) {
 		var awaits = [];
-		for (var i = 0; i < data.data.length; i++) {
-			showSpinnerOverlay(`Loading log ${i}/${data.data.length}`)
-			if (!$("#" + main_tabs_div_id).length) {
-				add_tab("out_files", "Out-Files", `
-					<div id='${main_tabs_div_id}'>  
-						<div>
-							<ul class="nav nav-tabs"></ul>
-						</div>
-					</div>
-				`);
-			}
-
-			var _fn = data.data[i];
-
-			_fn = _fn.replaceAll(/.*\//g, "");
-
-			var _d = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`);
-
-			awaits.push(_d);
-		}
-
-
+		var maxConcurrentRequests = 5; // Limit the concurrent requests to 5
 		var got_data = [];
 
-		for (var i = 0; i < data.data.length; i++) {
-			showSpinnerOverlay(`Awaiting loading log ${i}/${data.data.length}`)
-			got_data.push(await awaits[i]);
+		for (var i = 0; i < data.data.length; i += maxConcurrentRequests) {
+			var batchRequests = [];
+
+			// Loop to gather up to `maxConcurrentRequests` at a time
+			for (var j = i; j < i + maxConcurrentRequests && j < data.data.length; j++) {
+				showSpinnerOverlay(`Loading log ${j + 1}/${data.data.length}`);
+
+				if (!$("#" + main_tabs_div_id).length) {
+					add_tab("out_files", "Out-Files", `
+						<div id='${main_tabs_div_id}'>
+						    <div>
+							<ul class="nav nav-tabs"></ul>
+						    </div>
+						</div>
+					    `);
+				}
+
+				var _fn = data.data[j].replaceAll(/.*\//g, ""); // Clean up filename
+					var requestPromise = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`);
+
+					batchRequests.push(requestPromise);
+				}
+
+			// Wait for the current batch to resolve before continuing to the next batch
+			awaits.push(...batchRequests);
+			Promise.all(batchRequests).then(batchData => {
+				got_data.push(...batchData);
+			});
+
+			// Await this batch before the next
+			await Promise.all(batchRequests);
 		}
+
+		// Process `got_data` as needed
+
 
 		for (var i = 0; i < data.data.length; i++) {
 			var _d = got_data[i];
@@ -644,7 +654,7 @@ async function load_out_files () {
 
 				open_first_tab_when_none_is_open(main_tabs_div_id);
 			}
-			
+
 		}
 
 		convert_ansi_to_html();

@@ -24,6 +24,10 @@ function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
 
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
 START_COMMAND_BASE64=$1
 
 export reservation=""

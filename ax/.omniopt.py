@@ -4555,7 +4555,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
             print_red(f"Error 3: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
             die_no_random_steps()
         else:
-            print_red(f"Error 4: {e}")
+            print_debug(f"Error 4: {e}")
             return 0
     except RuntimeError as e: # pragma: no cover
         print_red("\n⚠ Error 5: " + str(e))

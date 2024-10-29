@@ -77,7 +77,7 @@ def warn_versions():
         "rich_argparse": ["1.5.2"],
         "pytz": ["2024.2"],
         "cloudpickle": ["3.0.0", "3.1.0"],
-        "pyarrow": ["17.0.0"],
+        "pyarrow": ["17.0.0", "18.0.0"],
         "six": ["1.16.0"],
         "sixel": ["0.2.0"],
         "packaging": ["24.1", "20.1"],
@@ -87,7 +87,7 @@ def warn_versions():
         "threadpoolctl": ["3.5.0"],
         "mpmath": ["1.3.0"],
         "sympy": ["1.13.3", "1.13.1"],
-        "setuptools": ["66.1.1", "75.2.0", "58.1.0"],
+        "setuptools": ["66.1.1", "75.2.0", "58.1.0", "75.3.0"],
         "torchvision": ["0.19.1"]
     }
 

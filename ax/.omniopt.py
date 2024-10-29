@@ -4494,7 +4494,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         results = []
 
-        for ii in range(nr_of_jobs_to_get):
+        for ii in range(nr_of_jobs_to_get + 1):
             trial_index_to_param, optimization_complete = _get_next_trials(1)
 
             if optimization_complete:

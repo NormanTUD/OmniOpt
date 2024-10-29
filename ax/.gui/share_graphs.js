@@ -254,204 +254,186 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 }
 
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-	showSpinnerOverlay("Plotting 2d scatter...");
-	var already_existing_plots = [];
-	var data_md5 = md5(JSON.stringify(_results_csv_json));
+    showSpinnerOverlay("Plotting 2d scatter...");
+    var already_existing_plots = [];
+    var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-	if($('#scatter_plot_2d_container').data("md5") == data_md5) {
-		return;
-	}
+    if ($('#scatter_plot_2d_container').data("md5") == data_md5) {
+        return;
+    }
 
-	$('#scatter_plot_2d_container').html("");
+    $('#scatter_plot_2d_container').html("");
 
-	// Function to map string values to unique negative numbers starting just below the minimum numeric value
-	function mapStrings(values, minNumericValue) {
-		var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
-		uniqueStrings.sort(); // Alphabetically sort the strings
-		var stringMapping = {};
-		// Start string values just below the minimum numeric value
-		var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
-		uniqueStrings.forEach((str, idx) => {
-			stringMapping[str] = baseNegativeValue - idx;
-		});
-		return stringMapping;
-	}
+    function mapStrings(values, minNumericValue) {
+        var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
+        uniqueStrings.sort(); // Alphabetically sort the strings
+        var stringMapping = {};
+        var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
+        uniqueStrings.forEach((str, idx) => {
+            stringMapping[str] = baseNegativeValue - idx;
+        });
+        return stringMapping;
+    }
 
-	// Get minimum numeric value for each axis
-	function getMinNumericValue(values) {
-		return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
-	}
+    function getMinNumericValue(values) {
+        return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
+    }
 
-	// Function to reduce tick marks (only for numeric values)
-	function reduceNumericTicks(tickvals, ticktext, maxTicks) {
-		if (tickvals.length > maxTicks) {
-			const step = Math.ceil(tickvals.length / maxTicks);
-			tickvals = tickvals.filter((_, i) => i % step === 0);
-			ticktext = ticktext.filter((_, i) => i % step === 0);
-		}
-		return { tickvals, ticktext };
-	}
+    // Improved function to reduce tick marks and avoid overlap
+    function reduceNumericTicks(tickvals, ticktext, maxTicks) {
+        const step = Math.ceil(tickvals.length / maxTicks);
+        return {
+            tickvals: tickvals.filter((_, i) => i % step === 0),
+            ticktext: ticktext.filter((_, i) => i % step === 0)
+        };
+    }
 
-	for (var i = 0; i < _paramKeys.length; i++) {
-		for (var j = i + 1; j < _paramKeys.length; j++) {
-			if(!$("#scatter_plot_2d_container").length) {
-				add_tab("scatter_plot_2d", "2d-Scatter-Plot", "<div id='scatter_plot_2d_container'></div>")
-			}
-			var map_x = mappingKeyNameToIndex[_paramKeys[i]];
-			var map_y = mappingKeyNameToIndex[_paramKeys[j]];
+    for (var i = 0; i < _paramKeys.length; i++) {
+        for (var j = i + 1; j < _paramKeys.length; j++) {
+            if (!$("#scatter_plot_2d_container").length) {
+                add_tab("scatter_plot_2d", "2d-Scatter-Plot", "<div id='scatter_plot_2d_container'></div>");
+            }
 
-			var x_name = _paramKeys[i];
-			var y_name = _paramKeys[j];
+            var map_x = mappingKeyNameToIndex[_paramKeys[i]];
+            var map_y = mappingKeyNameToIndex[_paramKeys[j]];
 
-			var _key = [x_name, y_name].sort().join("!!!");
+            var x_name = _paramKeys[i];
+            var y_name = _paramKeys[j];
 
-			if (already_existing_plots.includes(_key)) {
-				warn(`Key already exists: ${_key}`);
-				continue;
-			}
+            var _key = [x_name, y_name].sort().join("!!!");
 
-			var xValuesRaw = _results_csv_json.map(row => row[map_x]);
-			var yValuesRaw = _results_csv_json.map(row => row[map_y]);
+            if (already_existing_plots.includes(_key)) {
+                warn(`Key already exists: ${_key}`);
+                continue;
+            }
 
-			var minXValue = getMinNumericValue(xValuesRaw);
-			var minYValue = getMinNumericValue(yValuesRaw);
+            var xValuesRaw = _results_csv_json.map(row => row[map_x]);
+            var yValuesRaw = _results_csv_json.map(row => row[map_y]);
 
-			// Map strings to negative values
-			var stringMappingX = mapStrings(xValuesRaw, minXValue);
-			var stringMappingY = mapStrings(yValuesRaw, minYValue);
+            var minXValue = getMinNumericValue(xValuesRaw);
+            var minYValue = getMinNumericValue(yValuesRaw);
 
-			var xValues = [];
-			var yValues = [];
-			var hoverText = [];
+            var stringMappingX = mapStrings(xValuesRaw, minXValue);
+            var stringMappingY = mapStrings(yValuesRaw, minYValue);
 
-			_results_csv_json.forEach(function(row) {
-				// Handle x-axis
-				var xParsed = parseFloat(row[map_x]);
-				var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
-				xValues.push(xValue);
+            var xValues = [];
+            var yValues = [];
+            var hoverText = [];
 
-				// Handle y-axis
-				var yParsed = parseFloat(row[map_y]);
-				var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
-				yValues.push(yValue);
+            _results_csv_json.forEach(function (row) {
+                var xParsed = parseFloat(row[map_x]);
+                var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
+                xValues.push(xValue);
 
-				// Hover text with the original values
-				hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}`);
-			});
+                var yParsed = parseFloat(row[map_y]);
+                var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
+                yValues.push(yValue);
 
-			// Color function for markers
-			function color_curried(value) {
-				return getColor(value, minResult, maxResult);
-			}
-			var colors = resultValues.map(color_curried);
+                hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}`);
+            });
 
-			// Create a custom colorscale from the unique values of resultValues and their corresponding colors
-			var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
-			var customColorscale = uniqueValues.map(value => {
-				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
-			});
+            function color_curried(value) {
+                return getColor(value, minResult, maxResult);
+            }
+            var colors = resultValues.map(color_curried);
 
-			// Plotly trace for 2D scatter plot
-			var trace2d = {
-				x: xValues,
-				y: yValues,
-				mode: 'markers',
-				type: 'scatter',
-				marker: {
-					color: colors
-				},
-				text: hoverText, // Show the original values in hover info
-				hoverinfo: 'text'
-			};
+            var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
+            var customColorscale = uniqueValues.map(value => {
+                return [(value - minResult) / (maxResult - minResult), color_curried(value)];
+            });
 
-			// Dummy Trace for Color Legend with Custom Colorscale
-			var colorScaleTrace = {
-				x: [null], // Dummy data
-				y: [null], // Dummy data
-				type: 'scatter',
-				mode: 'markers',
-				marker: {
-					color: [minResult, maxResult],
-					colorscale: customColorscale,
-					cmin: minResult,
-					cmax: maxResult,
-					showscale: true, // Show the color scale
-					size: 60,
-					colorbar: {
-						title: 'Result Values',
-						titleside: 'right'
-					}
-				},
-				hoverinfo: 'none' // Hide hover info for this trace
-			};
+            var trace2d = {
+                x: xValues,
+                y: yValues,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    color: colors
+                },
+                text: hoverText,
+                hoverinfo: 'text'
+            };
 
-			// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
-			function getAxisConfig(stringMapping, rawValues, minValue, isNumeric) {
-				var tickvals = [];
-				var ticktext = [];
+            var colorScaleTrace = {
+                x: [null],
+                y: [null],
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    color: [minResult, maxResult],
+                    colorscale: customColorscale,
+                    cmin: minResult,
+                    cmax: maxResult,
+                    showscale: true,
+                    size: 60,
+                    colorbar: {
+                        title: 'Result Values',
+                        titleside: 'right'
+                    }
+                },
+                hoverinfo: 'none'
+            };
 
-				// Handle string values (always show all strings)
-				Object.entries(stringMapping).forEach(([key, mappedValue]) => {
-					tickvals.push(mappedValue);
-					ticktext.push(key);
-				});
+            function getAxisConfig(stringMapping, rawValues, minValue, isNumeric) {
+                var tickvals = [];
+                var ticktext = [];
 
-				// Handle numeric values (only reduce ticks for numeric values)
-				if (isNumeric) {
-					rawValues.forEach(val => {
-						var parsed = parseFloat(val);
-						if (!isNaN(parsed)) {
-							tickvals.push(parsed);
-							ticktext.push(String(parsed));
-						}
-					});
-					// Reduce tick count if too many numeric values
-					return reduceNumericTicks(tickvals, ticktext, max_nr_ticks);
-				}
+                Object.entries(stringMapping).forEach(([key, mappedValue]) => {
+                    tickvals.push(mappedValue);
+                    ticktext.push(key);
+                });
 
-				return { tickvals, ticktext };
-			}
+                if (isNumeric) {
+                    rawValues.forEach(val => {
+                        var parsed = parseFloat(val);
+                        if (!isNaN(parsed)) {
+                            tickvals.push(parsed);
+                            ticktext.push(String(parsed));
+                        }
+                    });
+                    // Reduce tick count if too many numeric values
+                    return reduceNumericTicks(tickvals, ticktext, 10); // Allow a max of 10 ticks
+                }
 
-			var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
-			var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
+                return { tickvals, ticktext };
+            }
 
-			// Layout for 2D scatter plot
-			var layout2d = {
-				title: `Scatter Plot: ${x_name} vs ${y_name}`,
-				xaxis: {
-					title: x_name,
-					tickvals: xAxisConfig.tickvals,
-					ticktext: xAxisConfig.ticktext
-				},
-				yaxis: {
-					title: y_name,
-					tickvals: yAxisConfig.tickvals,
-					ticktext: yAxisConfig.ticktext
-				},
-				paper_bgcolor: 'rgba(0,0,0,0)',
-				plot_bgcolor: 'rgba(0,0,0,0)',
-				showlegend: false // We use the colorbar instead of a traditional legend
-			};
+            var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
+            var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
 
-			// Create a new div for the plot
-			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-			$('#scatter_plot_2d_container').append(new_plot_div);
+            var layout2d = {
+                title: `Scatter Plot: ${x_name} vs ${y_name}`,
+                xaxis: {
+                    title: x_name,
+                    tickvals: xAxisConfig.tickvals,
+                    ticktext: xAxisConfig.ticktext,
+                    tickangle: -45 // Rotate tick labels for better readability
+                },
+                yaxis: {
+                    title: y_name,
+                    tickvals: yAxisConfig.tickvals,
+                    ticktext: yAxisConfig.ticktext,
+                    tickangle: -45 // Rotate tick labels for better readability
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                showlegend: false
+            };
 
-			if ($('#scatter_plot_2d_container').length) {
-				// Plot the 2D scatter plot using Plotly
-				Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
+            var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+            $('#scatter_plot_2d_container').append(new_plot_div);
 
-				// Add the current key to the list of already existing plots
-				already_existing_plots.push(_key);
-			} else {
-				error("Cannot find #scatter_plot_2d_container");
-			}
-		}
-	}
+            if ($('#scatter_plot_2d_container').length) {
+                Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
+                already_existing_plots.push(_key);
+            } else {
+                error("Cannot find #scatter_plot_2d_container");
+            }
+        }
+    }
 
-	$('#scatter_plot_2d_container').data("md5", data_md5);
+    $('#scatter_plot_2d_container').data("md5", data_md5);
 }
-
 
 async function load_results () {
 	showSpinnerOverlay("Loading results...");

@@ -2830,7 +2830,6 @@ def get_experiment_parameters(_params):
             "choose_generation_strategy_kwargs": {
                 "num_trials": max_eval,
                 "num_initialization_trials": num_parallel_jobs,
-                "max_parallelism_cap": num_parallel_jobs,
                 #"use_batch_trials": True,
                 "max_parallelism_override": -1
             },

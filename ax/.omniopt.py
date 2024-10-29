@@ -4302,10 +4302,40 @@ def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_exec
 
     return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
 
+def get_parallelism_schedule_description():
+    try:
+        # Retrieve parallelism settings
+        max_parallelism_settings = ax_client.get_max_parallelism()
+
+        if not max_parallelism_settings:
+            return "No parallelism settings available."
+
+        # Build human-readable descriptions
+        descriptions = []
+        for num_trials, max_parallelism in max_parallelism_settings:
+            if num_trials == -1:
+                trial_text = "all remaining trials"
+            else:
+                trial_text = f"{num_trials} trials"
+
+            if max_parallelism == -1:
+                parallelism_text = "any number of trials can be run in parallel"
+            else:
+                parallelism_text = f"up to {max_parallelism} trials can be run in parallel"
+
+            descriptions.append(f"For {trial_text}, {parallelism_text}.")
+
+        # Join descriptions into a single string
+        human_readable_output = "\n".join(descriptions)
+        return human_readable_output
+
+    except Exception as e:
+        return f"An error occurred while processing parallelism schedule: {str(e)}"
+
 def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
-        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {ax_client.get_max_parallelism()}, get_current_trial_generation_limit: {ax_client.get_current_trial_generation_limit}")
+        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {get_parallelism_schedule_description()}, get_current_trial_generation_limit: {ax_client.get_current_trial_generation_limit}")
         #trial_index_to_param, optimization_complete = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
         #return trial_index_to_param, optimization_complete
 

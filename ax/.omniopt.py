@@ -4165,7 +4165,7 @@ def execute_evaluation(_params):
     return trial_counter
 
 def initialize_job_environment(trial_counter, next_nr_steps):
-    progressbar_description([f"starting new job ({trial_counter}/{next_nr_steps})"])
+    progressbar_description(["starting new job"])
     set_sbatch_environment()
     exclude_defective_nodes()
 
@@ -4209,7 +4209,7 @@ def cancel_failed_job(trial_index, new_job): # pragma: no cover
         print_debug("cancel_failed_job: new_job was undefined")
 
 def update_progress(trial_counter, next_nr_steps):
-    progressbar_description([f"started new job ({trial_counter}/{next_nr_steps})"])
+    progressbar_description(["started new job"])
 
 def handle_exit_signal(): # pragma: no cover
     print_red("\n⚠ Detected signal. Will exit.")

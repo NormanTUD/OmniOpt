@@ -1357,13 +1357,9 @@ else
 				WAIT_NUM_SECONDS=10
 				yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
 
-				echo ""
-
 				while [[ "$(squeue --me | grep -c "$started_job_nr")" -ne "0" ]]; do
 					sleep $WAIT_NUM_SECONDS
 				done
-
-				echo ""
 
 				yellow_text "Done waiting for job to end"
 

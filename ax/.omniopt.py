@@ -3182,7 +3182,7 @@ def clean_completed_jobs():
         elif _state in ["unknown", "pending", "running"]:
             pass
         else:
-            print_red(f"File job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
+            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
 def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     """

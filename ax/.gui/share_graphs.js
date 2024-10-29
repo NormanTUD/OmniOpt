@@ -817,17 +817,27 @@ function createTable(data, id) {
 }
 
 function parseLogData(logData) {
-	const lines = logData.split('\n');
+	const lines = logData.split("\n");
+
 	const jsonData = [];
+	let jsonBuffer = "";
 
 	lines.forEach((line, index) => {
 		if (line.trim() === "") return;
+
+		jsonBuffer += line;
+
 		try {
-			const jsonObject = JSON.parse(line);
+			const jsonObject = JSON.parse(jsonBuffer);
 			jsonData.push(jsonObject);
+			jsonBuffer = "";
 		} catch (error) {
 		}
 	});
+
+	if (jsonBuffer.trim() !== "") {
+		console.warn("Warning: Incomplete JSON object found at end of log data.");
+	}
 
 	return jsonData;
 }

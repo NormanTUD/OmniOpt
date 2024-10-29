@@ -2830,6 +2830,7 @@ def get_experiment_parameters(_params):
             "choose_generation_strategy_kwargs": {
                 "num_trials": max_eval,
                 "num_initialization_trials": num_parallel_jobs,
+                "max_parallelism_cap": num_parallel_jobs,
                 #"use_batch_trials": True,
                 "max_parallelism_override": -1
             },
@@ -4444,6 +4445,7 @@ def create_random_generation_step():
         model=Models.SOBOL,
         num_trials=max(num_parallel_jobs, random_steps),
         min_trials_observed=min(max_eval, random_steps),
+        max_parallelism=num_parallel_jobs,
         enforce_num_trials=True,
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
@@ -4472,6 +4474,7 @@ def create_systematic_step(model):
     return GenerationStep(
         model=model,
         num_trials=-1,
+        max_parallelism=num_parallel_jobs,
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
     )

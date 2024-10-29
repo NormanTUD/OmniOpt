@@ -4445,7 +4445,7 @@ def create_random_generation_step():
         model=Models.SOBOL,
         num_trials=max(num_parallel_jobs, random_steps),
         min_trials_observed=min(max_eval, random_steps),
-        max_parallelism=None,
+        max_parallelism=max_eval,
         enforce_num_trials=True,
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
@@ -4474,7 +4474,7 @@ def create_systematic_step(model):
     return GenerationStep(
         model=model,
         num_trials=-1,
-        max_parallelism=None,
+        max_parallelism=max_eval,
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
     )

@@ -57,12 +57,12 @@ function every_array_element_is_a_number (arr) {
 		return true;
 }
 
-function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
+function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	showSpinnerOverlay("Plotting 3d scatter...");
 	var already_existing_plots = [];
 	var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-	if($('#scatter_plot_3d_container').data("md5") == data_md5) {
+	if ($('#scatter_plot_3d_container').data("md5") == data_md5) {
 		return;
 	}
 
@@ -72,8 +72,8 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {
 				for (var k = j + 1; k < _paramKeys.length; k++) {
-					if(!$("#scatter_plot_3d_container").length) {
-						add_tab("scatter_plot_3d", "3d-Scatter-Plot", "<div id='scatter_plot_3d_container'></div>")
+					if (!$("#scatter_plot_3d_container").length) {
+						add_tab("scatter_plot_3d", "3d-Scatter-Plot", "<div id='scatter_plot_3d_container'></div>");
 					}
 					var map_x = mappingKeyNameToIndex[_paramKeys[i]];
 					var map_y = mappingKeyNameToIndex[_paramKeys[j]];
@@ -89,12 +89,10 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						continue;
 					}
 
-					// Function to map string values to unique negative numbers starting just below the minimum numeric value
 					function mapStrings(values, minNumericValue) {
 						var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
-						uniqueStrings.sort(); // Alphabetically sort the strings
+						uniqueStrings.sort();
 						var stringMapping = {};
-						// Start string values just below the minimum numeric value
 						var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
 						uniqueStrings.forEach((str, idx) => {
 							stringMapping[str] = baseNegativeValue - idx;
@@ -102,7 +100,6 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						return stringMapping;
 					}
 
-					// Get minimum numeric value for each axis
 					function getMinNumericValue(values) {
 						return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
 					}
@@ -115,7 +112,6 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var minYValue = getMinNumericValue(yValuesRaw);
 					var minZValue = getMinNumericValue(zValuesRaw);
 
-					// Map strings to negative values and store the original string for hover tooltips
 					var stringMappingX = mapStrings(xValuesRaw, minXValue);
 					var stringMappingY = mapStrings(yValuesRaw, minYValue);
 					var stringMappingZ = mapStrings(zValuesRaw, minZValue);
@@ -126,32 +122,26 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var hoverText = [];
 
 					_results_csv_json.forEach(function(row) {
-						// Handle x-axis
 						var xParsed = parseFloat(row[map_x]);
 						var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
 						xValues.push(xValue);
 
-						// Handle y-axis
 						var yParsed = parseFloat(row[map_y]);
 						var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
 						yValues.push(yValue);
 
-						// Handle z-axis
 						var zParsed = parseFloat(row[map_z]);
 						var zValue = isNaN(zParsed) ? stringMappingZ[row[map_z]] : zParsed;
 						zValues.push(zValue);
 
-						// Hover text with the original values
 						hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}, z: ${row[map_z]}`);
 					});
 
-					// Color function for markers
 					function color_curried(value) {
 						return getColor(value, minResult, maxResult);
 					}
 					var colors = resultValues.map(color_curried);
 
-					// Plotly trace for 3D scatter plot
 					var trace3d = {
 						x: xValues,
 						y: yValues,
@@ -159,45 +149,44 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						mode: 'markers',
 						type: 'scatter3d',
 						marker: {
-							size: 5, // Set marker size
-							color: resultValues, // Use resultValues for color mapping
+							size: 5,
+							color: resultValues,
 							colorscale: [
-								[0, 'rgb(0, 255, 0)'],  // Green at the lowest value (0)
-								[0.5, 'rgb(255, 255, 0)'],  // Yellow in the middle (0.5)
-								[1, 'rgb(255, 0, 0)']  // Red at the highest value (1)
-							], // Custom color scale (green -> yellow -> red)
-							cmin: minResult, // Minimum result value
-							cmax: maxResult, // Maximum result value
+								[0, 'rgb(0, 255, 0)'],
+								[0.5, 'rgb(255, 255, 0)'],
+								[1, 'rgb(255, 0, 0)']
+							],
+							cmin: minResult,
+							cmax: maxResult,
 							colorbar: {
-								title: 'Result Value', // Title of the colorbar
-								tickvals: [minResult, maxResult], // Show only min and max ticks
-								ticktext: [`Min (${minResult})`, `Max (${maxResult})`], // Label for min and max
-								len: 0.8 // Length of the colorbar
+								title: 'Result Value',
+								tickvals: [minResult, maxResult],
+								ticktext: [`Min (${minResult})`, `Max (${maxResult})`],
+								len: 0.8
 							}
 						},
-						text: hoverText, // Show the original values in hover info
+						text: hoverText,
 						hoverinfo: 'text',
-						showlegend: false // No need for a legend here
+						showlegend: false
 					};
 
-					// Custom axis labels: tickvals (numeric + mapped string) and ticktext (display string/number)
-					function getAxisConfig(stringMapping, rawValues, minValue, isNumeric) {
+					function getAxisConfig(stringMapping, rawValues, minValue, isNumeric, maxTicks = 10) {
 						var tickvals = [];
 						var ticktext = [];
-
-						// Handle string values (always show all strings)
 						Object.entries(stringMapping).forEach(([key, mappedValue]) => {
 							tickvals.push(mappedValue);
 							ticktext.push(key);
 						});
 
-						// Handle numeric values (only reduce ticks for numeric values)
 						if (isNumeric) {
-							rawValues.forEach(val => {
-								var parsed = parseFloat(val);
-								if (!isNaN(parsed)) {
-									tickvals.push(parsed);
-									ticktext.push(String(parsed));
+							let numericValues = Array.from(new Set(rawValues.filter(v => !isNaN(parseFloat(v))).map(parseFloat)));
+							numericValues.sort((a, b) => a - b);
+
+							let interval = Math.ceil(numericValues.length / maxTicks);
+							numericValues.forEach((val, index) => {
+								if (index % interval === 0) {
+									tickvals.push(val);
+									ticktext.push(String(val));
 								}
 							});
 						}
@@ -209,7 +198,6 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 					var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
 					var zAxisConfig = getAxisConfig(stringMappingZ, zValuesRaw, minZValue, !isNaN(minZValue));
 
-					// Layout for 3D scatter plot
 					var layout3d = {
 						title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
 						width: get_width(),
@@ -249,15 +237,10 @@ function scatter_3d (_paramKeys, _results_csv_json, minResult, maxResult, result
 						}
 					};
 
-					// Create a new div for the plot
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${x_name}_${y_name}_${z_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-					if($('#scatter_plot_3d_container').length) {
+					if ($('#scatter_plot_3d_container').length) {
 						$('#scatter_plot_3d_container').append(new_plot_div);
-
-						// Plot the 3D scatter plot using Plotly
 						Plotly.newPlot(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, [trace3d], layout3d);
-
-						// Add the current key to the list of already existing plots
 						already_existing_plots.push(_key);
 					} else {
 						error("Cannot find #scatter_plot_3d_container");

@@ -598,13 +598,12 @@ async function load_out_files () {
 
 	if(data.data) {
 		var awaits = [];
-		var maxConcurrentRequests = 5; // Limit the concurrent requests to 5
+		var maxConcurrentRequests = 5;
 		var got_data = [];
 
 		for (var i = 0; i < data.data.length; i += maxConcurrentRequests) {
 			var batchRequests = [];
 
-			// Loop to gather up to `maxConcurrentRequests` at a time
 			for (var j = i; j < i + maxConcurrentRequests && j < data.data.length; j++) {
 				showSpinnerOverlay(`Loading log ${j + 1}/${data.data.length}`);
 
@@ -624,18 +623,13 @@ async function load_out_files () {
 					batchRequests.push(requestPromise);
 				}
 
-			// Wait for the current batch to resolve before continuing to the next batch
 			awaits.push(...batchRequests);
 			Promise.all(batchRequests).then(batchData => {
 				got_data.push(...batchData);
 			});
 
-			// Await this batch before the next
 			await Promise.all(batchRequests);
 		}
-
-		// Process `got_data` as needed
-
 
 		for (var i = 0; i < data.data.length; i++) {
 			var _d = got_data[i];

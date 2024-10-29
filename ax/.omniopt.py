@@ -4624,7 +4624,7 @@ def set_global_executor():
     # Should they just be None by default if not set in the argparser? No, submitit fails if gpu related stuff is None
 
     executor.update_parameters(
-        name=f'{global_vars["experiment_name"]}_{run_uuid}',
+        name=f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}',
         timeout_min=args.worker_timeout,
         slurm_gres=f"gpu:{args.gpus}",
         cpus_per_task=args.cpus_per_task,
@@ -4638,7 +4638,7 @@ def set_global_executor():
 
     print_debug(f"""
         executor.update_parameters(
-            name={f'{global_vars["experiment_name"]}_{run_uuid}'}
+            name={f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}'}
             timeout_min={args.worker_timeout}
             "slurm_gres={f"gpu:{args.gpus}"}
             "cpus_per_task={args.cpus_per_task}

@@ -4335,7 +4335,7 @@ def get_parallelism_schedule_description():
 def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
-        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {get_parallelism_schedule_description()}, get_current_trial_generation_limit: {ax_client.get_current_trial_generation_limit}")
+        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {get_parallelism_schedule_description()}")
         #trial_index_to_param, optimization_complete = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
         #return trial_index_to_param, optimization_complete
 

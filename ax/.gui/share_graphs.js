@@ -583,10 +583,10 @@ async function load_out_files () {
 				}
 
 				var _fn = data.data[j].replaceAll(/.*\//g, ""); // Clean up filename
-					var requestPromise = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`);
+				var requestPromise = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`);
 
-					batchRequests.push(requestPromise);
-				}
+				batchRequests.push(requestPromise);
+			}
 
 			awaits.push(...batchRequests);
 			Promise.all(batchRequests).then(batchData => {
@@ -604,6 +604,7 @@ async function load_out_files () {
 			} else {
 				var _new_tab_id = `out_files_${md5(_d.data + _fn)}`;
 				if($("#" + _new_tab_id).length == 0) {
+					var _fn = data.data[i].replaceAll(/.*\//g, ""); // Clean up filename
 					showSpinnerOverlay(`Loading log ${_fn} (${i + 1}/${got_data.length})...`);
 					var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span class='invert_in_dark_mode'>${get_checkmark_if_contains_result(_d.data)}</span>`;
 					var _new_tab_content = `<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${_d.data}</pre></div>`;

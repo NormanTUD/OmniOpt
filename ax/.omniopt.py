@@ -4142,7 +4142,7 @@ def execute_evaluation(_params):
     new_job = None
 
     try:
-        initialize_job_environment(trial_counter, next_nr_steps)
+        initialize_job_environment()
         new_job = submit_job(parameters)
 
         global_vars["jobs"].append((new_job, trial_index))
@@ -4152,7 +4152,7 @@ def execute_evaluation(_params):
         mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
-        update_progress(trial_counter - 1, next_nr_steps)
+        update_progress()
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
@@ -4164,7 +4164,7 @@ def execute_evaluation(_params):
     add_to_phase_counter(phase, 1)
     return trial_counter
 
-def initialize_job_environment(trial_counter, next_nr_steps):
+def initialize_job_environment():
     progressbar_description(["starting new job"])
     set_sbatch_environment()
     exclude_defective_nodes()
@@ -4208,7 +4208,7 @@ def cancel_failed_job(trial_index, new_job): # pragma: no cover
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 
-def update_progress(trial_counter, next_nr_steps):
+def update_progress():
     progressbar_description(["started new job"])
 
 def handle_exit_signal(): # pragma: no cover

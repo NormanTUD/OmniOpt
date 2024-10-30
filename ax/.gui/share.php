@@ -1,7 +1,13 @@
 <?php
         require "_header_base.php";
 ?>
+	<script src='plotly-latest.min.js'></script>
+	<script src='share.js'></script>
+	<script src='parallel.js'></script>
+	<script src='share_graphs.js'></script>
+	<link href="share.css" rel="stylesheet" />
         <div id="share_main" style="display: none"></div>
+
 </div>
 <script>
 	alert = console.error;

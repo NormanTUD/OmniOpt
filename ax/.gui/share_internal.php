@@ -133,12 +133,6 @@
 	}
 	if (!isset($_GET["get_hash_only"])) {
 ?>
-	    <script src='plotly-latest.min.js'></script>
-	    <script src='share.js'></script>
-	    <script src='parallel.js'></script>
-	    <script src='share_graphs.js'></script>
-	    <link href="<?php echo $dir_path; ?>/share.css" rel="stylesheet" />
-
 	    <div id="breadcrumb"></div>
 <?php
 	}

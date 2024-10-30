@@ -211,23 +211,24 @@ function add_status_bar () {
 	$("body").css("margin-bottom", "100px")
 }
 
-function showSpinnerOverlay(text) {
-	if (document.getElementById('spinner-overlay')) {
-		$("#spinner-overlay").remove()
-		$("#spinner-container").remove()
-		$("#spinner-text").remove()
+function showSpinnerOverlay(text) {                                                                                                                                                                                                     
+	let overlay = document.getElementById('spinner-overlay');
+
+	if (overlay) {
+		document.getElementById('spinner-text').innerText = text;
+		return;
 	}
 
-	var overlay = document.createElement('div');
+	overlay = document.createElement('div');
 	overlay.id = 'spinner-overlay';
 
-	var container = document.createElement('div');
+	const container = document.createElement('div');
 	container.id = 'spinner-container';
 
-	var spinner = document.createElement('div');
+	const spinner = document.createElement('div');
 	spinner.classList.add('spinner');
 
-	var spinnerText = document.createElement('div');
+	const spinnerText = document.createElement('div');
 	spinnerText.id = 'spinner-text';
 	spinnerText.innerText = text;
 

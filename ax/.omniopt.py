@@ -4447,23 +4447,25 @@ def check_max_parallelism_arg(possible_values):
 def _get_max_parallelism():
     possible_values = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
 
+    ret = None
+
     if check_max_parallelism_arg(possible_values):
         if args.max_parallelism == "max_eval":
-            return max_eval
+            ret = max_eval
         if args.max_parallelism == "num_parallel_jobs":
-            return args.num_parallel_jobs
+            ret = args.num_parallel_jobs
         if args.max_parallelism == "twice_max_eval":
-            return 2 * max_eval
+            ret = 2 * max_eval
         if args.max_parallelism == "twice_num_parallel_jobs":
-            return 2 * args.num_parallel_jobs
+            ret = 2 * args.num_parallel_jobs
         if args.max_parallelism == "max_eval_times_thousand_plus_thousand":
-            return 1000 * max_eval
+            ret = 1000 * max_eval
         if helpers.looks_like_int(args.max_parallelism):
-            return int(args.max_parallelism)
+            ret = int(args.max_parallelism)
     else:
         print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
 
-    return None
+    return ret
 
 def create_random_generation_step():
     """Creates a generation step for random models."""

@@ -63,8 +63,8 @@
 			</tr>
 			<tr>
 				<td><samp>--max_parallelism</samp></td>
-				<td>Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, twice_num_parallel_jobs and any integer.</td>
-				<td><samp>None</samp></td>
+				<td>Set how the ax max parallelism flag should be set. Possible options: <samp>None</samp>, <samp>max_eval</samp>, <samp>num_parallel_jobs</samp>, <samp>twice_max_eval</samp>, <samp>twice_num_parallel_jobs</samp>, <samp>max_eval_times_thousand_plus_thousand</samp>, or any positive integer.</td>
+				<td><samp>max_eval_times_thousand_plus_thousand</samp></td>
 			</tr>
 			<tr>
 				<td><samp>--should_deduplicate</samp></td>

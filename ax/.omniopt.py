@@ -321,6 +321,7 @@ try:
             optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
             optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
             optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
+            optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, twice_num_parallel_jobs and any integer.', type=int, default=None)
 
             slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
             slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -4334,7 +4335,7 @@ def get_parallelism_schedule_description():
 def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
-        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_max_parallelism: {get_parallelism_schedule_description()}")
+        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
         #trial_index_to_param, optimization_complete = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
         #return trial_index_to_param, optimization_complete
 
@@ -4439,13 +4440,39 @@ def get_generation_strategy():
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)
 
+def check_max_parallelism_arg(possible_values):
+    if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
+        return True
+    return False
+
+def _get_max_parallelism():
+    possible_values = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs"]
+
+    if check_max_parallelism_arg(possible_values):
+        if args.max_parallelism in [None, "None", "none"]:
+            return None
+        elif args.max_parallelism == "max_eval":
+            return max_eval
+        elif args.max_parallelism == "num_parallel_jobs":
+            return args.num_parallel_jobs
+        elif args.max_parallelism == "twice_max_eval":
+            return (2 * max_eval)
+        elif args.max_parallelism == "twice_num_parallel_jobs":
+            return (2 * args.num_parallel_jobs)
+        elif helpers.looks_like_int(args.max_parallelism):
+            return int(args.max_parallelism)
+
+    print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
+
+    return None
+
 def create_random_generation_step():
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
         num_trials=max(num_parallel_jobs, random_steps),
         min_trials_observed=min(max_eval, random_steps),
-        max_parallelism=max_eval,
+        max_parallelism=_get_max_parallelism(),
         enforce_num_trials=True,
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
@@ -4474,7 +4501,7 @@ def create_systematic_step(model):
     return GenerationStep(
         model=model,
         num_trials=-1,
-        max_parallelism=max_eval,
+        max_parallelism=_get_max_parallelism(),
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
     )

@@ -62,6 +62,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--max_parallelism</samp></td>
+				<td>Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, twice_num_parallel_jobs and any integer.</td>
+				<td><samp>None</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--should_deduplicate</samp></td>
 				<td>Try to de-duplicate ARMs</td>
 				<td><samp>False</samp></td>

@@ -4459,7 +4459,7 @@ def _get_max_parallelism():
         if args.max_parallelism == "twice_num_parallel_jobs":
             ret = 2 * args.num_parallel_jobs
         if args.max_parallelism == "max_eval_times_thousand_plus_thousand":
-            ret = 1000 * max_eval
+            ret = 1000 * max_eval + 1000
         if helpers.looks_like_int(args.max_parallelism):
             ret = int(args.max_parallelism)
     else:

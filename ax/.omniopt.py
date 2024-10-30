@@ -4521,7 +4521,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                             break
 
                         if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                            progressbar_description([f"starting parameter set"])
+                            progressbar_description(["starting parameter set"])
 
                             _args = [
                                 trial_index,

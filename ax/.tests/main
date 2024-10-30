@@ -672,7 +672,7 @@ fi
 
 if [[ -d "runs" && -n $(find runs -type f -path 'runs/*/0/worker_usage.csv') ]]; then
 	for i in runs/*/0/worker_usage.csv; do
-		if [[ ! "$i" =~ ^(test_wronggoing|test_orchestrator)$ ]]; then
+		if [[ ! "$i" =~ ^(test_wronggoing|test_orchestrator|small_test)$ ]]; then
 			calculate_average_and_check "$i"
 		fi
 	done

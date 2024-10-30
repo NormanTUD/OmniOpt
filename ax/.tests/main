@@ -427,7 +427,7 @@ calculate_average_and_check() {
 		failed=1
 	fi
 
-	NAME="Testing worker usage for $file: Below 80%"
+	NAME="Testing worker usage for $file: Below 80% (got $avg%)"
 
 	LOG_TIMES+=("$failed,$NAME,$failed,0,0,$failed_true_false")
 }

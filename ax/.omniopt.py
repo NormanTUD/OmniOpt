@@ -4449,20 +4449,18 @@ def _get_max_parallelism():
     possible_values = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs"]
 
     if check_max_parallelism_arg(possible_values):
-        if args.max_parallelism in [None, "None", "none"]:
-            return None
-        elif args.max_parallelism == "max_eval":
+        if args.max_parallelism == "max_eval":
             return max_eval
-        elif args.max_parallelism == "num_parallel_jobs":
+        if args.max_parallelism == "num_parallel_jobs":
             return args.num_parallel_jobs
-        elif args.max_parallelism == "twice_max_eval":
+        if args.max_parallelism == "twice_max_eval":
             return (2 * max_eval)
-        elif args.max_parallelism == "twice_num_parallel_jobs":
+        if args.max_parallelism == "twice_num_parallel_jobs":
             return (2 * args.num_parallel_jobs)
-        elif helpers.looks_like_int(args.max_parallelism):
+        if helpers.looks_like_int(args.max_parallelism):
             return int(args.max_parallelism)
-
-    print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
+    else:
+        print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
 
     return None
 

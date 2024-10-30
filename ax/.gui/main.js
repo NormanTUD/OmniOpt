@@ -478,6 +478,7 @@ function sleep(ms) {
 }
 
 function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbed") {
+	showSpinnerOverlay("Adding tab " + tab_name);
 	if ($(container_id).length) {
 		$(container_id).tabs();
 	}

@@ -4366,13 +4366,10 @@ def _get_next_trials(nr_of_jobs_to_get):
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
-    if break_run_search("_get_next_trials", max_eval, progress_bar):
-        return False
+    if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
+        return {}, True
 
     last_ax_client_time, ax_client_time_avg = _get_last_and_avg_times()
-
-    if nr_of_jobs_to_get == 0:
-        return None
 
     # Message handling
     message = _get_trials_message(

@@ -37,8 +37,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
 
-cd test_wronggoing_stuff.bin
-
 function echoerr() {
         echo "$@" 1>&2
 }
@@ -175,7 +173,8 @@ if [[ "$NUM_GPUS" -ne "0" ]]; then
 fi
 
 cd ..
-cd ..
+
+bash .tests/example_network/install.sh
 
 #if [[ -d runs/example_network/ ]]; then
 #	rm -rf runs/example_network/

@@ -477,7 +477,7 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbed") {
+function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbed", tab_refresh=true) {
 	showSpinnerOverlay("Adding tab " + tab_name);
 	if ($(container_id).length) {
 		$(container_id).tabs();
@@ -497,7 +497,9 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 	var tabContent = $('<div id="' + tab_id + '-content">' + tab_html_content + '</div>');
 	$(container_id).append(tabContent);
 
-	$(container_id).tabs("refresh");
+	if(tab_refresh) {
+		$(container_id).tabs("refresh");
+	}
 
 	open_first_tab_when_none_is_open();
 }

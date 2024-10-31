@@ -3017,7 +3017,7 @@ def get_current_model():
         if gs_model:
             return str(gs_model.model)
 
-    return "initializing"
+    return "initializing model"
 
 def get_best_params_str():
     if count_done_jobs() >= 0:
@@ -4537,7 +4537,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
                             break
 
                         while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
-                            finish_previous_jobs(["finishing prev jobs"])
+                            finish_previous_jobs(["finishing previous jobs"])
 
                             if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
                                 break
@@ -4762,7 +4762,7 @@ def run_search(_progress_bar):
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(["finishing prev jobs"])
+        finish_previous_jobs(["finishing previous jobs"])
 
         if is_slurm_job() and not args.force_local_execution:
             _sleep(1)

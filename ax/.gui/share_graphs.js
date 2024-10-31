@@ -598,6 +598,7 @@ async function load_out_files () {
 
 		for (var i = 0; i < data.data.length; i++) {
 			var _d = got_data[i];
+			showSpinnerOverlay(`Adding log tab ${j + 1}/${data.data.length}`);
 
 			if(Object.keys(_d).includes("error")) {
 				error(_d.error);

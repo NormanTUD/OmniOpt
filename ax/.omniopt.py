@@ -2616,13 +2616,14 @@ def set_torch_device_to_experiment_args(experiment_args):
         cuda_is_available = torch.cuda.is_available()
 
         if not cuda_is_available or cuda_is_available == 0:
-            print_yellow("No suitable CUDA devices found")
+            print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
         else:
             if torch.cuda.device_count() >= 1:
                 torch_device = torch.cuda.current_device()
                 print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
             else:
-                print_yellow("No suitable CUDA devices found")
+                print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
+        else:
     except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 

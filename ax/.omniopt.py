@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+original_print = print
+
 # TODO: allow multi-objective optimization; MOO is supported by ax, see.
 # https://botorch.org/tutorials/multi_objective_bo
 
@@ -123,8 +125,6 @@ spec.loader.exec_module(helpers)
 dier = helpers.dier
 is_equal = helpers.is_equal
 is_not_equal = helpers.is_not_equal
-
-original_print = print
 
 SUPPORTED_MODELS = [
     "SOBOL",

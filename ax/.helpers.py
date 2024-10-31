@@ -88,7 +88,7 @@ def warn_versions():
         "mpmath": ["1.3.0"],
         "sympy": ["1.13.3", "1.13.1"],
         "setuptools": ["66.1.1", "75.2.0", "58.1.0", "75.3.0"],
-        "torchvision": ["0.19.1"]
+        "torchvision": ["0.19.0", "0.19.1"]
     }
 
     for key in supported_versions.keys():

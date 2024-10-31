@@ -499,9 +499,8 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 
 	if(tab_refresh) {
 		$(container_id).tabs("refresh");
+		open_first_tab_when_none_is_open(container_id);
 	}
-
-	open_first_tab_when_none_is_open();
 }
 
 function remove_tab(tab_id) {
@@ -524,6 +523,7 @@ function remove_tab(tab_id) {
 }
 
 function open_first_tab_when_none_is_open(id = "main_tabbed") {
+	id = id.replace("#", "");
 	if($("#" + id).tabs("option", "active") === false) {
 		$("#" + id).tabs("option", "active", 0);
 	}

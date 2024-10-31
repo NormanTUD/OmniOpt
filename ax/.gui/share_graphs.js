@@ -613,12 +613,13 @@ async function load_out_files () {
 					add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#" + main_tabs_div_id, false);
 				}
 
-				open_first_tab_when_none_is_open(main_tabs_div_id);
 			}
 
 		}
 
 		$("#" + main_tabs_div_id).tabs("refresh");
+
+		open_first_tab_when_none_is_open(main_tabs_div_id);
 
 		convert_ansi_to_html();
 	}

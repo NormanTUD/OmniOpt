@@ -5053,7 +5053,7 @@ def save_experiment_parameters(filepath, experiment_parameters):
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
 def run_search_with_progress_bar(disable_tqdm):
-    with tqdm(total=max_eval, disable=disable_tqdm) as _progress_bar:
+    with tqdm(total=max_eval, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
         global progress_bar
         progress_bar = _progress_bar

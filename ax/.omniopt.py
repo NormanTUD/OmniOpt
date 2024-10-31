@@ -2623,7 +2623,6 @@ def set_torch_device_to_experiment_args(experiment_args):
                 print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
             else:
                 print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
-        else:
     except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 

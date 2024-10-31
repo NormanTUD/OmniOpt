@@ -250,7 +250,7 @@ def print_red(text):
     if get_current_run_folder():
         try:
             with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
-                myfile.write(text + "\n")
+                myfile.write(text + "\n\n")
         except FileNotFoundError as e: # pragma: no cover
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)

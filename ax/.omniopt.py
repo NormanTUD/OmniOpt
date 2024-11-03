@@ -4441,7 +4441,7 @@ def check_max_parallelism_arg(possible_values):
         return True
     return False
 
-def _get_max_parallelism():
+def _get_max_parallelism(): # pragma: no cover
     possible_values = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
 
     ret = None
@@ -4569,7 +4569,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
         if done_optimizing:
             end_program(RESULT_CSV_FILE, 88)
-    except TypeError as e:
+    except TypeError as e: # pragma: no cover
         print_red(f"Error 1: {e}")
         return 0
     except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
@@ -4889,7 +4889,7 @@ def check_if_has_random_steps():
         die_no_random_steps()
 
 def add_exclude_to_defective_nodes():
-    if args.exclude:
+    if args.exclude: # pragma: no cover
         entries = [entry.strip() for entry in args.exclude.split(',')]
 
         for entry in entries:
@@ -4967,7 +4967,7 @@ def main():
 
     try:
         set_global_executor()
-    except ModuleNotFoundError as e:
+    except ModuleNotFoundError as e: # pragma: no cover
         print_red(f"set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
         sys.exit(244)
 
@@ -5001,7 +5001,7 @@ def set_run_folder():
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
 def handle_maximize_argument():
-    if args.maximize:
+    if args.maximize: # pragma: no cover
         print_red("--maximize is not fully supported yet!")
 
 def print_run_info():
@@ -5028,7 +5028,7 @@ def parse_parameters():
 
 def handle_random_steps():
     global random_steps
-    if args.parameter and args.continue_previous_job and random_steps <= 0:
+    if args.parameter and args.continue_previous_job and random_steps <= 0: # pragma: no cover
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
@@ -5069,7 +5069,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
 
     program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
 
-    if not os.path.exists(program_path):
+    if not os.path.exists(program_path): # pragma: no cover
         print_red(f"Program path {program_path} not found!")
         my_exit(18)
 
@@ -5148,7 +5148,7 @@ def test_find_paths(program_code):
 
     for i in files:
         if i not in string:
-            if os.path.exists(i):
+            if os.path.exists(i): # pragma: no cover
                 print("Missing {i} in find_file_paths string!")
                 nr_errors += 1
 
@@ -5422,7 +5422,7 @@ Exit-Code: 159
     my_exit(nr_errors)
 
 def live_share_background(interval):
-    if not args.live_share:
+    if not args.live_share: # pragma: no cover
         return
 
     while True:
@@ -5430,7 +5430,7 @@ def live_share_background(interval):
         time.sleep(interval)
 
 def start_live_share_background_job():
-    if not args.live_share:
+    if not args.live_share: # pragma: no cover
         return
 
     live_share()

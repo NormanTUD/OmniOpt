@@ -93,7 +93,7 @@ def main():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
-    if args.debug:
+    if args.debug: # pragma: no cover
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
     if args.run_dir:

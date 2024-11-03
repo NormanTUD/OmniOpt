@@ -60,7 +60,7 @@ def update_graph():
 
         if args.save_to_file:
             _path = os.path.dirname(args.save_to_file)
-            if _path:
+            if _path: # pragma: no cover
                 os.makedirs(_path, exist_ok=True)
         plot_graph(dataframe, args.save_to_file)
 

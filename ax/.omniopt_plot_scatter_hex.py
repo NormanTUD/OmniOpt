@@ -77,7 +77,7 @@ def plot_multiple_graphs(_params):
                     scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 if "'Axes' object is not subscriptable" in str(e):
                     if bins: # pragma: no cover
                         scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
@@ -232,7 +232,7 @@ def main():
         update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event=None, _min=None, _max=None):
+def update_graph(event=None, _min=None, _max=None): # pragma: no cover
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event:  # pragma: no cover

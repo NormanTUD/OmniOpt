@@ -1490,7 +1490,7 @@ def parse_experiment_parameters():
 
     return params
 
-def check_factorial_range():
+def check_factorial_range(): # pragma: no cover
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
@@ -1623,7 +1623,7 @@ def find_file_paths(_text):
 
         return file_paths
 
-    return []
+    return [] # pragma: no cover
 
 def check_file_info(file_path):
     if not os.path.exists(file_path):

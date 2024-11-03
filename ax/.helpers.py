@@ -599,7 +599,7 @@ def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop
     except pd.errors.ParserError as e:
         if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
-        sys.exit(12)
+        sys.exit(12) # pragma: no cover
     except UnicodeDecodeError:
         if not os.environ.get("PLOT_TESTS"): # pragma: no cover
             print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")

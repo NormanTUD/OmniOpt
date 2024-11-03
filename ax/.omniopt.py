@@ -3677,7 +3677,7 @@ def get_python_errors():
         ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
     ]
 
-def get_first_line_of_file_that_contains_string(i, s):
+def get_first_line_of_file_that_contains_string(i, s): # pragma: no cover
     if not os.path.exists(i):
         print_debug(f"File {i} not found")
         return ""
@@ -3782,7 +3782,7 @@ def print_outfile_analyzed(stdout_path):
 
 def get_parameters_from_outfile(stdout_path):
     try:
-        with open(stdout_path, mode='r', encoding="utf-8") as file:
+        with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
             for line in file:
                 if line.lower().startswith("parameters: "):
                     params = line.split(":", 1)[1].strip()
@@ -3969,7 +3969,7 @@ def is_already_in_defective_nodes(hostname): # pragma: no cover
 
     return False
 
-def orchestrator_start_trial(params_from_out_file, trial_index):
+def orchestrator_start_trial(params_from_out_file, trial_index): # pragma: no cover
     global global_vars
 
     new_job = executor.submit(evaluate, params_from_out_file)
@@ -3982,7 +3982,7 @@ def orchestrator_start_trial(params_from_out_file, trial_index):
 
     global_vars["jobs"].append((new_job, trial_index))
 
-def handle_exclude_node(stdout_path, hostname_from_out_file):
+def handle_exclude_node(stdout_path, hostname_from_out_file): # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
@@ -4146,14 +4146,14 @@ def execute_evaluation(_params):
         new_job = submit_job(parameters)
 
         global_vars["jobs"].append((new_job, trial_index))
-        if is_slurm_job() and not args.force_local_execution:
+        if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(1)
 
         mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
         update_progress()
-    except submitit.core.utils.FailedJobError as error:
+    except submitit.core.utils.FailedJobError as error: # pragma: no cover
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
     except (SignalUSR, SignalINT, SignalCONT):

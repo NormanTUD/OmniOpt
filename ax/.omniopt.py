@@ -1889,7 +1889,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-def custom_warning_handler(message, category, filename, lineno, file=None, line=None):
+def custom_warning_handler(message, category, filename, lineno):
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(warning_message)
 

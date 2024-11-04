@@ -3851,11 +3851,8 @@ def finish_previous_jobs(new_msgs):
                     #count_done_jobs(1)
                     try:
                         progressbar_description([f"new result: {result}"])
-                        #print(traceback.print_stack())
                         mark_trial_as_completed(_trial)
                         succeeded_jobs(1)
-
-                        #update_progress_bar(progress_bar, 1)
                         update_progress_bar(progress_bar, 1)
                     except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
@@ -3870,7 +3867,6 @@ def finish_previous_jobs(new_msgs):
                         job.cancel()
                         mark_trial_as_failed(_trial)
                         orchestrate_job(job, trial_index)
-
                     failed_jobs(1)
                 global_vars["jobs"].remove((job, trial_index))
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover

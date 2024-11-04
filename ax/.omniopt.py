@@ -3812,6 +3812,10 @@ def get_hostname_from_outfile(stdout_path):
         print(f"There was an error: {e}")
         return None
 
+def mark_trial_as_completed(_trial):
+    print_debug(f"Marking trial {_trial} as completed")
+    _trial.mark_completed(unsafe=True)
+
 def finish_previous_jobs(new_msgs):
     global random_steps
     global ax_client
@@ -3830,16 +3834,17 @@ def finish_previous_jobs(new_msgs):
                 raw_result = result
                 result = result["result"]
                 this_jobs_finished += 1
+
+                _trial = ax_client.get_trial(trial_index)
+
                 if result != VAL_IF_NOTHING_FOUND:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
                     #count_done_jobs(1)
-
-                    _trial = ax_client.get_trial(trial_index)
                     try:
                         progressbar_description([f"new result: {result}"])
                         #print(traceback.print_stack())
-                        _trial.mark_completed(unsafe=True)
+                        mark_trial_as_completed(_trial)
                         succeeded_jobs(1)
 
                         #update_progress_bar(progress_bar, 1)
@@ -3855,6 +3860,7 @@ def finish_previous_jobs(new_msgs):
                         except Exception as e: # pragma: no cover
                             print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
+                        _trial.mark_failed()
                         orchestrate_job(job, trial_index)
 
                     failed_jobs(1)
@@ -3978,7 +3984,10 @@ def orchestrator_start_trial(params_from_out_file, trial_index): # pragma: no co
 
     _trial = ax_client.get_trial(trial_index)
 
-    _trial.mark_staged(unsafe=True)
+    try:
+        _trial.mark_staged(unsafe=True)
+    except Exception as e:
+        print_debug(f"orchestrator_start_trial: error {e}")
     _trial.mark_running(unsafe=True, no_runner_required=True)
 
     global_vars["jobs"].append((new_job, trial_index))

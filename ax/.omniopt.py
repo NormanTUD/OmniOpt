@@ -3814,7 +3814,10 @@ def get_hostname_from_outfile(stdout_path):
 
 def mark_trial_as_failed(_trial):
     print_debug(f"Marking trial {_trial} as failed")
-    _trial.mark_failed()
+    try:
+        _trial.mark_failed()
+    except ValueError as e:
+        print_debug(f"mark_trial_as_failed error: {e}")
 
 def mark_trial_as_completed(_trial):
     print_debug(f"Marking trial {_trial} as completed")

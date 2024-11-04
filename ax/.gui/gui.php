@@ -901,7 +901,7 @@
                         $(input).change(item.onchange);
                     }
                 } else {
-                    var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
+                    var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max }).css("width", "100%");
 
                     if (item.type === "checkbox") {
                         input.prop("checked", item.value);

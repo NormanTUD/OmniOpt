@@ -3812,6 +3812,10 @@ def get_hostname_from_outfile(stdout_path):
         print(f"There was an error: {e}")
         return None
 
+def mark_trial_as_failed(_trial):
+    print_debug(f"Marking trial {_trial} as failed")
+    _trial.mark_failed()
+
 def mark_trial_as_completed(_trial):
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
@@ -3864,7 +3868,7 @@ def finish_previous_jobs(new_msgs):
                         except Exception as e: # pragma: no cover
                             print(f"ERROR in line {get_line_info()}: {e}")
                         job.cancel()
-                        _trial.mark_failed()
+                        mark_trial_as_failed(_trial)
                         orchestrate_job(job, trial_index)
 
                     failed_jobs(1)
@@ -3880,7 +3884,7 @@ def finish_previous_jobs(new_msgs):
                         progressbar_description(["job_failed"])
                         _trial = ax_client.get_trial(trial_index)
                         ax_client.log_trial_failure(trial_index=trial_index)
-                        _trial.mark_failed()
+                        mark_trial_as_failed(_trial)
                     except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()

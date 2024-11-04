@@ -1889,6 +1889,10 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
+def custom_warning_handler(message, category, filename, lineno, file=None, line=None):
+    warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
+    print_debug(warning_message)
+
 def disable_logging():
     if args.verbose:
         return
@@ -1934,12 +1938,15 @@ def disable_logging():
         "torch.autograd.__init__",
     ]
 
-    for _module in modules:
-        logging.getLogger(_module).setLevel(logging.ERROR)
+    for module in modules:
+        logging.getLogger(module).setLevel(logging.ERROR)
 
-        for _cat in categories:
-            warnings.filterwarnings("ignore", category=_cat)
-            warnings.filterwarnings("ignore", category=_cat, module=_module)
+    for cat in categories:
+        warnings.filterwarnings("ignore", category=cat)
+        for module in modules:
+            warnings.filterwarnings("ignore", category=cat, module=module)
+
+    warnings.showwarning = custom_warning_handler
 
 @wrapper_print_debug
 def display_failed_jobs_table():

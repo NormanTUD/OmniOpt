@@ -262,6 +262,8 @@ for projectname in "${test_projects[@]}"; do
 	fi
 done
 
+runtime_and_commands=()
+
 export DONT_INSTALL_MODULES=1
 i=0
 for _command in "${_commands[@]}"; do
@@ -381,12 +383,33 @@ for _command in "${_commands[@]}"; do
 				fi
 			fi
 		fi
+
+		runtime_and_commands+=("$_command $RUN_TIME")
 	fi
 	i=$(($i+1))
 done
+
 PROGRESSBAR=$(generate_progress_bar $i ${#_commands[@]})
 
 green_reset_line "$PROGRESSBAR $i tests ran, ${#errors[@]} failed\n"
+
+sorted_runtime_and_commands=($(for entry in "${runtime_and_commands[@]}"; do
+	runtime=$(echo "$entry" | awk '{print $NF}')
+	echo "$runtime $entry"
+done | sort -n | awk '{$1=""; print substr($0,2)}'))
+
+printf "%-70s | %-10s\n" "Command" "Runtime"
+printf "%-70s | %-10s\n" "--------------------------" "---------"
+
+for entry in "${sorted_runtime_and_commands[@]}"; do
+	command=$(echo "$entry" | sed -r 's/([0-9]+\.[0-9]+)$//')
+	runtime=$(echo "$entry" | awk '{print $NF}')
+	while [ "${#command}" -gt 70 ]; do
+		printf "%-70s |\n" "${command:0:70}"
+		command="${command:70}"
+	done
+	printf "%-70s | %-10s\n" "$command" "$runtime"
+done
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

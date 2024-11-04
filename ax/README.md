@@ -18,12 +18,12 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
-OmniOpt is a tool designed to assist researchers, engineers, and data 
-scientists with hyperparameter optimization on SLURM-based clusters. It 
-simplifies large-scale optimization tasks with built-in fault tolerance and 
-flexibility. A graphical user interface (GUI) is available for command 
-creation, accessible at [OmniOpt GUI](https://imageseg.scads.de/omniax/). 
-For tutorials on configuration, exit codes, and debugging, visit 
+OmniOpt is a tool designed to assist researchers, engineers, and data
+scientists with hyperparameter optimization on SLURM-based clusters. It
+simplifies large-scale optimization tasks with built-in fault tolerance and
+flexibility. A graphical user interface (GUI) is available for command
+creation, accessible at [OmniOpt GUI](https://imageseg.scads.de/omniax/).
+For tutorials on configuration, exit codes, and debugging, visit
 [OmniOpt Tutorials](https://imageseg.scads.de/omniax/tutorials.php).
 
 ## Main program
@@ -72,9 +72,10 @@ pip3 install omniopt2
 pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2
 ```
 
-Alternatively, it can be executed directly, as OmniOpt will install its dependencies automatically if required.
+Alternatively, it can be executed directly, as OmniOpt will install its
+dependencies automatically if required.
 
 ## Error Codes
 
-For common issues and exit codes, see the 
+For common issues and exit codes, see the
 [exit codes tutorial](https://imageseg.scads.de/omniax/tutorials.php?tutorial=exit_codes_and_bash_scripting).

@@ -3828,7 +3828,11 @@ def finish_previous_jobs(new_msgs):
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
-        if job is not None and (job.done() or type(job) in [LocalJob, DebugJob]):
+        if job is None:
+            print_debug(f"finish_previous_jobs: job {job} is None")
+            continue
+
+        if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
                 raw_result = result
@@ -3889,7 +3893,7 @@ def finish_previous_jobs(new_msgs):
             save_checkpoint()
             save_pd_csv()
         else: # pragma: no cover
-            pass
+            print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
 
     if this_jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])

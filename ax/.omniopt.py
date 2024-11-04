@@ -5,6 +5,7 @@
 
 import sys
 import os
+from typing import List
 
 ci_env = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -81,13 +82,13 @@ def makedirs(p):
 
     return False
 
-YELLOW = "\033[93m"
-RESET = "\033[0m"
+YELLOW: str = "\033[93m"
+RESET: str = "\033[0m"
 
 uuid_regex = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
 
-new_uuid = str(uuid.uuid4())
-run_uuid = os.getenv("RUN_UUID", new_uuid)
+new_uuid: str = str(uuid.uuid4())
+run_uuid: str = os.getenv("RUN_UUID", new_uuid)
 
 if not uuid_regex.match(run_uuid): # pragma: no cover
     print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
@@ -95,12 +96,12 @@ if not uuid_regex.match(run_uuid): # pragma: no cover
 
 print(f"Run-UUID: {run_uuid}")
 
-jobs_finished = 0
-shown_live_share_counter = 0
-PD_CSV_FILENAME = "results.csv"
-worker_percentage_usage = []
-END_PROGRAM_RAN = False
-ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = False
+jobs_finished: int = 0
+shown_live_share_counter: int = 0
+PD_CSV_FILENAME: str = "results.csv"
+worker_percentage_usage: List = []
+END_PROGRAM_RAN: bool = False
+ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
 time_next_trials_took = []
 CURRENT_RUN_FOLDER = None
@@ -158,16 +159,18 @@ args = None
 LOG_DIR = "logs"
 makedirs(LOG_DIR)
 
-logfile = f'{LOG_DIR}/{run_uuid}_log'
-logfile_nr_workers = f'{LOG_DIR}/{run_uuid}_nr_workers'
-logfile_progressbar = f'{LOG_DIR}/{run_uuid}_progressbar'
-logfile_worker_creation_logs = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
-logfile_trial_index_to_param_logs = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
+logfile: str = f'{LOG_DIR}/{run_uuid}_log'
+logfile_nr_workers: str = f'{LOG_DIR}/{run_uuid}_nr_workers'
+logfile_progressbar: str = f'{LOG_DIR}/{run_uuid}_progressbar'
+logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
+logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
-def _sleep(t: int):
+def _sleep(t: int) -> int:
     if args is not None and not args.no_sleep:
         time.sleep(t)
+    
+    return t
 
 def _debug(msg, _lvl=0, eee=None):
     if _lvl > 3: # pragma: no cover
@@ -254,8 +257,6 @@ def print_red(text):
         except FileNotFoundError as e: # pragma: no cover
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
-
-parser = None
 
 try:
     class ConfigLoader:

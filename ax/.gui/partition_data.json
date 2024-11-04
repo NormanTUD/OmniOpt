@@ -1,0 +1,47 @@
+{
+	"alpha": {
+		"number_of_workers": 40,
+		"computation_time": 168 * 60,
+		"max_number_of_gpus": 8,
+		"min_number_of_gpus": 1,
+		"max_mem_per_core": 49500,
+		"mem_per_cpu": 49500,
+		"name": "alpha (Alpha Centauri, amd64)",
+		"warning": "",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/alpha_centauri/"
+	},
+	"ml": {
+		"number_of_workers": 40,
+		"computation_time": 168 * 60,
+		"max_number_of_gpus": 6,
+		"min_number_of_gpus": 0,
+		"max_mem_per_core": 63500,
+		"mem_per_cpu": 63500,
+		"name": "ml (Machine Learning, ppc64le)",
+		"warning": "It is not recommended to use the /scratch or /lustre-filesystem on the ML partition",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#ibm-power9-nodes-for-machine-learning"
+	},
+
+	"barnard": {
+		"number_of_workers": 1000,
+		"computation_time": 168 * 60,
+		"max_number_of_gpus": 0,
+		"min_number_of_gpus": 0,
+		"max_mem_per_core": 10000,
+		"mem_per_cpu": 1000,
+		"name": "Barnard",
+		"warning": "",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
+	},
+	"romeo": {
+		"number_of_workers": 40,
+		"computation_time": 168 * 60,
+		"max_number_of_gpus": 0,
+		"min_number_of_gpus": 0,
+		"max_mem_per_core": 10000,
+		"mem_per_cpu": 256000,
+		"name": "Romeo",
+		"warning": "",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#romeo"
+	}
+}

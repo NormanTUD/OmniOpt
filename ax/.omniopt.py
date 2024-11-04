@@ -169,7 +169,7 @@ LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 def _sleep(t: int) -> int:
     if args is not None and not args.no_sleep:
         time.sleep(t)
-    
+
     return t
 
 def _debug(msg, _lvl=0, eee=None):

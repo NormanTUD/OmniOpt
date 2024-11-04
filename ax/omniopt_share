@@ -299,6 +299,9 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			red_text "$CURL_OUTPUT"
 			if [[ $exit_code -ne 0 ]]; then
 				echo "Curling $url failed. Curl exited with $exit_code instead of 0"
+				if [[ $exit_code == 7 ]]; then
+					echo "Exit code 7 means that the server was not reachable. Are you online? Is the server properly started?"
+				fi
 				exit $exit_code
 			fi
 		else

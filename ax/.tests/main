@@ -490,7 +490,9 @@ _test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name te
 
 TESTNAME="__main__tests__BOTORCH_MODULAR___nogridsearch"
 
-rm -rf "runs/$TESTNAME" 2>/dev/null >/dev/null
+if [[ -d "runs/$TESTNAME" ]]; then
+	rm -rf "runs/$TESTNAME" 2>/dev/null >/dev/null
+fi
 
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus=$NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval --mem_gb=$mem_gb" 0
 _test_nr_jobs "$TESTNAME" 0 $num_random_steps $(($max_eval-$num_random_steps)) 0

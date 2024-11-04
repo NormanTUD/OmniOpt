@@ -3839,6 +3839,8 @@ def finish_previous_jobs(new_msgs):
             print_debug(f"finish_previous_jobs: job {job} is None")
             continue
 
+        print_debug(f"finish_previous_jobs: single job {job}")
+
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 result = job.result()
@@ -3863,7 +3865,6 @@ def finish_previous_jobs(new_msgs):
                     if job:
                         try:
                             progressbar_description(["job_failed"])
-
                             ax_client.log_trial_failure(trial_index=trial_index)
                         except Exception as e: # pragma: no cover
                             print(f"ERROR in line {get_line_info()}: {e}")
@@ -3877,7 +3878,6 @@ def finish_previous_jobs(new_msgs):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
                 else:
                     print_red(f"\n⚠ {error}")
-
                 if job:
                     try:
                         progressbar_description(["job_failed"])
@@ -3888,10 +3888,8 @@ def finish_previous_jobs(new_msgs):
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
                     orchestrate_job(job, trial_index)
-
                 failed_jobs(1)
                 this_jobs_finished += 1
-
                 global_vars["jobs"].remove((job, trial_index))
             save_checkpoint()
             save_pd_csv()

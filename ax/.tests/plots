@@ -411,7 +411,6 @@ for entry in "${sorted_runtime_and_commands[@]}"; do
 	printf "%-70s | %-10s\n" "$command" "$runtime"
 	printf "%-70s | %-10s\n" "--------------------------" "---------"
 done
-printf "%-70s | %-10s\n" "--------------------------" "---------"
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

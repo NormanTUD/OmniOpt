@@ -63,7 +63,7 @@ try:
         from rich.pretty import pprint
         import subprocess
         import logging
-        logging.basicConfig(level=logging.ERROR)
+        logging.basicConfig(level=logging.CRITICAL)
         from tqdm import tqdm
 except ModuleNotFoundError as e: # pragma: no cover
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
@@ -1897,8 +1897,9 @@ def disable_logging():
     if args.verbose:
         return
 
-    logging.basicConfig(level=logging.ERROR)
-    logging.getLogger().setLevel(logging.ERROR)
+    logging.basicConfig(level=logging.CRITICAL)
+    logging.getLogger().setLevel(logging.CRITICAL)
+    logging.getLogger().disabled = True
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
@@ -1939,7 +1940,8 @@ def disable_logging():
     ]
 
     for module in modules:
-        logging.getLogger(module).setLevel(logging.ERROR)
+        logging.getLogger(module).setLevel(logging.CRITICAL)
+        logging.getLogger(module).disabled = True
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)

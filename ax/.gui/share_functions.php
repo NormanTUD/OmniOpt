@@ -237,7 +237,8 @@
 	}
 
 	function show_run($folder) {
-		$html = "<div id='main_tabbed' style='width: fit-content'>\n";
+		$html = "<button id='refresh_button' onclick='refresh()'>Refresh</button>\n";
+		$html .= "<div id='main_tabbed' style='width: fit-content'>\n";
 		$html .= '<ul style="max-height: 200px; overflow: auto;">' . "\n";
 		$html .= "</ul>\n";
 		$html .= "</div>";

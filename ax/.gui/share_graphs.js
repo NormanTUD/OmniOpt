@@ -1289,6 +1289,11 @@ async function load_all_data() {
 	}
 }
 
+async function refresh() {
+	await load_all_data();
+	$("#refresh_button").html("Refresh");
+}
+
 function copy_button (name_to_search_for) {
 	if(!name_to_search_for) {
 		error("Empty name_to_search_for in copy_button");

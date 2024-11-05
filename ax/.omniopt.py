@@ -313,7 +313,7 @@ try:
             optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
             optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
             optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
-            optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted. Default is 20', type=int, default=20)
+            optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=20)
             optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
             optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
             optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
@@ -443,6 +443,10 @@ try:
 except KeyboardInterrupt: # pragma: no cover
     print("Error: Failed to parse arguments because you pressed CTRL-C.")
     my_exit(4)
+
+with console.status("[bold green]Loading ax.utils.common.logger...") as status:
+    from ax.utils.common.logger import disable_loggers
+disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 
 if not args.tests:
     try:
@@ -4355,11 +4359,12 @@ def get_parallelism_schedule_description():
     except Exception as e:
         return f"An error occurred while processing parallelism schedule: {str(e)}"
 
+@disable_logs
 def _fetch_next_trials(nr_of_jobs_to_get):
     """Attempts to fetch the next trials using the ax_client."""
     try:
         print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
-        #trial_index_to_param, optimization_complete = ax_client.get_next_trials(max_trials=nr_of_jobs_to_get)
+        #trial_index_to_param, optimization_complete = ax_client.get_next_trial(max_trials=nr_of_jobs_to_get)
         #return trial_index_to_param, optimization_complete
 
         trials_dict = {}

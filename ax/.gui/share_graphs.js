@@ -1291,7 +1291,7 @@ async function load_all_data() {
 
 async function refresh() {
 	await load_all_data();
-	$("#refresh_button").html("Refresh");
+	$("#refresh_button").text("Refresh");
 }
 
 function copy_button (name_to_search_for) {

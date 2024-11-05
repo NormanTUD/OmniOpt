@@ -163,7 +163,7 @@
 			var newHash = getHashUrlContent(hashUrl);
 
 			if (newHash !== last_hash) {
-				$("#refresh_button").html("Refresh (new data available)");
+				$("#refresh_button").text("Refresh (new data available)");
 			}
 		}
 	}
@@ -191,7 +191,7 @@
 			var auto_update = getParameterByName('update');
 
 			if (auto_update) {
-				var interval = 1000;
+				var interval = 10000;
 				setInterval(function() {
 					fetchHashAndUpdateContent();
 				}, interval);

@@ -252,7 +252,7 @@ def print_color(color, text):
 
 def check_python_version():
     python_version = platform.python_version()
-    supported_versions = ["3.8.10", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7"]
+    supported_versions = ["3.8.10", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+"]
     if python_version not in supported_versions: # pragma: no cover
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 

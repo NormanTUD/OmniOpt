@@ -95,29 +95,21 @@ while [[ -d $TO_DIR ]]; do
 	TO_DIR=${TO_DIR_BASE}_${TO_DIR_NR}
 done
 
-if ! command -v base64 >/dev/null 2>/dev/null; then
-	red_text "❌base64 not found. Try installing it with 'sudo apt-get install base64' (depending on your distro)"
-fi
+check_command() {
+	local cmd=$1
+	local install_hint=$2
+	if ! command -v "$cmd" >/dev/null 2>/dev/null; then
+		echo_red "❌$cmd not found. Try installing it with 'sudo apt-get install $install_hint' (depending on your distro)"
+		exit 1
+	fi
+}
 
-if ! command -v curl >/dev/null 2>/dev/null; then
-	red_text "❌curl not found. Try installing it with 'sudo apt-get install curl' (depending on your distro)"
-fi
-
-if ! command -v wget >/dev/null 2>/dev/null; then
-	red_text "❌wget not found. Try installing it with 'sudo apt-get install wget' (depending on your distro)"
-fi
-
-if ! command -v uuidgen >/dev/null 2>/dev/null; then
-	red_text "❌uuidgen not found. Try installing it with 'sudo apt-get install uuid-runtime' (depending on your distro)"
-fi
-
-if ! command -v git >/dev/null 2>/dev/null; then
-	echo_red "❌git not found. Try installing it with 'sudo apt-get install python3' (depending on your distro)"
-fi
-
-if ! command -v python3 >/dev/null 2>/dev/null; then
-	echo_red "❌python3 not found. Try installing it with 'sudo apt-get install python3' (depending on your distro)"
-fi
+check_command base64 "base64"
+check_command curl "curl"
+check_command wget "wget"
+check_command uuidgen "uuid-runtime"
+check_command git "git"
+check_command python3 "python3"
 
 total=0
 CLONECOMMAND="git clone --depth=1 $COPY_FROM $TO_DIR"

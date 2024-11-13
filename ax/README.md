@@ -79,3 +79,7 @@ dependencies automatically if required.
 
 For common issues and exit codes, see the
 [exit codes tutorial](https://imageseg.scads.de/omniax/tutorials.php?tutorial=exit_codes_and_bash_scripting).
+
+## Contributions
+
+I'd be glad to see your contributions!

@@ -7,8 +7,20 @@ from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
 
+import argparse
+
+parser = argparse.ArgumentParser(description="Process language setting.")
+parser.add_argument(
+    "--lang",
+    default="en",
+    choices=["en", "de", "fr", "es"],  # Add more languages as needed
+    help="Specify the language (default is 'en')"
+)
+
+args = parser.parse_args()
+
 # Initialize spellchecker with English dictionary
-spell = SpellChecker(language='en')
+spell = SpellChecker(language=args.lang)
 console = Console()
 
 def read_file_to_array(file_path):

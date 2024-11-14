@@ -17,7 +17,12 @@ parser.add_argument('files', metavar='FILE', nargs='+', help='The PHP files to a
 args = parser.parse_args()
 
 # Initialize spellchecker with English dictionary
-spell = SpellChecker(language=args.lang)
+spell = None
+try:
+    spell = SpellChecker(language=args.lang)
+except KeyboardInterrupt:
+        console.print("[red]Cancelled script by using CTRL + C[/red]")
+
 console = Console()
 
 def read_file_to_array(file_path):

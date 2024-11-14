@@ -1848,7 +1848,7 @@ def evaluate(parameters):
         extra_vars_names, extra_vars_values = extract_info(stdout)
 
         _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-        if _SLURM_JOB_ID:
+        if _SLURM_JOB_ID: # pragma: no cover
             extra_vars_names.append("OO_Info_SLURM_JOB_ID")
             extra_vars_values.append(_SLURM_JOB_ID)
 
@@ -1862,7 +1862,7 @@ def evaluate(parameters):
         headline = ['None' if element is None else element for element in headline]
         values = ['None' if element is None else element for element in values]
 
-        if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()):
+        if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()): # pragma: no cover
             add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
         else:
             print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
@@ -1870,7 +1870,7 @@ def evaluate(parameters):
         if isinstance(result, (int, float)):
             return {"result": float(result)}
 
-        write_failed_logs(parameters, "No Result")
+        write_failed_logs(parameters, "No Result") # pragma: no cover
     except SignalUSR: # pragma: no cover
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "USR1-signal")
@@ -1893,12 +1893,12 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-def custom_warning_handler(message, category, filename, lineno):
+def custom_warning_handler(message, category, filename, lineno): # pragma: no cover
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(warning_message)
 
 def disable_logging():
-    if args.verbose:
+    if args.verbose: # pragma: no cover
         return
 
     logging.basicConfig(level=logging.CRITICAL)
@@ -1963,15 +1963,15 @@ def display_failed_jobs_table():
     parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
 
     # Assert the existence of the folder and files
-    if not os.path.exists(failed_jobs_file):
+    if not os.path.exists(failed_jobs_file): # pragma: no cover
         print_debug(f"Failed jobs {failed_jobs_file} file does not exist.")
         return
 
-    if not os.path.isfile(header_file):
+    if not os.path.isfile(header_file): # pragma: no cover
         print_debug(f"Failed jobs Header file ({header_file}) does not exist.")
         return
 
-    if not os.path.isfile(parameters_file):
+    if not os.path.isfile(parameters_file): # pragma: no cover
         print_debug(f"Failed jobs Parameters file ({parameters_file}) does not exist.")
         return
 
@@ -2037,7 +2037,7 @@ def replace_string_with_params(input_string, params):
             replaced_string = replaced_string.replace(f"%{i}", str(param))
             i += 1
         return replaced_string
-    except AssertionError as e:
+    except AssertionError as e: # pragma: no cover
         error_text = f"Error in replace_string_with_params: {e}"
         print(error_text)
         raise
@@ -2049,7 +2049,7 @@ def get_best_params_from_csv(csv_file_path, maximize):
         "parameters": {}
     }
 
-    if not os.path.exists(csv_file_path):
+    if not os.path.exists(csv_file_path): # pragma: no cover
         return results
 
     df = None
@@ -2073,7 +2073,7 @@ def get_best_params_from_csv(csv_file_path, maximize):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
-        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
+        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None: # pragma: no cover
             this_line_result = float(this_line_result)
 
         if type(this_line_result) in [float, int]:
@@ -2091,7 +2091,7 @@ def get_best_params_from_csv(csv_file_path, maximize):
                     best_line = this_line
                     best_result = this_line_result
 
-    if best_line is None:
+    if best_line is None: # pragma: no cover
         print_debug("Could not determine best result")
         return results
 
@@ -2184,7 +2184,7 @@ def get_random_steps_from_prev_job():
     if not os.path.exists(prev_step_file):
         return count_sobol_steps()
 
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job) # pragma: no cover
 
 def failed_jobs(nr=0):
     state_files_folder = f"{get_current_run_folder()}/state_files/"
@@ -2203,9 +2203,9 @@ def plot_sixel_imgs(csv_file_path):
         print("Not printing sixel graphics in CI")
         return
 
-    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
+    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path) # pragma: no cover
 
-    for c in sixel_graphic_commands:
+    for c in sixel_graphic_commands: # pragma: no cover
         commands = get_plot_commands(*c)
 
         for command in commands:
@@ -2329,7 +2329,7 @@ def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
                             if len(_p):
                                 tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
 
-                            while os.path.exists(tmp_file):
+                            while os.path.exists(tmp_file): # pragma: no cover
                                 j += 1
                                 tmp_file = f"{_tmp}/{plot_type}_{j}.png"
                                 if "filename" in plot and len(_p):

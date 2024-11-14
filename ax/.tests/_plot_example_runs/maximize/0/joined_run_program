@@ -1,0 +1,1 @@
+bash /home/s3811141/repos/OmniOpt/ax/.tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)

@@ -1,0 +1,1 @@
+[{"name": "x", "type": "range", "bounds": [0.0, 1000.0], "value_type": "float"}, {"name": "y", "type": "range", "bounds": [-500.0, 500.0], "value_type": "float"}, {"name": "z", "type": "range", "bounds": [-1000.0, 1000.0], "value_type": "float"}, {"name": "a", "type": "range", "bounds": [-10000.0, 10000.0], "value_type": "float"}]

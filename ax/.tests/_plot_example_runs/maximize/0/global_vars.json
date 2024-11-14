@@ -1,0 +1,1 @@
+{"jobs": [], "_time": null, "mem_gb": null, "num_parallel_jobs": null, "joined_run_program": "bash /home/s3811141/repos/OmniOpt/ax/.tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)", "experiment_name": "shekel_test_run"}

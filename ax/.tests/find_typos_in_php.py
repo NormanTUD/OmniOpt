@@ -9,14 +9,11 @@ from rich.table import Table
 
 import argparse
 
-parser = argparse.ArgumentParser(description="Process language setting.")
+parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
 parser.add_argument(
-    "--lang",
-    default="en",
-    choices=["en", "de", "fr", "es"],  # Add more languages as needed
-    help="Specify the language (default is 'en')"
+    "--lang", default="en", help="Specify the language (default is 'en')"
 )
-
+parser.add_argument('files', metavar='FILE', nargs='+', help='The PHP files to analyze.')
 args = parser.parse_args()
 
 # Initialize spellchecker with English dictionary
@@ -96,10 +93,6 @@ def analyze_php_file(filepath, progress):
     return possibly_incorrect_words
 
 def main():
-    parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
-    parser.add_argument('files', metavar='FILE', nargs='+', help='The PHP files to analyze.')
-    args = parser.parse_args()
-
     typo_files = 0
     results = {}
 

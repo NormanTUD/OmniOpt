@@ -998,7 +998,7 @@ def load_time_or_exit(_args):
         if time_content.isdigit():
             global_vars["_time"] = int(time_content)
             print_yellow(f"Using old run's --time: {global_vars['_time']}")
-        else:
+        else: # pragma: no cover
             print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
         print_red("Missing --time parameter. Cannot continue.")
@@ -1033,7 +1033,7 @@ def load_gpus_or_exit(_args):
             print_yellow(f"Using old run's --gpus: {gpus}")
             return gpus
 
-        print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
+        print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number") # pragma: no cover
     return _args.gpus
 
 def load_max_eval_or_exit(_args):

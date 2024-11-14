@@ -21,7 +21,7 @@ spell = None
 try:
     spell = SpellChecker(language=args.lang)
 except KeyboardInterrupt:
-    console.print(f"[red]Cancelled script for '{'\', \''.join(args.files)}' by using CTRL + C[/red]")
+    console.print(f"[red]Cancelled script for {', '.join(args.files)} by using CTRL + C[/red]")
 
 console = Console()
 
@@ -134,4 +134,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        console.print(f"[red]Cancelled script for '{'\', \''.join(args.files)}' by using CTRL + C[/red]")
+        console.print(f"[red]Cancelled script for {', '.join(args.files)} by using CTRL + C[/red]")

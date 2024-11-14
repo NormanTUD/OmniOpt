@@ -8,11 +8,9 @@ cd ..
 
 source .shellscript_functions
 
-lang="en"
-
 if [[ -n $1 ]]; then
 	python3 .tests/find_typos_in_php.py $1
 else
 	files=$(ls .gui/*.php .gui/*/*.php | grep -v jquery | grep -v plotly | grep -v tooltipster | tr '\n' ' ')
-	eval "python3 .tests/find_typos_in_php.py $files --lang $lang"
+	eval "python3 .tests/find_typos_in_php.py $files"
 fi

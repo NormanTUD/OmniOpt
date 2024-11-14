@@ -7,8 +7,6 @@ from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
 
-import argparse
-
 parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
 parser.add_argument(
     "--lang", default="en", help="Specify the language (default is 'en')"
@@ -16,14 +14,14 @@ parser.add_argument(
 parser.add_argument('files', metavar='FILE', nargs='+', help='The PHP files to analyze.')
 args = parser.parse_args()
 
+console = Console()
+
 # Initialize spellchecker with English dictionary
 spell = None
 try:
     spell = SpellChecker(language=args.lang)
 except KeyboardInterrupt:
     console.print(f"[red]Cancelled script for {', '.join(args.files)} by using CTRL + C[/red]")
-
-console = Console()
 
 def read_file_to_array(file_path):
     if not os.path.exists(file_path):

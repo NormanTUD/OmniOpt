@@ -676,7 +676,8 @@ async function load_progressbar_log() {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
 		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
 		converted = removeTrailingWhitespaces(converted);
-		$(`#progressbar_log_element`).html(`<pre class="progressbar_log_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("progressbar_log_class")}`);
+		$(`#progressbar_log_element`).html(`<pre class="progressbar_log_class" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("progressbar_log_class")}`);
+		$(".progressbar_log_class").addClass("invert_in_dark_mode");
 	}
 }
 
@@ -700,7 +701,8 @@ async function load_trial_index_to_params_log () {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
 		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
 		converted = removeTrailingWhitespaces(converted);
-		$(`#trial_index_to_params_element`).html(`<pre class="trial_index_to_params_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("trial_index_to_params_element_class")}`);
+		$(`#trial_index_to_params_element`).html(`<pre class="trial_index_to_params_element_class" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("trial_index_to_params_element_class")}`);
+		$(".trial_index_to_params_element_class").addClass("invert_in_dark_mode");
 	}
 }
 

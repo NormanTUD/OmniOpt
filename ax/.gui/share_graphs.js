@@ -1212,7 +1212,6 @@ async function load_overview_data() {
 			var td = document.createElement('td');
 			td.style.border = '1px solid black';
 			td.style.padding = '8px';
-			td.classList.add("invert_in_dark_mode");
 			td.textContent = value;
 			dataRow.appendChild(td);
 		});

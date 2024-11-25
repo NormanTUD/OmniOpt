@@ -903,7 +903,8 @@ async function load_outfile () {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
 		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
 		converted = removeTrailingWhitespaces(converted);
-		$(`#outfile`).html(`<pre class="main_outfile" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("main_outfile")}`);
+		$(`#outfile`).html(`<pre class="main_outfile" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("main_outfile")}`);
+		$(".main_outfile").addClass("invert_in_dark_mode");
 	}
 }
 

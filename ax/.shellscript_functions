@@ -151,7 +151,7 @@
 	PROGRESSBAR=""
 
 	generate_progress_bar_setup() {
-		local total_progress=$1
+		local total_nr_modules=$1
 
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
@@ -160,18 +160,18 @@
 			return 1
 		fi
 
-		if ! [[ "$total_progress" =~ ^[0-9]+$ ]]; then
-			echo "Error: total_progress must be a positive integer, but is $total_progress." >&2
+		if ! [[ "$total_nr_modules" =~ ^[0-9]+$ ]]; then
+			echo "Error: total_nr_modules must be a positive integer, but is $total_nr_modules." >&2
 			return 1
 		fi
 
-		if [ "$NUMBER_OF_INSTALLED_MODULES" -gt "$total_progress" ]; then
-			echo "Error: the current progress cannot exceed the total progress ($NUMBER_OF_INSTALLED_MODULES/$total_progress)." >&2
+		if [ "$NUMBER_OF_INSTALLED_MODULES" -gt "$total_nr_modules" ]; then
+			echo "Error: the current progress cannot exceed the total progress ($NUMBER_OF_INSTALLED_MODULES/$total_nr_modules)." >&2
 			return 1
 		fi
 
 		# Call the generate_progress_bar function to print the progress bar
-		generate_progress_bar "$NUMBER_OF_INSTALLED_MODULES" "$total_progress"
+		generate_progress_bar "$NUMBER_OF_INSTALLED_MODULES" "$total_nr_modules"
 	}
 
 	generate_progress_bar() {

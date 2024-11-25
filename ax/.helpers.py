@@ -379,6 +379,18 @@ def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max)
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
+def _unidiff_output(expected, actual):
+    """
+    Helper function. Returns a string containing the unified diff of two multiline strings.
+    """
+
+    expected = expected.splitlines(1)
+    actual = actual.splitlines(1)
+
+    diff = difflib.unified_diff(expected, actual)
+
+    return ''.join(diff)
+
 def print_diff(i, o):
     if isinstance(i, str):
         print("Should be:", i.strip())
@@ -394,18 +406,6 @@ def print_diff(i, o):
         output = _unidiff_output(json.dumps(i), json.dumps(o))
         if output: # pragma: no cover
             print("Diff:", output)
-
-def _unidiff_output(expected, actual):
-    """
-    Helper function. Returns a string containing the unified diff of two multiline strings.
-    """
-
-    expected = expected.splitlines(1)
-    actual = actual.splitlines(1)
-
-    diff = difflib.unified_diff(expected, actual)
-
-    return ''.join(diff)
 
 def _is_equal(name, _input, output):
     _equal_types = [
@@ -696,6 +696,12 @@ def print_if_not_plot_tests_and_exit(msg, exit_code):
 
     return msg
 
+def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path): # pragma: no cover
+    df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
+
+    old_headers_string = ','.join(sorted(df.columns))
+    return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
+
 def _update_graph(_params): # pragma: no cover
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 
@@ -712,12 +718,6 @@ def _update_graph(_params): # pragma: no cover
 
     except Exception as e:
         _handle_exception(e)
-
-def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path): # pragma: no cover
-    df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
-
-    old_headers_string = ','.join(sorted(df.columns))
-    return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
 
 def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings): # pragma: no cover
     nr_of_items_before_filtering = len(df)

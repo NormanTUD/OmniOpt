@@ -14,7 +14,7 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         self.defined_vars = set()
         self.errors = []
         self.built_in_vars = set(dir(__builtins__))
-        self.special_vars = {'__file__', '__name__', '__doc__'}
+        self.special_vars = {'__file__', '__name__', '__doc__', '__builtins__'}
 
     def visit_Import(self, node):
         for alias in node.names:
@@ -93,7 +93,15 @@ class UndefinedVariableChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_DictComp(self, node):
-        self.process_comprehension_vars(node.generators, node.key, node.value)
+        # Verarbeite die Variablen in den Generatoren (z. B. k, v in for k, v in ...)
+        for gen in node.generators:
+            if isinstance(gen.target, (ast.Name, ast.Tuple)):
+                if isinstance(gen.target, ast.Name):
+                    self.defined_vars.add(gen.target.id)
+                elif isinstance(gen.target, ast.Tuple):
+                    for elt in gen.target.elts:
+                        if isinstance(elt, ast.Name):
+                            self.defined_vars.add(elt.id)
         self.generic_visit(node)
 
     def visit_GeneratorExp(self, node):

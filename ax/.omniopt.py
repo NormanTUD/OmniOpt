@@ -768,8 +768,8 @@ def log_cpu_mem_info_worker(eval_uuid):
 
                 writer.writerow([current_time, ram_usage_mb, cpu_usage_percent, eval_uuid. _hostname])
 
-    process = multiprocessing.Process(target=_log_cpu_mem_info_worker, args=(eval_uuid,), daemon=True)
-    process.start()
+    _proc = multiprocessing.Process(target=_log_cpu_mem_info_worker, args=(eval_uuid,), daemon=True)
+    _proc.start()
 
 @wrapper_print_debug
 def log_system_usage():

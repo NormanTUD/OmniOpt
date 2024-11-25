@@ -741,34 +741,6 @@ def write_worker_usage():
         if is_slurm_job(): # pragma: no cover
             print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
-"""
-async def log_cpu_mem_info_worker():
-    if not get_current_run_folder(): # pragma: no cover
-        return
-
-    _hostname = socket.gethostname()
-
-    while True:
-        csv_file_path = os.path.join(get_current_run_folder(), 'worker_cpu_mem_logs', f"{_hostname}.csv")
-
-        makedirs(os.path.dirname(csv_file_path))
-
-        file_exists = os.path.isfile(csv_file_path)
-
-        with open(csv_file_path, mode='a', newline='', encoding="utf-8") as file:
-            writer = csv.writer(file)
-
-            if not file_exists:
-                writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent", "hostname"])
-
-            current_time = int(time.time())
-
-            ram_usage_mb = process.memory_info().rss / (1024 * 1024)  # RSS in MB
-            cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
-
-            writer.writerow([current_time, ram_usage_mb, cpu_usage_percent, _hostname])
-"""
-
 @wrapper_print_debug
 def log_system_usage():
     if not get_current_run_folder(): # pragma: no cover
@@ -1824,8 +1796,6 @@ def ignore_signals():
 
 def evaluate(parameters):
     start_nvidia_smi_thread()
-
-    #log_cpu_mem_info_worker()
 
     return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
 

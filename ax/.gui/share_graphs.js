@@ -758,6 +758,7 @@ function createTable(data, id) {
 		const th = document.createElement("th");
 		th.innerText = header;
 		headerRow.appendChild(th);
+		headerRow.classList.add("invert_in_dark_mode");
 	});
 	table.appendChild(headerRow);
 

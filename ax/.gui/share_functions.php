@@ -523,11 +523,11 @@
 					$offered_files,
 					$added_files,
 					$userFolder,
-					"See $url&update=1 for a live-trace.\n",
+					"See $url for a live-trace.\n",
 					"Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n"
 				);
 			} else {
-				$url = remove_extra_slashes_from_url("$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id&update=1");
+				$url = remove_extra_slashes_from_url("$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 
 				move_files(
 					$offered_files,

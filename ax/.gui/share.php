@@ -190,12 +190,10 @@
 
 			var auto_update = getParameterByName('update');
 
-			if (auto_update) {
-				var interval = 10000;
-				setInterval(function() {
-					fetchHashAndUpdateContent();
-				}, interval);
-			}
+			var interval = 2000;
+			setInterval(function() {
+				fetchHashAndUpdateContent();
+			}, interval);
 		}
 	});
 

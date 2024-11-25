@@ -749,7 +749,7 @@ def log_cpu_mem_info_worker(eval_uuid):
         while True:
             _hostname = socket.gethostname()
 
-            csv_file_path = os.path.join(get_current_run_folder(), _hostname, "cpu_ram_usage.csv")
+            csv_file_path = os.path.join(get_current_run_folder(), 'worker_cpu_mem_logs', f"{_hostname}.csv")
 
             makedirs(os.path.dirname(csv_file_path))
 
@@ -759,14 +759,14 @@ def log_cpu_mem_info_worker(eval_uuid):
                 writer = csv.writer(file)
 
                 if not file_exists:
-                    writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent", "eval_uuid"])
+                    writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent", "eval_uuid", "hostname"])
 
                 current_time = int(time.time())
 
                 ram_usage_mb = process.memory_info().rss / (1024 * 1024)  # RSS in MB
                 cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
 
-                writer.writerow([current_time, ram_usage_mb, cpu_usage_percent, eval_uuid])
+                writer.writerow([current_time, ram_usage_mb, cpu_usage_percent, eval_uuid. _hostname])
 
     process = multiprocessing.Process(target=_log_cpu_mem_info_worker, args=(eval_uuid,), daemon=True)
     process.start()

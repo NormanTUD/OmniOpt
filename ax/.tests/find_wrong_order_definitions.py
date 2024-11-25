@@ -41,6 +41,12 @@ class UndefinedVariableChecker(ast.NodeVisitor):
                 self.defined_vars.add(node.targets[0].value.id)
         self.generic_visit(node)
 
+    # Hier wird die neue Methode hinzugefügt
+    def visit_AnnAssign(self, node):
+        if isinstance(node.target, ast.Name):
+            self.defined_vars.add(node.target.id)
+        self.generic_visit(node)
+
     def visit_FunctionDef(self, node):
         for arg in node.args.args:
             self.defined_vars.add(arg.arg)

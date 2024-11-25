@@ -2199,86 +2199,6 @@ def count_done_jobs():
 
     return _count_done_jobs(csv_file_path)
 
-def plot_sixel_imgs(csv_file_path):
-    if ci_env:
-        print("Not printing sixel graphics in CI")
-        return
-
-    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path) # pragma: no cover
-
-    for c in sixel_graphic_commands: # pragma: no cover
-        commands = get_plot_commands(*c)
-
-        for command in commands:
-            plot_command(*command)
-
-def _print_best_result(csv_file_path, maximize, print_to_file=True):
-    global global_vars
-    global SHOWN_END_TABLE
-
-    try:
-        best_params = get_best_params_from_csv(csv_file_path, maximize)
-
-        best_result = None
-
-        if best_params and "result" in best_params:
-            best_result = best_params["result"]
-        else:
-            best_result = NO_RESULT
-
-        if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
-            print_red("Best result could not be determined")
-            return 87
-
-        total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
-
-        if NR_INSERTED_JOBS:
-            total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
-
-        failed_error_str = ""
-        if print_to_file:
-            if failed_jobs() >= 1:
-                failed_error_str = f", failed: {failed_jobs()}"
-
-        table = Table(show_header=True, header_style="bold", title=f"Best result ({total_str}{failed_error_str}):")
-
-        k = 0
-        for key in best_params["parameters"].keys():
-            if k > 2:
-                table.add_column(key)
-            k += 1
-
-        table.add_column("result")
-
-        row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
-        row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
-
-        table.add_row(*row)
-
-        console.print(table)
-
-        with console.capture() as capture:
-            console.print(table)
-
-        if print_to_file:
-            table_str = capture.get()
-            with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
-                text_file.write(table_str)
-
-        plot_sixel_imgs(csv_file_path)
-
-        SHOWN_END_TABLE = True
-    except Exception as e: # pragma: no cover
-        tb = traceback.format_exc()
-        print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
-
-    return -1
-
-def print_best_result():
-    csv_file_path = save_pd_csv()
-
-    return _print_best_result(csv_file_path, args.maximize, True)
-
 def get_plot_types(x_y_combinations, _force=False):
     plot_types = []
 
@@ -2309,40 +2229,6 @@ def get_plot_types(x_y_combinations, _force=False):
         )
 
     return plot_types
-
-def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
-    plot_commands = []
-    if "params" in plot.keys():
-        if "iterate_through" in plot.keys():
-            iterate_through = plot["iterate_through"]
-            if len(iterate_through):
-                for j in range(0, len(iterate_through)):
-                    this_iteration = iterate_through[j]
-                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
-
-                    j = 0
-                    tmp_file = f"{_tmp}/{plot_type}.png"
-                    _fn = ""
-                    if "filename" in plot:
-                        _fn = plot['filename']
-                        if len(this_iteration):
-                            _p = [plot_type, this_iteration[0], this_iteration[1]]
-                            if len(_p):
-                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
-
-                            while os.path.exists(tmp_file): # pragma: no cover
-                                j += 1
-                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
-                                if "filename" in plot and len(_p):
-                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
-
-                    _iterated_command += f" --save_to_file={tmp_file} "
-                    plot_commands.append([_iterated_command, tmp_file, _width])
-    else:
-        _command += f" --save_to_file={tmp_file} "
-        plot_commands.append([_command, tmp_file, _width])
-
-    return plot_commands
 
 @wrapper_print_debug
 def get_sixel_graphics_data(_pd_csv, _force=False):
@@ -2422,6 +2308,120 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
             print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
 
     return data
+
+def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
+    plot_commands = []
+    if "params" in plot.keys():
+        if "iterate_through" in plot.keys():
+            iterate_through = plot["iterate_through"]
+            if len(iterate_through):
+                for j in range(0, len(iterate_through)):
+                    this_iteration = iterate_through[j]
+                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+
+                    j = 0
+                    tmp_file = f"{_tmp}/{plot_type}.png"
+                    _fn = ""
+                    if "filename" in plot:
+                        _fn = plot['filename']
+                        if len(this_iteration):
+                            _p = [plot_type, this_iteration[0], this_iteration[1]]
+                            if len(_p):
+                                tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
+
+                            while os.path.exists(tmp_file): # pragma: no cover
+                                j += 1
+                                tmp_file = f"{_tmp}/{plot_type}_{j}.png"
+                                if "filename" in plot and len(_p):
+                                    tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
+
+                    _iterated_command += f" --save_to_file={tmp_file} "
+                    plot_commands.append([_iterated_command, tmp_file, _width])
+    else:
+        _command += f" --save_to_file={tmp_file} "
+        plot_commands.append([_command, tmp_file, _width])
+
+    return plot_commands
+
+def plot_sixel_imgs(csv_file_path):
+    if ci_env:
+        print("Not printing sixel graphics in CI")
+        return
+
+    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path) # pragma: no cover
+
+    for c in sixel_graphic_commands: # pragma: no cover
+        commands = get_plot_commands(*c)
+
+        for command in commands:
+            plot_command(*command)
+
+def _print_best_result(csv_file_path, maximize, print_to_file=True):
+    global global_vars
+    global SHOWN_END_TABLE
+
+    try:
+        best_params = get_best_params_from_csv(csv_file_path, maximize)
+
+        best_result = None
+
+        if best_params and "result" in best_params:
+            best_result = best_params["result"]
+        else:
+            best_result = NO_RESULT
+
+        if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
+            print_red("Best result could not be determined")
+            return 87
+
+        total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
+
+        if NR_INSERTED_JOBS:
+            total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
+
+        failed_error_str = ""
+        if print_to_file:
+            if failed_jobs() >= 1:
+                failed_error_str = f", failed: {failed_jobs()}"
+
+        table = Table(show_header=True, header_style="bold", title=f"Best result ({total_str}{failed_error_str}):")
+
+        k = 0
+        for key in best_params["parameters"].keys():
+            if k > 2:
+                table.add_column(key)
+            k += 1
+
+        table.add_column("result")
+
+        row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
+        row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
+
+        table.add_row(*row)
+
+        console.print(table)
+
+        with console.capture() as capture:
+            console.print(table)
+
+        if print_to_file:
+            table_str = capture.get()
+            with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+                text_file.write(table_str)
+
+        plot_sixel_imgs(csv_file_path)
+
+        SHOWN_END_TABLE = True
+    except Exception as e: # pragma: no cover
+        tb = traceback.format_exc()
+        print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
+
+    return -1
+
+def print_best_result():
+    csv_file_path = save_pd_csv()
+
+    return _print_best_result(csv_file_path, args.maximize, True)
 
 @wrapper_print_debug
 def show_end_table_and_save_end_files(csv_file_path):
@@ -4436,36 +4436,6 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
 
     return requested
 
-def get_generation_strategy():
-    global random_steps
-
-    # Initialize steps for the generation strategy
-    steps = []
-
-    # Get the number of imported jobs and update max evaluations
-    num_imported_jobs = get_nr_of_imported_jobs()
-    set_max_eval(max_eval + num_imported_jobs)
-
-    # Initialize random_steps if None
-    random_steps = random_steps or 0
-
-    # Set max_eval if it's None
-    if max_eval is None:
-        set_max_eval(max(1, random_steps))
-
-    # Add a random generation step if conditions are met
-    if random_steps >= 1 and num_imported_jobs < random_steps:
-        steps.append(create_random_generation_step())
-
-    # Choose a model for the non-random step
-    chosen_non_random_model = select_model(args.model)
-
-    # Append the Bayesian optimization step
-    steps.append(create_systematic_step(chosen_non_random_model))
-
-    # Create and return the GenerationStrategy
-    return GenerationStrategy(steps=steps)
-
 def check_max_parallelism_arg(possible_values):
     if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
         return True
@@ -4493,6 +4463,16 @@ def _get_max_parallelism(): # pragma: no cover
         print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
 
     return ret
+
+def create_systematic_step(model):
+    """Creates a generation step for Bayesian optimization."""
+    return GenerationStep(
+        model=model,
+        num_trials=-1,
+        max_parallelism=_get_max_parallelism(),
+        model_gen_kwargs={'enforce_num_arms': False},
+        should_deduplicate=args.should_deduplicate
+    )
 
 def create_random_generation_step():
     """Creates a generation step for random models."""
@@ -4524,15 +4504,35 @@ def select_model(model_arg):
 
     return chosen_model
 
-def create_systematic_step(model):
-    """Creates a generation step for Bayesian optimization."""
-    return GenerationStep(
-        model=model,
-        num_trials=-1,
-        max_parallelism=_get_max_parallelism(),
-        model_gen_kwargs={'enforce_num_arms': False},
-        should_deduplicate=args.should_deduplicate
-    )
+def get_generation_strategy():
+    global random_steps
+
+    # Initialize steps for the generation strategy
+    steps = []
+
+    # Get the number of imported jobs and update max evaluations
+    num_imported_jobs = get_nr_of_imported_jobs()
+    set_max_eval(max_eval + num_imported_jobs)
+
+    # Initialize random_steps if None
+    random_steps = random_steps or 0
+
+    # Set max_eval if it's None
+    if max_eval is None:
+        set_max_eval(max(1, random_steps))
+
+    # Add a random generation step if conditions are met
+    if random_steps >= 1 and num_imported_jobs < random_steps:
+        steps.append(create_random_generation_step())
+
+    # Choose a model for the non-random step
+    chosen_non_random_model = select_model(args.model)
+
+    # Append the Bayesian optimization step
+    steps.append(create_systematic_step(chosen_non_random_model))
+
+    # Create and return the GenerationStrategy
+    return GenerationStrategy(steps=steps)
 
 def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar):
     global random_steps
@@ -4930,6 +4930,14 @@ def check_max_eval(_max_eval):
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
+def parse_parameters():
+    experiment_parameters = None
+    cli_params_experiment_parameters = None
+    if args.parameter:
+        experiment_parameters = parse_experiment_parameters()
+        cli_params_experiment_parameters = experiment_parameters
+    return experiment_parameters, cli_params_experiment_parameters
+
 def main():
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
@@ -5047,14 +5055,6 @@ def write_ui_url_if_present():
     if args.ui_url:
         with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
-
-def parse_parameters():
-    experiment_parameters = None
-    cli_params_experiment_parameters = None
-    if args.parameter:
-        experiment_parameters = parse_experiment_parameters()
-        cli_params_experiment_parameters = experiment_parameters
-    return experiment_parameters, cli_params_experiment_parameters
 
 def handle_random_steps():
     global random_steps

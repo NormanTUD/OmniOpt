@@ -1,0 +1,24 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+exit_code=0
+
+
+for i in $(ls .*.py .*/*.py); do
+	er=$(python3 .tests/find_wrong_order_definitions.py $i 2>&2)
+	ec=$?
+	if [[ $ec -ne 0 ]]; then
+		echo "===== $i ====>"; 
+		echo "$er"
+		exit_code=$(($exit_code+1))
+	fi
+done
+
+exit $exit_code

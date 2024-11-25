@@ -510,6 +510,8 @@ _test "Testing non-existant json config file" "./omniopt --config_json /dev/idon
 
 _test "Find undocumented exit codes" ".tests/find_undocumented_exit_codes" 0
 
+_test "Find wrong order definitions" ".tests/find_wrong_order_definitions" 0
+
 if ! command -v sbatch 2>/dev/null >/dev/null; then
 	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3" 0
 fi

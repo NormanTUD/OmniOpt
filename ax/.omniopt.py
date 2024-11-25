@@ -3468,6 +3468,17 @@ def load_data_from_existing_run_folders(_paths):
             return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
         return f"{message}{get_list_import_as_string()}..."
 
+    def generate_hashed_params(parameters, path):
+        try:
+            result = get_old_result_simple(path, parameters)
+        except Exception:
+            result = None
+        return pformat(parameters) + "====" + pformat(result), result
+
+    def should_insert(hashed_params_result):
+        result = hashed_params_result[1]
+        return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
+
     def load_and_insert_trials(_status, old_trials, this_path, path_idx):
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
@@ -3484,17 +3495,6 @@ def load_data_from_existing_run_folders(_paths):
                 insert_or_log_result(old_arm_parameter, hashed_params_result)
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
-
-    def generate_hashed_params(parameters, path):
-        try:
-            result = get_old_result_simple(path, parameters)
-        except Exception:
-            result = None
-        return pformat(parameters) + "====" + pformat(result), result
-
-    def should_insert(hashed_params_result):
-        result = hashed_params_result[1]
-        return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
     def insert_or_log_result(parameters, hashed_params_result):
         try:

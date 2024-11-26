@@ -143,6 +143,16 @@
 `,
                     "help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
                 },
+
+                { label: "Multi-Objective-Optimization mode", id: "moo_type", type: "select", value: "euclid", options: [
+                    { "text": "Calculcate the euclidean distance to the origo of the search space", "value": "euclid" },
+                    { "text": "Calculate the geometric distance to the origo of the search space", "value": "geometric" },
+                    { "text": "Calculate the signed harmonic distance to the origo of the search space", "value": "signed_harmonic" },
+                    ], "required": true,
+                    info: `How to merge multiple results into one. Doesn't affect single result jobs.`,
+                    "help": "How to merge multiple results into one."
+                },
+
                 { label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
                     { "text": "Locally or on a HPC system", "value": "local" },
                     { "text": "Docker", "value": "docker" }

@@ -63,7 +63,7 @@
 			</tr>
 			<tr>
 				<td><samp>--moo_type</samp></td>
-				<td>Set the type of the multi-objective-parameter collection function. Options are geometric and euclid.</td>
+				<td>Set the type of the multi-objective-parameter collection function. Options are geometric, signed harmonic, and euclid.</td>
 				<td><samp>euclid</samp></td>
 			</tr>
 			<tr>

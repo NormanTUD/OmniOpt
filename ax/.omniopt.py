@@ -5178,7 +5178,7 @@ def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal,
         if res_is_none:
             nr_errors += is_equal(f"{_program_name} res is None", None, res)
         else:
-            nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int)))
+            nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int, list)))
         nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
         nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
         nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)

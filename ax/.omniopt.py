@@ -5397,7 +5397,7 @@ Exit-Code: 159
         ["parse_parameter_type_error(\"Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>.\")", example_parse_parameter_type_error_result],
         ["get_hostname_from_outfile(None)", None],
         ["get_result(123)", None],
-        ["get_result('RESULT: 10')", 10.0],
+        ["get_result('RESULT: 10')", [10.0]],
         ["helpers.looks_like_float(10)", True],
         ["helpers.looks_like_float('hallo')", False],
         ["helpers.looks_like_int('hallo')", False],

@@ -1601,11 +1601,6 @@ def get_result(input_string):
             result_numbers = [float(match) for match in matches]
             return result_numbers  # Return list if multiple results are found
         return None
-    except Exception as e:
-        print_red(f"get_result: Exception occurred - {e}")
-        return None
-
-
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
@@ -1838,15 +1833,18 @@ def calculate_signed_geometric_distance(_args):
     geometric_mean = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
+class invalidMooType(Exception):
+    pass
+
 def calculate_moo (_args):
     if args.moo_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
-    elif args.moo_type == "geometric":
+    if args.moo_type == "geometric":
         return calculate_signed_geometric_distance(_args)
-    elif args.moo_type == "signed_harmonic":
+    if args.moo_type == "signed_harmonic":
         return calculate_signed_harmonic_distance(_args)
-    else:
-        raise Exception(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}")
+
+    raise invalidMooType(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}")
 
 def evaluate(parameters):
     start_nvidia_smi_thread()

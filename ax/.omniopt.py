@@ -10,7 +10,7 @@ from typing import List
 ci_env = os.getenv("CI", "false").lower() == "true"
 original_print = print
 
-valid_moo_types = ["geometric", "euclid"]
+valid_moo_types = ["geometric", "euclid", "signed_harmonic"]
 
 console = None
 try:
@@ -1803,6 +1803,19 @@ def ignore_signals():
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
+def calculate_signed_harmonic_distance(_args):
+    if not _args:  # Handle empty input gracefully
+        return 0
+
+    abs_inverse_sum = sum(1 / abs(a) for a in _args if a != 0)  # Avoid division by zero
+    harmonic_mean = len(_args) / abs_inverse_sum if abs_inverse_sum != 0 else 0
+
+    # Determine the sign based on the number of negatives
+    num_negatives = sum(1 for a in _args if a < 0)
+    sign = -1 if num_negatives % 2 != 0 else 1
+
+    return sign * harmonic_mean
+
 def calculate_signed_euclidean_distance(_args):
     _sum = 0
     for a in _args:
@@ -1830,6 +1843,8 @@ def calculate_moo (_args):
         return calculate_signed_euclidean_distance(_args)
     elif args.moo_type == "geometric":
         return calculate_signed_geometric_distance(_args)
+    elif args.moo_type == "signed_harmonic":
+        return calculate_signed_harmonic_distance(_args)
     else:
         raise Exception(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}")
 
@@ -1885,6 +1900,15 @@ def evaluate(parameters):
 
         result = get_result(stdout)
 
+        unmooed_result = result
+
+        all_result_column_names = []
+
+        _k = 1
+        for a in unmooed_result:
+            all_result_column_names.append(f"RESULT{_k}")
+            _k = _k + 1
+
         result = calculate_moo(result)
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
@@ -1896,8 +1920,8 @@ def evaluate(parameters):
 
         original_print(f"Result: {result}")
 
-        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names]
-        values = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values]
+        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
+        values = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
 
         original_print(f"EXIT_CODE: {exit_code}")
 

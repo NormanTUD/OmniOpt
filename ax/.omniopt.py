@@ -1836,7 +1836,7 @@ def calculate_signed_geometric_distance(_args):
 class invalidMooType(Exception):
     pass
 
-def calculate_moo (_args):
+def calculate_moo(_args):
     if args.moo_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
     if args.moo_type == "geometric":

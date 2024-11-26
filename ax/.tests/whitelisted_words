@@ -2048,3 +2048,7 @@ zipWriter
 zsh
 euclid
 multi
+axmodelbridgebase
+axutilscommonlogger
+LocalJob
+DebugJob

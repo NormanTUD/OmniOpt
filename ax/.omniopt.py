@@ -714,7 +714,7 @@ NO_RESULT = "{:.0e}".format(VAL_IF_NOTHING_FOUND)
 global_vars["jobs"] = []
 global_vars["_time"] = None
 global_vars["mem_gb"] = None
-global_vars["num_parallel_jobs"] = 1
+global_vars["num_parallel_jobs"] = None
 global_vars["parameter_names"] = []
 
 # max_eval usw. in unterordner
@@ -1112,6 +1112,9 @@ if is_executable_in_path("sbatch"): # pragma: no cover
     SYSTEM_HAS_SBATCH = True
 if is_executable_in_path("nvidia-smi"): # pragma: no cover
     IS_NVIDIA_SMI_SYSTEM = True
+
+if not SYSTEM_HAS_SBATCH:
+    num_parallel_jobs = 1
 
 def save_global_vars():
     state_files_folder = f"{get_current_run_folder()}/state_files"
@@ -1799,9 +1802,10 @@ def calculate_signed_harmonic_distance(_args):
     if not _args:  # Handle empty input gracefully
         return 0
 
-    abs_inverse_sum = sum(1 / abs(a) for a in _args if a != 0)
+    abs_inverse_sum = sum(1 / abs(a) for a in _args if a != 0)  # Avoid division by zero
     harmonic_mean = len(_args) / abs_inverse_sum if abs_inverse_sum != 0 else 0
 
+    # Determine the sign based on the number of negatives
     num_negatives = sum(1 for a in _args if a < 0)
     sign = -1 if num_negatives % 2 != 0 else 1
 
@@ -1809,21 +1813,23 @@ def calculate_signed_harmonic_distance(_args):
 
 def calculate_signed_euclidean_distance(_args):
     _sum = 0
-
     for a in _args:
         _sum += a ** 2
 
+    # Behalte das Vorzeichen des ersten Werts (oder ein beliebiges anderes Kriterium)
     sign = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)
 
 def calculate_signed_geometric_distance(_args):
-    product = 1
+    product = 1  # Startwert für Multiplikation
     for a in _args:
-        product *= abs(a)
+        product *= abs(a)  # Absolutwerte für das Produkt verwenden
 
+    # Behalte das Vorzeichen basierend auf der Anzahl negativer Werte
     num_negatives = sum(1 for a in _args if a < 0)
     sign = -1 if num_negatives % 2 != 0 else 1
 
+    # Geometrisches Mittel: n-te Wurzel des Produkts
     geometric_mean = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 

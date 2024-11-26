@@ -1903,9 +1903,10 @@ def evaluate(parameters):
         all_result_column_names = []
 
         _k = 1
-        for a in unmooed_result:
-            all_result_column_names.append(f"RESULT{_k}")
-            _k = _k + 1
+        if unmooed_result:
+            for a in unmooed_result:
+                all_result_column_names.append(f"RESULT{_k}")
+                _k = _k + 1
 
         result = calculate_moo(result)
 

@@ -10,6 +10,8 @@ from typing import List
 ci_env = os.getenv("CI", "false").lower() == "true"
 original_print = print
 
+valid_moo_types = ["geometric", "euclid"]
+
 console = None
 try:
     from rich.console import Console
@@ -324,6 +326,7 @@ try:
             optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
             optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
             optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
+            optional.add_argument('--moo_type', help=f'MOO-type (valid types are {", ".join(valid_moo_types)})', type=str, default="euclid")
 
             slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
             slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -1588,14 +1591,20 @@ def get_result(input_string):
         return None
 
     try:
-        pattern = r'\s*RESULT:\s*(-?\d+(?:\.\d+)?)'
-
-        match = re.search(pattern, input_string)
-
-        if match:
-            result_number = float(match.group(1))
-            return result_number
+        pattern = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
+        
+        # Find all matches for the pattern
+        matches = re.findall(pattern, input_string)
+        
+        if matches:
+            # Convert matches to floats
+            result_numbers = [float(match) for match in matches]
+            return result_numbers  # Return list if multiple results are found
         return None
+    except Exception as e:
+        print_red(f"get_result: Exception occurred - {e}")
+        return None
+
 
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
@@ -1794,6 +1803,36 @@ def ignore_signals():
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
+def calculate_signed_euclidean_distance(_args):
+    _sum = 0
+    for a in _args:
+        _sum += a ** 2
+    
+    # Behalte das Vorzeichen des ersten Werts (oder ein beliebiges anderes Kriterium)
+    sign = -1 if any(a < 0 for a in _args) else 1
+    return sign * math.sqrt(_sum)
+
+def calculate_signed_geometric_distance(_args):
+    product = 1  # Startwert für Multiplikation
+    for a in _args:
+        product *= abs(a)  # Absolutwerte für das Produkt verwenden
+
+    # Behalte das Vorzeichen basierend auf der Anzahl negativer Werte
+    num_negatives = sum(1 for a in _args if a < 0)
+    sign = -1 if num_negatives % 2 != 0 else 1
+
+    # Geometrisches Mittel: n-te Wurzel des Produkts
+    geometric_mean = product ** (1 / len(_args)) if _args else 0
+    return sign * geometric_mean
+
+def calculate_moo (_args):
+    if args.moo_type == "euclid":
+        return calculate_signed_euclidean_distance(_args)
+    elif args.moo_type == "geometric":
+        return calculate_signed_geometric_distance(_args)
+    else:
+        raise Exception(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}")
+
 def evaluate(parameters):
     start_nvidia_smi_thread()
 
@@ -1845,6 +1884,8 @@ def evaluate(parameters):
         original_print(stdout)
 
         result = get_result(stdout)
+
+        result = calculate_moo(result)
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
 

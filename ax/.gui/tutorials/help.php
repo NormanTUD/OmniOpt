@@ -62,6 +62,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--moo_type</samp></td>
+				<td>Set the type of the multi-objective-parameter collection function. Options are geometric and euclid.</td>
+				<td><samp>euclid</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--max_parallelism</samp></td>
 				<td>Set how the ax max parallelism flag should be set. Possible options: <samp>None</samp>, <samp>max_eval</samp>, <samp>num_parallel_jobs</samp>, <samp>twice_max_eval</samp>, <samp>twice_num_parallel_jobs</samp>, <samp>max_eval_times_thousand_plus_thousand</samp>, or any positive integer.</td>
 				<td><samp>max_eval_times_thousand_plus_thousand</samp></td>

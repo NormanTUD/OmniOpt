@@ -1592,10 +1592,10 @@ def get_result(input_string):
 
     try:
         pattern = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
-        
+
         # Find all matches for the pattern
         matches = re.findall(pattern, input_string)
-        
+
         if matches:
             # Convert matches to floats
             result_numbers = [float(match) for match in matches]
@@ -1820,7 +1820,7 @@ def calculate_signed_euclidean_distance(_args):
     _sum = 0
     for a in _args:
         _sum += a ** 2
-    
+
     # Behalte das Vorzeichen des ersten Werts (oder ein beliebiges anderes Kriterium)
     sign = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)

@@ -714,7 +714,7 @@ NO_RESULT = "{:.0e}".format(VAL_IF_NOTHING_FOUND)
 global_vars["jobs"] = []
 global_vars["_time"] = None
 global_vars["mem_gb"] = None
-global_vars["num_parallel_jobs"] = None
+global_vars["num_parallel_jobs"] = 1
 global_vars["parameter_names"] = []
 
 # max_eval usw. in unterordner
@@ -1112,9 +1112,6 @@ if is_executable_in_path("sbatch"): # pragma: no cover
     SYSTEM_HAS_SBATCH = True
 if is_executable_in_path("nvidia-smi"): # pragma: no cover
     IS_NVIDIA_SMI_SYSTEM = True
-
-if not SYSTEM_HAS_SBATCH:
-    num_parallel_jobs = 1
 
 def save_global_vars():
     state_files_folder = f"{get_current_run_folder()}/state_files"

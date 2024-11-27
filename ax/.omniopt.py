@@ -1478,7 +1478,7 @@ def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning
 
     return j, params, search_space_reduction_warning
 
-def parse_choice_param(params, j, this_args, name, search_space_reduction_warning):
+def parse_choice_param(params, j: int, this_args, name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
         my_exit(181)
@@ -1505,7 +1505,7 @@ def parse_choice_param(params, j, this_args, name, search_space_reduction_warnin
     return j, params, search_space_reduction_warning
 
 @wrapper_print_debug
-def parse_experiment_parameters():
+def parse_experiment_parameters() -> list:
     global global_vars
     global changed_grid_search_params
 
@@ -4270,7 +4270,7 @@ def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file) -> 
     else:
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
-def _orchestrate(stdout_path, trial_index): # pragma: no cover
+def _orchestrate(stdout_path, trial_index) -> None: # pragma: no cover
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs:
@@ -5110,13 +5110,13 @@ def human_readable_generation_strategy() -> Optional[str]:
 
     return None
 
-def die_orchestrator_exit_code_206(_test): # pragma: no cover
+def die_orchestrator_exit_code_206(_test) -> None: # pragma: no cover
     if _test:
         print_yellow("Not exiting, because _test was True")
     else:
         my_exit(206)
 
-def parse_orchestrator_file(_f, _test=False):
+def parse_orchestrator_file(_f: str, _test: bool = False):
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -5168,7 +5168,7 @@ def set_orchestrator() -> None:
 
     if args.orchestrator_file:
         if SYSTEM_HAS_SBATCH:
-            orchestrator = parse_orchestrator_file(args.orchestrator_file)
+            orchestrator = parse_orchestrator_file(args.orchestrator_file, False)
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
@@ -5460,7 +5460,6 @@ def run_tests() -> None:
 
     nr_errors: int = 0
 
-    #def get_max_column_value(pd_csv, column, _default):
     try:
         ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)), '-123')
 

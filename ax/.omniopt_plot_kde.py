@@ -88,20 +88,21 @@ def plot_histograms(dataframe):
                 print("KDE: Result column not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
         result_values = dataframe['result']
-        bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
-        colormap = plt.get_cmap('RdYlGn_r')
+        if args is not None:
+            bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
+            colormap = plt.get_cmap('RdYlGn_r')
 
-        for j in range(args.bins):
-            color = colormap(j / 9)  # Calculate color based on colormap
-            bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j + 1])
-            bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j + 1]:.2f}'
-            ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
+            for j in range(args.bins):
+                color = colormap(j / 9)  # Calculate color based on colormap
+                bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j + 1])
+                bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j + 1]:.2f}'
+                ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
 
-        ax.set_title(f'Histogram for {col}')
-        ax.set_xlabel(col)
-        ax.set_ylabel('Count')
-        if not args.no_legend:
-            ax.legend(loc='upper right')
+            ax.set_title(f'Histogram for {col}')
+            ax.set_xlabel(col)
+            ax.set_ylabel('Count')
+            if not args.no_legend:
+                ax.legend(loc='upper right')
 
     # Hide any unused subplots
 
@@ -121,39 +122,41 @@ def plot_histograms(dataframe):
     save_to_file_or_show_canvas()
 
 def save_to_file_or_show_canvas():
-    if args.save_to_file:
-        helpers.save_to_file(fig, args, plt)
-    else: # pragma: no cover
-        if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
-            fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
-            if not args.no_plt_show:
-                plt.show()
+    if args is not None:
+        if args.save_to_file:
+            helpers.save_to_file(fig, args, plt)
+        else: # pragma: no cover
+            if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
+                fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
+                if not args.no_plt_show:
+                    plt.show()
 
 def update_graph():
-    pd_csv = args.run_dir + "/results.csv"
-
-    try:
-        dataframe = None
+    if args is not None:
+        pd_csv = args.run_dir + "/results.csv"
 
         try:
-            dataframe = pd.read_csv(pd_csv)
-        except pd.errors.EmptyDataError:
-            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-                print(f"{pd_csv} seems to be empty.")
-            sys.exit(19)
-        except UnicodeDecodeError:
-            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
-            sys.exit(7)
+            dataframe = None
 
-        plot_histograms(dataframe)
-    except FileNotFoundError: # pragma: no cover
-        logging.error("File not found: %s", pd_csv)
-    except Exception as exception: # pragma: no cover
-        logging.error("An unexpected error occurred: %s", str(exception))
+            try:
+                dataframe = pd.read_csv(pd_csv)
+            except pd.errors.EmptyDataError:
+                if not os.environ.get("PLOT_TESTS"): # pragma: no cover
+                    print(f"{pd_csv} seems to be empty.")
+                sys.exit(19)
+            except UnicodeDecodeError:
+                if not os.environ.get("PLOT_TESTS"): # pragma: no cover
+                    print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+                sys.exit(7)
 
-        tb = traceback.format_exc()
-        print(tb)
+            plot_histograms(dataframe)
+        except FileNotFoundError: # pragma: no cover
+            logging.error("File not found: %s", pd_csv)
+        except Exception as exception: # pragma: no cover
+            logging.error("An unexpected error occurred: %s", str(exception))
+
+            tb = traceback.format_exc()
+            print(tb)
 
 if __name__ == "__main__":
     args = parse_arguments()

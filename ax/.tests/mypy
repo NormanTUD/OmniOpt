@@ -10,8 +10,7 @@ source .shellscript_functions
 
 exit_code=0
 
-
-if command -v python3 2>/dev/null >/dev/null; then
+if command -v mypy 2>/dev/null >/dev/null; then
 	if [[ -z $1 ]]; then
 		for i in .*.py; do
 			mypy --check-untyped-defs --ignore-missing-imports $i
@@ -21,7 +20,7 @@ if command -v python3 2>/dev/null >/dev/null; then
 		exit_code=$?
 	fi
 else
-	echo "Warning: python3 is not installed. Cannot run find_typos_in_python"
+	echo "Warning: mypy is not installed. Cannot run mypy"
 fi
 
 exit $exit_code

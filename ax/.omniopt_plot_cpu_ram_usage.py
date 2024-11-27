@@ -71,15 +71,18 @@ def plot_graph(dataframe, save_to_file=None):
 
     if save_to_file:
         fig = plt.figure(1)
-        helpers.save_to_file(fig, args, plt)
-    elif not args.no_plt_show: # pragma: no cover
-        plt.show()
+        if fig is not None and args is not None and plt is not None:
+            helpers.save_to_file(fig, args, plt)
+    elif args is not None and not args.no_plt_show: # pragma: no cover
+        if plt is not None:
+            plt.show()
 
 def update_graph(csv_path):
     """Updates the graph by loading data and plotting."""
     dataframe = load_data(csv_path)
     if dataframe is not None:
-        plot_graph(dataframe, args.save_to_file)
+        if args is not None:
+            plot_graph(dataframe, args.save_to_file)
 
 def main():
     """Main function for handling the overall logic."""
@@ -87,7 +90,8 @@ def main():
     args = parse_arguments()
 
     load_helpers(os.path.dirname(os.path.realpath(__file__)))
-    helpers.setup_logging()
+    if helpers:
+        helpers.setup_logging()
 
     if not os.path.exists(args.run_dir): # pragma: no cover
         logging.error("Specified --run_dir does not exist")

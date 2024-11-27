@@ -1840,7 +1840,10 @@ def calculate_signed_geometric_distance(_args: list[float]) -> float:
 class invalidMooType(Exception):
     pass
 
-def calculate_moo(_args: list[float]) -> float:
+def calculate_moo(_args: Optional[list[float]]) -> float:
+    if _args is None:
+        return VAL_IF_NOTHING_FOUND
+
     if args.moo_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
     if args.moo_type == "geometric":
@@ -1912,7 +1915,10 @@ def evaluate(parameters: dict) -> dict:
                 all_result_column_names.append(f"RESULT{_k}")
                 _k = _k + 1
 
-            result = calculate_moo(result)
+            mooed_result = calculate_moo(result)
+
+            if mooed_result:
+                result = mooed_result
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
 
@@ -4842,7 +4848,7 @@ def run_search(_progress_bar):
         if (jobs_finished - NR_INSERTED_JOBS) >= max_eval:
             break
 
-        next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
+        next_nr_steps: int = get_next_nr_steps(num_parallel_jobs, max_eval)
 
         nr_of_items: int = 0
 
@@ -4889,7 +4895,7 @@ def run_search(_progress_bar):
     log_what_needs_to_be_logged()
     return False
 
-def wait_for_jobs_to_complete(_num_parallel_jobs): # pragma: no cover
+def wait_for_jobs_to_complete(_num_parallel_jobs: int): # pragma: no cover
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > _num_parallel_jobs:
             print_debug(f"Waiting for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")

@@ -2227,7 +2227,7 @@ def replace_string_with_params(input_string, params) -> str:
         error_text = f"Error in replace_string_with_params: {e}"
         print(error_text)
         raise
-    
+
     return ""
 
 @wrapper_print_debug

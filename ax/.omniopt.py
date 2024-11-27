@@ -2038,6 +2038,10 @@ def evaluate(parameters: dict) -> dict:
 
         if isinstance(result, (int, float)):
             return {"result": float(result)}
+        if isinstance(result, (list)) and len(result) == 1:
+            return {"result": float(result[0])}
+        if isinstance(result, (list)):
+            return {"result": [float(r) for r in result]}
 
         write_failed_logs(parameters, "No Result") # pragma: no cover
     except SignalUSR: # pragma: no cover

@@ -828,10 +828,11 @@ def log_nr_of_workers() -> None:
         write_process_info()
     except Exception as e: # pragma: no cover
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
+        return None
 
     if "jobs" not in global_vars: # pragma: no cover
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
-        return
+        return None
 
     nr_of_workers: int = len(global_vars["jobs"])
 

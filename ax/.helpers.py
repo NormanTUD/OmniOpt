@@ -1,5 +1,5 @@
 import json
-from typing import Union
+from typing import Union, Tuple
 from datetime import datetime
 from itertools import combinations
 import math
@@ -134,7 +134,7 @@ def looks_like_int(x) -> bool:
 def looks_like_number (x) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
-def to_int_when_possible(val) -> Union[None, int, float]:
+def to_int_when_possible(val) -> Union[None, int, float, str]:
     if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
         return int(val)
 
@@ -322,7 +322,7 @@ def get_csv_file_path(_args) -> str:
 
     return csv_file_path
 
-def drop_empty_results (NO_RESULT, df):
+def drop_empty_results (NO_RESULT, df) -> pd.DataFrame:
     negative_rows_to_remove = df[df["result"].astype(str) == '-' + NO_RESULT].index
     positive_rows_to_remove = df[df["result"].astype(str) == NO_RESULT].index
 
@@ -480,7 +480,7 @@ def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max): # pragma: no cove
 
     return _min, _max
 
-def get_num_subplots_rows_and_cols(non_empty_graphs):
+def get_num_subplots_rows_and_cols(non_empty_graphs) -> Tuple[int, int, int]:
     num_subplots = len(non_empty_graphs)
     num_cols = math.ceil(math.sqrt(num_subplots))
     num_rows = math.ceil(num_subplots / num_cols)
@@ -624,7 +624,7 @@ def show_legend(_args, _fig, _scatter, axs) -> None:
     except Exception as e:
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
-def get_parameter_combinations(df_filtered):
+def get_parameter_combinations(df_filtered) -> list:
     r = get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()

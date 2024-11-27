@@ -1,4 +1,5 @@
 import importlib.util
+from typing import Union
 import argparse
 import logging
 import os
@@ -8,7 +9,6 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from typing import Union
 
 # Setup signal handling for interrupt
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -92,10 +92,7 @@ def main() -> None:
 
     if args:
         if not os.path.exists(args.run_dir): # pragma: no cover
-            if logging:
-                logging.error("Specified --run_dir does not exist")
-            else:
-                print("Specified --run_dir does not exist")
+            print("Specified --run_dir does not exist")
             sys.exit(1)
 
         csv_path = os.path.join(args.run_dir, "cpu_ram_usage.csv")

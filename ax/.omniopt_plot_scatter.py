@@ -62,7 +62,6 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 args = parser.parse_args()
 
 if args.bubblesize:
-    global BUBBLESIZEINPX
     BUBBLESIZEINPX = args.bubblesize
 
 helpers.check_args(args)

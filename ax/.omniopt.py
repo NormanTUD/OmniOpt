@@ -670,7 +670,7 @@ executor = None
 NR_OF_0_RESULTS: int = 0
 
 orchestrator = None
-double_hashes: dict = []
+double_hashes: dict = {}
 missing_results: list = []
 already_inserted_param_hashes: dict = {}
 already_inserted_param_data: list = []
@@ -1490,8 +1490,8 @@ def parse_experiment_parameters():
     global global_vars
     global changed_grid_search_params
 
-    params = []
-    param_names = []
+    params: list = []
+    param_names: list[str] = []
 
     i = 0
 
@@ -2131,7 +2131,7 @@ def plot_command(_command: str, tmp_file: str, _width: str = 1300): # pragma: no
         print_red(f"Error: {_width} does not look like an int")
         sys.exit(8)
 
-    _width = int(_width)
+    width = int(_width)
 
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
     if not _show_sixel_graphics:
@@ -2147,7 +2147,7 @@ def plot_command(_command: str, tmp_file: str, _width: str = 1300): # pragma: no
     _, error = _process.communicate()
 
     if os.path.exists(tmp_file):
-        print_image_to_cli(tmp_file, _width)
+        print_image_to_cli(tmp_file, width)
     else:
         print_debug(f"{tmp_file} not found, error: {error}")
 
@@ -2433,7 +2433,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
     return data
 
-def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: int) -> list[str]:
+def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[str]:
     plot_commands: list[list[str]] = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
@@ -3625,7 +3625,7 @@ def load_data_from_existing_run_folders(_paths: list[str]):
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
         else:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
-            double_hashes.append(hashed_params_result[0])
+            double_hashes[hashed_params_result[0]] = 1
 
     def log_missing_result(parameters, hashed_params_result):
         print_debug("Prevent inserting a parameter set without result")

@@ -2002,7 +2002,7 @@ def evaluate(parameters: dict) -> dict:
 
         unmooed_result_str = []
         if unmooed_result:
-            for v in unmooed_result.keys:
+            for v in unmooed_result:
                 if v:
                     unmooed_result_str.append(str(v))
 

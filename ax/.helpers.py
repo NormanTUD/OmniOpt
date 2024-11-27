@@ -205,7 +205,7 @@ def check_if_results_are_empty(result_column_values, csv_file_path) -> None:
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-def get_result_column_values(df, csv_file_path):
+def get_result_column_values(df, csv_file_path) -> list:
     result_column_values = df["result"]
 
     check_if_results_are_empty(result_column_values, csv_file_path)
@@ -331,7 +331,7 @@ def drop_empty_results (NO_RESULT, df) -> pd.DataFrame:
 
     return df
 
-def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
+def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs): # -> None
     for i in range(len(parameter_combinations), num_rows * num_cols):
         row = i // num_cols
         col = i % num_cols
@@ -471,7 +471,7 @@ def is_not_equal(n, i, o) -> bool:
 
     return r
 
-def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max): # pragma: no cover
+def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max) -> Tuple[int | float, int | float]: # pragma: no cover
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 
@@ -492,7 +492,7 @@ def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX) -> None: # pra
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
 
-def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
+def get_non_empty_graphs(parameter_combinations, df_filtered, _exit) -> list:
     non_empty_graphs = []
 
     if len(parameter_combinations[0]) == 1:
@@ -515,7 +515,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit):
 
     return non_empty_graphs
 
-def get_df_filtered(_args, df):
+def get_df_filtered(_args, df) -> pd.DataFrame:
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
     existing_columns = df.columns.values.tolist()
@@ -533,7 +533,7 @@ def get_df_filtered(_args, df):
 
     return df_filtered
 
-def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True): # pragma: no cover
+def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True) -> None: # pragma: no cover
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if _min and not _max:
@@ -560,7 +560,7 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
 def contains_strings(series) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
-def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False):
+def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False) -> Union[None, pd.DataFrame]:
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 
@@ -638,7 +638,7 @@ def get_parameter_combinations(df_filtered) -> list:
 
     return parameter_combinations
 
-def get_colors(df):
+def get_colors(df) -> list:
     colors = None
 
     try:
@@ -653,7 +653,7 @@ def get_colors(df):
 
     return colors
 
-def get_color_list(df, _args, _plt):
+def get_color_list(df, _args, _plt): # -> None
     colors = get_colors(df)
 
     if colors is None: # pragma: no cover
@@ -679,7 +679,7 @@ def get_color_list(df, _args, _plt):
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string): # pragma: no cover
+def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string) -> pd.DataFrame: # pragma: no cover
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
@@ -688,7 +688,7 @@ def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
                 df = df.merge(prev_run_df, how='outer')
     return df
 
-def print_if_not_plot_tests_and_exit(msg, exit_code):
+def print_if_not_plot_tests_and_exit(msg, exit_code) -> str:
     if not os.environ.get("PLOT_TESTS"):
         print(msg)
     if exit_code is not None:
@@ -696,7 +696,7 @@ def print_if_not_plot_tests_and_exit(msg, exit_code):
 
     return msg
 
-def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path): # pragma: no cover
+def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path) -> pd.DataFrame: # pragma: no cover
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     old_headers_string = ','.join(sorted(df.columns))
@@ -741,7 +741,7 @@ def _handle_exception(e) -> None:
     if "invalid command name" not in str(e): # pragma: no cover
         print(f"Failed to update graph: {e}")
 
-def set_margins(fig):
+def set_margins(fig) -> None:
     left = 0.04
     right = 0.864
     bottom = 0.171
@@ -751,8 +751,6 @@ def set_margins(fig):
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
-    return fig
-
 def use_matplotlib(_args) -> None:
     try:
         if not _args.save_to_file: # pragma: no cover
@@ -761,7 +759,7 @@ def use_matplotlib(_args) -> None:
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-def filter_data(_args, dataframe, min_value=None, max_value=None):
+def filter_data(_args, dataframe, min_value=None, max_value=None) -> pd.DataFrame:
     try:
         if min_value is not None:
             dataframe = dataframe[dataframe['result'] >= min_value]

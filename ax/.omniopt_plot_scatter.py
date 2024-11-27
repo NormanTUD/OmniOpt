@@ -182,7 +182,7 @@ def main() -> None:
 
         set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
-        fig = helpers.set_margins(fig)
+        helpers.set_margins(fig)
 
         fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
 

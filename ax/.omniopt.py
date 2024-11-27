@@ -190,7 +190,7 @@ def print_red(text):
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
-def _debug(msg, _lvl=0, eee=None):
+def _debug(msg, _lvl=0, eee=None) -> None:
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
         print("Exit-Code: 193")
@@ -771,7 +771,7 @@ global_vars["parameter_names"] = []
 
 main_pid = os.getpid()
 
-def set_max_eval(new_max_eval):
+def set_max_eval(new_max_eval: int) -> None:
     global max_eval
 
     #print(f"set_max_eval(new_max_eval: {new_max_eval})")
@@ -779,7 +779,7 @@ def set_max_eval(new_max_eval):
 
     max_eval = new_max_eval
 
-def write_worker_usage():
+def write_worker_usage() -> None:
     if len(worker_percentage_usage): # pragma: no cover
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
 
@@ -794,7 +794,7 @@ def write_worker_usage():
             print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
 
 @wrapper_print_debug
-def log_system_usage():
+def log_system_usage() -> None:
     if not get_current_run_folder(): # pragma: no cover
         return
 
@@ -817,13 +817,13 @@ def log_system_usage():
 
         writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
 
-def write_process_info():
+def write_process_info() -> None:
     try:
         log_system_usage()
     except Exception as e: # pragma: no cover
         print_debug(f"Error retrieving process information: {str(e)}")
 
-def log_nr_of_workers():
+def log_nr_of_workers() -> None:
     try:
         write_process_info()
     except Exception as e: # pragma: no cover
@@ -836,7 +836,7 @@ def log_nr_of_workers():
     nr_of_workers: int = len(global_vars["jobs"])
 
     if not nr_of_workers:
-        return
+        return None
 
     try: # pragma: no cover
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
@@ -848,8 +848,10 @@ def log_nr_of_workers():
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
         my_exit(199)
 
+    return None
+
 @wrapper_print_debug
-def log_what_needs_to_be_logged():
+def log_what_needs_to_be_logged() -> None:
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()
@@ -873,7 +875,7 @@ def get_line_info() -> Tuple[str, str, int, str, str]:
 
 #print(f"sys.path: {sys.path}")
 
-def print_image_to_cli(image_path, width):
+def print_image_to_cli(image_path: str, width: int) -> bool:
     print("")
     try:
         image = Image.open(image_path)
@@ -895,7 +897,7 @@ def print_image_to_cli(image_path, width):
 
     return False
 
-def log_message_to_file(_logfile, message, _lvl=0, eee=None):
+def log_message_to_file(_logfile, message, _lvl=0, eee=None) -> None:
     assert _logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
 
@@ -914,27 +916,27 @@ def log_message_to_file(_logfile, message, _lvl=0, eee=None):
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
-def _log_trial_index_to_param(trial_index, _lvl=0, eee=None):
+def _log_trial_index_to_param(trial_index, _lvl=0, eee=None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, eee)
 
-def _debug_worker_creation(msg, _lvl=0, eee=None):
+def _debug_worker_creation(msg, _lvl=0, eee=None) -> None:
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, eee)
 
-def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None): # pragma: no cover
+def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None) -> None: # pragma: no cover
     log_message_to_file(_file, result, _lvl, eee)
 
-def _debug_get_next_trials(msg, _lvl=0, eee=None):
+def _debug_get_next_trials(msg, _lvl=0, eee=None) -> None:
     log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, eee)
 
-def _debug_progressbar(msg, _lvl=0, eee=None):
+def _debug_progressbar(msg, _lvl=0, eee=None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, eee)
 
-def print_green(text):
+def print_green(text) -> None:
     helpers.print_color("green", text)
 
     print_debug(text)
 
-def print_yellow(text):
+def print_yellow(text) -> None:
     helpers.print_color("yellow", text)
 
     print_debug(text)
@@ -988,7 +990,7 @@ if not args.tests and len(global_vars["joined_run_program"]) == 0:
 
 global_vars["experiment_name"] = args.experiment_name
 
-def load_global_vars(_file):
+def load_global_vars(_file: str) -> None:
     if not os.path.exists(_file): # pragma: no cover
         print_red(f"You've tried to continue a non-existing job: {_file}")
         my_exit(44)
@@ -1014,7 +1016,7 @@ def check_param_or_exit(param, error_msg, exit_code) -> None:
         print_red(error_msg)
         my_exit(exit_code)
 
-def check_continue_previous_job(continue_previous_job):
+def check_continue_previous_job(continue_previous_job: str):
     global global_vars
     if continue_previous_job:
         load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
@@ -1132,9 +1134,9 @@ if not args.tests:
     load_max_eval_or_exit(args)
 
 @wrapper_print_debug
-def print_debug_get_next_trials(got, requested, _line) -> None:
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}, {got}, {requested}"
+def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
+    time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    msg: str = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
@@ -4669,7 +4671,8 @@ def _get_next_trials(nr_of_jobs_to_get: int):
         if _frame_info:
             lineno: int = _frame_info.lineno
             print_debug_get_next_trials(
-                len(trial_index_to_param.items()), nr_of_jobs_to_get,
+                len(trial_index_to_param.items()),
+                nr_of_jobs_to_get,
                 lineno
             )
 
@@ -4882,7 +4885,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     return num_new_keys
 
-def get_number_of_steps(_max_eval):
+def get_number_of_steps(_max_eval) -> Tuple[int, int]:
     _random_steps = args.num_random_steps
 
     already_done_random_steps = get_random_steps_from_prev_job()

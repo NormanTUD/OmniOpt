@@ -112,7 +112,7 @@ CURRENT_RUN_FOLDER = None
 RESULT_CSV_FILE = None
 SHOWN_END_TABLE: bool = False
 max_eval = None
-random_steps = None
+random_steps: int = 1
 progress_bar = None
 
 def get_current_run_folder():
@@ -550,14 +550,14 @@ def run_live_share_command():
     return "", "" # pragma: no cover
 
 @wrapper_print_debug
-def live_share():
+def live_share() -> bool:
     global shown_live_share_counter
 
     if not args.live_share: # pragma: no cover
-        return
+        return False
 
     if not get_current_run_folder(): # pragma: no cover
-        return
+        return False
 
     stdout, stderr = run_live_share_command()
 
@@ -565,6 +565,8 @@ def live_share():
         print_yellow(stderr)
 
     shown_live_share_counter = shown_live_share_counter + 1
+
+    return True
 
 @wrapper_print_debug
 def save_pd_csv() -> str:
@@ -1010,7 +1012,7 @@ def load_time_or_exit(_args):
         print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
-def load_mem_gb_or_exit(_args): # pragma: no cover
+def load_mem_gb_or_exit(_args) -> Optional[int]: # pragma: no cover
     if _args.mem_gb:
         return int(_args.mem_gb)
 
@@ -1030,7 +1032,7 @@ def load_mem_gb_or_exit(_args): # pragma: no cover
 
     return None
 
-def load_gpus_or_exit(_args):
+def load_gpus_or_exit(_args) -> Optional[int]:
     if _args.continue_previous_job and not _args.gpus:
         gpus_file = f"{_args.continue_previous_job}/state_files/gpus"
         gpus_content = get_file_content_or_exit(gpus_file, f"neither --gpus nor file {gpus_file} found", 19)
@@ -1694,7 +1696,7 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
 
     return string
 
-def write_failed_logs(data_dict: dict, error_description: int = ""):
+def write_failed_logs(data_dict: dict, error_description: str = ""):
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
 
@@ -3419,8 +3421,8 @@ def load_existing_job_data_into_ax_client():
         NR_INSERTED_JOBS += nr_of_imported_jobs
 
 @wrapper_print_debug
-def parse_parameter_type_error(error_message) -> Optional[dict]:
-    error_message: str = str(error_message)
+def parse_parameter_type_error(_error_message) -> Optional[dict]:
+    error_message: str = str(_error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
         pattern: Pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
@@ -4504,10 +4506,10 @@ def check_max_parallelism_arg(possible_values):
         return True
     return False
 
-def _get_max_parallelism(): # pragma: no cover
-    possible_values = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
+def _get_max_parallelism() -> int: # pragma: no cover
+    possible_values: list = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
 
-    ret = None
+    ret: int = 0
 
     if check_max_parallelism_arg(possible_values):
         if args.max_parallelism == "max_eval":
@@ -4899,7 +4901,7 @@ def wait_for_jobs_to_complete(_num_parallel_jobs): # pragma: no cover
 
             clean_completed_jobs()
 
-def human_readable_generation_strategy():
+def human_readable_generation_strategy() -> Optional[str]:
     generation_strategy_str = str(ax_client.generation_strategy)
 
     pattern: Pattern = r'\[(.*?)\]'

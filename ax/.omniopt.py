@@ -108,14 +108,14 @@ END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
 time_next_trials_took: list[float] = []
-CURRENT_RUN_FOLDER = None
+CURRENT_RUN_FOLDER: str = ""
 RESULT_CSV_FILE = None
 SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
 progress_bar: Optional[tqdm] = None
 
-def get_current_run_folder():
+def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
 script_dir = os.path.dirname(os.path.realpath(__file__))

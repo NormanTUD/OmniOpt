@@ -5,7 +5,7 @@
 
 import sys
 import os
-from typing import List
+from typing import Pattern
 from types import FunctionType
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
@@ -89,7 +89,7 @@ def makedirs(p):
 YELLOW: str = "\033[93m"
 RESET: str = "\033[0m"
 
-uuid_regex = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+uuid_regex: Pattern = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
 
 new_uuid: str = str(uuid.uuid4())
 run_uuid: str = os.getenv("RUN_UUID", new_uuid)
@@ -103,7 +103,7 @@ print(f"Run-UUID: {run_uuid}")
 jobs_finished: int = 0
 shown_live_share_counter: int = 0
 PD_CSV_FILENAME: str = "results.csv"
-worker_percentage_usage: List = []
+worker_percentage_usage: list = []
 END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
@@ -1592,7 +1592,7 @@ def get_result(input_string):
         return None
 
     try:
-        pattern = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
+        pattern: Pattern = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
 
         # Find all matches for the pattern
         matches = re.findall(pattern, input_string)
@@ -2761,7 +2761,7 @@ def check_equation(variables, equation):
     equation = re.sub(r'\s+', ' ', equation)
     #equation = equation.replace("", "")
 
-    regex_pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
+    regex_pattern: Pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
     result_array = re.split(regex_pattern, equation)
     result_array = [item for item in result_array if item.strip()]
 
@@ -3422,10 +3422,10 @@ def load_existing_job_data_into_ax_client():
 
 @wrapper_print_debug
 def parse_parameter_type_error(error_message):
-    error_message = str(error_message)
+    error_message: str = str(error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
-        pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
+        pattern: Pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
         match = re.search(pattern, error_message)
 
         # Asserting the match is found
@@ -3462,11 +3462,11 @@ def extract_headers_and_rows(data_list):
         headers = list(first_entry.keys())
 
         # Initialize rows list
-        rows = []
+        rows: list = []
 
         # Extract rows based on headers order
         for entry in data_list:
-            row = [str(entry.get(header, None)) for header in headers]
+            row: list = [str(entry.get(header, None)) for header in headers]
             rows.append(row)
 
         return headers, rows
@@ -3475,7 +3475,7 @@ def extract_headers_and_rows(data_list):
         return None, None
 
 def get_list_import_as_string(_brackets=True, _comma=False):
-    _str = []
+    _str: list = []
 
     if len(double_hashes):
         _str.append(f"double hashes: {len(double_hashes)}")
@@ -3602,10 +3602,10 @@ def load_data_from_existing_run_folders(_paths):
     display_table()
 
 @wrapper_print_debug
-def get_first_line_of_file(file_paths):
-    first_line = ""
+def get_first_line_of_file(file_paths: list[str]) -> str:
+    first_line: str = ""
     if len(file_paths):
-        first_file_as_string = ""
+        first_file_as_string: str = ""
         try:
             first_file_as_string = get_file_as_string(file_paths[0])
             if isinstance(first_file_as_string, str) and first_file_as_string.strip().isprintable():
@@ -3618,8 +3618,8 @@ def get_first_line_of_file(file_paths):
 
     return first_line
 
-def check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code):
-    errors = []
+def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: list[str], program_code: str) -> list[str]:
+    errors: list[str] = []
 
     if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
         errors.append("First line does not seem to be a shebang line: " + first_line)
@@ -3649,8 +3649,8 @@ def check_for_basic_string_errors(file_as_string, first_line, file_paths, progra
 
     return errors
 
-def get_base_errors():
-    base_errors = [
+def get_base_errors() -> list:
+    base_errors: list = [
         "Segmentation fault",
         "Illegal division by zero",
         "OOM",
@@ -3659,8 +3659,8 @@ def get_base_errors():
 
     return base_errors
 
-def check_for_base_errors(file_as_string):
-    errors = []
+def check_for_base_errors(file_as_string) -> list:
+    errors: list = []
     for err in get_base_errors():
         if isinstance(err, list):
             if err[0] in file_as_string:
@@ -3672,7 +3672,7 @@ def check_for_base_errors(file_as_string):
             print_red(f"Wrong type, should be list or string, is {type(err)}")
     return errors
 
-def get_exit_codes():
+def get_exit_codes() -> dict:
     return {
         "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
         "126": "Command Invoked Cannot Execute - Permission problem or command is not an executable or it was compiled for a different platform",
@@ -3712,19 +3712,19 @@ def get_exit_codes():
     }
 
 def check_for_non_zero_exit_codes(file_as_string):
-    errors = []
+    errors: list[str] = []
     for r in range(1, 255):
         special_exit_codes = get_exit_codes()
         search_for_exit_code = "Exit-Code: " + str(r) + ","
         if search_for_exit_code in file_as_string:
-            _error = "Non-zero exit-code detected: " + str(r)
+            _error: str = "Non-zero exit-code detected: " + str(r)
             if str(r) in special_exit_codes:
                 _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
             errors.append(_error)
     return errors
 
 def get_python_errors():
-    synerr = "Python syntax error detected. Check log file."
+    synerr: str = "Python syntax error detected. Check log file."
 
     return [
         ["ModuleNotFoundError", "Module not found"],
@@ -3762,17 +3762,17 @@ def get_first_line_of_file_that_contains_string(i, s): # pragma: no cover
         print_debug(f"File {i} not found")
         return ""
 
-    f = get_file_as_string(i)
+    f: str = get_file_as_string(i)
 
-    lines = ""
-    get_lines_until_end = False
+    lines: str = ""
+    get_lines_until_end: bool = False
 
     for line in f.split("\n"):
         if s in line:
             if get_lines_until_end:
                 lines += line
             else:
-                line = line.strip()
+                line: str = line.strip()
                 if line.endswith("(") and "raise" in line:
                     get_lines_until_end = True
                     lines += line
@@ -3805,9 +3805,9 @@ def get_errors_from_outfile(i):
     program_code = get_program_code_from_out_file(i)
     file_paths = find_file_paths(program_code)
 
-    first_line = get_first_line_of_file(file_paths)
+    first_line: str = get_first_line_of_file(file_paths)
 
-    errors = []
+    errors: list[str] = []
 
     if "Result: None" in file_as_string:
         errors.append("Got no result.")
@@ -3833,8 +3833,8 @@ def get_errors_from_outfile(i):
 def print_outfile_analyzed(stdout_path):
     errors = get_errors_from_outfile(stdout_path)
 
-    _strs = []
-    j = 0
+    _strs: list[str] = []
+    j: int = 0
 
     if len(errors):
         if j == 0:
@@ -3849,7 +3849,7 @@ def print_outfile_analyzed(stdout_path):
 
         j = j + 1
 
-    out_files_string = "\n".join(_strs)
+    out_files_string: str = "\n".join(_strs)
 
     if len(_strs):
         try:
@@ -4147,7 +4147,7 @@ def write_continue_run_uuid_to_file():
             with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
                 continue_from_uuid = f.readline()
 
-                file_path = f"{get_current_run_folder()}/state_files/uuid_of_continued_run"
+                file_path: str = f"{get_current_run_folder()}/state_files/uuid_of_continued_run"
 
                 makedirs(os.path.dirname(file_path))
 
@@ -4162,7 +4162,7 @@ def write_continue_run_uuid_to_file():
 
 def write_run_uuid_to_file():
     try:
-        file_path = f"{get_current_run_folder()}/state_files/run_uuid"
+        file_path: str = f"{get_current_run_folder()}/state_files/run_uuid"
 
         makedirs(os.path.dirname(file_path))
 
@@ -4178,7 +4178,7 @@ def write_run_uuid_to_file():
 def save_state_files():
     global global_vars
 
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
+    state_files_folder: str = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
 
@@ -4201,7 +4201,7 @@ def save_state_files():
         original_print(global_vars["_time"], file=f)
 
     with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
-        env = dict(os.environ)
+        env: dict = dict(os.environ)
         for key in env:
             original_print(str(key) + " = " + str(env[key]), file=f)
 
@@ -4270,7 +4270,7 @@ def set_sbatch_environment():
         os.environ['SBATCH_ACCOUNT'] = args.account
 
 def exclude_defective_nodes():
-    excluded_string = ",".join(count_defective_nodes())
+    excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
         executor.update_parameters(exclude=excluded_string)
 
@@ -4433,7 +4433,7 @@ def _fetch_next_trials(nr_of_jobs_to_get):
         #trial_index_to_param, optimization_complete = ax_client.get_next_trial(max_trials=nr_of_jobs_to_get)
         #return trial_index_to_param, optimization_complete
 
-        trials_dict = {}
+        trials_dict: dict = {}
 
         try:
             params, trial_index = ax_client.get_next_trial(force=True)
@@ -4476,9 +4476,9 @@ def _get_next_trials(nr_of_jobs_to_get):
     progressbar_description([message])
 
     # Fetching the next trials
-    start_time = time.time()
+    start_time: float = time.time()
     trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
-    end_time = time.time()
+    end_time: float = time.time()
 
     # Log and update timing
     time_next_trials_took.append(end_time - start_time)
@@ -4573,10 +4573,10 @@ def get_generation_strategy():
     global random_steps
 
     # Initialize steps for the generation strategy
-    steps = []
+    steps: list = []
 
     # Get the number of imported jobs and update max evaluations
-    num_imported_jobs = get_nr_of_imported_jobs()
+    num_imported_jobs: int = get_nr_of_imported_jobs()
     set_max_eval(max_eval + num_imported_jobs)
 
     # Initialize random_steps if None
@@ -4607,7 +4607,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     trial_index_to_param = None
 
-    done_optimizing = False
+    done_optimizing: bool = False
 
     try:
         nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
@@ -4729,8 +4729,9 @@ def get_number_of_steps(_max_eval):
     return _random_steps, second_step_steps
 
 def set_global_executor():
-    log_folder = f'{get_current_run_folder()}/single_runs/%j'
     global executor
+
+    log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
 
     if args.force_local_execution:
         executor = submitit.LocalExecutor(folder=log_folder)
@@ -4903,7 +4904,7 @@ def wait_for_jobs_to_complete(_num_parallel_jobs): # pragma: no cover
 def human_readable_generation_strategy():
     generation_strategy_str = str(ax_client.generation_strategy)
 
-    pattern = r'\[(.*?)\]'
+    pattern: Pattern = r'\[(.*?)\]'
 
     match = re.search(pattern, generation_strategy_str)
 
@@ -4929,8 +4930,8 @@ def parse_orchestrator_file(_f, _test=False):
                     print_red(f"{_f} file does not contain key 'errors'")
                     die_orchestrator_exit_code_206(_test)
 
-                valid_keys = ['name', 'match_strings', 'behavior']
-                valid_behaviours = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
+                valid_keys: list = ['name', 'match_strings', 'behavior']
+                valid_behaviours: list = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
                 for x in data["errors"]: # pragma: no cover
                     if not isinstance(x, dict):
@@ -5160,15 +5161,15 @@ def run_search_with_progress_bar(disable_tqdm):
 def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
     print_yellow(f"Test suite: {_program_name}")
 
-    nr_errors = 0
+    nr_errors: int = 0
 
-    program_path = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
+    program_path: str = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
 
     if not os.path.exists(program_path): # pragma: no cover
         print_red(f"Program path {program_path} not found!")
         my_exit(18)
 
-    program_path_with_program = f"{program_path}"
+    program_path_with_program: str = f"{program_path}"
 
     program_string_with_params = replace_parameters_in_string(
         {

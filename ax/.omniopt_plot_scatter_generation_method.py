@@ -20,8 +20,11 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-helpers = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(helpers)
+if spec is not None:
+    helpers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helpers)
+else:
+    raise ImportError(f"Could not load module from {helpers_file}")
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')

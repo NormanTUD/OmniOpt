@@ -123,8 +123,11 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-helpers = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(helpers)
+if spec is not None:
+    helpers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helpers)
+else:
+    raise ImportError(f"Could not load module from {helpers_file}")
 
 dier: FunctionType = helpers.dier
 is_equal: FunctionType = helpers.is_equal

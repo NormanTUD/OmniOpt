@@ -21,8 +21,11 @@ def load_helpers(script_dir):
     global helpers
     helpers_file = os.path.join(script_dir, ".helpers.py")
     spec = importlib.util.spec_from_file_location("helpers", helpers_file)
-    helpers = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helpers)
+    if spec is not None:
+        helpers = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helpers)
+    else:
+        raise ImportError(f"Could not load module from {helpers_file}")
 
 def parse_arguments():
     """Parse and return command-line arguments."""

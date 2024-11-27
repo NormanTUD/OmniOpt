@@ -29,8 +29,11 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-helpers = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(helpers)
+if spec is not None:
+    helpers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helpers)
+else:
+    raise ImportError(f"Could not load module from {helpers_file}")
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)

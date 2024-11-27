@@ -4849,7 +4849,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         finish_previous_jobs(["finishing jobs after starting them"])
 
         if done_optimizing:
-            end_program(RESULT_CSV_FILE, False, 88)
+            end_program(RESULT_CSV_FILE, False, 0)
     except TypeError as e: # pragma: no cover
         print_red(f"Error 1: {e}")
         return 0

@@ -159,9 +159,9 @@ def plot_single_graph(_params) -> None:
 
         global bins
         if bins: # pragma: no cover
-            scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
+            axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
         else:
-            scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
+            axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
         axs.set_xlabel(non_empty_graphs[0][0])
         axs.set_ylabel("result")
 

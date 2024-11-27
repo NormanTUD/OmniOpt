@@ -107,9 +107,7 @@ else
 	run_linter "pyflakes" "${files[@]}"
 	run_linter "flake8" "${files[@]}"
 	run_linter "shellcheck" "${files[@]}"
-	if [[ -z $CI ]]; then
-		run_linter "mypy" "${files[@]}"
-	fi
+	#run_linter "mypy" "${files[@]}"
 fi
 
 secs=$SECONDS

@@ -4725,7 +4725,7 @@ def _get_max_parallelism() -> int: # pragma: no cover
 
     return ret
 
-def create_systematic_step(model) # -> None:
+def create_systematic_step(model): # -> None:
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
         model=model,
@@ -4748,7 +4748,7 @@ def create_random_generation_step() -> int:
         should_deduplicate=args.should_deduplicate
     )
 
-def select_model(model_arg) # -> None:
+def select_model(model_arg): # -> None:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
     chosen_model = Models.BOTORCH_MODULAR

@@ -1,4 +1,5 @@
 import json
+from typing import Union
 from datetime import datetime
 from itertools import combinations
 import math
@@ -17,7 +18,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
 
-def check_environment_variable(variable_name):
+def check_environment_variable(variable_name) -> bool:
     try:
         value = os.environ[variable_name]
         if value == "1":
@@ -32,7 +33,7 @@ if not check_environment_variable("RUN_VIA_RUNSH"): # pragma: no cover
 
     sys.exit(16)
 
-def in_venv():
+def in_venv() -> bool:
     return sys.prefix != sys.base_prefix
 
 
@@ -40,7 +41,7 @@ if not in_venv(): # pragma: no cover
     print("No venv loaded. Cannot continue.")
     sys.exit(19)
 
-def warn_versions():
+def warn_versions() -> None:
     wrns = []
 
     supported_versions = {
@@ -102,7 +103,7 @@ def warn_versions():
     if len(wrns): # pragma: no cover
         print("- " + ("\n- ".join(wrns)))
 
-def looks_like_float(x):
+def looks_like_float(x) -> bool:
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
 
@@ -115,7 +116,7 @@ def looks_like_float(x):
 
     return False  # If x is neither str, int, nor float, it's not float-like
 
-def looks_like_int(x):
+def looks_like_int(x) -> bool:
     if isinstance(x, bool):
         return False
 
@@ -130,7 +131,7 @@ def looks_like_int(x):
 
     return False
 
-def looks_like_number (x):
+def looks_like_number (x) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
 def to_int_when_possible(val):
@@ -150,7 +151,7 @@ def to_int_when_possible(val):
     except Exception: # pragma: no cover
         return val
 
-def dier(msg): # pragma: no cover
+def dier(msg) -> None: # pragma: no cover
     pprint(msg)
     sys.exit(1)
 
@@ -160,7 +161,7 @@ def flatten_extend(matrix):
         flat_list.extend(row)
     return flat_list
 
-def convert_string_to_number(input_string):
+def convert_string_to_number(input_string) -> Union[int, float, None]:
     try:
         assert isinstance(input_string, str), "Input must be a string"
 
@@ -192,10 +193,10 @@ def convert_string_to_number(input_string):
 
     return None
 
-def log_error(error_text): # pragma: no cover
+def log_error(error_text) -> None: # pragma: no cover
     print(f"Error: {error_text}", file=sys.stderr)
 
-def check_if_results_are_empty(result_column_values, csv_file_path):
+def check_if_results_are_empty(result_column_values, csv_file_path) -> None:
     filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
 
     number_of_non_nan_results = len(filtered_data)
@@ -211,7 +212,7 @@ def get_result_column_values(df, csv_file_path):
 
     return result_column_values
 
-def check_path(_path):
+def check_path(_path) -> None:
     if not os.path.exists(_path): # pragma: no cover
         print(f'The folder {_path} does not exist.')
         sys.exit(1)
@@ -228,7 +229,7 @@ class bcolors:
     underline = '\033[4m'
     yellow = '\033[33m'
 
-def print_color(color, text):
+def print_color(color, text) -> None:
     color_codes = {
         "header": bcolors.header,
         "blue": bcolors.blue,
@@ -249,7 +250,7 @@ def print_color(color, text):
         print(f"Error: {e}")
         print(text)
 
-def check_python_version():
+def check_python_version() -> None:
     python_version = platform.python_version()
     supported_versions = ["3.8.10", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+"]
     if python_version not in supported_versions: # pragma: no cover
@@ -293,7 +294,7 @@ def get_r(df_filtered):
 
     return r
 
-def save_to_file (_fig, _args, _plt):
+def save_to_file (_fig, _args, _plt) -> None:
     _fig.set_size_inches(15.5, 9.5)
 
     _path = os.path.dirname(_args.save_to_file)
@@ -305,7 +306,7 @@ def save_to_file (_fig, _args, _plt):
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
-def check_dir_and_csv(_args, csv_file_path): # pragma: no cover
+def check_dir_and_csv(_args, csv_file_path) -> None: # pragma: no cover
     if not os.path.isdir(_args.run_dir):
         print(f"The path {_args.run_dir} does not point to a folder. Must be a folder.")
         sys.exit(11)
@@ -314,7 +315,7 @@ def check_dir_and_csv(_args, csv_file_path): # pragma: no cover
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(39)
 
-def get_csv_file_path(_args):
+def get_csv_file_path(_args) -> str:
     pd_csv = "results.csv"
     csv_file_path = os.path.join(_args.run_dir, pd_csv)
     check_dir_and_csv(_args, csv_file_path)
@@ -338,7 +339,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs):
 
     return axs
 
-def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max):
+def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max) -> str:
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
@@ -375,10 +376,10 @@ def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max)
 
     return title
 
-def setup_logging():
+def setup_logging() -> None:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def _unidiff_output(expected, actual):
+def _unidiff_output(expected, actual) -> str:
     """
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
@@ -390,7 +391,7 @@ def _unidiff_output(expected, actual):
 
     return ''.join(diff)
 
-def print_diff(i, o):
+def print_diff(i, o) -> None:
     if isinstance(i, str):
         print("Should be:", i.strip())
     else: # pragma: no cover
@@ -406,7 +407,7 @@ def print_diff(i, o):
         if output: # pragma: no cover
             print("Diff:", output)
 
-def _is_equal(name, _input, output):
+def _is_equal(name, _input, output) -> bool:
     _equal_types = [
         int, str, float, bool
     ]
@@ -442,7 +443,7 @@ def is_equal(n, o, i):
 
     return r
 
-def _is_not_equal(name, _input, output):
+def _is_not_equal(name, _input, output) -> bool:
     _equal_types = [
         int, str, float, bool
     ]
@@ -486,7 +487,7 @@ def get_num_subplots_rows_and_cols(non_empty_graphs):
 
     return num_subplots, num_cols, num_rows
 
-def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX): # pragma: no cover
+def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX) -> None: # pragma: no cover
     for widget in fig.axes:
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
@@ -556,7 +557,7 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
         if _exit:
             sys.exit(4)
 
-def contains_strings(series):
+def contains_strings(series) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
 def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False):
@@ -701,7 +702,7 @@ def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_fi
     old_headers_string = ','.join(sorted(df.columns))
     return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
 
-def _update_graph(_params): # pragma: no cover
+def _update_graph(_params) -> None: # pragma: no cover
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 
     try:
@@ -718,11 +719,11 @@ def _update_graph(_params): # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings): # pragma: no cover
+def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings) -> None: # pragma: no cover
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
-def plot_parameters(_params): # pragma: no cover
+def plot_parameters(_params) -> None: # pragma: no cover
     df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
     parameter_combinations = get_parameter_combinations(df_filtered)
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
@@ -736,7 +737,7 @@ def plot_parameters(_params): # pragma: no cover
     plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
-def _handle_exception(e):
+def _handle_exception(e) -> None:
     if "invalid command name" not in str(e): # pragma: no cover
         print(f"Failed to update graph: {e}")
 
@@ -752,7 +753,7 @@ def set_margins(fig):
 
     return fig
 
-def use_matplotlib(_args):
+def use_matplotlib(_args) -> None:
     try:
         if not _args.save_to_file: # pragma: no cover
             matplotlib.use('TkAgg')
@@ -771,18 +772,18 @@ def filter_data(_args, dataframe, min_value=None, max_value=None):
 
     return dataframe
 
-def print_traceback():
+def print_traceback() -> None:
     tb = traceback.format_exc()
     print(tb)
 
-def is_valid_time_format(time_string): # pragma: no cover
+def is_valid_time_format(time_string) -> bool: # pragma: no cover
     try:
         datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
         return True
     except ValueError:
         return False
 
-def check_args(_args):
+def check_args(_args) -> None:
     if _args.min and _args.max:
         if _args.min > _args.max: # pragma: no cover
             _args.max, _args.min = _args.min, _args.max

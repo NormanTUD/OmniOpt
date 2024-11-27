@@ -91,7 +91,7 @@ def plot_trial_usage(args, log_file_path):
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Plot trial usage from log file')
     parser.add_argument('--run_dir', type=str, help='Directory containing log file')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')

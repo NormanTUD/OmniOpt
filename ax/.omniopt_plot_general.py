@@ -40,7 +40,7 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-def plot_graph(dataframe, save_to_file=None):
+def plot_graph(dataframe, save_to_file=None) -> None:
     if args is not None:
         if "result" not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
@@ -86,7 +86,7 @@ def plot_graph(dataframe, save_to_file=None):
             if not args.no_plt_show: # pragma: no cover
                 plt.show()
 
-def update_graph():
+def update_graph() -> None:
     if args is not None:
         try:
             dataframe = None

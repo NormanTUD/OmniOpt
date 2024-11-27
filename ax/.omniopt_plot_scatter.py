@@ -43,6 +43,30 @@ MINIMUM_TEXTBOX = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
+
+parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+parser.add_argument('--max', type=float, help='Maximum value', default=None)
+parser.add_argument('--min', type=float, help='Minimum value', default=None)
+parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
+parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=15)
+parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
+parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
+
+parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
+
+parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+
+args = parser.parse_args()
+
+if args.bubblesize:
+    global BUBBLESIZEINPX
+    BUBBLESIZEINPX = args.bubblesize
+
+helpers.check_args(args)
+
 try:
     import matplotlib.pyplot as plt
 except ModuleNotFoundError as ee: # pragma: no cover
@@ -56,7 +80,7 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def set_title(df_filtered, result_column_values, num_entries, _min, _max):
+def set_title(df_filtered, result_column_values, num_entries, _min, _max) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:
@@ -112,7 +136,7 @@ def plot_single_graph(_params):
 
     return scatter
 
-def plot_graphs(_params):
+def plot_graphs(_params) -> None:
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
 
@@ -125,35 +149,7 @@ def plot_graphs(_params):
 
     axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
-def get_args():
-    global args
-    parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
-
-    parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-    parser.add_argument('--max', type=float, help='Maximum value', default=None)
-    parser.add_argument('--min', type=float, help='Minimum value', default=None)
-    parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
-    parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=15)
-    parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
-    parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
-
-    parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
-
-    parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-
-    args = parser.parse_args()
-
-    if args.bubblesize:
-        global BUBBLESIZEINPX
-        BUBBLESIZEINPX = args.bubblesize
-
-    helpers.check_args(args)
-
-    return args
-
-def main():
+def main() -> None:
     global args, fig
 
     if args is not None:
@@ -204,7 +200,7 @@ def main():
             update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event=None, _min=None, _max=None): # pragma: no cover
+def update_graph(event=None, _min=None, _max=None) -> None: # pragma: no cover
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event: # only for fooling pylint...
@@ -215,8 +211,6 @@ def update_graph(event=None, _min=None, _max=None): # pragma: no cover
 
 if __name__ == "__main__":
     try:
-        get_args()
-
         theme = "fast"
 
         if args is not None and args.darkmode: # pragma: no cover

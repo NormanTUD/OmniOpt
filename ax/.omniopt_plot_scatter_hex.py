@@ -191,7 +191,7 @@ def get_args():
 
     return args
 
-def main():
+def main() -> None:
     global args
 
     if args is not None:

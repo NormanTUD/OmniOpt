@@ -27,13 +27,11 @@ def load_helpers(script_dir):
     else:
         raise ImportError(f"Could not load module from {helpers_file}")
 
-def parse_arguments():
-    """Parse and return command-line arguments."""
-    parser = argparse.ArgumentParser(description='Plotting tool for analyzing CPU and RAM usage data.')
-    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-    parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-    return parser.parse_args()
+parser = argparse.ArgumentParser(description='Plotting tool for analyzing CPU and RAM usage data.')
+parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
+parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+args = parser.parse_args()
 
 def load_data(csv_path):
     """Loads data from the given CSV file."""
@@ -56,7 +54,7 @@ def load_data(csv_path):
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
 
-def plot_graph(dataframe, save_to_file=None):
+def plot_graph(dataframe, save_to_file=None) -> None:
     """Generates and optionally saves/plots the graph."""
     plt.figure(figsize=(12, 8))
 
@@ -71,34 +69,36 @@ def plot_graph(dataframe, save_to_file=None):
 
     if save_to_file:
         fig = plt.figure(1)
-        if fig is not None and args is not None and plt is not None:
+        if fig is not None and args is not None and plt is not None and helpers is not None:
             helpers.save_to_file(fig, args, plt)
     elif args is not None and not args.no_plt_show: # pragma: no cover
         if plt is not None:
             plt.show()
 
-def update_graph(csv_path):
+def update_graph(csv_path) -> None:
     """Updates the graph by loading data and plotting."""
     dataframe = load_data(csv_path)
     if dataframe is not None:
         if args is not None:
             plot_graph(dataframe, args.save_to_file)
 
-def main():
+def main() -> None:
     """Main function for handling the overall logic."""
-    global args
-    args = parse_arguments()
 
     load_helpers(os.path.dirname(os.path.realpath(__file__)))
     if helpers:
         helpers.setup_logging()
 
-    if not os.path.exists(args.run_dir): # pragma: no cover
-        logging.error("Specified --run_dir does not exist")
-        sys.exit(1)
+    if args:
+        if not os.path.exists(args.run_dir): # pragma: no cover
+            if logging:
+                logging.error("Specified --run_dir does not exist")
+            else:
+                print("Specified --run_dir does not exist")
+            sys.exit(1)
 
-    csv_path = os.path.join(args.run_dir, "cpu_ram_usage.csv")
-    update_graph(csv_path)
+        csv_path = os.path.join(args.run_dir, "cpu_ram_usage.csv")
+        update_graph(csv_path)
 
 if __name__ == "__main__":
     main()

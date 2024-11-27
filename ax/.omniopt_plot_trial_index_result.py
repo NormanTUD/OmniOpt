@@ -33,14 +33,13 @@ else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-    parser.add_argument('--min', type=float, help='Minimum value for result filtering')
-    parser.add_argument('--max', type=float, help='Maximum value for result filtering')
-    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-    parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-    return parser.parse_args()
+parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
+parser.add_argument('--min', type=float, help='Minimum value for result filtering')
+parser.add_argument('--max', type=float, help='Maximum value for result filtering')
+parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
+parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+args = parser.parse_args()
 
 def plot_graph(dataframe, save_to_file=None):
     if "result" not in dataframe:
@@ -64,7 +63,7 @@ def plot_graph(dataframe, save_to_file=None):
         if args is not None and not args.no_plt_show:
             plt.show()
 
-def update_graph():
+def update_graph() -> None:
     if args is not None:
         try:
             dataframe = None
@@ -104,8 +103,6 @@ def update_graph():
             print(tb)
 
 if __name__ == "__main__":
-    args = parse_arguments()
-
     helpers.setup_logging()
 
     if not os.path.exists(args.run_dir): # pragma: no cover

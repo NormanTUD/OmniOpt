@@ -131,7 +131,7 @@ def save_to_file_or_show_canvas():
                 if not args.no_plt_show:
                     plt.show()
 
-def update_graph():
+def update_graph() -> None:
     if args is not None:
         pd_csv = args.run_dir + "/results.csv"
 

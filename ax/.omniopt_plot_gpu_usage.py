@@ -38,7 +38,7 @@ else:
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def get_names_array():
+def get_names_array() -> list:
     return [
         "timestamp",
         "name",

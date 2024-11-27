@@ -27,6 +27,7 @@ try:
 
     with console.status("[bold green]Loading base modules...") as status:
         #import asyncio
+        from submitit import Job
         import threading
         from concurrent.futures import ThreadPoolExecutor
         import argparse
@@ -3408,7 +3409,8 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
+def get_old_result_by_params(file_path, params, float_tolerance=1e-6): 
+    # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
     Return the value of the 'result' column from that row.
@@ -3473,17 +3475,21 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
 
 @wrapper_print_debug
 def get_old_result_simple(this_path, old_arm_parameter) -> Union[float, None, int]:
-    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
-    tmp_old_res_list = list(set(list(tmp_old_res)))
+    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)
+    if "result" in tmp_old_res:
+        tmp_old_res = tmp_old_res["result"]
+        tmp_old_res_list = list(set(list(tmp_old_res)))
 
-    if len(tmp_old_res_list) == 1:
-        print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-        old_result_simple = float(tmp_old_res_list[0])
-    else:
-        print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-        old_result_simple = None
+        if len(tmp_old_res_list) == 1:
+            print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
+            old_result_simple = float(tmp_old_res_list[0])
+        else:
+            print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
+            old_result_simple = None
 
-    return old_result_simple
+        return old_result_simple
+
+    return None
 
 @wrapper_print_debug
 def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
@@ -4364,7 +4370,7 @@ def save_state_files() -> None:
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def submit_job(parameters):
+def submit_job(parameters) -> Union[None, Job[dict[Any, Any]]]:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)
@@ -4729,7 +4735,7 @@ def create_systematic_step(model):
         should_deduplicate=args.should_deduplicate
     )
 
-def create_random_generation_step():
+def create_random_generation_step() -> int:
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -5114,7 +5120,7 @@ def die_orchestrator_exit_code_206(_test) -> None: # pragma: no cover
     else:
         my_exit(206)
 
-def parse_orchestrator_file(_f, _test: bool = False):
+def parse_orchestrator_file(_f, _test: bool = False) -> Union[dict, None]:
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -5190,7 +5196,7 @@ def check_max_eval(_max_eval) -> None:
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
-def parse_parameters() -> Tuple[dict, dict]:
+def parse_parameters() -> Union[tuple[Any | None, Any | None], tuple[Any | None, Any | None]]:
     experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:

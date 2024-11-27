@@ -1974,7 +1974,7 @@ def evaluate(parameters: dict) -> dict:
         original_print(f"Result: {result}")
 
         headline: list[str] = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
-        values: list[str] = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
+        values: list[str] = [str(start_time), str(end_time), str(run_time), program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
 
         original_print(f"EXIT_CODE: {exit_code}")
 
@@ -2126,7 +2126,13 @@ def display_failed_jobs_table():
         print_red(f"Error: {str(e)}")
 
 @wrapper_print_debug
-def plot_command(_command, tmp_file, _width=1300): # pragma: no cover
+def plot_command(_command: str, tmp_file: str, _width: str = 1300): # pragma: no cover
+    if not helpers.looks_like_int(_width):
+        print_red(f"Error: {_width} does not look like an int")
+        sys.exit(8)
+
+    _width = int(_width)
+
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter
     if not _show_sixel_graphics:
         return
@@ -2388,7 +2394,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
         try:
             _tmp = f"{get_current_run_folder()}/plots/"
-            _width = 1200
+            _width = "1200"
 
             if "width" in plot:
                 _width = plot["width"]
@@ -2428,14 +2434,14 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     return data
 
 def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: int) -> list[str]:
-    plot_commands: list[str] = []
+    plot_commands: list[list[str]] = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
             if len(iterate_through):
                 for j in range(0, len(iterate_through)):
                     this_iteration = iterate_through[j]
-                    _iterated_command = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+                    _iterated_command: str = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
 
                     j = 0
                     tmp_file = f"{_tmp}/{plot_type}.png"
@@ -2454,10 +2460,10 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
                                     tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}_{j}.png"
 
                     _iterated_command += f" --save_to_file={tmp_file} "
-                    plot_commands.append([_iterated_command, tmp_file, _width])
+                    plot_commands.append([_iterated_command, tmp_file, str(_width)])
     else:
         _command += f" --save_to_file={tmp_file} "
-        plot_commands.append([_command, tmp_file, _width])
+        plot_commands.append([_command, tmp_file, str(_width)])
 
     return plot_commands
 
@@ -3822,7 +3828,7 @@ def get_first_line_of_file_that_contains_string(i, s): # pragma: no cover
             if get_lines_until_end:
                 lines += line
             else:
-                line: str = line.strip()
+                line = line.strip()
                 if line.endswith("(") and "raise" in line:
                     get_lines_until_end = True
                     lines += line
@@ -4899,7 +4905,7 @@ def run_search(_progress_bar):
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
 
-            nr_of_items: int = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
+            nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -5343,39 +5349,39 @@ def run_tests():
 
     nr_errors += is_equal('_count_sobol_or_completed("", "")', _count_sobol_or_completed("", ""), 0)
 
-    plot_params = get_plot_commands('_command', {"type": "trial_index_result", "min_done_jobs": 2}, '_tmp', 'plot_type', 'tmp_file', 1200)
+    plot_params = get_plot_commands('_command', {"type": "trial_index_result", "min_done_jobs": 2}, '_tmp', 'plot_type', 'tmp_file', "1200")
 
-    nr_errors += is_equal('get_plot_commands', json.dumps(plot_params), json.dumps([['_command --save_to_file=tmp_file ', 'tmp_file', 1200]]))
+    nr_errors += is_equal('get_plot_commands', json.dumps(plot_params), json.dumps([['_command --save_to_file=tmp_file ', 'tmp_file', "1200"]]))
 
-    plot_params_complex = get_plot_commands('_command', {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, '_tmp', 'plot_type', 'tmp_file', 1200)
+    plot_params_complex = get_plot_commands('_command', {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, '_tmp', 'plot_type', 'tmp_file', "1200")
 
     expected_plot_params_complex = [['_command --bubblesize=50 --allow_axes n_samples --allow_axes confidence '
                                      '--save_to_file=_tmp/plot_plot_type_n_samples_confidence.png ',
                                      '_tmp/plot_plot_type_n_samples_confidence.png',
-                                     1200],
+                                     "1200"],
                                     ['_command --bubblesize=50 --allow_axes n_samples --allow_axes '
                                      'feature_proportion '
                                      '--save_to_file=_tmp/plot_plot_type_n_samples_feature_proportion.png ',
                                      '_tmp/plot_plot_type_n_samples_feature_proportion.png',
-                                     1200],
+                                     "1200"],
                                     ['_command --bubblesize=50 --allow_axes n_samples --allow_axes n_clusters '
                                      '--save_to_file=_tmp/plot_plot_type_n_samples_n_clusters.png ',
                                      '_tmp/plot_plot_type_n_samples_n_clusters.png',
-                                     1200],
+                                     "1200"],
                                     ['_command --bubblesize=50 --allow_axes confidence --allow_axes '
                                      'feature_proportion '
                                      '--save_to_file=_tmp/plot_plot_type_confidence_feature_proportion.png ',
                                      '_tmp/plot_plot_type_confidence_feature_proportion.png',
-                                     1200],
+                                     "1200"],
                                     ['_command --bubblesize=50 --allow_axes confidence --allow_axes n_clusters '
                                      '--save_to_file=_tmp/plot_plot_type_confidence_n_clusters.png ',
                                      '_tmp/plot_plot_type_confidence_n_clusters.png',
-                                     1200],
+                                     "1200"],
                                     ['_command --bubblesize=50 --allow_axes feature_proportion --allow_axes '
                                      'n_clusters '
                                      '--save_to_file=_tmp/plot_plot_type_feature_proportion_n_clusters.png ',
                                      '_tmp/plot_plot_type_feature_proportion_n_clusters.png',
-                                     1200]]
+                                     "1200"]]
 
     nr_errors += is_equal("get_plot_commands complex", json.dumps(plot_params_complex), json.dumps(expected_plot_params_complex))
 
@@ -5389,7 +5395,7 @@ def run_tests():
     ]
 
     got: str = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
-    expected: str = '[["bash omniopt_plot --run_dir None --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "None/plots/", "trial_index_result", "None/plots//trial_index_result.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "None/plots/", "scatter", "None/plots//plot_%0_%1_%2.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=general", {"type": "general"}, "None/plots/", "general", "None/plots//general.png", 1200]]'
+    expected: str = '[["bash omniopt_plot --run_dir None --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "None/plots/", "trial_index_result", "None/plots//trial_index_result.png", "1200"], ["bash omniopt_plot --run_dir None --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "None/plots/", "scatter", "None/plots//plot_%0_%1_%2.png", "1200"], ["bash omniopt_plot --run_dir None --plot_type=general", {"type": "general"}, "None/plots/", "general", "None/plots//general.png", "1200"]]'
 
     nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, expected)
 
@@ -5448,11 +5454,11 @@ Exit-Code: 159
     ]
 
     for _item in _not_equal:
-        _name = _item[0]
-        _should_be = _item[1]
-        _is = _item[2]
+        __name = _item[0]
+        __should_be = _item[1]
+        __is = _item[2]
 
-        nr_errors += is_not_equal(_name, _should_be, _is)
+        nr_errors += is_not_equal(__name, __should_be, __is)
 
     nr_errors += is_equal("nr equal nr", 1, 1)
 

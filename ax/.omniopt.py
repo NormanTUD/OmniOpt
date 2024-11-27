@@ -5,7 +5,7 @@
 
 import sys
 import os
-from typing import Pattern
+from typing import Pattern, Optional, Tuple
 from types import FunctionType
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
@@ -153,7 +153,7 @@ class SignalINT (Exception):
 class SignalCONT (Exception):
     pass
 
-def is_slurm_job():
+def is_slurm_job() -> bool:
     if os.environ.get('SLURM_JOB_ID') is not None: # pragma: no cover
         return True
     return False
@@ -193,7 +193,7 @@ def _debug(msg, _lvl=0, eee=None):
 
         _debug(msg, _lvl + 1, e)
 
-def _get_debug_json(time_str, msg):
+def _get_debug_json(time_str, msg) -> str:
     stack = inspect.stack()
     function_stack = []
 
@@ -208,7 +208,7 @@ def _get_debug_json(time_str, msg):
     return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
 def print_debug(msg):
-    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     stack_trace_element = _get_debug_json(time_str, msg)
 
@@ -495,7 +495,7 @@ if not args.tests:
 
 NVIDIA_SMI_LOGS_BASE = None
 
-def append_and_read(file, nr=0, recursion=0):
+def append_and_read(file, nr=0, recursion=0) -> int:
     try:
         with open(file, mode='a+', encoding="utf-8") as f:
             f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
@@ -567,12 +567,12 @@ def live_share():
     shown_live_share_counter = shown_live_share_counter + 1
 
 @wrapper_print_debug
-def save_pd_csv():
+def save_pd_csv() -> str:
     #print_debug("save_pd_csv()")
-    pd_csv = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
-    pd_json = f'{get_current_run_folder()}/state_files/pd.json'
+    pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
+    pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
 
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
+    state_files_folder: str = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
 
@@ -602,7 +602,7 @@ def save_pd_csv():
 
     return pd_csv
 
-def add_to_phase_counter(phase, nr=0, run_folder=""):
+def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":
         run_folder = get_current_run_folder()
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
@@ -785,7 +785,7 @@ def log_nr_of_workers():
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return
 
-    nr_of_workers = len(global_vars["jobs"])
+    nr_of_workers: int = len(global_vars["jobs"])
 
     if not nr_of_workers:
         return
@@ -891,7 +891,7 @@ def print_yellow(text):
 
     print_debug(text)
 
-def decode_if_base64(input_str):
+def decode_if_base64(input_str: str) -> str:
     try:
         decoded_bytes = base64.b64decode(input_str)
         decoded_str = decoded_bytes.decode('utf-8')
@@ -899,7 +899,7 @@ def decode_if_base64(input_str):
     except Exception:
         return input_str
 
-def get_file_as_string(f):
+def get_file_as_string(f: str) -> str:
     datafile = ""
     if not os.path.exists(f):
         print_debug(f"{f} not found!")
@@ -911,6 +911,7 @@ def get_file_as_string(f):
     return "\n".join(datafile)
 
 global_vars["joined_run_program"] = ""
+
 if not args.continue_previous_job:
     if args.run_program:
         if isinstance(args.run_program, list):
@@ -951,7 +952,7 @@ def load_or_exit(filepath, error_msg, exit_code):
         print_red(error_msg)
         my_exit(exit_code)
 
-def get_file_content_or_exit(filepath, error_msg, exit_code):
+def get_file_content_or_exit(filepath, error_msg, exit_code) -> str:
     load_or_exit(filepath, error_msg, exit_code)
     return get_file_as_string(filepath).strip()
 
@@ -1099,7 +1100,7 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
-def is_executable_in_path(executable_name):
+def is_executable_in_path(executable_name: str) -> bool:
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
         if os.path.exists(executable_path) and os.access(executable_path, os.X_OK): # pragma: no cover
@@ -1136,7 +1137,7 @@ def check_slurm_job_id():
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM-job."
             )
 
-def create_folder_and_file(folder):
+def create_folder_and_file(folder: str):
     print_debug(f"create_folder_and_file({folder})")
 
     makedirs(folder)
@@ -1145,7 +1146,7 @@ def create_folder_and_file(folder):
 
     return file_path
 
-def sort_numerically_or_alphabetically(arr):
+def sort_numerically_or_alphabetically(arr: list) -> list:
     try:
         new_arr = [float(item) for item in arr]
         arr = new_arr
@@ -1155,7 +1156,7 @@ def sort_numerically_or_alphabetically(arr):
     sorted_arr = sorted(arr)
     return sorted_arr
 
-def get_program_code_from_out_file(f):
+def get_program_code_from_out_file(f: str) -> str:
     if not os.path.exists(f):
         print_debug(f"{f} not found")
         original_print(f"{f} not found")
@@ -1169,7 +1170,7 @@ def get_program_code_from_out_file(f):
 
     return ""
 
-def get_min_or_max_column_value(pd_csv, column, _default, _type="min"):
+def get_min_or_max_column_value(pd_csv: str, column, _default, _type="min"):
     assert isinstance(pd_csv, str), "pd_csv must be a string"
     assert isinstance(column, str), "column must be a string"
 
@@ -1302,7 +1303,7 @@ def create_param(name, lower_bound, upper_bound, value_type, log_scale):
         "log_scale": log_scale
     }
 
-def handle_grid_search(name, lower_bound, upper_bound, value_type):
+def handle_grid_search(name: str, lower_bound, upper_bound, value_type) -> dict:
     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
     if value_type == "int":
@@ -1582,7 +1583,7 @@ def execute_bash_code(code):
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-def get_result(input_string):
+def get_result(input_string) -> Optional[list[float]]:
     if input_string is None:
         print_red("get_result: Input-String is None")
         return None
@@ -1622,7 +1623,7 @@ def add_to_csv(file_path, heading, data_line): # pragma: no cover
         data_line = ["{:.20f}".format(x) if isinstance(x, float) else x for x in data_line]
         csv_writer.writerow(data_line)
 
-def find_file_paths(_text):
+def find_file_paths(_text: str) -> list[str]:
     file_paths = []
 
     if isinstance(_text, str):
@@ -1636,7 +1637,7 @@ def find_file_paths(_text):
 
     return [] # pragma: no cover
 
-def check_file_info(file_path):
+def check_file_info(file_path: str) -> str:
     if not os.path.exists(file_path):
         print(f"check_file_info: The file {file_path} does not exist.")
         return ""
@@ -1676,7 +1677,7 @@ def check_file_info(file_path):
 
     return string
 
-def find_file_paths_and_print_infos(_text, program_code):
+def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
     file_paths = find_file_paths(_text)
 
     if len(file_paths) == 0:
@@ -1693,7 +1694,7 @@ def find_file_paths_and_print_infos(_text, program_code):
 
     return string
 
-def write_failed_logs(data_dict, error_description=""):
+def write_failed_logs(data_dict: dict, error_description: int = ""):
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
 
@@ -1776,9 +1777,9 @@ def test_gpu_before_evaluate(return_in_case_of_error): # pragma: no cover
 
     return None
 
-def extract_info(data):
-    names = []
-    values = []
+def extract_info(data: str) -> Tuple[list[str], list[str]]:
+    names: list[str] = []
+    values: list[str] = []
 
     # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
     pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
@@ -1799,45 +1800,45 @@ def ignore_signals():
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
-def calculate_signed_harmonic_distance(_args):
+def calculate_signed_harmonic_distance(_args: list[float]) -> float:
     if not _args:  # Handle empty input gracefully
         return 0
 
-    abs_inverse_sum = sum(1 / abs(a) for a in _args if a != 0)  # Avoid division by zero
-    harmonic_mean = len(_args) / abs_inverse_sum if abs_inverse_sum != 0 else 0
+    abs_inverse_sum: float = sum(1 / abs(a) for a in _args if a != 0)  # Avoid division by zero
+    harmonic_mean: float = len(_args) / abs_inverse_sum if abs_inverse_sum != 0 else 0
 
     # Determine the sign based on the number of negatives
-    num_negatives = sum(1 for a in _args if a < 0)
-    sign = -1 if num_negatives % 2 != 0 else 1
+    num_negatives: float = sum(1 for a in _args if a < 0)
+    sign: int = -1 if num_negatives % 2 != 0 else 1
 
     return sign * harmonic_mean
 
-def calculate_signed_euclidean_distance(_args):
-    _sum = 0
+def calculate_signed_euclidean_distance(_args: list[float]) -> float:
+    _sum: float = 0
     for a in _args:
         _sum += a ** 2
 
     # Behalte das Vorzeichen des ersten Werts (oder ein beliebiges anderes Kriterium)
-    sign = -1 if any(a < 0 for a in _args) else 1
+    sign: int = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)
 
-def calculate_signed_geometric_distance(_args):
-    product = 1  # Startwert für Multiplikation
+def calculate_signed_geometric_distance(_args: list[float]) -> float:
+    product: float = 1  # Startwert für Multiplikation
     for a in _args:
         product *= abs(a)  # Absolutwerte für das Produkt verwenden
 
     # Behalte das Vorzeichen basierend auf der Anzahl negativer Werte
-    num_negatives = sum(1 for a in _args if a < 0)
-    sign = -1 if num_negatives % 2 != 0 else 1
+    num_negatives: float = sum(1 for a in _args if a < 0)
+    sign: int = -1 if num_negatives % 2 != 0 else 1
 
     # Geometrisches Mittel: n-te Wurzel des Produkts
-    geometric_mean = product ** (1 / len(_args)) if _args else 0
+    geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
 class invalidMooType(Exception):
     pass
 
-def calculate_moo(_args):
+def calculate_moo(_args: list[float]) -> float:
     if args.moo_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
     if args.moo_type == "geometric":
@@ -1847,7 +1848,7 @@ def calculate_moo(_args):
 
     raise invalidMooType(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}")
 
-def evaluate(parameters):
+def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
     return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
@@ -1882,17 +1883,17 @@ def evaluate(parameters):
 
         original_print(program_string_with_params)
 
-        start_time = int(time.time())
+        start_time: float = int(time.time())
 
         stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
 
-        end_time = int(time.time())
+        end_time: float = int(time.time())
 
         stdout = stdout_stderr_exit_code_signal[0]
         exit_code = stdout_stderr_exit_code_signal[2]
         _signal = stdout_stderr_exit_code_signal[3]
 
-        run_time = end_time - start_time
+        run_time: float = end_time - start_time
 
         original_print("stdout:")
         original_print(stdout)
@@ -1909,7 +1910,7 @@ def evaluate(parameters):
                 all_result_column_names.append(f"RESULT{_k}")
                 _k = _k + 1
 
-        result = calculate_moo(result)
+            result = calculate_moo(result)
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
 
@@ -1920,8 +1921,8 @@ def evaluate(parameters):
 
         original_print(f"Result: {result}")
 
-        headline = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
-        values = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
+        headline: list[str] = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
+        values: list[str] = [start_time, end_time, run_time, program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
 
         original_print(f"EXIT_CODE: {exit_code}")
 
@@ -2109,7 +2110,7 @@ def replace_string_with_params(input_string, params):
         raise
 
 @wrapper_print_debug
-def get_best_params_from_csv(csv_file_path, maximize):
+def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
     results = {
         "result": None,
         "parameters": {}
@@ -2179,12 +2180,12 @@ def get_best_params_from_csv(csv_file_path, maximize):
 
     return results
 
-def get_best_params():
-    csv_file_path = save_pd_csv()
+def get_best_params() -> dict:
+    csv_file_path: str = save_pd_csv()
 
     return get_best_params_from_csv(csv_file_path, args.maximize)
 
-def _count_sobol_or_completed(csv_file_path, _type):
+def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED"]:
         print_red(f"_type is not in Sobol or COMPLETED, but is {_type}")
         return 0
@@ -2230,42 +2231,42 @@ def _count_sobol_or_completed(csv_file_path, _type):
 
     return count
 
-def _count_sobol_steps(csv_file_path):
+def _count_sobol_steps(csv_file_path: str) -> int:
     return _count_sobol_or_completed(csv_file_path, "Sobol")
 
-def _count_done_jobs(csv_file_path):
+def _count_done_jobs(csv_file_path: str) -> int:
     return _count_sobol_or_completed(csv_file_path, "COMPLETED")
 
-def count_sobol_steps():
-    csv_file_path = save_pd_csv()
+def count_sobol_steps() -> int:
+    csv_file_path: str = save_pd_csv()
 
     return _count_sobol_steps(csv_file_path)
 
-def get_random_steps_from_prev_job():
+def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
 
-    prev_step_file = args.continue_previous_job + "/state_files/phase_random_steps"
+    prev_step_file: str = args.continue_previous_job + "/state_files/phase_random_steps"
 
     if not os.path.exists(prev_step_file):
         return count_sobol_steps()
 
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job) # pragma: no cover
 
-def failed_jobs(nr=0):
+def failed_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
 
-def count_done_jobs():
-    csv_file_path = save_pd_csv()
+def count_done_jobs() -> int:
+    csv_file_path: str = save_pd_csv()
 
     return _count_done_jobs(csv_file_path)
 
-def get_plot_types(x_y_combinations, _force=False):
-    plot_types = []
+def get_plot_types(x_y_combinations, _force=False) -> list:
+    plot_types: list = []
 
     if args.show_sixel_trial_index_result or _force:
         plot_types.append(
@@ -2296,13 +2297,13 @@ def get_plot_types(x_y_combinations, _force=False):
     return plot_types
 
 @wrapper_print_debug
-def get_sixel_graphics_data(_pd_csv, _force=False):
+def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
     if _force:
         _show_sixel_graphics = True
 
-    data = []
+    data: list = []
 
     if not os.path.exists(_pd_csv):
         print_debug(f"Cannot find path {_pd_csv}")
@@ -2374,8 +2375,8 @@ def get_sixel_graphics_data(_pd_csv, _force=False):
 
     return data
 
-def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
-    plot_commands = []
+def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: int) -> list[str]:
+    plot_commands: list[str] = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
@@ -2408,7 +2409,7 @@ def get_plot_commands(_command, plot, _tmp, plot_type, tmp_file, _width):
 
     return plot_commands
 
-def plot_sixel_imgs(csv_file_path):
+def plot_sixel_imgs(csv_file_path: str):
     if ci_env:
         print("Not printing sixel graphics in CI")
         return
@@ -2421,7 +2422,7 @@ def plot_sixel_imgs(csv_file_path):
         for command in commands:
             plot_command(*command)
 
-def _print_best_result(csv_file_path, maximize, print_to_file=True):
+def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool = True) -> int:
     global global_vars
     global SHOWN_END_TABLE
 
@@ -2483,13 +2484,13 @@ def _print_best_result(csv_file_path, maximize, print_to_file=True):
 
     return -1
 
-def print_best_result():
+def print_best_result() -> int:
     csv_file_path = save_pd_csv()
 
     return _print_best_result(csv_file_path, args.maximize, True)
 
 @wrapper_print_debug
-def show_end_table_and_save_end_files(csv_file_path):
+def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
 
     ignore_signals()
@@ -2501,11 +2502,11 @@ def show_end_table_and_save_end_files(csv_file_path):
         print("End table already shown, not doing it again")
         return -1
 
-    _exit = 0
+    _exit: int = 0
 
     display_failed_jobs_table()
 
-    best_result_exit = print_best_result()
+    best_result_exit: int = print_best_result()
 
     if best_result_exit > 0:
         _exit = best_result_exit
@@ -2523,7 +2524,7 @@ def show_end_table_and_save_end_files(csv_file_path):
 
     return _exit
 
-def abandon_job(job, trial_index): # pragma: no cover
+def abandon_job(job, trial_index) -> bool: # pragma: no cover
     global global_vars
 
     if job:
@@ -2559,7 +2560,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
 
     END_PROGRAM_RAN = True
 
-    _exit = 0
+    _exit: int = 0
 
     try:
         if get_current_run_folder() is None:
@@ -2597,7 +2598,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
 
     my_exit(_exit)
 
-def save_checkpoint(trial_nr=0, eee=None):
+def save_checkpoint(trial_nr: int = 0, eee=None):
     if trial_nr > 3:
         if eee:
             print("Error during saving checkpoint: " + str(eee))
@@ -2616,7 +2617,7 @@ def save_checkpoint(trial_nr=0, eee=None):
         save_checkpoint(trial_nr + 1, e)
 
 @wrapper_print_debug
-def get_tmp_file_from_json(experiment_args):
+def get_tmp_file_from_json(experiment_args) -> str:
     _tmp_dir = "/tmp"
     k = 0
     while os.path.exists(f"/{_tmp_dir}/{k}"):
@@ -2631,7 +2632,7 @@ def get_tmp_file_from_json(experiment_args):
     return f"/{_tmp_dir}/{k}"
 
 @wrapper_print_debug
-def compare_parameters(old_param_json, new_param_json):
+def compare_parameters(old_param_json, new_param_json) -> str:
     try:
         old_param = json.loads(old_param_json)
         new_param = json.loads(new_param_json)
@@ -2654,7 +2655,7 @@ def compare_parameters(old_param_json, new_param_json):
 
     return ""
 
-def get_ax_param_representation(data):
+def get_ax_param_representation(data) -> dict:
     if data["type"] == "range":
         return {
             "__type": "RangeParameter",
@@ -2730,7 +2731,7 @@ def die_something_went_wrong_with_parameters(): # pragma: no cover
     my_exit(49)
 
 @wrapper_print_debug
-def check_equation(variables, equation):
+def check_equation(variables, equation) -> bool:
     print_debug(f"check_equation({variables}, {equation})")
 
     _errors = []
@@ -2947,7 +2948,7 @@ def get_experiment_parameters(_params):
 
     return ax_client, experiment_parameters, experiment_args
 
-def get_type_short(typename):
+def get_type_short(typename: str) -> str:
     if typename == "RangeParameter":
         return "range"
 
@@ -2957,8 +2958,8 @@ def get_type_short(typename):
     return typename
 
 @wrapper_print_debug
-def parse_single_experiment_parameter_table(experiment_parameters):
-    rows = []
+def parse_single_experiment_parameter_table(experiment_parameters) -> list:
+    rows: list = []
 
     for param in experiment_parameters:
         _type = ""
@@ -3088,7 +3089,7 @@ def update_progress_bar(_progress_bar, nr):
 
     _progress_bar.update(nr)
 
-def get_current_model():
+def get_current_model() -> str:
     global ax_client
 
     if ax_client:
@@ -3099,7 +3100,7 @@ def get_current_model():
 
     return "initializing model"
 
-def get_best_params_str():
+def get_best_params_str() -> str:
     if count_done_jobs() >= 0:
         best_params = get_best_params()
         if best_params and "result" in best_params:
@@ -3124,13 +3125,13 @@ def state_from_job(job):
 
     return state
 
-def get_workers_string():
+def get_workers_string() -> str:
     string = ""
 
-    string_keys = []
-    string_values = []
+    string_keys: list = []
+    string_values: list = []
 
-    stats = {}
+    stats: dict = {}
 
     for job, _ in global_vars["jobs"][:]: # pragma: no cover
         state = state_from_job(job)
@@ -3158,7 +3159,7 @@ def get_workers_string():
     return string
 
 @wrapper_print_debug
-def submitted_jobs(nr=0):
+def submitted_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
@@ -3166,14 +3167,14 @@ def submitted_jobs(nr=0):
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
 @wrapper_print_debug
-def get_desc_progress_text(new_msgs=[]):
+def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     global global_vars
     global random_steps
     global max_eval
 
-    desc = ""
+    desc: str = ""
 
-    in_brackets = []
+    in_brackets: list[str] = []
 
     if failed_jobs():
         in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
@@ -3182,9 +3183,9 @@ def get_desc_progress_text(new_msgs=[]):
 
     in_brackets.append(f"{current_model}")
 
-    this_time = time.time()
+    this_time: float = time.time()
 
-    best_params_str = get_best_params_str()
+    best_params_str: str = get_best_params_str()
     if best_params_str:
         in_brackets.append(best_params_str)
 
@@ -3237,7 +3238,7 @@ def get_desc_progress_text(new_msgs=[]):
     return desc
 
 @wrapper_print_debug
-def progressbar_description(new_msgs=[]):
+def progressbar_description(new_msgs: list[str] = []):
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     progress_bar.set_description(desc)
@@ -3342,10 +3343,9 @@ def get_old_result_simple(this_path, old_arm_parameter):
     return old_result_simple
 
 @wrapper_print_debug
-def simulate_load_data_from_existing_run_folders(_paths):
-    _counter = 0
+def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
+    _counter: int = 0
 
-    path_idx = 0
     for this_path in _paths:
         this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
@@ -3379,13 +3379,11 @@ def simulate_load_data_from_existing_run_folders(_paths):
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 _counter += 1
 
-        path_idx += 1
-
     return _counter
 
 @wrapper_print_debug
-def get_nr_of_imported_jobs():
-    nr_jobs = 0
+def get_nr_of_imported_jobs() -> int:
+    nr_jobs: int = 0
 
     if args.load_previous_job_data:
         for this_path in args.load_previous_job_data:
@@ -3474,7 +3472,7 @@ def extract_headers_and_rows(data_list):
         print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
-def get_list_import_as_string(_brackets=True, _comma=False):
+def get_list_import_as_string(_brackets=True, _comma=False) -> str:
     _str: list = []
 
     if len(double_hashes):
@@ -3520,7 +3518,7 @@ def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_resul
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
 @wrapper_print_debug
-def load_data_from_existing_run_folders(_paths):
+def load_data_from_existing_run_folders(_paths: list[str]):
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes
@@ -3723,7 +3721,7 @@ def check_for_non_zero_exit_codes(file_as_string):
             errors.append(_error)
     return errors
 
-def get_python_errors():
+def get_python_errors() -> list[list[str]]:
     synerr: str = "Python syntax error detected. Check log file."
 
     return [
@@ -3799,7 +3797,7 @@ def check_for_python_errors(i, file_as_string):
 
     return errors
 
-def get_errors_from_outfile(i):
+def get_errors_from_outfile(i) -> list[str]:
     file_as_string = get_file_as_string(i)
 
     program_code = get_program_code_from_out_file(i)
@@ -3902,7 +3900,7 @@ def mark_trial_as_completed(_trial):
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
-def finish_previous_jobs(new_msgs):
+def finish_previous_jobs(new_msgs: list[str]):
     global random_steps
     global ax_client
     global jobs_finished
@@ -3984,8 +3982,8 @@ def finish_previous_jobs(new_msgs):
 
     clean_completed_jobs()
 
-def check_orchestrator(stdout_path, trial_index): # pragma: no cover
-    behavs = []
+def check_orchestrator(stdout_path, trial_index) -> list: # pragma: no cover
+    behavs: list = []
 
     if orchestrator and "errors" in orchestrator:
         try:
@@ -4376,7 +4374,7 @@ def _get_last_and_avg_times():
     avg_time = sum(time_next_trials_took) / len(time_next_trials_took)
     return last_time, avg_time
 
-def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs):
+def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
         max_eval + simulated_jobs - count_done_jobs(),
@@ -4384,7 +4382,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs):
         num_parallel_jobs - currently_running_jobs
     )
 
-def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_execution):
+def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_execution) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
 
@@ -4395,7 +4393,7 @@ def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_exec
 
     return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
 
-def get_parallelism_schedule_description():
+def get_parallelism_schedule_description() -> str:
     try:
         # Retrieve parallelism settings
         max_parallelism_settings = ax_client.get_max_parallelism()
@@ -4419,7 +4417,7 @@ def get_parallelism_schedule_description():
             descriptions.append(f"For {trial_text}, {parallelism_text}.")
 
         # Join descriptions into a single string
-        human_readable_output = "\n".join(descriptions)
+        human_readable_output: str = "\n".join(descriptions)
         return human_readable_output
 
     except Exception as e:

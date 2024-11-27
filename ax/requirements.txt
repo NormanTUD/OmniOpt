@@ -42,3 +42,9 @@ lxml
 toml
 linkchecker
 ruff
+mypy
+types-PyYAML
+types-toml
+types-psutil
+pandas-stubs
+types-tqdm

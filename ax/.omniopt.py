@@ -480,8 +480,8 @@ class ConfigLoader:
 loader = ConfigLoader()
 args: ConfigLoader = loader.parse_arguments()
 
-def wrapper_print_debug(func):
-    def wrapper(*__args, **kwargs):
+def wrapper_print_debug(func): # -> None
+    def wrapper(*__args, **kwargs): # -> None
         start_time = time.time()
         result = func(*__args, **kwargs)
         end_time = time.time()
@@ -3472,7 +3472,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
         raise
 
 @wrapper_print_debug
-def get_old_result_simple(this_path, old_arm_parameter):
+def get_old_result_simple(this_path, old_arm_parameter) -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)["result"]
     tmp_old_res_list = list(set(list(tmp_old_res)))
 

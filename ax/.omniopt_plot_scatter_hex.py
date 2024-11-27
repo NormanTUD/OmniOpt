@@ -135,6 +135,8 @@ def plot_single_graph(_params):
 
         return scatter
 
+    return None
+
 def plot_graphs(_params):
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params

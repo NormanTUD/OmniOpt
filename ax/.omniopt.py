@@ -1515,7 +1515,7 @@ def parse_experiment_parameters():
         this_args = args.parameter[i]
         j = 0
 
-        if "param" in this_args:
+        if this_args is not None and "param" in this_args:
             this_args = this_args["param"]
 
         while j < len(this_args) - 1:
@@ -1972,7 +1972,7 @@ def evaluate(parameters: dict) -> dict:
 
             mooed_result = calculate_moo(result)
 
-            if mooed_result:
+            if mooed_result is not None:
                 result = mooed_result
 
         extra_vars_names, extra_vars_values = extract_info(stdout)

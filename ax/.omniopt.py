@@ -7,6 +7,7 @@ import sys
 import os
 from typing import Pattern, Optional, Tuple, Any
 from types import FunctionType
+import json
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print: FunctionType = print
@@ -36,7 +37,6 @@ try:
         import random
         from inspect import currentframe, getframeinfo
         from pathlib import Path
-        import json
         import uuid
         import yaml
         import re
@@ -111,7 +111,7 @@ time_next_trials_took: list = []
 CURRENT_RUN_FOLDER = None
 RESULT_CSV_FILE = None
 SHOWN_END_TABLE: bool = False
-max_eval = None
+max_eval: int = 1
 random_steps: int = 1
 progress_bar = None
 
@@ -131,7 +131,7 @@ dier: FunctionType = helpers.dier
 is_equal: FunctionType = helpers.is_equal
 is_not_equal: FunctionType = helpers.is_not_equal
 
-SUPPORTED_MODELS: list = [
+SUPPORTED_MODELS: list[str] = [
     "SOBOL",
     "GPEI",
     "FACTORIAL",
@@ -158,7 +158,11 @@ def is_slurm_job() -> bool:
         return True
     return False
 
-args = None
+def _sleep(t: int) -> int:
+    if args is not None and not args.no_sleep:
+        time.sleep(t)
+
+    return t
 
 LOG_DIR: str = "logs"
 makedirs(LOG_DIR)
@@ -169,12 +173,6 @@ logfile_progressbar: str = f'{LOG_DIR}/{run_uuid}_progressbar'
 logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
-
-def _sleep(t: int) -> int:
-    if args is not None and not args.no_sleep:
-        time.sleep(t)
-
-    return t
 
 def _debug(msg, _lvl=0, eee=None):
     if _lvl > 3: # pragma: no cover
@@ -214,27 +212,11 @@ def print_debug(msg):
 
     msg = f"{stack_trace_element}"
 
-    if args is not None and args.debug: # pragma: no cover
-        original_print(msg)
+    #if args is not None and args.debug: # pragma: no cover
+    #    original_print(msg)
 
     _debug(msg)
 
-def wrapper_print_debug(func):
-    def wrapper(*__args, **kwargs):
-        start_time = time.time()
-        result = func(*__args, **kwargs)
-        end_time = time.time()
-
-        runtime = end_time - start_time
-        runtime_human_readable = f"{runtime:.4f} seconds"
-
-        if runtime > 1:
-            print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
-
-        return result
-    return wrapper
-
-@wrapper_print_debug
 def my_exit(_code=0):
     tb = traceback.format_exc()
 
@@ -262,192 +244,254 @@ def print_red(text):
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
-try:
-    class ConfigLoader:
-        def __init__(self):
-            self.parser = argparse.ArgumentParser(
-                prog="omniopt",
-                description='A hyperparameter optimizer for slurmbased HPC-systems',
-                epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network ...",
-                formatter_class=RichHelpFormatter
-            )
+class ConfigLoader:
+    run_tests_that_fail_on_taurus: bool
+    enforce_sequential_optimization: bool
+    num_random_steps: int
+    verbose: bool
+    disable_tqdm: bool
+    slurm_use_srun: bool
+    reservation: Optional[str]
+    account: Optional[str]
+    should_deduplicate: bool
+    exclude: Optional[str]
+    show_sixel_trial_index_result: bool
+    num_parallel_jobs: int
+    max_parallelism: int
+    force_local_execution: bool
+    moo_type: str
+    raise_in_eval: bool
+    maximize: bool
+    show_sixel_general: bool
+    show_sixel_scatter: bool
+    gpus: int
+    load_previous_job_data: Optional[str]
+    model: str
+    live_share: bool
+    experiment_name: str
+    show_worker_percentage_table_at_end: bool
+    abbreviate_job_names: bool
+    verbose_tqdm: bool
+    tests: bool
+    max_eval: int
+    run_program: str
+    orchestrator_file: Optional[int]
+    run_dir: str
+    ui_url: str
+    nodes_per_job: int
+    seed: int
+    cpus_per_task: int
+    parameter: str
+    experiment_constraints: list[str]
+    stderr_to_stdout: bool
+    worker_timeout: int
+    disable_search_space_exhaustion_detection: bool
+    slurm_signal_delay_s: int
+    gridsearch: bool
+    auto_exclude_defective_hosts: bool
+    debug: bool
+    no_sleep: bool
+    max_nr_of_zero_results: int
+    mem_gb: int
+    continue_previous_job: str
 
-            # Add config arguments
-            self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
-            self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
-            self.parser.add_argument('--config_json', help='JSON configuration file', type=str)
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(
+            prog="omniopt",
+            description='A hyperparameter optimizer for slurmbased HPC-systems',
+            epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network ...",
+            formatter_class=RichHelpFormatter
+        )
 
-            # Initialize the remaining arguments
-            self.add_arguments()
+        # Add config arguments
+        self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
+        self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
+        self.parser.add_argument('--config_json', help='JSON configuration file', type=str)
 
-        def add_arguments(self):
-            required = self.parser.add_argument_group('Required arguments', "These options have to be set")
-            required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
-            optional = self.parser.add_argument_group('Optional', "These options are optional")
-            slurm = self.parser.add_argument_group('SLURM', "Parameters related to SLURM")
-            installing = self.parser.add_argument_group('Installing', "Parameters related to installing")
-            debug = self.parser.add_argument_group('Debug', "These options are mainly useful for debugging")
+        # Initialize the remaining arguments
+        self.add_arguments()
 
-            required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
-            required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
-            required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
-            required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
-            required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
+    def add_arguments(self):
+        required = self.parser.add_argument_group('Required arguments', "These options have to be set")
+        required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
+        optional = self.parser.add_argument_group('Optional', "These options are optional")
+        slurm = self.parser.add_argument_group('SLURM', "Parameters related to SLURM")
+        installing = self.parser.add_argument_group('Installing', "Parameters related to installing")
+        debug = self.parser.add_argument_group('Debug', "These options are mainly useful for debugging")
 
-            required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
-            required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
+        required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
+        required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
+        required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x.', type=str)
+        required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
+        required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 
-            optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
-            optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-            optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
-            optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
-            optional.add_argument('--seed', help='Seed for random number generator', type=int)
-            optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-            optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
-            optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
-            optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
-            optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
-            optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
-            optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
-            optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
-            optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
-            optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
-            optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
-            optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
-            optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
-            optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
-            optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
-            optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=20)
-            optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
-            optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
-            optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
-            optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
-            optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
-            optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
-            optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
-            optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
-            optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
-            optional.add_argument('--moo_type', help=f'MOO-type (valid types are {", ".join(valid_moo_types)})', type=str, default="euclid")
+        required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
+        required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
-            slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-            slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
-            slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
-            slurm.add_argument('--time', help='Time for the main job', default="", type=str)
-            slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
-            slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
-            slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
-            slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
-            slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
-            slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-            slurm.add_argument('--account', help='Account to be used', type=str, default=None)
-            slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
-            #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
+        optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
+        optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
+        optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
+        optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+        optional.add_argument('--seed', help='Seed for random number generator', type=int)
+        optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
+        optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
+        optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
+        optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
+        optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
+        optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
+        optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+        optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
+        optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+        optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
+        optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
+        optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
+        optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")}', default=os.getenv("HOME"), type=str)
+        optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
+        optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
+        optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=20)
+        optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
+        optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
+        optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
+        optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
+        optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
+        optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
+        optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
+        optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
+        optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
+        optional.add_argument('--moo_type', help=f'MOO-type (valid types are {", ".join(valid_moo_types)})', type=str, default="euclid")
 
-            installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
+        slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
+        slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
+        slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
+        slurm.add_argument('--time', help='Time for the main job', default="", type=str)
+        slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
+        slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
+        slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
+        slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
+        slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
+        slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
+        slurm.add_argument('--account', help='Account to be used', type=str, default=None)
+        slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+        #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
 
-            debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
-            debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
-            debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
-            debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
-            debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
-            debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
-            debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
-            debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
+        installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
-        def load_config(self, config_path, file_format):
-            if not os.path.isfile(config_path): # pragma: no cover
+        debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+        debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+        debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
+        debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
+        debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
+        debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
+        debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
+        debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
+
+    def load_config(self, config_path, file_format):
+        if not os.path.isfile(config_path): # pragma: no cover
+            print("Exit-Code: 5")
+            sys.exit(5)
+
+        with open(config_path, mode='r', encoding="utf-8") as file:
+            try:
+                if file_format == 'yaml':
+                    return yaml.safe_load(file)
+
+                if file_format == 'toml':
+                    return toml.load(file)
+
+                if file_format == 'json':
+                    return json.load(file)
+            except (Exception, json.decoder.JSONDecodeError) as e:
+                print_red(f"Error parsing {file_format} file '{config_path}': {e}")
                 print("Exit-Code: 5")
                 sys.exit(5)
 
-            with open(config_path, mode='r', encoding="utf-8") as file:
+        return {} # pragma: no cover
+
+    def validate_and_convert(self, config, arg_defaults):
+        """
+        Validates the config data and converts them to the right types based on argparse defaults.
+        Warns about unknown or unused parameters.
+        """
+        converted_config = {}
+        for key, value in config.items():
+            if key in arg_defaults:
+                # Get the expected type either from the default value or from the CLI argument itself
+                default_value = arg_defaults[key]
+                if default_value is not None:
+                    expected_type = type(default_value)
+                else:
+                    # Fall back to using the current value's type, assuming it's not None
+                    expected_type = type(value)
+
                 try:
-                    if file_format == 'yaml':
-                        return yaml.safe_load(file)
+                    # Convert the value to the expected type
+                    converted_config[key] = expected_type(value)
+                except (ValueError, TypeError): # pragma: no cover
+                    print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
+            else: # pragma: no cover
+                print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
 
-                    if file_format == 'toml':
-                        return toml.load(file)
+        return converted_config
 
-                    if file_format == 'json':
-                        return json.load(file)
-                except (Exception, json.decoder.JSONDecodeError) as e:
-                    print_red(f"Error parsing {file_format} file '{config_path}': {e}")
-                    print("Exit-Code: 5")
-                    sys.exit(5)
+    def merge_args_with_config(self, config, cli_args):
+        """ Merge CLI args with config file args (CLI takes precedence) """
+        arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
 
-            return {} # pragma: no cover
+        # Validate and convert the config values
+        validated_config = self.validate_and_convert(config, arg_defaults)
 
-        def validate_and_convert(self, config, arg_defaults):
-            """
-            Validates the config data and converts them to the right types based on argparse defaults.
-            Warns about unknown or unused parameters.
-            """
-            converted_config = {}
-            for key, value in config.items():
-                if key in arg_defaults:
-                    # Get the expected type either from the default value or from the CLI argument itself
-                    default_value = arg_defaults[key]
-                    if default_value is not None:
-                        expected_type = type(default_value)
-                    else:
-                        # Fall back to using the current value's type, assuming it's not None
-                        expected_type = type(value)
+        for key, value in vars(cli_args).items():
+            if key in validated_config:
+                setattr(cli_args, key, validated_config[key])
 
-                    try:
-                        # Convert the value to the expected type
-                        converted_config[key] = expected_type(value)
-                    except (ValueError, TypeError): # pragma: no cover
-                        print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
-                else: # pragma: no cover
-                    print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
+        return cli_args
 
-            return converted_config
+    def parse_arguments(self):
+        # First, parse the CLI arguments to check if config files are provided
+        _args = self.parser.parse_args()
 
-        def merge_args_with_config(self, config, cli_args):
-            """ Merge CLI args with config file args (CLI takes precedence) """
-            arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
+        config = {}
 
-            # Validate and convert the config values
-            validated_config = self.validate_and_convert(config, arg_defaults)
+        yaml_and_toml = _args.config_yaml and _args.config_toml
+        yaml_and_json = _args.config_yaml and _args.config_json
+        json_and_toml = _args.config_json and _args.config_toml
 
-            for key, value in vars(cli_args).items():
-                if key in validated_config:
-                    setattr(cli_args, key, validated_config[key])
+        if yaml_and_toml or yaml_and_json or json_and_toml: # pragma: no cover
+            print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
+            print("Exit-Code: 5")
 
-            return cli_args
+        if _args.config_yaml:
+            config = self.load_config(_args.config_yaml, 'yaml')
 
-        def parse_arguments(self):
-            # First, parse the CLI arguments to check if config files are provided
-            _args = self.parser.parse_args()
+        elif _args.config_toml:
+            config = self.load_config(_args.config_toml, 'toml')
 
-            config = {}
+        elif _args.config_json:
+            config = self.load_config(_args.config_json, 'json')
 
-            yaml_and_toml = _args.config_yaml and _args.config_toml
-            yaml_and_json = _args.config_yaml and _args.config_json
-            json_and_toml = _args.config_json and _args.config_toml
+        # Merge CLI args with config file (CLI has priority)
+        _args = self.merge_args_with_config(config, _args)
 
-            if yaml_and_toml or yaml_and_json or json_and_toml: # pragma: no cover
-                print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
-                print("Exit-Code: 5")
+        return _args
 
-            if _args.config_yaml:
-                config = self.load_config(_args.config_yaml, 'yaml')
+loader = ConfigLoader()
+args: ConfigLoader = loader.parse_arguments()
 
-            elif _args.config_toml:
-                config = self.load_config(_args.config_toml, 'toml')
 
-            elif _args.config_json:
-                config = self.load_config(_args.config_json, 'json')
+def wrapper_print_debug(func):
+    def wrapper(*__args, **kwargs):
+        start_time = time.time()
+        result = func(*__args, **kwargs)
+        end_time = time.time()
 
-            # Merge CLI args with config file (CLI has priority)
-            _args = self.merge_args_with_config(config, _args)
+        runtime = end_time - start_time
+        runtime_human_readable = f"{runtime:.4f} seconds"
 
-            return _args
+        if runtime > 1:
+            print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
 
-    loader = ConfigLoader()
-    args = loader.parse_arguments()
-except KeyboardInterrupt: # pragma: no cover
-    print("Error: Failed to parse arguments because you pressed CTRL-C.")
-    my_exit(4)
+        return result
+    return wrapper
 
 with console.status("[bold green]Loading ax.utils.common.logger...") as status:
     from ax.utils.common.logger import disable_loggers
@@ -4910,7 +4954,7 @@ def wait_for_jobs_to_complete(_num_parallel_jobs: int): # pragma: no cover
 def human_readable_generation_strategy() -> Optional[str]:
     generation_strategy_str = str(ax_client.generation_strategy)
 
-    pattern: Pattern = r'\[(.*?)\]'
+    pattern: str = r'\[(.*?)\]'
 
     match = re.search(pattern, generation_strategy_str)
 

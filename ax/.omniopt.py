@@ -954,7 +954,9 @@ def get_file_as_string(f: str) -> str:
         return ""
 
     with open(f, encoding="utf-8") as _f:
-        datafile = _f.readlines()
+        _df = _f.readlines()
+
+        datafile = _df
 
     return "\n".join(datafile)
 
@@ -2023,7 +2025,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-def custom_warning_handler(message, category, filename, lineno): # pragma: no cover
+def custom_warning_handler(message: str, category, filename, lineno: int): # pragma: no cover
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(warning_message)
 
@@ -4612,7 +4614,7 @@ def _get_next_trials(nr_of_jobs_to_get: int):
     if cf:
         _frame_info = getframeinfo(cf)
         if _frame_info:
-            lineno = _frame_info.lineno
+            lineno: int = _frame_info.lineno
             print_debug_get_next_trials(
                 len(trial_index_to_param.items()), nr_of_jobs_to_get,
                 lineno

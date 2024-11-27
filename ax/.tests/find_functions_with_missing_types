@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+exit_code=0
+
+for i in .*.py; do
+	r=$(cat $i | grep "def " | grep ")" | grep -v " -> ")
+	nr=$(echo "$r" | wc -l)
+
+	if [[ $nr -gt 1 ]]; then
+		echo "====> $i =====>"
+		echo "$r"
+		exit_code=$(($exit_code + 1))
+	fi
+done
+
+exit $exit_code

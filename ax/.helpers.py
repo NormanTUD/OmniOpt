@@ -134,7 +134,7 @@ def looks_like_int(x) -> bool:
 def looks_like_number (x) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
-def to_int_when_possible(val):
+def to_int_when_possible(val) -> Union[None, int, float]:
     if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
         return int(val)
 
@@ -280,13 +280,13 @@ def create_widgets(_data): # pragma: no cover
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-def die_if_no_nonempty_graph (non_empty_graphs, _exit): # pragma: no cover
+def die_if_no_nonempty_graph(non_empty_graphs, _exit) -> None: # pragma: no cover
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
         if _exit:
             sys.exit(2)
 
-def get_r(df_filtered):
+def get_r(df_filtered) -> int:
     r = 2
 
     if len(list(df_filtered.columns)) == 1: # pragma: no cover

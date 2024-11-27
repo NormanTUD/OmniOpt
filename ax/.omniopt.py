@@ -3409,7 +3409,7 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
+def get_old_result_by_params(file_path, params, float_tolerance=1e-6): # -> None
     # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -4725,7 +4725,7 @@ def _get_max_parallelism() -> int: # pragma: no cover
 
     return ret
 
-def create_systematic_step(model):
+def create_systematic_step(model) # -> None:
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
         model=model,
@@ -4748,7 +4748,7 @@ def create_random_generation_step() -> int:
         should_deduplicate=args.should_deduplicate
     )
 
-def select_model(model_arg):
+def select_model(model_arg) # -> None:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
     chosen_model = Models.BOTORCH_MODULAR

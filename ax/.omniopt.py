@@ -945,7 +945,7 @@ def decode_if_base64(input_str: str) -> str:
         return input_str
 
 def get_file_as_string(f: str) -> str:
-    datafile = ""
+    datafile: str = ""
     if not os.path.exists(f):
         print_debug(f"{f} not found!")
         return ""
@@ -1638,7 +1638,7 @@ def get_result(input_string) -> Optional[list[float]]:
         return None
 
     try:
-        pattern: Pattern = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
+        pattern: str = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
 
         # Find all matches for the pattern
         matches = re.findall(pattern, input_string)
@@ -2125,7 +2125,7 @@ def display_failed_jobs_table():
         print_red(f"Error: {str(e)}")
 
 @wrapper_print_debug
-def plot_command(_command: str, tmp_file: str, _width: str = 1300): # pragma: no cover
+def plot_command(_command: str, tmp_file: str, _width: str = "1300"): # pragma: no cover
     if not helpers.looks_like_int(_width):
         print_red(f"Error: {_width} does not look like an int")
         sys.exit(8)
@@ -2148,7 +2148,7 @@ def plot_command(_command: str, tmp_file: str, _width: str = 1300): # pragma: no
     if os.path.exists(tmp_file):
         print_image_to_cli(tmp_file, width)
     else:
-        print_debug(f"{tmp_file} not found, error: {error}")
+        print_debug(f"{tmp_file} not found, error: {str(error)}")
 
 @wrapper_print_debug
 def replace_string_with_params(input_string, params):
@@ -2819,7 +2819,7 @@ def check_equation(variables, equation) -> bool:
     equation = re.sub(r'\s+', ' ', equation)
     #equation = equation.replace("", "")
 
-    regex_pattern: Pattern = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
+    regex_pattern: str = r'\s+|(?=[+\-*\/()-])|(?<=[+\-*\/()-])'
     result_array = re.split(regex_pattern, equation)
     result_array = [item for item in result_array if item.strip()]
 
@@ -3482,7 +3482,7 @@ def parse_parameter_type_error(_error_message) -> Optional[dict]:
     error_message: str = str(_error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
-        pattern: Pattern = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
+        pattern: str = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
         match = re.search(pattern, error_message)
 
         # Asserting the match is found

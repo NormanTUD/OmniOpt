@@ -1272,7 +1272,7 @@ def get_min_column_value(pd_csv, column, _default) -> Optional[float]:
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @wrapper_print_debug
-def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default):
+def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default) -> Union[Tuple[int, bool], Tuple[float, bool]]:
     found_in_file = False
     if os.path.exists(pd_csv):
         if _type == "lower":
@@ -1316,14 +1316,14 @@ def get_bound_if_prev_data(_type, _column, _default) -> Tuple[float, bool]:
 
     return round(ret_val, 4), found_in_file
 
-def switch_lower_and_upper_if_needed(name, lower_bound, upper_bound):
+def switch_lower_and_upper_if_needed(name, lower_bound, upper_bound) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
         print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
         upper_bound, lower_bound = lower_bound, upper_bound
 
     return lower_bound, upper_bound
 
-def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]):
+def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> tuple[int | float, int | float]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
             print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
@@ -1335,7 +1335,7 @@ def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int
 
     return lower_bound, upper_bound
 
-def get_bounds(this_args, j):
+def get_bounds(this_args, j) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
     except Exception: # pragma: no cover
@@ -1384,7 +1384,7 @@ def handle_grid_search(name: str, lower_bound, upper_bound, value_type) -> dict:
         "values": values
     }
 
-def get_bounds_from_previous_data(name, lower_bound, upper_bound):
+def get_bounds_from_previous_data(name, lower_bound, upper_bound) -> Union[Tuple[float, float], Tuple[int, int]]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
@@ -1420,7 +1420,7 @@ def get_value_type_and_log_scale(this_args, j) -> Tuple[int, str, bool]:
 
     return skip, value_type, log_scale
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning):
+def parse_range_param(params, j, this_args, name, search_space_reduction_warning) -> Tuple[int, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -2849,7 +2849,7 @@ def die_with_47_if_file_doesnt_exists(_file: str) -> None:
         my_exit(47)
 
 @wrapper_print_debug
-def copy_state_files_from_previous_job(continue_previous_job):
+def copy_state_files_from_previous_job(continue_previous_job) -> None:
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
         new_state_file = f'{get_current_run_folder()}/state_files/{state_file}'
@@ -4388,7 +4388,7 @@ def execute_evaluation(_params) -> Optional[int]:
         _trial = ax_client.get_trial(trial_index)
 
         # Helper function for trial stage marking with exception handling
-        def mark_trial_stage(stage, error_msg):
+        def mark_trial_stage(stage: str, error_msg: str) -> None:
             try:
                 getattr(_trial, stage)()
             except Exception as e: # pragma: no cover
@@ -4446,7 +4446,7 @@ def exclude_defective_nodes() -> None:
             print_red("executor could not be found")
             my_exit(9)
 
-def handle_failed_job(error, trial_index, new_job): # pragma: no cover
+def handle_failed_job(error, trial_index, new_job) -> None: # pragma: no cover
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
     else:

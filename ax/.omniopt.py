@@ -177,7 +177,7 @@ logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
-def print_red(text):
+def print_red(text) -> None:
     helpers.print_color("red", text)
 
     print_debug(text)
@@ -3636,7 +3636,7 @@ def get_list_import_as_string(_brackets=True, _comma=False) -> str:
     return ""
 
 @wrapper_print_debug
-def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result):
+def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result) -> None:
     done_converting = False
 
     while not done_converting:
@@ -3688,7 +3688,7 @@ def load_data_from_existing_run_folders(_paths: list[str]):
         result = hashed_params_result[1]
         return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
-    def load_and_insert_trials(_status, old_trials, this_path, path_idx):
+    def load_and_insert_trials(_status, old_trials, this_path, path_idx) -> None:
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
@@ -3705,7 +3705,7 @@ def load_data_from_existing_run_folders(_paths: list[str]):
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
-    def insert_or_log_result(parameters, hashed_params_result):
+    def insert_or_log_result(parameters, hashed_params_result) -> None:
         try:
             insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
@@ -3715,13 +3715,13 @@ def load_data_from_existing_run_folders(_paths: list[str]):
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
-    def log_missing_result(parameters, hashed_params_result):
+    def log_missing_result(parameters, hashed_params_result) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
-    def display_table():
+    def display_table() -> None:
         headers, rows = extract_headers_and_rows(already_inserted_param_data)
         if headers and rows:
             table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
@@ -4020,7 +4020,7 @@ def get_parameters_from_outfile(stdout_path):
         print(f"get_parameters_from_outfile: There was an error: {e}")
         return None
 
-def get_hostname_from_outfile(stdout_path):
+def get_hostname_from_outfile(stdout_path: str) -> Union[str, None]:
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file:
             for line in file:
@@ -4035,14 +4035,14 @@ def get_hostname_from_outfile(stdout_path):
         print(f"There was an error: {e}")
         return None
 
-def mark_trial_as_failed(_trial):
+def mark_trial_as_failed(_trial) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
         _trial.mark_failed()
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
 
-def mark_trial_as_completed(_trial):
+def mark_trial_as_completed(_trial) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
@@ -4331,7 +4331,7 @@ def write_run_uuid_to_file():
 
         return False
 
-def save_state_files():
+def save_state_files() -> None:
     global global_vars
 
     state_files_folder: str = f"{get_current_run_folder()}/state_files/"
@@ -4971,7 +4971,7 @@ def set_global_executor():
         print_red("executor could not be found")
         my_exit(9)
 
-def execute_nvidia_smi(): # pragma: no cover
+def execute_nvidia_smi() -> None: # pragma: no cover
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
         return
@@ -5163,7 +5163,7 @@ def parse_orchestrator_file(_f, _test=False):
 
     return None
 
-def set_orchestrator():
+def set_orchestrator() -> None:
     global orchestrator
 
     if args.orchestrator_file:
@@ -5288,10 +5288,10 @@ def main() -> None:
     wait_for_jobs_to_complete(0)
     end_program(RESULT_CSV_FILE)
 
-def log_worker_creation():
+def log_worker_creation() -> None:
     _debug_worker_creation("time, nr_workers, got, requested, phase")
 
-def set_run_folder():
+def set_run_folder() -> None:
     global CURRENT_RUN_FOLDER
     RUN_FOLDER_NUMBER: int = 0
     CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
@@ -5300,31 +5300,31 @@ def set_run_folder():
         RUN_FOLDER_NUMBER += 1
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
-def handle_maximize_argument():
+def handle_maximize_argument() -> None:
     if args.maximize: # pragma: no cover
         print_red("--maximize is not fully supported yet!")
 
-def print_run_info():
+def print_run_info() -> None:
     print(f"[yellow]Run-folder[/yellow]: [underline]{get_current_run_folder()}[/underline]")
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
 
-def initialize_nvidia_logs():
+def initialize_nvidia_logs() -> None:
     global NVIDIA_SMI_LOGS_BASE
     NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
 
-def write_ui_url_if_present():
+def write_ui_url_if_present() -> None:
     if args.ui_url:
         with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
 
-def handle_random_steps():
+def handle_random_steps() -> None:
     global random_steps
     if args.parameter and args.continue_previous_job and random_steps <= 0: # pragma: no cover
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-def initialize_ax_client(gs):
+def initialize_ax_client(gs) -> None:
     global ax_client
     ax_client = AxClient(
         verbose_logging=args.verbose,
@@ -5334,16 +5334,16 @@ def initialize_ax_client(gs):
 
     ax_client = cast(AxClient, ax_client)
 
-def print_generation_strategy():
+def print_generation_strategy() -> None:
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-def save_experiment_parameters(filepath, experiment_parameters):
+def save_experiment_parameters(filepath, experiment_parameters) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-def run_search_with_progress_bar(disable_tqdm):
+def run_search_with_progress_bar(disable_tqdm) -> None:
     with tqdm(total=max_eval, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
         global progress_bar
@@ -5413,14 +5413,14 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
         return 1
 
 @wrapper_print_debug
-def get_files_in_dir(mypath):
+def get_files_in_dir(mypath) -> list:
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
 @wrapper_print_debug
-def test_find_paths(program_code):
+def test_find_paths(program_code) -> int:
     print_debug(f"test_find_paths({program_code})")
     nr_errors: int = 0
 
@@ -5715,7 +5715,7 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-def live_share_background(interval):
+def live_share_background(interval) -> None:
     if not args.live_share: # pragma: no cover
         return
 
@@ -5723,7 +5723,7 @@ def live_share_background(interval):
         live_share()
         time.sleep(interval)
 
-def start_live_share_background_job():
+def start_live_share_background_job() -> None:
     if not args.live_share: # pragma: no cover
         return
 

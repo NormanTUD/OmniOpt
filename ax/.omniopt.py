@@ -177,6 +177,19 @@ logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
+def print_red(text):
+    helpers.print_color("red", text)
+
+    print_debug(text)
+
+    if get_current_run_folder():
+        try:
+            with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
+                myfile.write(text + "\n\n")
+        except FileNotFoundError as e: # pragma: no cover
+            helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
+            sys.exit(99)
+
 def _debug(msg, _lvl=0, eee=None):
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
@@ -233,19 +246,6 @@ def my_exit(_code=0):
 
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
-
-def print_red(text):
-    helpers.print_color("red", text)
-
-    print_debug(text)
-
-    if get_current_run_folder():
-        try:
-            with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
-                myfile.write(text + "\n\n")
-        except FileNotFoundError as e: # pragma: no cover
-            helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
-            sys.exit(99)
 
 class ConfigLoader:
     run_tests_that_fail_on_taurus: bool
@@ -480,7 +480,6 @@ class ConfigLoader:
 loader = ConfigLoader()
 args: ConfigLoader = loader.parse_arguments()
 
-
 def wrapper_print_debug(func):
     def wrapper(*__args, **kwargs):
         start_time = time.time()
@@ -678,7 +677,7 @@ missing_results: list = []
 already_inserted_param_hashes: dict = {}
 already_inserted_param_data: list = []
 
-def print_logo():
+def print_logo() -> None:
     print_debug("print_logo()")
     if os.environ.get('NO_OO_LOGO') is not None:
         return
@@ -5197,7 +5196,7 @@ def parse_parameters():
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-def main():
+def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
     global LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
@@ -5446,7 +5445,7 @@ def test_find_paths(program_code):
     return nr_errors
 
 @wrapper_print_debug
-def run_tests():
+def run_tests() -> None:
     print_red("This should be red")
     print_yellow("This should be yellow")
     print_green("This should be green")
@@ -5731,7 +5730,7 @@ def start_live_share_background_job():
     thread.start()
 
 @wrapper_print_debug
-def main_outside():
+def main_outside() -> None:
     print_logo()
 
     with warnings.catch_warnings():

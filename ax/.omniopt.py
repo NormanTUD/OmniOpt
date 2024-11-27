@@ -3593,7 +3593,7 @@ def parse_parameter_type_error(_error_message) -> Optional[dict]:
         return None
 
 @wrapper_print_debug
-def extract_headers_and_rows(data_list):
+def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]:
     try:
         if not data_list:
             return None, None

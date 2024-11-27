@@ -21,8 +21,8 @@ parser.add_argument('--no_legend', help='Disables legend (useless here)', action
 parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 
-args = None
 fig = None
+args = parser.parse_args()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -126,15 +126,16 @@ def save_to_file_or_show_canvas():
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else: # pragma: no cover
-        fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
-        if not args.no_plt_show:
-            plt.show()
+        if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
+            fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
+            if not args.no_plt_show:
+                plt.show()
 
-if __name__ == "__main__":
-    args = parser.parse_args()
-    try:
-        plot_gpu_usage(args.run_dir)
-    except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
-        sys.exit(7)
+    if __name__ == "__main__":
+
+        try:
+            plot_gpu_usage(args.run_dir)
+        except UnicodeDecodeError:
+            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
+                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+            sys.exit(7)

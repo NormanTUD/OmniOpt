@@ -58,7 +58,8 @@ if ORIGINAL_PWD:
 def set_title(df_filtered, result_column_values, num_entries, _min, _max):
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
-    fig.suptitle(title)
+    if fig:
+        fig.suptitle(title)
 
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
@@ -69,15 +70,17 @@ def plot_multiple_graphs(_params):
     for i, (param1, param2) in enumerate(non_empty_graphs):
         row = i // num_cols
         col = i % num_cols
-        if (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
+        if (args.exclude_params is not None and len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
             try:
                 _x = df_filtered[param1]
                 _y = df_filtered[param2]
 
+                gridsize: int = args.gridsize
+
                 if bins: # pragma: no cover
-                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=gridsize, cmap=cmap, bins=bins)
                 else:
-                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
+                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=gridsize, cmap=cmap)
                 axs[row][col].set_xlabel(param1)
                 axs[row][col].set_ylabel(param2)
             except Exception as e: # pragma: no cover

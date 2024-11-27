@@ -124,9 +124,10 @@ def save_to_file_or_show_canvas():
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else: # pragma: no cover
-        fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
-        if not args.no_plt_show:
-            plt.show()
+        if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
+            fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
+            if not args.no_plt_show:
+                plt.show()
 
 def update_graph():
     pd_csv = args.run_dir + "/results.csv"

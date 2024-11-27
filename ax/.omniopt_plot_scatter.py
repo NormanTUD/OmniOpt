@@ -59,7 +59,8 @@ if ORIGINAL_PWD:
 def set_title(df_filtered, result_column_values, num_entries, _min, _max):
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
-    fig.suptitle(title)
+    if fig:
+        fig.suptitle(title)
 
 def plot_multiple_graphs(_params):
     non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params

@@ -100,9 +100,10 @@ def main():
         helpers.save_to_file(fig, args, plt)
     else: # pragma: no cover
         window_title = f'Times and exit codes for {args.run_dir}'
-        fig.canvas.manager.set_window_title(window_title)
-        if not args.no_plt_show:
-            plt.show()
+        if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
+            fig.canvas.manager.set_window_title(window_title)
+            if not args.no_plt_show:
+                plt.show()
 
 if __name__ == "__main__":
     main()

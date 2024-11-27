@@ -86,7 +86,7 @@ def update_graph():
                     print(f"{args.run_dir}/results.csv seems have no result column.")
                 sys.exit(10)
 
-        if dataframe.empty:
+        if dataframe is not None and dataframe.empty:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 logging.warning("DataFrame is empty after filtering.") # pragma: no cover
             return

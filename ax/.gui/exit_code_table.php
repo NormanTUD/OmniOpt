@@ -19,6 +19,7 @@
 			    6 => "Error creating .logs dir",
 			    7 => "Probably versioning error. Try removing virtualenv and try again.",
 			    8 => "Probably something went wrong trying to plot sixel graphics",
+			    9 => "Probably something went wrong trying to use or define the ax_client or executor",
 			    10 => "Usually only returned by dier (for debugging).",
 			    11 => "Required program not found (check logs)",
 			    12 => "Error with pip, check logs.",

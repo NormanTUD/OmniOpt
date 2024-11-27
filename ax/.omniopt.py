@@ -1975,8 +1975,10 @@ def evaluate(parameters: dict) -> dict:
 
         original_print(f"Result: {result}")
 
+        str_parameters_values: list[str] = [str(v) for v in parameters_values]
+
         headline: list[str] = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
-        values: list[str] = [str(start_time), str(end_time), str(run_time), program_string_with_params, *parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
+        values: list[str] = [str(start_time), str(end_time), str(run_time), program_string_with_params, *str_parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
 
         original_print(f"EXIT_CODE: {exit_code}")
 
@@ -2589,9 +2591,13 @@ def abandon_job(job, trial_index) -> bool: # pragma: no cover
 
     if job:
         try:
-            _trial = ax_client.get_trial(trial_index)
-            _trial.mark_abandoned()
-            global_vars["jobs"].remove((job, trial_index))
+            if ax_client:
+                _trial = ax_client.get_trial(trial_index)
+                _trial.mark_abandoned()
+                global_vars["jobs"].remove((job, trial_index))
+            else:
+                print_red("ax_client could not be found")
+                my_exit(9)
         except Exception as e: # pragma: no cover
             print(f"ERROR in line {get_line_info()}: {e}")
             print_debug(f"ERROR in line {get_line_info()}: {e}")
@@ -2672,7 +2678,11 @@ def save_checkpoint(trial_nr: int = 0, eee=None):
         makedirs(state_files_folder)
 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-        ax_client.save_to_json_file(filepath=checkpoint_filepath)
+        if ax_client:
+            ax_client.save_to_json_file(filepath=checkpoint_filepath)
+        else:
+            print_red("Something went wrong using the ax_client")
+            my_exit(9)
     except Exception as e: # pragma: no cover
         save_checkpoint(trial_nr + 1, e)
 
@@ -2935,37 +2945,41 @@ def get_experiment_parameters(_params):
                     print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
         original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
-        ax_client.save_to_json_file(filepath=original_ax_client_file)
+        if ax_client:
+            ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-        with open(original_ax_client_file, encoding="utf-8") as f:
-            loaded_original_ax_client_json = json.load(f)
-            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+            with open(original_ax_client_file, encoding="utf-8") as f:
+                loaded_original_ax_client_json = json.load(f)
+                original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
 
-            if original_generation_strategy:
-                experiment_parameters["generation_strategy"] = original_generation_strategy
+                if original_generation_strategy:
+                    experiment_parameters["generation_strategy"] = original_generation_strategy
 
-        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+            tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
-        ax_client = AxClient.load_from_json_file(tmp_file_path)
+            ax_client = AxClient.load_from_json_file(tmp_file_path)
 
-        ax_client = cast(AxClient, ax_client)
+            ax_client = cast(AxClient, ax_client)
 
-        os.unlink(tmp_file_path)
+            os.unlink(tmp_file_path)
 
-        state_files_folder = f"{get_current_run_folder()}/state_files"
+            state_files_folder = f"{get_current_run_folder()}/state_files"
 
-        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-        makedirs(state_files_folder)
+            checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
+            makedirs(state_files_folder)
 
-        with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
-            json.dump(experiment_parameters, outfile)
+            with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
+                json.dump(experiment_parameters, outfile)
 
-        if not os.path.exists(checkpoint_filepath):
-            print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
-            my_exit(47)
+            if not os.path.exists(checkpoint_filepath):
+                print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
+                my_exit(47)
 
-        with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
-            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+            with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+                print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+        else:
+            print_red("Something went wrong with the ax_client")
+            my_exit(9)
     else:
         experiment_args = {
             "name": global_vars["experiment_name"],
@@ -3000,7 +3014,11 @@ def get_experiment_parameters(_params):
                     my_exit(19)
 
         try:
-            ax_client.create_experiment(**experiment_args)
+            if ax_client:
+                ax_client.create_experiment(**experiment_args)
+            else:
+                print_red("ax_client could not be found!")
+                sys.exit(9)
         except ValueError as error: # pragma: no cover
             print_red(f"An error has occurred while creating the experiment: {error}")
             die_something_went_wrong_with_parameters()
@@ -3561,14 +3579,18 @@ def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_resul
 
     while not done_converting:
         try:
-            new_old_trial = ax_client.attach_trial(old_arm_parameter)
+            if ax_client:
+                new_old_trial = ax_client.attach_trial(old_arm_parameter)
 
-            ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+                ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
 
-            already_inserted_param_hashes[hashed_params_result] = 1
+                already_inserted_param_hashes[hashed_params_result] = 1
 
-            done_converting = True
-            save_pd_csv()
+                done_converting = True
+                save_pd_csv()
+            else:
+                print_red("Error getting ax_client")
+                my_exit(9)
         except ax.exceptions.core.UnsupportedError as e:
             parsed_error = parse_parameter_type_error(e)
 
@@ -3987,30 +4009,34 @@ def finish_previous_jobs(new_msgs: list[str]):
                 result = result["result"]
                 this_jobs_finished += 1
 
-                _trial = ax_client.get_trial(trial_index)
+                if ax_client:
+                    _trial = ax_client.get_trial(trial_index)
 
-                if result != VAL_IF_NOTHING_FOUND:
-                    ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+                    if result != VAL_IF_NOTHING_FOUND:
+                        ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
-                    #count_done_jobs(1)
-                    try:
-                        progressbar_description([f"new result: {result}"])
-                        mark_trial_as_completed(_trial)
-                        succeeded_jobs(1)
-                        update_progress_bar(progress_bar, 1)
-                    except Exception as e: # pragma: no cover
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                else:
-                    if job:
+                        #count_done_jobs(1)
                         try:
-                            progressbar_description(["job_failed"])
-                            ax_client.log_trial_failure(trial_index=trial_index)
+                            progressbar_description([f"new result: {result}"])
+                            mark_trial_as_completed(_trial)
+                            succeeded_jobs(1)
+                            update_progress_bar(progress_bar, 1)
                         except Exception as e: # pragma: no cover
                             print(f"ERROR in line {get_line_info()}: {e}")
-                        job.cancel()
-                        mark_trial_as_failed(_trial)
-                        orchestrate_job(job, trial_index)
-                    failed_jobs(1)
+                    else:
+                        if job:
+                            try:
+                                progressbar_description(["job_failed"])
+                                ax_client.log_trial_failure(trial_index=trial_index)
+                            except Exception as e: # pragma: no cover
+                                print(f"ERROR in line {get_line_info()}: {e}")
+                            job.cancel()
+                            mark_trial_as_failed(_trial)
+                            orchestrate_job(job, trial_index)
+                        failed_jobs(1)
+                else:
+                    print_red("ax_client could not be found or used")
+                    my_exit(9)
                 global_vars["jobs"].remove((job, trial_index))
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
                 if "None for metric" in str(error):
@@ -4282,41 +4308,45 @@ def execute_evaluation(_params):
 
     print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
-    _trial = ax_client.get_trial(trial_index)
+    if ax_client:
+        _trial = ax_client.get_trial(trial_index)
 
-    # Helper function for trial stage marking with exception handling
-    def mark_trial_stage(stage, error_msg):
+        # Helper function for trial stage marking with exception handling
+        def mark_trial_stage(stage, error_msg):
+            try:
+                getattr(_trial, stage)()
+            except Exception as e: # pragma: no cover
+                print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
+
+        mark_trial_stage("mark_staged", "Marking the trial as staged failed")
+
+        new_job = None
+
         try:
-            getattr(_trial, stage)()
+            initialize_job_environment()
+            new_job = submit_job(parameters)
+
+            global_vars["jobs"].append((new_job, trial_index))
+            if is_slurm_job() and not args.force_local_execution: # pragma: no cover
+                _sleep(1)
+
+            mark_trial_stage("mark_running", "Marking the trial as running failed")
+            trial_counter += 1
+
+            update_progress()
+        except submitit.core.utils.FailedJobError as error: # pragma: no cover
+            handle_failed_job(error, trial_index, new_job)
+            trial_counter += 1
+        except (SignalUSR, SignalINT, SignalCONT):
+            handle_exit_signal()
         except Exception as e: # pragma: no cover
-            print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
+            handle_generic_error(e)
 
-    mark_trial_stage("mark_staged", "Marking the trial as staged failed")
-
-    new_job = None
-
-    try:
-        initialize_job_environment()
-        new_job = submit_job(parameters)
-
-        global_vars["jobs"].append((new_job, trial_index))
-        if is_slurm_job() and not args.force_local_execution: # pragma: no cover
-            _sleep(1)
-
-        mark_trial_stage("mark_running", "Marking the trial as running failed")
-        trial_counter += 1
-
-        update_progress()
-    except submitit.core.utils.FailedJobError as error: # pragma: no cover
-        handle_failed_job(error, trial_index, new_job)
-        trial_counter += 1
-    except (SignalUSR, SignalINT, SignalCONT):
-        handle_exit_signal()
-    except Exception as e: # pragma: no cover
-        handle_generic_error(e)
-
-    add_to_phase_counter(phase, 1)
-    return trial_counter
+        add_to_phase_counter(phase, 1)
+        return trial_counter
+    else:
+        print_red("Failed to get ax_client")
+        my_exit(9)
 
 def initialize_job_environment():
     progressbar_description(["starting new job"])
@@ -4332,7 +4362,11 @@ def set_sbatch_environment():
 def exclude_defective_nodes():
     excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
-        executor.update_parameters(exclude=excluded_string)
+        if executor:
+            executor.update_parameters(exclude=excluded_string)
+        else:
+            print_red("executor could not be found")
+            my_exit(9)
 
 def handle_failed_job(error, trial_index, new_job): # pragma: no cover
     if "QOSMinGRES" in str(error) and args.gpus == 0:
@@ -4349,7 +4383,11 @@ def cancel_failed_job(trial_index, new_job): # pragma: no cover
     print_debug("Trying to cancel job that failed")
     if new_job:
         try:
-            ax_client.log_trial_failure(trial_index=trial_index)
+            if ax_client:
+                ax_client.log_trial_failure(trial_index=trial_index)
+            else:
+                print_red("ax_client not defined")
+                my_exit(9)
         except Exception as e: # pragma: no cover
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
@@ -4458,29 +4496,33 @@ def _get_trials_message(nr_of_jobs_to_get: int, last_time, avg_time, force_local
 def get_parallelism_schedule_description() -> str:
     try:
         # Retrieve parallelism settings
-        max_parallelism_settings = ax_client.get_max_parallelism()
+        if ax_client:
+            max_parallelism_settings = ax_client.get_max_parallelism()
 
-        if not max_parallelism_settings:
-            return "No parallelism settings available."
+            if not max_parallelism_settings:
+                return "No parallelism settings available."
 
-        # Build human-readable descriptions
-        descriptions = []
-        for num_trials, max_parallelism in max_parallelism_settings:
-            if num_trials == -1:
-                trial_text = "all remaining trials"
-            else:
-                trial_text = f"{num_trials} trials"
+            # Build human-readable descriptions
+            descriptions = []
+            for num_trials, max_parallelism in max_parallelism_settings:
+                if num_trials == -1:
+                    trial_text = "all remaining trials"
+                else:
+                    trial_text = f"{num_trials} trials"
 
-            if max_parallelism == -1:
-                parallelism_text = "any number of trials can be run in parallel"
-            else:
-                parallelism_text = f"up to {max_parallelism} trials can be run in parallel"
+                if max_parallelism == -1:
+                    parallelism_text = "any number of trials can be run in parallel"
+                else:
+                    parallelism_text = f"up to {max_parallelism} trials can be run in parallel"
 
-            descriptions.append(f"For {trial_text}, {parallelism_text}.")
+                descriptions.append(f"For {trial_text}, {parallelism_text}.")
 
-        # Join descriptions into a single string
-        human_readable_output: str = "\n".join(descriptions)
-        return human_readable_output
+            # Join descriptions into a single string
+            human_readable_output: str = "\n".join(descriptions)
+            return human_readable_output
+        else:
+            print_red("Error defining ax_client")
+            sys.exit(9)
 
     except Exception as e:
         return f"An error occurred while processing parallelism schedule: {str(e)}"
@@ -4805,37 +4847,41 @@ def set_global_executor():
     # 'tasks_per_node': <class 'int'>
     # Should they just be None by default if not set in the argparser? No, submitit fails if gpu related stuff is None
 
-    executor.update_parameters(
-        name=f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}',
-        timeout_min=args.worker_timeout,
-        slurm_gres=f"gpu:{args.gpus}",
-        cpus_per_task=args.cpus_per_task,
-        nodes=args.nodes_per_job,
-        stderr_to_stdout=args.stderr_to_stdout,
-        mem_gb=args.mem_gb,
-        slurm_signal_delay_s=args.slurm_signal_delay_s,
-        slurm_use_srun=args.slurm_use_srun,
-        exclude=args.exclude
-    )
-
-    print_debug(f"""
+    if executor:
         executor.update_parameters(
-            name={f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}'}
-            timeout_min={args.worker_timeout}
-            "slurm_gres={f"gpu:{args.gpus}"}
-            "cpus_per_task={args.cpus_per_task}
-            nodes={args.nodes_per_job}
-            stderr_to_stdout={args.stderr_to_stdout}
-            mem_gb={args.mem_gb}
-            slurm_signal_delay_s={args.slurm_signal_delay_s}
-            "slurm_use_srun={args.slurm_use_srun}
-            exclude={args.exclude}
+            name=f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}',
+            timeout_min=args.worker_timeout,
+            slurm_gres=f"gpu:{args.gpus}",
+            cpus_per_task=args.cpus_per_task,
+            nodes=args.nodes_per_job,
+            stderr_to_stdout=args.stderr_to_stdout,
+            mem_gb=args.mem_gb,
+            slurm_signal_delay_s=args.slurm_signal_delay_s,
+            slurm_use_srun=args.slurm_use_srun,
+            exclude=args.exclude
         )
-    """
-    )
 
-    if args.exclude:
-        print_yellow(f"Excluding the following nodes: {args.exclude}")
+        print_debug(f"""
+    executor.update_parameters(
+        name={f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}'}
+        timeout_min={args.worker_timeout}
+        "slurm_gres={f"gpu:{args.gpus}"}
+        "cpus_per_task={args.cpus_per_task}
+        nodes={args.nodes_per_job}
+        stderr_to_stdout={args.stderr_to_stdout}
+        mem_gb={args.mem_gb}
+        slurm_signal_delay_s={args.slurm_signal_delay_s}
+        "slurm_use_srun={args.slurm_use_srun}
+        exclude={args.exclude}
+    )
+"""
+        )
+
+        if args.exclude:
+            print_yellow(f"Excluding the following nodes: {args.exclude}")
+    else:
+        print_red("executor could not be found")
+        my_exit(9)
 
 def execute_nvidia_smi(): # pragma: no cover
     if not IS_NVIDIA_SMI_SYSTEM:
@@ -4963,15 +5009,16 @@ def wait_for_jobs_to_complete(_num_parallel_jobs: int): # pragma: no cover
             clean_completed_jobs()
 
 def human_readable_generation_strategy() -> Optional[str]:
-    generation_strategy_str = str(ax_client.generation_strategy)
+    if ax_client:
+        generation_strategy_str = str(ax_client.generation_strategy)
 
-    pattern: str = r'\[(.*?)\]'
+        pattern: str = r'\[(.*?)\]'
 
-    match = re.search(pattern, generation_strategy_str)
+        match = re.search(pattern, generation_strategy_str)
 
-    if match:
-        content = match.group(1)
-        return content
+        if match:
+            content = match.group(1)
+            return content
 
     return None
 

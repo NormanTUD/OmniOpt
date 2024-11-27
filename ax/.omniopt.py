@@ -109,7 +109,7 @@ ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
 time_next_trials_took: list[float] = []
 CURRENT_RUN_FOLDER: str = ""
-RESULT_CSV_FILE = None
+RESULT_CSV_FILE: str = ""
 SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
@@ -2187,7 +2187,7 @@ def display_failed_jobs_table():
         print_red(f"Error: {str(e)}")
 
 @wrapper_print_debug
-def plot_command(_command: str, tmp_file: str, _width: str = "1300"): # pragma: no cover
+def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None: # pragma: no cover
     if not helpers.looks_like_int(_width):
         print_red(f"Error: {_width} does not look like an int")
         sys.exit(8)
@@ -2213,7 +2213,7 @@ def plot_command(_command: str, tmp_file: str, _width: str = "1300"): # pragma: 
         print_debug(f"{tmp_file} not found, error: {str(error)}")
 
 @wrapper_print_debug
-def replace_string_with_params(input_string, params):
+def replace_string_with_params(input_string, params) -> str:
     try:
         assert isinstance(input_string, str), "Input string must be a string"
         replaced_string = input_string
@@ -2227,6 +2227,8 @@ def replace_string_with_params(input_string, params):
         error_text = f"Error in replace_string_with_params: {e}"
         print(error_text)
         raise
+    
+    return ""
 
 @wrapper_print_debug
 def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
@@ -2528,7 +2530,7 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
 
     return plot_commands
 
-def plot_sixel_imgs(csv_file_path: str):
+def plot_sixel_imgs(csv_file_path: str) -> None:
     if ci_env:
         print("Not printing sixel graphics in CI")
         return
@@ -2664,13 +2666,13 @@ def abandon_job(job, trial_index) -> bool: # pragma: no cover
 
     return False
 
-def abandon_all_jobs(): # pragma: no cover
+def abandon_all_jobs() -> None: # pragma: no cover
     for job, trial_index in global_vars["jobs"][:]:
         abandoned = abandon_job(job, trial_index)
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
-def end_program(csv_file_path, _force=False, exit_code=None):
+def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global global_vars, END_PROGRAM_RAN
 
     if os.getpid() != main_pid: # pragma: no cover
@@ -2721,7 +2723,7 @@ def end_program(csv_file_path, _force=False, exit_code=None):
 
     my_exit(_exit)
 
-def save_checkpoint(trial_nr: int = 0, eee=None):
+def save_checkpoint(trial_nr: int = 0, eee=None) -> None:
     if trial_nr > 3:
         if eee:
             print("Error during saving checkpoint: " + str(eee))
@@ -2839,7 +2841,7 @@ def set_torch_device_to_experiment_args(experiment_args):
 
     return experiment_args
 
-def die_with_47_if_file_doesnt_exists(_file):
+def die_with_47_if_file_doesnt_exists(_file: str) -> None:
     if not os.path.exists(_file):
         print_red(f"Cannot find {_file}")
         my_exit(47)
@@ -2854,7 +2856,7 @@ def copy_state_files_from_previous_job(continue_previous_job):
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
-def die_something_went_wrong_with_parameters(): # pragma: no cover
+def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
     my_exit(49)
 
 @wrapper_print_debug
@@ -2959,8 +2961,8 @@ def get_experiment_parameters(_params):
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 
-        checkpoint_file = continue_previous_job + "/state_files/checkpoint.json"
-        checkpoint_parameters_filepath = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
+        checkpoint_file: str = continue_previous_job + "/state_files/checkpoint.json"
+        checkpoint_parameters_filepath: str = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
 
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
         die_with_47_if_file_doesnt_exists(checkpoint_file)
@@ -4474,26 +4476,26 @@ def cancel_failed_job(trial_index, new_job): # pragma: no cover
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 
-def update_progress():
+def update_progress() -> None:
     progressbar_description(["started new job"])
 
-def handle_exit_signal(): # pragma: no cover
+def handle_exit_signal() -> None: # pragma: no cover
     print_red("\n⚠ Detected signal. Will exit.")
-    end_program(RESULT_CSV_FILE, 1)
+    end_program(RESULT_CSV_FILE, False, 1)
 
-def handle_generic_error(e): # pragma: no cover
+def handle_generic_error(e) -> None: # pragma: no cover
     tb = traceback.format_exc()
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
 
-def succeeded_jobs(nr=0):
+def succeeded_jobs(nr=0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret): # pragma: no cover
+def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret) -> None: # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -4515,7 +4517,7 @@ def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     console.print(table)
 
-def break_run_search(_name, _max_eval, _progress_bar):
+def break_run_search(_name, _max_eval, _progress_bar) -> bool:
     _ret = False
 
     _counted_done_jobs = count_done_jobs()
@@ -4848,7 +4850,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         finish_previous_jobs(["finishing jobs after starting them"])
 
         if done_optimizing:
-            end_program(RESULT_CSV_FILE, 88)
+            end_program(RESULT_CSV_FILE, False, 88)
     except TypeError as e: # pragma: no cover
         print_red(f"Error 1: {e}")
         return 0
@@ -4866,10 +4868,10 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
         print_red("\n⚠ Error 5: " + str(e))
     except botorch.exceptions.errors.ModelFittingError as e: # pragma: no cover
         print_red("\n⚠ Error 6: " + str(e))
-        end_program(RESULT_CSV_FILE, 1)
+        end_program(RESULT_CSV_FILE, False, 1)
     except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints) as e: # pragma: no cover
         print_red("\n⚠ Error 7" + str(e))
-        end_program(RESULT_CSV_FILE, 87)
+        end_program(RESULT_CSV_FILE, False, 87)
 
     num_new_keys = 0
 
@@ -5743,7 +5745,7 @@ def main_outside():
             except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
-                end_program(RESULT_CSV_FILE, 1)
+                end_program(RESULT_CSV_FILE, False, 1)
             except SearchSpaceExhausted:
                 _get_perc: int = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
@@ -5755,9 +5757,9 @@ def main_outside():
                     )
 
                 if _get_perc != 100:
-                    end_program(RESULT_CSV_FILE, 1, 87)
+                    end_program(RESULT_CSV_FILE, True, 87)
                 else: # pragma: no cover
-                    end_program(RESULT_CSV_FILE, 1)
+                    end_program(RESULT_CSV_FILE, True)
 
 if __name__ == "__main__":
     main_outside()

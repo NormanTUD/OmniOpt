@@ -4046,9 +4046,13 @@ def finish_previous_jobs(new_msgs: list[str]):
                 if job:
                     try:
                         progressbar_description(["job_failed"])
-                        _trial = ax_client.get_trial(trial_index)
-                        ax_client.log_trial_failure(trial_index=trial_index)
-                        mark_trial_as_failed(_trial)
+                        if ax_client:
+                            _trial = ax_client.get_trial(trial_index)
+                            ax_client.log_trial_failure(trial_index=trial_index)
+                            mark_trial_as_failed(_trial)
+                        else:
+                            print_red("ax_client failed")
+                            my_exit(9)
                     except Exception as e: # pragma: no cover
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
@@ -4149,18 +4153,22 @@ def is_already_in_defective_nodes(hostname): # pragma: no cover
 def orchestrator_start_trial(params_from_out_file, trial_index): # pragma: no cover
     global global_vars
 
-    new_job = executor.submit(evaluate, params_from_out_file)
-    submitted_jobs(1)
+    if executor and ax_client:
+        new_job = executor.submit(evaluate, params_from_out_file)
+        submitted_jobs(1)
 
-    _trial = ax_client.get_trial(trial_index)
+        _trial = ax_client.get_trial(trial_index)
 
-    try:
-        _trial.mark_staged(unsafe=True)
-    except Exception as e:
-        print_debug(f"orchestrator_start_trial: error {e}")
-    _trial.mark_running(unsafe=True, no_runner_required=True)
+        try:
+            _trial.mark_staged(unsafe=True)
+        except Exception as e:
+            print_debug(f"orchestrator_start_trial: error {e}")
+        _trial.mark_running(unsafe=True, no_runner_required=True)
 
-    global_vars["jobs"].append((new_job, trial_index))
+        global_vars["jobs"].append((new_job, trial_index))
+    else:
+        print_red("executor or ax_client could not be found properly")
+        my_exit(9)
 
 def handle_exclude_node(stdout_path, hostname_from_out_file): # pragma: no cover
     if hostname_from_out_file:
@@ -4296,9 +4304,13 @@ def save_state_files():
 
 def submit_job(parameters):
     try:
-        new_job = executor.submit(evaluate, parameters)
-        submitted_jobs(1)
-        return new_job
+        if executor:
+            new_job = executor.submit(evaluate, parameters)
+            submitted_jobs(1)
+            return new_job
+        else:
+            print_red("executor could not be found")
+            my_exit(9)
     except Exception as e: # pragma: no cover
         print_debug(f"Error while trying to submit job: {e}")
         raise
@@ -4538,9 +4550,13 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
         trials_dict: dict = {}
 
         try:
-            params, trial_index = ax_client.get_next_trial(force=True)
+            if ax_client:
+                params, trial_index = ax_client.get_next_trial(force=True)
 
-            trials_dict[trial_index] = params
+                trials_dict[trial_index] = params
+            else:
+                print_red("ax_client was not defined")
+                my_exit(9)
         except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
             print_red("\n⚠Error 8: " + str(e))
 
@@ -4792,7 +4808,8 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
     num_new_keys = 0
 
     try:
-        num_new_keys = len(trial_index_to_param.keys())
+        if trial_index_to_param:
+            num_new_keys = len(trial_index_to_param.keys())
     except Exception:
         pass
 

@@ -1980,14 +1980,14 @@ def evaluate(parameters: dict) -> dict:
         _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
         if _SLURM_JOB_ID: # pragma: no cover
             extra_vars_names.append("OO_Info_SLURM_JOB_ID")
-            extra_vars_values.append(_SLURM_JOB_ID)
+            extra_vars_values.append(str(_SLURM_JOB_ID))
 
         original_print(f"Result: {result}")
 
         str_parameters_values: list[str] = [str(v) for v in parameters_values]
 
         headline: list[str] = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
-        values: list[str] = [str(start_time), str(end_time), str(run_time), program_string_with_params, *str_parameters_values, result, exit_code, _signal, socket.gethostname(), *extra_vars_values, *unmooed_result]
+        values: list[str] = [str(start_time), str(end_time), str(run_time), program_string_with_params, *str_parameters_values, str(result), str(exit_code), str(_signal), socket.gethostname(), *extra_vars_values, *unmooed_result]
 
         original_print(f"EXIT_CODE: {exit_code}")
 

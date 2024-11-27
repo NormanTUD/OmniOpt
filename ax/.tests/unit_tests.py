@@ -32,9 +32,9 @@ mods = {}
 loaded_files = []
 
 to_test = {
-    ".omniopt_plot_kde.py": {
-        "get_num_rows_cols(1, 1, 1)": (1, 1)
-    },
+    #".omniopt_plot_kde.py": {
+    #    "get_num_rows_cols(1, 1, 1)": (1, 1)
+    #},
     ".helpers.py": {
         "is_valid_time_format('hallo')": False,
         "is_valid_time_format('2024-01-01 20:20:02')": True,

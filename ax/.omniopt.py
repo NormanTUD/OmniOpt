@@ -2007,16 +2007,16 @@ def evaluate(parameters: dict) -> dict:
                     unmooed_result_str.append(str(v))
 
         values: list[str] = [
-            str(start_time), 
-            str(end_time), 
-            str(run_time), 
-            program_string_with_params, 
-            *str_parameters_values, 
-            str(result), 
-            str(exit_code), 
-            str(_signal), 
-            socket.gethostname(), 
-            *extra_vars_values, 
+            str(start_time),
+            str(end_time),
+            str(run_time),
+            program_string_with_params,
+            *str_parameters_values,
+            str(result),
+            str(exit_code),
+            str(_signal),
+            socket.gethostname(),
+            *extra_vars_values,
             *unmooed_result_str
         ]
 
@@ -4349,12 +4349,14 @@ def submit_job(parameters):
             new_job = executor.submit(evaluate, parameters)
             submitted_jobs(1)
             return new_job
-        else:
-            print_red("executor could not be found")
-            my_exit(9)
+
+        print_red("executor could not be found")
+        my_exit(9)
     except Exception as e: # pragma: no cover
         print_debug(f"Error while trying to submit job: {e}")
         raise
+
+    return None
 
 def execute_evaluation(_params):
     global global_vars
@@ -4397,9 +4399,9 @@ def execute_evaluation(_params):
 
         add_to_phase_counter(phase, 1)
         return trial_counter
-    else:
-        print_red("Failed to get ax_client")
-        my_exit(9)
+
+    print_red("Failed to get ax_client")
+    my_exit(9)
 
 def initialize_job_environment():
     progressbar_description(["starting new job"])

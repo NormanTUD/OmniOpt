@@ -131,7 +131,7 @@ dier: FunctionType = helpers.dier
 is_equal: FunctionType = helpers.is_equal
 is_not_equal: FunctionType = helpers.is_not_equal
 
-SUPPORTED_MODELS: list[str] = [
+SUPPORTED_MODELS: list = [
     "SOBOL",
     "GPEI",
     "FACTORIAL",
@@ -2169,7 +2169,7 @@ def replace_string_with_params(input_string, params):
 
 @wrapper_print_debug
 def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
-    results = {
+    results: dict = {
         "result": None,
         "parameters": {}
     }
@@ -4540,9 +4540,10 @@ def _get_next_trials(nr_of_jobs_to_get: int):
 
     # Log and update timing
     time_next_trials_took.append(end_time - start_time)
+    lineno = getframeinfo(currentframe()).lineno
     print_debug_get_next_trials(
         len(trial_index_to_param.items()), nr_of_jobs_to_get,
-        getframeinfo(currentframe()).lineno
+        lineno
     )
 
     _log_trial_index_to_param(trial_index_to_param)

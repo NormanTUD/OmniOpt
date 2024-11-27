@@ -638,7 +638,7 @@ def get_parameter_combinations(df_filtered) -> list:
 
     return parameter_combinations
 
-def get_colors(df) -> list:
+def get_colors(df): # -> list:
     colors = None
 
     try:

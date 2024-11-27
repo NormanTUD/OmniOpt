@@ -21,7 +21,7 @@ def load_helpers(script_dir):
     global helpers
     helpers_file = os.path.join(script_dir, ".helpers.py")
     spec = importlib.util.spec_from_file_location("helpers", helpers_file)
-    if spec is not None:
+    if spec is not None and spec.loader is not None:
         helpers = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helpers)
     else:

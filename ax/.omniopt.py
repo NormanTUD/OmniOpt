@@ -123,7 +123,7 @@ spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
 )
-if spec is not None:
+if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
 else:
@@ -284,7 +284,7 @@ class ConfigLoader:
     seed: int
     cpus_per_task: int
     parameter: str
-    experiment_constraints: list[str]
+    experiment_constraints: Optional[list[str]]
     stderr_to_stdout: bool
     worker_timeout: int
     disable_search_space_exhaustion_detection: bool

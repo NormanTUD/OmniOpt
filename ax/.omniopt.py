@@ -956,7 +956,7 @@ def get_file_as_string(f: str) -> str:
 
     with open(f, encoding="utf-8") as _f:
         _df = _f.read()
-        
+
         if type(_df) == str:
             datafile = _df
         else:
@@ -2069,7 +2069,7 @@ def custom_warning_handler(
     line: str | None = None
 ) -> None:
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
-    print_debug(warning_message)
+    print_debug(f"{file}:{line}: {warning_message}")
 
 def disable_logging() -> None:
     if args.verbose: # pragma: no cover

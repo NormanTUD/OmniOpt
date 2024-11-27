@@ -86,7 +86,7 @@ def set_title(df_filtered, result_column_values, num_entries, _min, _max) -> Non
     if fig:
         fig.suptitle(title)
 
-def plot_multiple_graphs(_params):
+def plot_multiple_graphs(_params) -> None:
     if args is not None:
         non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
 

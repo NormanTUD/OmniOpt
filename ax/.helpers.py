@@ -155,7 +155,7 @@ def dier(msg) -> None: # pragma: no cover
     pprint(msg)
     sys.exit(1)
 
-def flatten_extend(matrix):
+def flatten_extend(matrix) -> list:
     flat_list = []
     for row in matrix:
         flat_list.extend(row)
@@ -431,7 +431,7 @@ def _is_equal(name, _input, output) -> bool:
     print_color("green", f"Test OK: {name}")
     return False
 
-def is_equal(n, o, i):
+def is_equal(n, o, i) -> bool:
     r = _is_equal(n, i, o)
 
     if r: # pragma: no cover
@@ -463,7 +463,7 @@ def _is_not_equal(name, _input, output) -> bool:
     print_color("green", f"Test OK: {name}")
     return False
 
-def is_not_equal(n, i, o):
+def is_not_equal(n, i, o) -> bool:
     r = _is_not_equal(n, i, o)
 
     if r: # pragma: no cover
@@ -613,7 +613,7 @@ def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop
 
     return df
 
-def show_legend(_args, _fig, _scatter, axs):
+def show_legend(_args, _fig, _scatter, axs) -> None:
     try:
         if not _args.no_legend:
             cbar = _fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)

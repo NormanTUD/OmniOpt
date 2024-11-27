@@ -11,6 +11,7 @@ import os
 import sys
 import traceback
 import warnings
+from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,17 +32,16 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-    parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
-    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
-    parser.add_argument('--alpha', type=float, help='Transparency of plot bars (between 0 and 1)', default=0.5)
-    parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-    return parser.parse_args()
+parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
+parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
+parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
+parser.add_argument('--alpha', type=float, help='Transparency of plot bars (between 0 and 1)', default=0.5)
+parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
+parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+args = parser.parse_args()
 
-def get_num_rows_cols(num_plots, num_rows, num_cols):
+def get_num_rows_cols(num_plots, num_rows, num_cols) -> Tuple[int, int]:
     if num_plots > 1:
         num_rows = int(num_plots ** 0.5)
         num_cols = int(math.ceil(num_plots / num_rows))
@@ -121,7 +121,7 @@ def plot_histograms(dataframe):
     plt.tight_layout()
     save_to_file_or_show_canvas()
 
-def save_to_file_or_show_canvas():
+def save_to_file_or_show_canvas() -> None:
     if args is not None:
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)
@@ -159,8 +159,6 @@ def update_graph() -> None:
             print(tb)
 
 if __name__ == "__main__":
-    args = parse_arguments()
-
     helpers.setup_logging()
 
     if not args.alpha: # pragma: no cover

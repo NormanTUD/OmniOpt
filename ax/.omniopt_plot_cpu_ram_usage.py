@@ -8,6 +8,7 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from typing import Union
 
 # Setup signal handling for interrupt
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -33,7 +34,7 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-def load_data(csv_path):
+def load_data(csv_path) -> Union[pd.DataFrame, None]:
     """Loads data from the given CSV file."""
     try:
         dataframe = pd.read_csv(csv_path)

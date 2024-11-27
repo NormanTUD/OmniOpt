@@ -43,6 +43,38 @@ fig = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
+
+parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+parser.add_argument('--max', type=float, help='Maximum value', default=None)
+parser.add_argument('--min', type=float, help='Minimum value', default=None)
+parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
+parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
+parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
+
+parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
+
+parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
+parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)
+
+parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=5)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+
+args = parser.parse_args()
+
+if args.bins: # pragma: no cover
+    if not (args.bins == "log" or helpers.looks_like_int(args.bins)):
+        print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
+        sys.exit(193)
+
+    if helpers.looks_like_int(args.bins):
+        bins = int(args.bins)
+    else:
+        bins = args.bins
+
+helpers.check_args(args)
+
 try:
     import matplotlib.pyplot as plt
 except ModuleNotFoundError as ee: # pragma: no cover
@@ -55,13 +87,13 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def set_title(df_filtered, result_column_values, num_entries, _min, _max):
+def set_title(df_filtered, result_column_values, num_entries, _min, _max) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:
         fig.suptitle(title)
 
-def plot_multiple_graphs(_params):
+def plot_multiple_graphs(_params) -> None:
     if args is not None:
         non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
         global bins
@@ -111,7 +143,7 @@ def plot_multiple_graphs(_params):
 
         helpers.show_legend(args, fig, scatter, axs)
 
-def plot_single_graph(_params):
+def plot_single_graph(_params) -> None:
     if args is not None:
         axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
         _data = df_filtered
@@ -133,10 +165,6 @@ def plot_single_graph(_params):
         axs.set_xlabel(non_empty_graphs[0][0])
         axs.set_ylabel("result")
 
-        return scatter
-
-    return None
-
 def plot_graphs(_params):
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
@@ -152,44 +180,6 @@ def plot_graphs(_params):
         plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values])
 
     axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
-
-def get_args():
-    global args
-    parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
-
-    parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-    parser.add_argument('--max', type=float, help='Maximum value', default=None)
-    parser.add_argument('--min', type=float, help='Minimum value', default=None)
-    parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
-    parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
-    parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
-
-    parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
-
-    parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-    parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)
-
-    parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=5)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-
-    args = parser.parse_args()
-
-    global bins
-
-    if args.bins: # pragma: no cover
-        if not (args.bins == "log" or helpers.looks_like_int(args.bins)):
-            print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
-            sys.exit(193)
-
-        if helpers.looks_like_int(args.bins):
-            bins = int(args.bins)
-        else:
-            bins = args.bins
-
-    helpers.check_args(args)
-
-    return args
 
 def main() -> None:
     global args
@@ -243,7 +233,7 @@ def main() -> None:
             update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event=None, _min=None, _max=None): # pragma: no cover
+def update_graph(event=None, _min=None, _max=None) -> None: # pragma: no cover
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event:  # pragma: no cover
@@ -255,8 +245,6 @@ def update_graph(event=None, _min=None, _max=None): # pragma: no cover
 
 if __name__ == "__main__":
     try:
-        get_args()
-
         theme = "fast"
 
         if args is not None and args.darkmode: # pragma: no cover

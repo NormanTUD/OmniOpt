@@ -122,7 +122,7 @@ def plot_gpu_usage(run_dir):
 
     save_to_file_or_show_canvas()
 
-def save_to_file_or_show_canvas():
+def save_to_file_or_show_canvas() -> None:
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else: # pragma: no cover

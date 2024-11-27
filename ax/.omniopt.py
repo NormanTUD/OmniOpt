@@ -4369,7 +4369,7 @@ def submit_job(parameters):
 
     return None
 
-def execute_evaluation(_params):
+def execute_evaluation(_params) -> Optional[int]:
     global global_vars
 
     print_debug(f"execute_evaluation({_params})")
@@ -4413,6 +4413,8 @@ def execute_evaluation(_params):
 
     print_red("Failed to get ax_client")
     my_exit(9)
+
+    return None
 
 def initialize_job_environment():
     progressbar_description(["starting new job"])

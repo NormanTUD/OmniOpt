@@ -6,11 +6,12 @@
 import sys
 import os
 from typing import List
+from types import FunctionType
 
-ci_env = os.getenv("CI", "false").lower() == "true"
-original_print = print
+ci_env: bool = os.getenv("CI", "false").lower() == "true"
+original_print: FunctionType = print
 
-valid_moo_types = ["geometric", "euclid", "signed_harmonic"]
+valid_moo_types: list = ["geometric", "euclid", "signed_harmonic"]
 
 console = None
 try:
@@ -106,10 +107,10 @@ worker_percentage_usage: List = []
 END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
-time_next_trials_took = []
+time_next_trials_took: list = []
 CURRENT_RUN_FOLDER = None
 RESULT_CSV_FILE = None
-SHOWN_END_TABLE = False
+SHOWN_END_TABLE: bool = False
 max_eval = None
 random_steps = None
 progress_bar = None
@@ -118,7 +119,7 @@ def get_current_run_folder():
     return CURRENT_RUN_FOLDER
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file = f"{script_dir}/.helpers.py"
+helpers_file: str = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
     name="helpers",
     location=helpers_file,
@@ -126,11 +127,11 @@ spec = importlib.util.spec_from_file_location(
 helpers = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helpers)
 
-dier = helpers.dier
-is_equal = helpers.is_equal
-is_not_equal = helpers.is_not_equal
+dier: FunctionType = helpers.dier
+is_equal: FunctionType = helpers.is_equal
+is_not_equal: FunctionType = helpers.is_not_equal
 
-SUPPORTED_MODELS = [
+SUPPORTED_MODELS: list = [
     "SOBOL",
     "GPEI",
     "FACTORIAL",
@@ -141,7 +142,7 @@ SUPPORTED_MODELS = [
     "BO_MIXED",
 ]
 
-ORCHESTRATE_TODO = {}
+ORCHESTRATE_TODO: dict = {}
 
 class SignalUSR (Exception):
     pass
@@ -159,7 +160,7 @@ def is_slurm_job():
 
 args = None
 
-LOG_DIR = "logs"
+LOG_DIR: str = "logs"
 makedirs(LOG_DIR)
 
 logfile: str = f'{LOG_DIR}/{run_uuid}_log'
@@ -616,17 +617,17 @@ if args.num_parallel_jobs:
 class SearchSpaceExhausted (Exception):
     pass
 
-NR_INSERTED_JOBS = 0
-changed_grid_search_params = {}
+NR_INSERTED_JOBS: int = 0
+changed_grid_search_params: dict = {}
 executor = None
 
-NR_OF_0_RESULTS = 0
+NR_OF_0_RESULTS: int = 0
 
 orchestrator = None
-double_hashes = []
-missing_results = []
-already_inserted_param_hashes = {}
-already_inserted_param_data = []
+double_hashes: dict = []
+missing_results: list = []
+already_inserted_param_hashes: dict = {}
+already_inserted_param_data: list = []
 
 def print_logo():
     print_debug("print_logo()")
@@ -706,10 +707,10 @@ def print_logo():
 
 process = psutil.Process(os.getpid())
 
-global_vars = {}
+global_vars: dict = {}
 
-VAL_IF_NOTHING_FOUND = 99999999999999999999999999999999999999999999999999999999999
-NO_RESULT = "{:.0e}".format(VAL_IF_NOTHING_FOUND)
+VAL_IF_NOTHING_FOUND: int = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT: str = "{:.0e}".format(VAL_IF_NOTHING_FOUND)
 
 global_vars["jobs"] = []
 global_vars["_time"] = None
@@ -1105,8 +1106,8 @@ def is_executable_in_path(executable_name):
             return True
     return False
 
-SYSTEM_HAS_SBATCH = False
-IS_NVIDIA_SMI_SYSTEM = False
+SYSTEM_HAS_SBATCH: bool = False
+IS_NVIDIA_SMI_SYSTEM: bool = False
 
 if is_executable_in_path("sbatch"): # pragma: no cover
     SYSTEM_HAS_SBATCH = True
@@ -4842,12 +4843,12 @@ def run_search(_progress_bar):
 
         next_nr_steps = get_next_nr_steps(num_parallel_jobs, max_eval)
 
-        nr_of_items = 0
+        nr_of_items: int = 0
 
         if next_nr_steps:
             progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
 
-            nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
+            nr_of_items: int = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
 
             progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
 
@@ -5017,13 +5018,13 @@ def main():
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
     if os.getenv("CI"):
-        data_dict = {
+        data_dict: dict = {
             "param1": "value1",
             "param2": "value2",
             "param3": "value3"
         }
 
-        error_description = "Some error occurred during execution (this is not a real error!)."
+        error_description: str = "Some error occurred during execution (this is not a real error!)."
 
         write_failed_logs(data_dict, error_description)
 
@@ -5049,7 +5050,7 @@ def main():
     gs = get_generation_strategy()
     initialize_ax_client(gs)
 
-    minimize_or_maximize = not args.maximize
+    minimize_or_maximize: bool = not args.maximize
     ax_client, experiment_parameters, experiment_args = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
@@ -5095,7 +5096,7 @@ def log_worker_creation():
 
 def set_run_folder():
     global CURRENT_RUN_FOLDER
-    RUN_FOLDER_NUMBER = 0
+    RUN_FOLDER_NUMBER: int = 0
     CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
     while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
@@ -5222,9 +5223,9 @@ def get_files_in_dir(mypath):
 @wrapper_print_debug
 def test_find_paths(program_code):
     print_debug(f"test_find_paths({program_code})")
-    nr_errors = 0
+    nr_errors: int = 0
 
-    files = [
+    files: list = [
         "omniopt",
         ".omniopt.py",
         "plot",
@@ -5236,7 +5237,7 @@ def test_find_paths(program_code):
         *get_files_in_dir("./.tests/test_wronggoing_stuff.bin/bin/")
     ]
 
-    text = " -- && !!  ".join(files)
+    text: str = " -- && !!  ".join(files)
 
     string = find_file_paths_and_print_infos(text, program_code)
 
@@ -5258,7 +5259,7 @@ def run_tests():
 
     print(f"Printing test from current line {get_line_info()}")
 
-    nr_errors = 0
+    nr_errors: int = 0
 
     #def get_max_column_value(pd_csv, column, _default):
     try:
@@ -5336,8 +5337,8 @@ def run_tests():
         "n_clusters"
     ]
 
-    got = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
-    expected = '[["bash omniopt_plot --run_dir None --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "None/plots/", "trial_index_result", "None/plots//trial_index_result.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "None/plots/", "scatter", "None/plots//plot_%0_%1_%2.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=general", {"type": "general"}, "None/plots/", "general", "None/plots//general.png", 1200]]'
+    got: str = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
+    expected: str = '[["bash omniopt_plot --run_dir None --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "None/plots/", "trial_index_result", "None/plots//trial_index_result.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "None/plots/", "scatter", "None/plots//plot_%0_%1_%2.png", 1200], ["bash omniopt_plot --run_dir None --plot_type=general", {"type": "general"}, "None/plots/", "general", "None/plots//general.png", 1200]]'
 
     nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, expected)
 
@@ -5350,7 +5351,7 @@ def run_tests():
     #res = {"one": 678, "two": 531, "three": 569, "four": 111, "five": 127, "six": 854, "seven": 971, "eight": 332, "nine": 235, "ten": 867.6452040672302}
     #nr_errors += is_equal('get_parameters_from_outfile("".tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out")', get_parameters_from_outfile(".tests/_plot_example_runs/ten_params/0/single_runs/266908/266908_0_log.out"), res)
 
-    nonzerodebug = """
+    nonzerodebug: str = """
 Exit-Code: 159
     """
 
@@ -5361,7 +5362,7 @@ Exit-Code: 159
     nr_errors += is_equal('print_image_to_cli("", "")', print_image_to_cli("", ""), False)
     nr_errors += is_equal('print_image_to_cli(".tools/slimer.png", 200)', print_image_to_cli(".tools/slimer.png", 200), True)
 
-    _check_for_basic_string_errors_example_str = """
+    _check_for_basic_string_errors_example_str: str = """
     Exec format error
     """
 
@@ -5390,7 +5391,7 @@ Exit-Code: 159
     else: # pragma: no cover
         print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
 
-    _not_equal = [
+    _not_equal: list = [
         ["nr equal strings", 1, "1"],
         ["unequal strings", "hallo", "welt"]
     ]
@@ -5404,13 +5405,13 @@ Exit-Code: 159
 
     nr_errors += is_equal("nr equal nr", 1, 1)
 
-    example_parse_parameter_type_error_result = {
+    example_parse_parameter_type_error_result: dict = {
         "parameter_name": "xxx",
         "current_type": "int",
         "expected_type": "float"
     }
 
-    equal = [
+    equal: list = [
         ["helpers.convert_string_to_number('123.123')", 123.123],
         ["helpers.convert_string_to_number('1')", 1],
         ["helpers.convert_string_to_number('-1')", -1],
@@ -5462,7 +5463,7 @@ Exit-Code: 159
     )
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
-    _complex_tests = [
+    _complex_tests: list = [
         ["simple_ok", "hallo", 0, None],
         ["divide_by_0", 'Illegal division by zero at ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0 line 3.\n', 255, None, True],
         ["result_but_exit_code_stdout_stderr", "stderr", 5, None],
@@ -5481,23 +5482,23 @@ Exit-Code: 159
         is_equal("test_find_paths failed", True, False)
         nr_errors += find_path_res
 
-    orchestrator_yaml = ".tests/example_orchestrator_config.yaml"
+    orchestrator_yaml: str = ".tests/example_orchestrator_config.yaml"
 
     if os.path.exists(orchestrator_yaml):
-        _is = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
-        should_be = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
+        _is: str = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
+        should_be: str = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
         nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
     else: # pragma: no cover
         nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
 
-    _example_csv_file = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
-    _best_results_from_example_file_minimize = json.dumps(get_best_params_from_csv(_example_csv_file, False))
-    _expected_best_result_minimize = json.dumps(json.loads('{"result": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
+    _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
+    _best_results_from_example_file_minimize: str = json.dumps(get_best_params_from_csv(_example_csv_file, False))
+    _expected_best_result_minimize: str = json.dumps(json.loads('{"result": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
 
     nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _expected_best_result_minimize, _best_results_from_example_file_minimize)
 
-    _best_results_from_example_file_maximize = json.dumps(get_best_params_from_csv(_example_csv_file, True))
-    _expected_best_result_maximize = json.dumps(json.loads('{"result": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
+    _best_results_from_example_file_maximize: str = json.dumps(get_best_params_from_csv(_example_csv_file, True))
+    _expected_best_result_maximize: str = json.dumps(json.loads('{"result": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
 
     nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _expected_best_result_maximize, _best_results_from_example_file_maximize)
 
@@ -5529,7 +5530,7 @@ def start_live_share_background_job():
 
     live_share()
 
-    interval = 10
+    interval: int = 10
     thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
     thread.start()
 
@@ -5550,7 +5551,7 @@ def main_outside():
 
                 end_program(RESULT_CSV_FILE, 1)
             except SearchSpaceExhausted:
-                _get_perc = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
+                _get_perc: int = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
                 if _get_perc < 100:
                     print_red(f"\nIt seems like the search space was exhausted. "

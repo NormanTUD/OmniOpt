@@ -221,7 +221,7 @@ def _get_debug_json(time_str, msg) -> str:
 
     return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
-def print_debug(msg):
+def print_debug(msg) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     stack_trace_element = _get_debug_json(time_str, msg)
@@ -233,7 +233,7 @@ def print_debug(msg):
 
     _debug(msg)
 
-def my_exit(_code=0):
+def my_exit(_code=0) -> None:
     tb = traceback.format_exc()
 
     try:
@@ -298,7 +298,7 @@ class ConfigLoader:
     mem_gb: int
     continue_previous_job: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
             description='A hyperparameter optimizer for slurmbased HPC-systems',
@@ -314,7 +314,7 @@ class ConfigLoader:
         # Initialize the remaining arguments
         self.add_arguments()
 
-    def add_arguments(self):
+    def add_arguments(self) -> None:
         required = self.parser.add_argument_group('Required arguments', "These options have to be set")
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
         optional = self.parser.add_argument_group('Optional', "These options are optional")
@@ -388,7 +388,7 @@ class ConfigLoader:
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
 
-    def load_config(self, config_path, file_format):
+    def load_config(self, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path): # pragma: no cover
             print("Exit-Code: 5")
             sys.exit(5)
@@ -410,7 +410,7 @@ class ConfigLoader:
 
         return {} # pragma: no cover
 
-    def validate_and_convert(self, config, arg_defaults):
+    def validate_and_convert(self, config: dict, arg_defaults: dict) -> dict:
         """
         Validates the config data and converts them to the right types based on argparse defaults.
         Warns about unknown or unused parameters.
@@ -568,7 +568,7 @@ def append_and_read(file, nr=0, recursion=0) -> int:
     return 0 # pragma: no cover
 
 @wrapper_print_debug
-def run_live_share_command():
+def run_live_share_command() -> Tuple[str, str]:
     if get_current_run_folder():
         try:
             # Environment variable USER
@@ -868,7 +868,7 @@ def log_what_needs_to_be_logged():
         except Exception: # pragma: no cover
             pass
 
-def get_line_info():
+def get_line_info() -> Tuple[str, str, int, str, str]:
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
 #print(f"sys.path: {sys.path}")

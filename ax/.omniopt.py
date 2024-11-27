@@ -954,9 +954,12 @@ def get_file_as_string(f: str) -> str:
         return ""
 
     with open(f, encoding="utf-8") as _f:
-        _df = _f.readlines()
-
-        datafile = _df
+        _df = _f.read()
+        
+        if type(_df) == str:
+            datafile = _df
+        else:
+            datafile = "\n".join(_df)
 
     return "\n".join(datafile)
 

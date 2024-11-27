@@ -3671,7 +3671,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global double_hashes
     global missing_results
 
-    def update_status(message, path_idx=None, trial_idx=None, total_trials=None):
+    def update_status(message, path_idx=None, trial_idx=None, total_trials=None) -> str:
         if len(_paths) > 1:
             folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
             trial_msg = f", trial {trial_idx + 1}/{total_trials}" if trial_idx is not None else ""
@@ -5114,7 +5114,7 @@ def die_orchestrator_exit_code_206(_test) -> None: # pragma: no cover
     else:
         my_exit(206)
 
-def parse_orchestrator_file(_f: str, _test: bool = False):
+def parse_orchestrator_file(_f, _test: bool = False):
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:

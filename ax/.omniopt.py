@@ -5,7 +5,7 @@
 
 import sys
 import os
-from typing import Pattern, Optional, Tuple, Any, cast, Union
+from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
 from types import FunctionType
 import json
 from submitit import LocalExecutor, AutoExecutor
@@ -2060,7 +2060,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-def showwarning(
+def custom_warning_handler(
     message: Warning | str,
     category: type[Warning],
     filename: str,

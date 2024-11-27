@@ -4575,9 +4575,9 @@ def get_parallelism_schedule_description() -> str:
             # Join descriptions into a single string
             human_readable_output: str = "\n".join(descriptions)
             return human_readable_output
-        else:
-            print_red("Error defining ax_client")
-            sys.exit(9)
+
+        print_red("Error defining ax_client")
+        sys.exit(9)
 
     except Exception as e:
         return f"An error occurred while processing parallelism schedule: {str(e)}"

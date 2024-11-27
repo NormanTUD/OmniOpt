@@ -1001,7 +1001,7 @@ def load_global_vars(_file):
         print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
-def load_or_exit(filepath, error_msg, exit_code):
+def load_or_exit(filepath, error_msg, exit_code) -> None:
     if not os.path.exists(filepath): # pragma: no cover
         print_red(error_msg)
         my_exit(exit_code)
@@ -1010,7 +1010,7 @@ def get_file_content_or_exit(filepath, error_msg, exit_code) -> str:
     load_or_exit(filepath, error_msg, exit_code)
     return get_file_as_string(filepath).strip()
 
-def check_param_or_exit(param, error_msg, exit_code):
+def check_param_or_exit(param, error_msg, exit_code) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)
@@ -1030,7 +1030,7 @@ def check_continue_previous_job(continue_previous_job):
             )
     return global_vars
 
-def check_required_parameters(_args):
+def check_required_parameters(_args) -> None:
     global global_vars
     check_param_or_exit(
         _args.parameter or _args.continue_previous_job,
@@ -1048,7 +1048,7 @@ def check_required_parameters(_args):
         19
     )
 
-def load_time_or_exit(_args):
+def load_time_or_exit(_args) -> None:
     global global_vars
     if _args.time:
         global_vars["_time"] = _args.time
@@ -1096,7 +1096,7 @@ def load_gpus_or_exit(_args) -> Optional[int]:
         print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number") # pragma: no cover
     return _args.gpus
 
-def load_max_eval_or_exit(_args):
+def load_max_eval_or_exit(_args) -> None:
     if _args.max_eval:
         set_max_eval(_args.max_eval)
         if _args.max_eval <= 0: # pragma: no cover
@@ -1133,26 +1133,26 @@ if not args.tests:
     load_max_eval_or_exit(args)
 
 @wrapper_print_debug
-def print_debug_get_next_trials(got, requested, _line):
+def print_debug_get_next_trials(got, requested, _line) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
 @wrapper_print_debug
-def print_debug_progressbar(msg):
+def print_debug_progressbar(msg) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
 
     _debug_progressbar(msg)
 
-def receive_usr_signal_one(signum, stack): # pragma: no cover
+def receive_usr_signal_one(signum: int, stack) -> None: # pragma: no cover
     raise SignalUSR(f"USR1-signal received ({signum})")
 
-def receive_usr_signal_int(signum, stack): # pragma: no cover
+def receive_usr_signal_int(signum: int, stack) -> None: # pragma: no cover
     raise SignalINT(f"INT-signal received ({signum})")
 
-def receive_signal_cont(signum, stack): # pragma: no cover
+def receive_signal_cont(signum: int, stack) -> None: # pragma: no cover
     raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
@@ -1179,14 +1179,14 @@ if is_executable_in_path("nvidia-smi"): # pragma: no cover
 if not SYSTEM_HAS_SBATCH:
     num_parallel_jobs = 1
 
-def save_global_vars():
+def save_global_vars() -> None:
     state_files_folder = f"{get_current_run_folder()}/state_files"
     makedirs(state_files_folder)
 
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
-def check_slurm_job_id():
+def check_slurm_job_id() -> None:
     print_debug("check_slurm_job_id()")
     if SYSTEM_HAS_SBATCH: # pragma: no cover
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
@@ -1198,7 +1198,7 @@ def check_slurm_job_id():
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM-job."
             )
 
-def create_folder_and_file(folder: str):
+def create_folder_and_file(folder: str) -> str:
     print_debug(f"create_folder_and_file({folder})")
 
     makedirs(folder)
@@ -1231,7 +1231,7 @@ def get_program_code_from_out_file(f: str) -> str:
 
     return ""
 
-def get_min_or_max_column_value(pd_csv: str, column, _default, _type="min"):
+def get_min_or_max_column_value(pd_csv: str, column, _default, _type="min") -> Optional[float]:
     assert isinstance(pd_csv, str), "pd_csv must be a string"
     assert isinstance(column, str), "column must be a string"
 
@@ -1259,12 +1259,14 @@ def get_min_or_max_column_value(pd_csv: str, column, _default, _type="min"):
         print_red(f"Error while getting {_type} value from column {column}: {str(e)}")
         raise
 
+    return None
+
 @wrapper_print_debug
-def get_max_column_value(pd_csv, column, _default):
+def get_max_column_value(pd_csv, column, _default) -> Optional[float]:
     return get_min_or_max_column_value(pd_csv, column, _default, "max")
 
 @wrapper_print_debug
-def get_min_column_value(pd_csv, column, _default):
+def get_min_column_value(pd_csv, column, _default) -> Optional[float]:
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @wrapper_print_debug
@@ -1355,7 +1357,7 @@ def adjust_bounds_for_value_type(value_type, lower_bound, upper_bound):
 
     return lower_bound, upper_bound
 
-def create_param(name, lower_bound, upper_bound, value_type, log_scale):
+def create_param(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
     return {
         "name": name,
         "type": "range",
@@ -1447,7 +1449,7 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
     j += skip
     return j, params, search_space_reduction_warning
 
-def validate_value_type(value_type):
+def validate_value_type(value_type) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
@@ -1600,7 +1602,7 @@ def replace_parameters_in_string(parameters, input_string):
         print_red(f"\n⚠ Error: {e}")
         return None
 
-def execute_bash_code(code):
+def execute_bash_code(code) -> list:
     try:
         result = subprocess.run(
             code,
@@ -1668,7 +1670,7 @@ def get_result(input_string) -> Optional[list[float]]:
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
-def add_to_csv(file_path, heading, data_line): # pragma: no cover
+def add_to_csv(file_path: str, heading, data_line) -> None: # pragma: no cover
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
@@ -1799,7 +1801,7 @@ def write_failed_logs(data_dict: dict, error_description: str = ""):
     except Exception as e: # pragma: no cover
         print_red(f"Unexpected error: {e}")
 
-def count_defective_nodes(file_path=None, entry=None):
+def count_defective_nodes(file_path=None, entry=None) -> list:
     if file_path is None:
         file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 

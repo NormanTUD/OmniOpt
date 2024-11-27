@@ -4765,7 +4765,7 @@ def select_model(model_arg): # -> None:
 
     return chosen_model
 
-def get_generation_strategy() -> GenerationStrategy:
+def get_generation_strategy(): # -> GenerationStrategy:
     global random_steps
 
     # Initialize steps for the generation strategy

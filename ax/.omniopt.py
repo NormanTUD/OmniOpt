@@ -4631,7 +4631,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
 
     return None
 
-def _handle_linalg_error(error): # pragma: no cover
+def _handle_linalg_error(error) -> None: # pragma: no cover
     """Handles the np.linalg.LinAlgError based on the model being used."""
     if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
         print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")
@@ -4678,7 +4678,7 @@ def _get_next_trials(nr_of_jobs_to_get: int):
 
     return trial_index_to_param, optimization_complete
 
-def get_next_nr_steps(_num_parallel_jobs, _max_eval):
+def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
     if not SYSTEM_HAS_SBATCH:
         return 1
 
@@ -4688,7 +4688,7 @@ def get_next_nr_steps(_num_parallel_jobs, _max_eval):
 
     return requested
 
-def check_max_parallelism_arg(possible_values):
+def check_max_parallelism_arg(possible_values) -> bool:
     if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
         return True
     return False

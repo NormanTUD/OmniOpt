@@ -3409,7 +3409,7 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-def get_old_result_by_params(file_path, params, float_tolerance=1e-6): 
+def get_old_result_by_params(file_path, params, float_tolerance=1e-6):
     # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.

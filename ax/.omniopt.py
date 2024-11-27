@@ -4607,11 +4607,15 @@ def _get_next_trials(nr_of_jobs_to_get: int):
 
     # Log and update timing
     time_next_trials_took.append(end_time - start_time)
-    lineno = getframeinfo(currentframe()).lineno
-    print_debug_get_next_trials(
-        len(trial_index_to_param.items()), nr_of_jobs_to_get,
-        lineno
-    )
+    cf = currentframe()
+    if cf:
+        _frame_info = getframeinfo(cf)
+        if _frame_info:
+            lineno = _frame_info.lineno
+            print_debug_get_next_trials(
+                len(trial_index_to_param.items()), nr_of_jobs_to_get,
+                lineno
+            )
 
     _log_trial_index_to_param(trial_index_to_param)
 

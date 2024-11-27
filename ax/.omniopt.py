@@ -1524,8 +1524,8 @@ def parse_experiment_parameters() -> list:
         this_args = args.parameter[i]
         j = 0
 
-        #if this_args is not None and "param" in this_args:
-        #    this_args = this_args["param"]
+        if this_args is not None and "param" in this_args:
+            this_args = this_args["param"]
 
         while j < len(this_args) - 1:
             name = this_args[j]

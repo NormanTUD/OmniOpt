@@ -436,7 +436,7 @@ class ConfigLoader:
 
         return converted_config
 
-    def merge_args_with_config(self, config, cli_args):
+    def merge_args_with_config(self, config, cli_args): # -> None
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
 
@@ -449,7 +449,7 @@ class ConfigLoader:
 
         return cli_args
 
-    def parse_arguments(self):
+    def parse_arguments(self): # -> None
         # First, parse the CLI arguments to check if config files are provided
         _args = self.parser.parse_args()
 
@@ -2822,7 +2822,7 @@ def get_ax_param_representation(data) -> dict:
 
     return {} # only for linter, never reached because of die
 
-def set_torch_device_to_experiment_args(experiment_args):
+def set_torch_device_to_experiment_args(experiment_args) -> dict:
     torch_device = None
     try:
         cuda_is_available = torch.cuda.is_available()
@@ -2953,7 +2953,7 @@ def check_equation(variables, equation) -> bool:
     return False
 
 @wrapper_print_debug
-def get_experiment_parameters(_params):
+def get_experiment_parameters(_params) -> Tuple[AxClient, dict, dict]:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client
@@ -4759,7 +4759,7 @@ def select_model(model_arg):
 
     return chosen_model
 
-def get_generation_strategy():
+def get_generation_strategy() -> GenerationStrategy:
     global random_steps
 
     # Initialize steps for the generation strategy
@@ -5190,7 +5190,7 @@ def check_max_eval(_max_eval) -> None:
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
-def parse_parameters():
+def parse_parameters() -> Tuple[dict, dict]:
     experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:

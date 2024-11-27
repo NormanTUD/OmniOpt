@@ -1986,8 +1986,39 @@ def evaluate(parameters: dict) -> dict:
 
         str_parameters_values: list[str] = [str(v) for v in parameters_values]
 
-        headline: list[str] = ["start_time", "end_time", "run_time", "program_string", *parameters_keys, "result", "exit_code", "signal", "hostname", *extra_vars_names, *all_result_column_names]
-        values: list[str] = [str(start_time), str(end_time), str(run_time), program_string_with_params, *str_parameters_values, str(result), str(exit_code), str(_signal), socket.gethostname(), *extra_vars_values, *unmooed_result]
+        headline: list[str] = [
+            "start_time",
+            "end_time",
+            "run_time",
+            "program_string",
+            *parameters_keys,
+            "result",
+            "exit_code",
+            "signal",
+            "hostname",
+            *extra_vars_names,
+            *all_result_column_names
+        ]
+
+        unmooed_result_str = []
+        if unmooed_result:
+            for v in unmooed_result.keys:
+                if v:
+                    unmooed_result_str.append(str(v))
+
+        values: list[str] = [
+            str(start_time), 
+            str(end_time), 
+            str(run_time), 
+            program_string_with_params, 
+            *str_parameters_values, 
+            str(result), 
+            str(exit_code), 
+            str(_signal), 
+            socket.gethostname(), 
+            *extra_vars_values, 
+            *unmooed_result_str
+        ]
 
         original_print(f"EXIT_CODE: {exit_code}")
 

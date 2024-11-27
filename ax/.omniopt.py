@@ -5,7 +5,7 @@
 
 import sys
 import os
-from typing import Pattern, Optional, Tuple, Any
+from typing import Pattern, Optional, Tuple, Any, cast
 from types import FunctionType
 import json
 
@@ -2946,6 +2946,8 @@ def get_experiment_parameters(_params):
 
         ax_client = AxClient.load_from_json_file(tmp_file_path)
 
+        ax_client = cast(AxClient, ax_client)
+
         os.unlink(tmp_file_path)
 
         state_files_folder = f"{get_current_run_folder()}/state_files"
@@ -5191,6 +5193,8 @@ def initialize_ax_client(gs):
         enforce_sequential_optimization=args.enforce_sequential_optimization,
         generation_strategy=gs
     )
+
+    ax_client = cast(AxClient, ax_client)
 
 def print_generation_strategy():
     gs_hr = human_readable_generation_strategy()

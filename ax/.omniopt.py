@@ -957,7 +957,7 @@ def get_file_as_string(f: str) -> str:
     with open(f, encoding="utf-8") as _f:
         _df = _f.read()
 
-        if type(_df) == str:
+        if isinstance(_df, str):
             datafile = _df
         else:
             datafile = "\n".join(_df)

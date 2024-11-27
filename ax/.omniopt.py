@@ -5,7 +5,7 @@
 
 import sys
 import os
-from typing import Pattern, Optional, Tuple
+from typing import Pattern, Optional, Tuple, Any
 from types import FunctionType
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
@@ -3419,7 +3419,7 @@ def load_existing_job_data_into_ax_client():
         NR_INSERTED_JOBS += nr_of_imported_jobs
 
 @wrapper_print_debug
-def parse_parameter_type_error(error_message):
+def parse_parameter_type_error(error_message) -> Optional[dict]:
     error_message: str = str(error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
@@ -4382,7 +4382,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs) -> int:
         num_parallel_jobs - currently_running_jobs
     )
 
-def _get_trials_message(nr_of_jobs_to_get, last_time, avg_time, force_local_execution) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, last_time, avg_time, force_local_execution) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
 
@@ -4424,7 +4424,7 @@ def get_parallelism_schedule_description() -> str:
         return f"An error occurred while processing parallelism schedule: {str(e)}"
 
 @disable_logs
-def _fetch_next_trials(nr_of_jobs_to_get):
+def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
     try:
         print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
@@ -4454,7 +4454,7 @@ def _handle_linalg_error(error): # pragma: no cover
     else:
         print_red(f"Error: {error}")
 
-def _get_next_trials(nr_of_jobs_to_get):
+def _get_next_trials(nr_of_jobs_to_get: int):
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -5156,7 +5156,7 @@ def run_search_with_progress_bar(disable_tqdm):
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-def complex_tests(_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):
+def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal, res_is_none: bool = False) -> int:
     print_yellow(f"Test suite: {_program_name}")
 
     nr_errors: int = 0

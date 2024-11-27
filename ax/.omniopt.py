@@ -74,7 +74,7 @@ except ModuleNotFoundError as e: # pragma: no cover
     print("Exit-Code: 2")
     sys.exit(2)
 
-def makedirs(p):
+def makedirs(p) -> bool:
     if not os.path.exists(p):
         try:
             os.makedirs(p, exist_ok=True)
@@ -1858,7 +1858,7 @@ def extract_info(data: str) -> Tuple[list[str], list[str]]:
 
     return names, values
 
-def ignore_signals():
+def ignore_signals() -> None:
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -4046,7 +4046,7 @@ def mark_trial_as_completed(_trial) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
-def finish_previous_jobs(new_msgs: list[str]):
+def finish_previous_jobs(new_msgs: list[str]) -> None:
     global random_steps
     global ax_client
     global jobs_finished
@@ -4232,7 +4232,7 @@ def orchestrator_start_trial(params_from_out_file, trial_index): # pragma: no co
         print_red("executor or ax_client could not be found properly")
         my_exit(9)
 
-def handle_exclude_node(stdout_path, hostname_from_out_file): # pragma: no cover
+def handle_exclude_node(stdout_path, hostname_from_out_file) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
@@ -4242,14 +4242,14 @@ def handle_exclude_node(stdout_path, hostname_from_out_file): # pragma: no cover
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-def handle_restart(stdout_path, trial_index): # pragma: no cover
+def handle_restart(stdout_path, trial_index) -> None: # pragma: no cover
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
-def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index): # pragma: no cover
+def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
@@ -4260,7 +4260,7 @@ def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
-def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file): # pragma: no cover
+def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
@@ -4294,7 +4294,7 @@ def _orchestrate(stdout_path, trial_index): # pragma: no cover
             print_red(f"Orchestrator: {behav} not yet implemented!")
             my_exit(210)
 
-def write_continue_run_uuid_to_file():
+def write_continue_run_uuid_to_file() -> bool:
     if args.continue_previous_job:
         continue_dir = args.continue_previous_job
 
@@ -4316,7 +4316,7 @@ def write_continue_run_uuid_to_file():
 
     return False
 
-def write_run_uuid_to_file():
+def write_run_uuid_to_file() -> None:
     try:
         file_path: str = f"{get_current_run_folder()}/state_files/run_uuid"
 
@@ -4426,18 +4426,18 @@ def execute_evaluation(_params) -> Optional[int]:
 
     return None
 
-def initialize_job_environment():
+def initialize_job_environment() -> None:
     progressbar_description(["starting new job"])
     set_sbatch_environment()
     exclude_defective_nodes()
 
-def set_sbatch_environment():
+def set_sbatch_environment() -> None:
     if args.reservation:
         os.environ['SBATCH_RESERVATION'] = args.reservation
     if args.account:
         os.environ['SBATCH_ACCOUNT'] = args.account
 
-def exclude_defective_nodes():
+def exclude_defective_nodes() > None:
     excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
         if executor:
@@ -4640,7 +4640,7 @@ def _handle_linalg_error(error) -> None: # pragma: no cover
     else:
         print_red(f"Error: {error}")
 
-def _get_next_trials(nr_of_jobs_to_get: int):
+def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[dict, bool]:
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -5010,14 +5010,14 @@ def execute_nvidia_smi() -> None: # pragma: no cover
         if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
 
-def start_nvidia_smi_thread(): # pragma: no cover
+def start_nvidia_smi_thread() -> None: # pragma: no cover
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
         return nvidia_smi_thread
     return None
 
-def run_search(_progress_bar):
+def run_search(_progress_bar) -> bool:
     global NR_OF_0_RESULTS
 
     NR_OF_0_RESULTS = 0
@@ -5084,7 +5084,7 @@ def run_search(_progress_bar):
     log_what_needs_to_be_logged()
     return False
 
-def wait_for_jobs_to_complete(_num_parallel_jobs: int): # pragma: no cover
+def wait_for_jobs_to_complete(_num_parallel_jobs: int) -> None: # pragma: no cover
     if SYSTEM_HAS_SBATCH:
         while len(global_vars["jobs"]) > _num_parallel_jobs:
             print_debug(f"Waiting for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
@@ -5172,22 +5172,22 @@ def set_orchestrator() -> None:
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
-def die_no_random_steps():
+def die_no_random_steps() -> None:
     my_exit(233)
 
-def check_if_has_random_steps():
+def check_if_has_random_steps() -> None:
     if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         die_no_random_steps()
 
-def add_exclude_to_defective_nodes():
+def add_exclude_to_defective_nodes() -> None:
     if args.exclude: # pragma: no cover
         entries = [entry.strip() for entry in args.exclude.split(',')]
 
         for entry in entries:
             count_defective_nodes(None, entry)
 
-def check_max_eval(_max_eval):
+def check_max_eval(_max_eval) -> None:
     if not _max_eval:
         print_red("--max_eval needs to be set!")
         my_exit(19)

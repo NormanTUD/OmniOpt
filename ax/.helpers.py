@@ -696,11 +696,14 @@ def print_if_not_plot_tests_and_exit(msg, exit_code) -> str:
 
     return msg
 
-def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path) -> pd.DataFrame: # pragma: no cover
+def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path) -> Union[pd.DataFrame, None]: # pragma: no cover
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
-    old_headers_string = ','.join(sorted(df.columns))
-    return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
+    if df:
+        old_headers_string = ','.join(sorted(df.columns))
+        return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
+
+    return None
 
 def _update_graph(_params) -> None: # pragma: no cover
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
@@ -709,12 +712,15 @@ def _update_graph(_params) -> None: # pragma: no cover
         csv_file_path = get_csv_file_path(_args)
         _min, _max = set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
         df = load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path)
-        df_filtered = get_df_filtered(_args, df)
+        if df:
+            df_filtered = get_df_filtered(_args, df)
 
-        check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings)
-        plot_parameters([df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max])
+            check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings)
+            plot_parameters([df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max])
 
-        plt.draw()
+            plt.draw()
+        else:
+            print("Failed to get df")
 
     except Exception as e:
         _handle_exception(e)

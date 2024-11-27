@@ -14,11 +14,10 @@ original_print: FunctionType = print
 
 valid_moo_types: list = ["geometric", "euclid", "signed_harmonic"]
 
-console = None
 try:
     from rich.console import Console
 
-    console = Console(
+    console: Console = Console(
         force_interactive=True,
         soft_wrap=True,
         color_system="256",
@@ -113,7 +112,7 @@ RESULT_CSV_FILE = None
 SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
-progress_bar = None
+progress_bar: tqdm = None
 
 def get_current_run_folder():
     return CURRENT_RUN_FOLDER
@@ -2433,7 +2432,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
     return data
 
-def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[str]:
+def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[list[str]]:
     plot_commands: list[list[str]] = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():

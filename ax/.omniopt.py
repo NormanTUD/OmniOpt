@@ -112,7 +112,7 @@ RESULT_CSV_FILE = None
 SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
-progress_bar: tqdm = None
+progress_bar: Optional[tqdm] = None
 
 def get_current_run_folder():
     return CURRENT_RUN_FOLDER
@@ -3328,8 +3328,9 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 def progressbar_description(new_msgs: list[str] = []):
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
-    progress_bar.set_description(desc)
-    progress_bar.refresh()
+    if progress_bar is not None:
+        progress_bar.set_description(desc)
+        progress_bar.refresh()
 
 @wrapper_print_debug
 def clean_completed_jobs():

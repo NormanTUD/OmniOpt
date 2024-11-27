@@ -10,7 +10,7 @@ from types import FunctionType
 import json
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
-original_print: FunctionType = print
+original_print = print
 
 valid_moo_types: list = ["geometric", "euclid", "signed_harmonic"]
 
@@ -106,7 +106,7 @@ worker_percentage_usage: list = []
 END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
-time_next_trials_took: list = []
+time_next_trials_took: list[float] = []
 CURRENT_RUN_FOLDER = None
 RESULT_CSV_FILE = None
 SHOWN_END_TABLE: bool = False
@@ -1112,10 +1112,17 @@ if not args.tests:
     check_required_parameters(args)
     load_time_or_exit(args)
 
-    args.mem_gb = load_mem_gb_or_exit(args)
-    global_vars["mem_gb"] = args.mem_gb
-    args.gpus = load_gpus_or_exit(args)
-    global_vars["gpus"] = args.gpus
+    loaded_mem_gb = load_mem_gb_or_exit(args)
+
+    if loaded_mem_gb:
+        args.mem_gb = loaded_mem_gb
+        global_vars["mem_gb"] = args.mem_gb
+
+    loaded_gpus = load_gpus_or_exit(args)
+
+    if loaded_gpus:
+        args.gpus = loaded_gpus
+        global_vars["gpus"] = args.gpus
 
     load_max_eval_or_exit(args)
 

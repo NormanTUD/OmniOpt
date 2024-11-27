@@ -62,76 +62,78 @@ def set_title(df_filtered, result_column_values, num_entries, _min, _max):
         fig.suptitle(title)
 
 def plot_multiple_graphs(_params):
-    non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
-    global bins
+    if args is not None:
+        non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
+        global bins
 
-    scatter = None
+        scatter = None
 
-    for i, (param1, param2) in enumerate(non_empty_graphs):
-        row = i // num_cols
-        col = i % num_cols
-        if (args.exclude_params is not None and len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
-            try:
-                _x = df_filtered[param1]
-                _y = df_filtered[param2]
+        for i, (param1, param2) in enumerate(non_empty_graphs):
+            row = i // num_cols
+            col = i % num_cols
+            if (args.exclude_params is not None and len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
+                try:
+                    _x = df_filtered[param1]
+                    _y = df_filtered[param2]
 
-                gridsize: int = args.gridsize
+                    gridsize: int = args.gridsize
 
-                if bins: # pragma: no cover
-                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=gridsize, cmap=cmap, bins=bins)
-                else:
-                    scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=gridsize, cmap=cmap)
-                axs[row][col].set_xlabel(param1)
-                axs[row][col].set_ylabel(param2)
-            except Exception as e: # pragma: no cover
-                if "'Axes' object is not subscriptable" in str(e):
                     if bins: # pragma: no cover
-                        scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                        scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=gridsize, cmap=cmap, bins=bins)
                     else:
-                        scatter = axs.hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
-                    axs.set_xlabel(param1)
-                    axs.set_ylabel(param2)
-                elif "could not convert string to float" in str(e): # pragma: no cover
-                    print("ERROR: " + str(e))
+                        scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=gridsize, cmap=cmap)
+                    axs[row][col].set_xlabel(param1)
+                    axs[row][col].set_ylabel(param2)
+                except Exception as e: # pragma: no cover
+                    if "'Axes' object is not subscriptable" in str(e):
+                        if bins: # pragma: no cover
+                            scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                        else:
+                            scatter = axs.hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
+                        axs.set_xlabel(param1)
+                        axs.set_ylabel(param2)
+                    elif "could not convert string to float" in str(e): # pragma: no cover
+                        print("ERROR: " + str(e))
 
-                    tb = traceback.format_exc()
-                    print(tb)
+                        tb = traceback.format_exc()
+                        print(tb)
 
-                    sys.exit(177)
-                else: # pragma: no cover
-                    print("ERROR: " + str(e))
+                        sys.exit(177)
+                    else: # pragma: no cover
+                        print("ERROR: " + str(e))
 
-                    tb = traceback.format_exc()
-                    print(tb)
+                        tb = traceback.format_exc()
+                        print(tb)
 
-                    sys.exit(17)
+                        sys.exit(17)
 
-    axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+        axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
-    helpers.show_legend(args, fig, scatter, axs)
+        helpers.show_legend(args, fig, scatter, axs)
 
 def plot_single_graph(_params):
-    axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
-    _data = df_filtered
+    if args is not None:
+        axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
+        _data = df_filtered
 
-    _data = _data[:].values
+        _data = _data[:].values
 
-    _x = []
-    _y = []
+        _x = []
+        _y = []
 
-    for _l in _data:
-        _x.append(_l[0])
-        _y.append(_l[1])
+        for _l in _data:
+            _x.append(_l[0])
+            _y.append(_l[1])
 
-    global bins
-    if bins: # pragma: no cover
-        scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
-    else:
-        scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
-    axs.set_xlabel(non_empty_graphs[0][0])
-    axs.set_ylabel("result")
+        global bins
+        if bins: # pragma: no cover
+            scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
+        else:
+            scatter = axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
+        axs.set_xlabel(non_empty_graphs[0][0])
+        axs.set_ylabel("result")
 
-    return scatter
+        return scatter
 
 def plot_graphs(_params):
     global fig
@@ -190,52 +192,53 @@ def get_args():
 def main():
     global args
 
-    helpers.use_matplotlib(args)
+    if args is not None:
+        helpers.use_matplotlib(args)
 
-    csv_file_path = helpers.get_csv_file_path(args)
+        csv_file_path = helpers.get_csv_file_path(args)
 
-    df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max, None, True)
+        df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max, None, True)
 
-    old_headers_string = ','.join(sorted(df.columns))
+        old_headers_string = ','.join(sorted(df.columns))
 
-    df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
+        df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
 
-    nr_of_items_before_filtering = len(df)
-    df_filtered = helpers.get_df_filtered(args, df)
+        nr_of_items_before_filtering = len(df)
+        df_filtered = helpers.get_df_filtered(args, df)
 
-    helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
+        helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
-    parameter_combinations = helpers.get_parameter_combinations(df_filtered)
+        parameter_combinations = helpers.get_parameter_combinations(df_filtered)
 
-    non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
+        non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
-    num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
+        num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
-    global fig
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
+        global fig
+        fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
-    result_column_values = helpers.get_result_column_values(df, csv_file_path)
+        result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-    plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
-    if not args.no_legend:
-        set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
+        if not args.no_legend:
+            set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
-        fig = helpers.set_margins(fig)
+            fig = helpers.set_margins(fig)
 
-        fig.canvas.manager.set_window_title("Hex-Scatter: " + str(args.run_dir))
+            fig.canvas.manager.set_window_title("Hex-Scatter: " + str(args.run_dir))
 
-    if args.save_to_file:
-        helpers.save_to_file(fig, args, plt)
-    else: # pragma: no cover
-        global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
+        if args.save_to_file:
+            helpers.save_to_file(fig, args, plt)
+        else: # pragma: no cover
+            global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
+            button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
 
-        if not args.no_plt_show:
-            plt.show()
+            if not args.no_plt_show:
+                plt.show()
 
-        update_graph(args.min, args.max)
+            update_graph(args.min, args.max)
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None): # pragma: no cover
@@ -254,7 +257,7 @@ if __name__ == "__main__":
 
         theme = "fast"
 
-        if args.darkmode: # pragma: no cover
+        if args is not None and args.darkmode: # pragma: no cover
             theme = "dark_background"
 
         with plt.style.context(theme):

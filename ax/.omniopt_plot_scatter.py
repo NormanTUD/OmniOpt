@@ -63,34 +63,35 @@ def set_title(df_filtered, result_column_values, num_entries, _min, _max):
         fig.suptitle(title)
 
 def plot_multiple_graphs(_params):
-    non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
+    if args is not None:
+        non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
 
-    scatter = None
+        scatter = None
 
-    for i, (param1, param2) in enumerate(non_empty_graphs):
-        row = i // num_cols
-        col = i % num_cols
-        if (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
-            try:
-                scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-                axs[row, col].set_xlabel(param1)
-                axs[row, col].set_ylabel(param2)
-            except Exception as e:
-                if "" in str(e):
-                    scatter = axs.scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
-                    axs.set_xlabel(param1)
-                    axs.set_ylabel(param2)
-                else: # pragma: no cover
-                    print("ERROR: " + str(e))
+        for i, (param1, param2) in enumerate(non_empty_graphs):
+            row = i // num_cols
+            col = i % num_cols
+            if (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
+                try:
+                    scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                    axs[row, col].set_xlabel(param1)
+                    axs[row, col].set_ylabel(param2)
+                except Exception as e:
+                    if "" in str(e):
+                        scatter = axs.scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                        axs.set_xlabel(param1)
+                        axs.set_ylabel(param2)
+                    else: # pragma: no cover
+                        print("ERROR: " + str(e))
 
-                    tb = traceback.format_exc()
-                    print(tb)
+                        tb = traceback.format_exc()
+                        print(tb)
 
-                    sys.exit(17)
+                        sys.exit(17)
 
-    axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+        axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
-    helpers.show_legend(args, fig, scatter, axs)
+        helpers.show_legend(args, fig, scatter, axs)
 
 def plot_single_graph(_params):
     axs, df_filtered, colors, cmap, norm, non_empty_graphs = _params
@@ -155,50 +156,52 @@ def get_args():
 def main():
     global args, fig
 
-    helpers.use_matplotlib(args)
+    if args is not None:
 
-    csv_file_path = helpers.get_csv_file_path(args)
+        helpers.use_matplotlib(args)
 
-    df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max)
+        csv_file_path = helpers.get_csv_file_path(args)
 
-    old_headers_string = ','.join(sorted(df.columns))
+        df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max)
 
-    df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
+        old_headers_string = ','.join(sorted(df.columns))
 
-    nr_of_items_before_filtering = len(df)
-    df_filtered = helpers.get_df_filtered(args, df)
+        df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
 
-    helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
+        nr_of_items_before_filtering = len(df)
+        df_filtered = helpers.get_df_filtered(args, df)
 
-    parameter_combinations = helpers.get_parameter_combinations(df_filtered)
+        helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
-    non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
+        parameter_combinations = helpers.get_parameter_combinations(df_filtered)
 
-    num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
+        non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
-    fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
+        num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
-    result_column_values = helpers.get_result_column_values(df, csv_file_path)
+        fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
-    plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+        result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-    set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
+        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
 
-    fig = helpers.set_margins(fig)
+        set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
-    fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
+        fig = helpers.set_margins(fig)
 
-    if args.save_to_file:
-        helpers.save_to_file(fig, args, plt)
-    else: # pragma: no cover
-        global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
+        fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
 
-        button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
+        if args.save_to_file:
+            helpers.save_to_file(fig, args, plt)
+        else: # pragma: no cover
+            global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-        if not args.no_plt_show:
-            plt.show()
+            button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
 
-        update_graph(args.min, args.max)
+            if not args.no_plt_show:
+                plt.show()
+
+            update_graph(args.min, args.max)
 
 # Define update function for the button
 def update_graph(event=None, _min=None, _max=None): # pragma: no cover
@@ -216,7 +219,7 @@ if __name__ == "__main__":
 
         theme = "fast"
 
-        if args.darkmode: # pragma: no cover
+        if args is not None and args.darkmode: # pragma: no cover
             theme = "dark_background"
 
         with plt.style.context(theme):

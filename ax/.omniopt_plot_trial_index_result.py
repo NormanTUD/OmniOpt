@@ -58,48 +58,50 @@ def plot_graph(dataframe, save_to_file=None):
 
     if save_to_file:
         fig = plt.figure(1)
-        helpers.save_to_file(fig, args, plt)
+        if fig is not None and args is not None and plt is not None:
+            helpers.save_to_file(fig, args, plt)
     else: # pragma: no cover
-        if not args.no_plt_show:
+        if args is not None and not args.no_plt_show:
             plt.show()
 
 def update_graph():
-    try:
-        dataframe = None
-
+    if args is not None:
         try:
-            dataframe = pd.read_csv(args.run_dir + "/results.csv")
-        except pd.errors.EmptyDataError:
-            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-                print(f"{args.run_dir}/results.csv seems to be empty.")
-            sys.exit(19)
-        except UnicodeDecodeError:
-            if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
-            sys.exit(7)
+            dataframe = None
 
-        if args.min is not None or args.max is not None:
             try:
-                dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
-            except KeyError: # pragma: no cover
-                if not os.environ.get("PLOT_TESTS"):
-                    print(f"{args.run_dir}/results.csv seems have no result column.")
-                sys.exit(10)
+                dataframe = pd.read_csv(args.run_dir + "/results.csv")
+            except pd.errors.EmptyDataError:
+                if not os.environ.get("PLOT_TESTS"): # pragma: no cover
+                    print(f"{args.run_dir}/results.csv seems to be empty.")
+                sys.exit(19)
+            except UnicodeDecodeError:
+                if not os.environ.get("PLOT_TESTS"): # pragma: no cover
+                    print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+                sys.exit(7)
 
-        if dataframe is not None and dataframe.empty:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                logging.warning("DataFrame is empty after filtering.") # pragma: no cover
-            return
+            if args.min is not None or args.max is not None:
+                try:
+                    dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
+                except KeyError: # pragma: no cover
+                    if not os.environ.get("PLOT_TESTS"):
+                        print(f"{args.run_dir}/results.csv seems have no result column.")
+                    sys.exit(10)
 
-        plot_graph(dataframe, args.save_to_file)
+            if dataframe is not None and dataframe.empty:
+                if not os.environ.get("NO_NO_RESULT_ERROR"):
+                    logging.warning("DataFrame is empty after filtering.") # pragma: no cover
+                return
 
-    except FileNotFoundError: # pragma: no cover
-        logging.error("File not found: %s", args.run_dir + "/results.csv")
-    except Exception as exception: # pragma: no cover
-        logging.error("An unexpected error occurred: %s", str(exception))
+            plot_graph(dataframe, args.save_to_file)
 
-        tb = traceback.format_exc()
-        print(tb)
+        except FileNotFoundError: # pragma: no cover
+            logging.error("File not found: %s", args.run_dir + "/results.csv")
+        except Exception as exception: # pragma: no cover
+            logging.error("An unexpected error occurred: %s", str(exception))
+
+            tb = traceback.format_exc()
+            print(tb)
 
 if __name__ == "__main__":
     args = parse_arguments()

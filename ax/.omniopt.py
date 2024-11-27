@@ -1389,7 +1389,7 @@ def get_bounds_from_previous_data(name, lower_bound, upper_bound) -> Union[Tuple
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning):
+def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
@@ -1455,7 +1455,7 @@ def validate_value_type(value_type) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning):
+def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -4789,7 +4789,7 @@ def get_generation_strategy():
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)
 
-def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar):
+def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar) -> int:
     global random_steps
 
     if next_nr_steps == 0:

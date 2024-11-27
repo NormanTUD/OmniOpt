@@ -5,9 +5,10 @@
 
 import sys
 import os
-from typing import Pattern, Optional, Tuple, Any, cast
+from typing import Pattern, Optional, Tuple, Any, cast, Union
 from types import FunctionType
 import json
+from submitit import LocalExecutor, AutoExecutor
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -667,7 +668,7 @@ class SearchSpaceExhausted (Exception):
 
 NR_INSERTED_JOBS: int = 0
 changed_grid_search_params: dict = {}
-executor = None
+executor: Union[LocalExecutor, AutoExecutor, None] = None
 
 NR_OF_0_RESULTS: int = 0
 
@@ -4904,9 +4905,9 @@ def set_global_executor():
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
 
     if args.force_local_execution:
-        executor = submitit.LocalExecutor(folder=log_folder)
+        executor = LocalExecutor(folder=log_folder)
     else:
-        executor = submitit.AutoExecutor(folder=log_folder)
+        executor = AutoExecutor(folder=log_folder)
 
     # TODO: The following settings can be in submitit's executor.update_parameters, set but aren't currently utilized because I am not sure of the defaults:
     # 'nodes': <class 'int'>

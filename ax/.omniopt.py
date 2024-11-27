@@ -2954,7 +2954,7 @@ def check_equation(variables, equation) -> bool:
     return False
 
 @wrapper_print_debug
-def get_experiment_parameters(_params) -> Tuple[AxClient, dict, dict]:
+def get_experiment_parameters(_params): # -> Tuple[AxClient, dict, dict]:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client

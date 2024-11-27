@@ -1976,7 +1976,7 @@ def evaluate(parameters: dict) -> dict:
             mooed_result = calculate_moo(result)
 
             if mooed_result is not None:
-                result = mooed_result
+                result = [mooed_result]
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
 

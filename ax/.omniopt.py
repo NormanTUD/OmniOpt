@@ -5010,12 +5010,10 @@ def execute_nvidia_smi() -> None: # pragma: no cover
         if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
 
-def start_nvidia_smi_thread(): # pragma: no cover
+def start_nvidia_smi_thread() -> None: # pragma: no cover
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
-        return nvidia_smi_thread
-    return None
 
 def run_search(_progress_bar) -> bool:
     global NR_OF_0_RESULTS

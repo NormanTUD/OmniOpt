@@ -2060,11 +2060,18 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-def custom_warning_handler(message: str, category, filename, lineno: int): # pragma: no cover
+def showwarning(
+    message: Warning | str,
+    category: type[Warning],
+    filename: str,
+    lineno: int,
+    file: TextIO | None = None,
+    line: str | None = None
+) -> None:
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(warning_message)
 
-def disable_logging():
+def disable_logging() -> None:
     if args.verbose: # pragma: no cover
         return
 

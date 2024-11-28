@@ -173,7 +173,7 @@ logfile_nr_workers: str = f'{LOG_DIR}/{run_uuid}_nr_workers'
 logfile_progressbar: str = f'{LOG_DIR}/{run_uuid}_progressbar'
 logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
-LOGFILE_DEBUG_GET_NEXT_TRIALS = None
+LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
 
 def print_red(text: str) -> None:
     helpers.print_color("red", text)
@@ -188,7 +188,7 @@ def print_red(text: str) -> None:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
-def _debug(msg: str, _lvl: int = 0, eee=None) -> None:
+def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
         print("Exit-Code: 193")
@@ -896,9 +896,9 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
 
     return False
 
-def log_message_to_file(_logfile: str, message: str, _lvl: int = 0, eee=None) -> None:
-    assert _logfile is not None, "Logfile path must be provided."
-    assert message is not None, "Message to log must be provided."
+def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+    if not _logfile:
+        return
 
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
@@ -915,20 +915,20 @@ def log_message_to_file(_logfile: str, message: str, _lvl: int = 0, eee=None) ->
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
-def _log_trial_index_to_param(trial_index, _lvl: int = 0, eee=None) -> None:
-    log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, eee)
+def _log_trial_index_to_param(trial_index, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+    log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, str(eee))
 
-def _debug_worker_creation(msg: str, _lvl: int = 0, eee=None) -> None:
-    log_message_to_file(logfile_worker_creation_logs, msg, _lvl, eee)
+def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+    log_message_to_file(logfile_worker_creation_logs, msg, _lvl, str(eee))
 
-def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None) -> None: # pragma: no cover
-    log_message_to_file(_file, result, _lvl, eee)
+def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee: Union[None, str, Exception] = None) -> None: # pragma: no cover
+    log_message_to_file(_file, result, _lvl, str(eee))
 
-def _debug_get_next_trials(msg: str, _lvl: int = 0, eee=None) -> None:
-    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, eee)
+def _debug_get_next_trials(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, str(eee))
 
-def _debug_progressbar(msg: str, _lvl: int = 0, eee=None) -> None:
-    log_message_to_file(logfile_progressbar, msg, _lvl, eee)
+def _debug_progressbar(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+    log_message_to_file(logfile_progressbar, msg, _lvl, str(eee))
 
 def print_green(text: str) -> None:
     helpers.print_color("green", text)
@@ -1314,14 +1314,14 @@ def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int,
 
     return None, False
 
-def switch_lower_and_upper_if_needed(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
+def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
         print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
         upper_bound, lower_bound = lower_bound, upper_bound
 
     return lower_bound, upper_bound
 
-def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> tuple[int | float, int | float]:
+def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[int | float, int | float]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
             print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
@@ -1333,7 +1333,7 @@ def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int
 
     return lower_bound, upper_bound
 
-def get_bounds(this_args, j: int) -> Tuple[float, float]:
+def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
     except Exception: # pragma: no cover
@@ -1357,7 +1357,7 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 
     return lower_bound, upper_bound
 
-def create_param(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
+def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
     return {
         "name": name,
         "type": "range",
@@ -1366,7 +1366,7 @@ def create_param(name: str, lower_bound: Union[float, int], upper_bound: Union[f
         "log_scale": log_scale
     }
 
-def handle_grid_search(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
+def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
     if value_type == "int":
@@ -1402,7 +1402,7 @@ def check_bounds_change_due_to_previous_job(name, lower_bound: Union[float, int]
 
     return search_space_reduction_warning
 
-def get_value_type_and_log_scale(this_args, j: int) -> Tuple[int, str, bool]:
+def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[int, str, bool]:
     skip = 5
     try:
         value_type = this_args[j + 4]
@@ -1418,7 +1418,7 @@ def get_value_type_and_log_scale(this_args, j: int) -> Tuple[int, str, bool]:
 
     return skip, value_type, log_scale
 
-def parse_range_param(params, j: int, this_args, name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_range_param(params, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -1453,7 +1453,7 @@ def validate_value_type(value_type: str) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-def parse_fixed_param(params, j: int, this_args, name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_fixed_param(params, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -1476,7 +1476,7 @@ def parse_fixed_param(params, j: int, this_args, name: str, search_space_reducti
 
     return j, params, search_space_reduction_warning
 
-def parse_choice_param(params, j: int, this_args, name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
         my_exit(181)
@@ -2723,7 +2723,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
 
     my_exit(_exit)
 
-def save_checkpoint(trial_nr: int = 0, eee=None) -> None:
+def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if trial_nr > 3:
         if eee:
             print("Error during saving checkpoint: " + str(eee))
@@ -3674,25 +3674,27 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global double_hashes
     global missing_results
 
-    def update_status(message, path_idx=None, trial_idx=None, total_trials=None) -> str:
+    def update_status(message: str, path_idx: Union[int, None] = None, trial_idx: Union[int, None] = None, total_trials: Union[int, None] = None) -> str:
         if len(_paths) > 1:
             folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
             trial_msg = f", trial {trial_idx + 1}/{total_trials}" if trial_idx is not None else ""
             return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
         return f"{message}{get_list_import_as_string()}..."
 
-    def generate_hashed_params(parameters, path: str) -> Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]]:
+    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]]:
         try:
             result = get_old_result_simple(path, parameters)
         except Exception:
             result = None
         return pformat(parameters) + "====" + pformat(result), result
 
-    def should_insert(hashed_params_result) -> bool:
+    def should_insert(hashed_params_result: Union[tuple[str, str] | tuple[str, float, tuple[str, int], tuple[str, None]]]) -> bool:
         result = hashed_params_result[1]
-        return result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
+        res = not not result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
-    def load_and_insert_trials(_status, old_trials, this_path, path_idx) -> None:
+        return res
+
+    def load_and_insert_trials(_status, old_trials, this_path: str, path_idx: int) -> None:
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
@@ -3709,7 +3711,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
-    def insert_or_log_result(parameters, hashed_params_result) -> None:
+    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]]) -> None:
         try:
             insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
@@ -3719,7 +3721,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
-    def log_missing_result(parameters, hashed_params_result) -> None:
+    def log_missing_result(parameters, hashed_params_result: Union[Tuple[str, str] | tuple[str, float, tuple[str, int], Tuple[str, None]]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]
@@ -4008,7 +4010,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
         print_red(out_files_string)
 
-def get_parameters_from_outfile(stdout_path: str) -> Union[dict, None]:
+def get_parameters_from_outfile(stdout_path: str) -> Union[None, str]:
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
             for line in file:
@@ -5111,7 +5113,7 @@ def human_readable_generation_strategy() -> Optional[str]:
 
     return None
 
-def die_orchestrator_exit_code_206(_test) -> None: # pragma: no cover
+def die_orchestrator_exit_code_206(_test: bool) -> None: # pragma: no cover
     if _test:
         print_yellow("Not exiting, because _test was True")
     else:
@@ -5193,7 +5195,7 @@ def check_max_eval(_max_eval) -> None:
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
-def parse_parameters() -> Union[tuple[Any | None, Any | None], tuple[Any | None, Any | None]]:
+def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None, Any | None]]:
     experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:

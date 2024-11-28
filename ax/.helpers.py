@@ -562,8 +562,18 @@ def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_f
 def contains_strings(series) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
-def get_data(NO_RESULT, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str = None, drop_columns_with_strings: bool = False) -> Union[None, pd.DataFrame]:
+def get_data(
+        NO_RESULT,
+        csv_file_path: Union[None, str],
+        _min: Union[int, float, None],
+        _max: Union[int, float, None],
+        old_headers_string: Union[None, str] = None,
+        drop_columns_with_strings: Union[str, bool] = False
+    ) -> Union[None, pd.DataFrame]:
     try:
+        if not csv_file_path:
+            return None
+
         df = pd.read_csv(csv_file_path, index_col=0)
 
         if old_headers_string: # pragma: no cover
@@ -698,7 +708,7 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 
     return msg
 
-def load_and_merge_data(_args, NO_RESULT, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]: # pragma: no cover
+def load_and_merge_data(_args, NO_RESULT, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: Union[None, str]) -> Union[pd.DataFrame, None]: # pragma: no cover
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     if df:

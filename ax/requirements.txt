@@ -48,3 +48,4 @@ types-toml
 types-psutil
 pandas-stubs
 types-tqdm
+rich_argparse

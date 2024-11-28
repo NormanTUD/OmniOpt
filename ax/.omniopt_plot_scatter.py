@@ -12,6 +12,7 @@ import os
 import signal
 import sys
 import traceback
+from typing import Union
 
 button = None
 
@@ -79,7 +80,7 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def set_title(df_filtered, result_column_values, num_entries, _min, _max) -> None:
+def set_title(df_filtered, result_column_values, num_entries: int, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:

@@ -1,8 +1,5 @@
 #!/bin/env python3
 
-# TODO: allow multi-objective optimization; MOO is supported by ax, see.
-# https://botorch.org/tutorials/multi_objective_bo
-
 import sys
 import os
 from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
@@ -75,7 +72,7 @@ except ModuleNotFoundError as e: # pragma: no cover
     print("Exit-Code: 2")
     sys.exit(2)
 
-def makedirs(p) -> bool:
+def makedirs(p: str) -> bool:
     if not os.path.exists(p):
         try:
             os.makedirs(p, exist_ok=True)
@@ -178,7 +175,7 @@ logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS = None
 
-def print_red(text) -> None:
+def print_red(text: str) -> None:
     helpers.print_color("red", text)
 
     print_debug(text)
@@ -191,7 +188,7 @@ def print_red(text) -> None:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
-def _debug(msg, _lvl=0, eee=None) -> None:
+def _debug(msg: str, _lvl: int = 0, eee=None) -> None:
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
         print("Exit-Code: 193")
@@ -899,7 +896,7 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
 
     return False
 
-def log_message_to_file(_logfile, message, _lvl=0, eee=None) -> None:
+def log_message_to_file(_logfile: str, message: str, _lvl: int = 0, eee=None) -> None:
     assert _logfile is not None, "Logfile path must be provided."
     assert message is not None, "Message to log must be provided."
 
@@ -918,27 +915,27 @@ def log_message_to_file(_logfile, message, _lvl=0, eee=None) -> None:
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
-def _log_trial_index_to_param(trial_index, _lvl=0, eee=None) -> None:
+def _log_trial_index_to_param(trial_index, _lvl: int = 0, eee=None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, eee)
 
-def _debug_worker_creation(msg, _lvl=0, eee=None) -> None:
+def _debug_worker_creation(msg: str, _lvl: int = 0, eee=None) -> None:
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, eee)
 
 def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee=None) -> None: # pragma: no cover
     log_message_to_file(_file, result, _lvl, eee)
 
-def _debug_get_next_trials(msg, _lvl=0, eee=None) -> None:
+def _debug_get_next_trials(msg: str, _lvl: int = 0, eee=None) -> None:
     log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, eee)
 
-def _debug_progressbar(msg, _lvl=0, eee=None) -> None:
+def _debug_progressbar(msg: str, _lvl: int = 0, eee=None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, eee)
 
-def print_green(text) -> None:
+def print_green(text: str) -> None:
     helpers.print_color("green", text)
 
     print_debug(text)
 
-def print_yellow(text) -> None:
+def print_yellow(text: str) -> None:
     helpers.print_color("yellow", text)
 
     print_debug(text)
@@ -1314,8 +1311,8 @@ def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int,
 
     if ret_val:
         return round(ret_val, 4), found_in_file
-    else:
-        return None, False
+
+    return None, False
 
 def switch_lower_and_upper_if_needed(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
@@ -2648,7 +2645,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
 
     return _exit
 
-def abandon_job(job, trial_index) -> bool: # pragma: no cover
+def abandon_job(job, trial_index: int) -> bool: # pragma: no cover
     global global_vars
 
     if job:
@@ -3621,7 +3618,7 @@ def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[
         print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
-def get_list_import_as_string(_brackets=True, _comma=False) -> str:
+def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str:
     _str: list = []
 
     if len(double_hashes):
@@ -3684,7 +3681,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
         return f"{message}{get_list_import_as_string()}..."
 
-    def generate_hashed_params(parameters, path) -> Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]]:
+    def generate_hashed_params(parameters, path: str) -> Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]]:
         try:
             result = get_old_result_simple(path, parameters)
         except Exception:
@@ -4011,7 +4008,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
         print_red(out_files_string)
 
-def get_parameters_from_outfile(stdout_path: str) -> Union[str, None]:
+def get_parameters_from_outfile(stdout_path: str) -> Union[dict, None]:
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
             for line in file:
@@ -4142,7 +4139,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
 
     clean_completed_jobs()
 
-def check_orchestrator(stdout_path: str, trial_index) -> list: # pragma: no cover
+def check_orchestrator(stdout_path: str, trial_index: int) -> list: # pragma: no cover
     behavs: list = []
 
     if orchestrator and "errors" in orchestrator:
@@ -4170,7 +4167,7 @@ def check_orchestrator(stdout_path: str, trial_index) -> list: # pragma: no cove
 
     return behavs
 
-def orchestrate_job(job, trial_index) -> None:
+def orchestrate_job(job, trial_index: int) -> None:
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
 
@@ -4218,7 +4215,7 @@ def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
 
     return False
 
-def orchestrator_start_trial(params_from_out_file, trial_index) -> None: # pragma: no cover
+def orchestrator_start_trial(params_from_out_file: dict, trial_index: int) -> None: # pragma: no cover
     global global_vars
 
     if executor and ax_client:
@@ -4248,14 +4245,14 @@ def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, st
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-def handle_restart(stdout_path: str, trial_index) -> None: # pragma: no cover
+def handle_restart(stdout_path: str, trial_index: int) -> None: # pragma: no cover
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
-def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index) -> None: # pragma: no cover
+def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
@@ -4276,7 +4273,7 @@ def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file
     else:
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
-def _orchestrate(stdout_path: str, trial_index) -> None: # pragma: no cover
+def _orchestrate(stdout_path: str, trial_index: int) -> None: # pragma: no cover
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs:
@@ -5343,11 +5340,11 @@ def print_generation_strategy() -> None:
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-def save_experiment_parameters(filepath, experiment_parameters) -> None:
+def save_experiment_parameters(filepath: str, experiment_parameters) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-def run_search_with_progress_bar(disable_tqdm) -> None:
+def run_search_with_progress_bar(disable_tqdm: bool) -> None:
     with tqdm(total=max_eval, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
         global progress_bar
@@ -5360,7 +5357,7 @@ def run_search_with_progress_bar(disable_tqdm) -> None:
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal, res_is_none: bool = False) -> int:
+def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:
     print_yellow(f"Test suite: {_program_name}")
 
     nr_errors: int = 0

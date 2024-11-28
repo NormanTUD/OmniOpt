@@ -41,7 +41,7 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-def plot_graph(dataframe, save_to_file=None):
+def plot_graph(dataframe, save_to_file: Union[None, str] = None):
     if "result" not in dataframe:
         if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print("General: Result column not found in dataframe. That may mean that the job had no valid runs")

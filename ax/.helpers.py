@@ -18,7 +18,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 import pandas as pd
 
-def check_environment_variable(variable_name) -> bool:
+def check_environment_variable(variable_name: str) -> bool:
     try:
         value = os.environ[variable_name]
         if value == "1":
@@ -103,7 +103,7 @@ def warn_versions() -> None:
     if len(wrns): # pragma: no cover
         print("- " + ("\n- ".join(wrns)))
 
-def looks_like_float(x) -> bool:
+def looks_like_float(x: Union[float | int | str | None]) -> bool:
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
 
@@ -116,7 +116,7 @@ def looks_like_float(x) -> bool:
 
     return False  # If x is neither str, int, nor float, it's not float-like
 
-def looks_like_int(x) -> bool:
+def looks_like_int(x: Union[float | int | str | None]) -> bool:
     if isinstance(x, bool):
         return False
 
@@ -131,10 +131,10 @@ def looks_like_int(x) -> bool:
 
     return False
 
-def looks_like_number (x) -> bool:
+def looks_like_number (x: Union[float | int | str | None]) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
-def to_int_when_possible(val) -> Union[None, int, float, str]:
+def to_int_when_possible(val: Union[float | int | str | None]) -> Union[None, int, float, str]:
     if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
         return int(val)
 
@@ -142,12 +142,14 @@ def to_int_when_possible(val) -> Union[None, int, float, str]:
         return val
 
     try:
-        val = float(val)
-        if '.' in str(val):
-            decimal_places = len(str(val).split('.')[1])
-            formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
-            return formatted_value if formatted_value else '0'
-        return int(val) # pragma: no cover
+        if val:
+            val = float(val)
+            if '.' in str(val):
+                decimal_places = len(str(val).split('.')[1])
+                formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
+                return formatted_value if formatted_value else '0'
+            return int(val) # pragma: no cover
+        return val
     except Exception: # pragma: no cover
         return val
 
@@ -161,7 +163,7 @@ def flatten_extend(matrix) -> list:
         flat_list.extend(row)
     return flat_list
 
-def convert_string_to_number(input_string) -> Union[int, float, None]:
+def convert_string_to_number(input_string: str) -> Union[int, float, None]:
     try:
         assert isinstance(input_string, str), "Input must be a string"
 
@@ -205,14 +207,14 @@ def check_if_results_are_empty(result_column_values, csv_file_path) -> None:
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-def get_result_column_values(df, csv_file_path) -> list:
+def get_result_column_values(df, csv_file_path: str) -> list:
     result_column_values = df["result"]
 
     check_if_results_are_empty(result_column_values, csv_file_path)
 
     return result_column_values
 
-def check_path(_path) -> None:
+def check_path(_path: str) -> None:
     if not os.path.exists(_path): # pragma: no cover
         print(f'The folder {_path} does not exist.')
         sys.exit(1)
@@ -229,7 +231,7 @@ class bcolors:
     underline = '\033[4m'
     yellow = '\033[33m'
 
-def print_color(color, text) -> None:
+def print_color(color: str, text: str) -> None:
     color_codes = {
         "header": bcolors.header,
         "blue": bcolors.blue,
@@ -339,7 +341,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs): # -> None
 
     return axs
 
-def get_title(_args, result_column_values, df_filtered, num_entries, _min, _max) -> str:
+def get_title(_args, result_column_values, df_filtered, num_entries, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
@@ -407,7 +409,7 @@ def print_diff(i, o) -> None:
         if output: # pragma: no cover
             print("Diff:", output)
 
-def _is_equal(name, _input, output) -> bool:
+def _is_equal(name: str, _input, output) -> bool:
     _equal_types = [
         int, str, float, bool
     ]
@@ -443,7 +445,7 @@ def is_equal(n, o, i) -> bool:
 
     return r
 
-def _is_not_equal(name, _input, output) -> bool:
+def _is_not_equal(name: str, _input, output) -> bool:
     _equal_types = [
         int, str, float, bool
     ]
@@ -463,7 +465,7 @@ def _is_not_equal(name, _input, output) -> bool:
     print_color("green", f"Test OK: {name}")
     return False
 
-def is_not_equal(n, i, o) -> bool:
+def is_not_equal(n: str, i, o) -> bool:
     r = _is_not_equal(n, i, o)
 
     if r: # pragma: no cover
@@ -492,7 +494,7 @@ def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX) -> None: # pra
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
 
-def get_non_empty_graphs(parameter_combinations, df_filtered, _exit) -> list:
+def get_non_empty_graphs(parameter_combinations, df_filtered, _exit: Union[bool, None]) -> list:
     non_empty_graphs = []
 
     if len(parameter_combinations[0]) == 1:
@@ -533,7 +535,7 @@ def get_df_filtered(_args, df) -> pd.DataFrame:
 
     return df_filtered
 
-def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, _min, _max, _exit=True) -> None: # pragma: no cover
+def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], _exit: bool = True) -> None: # pragma: no cover
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if _min and not _max:
@@ -560,7 +562,7 @@ def check_min_and_max(num_entries, nr_of_items_before_filtering, csv_file_path, 
 def contains_strings(series) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
-def get_data(NO_RESULT, csv_file_path, _min, _max, old_headers_string=None, drop_columns_with_strings=False) -> Union[None, pd.DataFrame]:
+def get_data(NO_RESULT, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str = None, drop_columns_with_strings: bool = False) -> Union[None, pd.DataFrame]:
     try:
         df = pd.read_csv(csv_file_path, index_col=0)
 
@@ -679,7 +681,7 @@ def get_color_list(df, _args, _plt): # -> None
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string) -> pd.DataFrame: # pragma: no cover
+def merge_df_with_old_data(_args, df, NO_RESULT, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame: # pragma: no cover
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
@@ -688,7 +690,7 @@ def merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
                 df = df.merge(prev_run_df, how='outer')
     return df
 
-def print_if_not_plot_tests_and_exit(msg, exit_code) -> str:
+def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
     if not os.environ.get("PLOT_TESTS"):
         print(msg)
     if exit_code is not None:
@@ -696,7 +698,7 @@ def print_if_not_plot_tests_and_exit(msg, exit_code) -> str:
 
     return msg
 
-def load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path) -> Union[pd.DataFrame, None]: # pragma: no cover
+def load_and_merge_data(_args, NO_RESULT, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]: # pragma: no cover
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     if df:
@@ -725,7 +727,7 @@ def _update_graph(_params) -> None: # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings) -> None: # pragma: no cover
+def check_filtering(df, df_filtered, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings) -> None: # pragma: no cover
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
@@ -765,7 +767,7 @@ def use_matplotlib(_args) -> None:
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-def filter_data(_args, dataframe, min_value=None, max_value=None) -> pd.DataFrame:
+def filter_data(_args, dataframe, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None) -> pd.DataFrame:
     try:
         if min_value is not None:
             dataframe = dataframe[dataframe['result'] >= min_value]

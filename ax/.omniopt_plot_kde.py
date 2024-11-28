@@ -41,7 +41,7 @@ parser.add_argument('--save_to_file', type=str, help='Save the plot to the speci
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-def get_num_rows_cols(num_plots, num_rows, num_cols) -> Tuple[int, int]:
+def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int, int]:
     if num_plots > 1:
         num_rows = int(num_plots ** 0.5)
         num_cols = int(math.ceil(num_plots / num_rows))

@@ -34,7 +34,7 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-def load_data(csv_path) -> Union[pd.DataFrame, None]:
+def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
     """Loads data from the given CSV file."""
     try:
         dataframe = pd.read_csv(csv_path)
@@ -55,7 +55,7 @@ def load_data(csv_path) -> Union[pd.DataFrame, None]:
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
 
-def plot_graph(dataframe, save_to_file=None) -> None:
+def plot_graph(dataframe, save_to_file: Union[str, None] = None) -> None:
     """Generates and optionally saves/plots the graph."""
     plt.figure(figsize=(12, 8))
 

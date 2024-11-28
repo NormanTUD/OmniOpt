@@ -493,7 +493,7 @@ def wrapper_print_debug(func: Any) -> Any:
         return result
     return wrapper
 
-with console.status("[bold green]Loading ax.utils.common.logger...") as status:
+with console.status("[bold green]Loading ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
 disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 

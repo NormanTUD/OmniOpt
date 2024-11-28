@@ -43,7 +43,7 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 args = parser.parse_args()
 
 def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, str] = None) -> None:
-    if dataframe is None or not "result" in dataframe:
+    if dataframe is None or "result" not in dataframe:
         if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
         sys.exit(169)

@@ -10,6 +10,7 @@ import os
 import sys
 import traceback
 from datetime import datetime, timezone
+from typing import Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -26,7 +27,7 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-def plot_worker_usage(args, pd_csv: str) -> None:
+def plot_worker_usage(args: Any, pd_csv: str) -> None:
     try:
         data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])
 

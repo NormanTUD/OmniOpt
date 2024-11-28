@@ -231,7 +231,7 @@ def print_debug(msg: str) -> None:
 
     _debug(msg)
 
-def my_exit(_code=0) -> None:
+def my_exit(_code: int = 0) -> None:
     tb = traceback.format_exc()
 
     try:
@@ -434,7 +434,7 @@ class ConfigLoader:
 
         return converted_config
 
-    def merge_args_with_config(self, config, cli_args): # -> None
+    def merge_args_with_config(self, config, cli_args) -> Any:
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
 
@@ -447,7 +447,7 @@ class ConfigLoader:
 
         return cli_args
 
-    def parse_arguments(self): # -> None
+    def parse_arguments(self: Any) -> None:
         # First, parse the CLI arguments to check if config files are provided
         _args = self.parser.parse_args()
 
@@ -478,8 +478,8 @@ class ConfigLoader:
 loader = ConfigLoader()
 args: ConfigLoader = loader.parse_arguments()
 
-def wrapper_print_debug(func): # -> None
-    def wrapper(*__args, **kwargs): # -> None
+def wrapper_print_debug(func: Any) -> Any:
+    def wrapper(*__args: Any, **kwargs: Any) -> Any:
         start_time = time.time()
         result = func(*__args, **kwargs)
         end_time = time.time()
@@ -915,13 +915,13 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
-def _log_trial_index_to_param(trial_index, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+def _log_trial_index_to_param(trial_index: int, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, str(eee))
 
 def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, str(eee))
 
-def append_to_nvidia_smi_logs(_file, _host, result, _lvl=0, eee: Union[None, str, Exception] = None) -> None: # pragma: no cover
+def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None: # pragma: no cover
     log_message_to_file(_file, result, _lvl, str(eee))
 
 def _debug_get_next_trials(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
@@ -1010,7 +1010,7 @@ def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> s
     load_or_exit(filepath, error_msg, exit_code)
     return get_file_as_string(filepath).strip()
 
-def check_param_or_exit(param, error_msg: str, exit_code: int) -> None:
+def check_param_or_exit(param: str, error_msg: str, exit_code: int) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)
@@ -1030,7 +1030,7 @@ def check_continue_previous_job(continue_previous_job: str) -> dict:
             )
     return global_vars
 
-def check_required_parameters(_args) -> None:
+def check_required_parameters(_args: Any) -> None:
     global global_vars
     check_param_or_exit(
         _args.parameter or _args.continue_previous_job,
@@ -1048,7 +1048,7 @@ def check_required_parameters(_args) -> None:
         19
     )
 
-def load_time_or_exit(_args) -> None:
+def load_time_or_exit(_args: Any) -> None:
     global global_vars
     if _args.time:
         global_vars["_time"] = _args.time
@@ -1064,7 +1064,7 @@ def load_time_or_exit(_args) -> None:
         print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
-def load_mem_gb_or_exit(_args) -> Optional[int]: # pragma: no cover
+def load_mem_gb_or_exit(_args: Any) -> Optional[int]: # pragma: no cover
     if _args.mem_gb:
         return int(_args.mem_gb)
 
@@ -1084,7 +1084,7 @@ def load_mem_gb_or_exit(_args) -> Optional[int]: # pragma: no cover
 
     return None
 
-def load_gpus_or_exit(_args) -> Optional[int]:
+def load_gpus_or_exit(_args: Any) -> Optional[int]:
     if _args.continue_previous_job and not _args.gpus:
         gpus_file = f"{_args.continue_previous_job}/state_files/gpus"
         gpus_content = get_file_content_or_exit(gpus_file, f"neither --gpus nor file {gpus_file} found", 19)
@@ -1096,7 +1096,7 @@ def load_gpus_or_exit(_args) -> Optional[int]:
         print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number") # pragma: no cover
     return _args.gpus
 
-def load_max_eval_or_exit(_args) -> None:
+def load_max_eval_or_exit(_args: Any) -> None:
     if _args.max_eval:
         set_max_eval(_args.max_eval)
         if _args.max_eval <= 0: # pragma: no cover
@@ -1146,13 +1146,13 @@ def print_debug_progressbar(msg) -> None:
 
     _debug_progressbar(msg)
 
-def receive_usr_signal_one(signum: int, stack) -> None: # pragma: no cover
+def receive_usr_signal_one(signum: int, stack: Any) -> None: # pragma: no cover
     raise SignalUSR(f"USR1-signal received ({signum})")
 
-def receive_usr_signal_int(signum: int, stack) -> None: # pragma: no cover
+def receive_usr_signal_int(signum: int, stack: Any) -> None: # pragma: no cover
     raise SignalINT(f"INT-signal received ({signum})")
 
-def receive_signal_cont(signum: int, stack) -> None: # pragma: no cover
+def receive_signal_cont(signum: int, stack: Any) -> None: # pragma: no cover
     raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
@@ -1293,7 +1293,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
 
     return ret_val, found_in_file
 
-def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int, None]) -> Tuple[float | int | None, bool]:
+def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Union[float, int, None]) -> Tuple[float | int | None, bool]:
     ret_val = _default
 
     found_in_file = False
@@ -1382,12 +1382,12 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
         "values": values
     }
 
-def get_bounds_from_previous_data(name, lower_bound, upper_bound) -> Union[Tuple[float, float], Tuple[int, int]]:
+def get_bounds_from_previous_data(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None]) -> Tuple[float | int | None, float | int | None]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-def check_bounds_change_due_to_previous_job(name, lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
+def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
@@ -1418,7 +1418,7 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
 
     return skip, value_type, log_scale
 
-def parse_range_param(params, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_range_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -1580,7 +1580,7 @@ def check_range_params_length(this_args: Union[str, list]) -> None:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
 
-def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound) -> None:
+def die_181_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float, None], upper_bound: Union[int, float, None]) -> None:
     if upper_bound == lower_bound:
         if lower_bound == 0:
             print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
@@ -1801,7 +1801,7 @@ def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
     except Exception as e: # pragma: no cover
         print_red(f"Unexpected error: {e}")
 
-def count_defective_nodes(file_path: Union[str, None] = None, entry=None) -> list:
+def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None) -> list:
     if file_path is None:
         file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
@@ -2057,7 +2057,7 @@ def evaluate(parameters: dict) -> dict:
     return return_in_case_of_error
 
 class NpEncoder(json.JSONEncoder):
-    def default(self, obj) -> Union[int, float, list]: # pragma: no cover
+    def default(self: Any, obj: Any) -> Union[int, float, list]: # pragma: no cover
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
@@ -2746,7 +2746,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         save_checkpoint(trial_nr + 1, e)
 
 @wrapper_print_debug
-def get_tmp_file_from_json(experiment_args) -> str:
+def get_tmp_file_from_json(experiment_args: dict) -> str:
     _tmp_dir = "/tmp"
     k = 0
     while os.path.exists(f"/{_tmp_dir}/{k}"):
@@ -2820,7 +2820,7 @@ def get_ax_param_representation(data) -> dict:
 
     return {} # only for linter, never reached because of die
 
-def set_torch_device_to_experiment_args(experiment_args) -> dict:
+def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> dict:
     torch_device = None
     try:
         cuda_is_available = torch.cuda.is_available()
@@ -2951,7 +2951,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
     return False
 
 @wrapper_print_debug
-def get_experiment_parameters(_params): # -> Tuple[AxClient, dict, dict]:
+def get_experiment_parameters(_params: list) -> Any:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client
@@ -3150,7 +3150,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list
     return rows
 
 @wrapper_print_debug
-def print_overview_tables(experiment_parameters, experiment_args) -> None:
+def print_overview_tables(experiment_parameters: dict, experiment_args: dict) -> None:
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
@@ -3222,7 +3222,7 @@ def print_overview_tables(experiment_parameters, experiment_args) -> None:
             text_file.write(table_str)
 
 @wrapper_print_debug
-def update_progress_bar(_progress_bar, nr: int) -> None:
+def update_progress_bar(_progress_bar: Any, nr: int) -> None:
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
 
@@ -3251,7 +3251,7 @@ def get_best_params_str() -> str:
                     return f"best result: {best_result_int_if_possible}"
     return ""
 
-def state_from_job(job) -> str:
+def state_from_job(job: Union[str, Job]) -> str:
     job_string = f'{job}'
     match = re.search(r'state="([^"]+)"', job_string)
 
@@ -3406,7 +3406,7 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6): # -> None
+def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6) -> Any:
     # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -3640,7 +3640,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @wrapper_print_debug
-def insert_job_into_ax_client(old_arm_parameter, old_result, hashed_params_result) -> None:
+def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None:
     done_converting = False
 
     while not done_converting:
@@ -3696,7 +3696,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return True
         return False
 
-    def load_and_insert_trials(_status, old_trials, this_path: str, path_idx: int) -> None:
+    def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
@@ -4042,14 +4042,14 @@ def get_hostname_from_outfile(stdout_path: str) -> Union[str, None]:
         print(f"There was an error: {e}")
         return None
 
-def mark_trial_as_failed(_trial) -> None:
+def mark_trial_as_failed(_trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
         _trial.mark_failed()
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
 
-def mark_trial_as_completed(_trial) -> None:
+def mark_trial_as_completed(_trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
@@ -4386,7 +4386,7 @@ def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:
 
     return None
 
-def execute_evaluation(_params) -> Optional[int]:
+def execute_evaluation(_params: list) -> Optional[int]:
     global global_vars
 
     print_debug(f"execute_evaluation({_params})")
@@ -4453,7 +4453,7 @@ def exclude_defective_nodes() -> None:
             print_red("executor could not be found")
             my_exit(9)
 
-def handle_failed_job(error, trial_index, new_job) -> None: # pragma: no cover
+def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Job) -> None: # pragma: no cover
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
     else:
@@ -4464,7 +4464,7 @@ def handle_failed_job(error, trial_index, new_job) -> None: # pragma: no cover
     except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
 
-def cancel_failed_job(trial_index, new_job) -> None: # pragma: no cover
+def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cover
     print_debug("Trying to cancel job that failed")
     if new_job:
         try:
@@ -4492,7 +4492,7 @@ def handle_exit_signal() -> None: # pragma: no cover
     print_red("\n⚠ Detected signal. Will exit.")
     end_program(RESULT_CSV_FILE, False, 1)
 
-def handle_generic_error(e) -> None: # pragma: no cover
+def handle_generic_error(e: Union[Exception, str]) -> None: # pragma: no cover
     tb = traceback.format_exc()
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
@@ -4504,7 +4504,7 @@ def succeeded_jobs(nr: int = 0) -> int:
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-def show_debug_table_for_break_run_search(_name: str, _max_eval: int, _progress_bar, _ret) -> None: # pragma: no cover
+def show_debug_table_for_break_run_search(_name: str, _max_eval: int, _progress_bar: Any, _ret: Any) -> None: # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -4526,7 +4526,7 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: int, _progress_
 
     console.print(table)
 
-def break_run_search(_name: str, _max_eval: int, _progress_bar) -> bool:
+def break_run_search(_name: str, _max_eval: int, _progress_bar: Any) -> bool:
     _ret = False
 
     _counted_done_jobs = count_done_jobs()
@@ -4559,7 +4559,7 @@ def _get_last_and_avg_times() -> Union[Tuple[None, None], Tuple[float, float]]:
     avg_time = sum(time_next_trials_took) / len(time_next_trials_took)
     return last_time, avg_time
 
-def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs) -> int:
+def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
         max_eval + simulated_jobs - count_done_jobs(),
@@ -4640,7 +4640,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
 
     return None
 
-def _handle_linalg_error(error) -> None: # pragma: no cover
+def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: no cover
     """Handles the np.linalg.LinAlgError based on the model being used."""
     if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
         print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")
@@ -4726,7 +4726,7 @@ def _get_max_parallelism() -> int: # pragma: no cover
 
     return ret
 
-def create_systematic_step(model): # -> None:
+def create_systematic_step(model: Any) -> Any:
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
         model=model,
@@ -4749,7 +4749,7 @@ def create_random_generation_step() -> int:
         should_deduplicate=args.should_deduplicate
     )
 
-def select_model(model_arg): # -> None:
+def select_model(model_arg: Any): # -> None:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
     chosen_model = Models.BOTORCH_MODULAR
@@ -4766,7 +4766,7 @@ def select_model(model_arg): # -> None:
 
     return chosen_model
 
-def get_generation_strategy(): # -> GenerationStrategy:
+def get_generation_strategy() -> Any:
     global random_steps
 
     # Initialize steps for the generation strategy
@@ -4796,7 +4796,7 @@ def get_generation_strategy(): # -> GenerationStrategy:
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)
 
-def create_and_execute_next_runs(next_nr_steps: int, phase: str, _max_eval: int, _progress_bar) -> int:
+def create_and_execute_next_runs(next_nr_steps: int, phase: str, _max_eval: int, _progress_bar: Any) -> int:
     global random_steps
 
     if next_nr_steps == 0:
@@ -5022,7 +5022,7 @@ def start_nvidia_smi_thread() -> None: # pragma: no cover
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
 
-def run_search(_progress_bar) -> bool:
+def run_search(_progress_bar: Any) -> bool:
     global NR_OF_0_RESULTS
 
     NR_OF_0_RESULTS = 0
@@ -5329,7 +5329,7 @@ def handle_random_steps() -> None:
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-def initialize_ax_client(gs) -> None:
+def initialize_ax_client(gs: Any) -> None:
     global ax_client
     ax_client = AxClient(
         verbose_logging=args.verbose,

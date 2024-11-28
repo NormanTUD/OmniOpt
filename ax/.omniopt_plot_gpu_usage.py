@@ -55,7 +55,7 @@ def get_names_array() -> list:
         "memory.used [MiB]"
     ]
 
-def plot_gpu_usage(run_dir) -> None:
+def plot_gpu_usage(run_dir: str) -> None:
     global fig
 
     gpu_data = []

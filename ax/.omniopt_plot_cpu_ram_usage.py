@@ -17,7 +17,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 args = None
 helpers = None
 
-def load_helpers(script_dir):
+def load_helpers(script_dir: str) -> None:
     """Loads the helper module."""
     global helpers
     helpers_file = os.path.join(script_dir, ".helpers.py")
@@ -55,7 +55,7 @@ def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
 
-def plot_graph(dataframe, save_to_file: Union[str, None] = None) -> None:
+def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     """Generates and optionally saves/plots the graph."""
     plt.figure(figsize=(12, 8))
 
@@ -76,7 +76,7 @@ def plot_graph(dataframe, save_to_file: Union[str, None] = None) -> None:
         if plt is not None:
             plt.show()
 
-def update_graph(csv_path) -> None:
+def update_graph(csv_path: str) -> None:
     """Updates the graph by loading data and plotting."""
     dataframe = load_data(csv_path)
     if dataframe is not None:

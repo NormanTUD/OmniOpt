@@ -8,6 +8,7 @@ import logging
 import os
 import signal
 import sys
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -29,7 +30,7 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-def parse_arguments():
+def parse_arguments() -> Any:
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
     parser.add_argument('--max', type=float, help='Maximum value for result filtering')
@@ -40,7 +41,7 @@ def parse_arguments():
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-def plot_graph(dataframe, save_to_file=None) -> None:
+def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     if args is not None:
         if "result" not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover

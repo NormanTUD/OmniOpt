@@ -7,6 +7,7 @@ import os
 import signal
 import sys
 import traceback
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -25,7 +26,7 @@ else:
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def parse_log_file(args, log_file_path): # -> None
+def parse_log_file(args: Any, log_file_path: str) -> Union[pd.DataFrame, None]:
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
@@ -60,6 +61,8 @@ def parse_log_file(args, log_file_path): # -> None
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
         raise
+
+    return None
 
 def plot_trial_usage(args, log_file_path) -> None:
     try:

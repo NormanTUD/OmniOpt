@@ -1,5 +1,5 @@
 import json
-from typing import Union, Tuple
+from typing import Union, Tuple, Any
 from datetime import datetime
 from itertools import combinations
 import math
@@ -153,11 +153,11 @@ def to_int_when_possible(val: Union[float | int | str | None]) -> Union[None, in
     except Exception: # pragma: no cover
         return val
 
-def dier(msg) -> None: # pragma: no cover
+def dier(msg: Any) -> None: # pragma: no cover
     pprint(msg)
     sys.exit(1)
 
-def flatten_extend(matrix) -> list:
+def flatten_extend(matrix: list) -> list:
     flat_list = []
     for row in matrix:
         flat_list.extend(row)
@@ -198,7 +198,7 @@ def convert_string_to_number(input_string: str) -> Union[int, float, None]:
 def log_error(error_text: str) -> None: # pragma: no cover
     print(f"Error: {error_text}", file=sys.stderr)
 
-def check_if_results_are_empty(result_column_values, csv_file_path: str) -> None:
+def check_if_results_are_empty(result_column_values: Any, csv_file_path: str) -> None:
     filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
 
     number_of_non_nan_results = len(filtered_data)
@@ -207,7 +207,7 @@ def check_if_results_are_empty(result_column_values, csv_file_path: str) -> None
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-def get_result_column_values(df, csv_file_path: str) -> list:
+def get_result_column_values(df: pd.DataFrame, csv_file_path: str) -> list:
     result_column_values = df["result"]
 
     check_if_results_are_empty(result_column_values, csv_file_path)
@@ -258,7 +258,7 @@ def check_python_version() -> None:
     if python_version not in supported_versions: # pragma: no cover
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def create_widgets(_data): # pragma: no cover
+def create_widgets(_data: Any): # pragma: no cover
     _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, _args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph = _data
 
     button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
@@ -282,13 +282,13 @@ def create_widgets(_data): # pragma: no cover
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-def die_if_no_nonempty_graph(non_empty_graphs, _exit) -> None: # pragma: no cover
+def die_if_no_nonempty_graph(non_empty_graphs: Any, _exit: Any) -> None: # pragma: no cover
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
         if _exit:
             sys.exit(2)
 
-def get_r(df_filtered) -> int:
+def get_r(df_filtered: pd.DataFrame) -> int:
     r = 2
 
     if len(list(df_filtered.columns)) == 1: # pragma: no cover
@@ -296,7 +296,7 @@ def get_r(df_filtered) -> int:
 
     return r
 
-def save_to_file (_fig, _args, _plt) -> None:
+def save_to_file (_fig: Any, _args: Any, _plt: Any) -> None:
     _fig.set_size_inches(15.5, 9.5)
 
     _path = os.path.dirname(_args.save_to_file)
@@ -308,7 +308,7 @@ def save_to_file (_fig, _args, _plt) -> None:
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
-def check_dir_and_csv(_args, csv_file_path) -> None: # pragma: no cover
+def check_dir_and_csv(_args: Any, csv_file_path: str) -> None: # pragma: no cover
     if not os.path.isdir(_args.run_dir):
         print(f"The path {_args.run_dir} does not point to a folder. Must be a folder.")
         sys.exit(11)
@@ -317,14 +317,14 @@ def check_dir_and_csv(_args, csv_file_path) -> None: # pragma: no cover
         print(f'The file {csv_file_path} does not exist.')
         sys.exit(39)
 
-def get_csv_file_path(_args) -> str:
+def get_csv_file_path(_args: Any) -> str:
     pd_csv = "results.csv"
     csv_file_path = os.path.join(_args.run_dir, pd_csv)
     check_dir_and_csv(_args, csv_file_path)
 
     return csv_file_path
 
-def drop_empty_results (NO_RESULT, df) -> pd.DataFrame:
+def drop_empty_results (NO_RESULT: Any, df: pd.DataFrame) -> pd.DataFrame:
     negative_rows_to_remove = df[df["result"].astype(str) == '-' + NO_RESULT].index
     positive_rows_to_remove = df[df["result"].astype(str) == NO_RESULT].index
 
@@ -333,7 +333,7 @@ def drop_empty_results (NO_RESULT, df) -> pd.DataFrame:
 
     return df
 
-def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs): # -> None
+def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int, axs: Any): # -> None
     for i in range(len(parameter_combinations), num_rows * num_cols):
         row = i // num_cols
         col = i % num_cols
@@ -341,7 +341,7 @@ def hide_empty_plots(parameter_combinations, num_rows, num_cols, axs): # -> None
 
     return axs
 
-def get_title(_args, result_column_values, df_filtered, num_entries, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
+def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
@@ -381,7 +381,7 @@ def get_title(_args, result_column_values, df_filtered, num_entries, _min: Union
 def setup_logging() -> None:
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def _unidiff_output(expected, actual) -> str:
+def _unidiff_output(expected: str, actual: str) -> str:
     """
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
@@ -393,7 +393,7 @@ def _unidiff_output(expected, actual) -> str:
 
     return ''.join(diff)
 
-def print_diff(i, o) -> None:
+def print_diff(i: str, o: tr) -> None:
     if isinstance(i, str):
         print("Should be:", i.strip())
     else: # pragma: no cover
@@ -409,7 +409,7 @@ def print_diff(i, o) -> None:
         if output: # pragma: no cover
             print("Diff:", output)
 
-def _is_equal(name: str, _input, output) -> bool:
+def _is_equal(name: str, _input: Any, output: Any) -> bool:
     _equal_types = [
         int, str, float, bool
     ]
@@ -433,7 +433,7 @@ def _is_equal(name: str, _input, output) -> bool:
     print_color("green", f"Test OK: {name}")
     return False
 
-def is_equal(n, o, i) -> bool:
+def is_equal(n: str, o: Any, i: Any) -> bool:
     r = _is_equal(n, i, o)
 
     if r: # pragma: no cover
@@ -465,7 +465,7 @@ def _is_not_equal(name: str, _input, output) -> bool:
     print_color("green", f"Test OK: {name}")
     return False
 
-def is_not_equal(n: str, i, o) -> bool:
+def is_not_equal(n: str, i: Any, o: Any) -> bool:
     r = _is_not_equal(n, i, o)
 
     if r: # pragma: no cover
@@ -473,7 +473,7 @@ def is_not_equal(n: str, i, o) -> bool:
 
     return r
 
-def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max) -> Tuple[int | float, int | float]: # pragma: no cover
+def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[int | float, int | float]: # pragma: no cover
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 
@@ -482,19 +482,19 @@ def set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max) -> Tuple[int | flo
 
     return _min, _max
 
-def get_num_subplots_rows_and_cols(non_empty_graphs) -> Tuple[int, int, int]:
+def get_num_subplots_rows_and_cols(non_empty_graphs: list) -> Tuple[int, int, int]:
     num_subplots = len(non_empty_graphs)
     num_cols = math.ceil(math.sqrt(num_subplots))
     num_rows = math.ceil(num_subplots / num_cols)
 
     return num_subplots, num_cols, num_rows
 
-def remove_widgets(fig, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX) -> None: # pragma: no cover
+def remove_widgets(fig: Any, button: Any, MAXIMUM_TEXTBOX: Any, MINIMUM_TEXTBOX: Any) -> None: # pragma: no cover
     for widget in fig.axes:
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
 
-def get_non_empty_graphs(parameter_combinations, df_filtered, _exit: Union[bool, None]) -> list:
+def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame, _exit: Union[bool, None]) -> list:
     non_empty_graphs = []
 
     if len(parameter_combinations[0]) == 1:
@@ -517,7 +517,7 @@ def get_non_empty_graphs(parameter_combinations, df_filtered, _exit: Union[bool,
 
     return non_empty_graphs
 
-def get_df_filtered(_args, df) -> pd.DataFrame:
+def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
     existing_columns = df.columns.values.tolist()
@@ -559,7 +559,7 @@ def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_f
         if _exit:
             sys.exit(4)
 
-def contains_strings(series) -> bool:
+def contains_strings(series: Any) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
 def get_data(
@@ -625,7 +625,7 @@ def get_data(
 
     return df
 
-def show_legend(_args, _fig, _scatter, axs) -> None:
+def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
     try:
         if not _args.no_legend:
             cbar = _fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
@@ -650,7 +650,7 @@ def get_parameter_combinations(df_filtered) -> list:
 
     return parameter_combinations
 
-def get_colors(df): # -> list:
+def get_colors(df: pd.DataFrame): # -> list:
     colors = None
 
     try:
@@ -665,7 +665,7 @@ def get_colors(df): # -> list:
 
     return colors
 
-def get_color_list(df, _args, _plt): # -> None
+def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any): # -> None
     colors = get_colors(df)
 
     if colors is None: # pragma: no cover
@@ -691,7 +691,7 @@ def get_color_list(df, _args, _plt): # -> None
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args, df, NO_RESULT, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame: # pragma: no cover
+def merge_df_with_old_data(_args: Any, df: pd.DataFrame, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame: # pragma: no cover
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
@@ -708,7 +708,7 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 
     return msg
 
-def load_and_merge_data(_args, NO_RESULT, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: Union[None, str]) -> Union[pd.DataFrame, None]: # pragma: no cover
+def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: Union[None, str]) -> Union[pd.DataFrame, None]: # pragma: no cover
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     if df:
@@ -717,7 +717,7 @@ def load_and_merge_data(_args, NO_RESULT, _min: Union[int, float, None], _max: U
 
     return None
 
-def _update_graph(_params) -> None: # pragma: no cover
+def _update_graph(_params: list) -> None: # pragma: no cover
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 
     try:
@@ -737,11 +737,11 @@ def _update_graph(_params) -> None: # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def check_filtering(df, df_filtered, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings) -> None: # pragma: no cover
+def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings) -> None: # pragma: no cover
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
-def plot_parameters(_params) -> None: # pragma: no cover
+def plot_parameters(_params: list) -> None: # pragma: no cover
     df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
     parameter_combinations = get_parameter_combinations(df_filtered)
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
@@ -769,7 +769,7 @@ def set_margins(fig) -> None:
 
     fig.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
 
-def use_matplotlib(_args) -> None:
+def use_matplotlib(_args: Any) -> None:
     try:
         if not _args.save_to_file: # pragma: no cover
             matplotlib.use('TkAgg')
@@ -777,7 +777,7 @@ def use_matplotlib(_args) -> None:
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-def filter_data(_args, dataframe, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None) -> pd.DataFrame:
+def filter_data(_args: Any, dataframe: pd.DataFrame, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None) -> pd.DataFrame:
     try:
         if min_value is not None:
             dataframe = dataframe[dataframe['result'] >= min_value]
@@ -799,7 +799,7 @@ def is_valid_time_format(time_string) -> bool: # pragma: no cover
     except ValueError:
         return False
 
-def check_args(_args) -> None:
+def check_args(_args: Any) -> None:
     if _args.min and _args.max:
         if _args.min > _args.max: # pragma: no cover
             _args.max, _args.min = _args.min, _args.max

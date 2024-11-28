@@ -48,7 +48,7 @@ def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int
 
     return num_rows, num_cols
 
-def plot_histograms(dataframe):
+def plot_histograms(dataframe: pd.DataFrame) -> None:
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
 

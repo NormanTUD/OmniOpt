@@ -1432,6 +1432,9 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: U
 
     validate_value_type(value_type)
 
+    lower_bound: Union[float, int, None]
+    upper_bound: Union[float, int, None]
+
     lower_bound, upper_bound = adjust_bounds_for_value_type(value_type, lower_bound, upper_bound)
 
     lower_bound, upper_bound = get_bounds_from_previous_data(name, lower_bound, upper_bound)

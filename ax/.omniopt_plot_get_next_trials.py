@@ -71,25 +71,28 @@ def plot_trial_usage(args: Any, log_file_path: str) -> None:
         plt.figure(figsize=(12, 6))
 
         # Plot 'got'
-        plt.plot(data['time'], data['got'], label='Got', color='blue')
+        if data:
+            plt.plot(data['time'], data['got'], label='Got', color='blue')
 
-        # Plot 'requested'
-        plt.plot(data['time'], data['requested'], label='Requested', color='orange')
+            # Plot 'requested'
+            plt.plot(data['time'], data['requested'], label='Requested', color='orange')
 
-        plt.xlabel('Time')
-        plt.ylabel('Count')
-        plt.title('Trials Usage Plot')
-        plt.legend()
+            plt.xlabel('Time')
+            plt.ylabel('Count')
+            plt.title('Trials Usage Plot')
+            plt.legend()
 
-        plt.gcf().autofmt_xdate()  # Rotate and align the x labels
+            plt.gcf().autofmt_xdate()  # Rotate and align the x labels
 
-        plt.tight_layout()
-        if args.save_to_file:
-            fig = plt.figure(1)
-            helpers.save_to_file(fig, args, plt)
-        else: # pragma: no cover
-            if not args.no_plt_show:
-                plt.show()
+            plt.tight_layout()
+            if args.save_to_file:
+                fig = plt.figure(1)
+                helpers.save_to_file(fig, args, plt)
+            else: # pragma: no cover
+                if not args.no_plt_show:
+                    plt.show()
+        else:
+            raise Exception("Failed to get data")
     except Exception as e: # pragma: no cover
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise

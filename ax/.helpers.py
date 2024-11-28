@@ -207,7 +207,7 @@ def check_if_results_are_empty(result_column_values: Any, csv_file_path: str) ->
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
-def get_result_column_values(df: pd.DataFrame, csv_file_path: str) -> list:
+def get_result_column_values(df: pd.DataFrame, csv_file_path: str) -> Any:
     result_column_values = df["result"]
 
     check_if_results_are_empty(result_column_values, csv_file_path)
@@ -473,7 +473,7 @@ def is_not_equal(n: str, i: Any, o: Any) -> bool:
 
     return r
 
-def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[int | float, int | float]: # pragma: no cover
+def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[int | float | None, int | float | None]: # pragma: no cover
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 

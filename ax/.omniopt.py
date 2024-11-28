@@ -1424,7 +1424,7 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: U
 
     lower_bound, upper_bound = get_bounds(this_args, j)
 
-    die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
+    die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
 
     lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
@@ -1580,7 +1580,10 @@ def check_range_params_length(this_args: Union[str, list]) -> None:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
 
-def die_181_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float, None], upper_bound: Union[int, float, None]) -> None:
+def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float, None], upper_bound: Union[int, float, None]) -> None:
+    if upper_bound is None or lower_bound is None:
+        print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
+        my_exit(91)
     if upper_bound == lower_bound:
         if lower_bound == 0:
             print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
@@ -2837,9 +2840,16 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
         print_red("Cannot load torch and thus, cannot use gpus")
 
     if torch_device:
-        experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+        if experiment_args:
+            experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
+        else:
+            print_red("experiment_args could not be created.")
+            my_exit(90)
 
-    return experiment_args
+    if experiment_args:
+        return experiment_args
+
+    return {}
 
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
     if not os.path.exists(_file):

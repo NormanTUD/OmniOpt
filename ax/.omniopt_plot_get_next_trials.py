@@ -71,7 +71,7 @@ def plot_trial_usage(args: Any, log_file_path: str) -> None:
         plt.figure(figsize=(12, 6))
 
         # Plot 'got'
-        if data:
+        if data is not None:
             plt.plot(data['time'], data['got'], label='Got', color='blue')
 
             # Plot 'requested'
@@ -116,7 +116,7 @@ def main() -> None:
             try:
                 plot_trial_usage(args, log_file_path)
             except Exception as e: # pragma: no cover
-                helpers.log_error(f"Error: {e}")
+                helpers.log_error(f"main Error: {e}")
                 sys.exit(3)
         else: # pragma: no cover
             helpers.log_error(f"File '{log_file_path}' does not exist.")

@@ -36,7 +36,7 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 args = parser.parse_args()
 
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -> None:
-    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    exclude_columns: list = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
     numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
 

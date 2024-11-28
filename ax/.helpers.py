@@ -386,9 +386,6 @@ def _unidiff_output(expected: str, actual: str) -> str:
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
 
-    expected = expected.splitlines(1)
-    actual = actual.splitlines(1)
-
     diff = difflib.unified_diff(expected, actual)
 
     return ''.join(diff)
@@ -643,10 +640,10 @@ def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
 
     del df_filtered_cols[df_filtered_cols.index("result")]
 
-    parameter_combinations = list(combinations(df_filtered_cols, r))
+    parameter_combinations: list = list(combinations(df_filtered_cols, r))
 
     if len(parameter_combinations) == 0:
-        parameter_combinations = [*df_filtered_cols]
+        parameter_combinations = list([*df_filtered_cols])
 
     return parameter_combinations
 

@@ -3690,9 +3690,11 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
 
     def should_insert(hashed_params_result: Union[tuple[str, str] | tuple[str, float, tuple[str, int], tuple[str, None]]]) -> bool:
         result = hashed_params_result[1]
-        res = not not result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
+        res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
-        return res
+        if res:
+            return True
+        return False
 
     def load_and_insert_trials(_status, old_trials, this_path: str, path_idx: int) -> None:
         trial_idx = 0

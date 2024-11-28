@@ -1357,7 +1357,7 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 
     return lower_bound, upper_bound
 
-def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
+def create_param(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None], value_type: str, log_scale: bool) -> dict:
     return {
         "name": name,
         "type": "range",
@@ -1366,7 +1366,13 @@ def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_b
         "log_scale": log_scale
     }
 
-def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
+def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None], value_type: str) -> dict:
+    if lower_bound is None or upper_bound is None:
+        print_red("handle_grid_search: lower_bound or upper_bound is None")
+        my_exit(91)
+
+        return {}
+
     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
     if value_type == "int":
@@ -1387,7 +1393,7 @@ def get_bounds_from_previous_data(name: Union[list, str], lower_bound: Union[flo
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
+def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None], search_space_reduction_warning: bool) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
@@ -1422,6 +1428,9 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: U
     check_factorial_range()
     check_range_params_length(this_args)
 
+    lower_bound: Union[float, int, None]
+    upper_bound: Union[float, int, None]
+
     lower_bound, upper_bound = get_bounds(this_args, j)
 
     die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
@@ -1431,9 +1440,6 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: U
     skip, value_type, log_scale = get_value_type_and_log_scale(this_args, j)
 
     validate_value_type(value_type)
-
-    lower_bound: Union[float, int, None]
-    upper_bound: Union[float, int, None]
 
     lower_bound, upper_bound = adjust_bounds_for_value_type(value_type, lower_bound, upper_bound)
 

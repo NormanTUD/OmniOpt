@@ -556,7 +556,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test OO without needed params (missing time)" "./omniopt --parameter x range 0 1 float --run_program 'echo' --experiment_name=asdf" 19 104
 
-	_test "Test OO without needed params (missing max eval)" "./omniopt --parameter x range 0 1 float --run_program 'echo' --experiment_name=asdf --time=12" 87 104
+	_test "Test OO without needed params (missing max eval)" "./omniopt --parameter x range 0 1 float --run_program 'echo' --experiment_name=asdf --time=12" 87 49
 
 	_test "Incomplete fixed parameter" "./omniopt --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x fixed" 181 104
 

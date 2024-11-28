@@ -134,7 +134,7 @@ def looks_like_int(x: Union[float | int | str | None]) -> bool:
 def looks_like_number (x: Union[float | int | str | None]) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
-def to_int_when_possible(val: Union[float | int | str | None]) -> Union[None, int, float, str]:
+def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
     if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
         return int(val)
 
@@ -258,7 +258,7 @@ def check_python_version() -> None:
     if python_version not in supported_versions: # pragma: no cover
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def create_widgets(_data: Any): # pragma: no cover
+def create_widgets(_data: Any) -> Any: # pragma: no cover
     _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, _args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph = _data
 
     button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
@@ -333,7 +333,7 @@ def drop_empty_results (NO_RESULT: Any, df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int, axs: Any): # -> None
+def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int, axs: Any) -> Any:
     for i in range(len(parameter_combinations), num_rows * num_cols):
         row = i // num_cols
         col = i % num_cols
@@ -445,7 +445,7 @@ def is_equal(n: str, o: Any, i: Any) -> bool:
 
     return r
 
-def _is_not_equal(name: str, _input, output) -> bool:
+def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
     _equal_types = [
         int, str, float, bool
     ]
@@ -535,7 +535,7 @@ def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
 
     return df_filtered
 
-def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], _exit: bool = True) -> None: # pragma: no cover
+def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None, _exit: bool = True) -> None: # pragma: no cover
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             if _min and not _max:
@@ -563,7 +563,7 @@ def contains_strings(series: Any) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
 def get_data(
-        NO_RESULT,
+        NO_RESULT: Any,
         csv_file_path: Union[None, str],
         _min: Union[int, float, None],
         _max: Union[int, float, None],
@@ -636,7 +636,7 @@ def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
     except Exception as e:
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
-def get_parameter_combinations(df_filtered) -> list:
+def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
     r = get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()
@@ -650,7 +650,7 @@ def get_parameter_combinations(df_filtered) -> list:
 
     return parameter_combinations
 
-def get_colors(df: pd.DataFrame): # -> list:
+def get_colors(df: pd.DataFrame) -> Any:
     colors = None
 
     try:
@@ -665,7 +665,7 @@ def get_colors(df: pd.DataFrame): # -> list:
 
     return colors
 
-def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any): # -> None
+def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any) -> Any:
     colors = get_colors(df)
 
     if colors is None: # pragma: no cover
@@ -737,7 +737,7 @@ def _update_graph(_params: list) -> None: # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings) -> None: # pragma: no cover
+def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str) -> None: # pragma: no cover
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
 
@@ -755,11 +755,11 @@ def plot_parameters(_params: list) -> None: # pragma: no cover
     plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
-def _handle_exception(e) -> None:
+def _handle_exception(e: Union[str, Exception]) -> None:
     if "invalid command name" not in str(e): # pragma: no cover
         print(f"Failed to update graph: {e}")
 
-def set_margins(fig) -> None:
+def set_margins(fig: Any) -> None:
     left = 0.04
     right = 0.864
     bottom = 0.171
@@ -792,7 +792,7 @@ def print_traceback() -> None:
     tb = traceback.format_exc()
     print(tb)
 
-def is_valid_time_format(time_string) -> bool: # pragma: no cover
+def is_valid_time_format(time_string: str) -> bool: # pragma: no cover
     try:
         datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
         return True

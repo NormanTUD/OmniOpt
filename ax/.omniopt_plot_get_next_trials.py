@@ -64,7 +64,7 @@ def parse_log_file(args: Any, log_file_path: str) -> Union[pd.DataFrame, None]:
 
     return None
 
-def plot_trial_usage(args, log_file_path) -> None:
+def plot_trial_usage(args: Any, log_file_path: str) -> None:
     try:
         data = parse_log_file(args, log_file_path)
 

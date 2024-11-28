@@ -31,7 +31,7 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
     parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
 

@@ -12,6 +12,8 @@ import os
 import signal
 import sys
 import traceback
+from typing import Any, Union
+import panda as pd
 
 button = None
 
@@ -87,13 +89,13 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-def set_title(df_filtered, result_column_values, num_entries, _min, _max) -> None:
+def set_title(df_filtered: pd.DataFrame, result_column_values: list, num_entries: int, _min: Union[float, int, None] = None, _max: Union[float, int, None] = None) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:
         fig.suptitle(title)
 
-def plot_multiple_graphs(_params) -> None:
+def plot_multiple_graphs(_params: list) -> None:
     if args is not None:
         non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
         global bins
@@ -143,7 +145,7 @@ def plot_multiple_graphs(_params) -> None:
 
         helpers.show_legend(args, fig, scatter, axs)
 
-def plot_single_graph(_params) -> None:
+def plot_single_graph(_params: list) -> None:
     if args is not None:
         axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
         _data = df_filtered
@@ -165,7 +167,7 @@ def plot_single_graph(_params) -> None:
         axs.set_xlabel(non_empty_graphs[0][0])
         axs.set_ylabel("result")
 
-def plot_graphs(_params):
+def plot_graphs(_params: list) -> None:
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
 
@@ -233,7 +235,7 @@ def main() -> None:
             update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event=None, _min=None, _max=None) -> None: # pragma: no cover
+def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None: # pragma: no cover
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event:  # pragma: no cover

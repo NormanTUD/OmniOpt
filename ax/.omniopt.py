@@ -434,7 +434,7 @@ class ConfigLoader:
 
         return converted_config
 
-    def merge_args_with_config(self, config, cli_args) -> Any:
+    def merge_args_with_config(self: Any, config: Any, cli_args: Any) -> Any:
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
 
@@ -916,7 +916,7 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
 def _log_trial_index_to_param(trial_index: int, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    log_message_to_file(logfile_trial_index_to_param_logs, trial_index, _lvl, str(eee))
+    log_message_to_file(logfile_trial_index_to_param_logs, str(trial_index), _lvl, str(eee))
 
 def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, str(eee))
@@ -1140,7 +1140,7 @@ def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     _debug_get_next_trials(msg)
 
 @wrapper_print_debug
-def print_debug_progressbar(msg) -> None:
+def print_debug_progressbar(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
 
@@ -1453,7 +1453,7 @@ def validate_value_type(value_type: str) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-def parse_fixed_param(params, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -2386,7 +2386,7 @@ def count_done_jobs() -> int:
 
     return _count_done_jobs(csv_file_path)
 
-def get_plot_types(x_y_combinations: list, _force=False) -> list:
+def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
     plot_types: list = []
 
     if args.show_sixel_trial_index_result or _force:
@@ -2784,7 +2784,7 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
 
     return ""
 
-def get_ax_param_representation(data) -> dict:
+def get_ax_param_representation(data: dict) -> dict:
     if data["type"] == "range":
         return {
             "__type": "RangeParameter",
@@ -3407,7 +3407,6 @@ def clean_completed_jobs() -> None:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
 def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6) -> Any:
-    # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
     Return the value of the 'result' column from that row.
@@ -3863,7 +3862,7 @@ def get_exit_codes() -> dict:
         "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
     }
 
-def check_for_non_zero_exit_codes(file_as_string) -> list[str]:
+def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
     errors: list[str] = []
     for r in range(1, 255):
         special_exit_codes = get_exit_codes()
@@ -4219,7 +4218,7 @@ def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
 
     return False
 
-def orchestrator_start_trial(params_from_out_file: dict, trial_index: int) -> None: # pragma: no cover
+def orchestrator_start_trial(params_from_out_file: str, trial_index: int) -> None: # pragma: no cover
     global global_vars
 
     if executor and ax_client:
@@ -4749,7 +4748,7 @@ def create_random_generation_step() -> int:
         should_deduplicate=args.should_deduplicate
     )
 
-def select_model(model_arg: Any): # -> None:
+def select_model(model_arg: Any) -> Any:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
     chosen_model = Models.BOTORCH_MODULAR

@@ -12,7 +12,7 @@ import os
 import signal
 import sys
 import traceback
-from typing import Union
+from typing import Any, Union
 import pandas as pd
 
 button = None
@@ -87,7 +87,7 @@ def set_title(df_filtered: pd.DataFrame, result_column_values: pd.DataFrame, num
     if fig:
         fig.suptitle(title)
 
-def plot_multiple_graphs(_params) -> None:
+def plot_multiple_graphs(_params: list) -> None:
     if args is not None:
         non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
 
@@ -118,7 +118,7 @@ def plot_multiple_graphs(_params) -> None:
 
         helpers.show_legend(args, fig, scatter, axs)
 
-def plot_single_graph(_params):
+def plot_single_graph(_params: list) -> Any:
     axs, df_filtered, colors, cmap, norm, non_empty_graphs = _params
     _data = df_filtered
 
@@ -137,7 +137,7 @@ def plot_single_graph(_params):
 
     return scatter
 
-def plot_graphs(_params) -> None:
+def plot_graphs(_params: list) -> None:
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
 
@@ -201,7 +201,7 @@ def main() -> None:
             update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event=None, _min=None, _max=None) -> None: # pragma: no cover
+def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None: # pragma: no cover
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event: # only for fooling pylint...

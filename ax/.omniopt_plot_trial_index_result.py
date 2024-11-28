@@ -33,7 +33,6 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-
 parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
 parser.add_argument('--min', type=float, help='Minimum value for result filtering')
 parser.add_argument('--max', type=float, help='Maximum value for result filtering')

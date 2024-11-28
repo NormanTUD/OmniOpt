@@ -393,7 +393,7 @@ def _unidiff_output(expected: str, actual: str) -> str:
 
     return ''.join(diff)
 
-def print_diff(i: str, o: tr) -> None:
+def print_diff(i: str, o: str) -> None:
     if isinstance(i, str):
         print("Should be:", i.strip())
     else: # pragma: no cover

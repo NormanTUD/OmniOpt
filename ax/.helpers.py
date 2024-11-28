@@ -724,7 +724,7 @@ def _update_graph(_params: list) -> None: # pragma: no cover
         if df:
             df_filtered = get_df_filtered(_args, df)
 
-            check_filtering(df, df_filtered, csv_file_path, _min, _max, filter_out_strings)
+            check_filtering(df, df_filtered, csv_file_path, _min, _max)
             plot_parameters([df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max])
 
             plt.draw()

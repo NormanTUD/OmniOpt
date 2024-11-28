@@ -278,7 +278,7 @@ class ConfigLoader:
     run_program: str
     orchestrator_file: Optional[str]
     run_dir: str
-    ui_url: str
+    ui_url: Optional[str]
     nodes_per_job: int
     seed: int
     cpus_per_task: int
@@ -294,7 +294,7 @@ class ConfigLoader:
     no_sleep: bool
     max_nr_of_zero_results: int
     mem_gb: int
-    continue_previous_job: str
+    continue_previous_job: Optional[str]
 
     def __init__(self) -> None:
         self.parser = argparse.ArgumentParser(

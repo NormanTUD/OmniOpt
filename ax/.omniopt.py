@@ -447,7 +447,7 @@ class ConfigLoader:
 
         return cli_args
 
-    def parse_arguments(self: Any) -> ConfigLoader:
+    def parse_arguments(self: Any) -> Any:
         # First, parse the CLI arguments to check if config files are provided
         _args = self.parser.parse_args()
 

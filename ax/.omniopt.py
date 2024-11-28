@@ -205,7 +205,7 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
 
         _debug(msg, _lvl + 1, e)
 
-def _get_debug_json(time_str, msg) -> str:
+def _get_debug_json(time_str: str, msg: str) -> str:
     stack = inspect.stack()
     function_stack = []
 
@@ -219,7 +219,7 @@ def _get_debug_json(time_str, msg) -> str:
 
     return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
-def print_debug(msg) -> None:
+def print_debug(msg: str) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     stack_trace_element = _get_debug_json(time_str, msg)
@@ -539,7 +539,7 @@ if not args.tests:
 
 NVIDIA_SMI_LOGS_BASE = None
 
-def append_and_read(file, nr=0, recursion=0) -> int:
+def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
     try:
         with open(file, mode='a+', encoding="utf-8") as f:
             f.seek(0)  # Setze den Dateizeiger auf den Anfang der Datei
@@ -1001,16 +1001,16 @@ def load_global_vars(_file: str) -> None:
         print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
-def load_or_exit(filepath, error_msg, exit_code) -> None:
+def load_or_exit(filepath: str, error_msg: str, exit_code: int) -> None:
     if not os.path.exists(filepath): # pragma: no cover
         print_red(error_msg)
         my_exit(exit_code)
 
-def get_file_content_or_exit(filepath, error_msg, exit_code) -> str:
+def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> str:
     load_or_exit(filepath, error_msg, exit_code)
     return get_file_as_string(filepath).strip()
 
-def check_param_or_exit(param, error_msg, exit_code) -> None:
+def check_param_or_exit(param, error_msg: str, exit_code: int) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)
@@ -1575,7 +1575,7 @@ def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -
         print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
         my_exit(181)
 
-def check_range_params_length(this_args) -> None:
+def check_range_params_length(this_args: Union[str, list]) -> None:
     if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
@@ -2645,7 +2645,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
 
     return _exit
 
-def abandon_job(job, trial_index: int) -> bool: # pragma: no cover
+def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
     global global_vars
 
     if job:
@@ -2761,7 +2761,7 @@ def get_tmp_file_from_json(experiment_args) -> str:
     return f"/{_tmp_dir}/{k}"
 
 @wrapper_print_debug
-def compare_parameters(old_param_json, new_param_json) -> str:
+def compare_parameters(old_param_json: str, new_param_json: str) -> str:
     try:
         old_param = json.loads(old_param_json)
         new_param = json.loads(new_param_json)
@@ -3097,7 +3097,7 @@ def get_type_short(typename: str) -> str:
     return typename
 
 @wrapper_print_debug
-def parse_single_experiment_parameter_table(experiment_parameters) -> list:
+def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list:
     rows: list = []
 
     for param in experiment_parameters:
@@ -3406,7 +3406,7 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-def get_old_result_by_params(file_path: str, params, float_tolerance: float = 1e-6): # -> None
+def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6): # -> None
     # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -3417,9 +3417,6 @@ def get_old_result_by_params(file_path: str, params, float_tolerance: float = 1e
     :param float_tolerance: The tolerance for comparing float values.
     :return: The value of the 'result' column from the matched row.
     """
-
-    assert isinstance(file_path, str), "file_path must be a string"
-    assert isinstance(params, dict), "params must be a dictionary"
 
     if not os.path.exists(file_path):
         print_red(f"{file_path} for getting old CSV results cannot be found")
@@ -3471,7 +3468,7 @@ def get_old_result_by_params(file_path: str, params, float_tolerance: float = 1e
         raise
 
 @wrapper_print_debug
-def get_old_result_simple(this_path: str, old_arm_parameter) -> Union[float, None, int]:
+def get_old_result_simple(this_path: str, old_arm_parameter: dict) -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)
     if "result" in tmp_old_res:
         tmp_old_res = tmp_old_res["result"]
@@ -3565,7 +3562,10 @@ def load_existing_job_data_into_ax_client() -> None:
         NR_INSERTED_JOBS += nr_of_imported_jobs
 
 @wrapper_print_debug
-def parse_parameter_type_error(_error_message) -> Optional[dict]:
+def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dict]:
+    if not _error_message:
+        return None
+
     error_message: str = str(_error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
@@ -3723,7 +3723,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
-    def log_missing_result(parameters, hashed_params_result: Union[Tuple[str, str] | tuple[str, float, tuple[str, int], Tuple[str, None]]]) -> None:
+    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, str] | tuple[str, float, tuple[str, int], Tuple[str, None]]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]
@@ -3909,7 +3909,7 @@ def get_python_errors() -> list[list[str]]:
         ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
     ]
 
-def get_first_line_of_file_that_contains_string(i, s) -> str: # pragma: no cover
+def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma: no cover
     if not os.path.exists(i):
         print_debug(f"File {i} not found")
         return ""
@@ -3935,7 +3935,7 @@ def get_first_line_of_file_that_contains_string(i, s) -> str: # pragma: no cover
 
     return ""
 
-def check_for_python_errors(i, file_as_string) -> list[str]:
+def check_for_python_errors(i: str, file_as_string: str) -> list[str]:
     errors: list[str] = []
 
     for search_array in get_python_errors():
@@ -4171,7 +4171,7 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> list: # pragma: no
 
     return behavs
 
-def orchestrate_job(job, trial_index: int) -> None:
+def orchestrate_job(job: Job, trial_index: int) -> None:
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
 
@@ -4371,7 +4371,7 @@ def save_state_files() -> None:
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-def submit_job(parameters) -> Union[None, Job[dict[Any, Any]]]:
+def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)
@@ -5192,7 +5192,7 @@ def add_exclude_to_defective_nodes() -> None:
         for entry in entries:
             count_defective_nodes(None, entry)
 
-def check_max_eval(_max_eval) -> None:
+def check_max_eval(_max_eval: int) -> None:
     if not _max_eval:
         print_red("--max_eval needs to be set!")
         my_exit(19)
@@ -5344,7 +5344,7 @@ def print_generation_strategy() -> None:
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-def save_experiment_parameters(filepath: str, experiment_parameters) -> None:
+def save_experiment_parameters(filepath: str, experiment_parameters: dict) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 

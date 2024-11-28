@@ -195,10 +195,10 @@ def convert_string_to_number(input_string: str) -> Union[int, float, None]:
 
     return None
 
-def log_error(error_text) -> None: # pragma: no cover
+def log_error(error_text: str) -> None: # pragma: no cover
     print(f"Error: {error_text}", file=sys.stderr)
 
-def check_if_results_are_empty(result_column_values, csv_file_path) -> None:
+def check_if_results_are_empty(result_column_values, csv_file_path: str) -> None:
     filtered_data = list(filter(lambda x: not math.isnan(x), result_column_values.tolist()))
 
     number_of_non_nan_results = len(filtered_data)

@@ -3100,7 +3100,7 @@ def get_experiment_parameters(_params: list) -> Any:
                 sys.exit(9)
         except ValueError as error: # pragma: no cover
             print_red(f"An error has occurred while creating the experiment: {error}")
-            die_something_went_wrong_with_parameters()
+            #die_something_went_wrong_with_parameters()
         except TypeError as error:
             print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt.")
             die_something_went_wrong_with_parameters()

@@ -734,7 +734,7 @@ def _update_graph(_params: list) -> None: # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str) -> None: # pragma: no cover
+def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None: # pragma: no cover
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 

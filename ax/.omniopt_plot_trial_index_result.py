@@ -11,11 +11,11 @@ import os
 import signal
 import sys
 import traceback
+from typing import Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from typing import Union
 
 args = None
 

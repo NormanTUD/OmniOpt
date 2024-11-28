@@ -92,7 +92,8 @@ def plot_trial_usage(args: Any, log_file_path: str) -> None:
                 if not args.no_plt_show:
                     plt.show()
         else:
-            raise Exception("Failed to get data")
+            helpers.log_error(f"Failed to get job data")
+            sys.exit(8)
     except Exception as e: # pragma: no cover
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise

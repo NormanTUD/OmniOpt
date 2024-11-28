@@ -13,7 +13,7 @@ import signal
 import sys
 import traceback
 from typing import Any, Union
-import panda as pd
+import pandas as pd
 
 button = None
 

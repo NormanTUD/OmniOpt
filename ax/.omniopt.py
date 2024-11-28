@@ -476,7 +476,7 @@ class ConfigLoader:
         return _args
 
 loader = ConfigLoader()
-args: ConfigLoader = loader.parse_arguments()
+args = loader.parse_arguments()
 
 def wrapper_print_debug(func: Any) -> Any:
     def wrapper(*__args: Any, **kwargs: Any) -> Any:

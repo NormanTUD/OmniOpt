@@ -1293,7 +1293,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
 
     return ret_val, found_in_file
 
-def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Union[float, int, None]) -> Tuple[float | int | None, bool]:
+def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Union[float, int]) -> Union[Tuple[float | int, bool], Any]:
     ret_val = _default
 
     found_in_file = False
@@ -1312,7 +1312,7 @@ def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Unio
     if ret_val:
         return round(ret_val, 4), found_in_file
 
-    return None, False
+    return ret_val, False
 
 def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
@@ -1357,7 +1357,7 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 
     return lower_bound, upper_bound
 
-def create_param(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None], value_type: str, log_scale: bool) -> dict:
+def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
     return {
         "name": name,
         "type": "range",
@@ -1366,7 +1366,7 @@ def create_param(name: Union[list, str], lower_bound: Union[float, int, None], u
         "log_scale": log_scale
     }
 
-def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None], value_type: str) -> dict:
+def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
     if lower_bound is None or upper_bound is None:
         print_red("handle_grid_search: lower_bound or upper_bound is None")
         my_exit(91)
@@ -1388,12 +1388,12 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int, No
         "values": values
     }
 
-def get_bounds_from_previous_data(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None]) -> Tuple[float | int | None, float | int | None]:
+def get_bounds_from_previous_data(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[float | int, float | int]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int, None], upper_bound: Union[float, int, None], search_space_reduction_warning: bool) -> bool:
+def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
@@ -1428,8 +1428,8 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: U
     check_factorial_range()
     check_range_params_length(this_args)
 
-    lower_bound: Union[float, int, None]
-    upper_bound: Union[float, int, None]
+    lower_bound: Union[float, int]
+    upper_bound: Union[float, int]
 
     lower_bound, upper_bound = get_bounds(this_args, j)
 
@@ -1589,7 +1589,7 @@ def check_range_params_length(this_args: Union[str, list]) -> None:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
 
-def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float, None], upper_bound: Union[int, float, None]) -> None:
+def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
     if upper_bound is None or lower_bound is None:
         print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
         my_exit(91)
@@ -3094,7 +3094,6 @@ def get_experiment_parameters(_params: list) -> Any:
 
         try:
             if ax_client:
-                print(experiment_args)
                 ax_client.create_experiment(**experiment_args)
             else:
                 print_red("ax_client could not be found!")

@@ -111,8 +111,9 @@ def plot_gpu_usage(run_dir) -> None:
         _ax.set_xlabel('Time')
         _ax.set_ylabel('GPU Usage (%)')
         _ax.set_title(f'GPU Usage Over Time - {os.path.basename(_paths[i])}')
-        if not args.no_legend:
-            _ax.legend(loc='upper right')
+        if args:
+            if not args.no_legend:
+                _ax.legend(loc='upper right')
 
     # Hide empty subplots
     for j in range(num_plots, plot_rows * plot_cols): # pragma: no cover
@@ -123,12 +124,13 @@ def plot_gpu_usage(run_dir) -> None:
     save_to_file_or_show_canvas()
 
 def save_to_file_or_show_canvas() -> None:
-    if args.save_to_file:
-        helpers.save_to_file(fig, args, plt)
-    else: # pragma: no cover
-        fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
-        if not args.no_plt_show:
-            plt.show()
+    if args:
+        if args.save_to_file:
+            helpers.save_to_file(fig, args, plt)
+        else: # pragma: no cover
+            fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
+            if not args.no_plt_show:
+                plt.show()
 
 if __name__ == "__main__":
     args = parser.parse_args()

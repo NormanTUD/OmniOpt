@@ -405,7 +405,7 @@ def print_diff(i: str, o: str) -> None:
         print("Is:", o)
 
     if isinstance(i, str) or isinstance(o, str):
-        output = _unidiff_output(json.dumps(i), json.dumps(o))
+        output = _unidiff_output(str(json.dumps(i)), str(json.dumps(o)))
         if output: # pragma: no cover
             print("Diff:", output)
 
@@ -739,7 +739,7 @@ def _update_graph(_params: list) -> None: # pragma: no cover
 
 def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str) -> None: # pragma: no cover
     nr_of_items_before_filtering = len(df)
-    check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max, filter_out_strings)
+    check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 
 def plot_parameters(_params: list) -> None: # pragma: no cover
     df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params

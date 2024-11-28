@@ -1589,7 +1589,8 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
             print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
             my_exit(181)
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound") # pragma: no cover
-        lower_bound = -upper_bound # pragma: no cover
+        if upper_bound is not None:
+            lower_bound = -upper_bound # pragma: no cover
 
 def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
     try:

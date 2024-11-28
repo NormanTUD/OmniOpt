@@ -279,7 +279,7 @@ class ConfigLoader:
     tests: bool
     max_eval: int
     run_program: str
-    orchestrator_file: Optional[int]
+    orchestrator_file: Optional[str]
     run_dir: str
     ui_url: str
     nodes_per_job: int
@@ -1234,10 +1234,7 @@ def get_program_code_from_out_file(f: str) -> str:
 
     return ""
 
-def get_min_or_max_column_value(pd_csv: str, column, _default, _type="min") -> Optional[float]:
-    assert isinstance(pd_csv, str), "pd_csv must be a string"
-    assert isinstance(column, str), "column must be a string"
-
+def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, int, float], _type: str = "min") -> Optional[float]:
     if not os.path.exists(pd_csv):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
 
@@ -1265,15 +1262,15 @@ def get_min_or_max_column_value(pd_csv: str, column, _default, _type="min") -> O
     return None
 
 @wrapper_print_debug
-def get_max_column_value(pd_csv, column, _default) -> Optional[float]:
+def get_max_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[float]:
     return get_min_or_max_column_value(pd_csv, column, _default, "max")
 
 @wrapper_print_debug
-def get_min_column_value(pd_csv, column, _default) -> Optional[float]:
+def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[float]:
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @wrapper_print_debug
-def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default) -> Union[Tuple[int, bool], Tuple[float, bool]]:
+def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Union[Tuple[int, bool], Tuple[float, bool]]:
     found_in_file = False
     if os.path.exists(pd_csv):
         if _type == "lower":
@@ -1299,7 +1296,7 @@ def get_ret_value_from_pd_csv(pd_csv, _type, _column, _default) -> Union[Tuple[i
 
     return ret_val, found_in_file
 
-def get_bound_if_prev_data(_type, _column, _default) -> Tuple[float, bool]:
+def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int, None]) -> Tuple[float | int | None, bool]:
     ret_val = _default
 
     found_in_file = False
@@ -1315,9 +1312,12 @@ def get_bound_if_prev_data(_type, _column, _default) -> Tuple[float, bool]:
 
         ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
 
-    return round(ret_val, 4), found_in_file
+    if ret_val:
+        return round(ret_val, 4), found_in_file
+    else:
+        return None, False
 
-def switch_lower_and_upper_if_needed(name, lower_bound, upper_bound) -> Tuple[int | float, int | float]:
+def switch_lower_and_upper_if_needed(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
         print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
         upper_bound, lower_bound = lower_bound, upper_bound
@@ -1336,7 +1336,7 @@ def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int
 
     return lower_bound, upper_bound
 
-def get_bounds(this_args, j) -> Tuple[float, float]:
+def get_bounds(this_args, j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
     except Exception: # pragma: no cover
@@ -1369,7 +1369,7 @@ def create_param(name: str, lower_bound: Union[float, int], upper_bound: Union[f
         "log_scale": log_scale
     }
 
-def handle_grid_search(name: str, lower_bound, upper_bound, value_type) -> dict:
+def handle_grid_search(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
     values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
     if value_type == "int":
@@ -1390,7 +1390,7 @@ def get_bounds_from_previous_data(name, lower_bound, upper_bound) -> Union[Tuple
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning) -> bool:
+def check_bounds_change_due_to_previous_job(name, lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
 
@@ -1405,7 +1405,7 @@ def check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, sear
 
     return search_space_reduction_warning
 
-def get_value_type_and_log_scale(this_args, j) -> Tuple[int, str, bool]:
+def get_value_type_and_log_scale(this_args, j: int) -> Tuple[int, str, bool]:
     skip = 5
     try:
         value_type = this_args[j + 4]
@@ -1421,7 +1421,7 @@ def get_value_type_and_log_scale(this_args, j) -> Tuple[int, str, bool]:
 
     return skip, value_type, log_scale
 
-def parse_range_param(params, j, this_args, name, search_space_reduction_warning) -> Tuple[int, list, bool]:
+def parse_range_param(params, j: int, this_args, name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -1452,11 +1452,11 @@ def parse_range_param(params, j, this_args, name, search_space_reduction_warning
     j += skip
     return j, params, search_space_reduction_warning
 
-def validate_value_type(value_type) -> None:
+def validate_value_type(value_type: str) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-def parse_fixed_param(params, j, this_args, name, search_space_reduction_warning) -> Tuple[int, list, bool]:
+def parse_fixed_param(params, j: int, this_args, name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -1572,7 +1572,7 @@ def check_factorial_range() -> None: # pragma: no cover
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
 
-def check_if_range_types_are_invalid(value_type, valid_value_types) -> None:
+def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -> None:
     if value_type not in valid_value_types:
         valid_value_types_string = ", ".join(valid_value_types)
         print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
@@ -1591,7 +1591,7 @@ def die_181_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound) -> Non
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound") # pragma: no cover
         lower_bound = -upper_bound # pragma: no cover
 
-def replace_parameters_in_string(parameters, input_string) -> str:
+def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
     try:
         for param_item in parameters:
             input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
@@ -1605,7 +1605,7 @@ def replace_parameters_in_string(parameters, input_string) -> str:
         print_red(f"\n⚠ Error: {e}")
         return ""
 
-def execute_bash_code(code) -> list:
+def execute_bash_code(code: str) -> list:
     try:
         result = subprocess.run(
             code,
@@ -1649,7 +1649,7 @@ def execute_bash_code(code) -> list:
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-def get_result(input_string) -> Optional[list[float]]:
+def get_result(input_string: str) -> Optional[list[float]]:
     if input_string is None:
         print_red("get_result: Input-String is None")
         return None
@@ -1673,7 +1673,7 @@ def get_result(input_string) -> Optional[list[float]]:
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
-def add_to_csv(file_path: str, heading, data_line) -> None: # pragma: no cover
+def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma: no cover
     print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
@@ -1804,7 +1804,7 @@ def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
     except Exception as e: # pragma: no cover
         print_red(f"Unexpected error: {e}")
 
-def count_defective_nodes(file_path=None, entry=None) -> list:
+def count_defective_nodes(file_path: Union[str, None] = None, entry=None) -> list:
     if file_path is None:
         file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
@@ -1828,7 +1828,7 @@ def count_defective_nodes(file_path=None, entry=None) -> list:
         print(f"An error has occurred: {e}")
         return []
 
-def test_gpu_before_evaluate(return_in_case_of_error) -> Union[None, dict]: # pragma: no cover
+def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]: # pragma: no cover
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
             for i in range(torch.cuda.device_count()):
@@ -1920,7 +1920,7 @@ def calculate_moo(_args: Optional[list[float]]) -> float:
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
-    return_in_case_of_error = {"result": VAL_IF_NOTHING_FOUND}
+    return_in_case_of_error: dict = {"result": VAL_IF_NOTHING_FOUND}
 
     if args.maximize:
         return_in_case_of_error = {"result": -VAL_IF_NOTHING_FOUND}
@@ -1942,7 +1942,7 @@ def evaluate(parameters: dict) -> dict:
         parameters_keys = list(parameters.keys())
         parameters_values = list(parameters.values())
 
-        program_string_with_params = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
+        program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
 
         program_string_with_params = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
@@ -2216,7 +2216,7 @@ def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None: # 
         print_debug(f"{tmp_file} not found, error: {str(error)}")
 
 @wrapper_print_debug
-def replace_string_with_params(input_string, params) -> str:
+def replace_string_with_params(input_string: str, params: list) -> str:
     try:
         assert isinstance(input_string, str), "Input string must be a string"
         replaced_string = input_string
@@ -2389,7 +2389,7 @@ def count_done_jobs() -> int:
 
     return _count_done_jobs(csv_file_path)
 
-def get_plot_types(x_y_combinations, _force=False) -> list:
+def get_plot_types(x_y_combinations: list, _force=False) -> list:
     plot_types: list = []
 
     if args.show_sixel_trial_index_result or _force:
@@ -2850,7 +2850,7 @@ def die_with_47_if_file_doesnt_exists(_file: str) -> None:
         my_exit(47)
 
 @wrapper_print_debug
-def copy_state_files_from_previous_job(continue_previous_job) -> None:
+def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
         new_state_file = f'{get_current_run_folder()}/state_files/{state_file}'
@@ -2863,7 +2863,7 @@ def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
     my_exit(49)
 
 @wrapper_print_debug
-def check_equation(variables, equation) -> bool:
+def check_equation(variables: list, equation: str) -> Union[str, bool]:
     print_debug(f"check_equation({variables}, {equation})")
 
     _errors = []
@@ -3225,7 +3225,7 @@ def print_overview_tables(experiment_parameters, experiment_args) -> None:
             text_file.write(table_str)
 
 @wrapper_print_debug
-def update_progress_bar(_progress_bar, nr) -> None:
+def update_progress_bar(_progress_bar, nr: int) -> None:
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
 
@@ -3409,7 +3409,7 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
-def get_old_result_by_params(file_path, params, float_tolerance=1e-6): # -> None
+def get_old_result_by_params(file_path: str, params, float_tolerance: float = 1e-6): # -> None
     # -> Union[None, pd.DataFrame]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -3474,7 +3474,7 @@ def get_old_result_by_params(file_path, params, float_tolerance=1e-6): # -> None
         raise
 
 @wrapper_print_debug
-def get_old_result_simple(this_path, old_arm_parameter) -> Union[float, None, int]:
+def get_old_result_simple(this_path: str, old_arm_parameter) -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)
     if "result" in tmp_old_res:
         tmp_old_res = tmp_old_res["result"]
@@ -3810,7 +3810,7 @@ def get_base_errors() -> list:
 
     return base_errors
 
-def check_for_base_errors(file_as_string) -> list:
+def check_for_base_errors(file_as_string: str) -> list:
     errors: list = []
     for err in get_base_errors():
         if isinstance(err, list):
@@ -3950,7 +3950,7 @@ def check_for_python_errors(i, file_as_string) -> list[str]:
 
     return errors
 
-def get_errors_from_outfile(i) -> list[str]:
+def get_errors_from_outfile(i: str) -> list[str]:
     file_as_string = get_file_as_string(i)
 
     program_code = get_program_code_from_out_file(i)
@@ -3981,7 +3981,7 @@ def get_errors_from_outfile(i) -> list[str]:
 
     return errors
 
-def print_outfile_analyzed(stdout_path) -> None:
+def print_outfile_analyzed(stdout_path: str) -> None:
     errors = get_errors_from_outfile(stdout_path)
 
     _strs: list[str] = []
@@ -4011,7 +4011,7 @@ def print_outfile_analyzed(stdout_path) -> None:
 
         print_red(out_files_string)
 
-def get_parameters_from_outfile(stdout_path) -> Union[str, None]:
+def get_parameters_from_outfile(stdout_path: str) -> Union[str, None]:
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
             for line in file:
@@ -4142,7 +4142,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
 
     clean_completed_jobs()
 
-def check_orchestrator(stdout_path, trial_index) -> list: # pragma: no cover
+def check_orchestrator(stdout_path: str, trial_index) -> list: # pragma: no cover
     behavs: list = []
 
     if orchestrator and "errors" in orchestrator:
@@ -4198,7 +4198,7 @@ def orchestrate_job(job, trial_index) -> None:
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
 
-def is_already_in_defective_nodes(hostname) -> bool: # pragma: no cover
+def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
     file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
     makedirs(os.path.dirname(file_path))
@@ -4238,7 +4238,7 @@ def orchestrator_start_trial(params_from_out_file, trial_index) -> None: # pragm
         print_red("executor or ax_client could not be found properly")
         my_exit(9)
 
-def handle_exclude_node(stdout_path, hostname_from_out_file) -> None: # pragma: no cover
+def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
@@ -4248,14 +4248,14 @@ def handle_exclude_node(stdout_path, hostname_from_out_file) -> None: # pragma: 
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-def handle_restart(stdout_path, trial_index) -> None: # pragma: no cover
+def handle_restart(stdout_path: str, trial_index) -> None: # pragma: no cover
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
-def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index) -> None: # pragma: no cover
+def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
@@ -4266,7 +4266,7 @@ def handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
-def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file) -> None: # pragma: no cover
+def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
@@ -4276,7 +4276,7 @@ def handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file) -> 
     else:
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
-def _orchestrate(stdout_path, trial_index) -> None: # pragma: no cover
+def _orchestrate(stdout_path: str, trial_index) -> None: # pragma: no cover
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs:
@@ -4496,14 +4496,14 @@ def handle_generic_error(e) -> None: # pragma: no cover
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
 
-def succeeded_jobs(nr=0) -> int:
+def succeeded_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret) -> None: # pragma: no cover
+def show_debug_table_for_break_run_search(_name: str, _max_eval: int, _progress_bar, _ret) -> None: # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -4525,7 +4525,7 @@ def show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     console.print(table)
 
-def break_run_search(_name, _max_eval, _progress_bar) -> bool:
+def break_run_search(_name: str, _max_eval: int, _progress_bar) -> bool:
     _ret = False
 
     _counted_done_jobs = count_done_jobs()
@@ -4566,7 +4566,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs, currently_running_jobs) -> int:
         num_parallel_jobs - currently_running_jobs
     )
 
-def _get_trials_message(nr_of_jobs_to_get: int, last_time, avg_time, force_local_execution) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, None], avg_time: Union[int, float, None], force_local_execution: bool) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
 
@@ -4697,7 +4697,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 
     return requested
 
-def check_max_parallelism_arg(possible_values) -> bool:
+def check_max_parallelism_arg(possible_values: list) -> bool:
     if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
         return True
     return False
@@ -4795,7 +4795,7 @@ def get_generation_strategy(): # -> GenerationStrategy:
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)
 
-def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar) -> int:
+def create_and_execute_next_runs(next_nr_steps: int, phase: str, _max_eval: int, _progress_bar) -> int:
     global random_steps
 
     if next_nr_steps == 0:
@@ -4892,7 +4892,7 @@ def create_and_execute_next_runs(next_nr_steps, phase, _max_eval, _progress_bar)
 
     return num_new_keys
 
-def get_number_of_steps(_max_eval) -> Tuple[int, int]:
+def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
     _random_steps = args.num_random_steps
 
     already_done_random_steps = get_random_steps_from_prev_job()
@@ -5120,7 +5120,7 @@ def die_orchestrator_exit_code_206(_test) -> None: # pragma: no cover
     else:
         my_exit(206)
 
-def parse_orchestrator_file(_f, _test: bool = False) -> Union[dict, None]:
+def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -5417,14 +5417,14 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
         return 1
 
 @wrapper_print_debug
-def get_files_in_dir(mypath) -> list:
+def get_files_in_dir(mypath: str) -> list:
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
 @wrapper_print_debug
-def test_find_paths(program_code) -> int:
+def test_find_paths(program_code: str) -> int:
     print_debug(f"test_find_paths({program_code})")
     nr_errors: int = 0
 
@@ -5718,7 +5718,7 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-def live_share_background(interval) -> None:
+def live_share_background(interval: int) -> None:
     if not args.live_share: # pragma: no cover
         return
 

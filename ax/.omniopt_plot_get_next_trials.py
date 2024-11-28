@@ -7,7 +7,6 @@ import os
 import signal
 import sys
 import traceback
-from typing import Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -26,7 +25,7 @@ else:
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def parse_log_file(args, log_file_path) -> Union[pd.DataFrame, None]:
+def parse_log_file(args, log_file_path):
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
@@ -62,39 +61,37 @@ def parse_log_file(args, log_file_path) -> Union[pd.DataFrame, None]:
         print(traceback.format_exc(), file=sys.stderr)
         raise
 
-def plot_trial_usage(args, log_file_path) -> None:
+def plot_trial_usage(args, log_file_path):
     try:
         data = parse_log_file(args, log_file_path)
 
         plt.figure(figsize=(12, 6))
 
-        if data:
-            plt.plot(data['time'], data['got'], label='Got', color='blue')
+        # Plot 'got'
+        plt.plot(data['time'], data['got'], label='Got', color='blue')
 
-            # Plot 'requested'
-            plt.plot(data['time'], data['requested'], label='Requested', color='orange')
+        # Plot 'requested'
+        plt.plot(data['time'], data['requested'], label='Requested', color='orange')
 
-            plt.xlabel('Time')
-            plt.ylabel('Count')
-            plt.title('Trials Usage Plot')
-            plt.legend()
+        plt.xlabel('Time')
+        plt.ylabel('Count')
+        plt.title('Trials Usage Plot')
+        plt.legend()
 
-            plt.gcf().autofmt_xdate()  # Rotate and align the x labels
+        plt.gcf().autofmt_xdate()  # Rotate and align the x labels
 
-            plt.tight_layout()
-            if args.save_to_file:
-                fig = plt.figure(1)
-                helpers.save_to_file(fig, args, plt)
-            else: # pragma: no cover
-                if not args.no_plt_show:
-                    plt.show()
-        else:
-            print("Failed to get data")
+        plt.tight_layout()
+        if args.save_to_file:
+            fig = plt.figure(1)
+            helpers.save_to_file(fig, args, plt)
+        else: # pragma: no cover
+            if not args.no_plt_show:
+                plt.show()
     except Exception as e: # pragma: no cover
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 
-def main() -> None:
+def main():
     parser = argparse.ArgumentParser(description='Plot trial usage from log file')
     parser.add_argument('--run_dir', type=str, help='Directory containing log file')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')

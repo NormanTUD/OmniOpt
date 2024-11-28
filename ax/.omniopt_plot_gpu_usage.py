@@ -38,7 +38,7 @@ else:
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def get_names_array():
+def get_names_array() -> list:
     return [
         "timestamp",
         "name",
@@ -55,7 +55,7 @@ def get_names_array():
         "memory.used [MiB]"
     ]
 
-def plot_gpu_usage(run_dir):
+def plot_gpu_usage(run_dir) -> None:
     global fig
 
     gpu_data = []
@@ -122,7 +122,7 @@ def plot_gpu_usage(run_dir):
 
     save_to_file_or_show_canvas()
 
-def save_to_file_or_show_canvas():
+def save_to_file_or_show_canvas() -> None:
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else: # pragma: no cover

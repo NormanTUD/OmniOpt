@@ -25,7 +25,7 @@ else:
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-def parse_log_file(args, log_file_path):
+def parse_log_file(args, log_file_path): # -> None
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
 
@@ -61,7 +61,7 @@ def parse_log_file(args, log_file_path):
         print(traceback.format_exc(), file=sys.stderr)
         raise
 
-def plot_trial_usage(args, log_file_path):
+def plot_trial_usage(args, log_file_path) -> None:
     try:
         data = parse_log_file(args, log_file_path)
 
@@ -91,7 +91,7 @@ def plot_trial_usage(args, log_file_path):
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Plot trial usage from log file')
     parser.add_argument('--run_dir', type=str, help='Directory containing log file')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode')

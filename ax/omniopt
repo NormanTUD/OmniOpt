@@ -1390,7 +1390,11 @@ fi
 if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
 	myexit "$exit_code"
 else
-	echo "Invalid exit-code >$exit_code< detected!"
+	if [[ $exit_code != "" ]]; then
+		echo "Invalid exit-code >$exit_code< detected!"
+	else
+		echo "No exit-code could be found. Exiting with exit-code 3."
+	fi
 	myexit 3
 fi
 }

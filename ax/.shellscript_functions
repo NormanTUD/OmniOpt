@@ -288,6 +288,10 @@
 				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 			fi
 
+			if [[ $noversion -eq "rich_argparse" ]]; then
+				noversion="rich-argparse"
+			fi
+
 			if echo "$FROZEN" | grep -i "$noversion" 2>/dev/null >/dev/null; then
 				nr=$(($nr+1))
 			fi

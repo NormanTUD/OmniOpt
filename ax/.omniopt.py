@@ -3662,6 +3662,10 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
 def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None:
     done_converting = False
 
+    if ax_client is None or not ax_client:
+        print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
+        my_exit(101)
+
     while not done_converting:
         try:
             if ax_client:

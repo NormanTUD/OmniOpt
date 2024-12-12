@@ -1226,7 +1226,7 @@
 
                             <h2>Run</h2>
 
-                            <p class="no_linebreak">Run this when you already have OmniOpt2 installed.</p>
+                            <p class="no_linebreak">Run this command in the <code>ax</code>-folder when you already have OmniOpt2 installed.</p>
 
                             <div class="dark_code_bg invert_in_dark_mode">
                                 <code id="command_element_highlighted"></code>

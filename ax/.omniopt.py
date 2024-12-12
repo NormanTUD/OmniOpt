@@ -3662,7 +3662,25 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @wrapper_print_debug
-def insert_existing_trial_into_ax_client(params: dict, _res: float) -> Union[None, int]:
+def insert_existing_trial_into_ax_client(params: dict) -> Union[None, int]:
+    if ax_client is None or not ax_client:
+        print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
+        my_exit(101)
+
+    try:
+        new_trial = ax_client.attach_trial(params)
+
+        save_pd_csv()
+
+        return new_trial[1]
+    except ax.exceptions.core.UnsupportedError as e:
+        print_red(f"insert_existing_trial_into_ax_client error: {e}")
+
+    return None
+
+
+@wrapper_print_debug
+def insert_existing_trial_with_result_into_ax_client(params: dict, _res: float) -> Union[None, int]:
     if ax_client is None or not ax_client:
         print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
         my_exit(101)
@@ -3675,7 +3693,7 @@ def insert_existing_trial_into_ax_client(params: dict, _res: float) -> Union[Non
 
         return new_trial[1]
     except ax.exceptions.core.UnsupportedError as e:
-        print_red(f"insert_existing_trial_into_ax_client error: {e}")
+        print_red(f"insert_existing_trial_with_result_into_ax_client: error: {e}")
 
     return None
 
@@ -4679,6 +4697,14 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
         except ax.exceptions.generation_strategy.GenerationStrategyCompleted:
             if args.model.upper() == "TPE":
                 print_red("\n_fetch_next_trials: Failed to get new model. Need to implement this using hyperopt.tpe!")
+                tpe_params = {}
+                # from hyperopt import fmin, tpe, hp
+                # space=hp.uniform('x', -10, 10),
+                # dom = hyperopt.base.Domain(abc, space)
+                # tr = hyperopt.base.Trials()
+                # tpe.suggest(dom, tr, [], 123)
+
+                insert_existing_trial_into_ax_client(tpe_params)
                 my_exit(123)
             else:
                 raise

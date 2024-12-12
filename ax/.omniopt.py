@@ -141,6 +141,7 @@ SUPPORTED_MODELS: list = [
     "BOTORCH_MODULAR",
     "UNIFORM",
     "BO_MIXED",
+    "TPE"
 ]
 
 ORCHESTRATE_TODO: dict = {}
@@ -4675,6 +4676,12 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
                 my_exit(9)
         except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
             print_red("\n⚠Error 8: " + str(e))
+        except ax.exceptions.generation_strategy.GenerationStrategyCompleted:
+            if args.model.upper() == "TPE":
+                print_red("\n_fetch_next_trials: Failed to get new model. Need to implement this using hyperopt.tpe!")
+                my_exit(123)
+            else:
+                raise
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:
@@ -4771,6 +4778,9 @@ def _get_max_parallelism() -> int: # pragma: no cover
 
 def create_systematic_step(model: Any) -> Any:
     """Creates a generation step for Bayesian optimization."""
+    if model == "TPE":
+        return "TPE"
+
     return GenerationStep(
         model=model,
         num_trials=-1,
@@ -4795,10 +4805,14 @@ def create_random_generation_step() -> int:
 def select_model(model_arg: Any) -> Any:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
+    available_models.append("TPE")
     chosen_model = Models.BOTORCH_MODULAR
 
     if model_arg:
         model_upper = str(model_arg).upper()
+        if model_upper == "TPE":
+            return "TPE"
+
         if model_upper in available_models:
             chosen_model = Models.__members__[model_upper]
         else:
@@ -4834,7 +4848,11 @@ def get_generation_strategy() -> Any:
     chosen_non_random_model = select_model(args.model)
 
     # Append the Bayesian optimization step
-    steps.append(create_systematic_step(chosen_non_random_model))
+    systematic_step = create_systematic_step(chosen_non_random_model)
+    if systematic_step != "TPE":
+        steps.append(systematic_step)
+    else:
+        print_yellow("TPE was chosen. It may not properly work yet!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)

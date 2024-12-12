@@ -3715,6 +3715,22 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return True
         return False
 
+    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]]) -> None:
+        try:
+            insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
+            print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
+        except ValueError as e: # pragma: no cover
+            print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
+        else:
+            already_inserted_param_hashes[hashed_params_result[0]] += 1
+            double_hashes[hashed_params_result[0]] = 1
+
+    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, str] | tuple[str, float, tuple[str, int], Tuple[str, None]]]) -> None:
+        print_debug("Prevent inserting a parameter set without result")
+        missing_results.append(hashed_params_result[0])
+        parameters["result"] = hashed_params_result[1]
+        already_inserted_param_data.append(parameters)
+
     def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
@@ -3731,22 +3747,6 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
                 insert_or_log_result(old_arm_parameter, hashed_params_result)
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
-
-    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]]) -> None:
-        try:
-            insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
-            print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
-        except ValueError as e: # pragma: no cover
-            print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
-        else:
-            already_inserted_param_hashes[hashed_params_result[0]] += 1
-            double_hashes[hashed_params_result[0]] = 1
-
-    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, str] | tuple[str, float, tuple[str, int], Tuple[str, None]]]) -> None:
-        print_debug("Prevent inserting a parameter set without result")
-        missing_results.append(hashed_params_result[0])
-        parameters["result"] = hashed_params_result[1]
-        already_inserted_param_data.append(parameters)
 
     def display_table() -> None:
         headers, rows = extract_headers_and_rows(already_inserted_param_data)

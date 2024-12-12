@@ -5736,6 +5736,18 @@ Exit-Code: 159
         None
     )
 
+    nr_errors += is_equal("calculate_signed_harmonic_distance([0.1])", calculate_signed_harmonic_distance([0.1]), 0.1)
+    nr_errors += is_equal("calculate_signed_harmonic_distance([-0.1])", calculate_signed_harmonic_distance([-0.1]), -0.1)
+    nr_errors += is_equal("calculate_signed_harmonic_distance([0.1, 0.1])", calculate_signed_harmonic_distance([0.1, 0.2]), 0.13333333333333333)
+
+    nr_errors += is_equal("calculate_signed_euclidean_distance([0.1])", calculate_signed_euclidean_distance([0.1]), 0.1)
+    nr_errors += is_equal("calculate_signed_euclidean_distance([-0.1])", calculate_signed_euclidean_distance([-0.1]), -0.1)
+    nr_errors += is_equal("calculate_signed_euclidean_distance([0.1, 0.1])", calculate_signed_euclidean_distance([0.1, 0.2]), 0.223606797749979)
+
+    nr_errors += is_equal("calculate_signed_geometric_distance([0.1])", calculate_signed_geometric_distance([0.1]), 0.1)
+    nr_errors += is_equal("calculate_signed_geometric_distance([-0.1])", calculate_signed_geometric_distance([-0.1]), -0.1)
+    nr_errors += is_equal("calculate_signed_geometric_distance([0.1, 0.1])", calculate_signed_geometric_distance([0.1, 0.2]), 0.14142135623730953)
+
     my_exit(nr_errors)
 
 def live_share_background(interval: int) -> None:

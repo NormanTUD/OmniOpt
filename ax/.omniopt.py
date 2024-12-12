@@ -515,6 +515,8 @@ if not args.tests:
             from ax.storage.json_store.save import save_experiment
         with console.status("[bold green]Loading botorch...") as status:
             import botorch
+        with console.status("[bold green]Loading hyperopt for TPE...") as status:
+            from hyperopt import tpe
         with console.status("[bold green]Loading submitit...") as status:
             import submitit
             from submitit import DebugJob, LocalJob
@@ -3657,6 +3659,24 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
         return ", ".join(_str)
 
     return ""
+
+@wrapper_print_debug
+def insert_existing_trial_into_ax_client(params: dict, _res: float) -> Union[None, int]:
+    if ax_client is None or not ax_client:
+        print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
+        my_exit(101)
+
+    try:
+        new_trial = ax_client.attach_trial(params)
+
+        #ax_client.complete_trial(trial_index=new_trial[1], raw_data=_res)
+        save_pd_csv()
+
+        return new_trial[1]
+    except ax.exceptions.core.UnsupportedError as e:
+        print_red(f"insert_existing_trial_into_ax_client error: {e}")
+
+    return None
 
 @wrapper_print_debug
 def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None:

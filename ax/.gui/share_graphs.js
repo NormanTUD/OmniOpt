@@ -87,6 +87,7 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 					if (!$("#scatter_plot_3d_container").length) {
 						add_tab("scatter_plot_3d", "3d-Scatter-Plot", "<div id='scatter_plot_3d_container'></div>");
 					}
+
 					var map_x = mappingKeyNameToIndex[_paramKeys[i]];
 					var map_y = mappingKeyNameToIndex[_paramKeys[j]];
 					var map_z = mappingKeyNameToIndex[_paramKeys[k]];
@@ -341,7 +342,6 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 
 				hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}`);
 			});
-
 
 			function color_curried(value) {
 				return getColor(value, minResult, maxResult);

@@ -27,7 +27,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else:
+else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
 def parse_arguments() -> Any:

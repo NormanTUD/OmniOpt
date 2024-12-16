@@ -149,7 +149,7 @@ def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
                 formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
                 return formatted_value if formatted_value else '0'
             return int(val) # pragma: no cover
-        return val
+        return val # pragma: no cover
     except Exception: # pragma: no cover
         return val
 

@@ -21,7 +21,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else:
+else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -62,7 +62,7 @@ def parse_log_file(args: Any, log_file_path: str) -> Union[pd.DataFrame, None]:
         print(traceback.format_exc(), file=sys.stderr)
         raise
 
-    return None
+    return None # pragma: no cover
 
 def plot_trial_usage(args: Any, log_file_path: str) -> None:
     try:
@@ -91,7 +91,7 @@ def plot_trial_usage(args: Any, log_file_path: str) -> None:
             else: # pragma: no cover
                 if not args.no_plt_show:
                     plt.show()
-        else:
+        else: # pragma: no cover
             helpers.log_error("Failed to get job data")
             sys.exit(8)
     except Exception as e: # pragma: no cover

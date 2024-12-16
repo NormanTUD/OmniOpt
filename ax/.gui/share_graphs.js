@@ -48,27 +48,29 @@ function getUniqueValues(arr) {
 }
 
 function every_array_element_is_a_number (arr) {
-		for (var i = 0; i < arr.length; i++) {
-			if (isNaN(arr[i]) || typeof(arr[i]) != "number") {
-				return false;
-			}
+	for (var i = 0; i < arr.length; i++) {
+		if (isNaN(arr[i]) || typeof(arr[i]) != "number") {
+			return false;
 		}
-		
-		return true;
+	}
+	
+	return true;
 }
 
 function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	showSpinnerOverlay("Plotting 3d scatter...");
 	var already_existing_plots = [];
-	var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-	if ($('#scatter_plot_3d_container').data("md5") == data_md5) {
-		return;
-	}
 
 	$('#scatter_plot_3d_container').html("");
 
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
+		var data_md5 = md5(JSON.stringify(_results_csv_json));
+
+		if ($('#scatter_plot_3d_container').data("md5") == data_md5) {
+			return;
+		}
+
 		for (var i = 0; i < _paramKeys.length; i++) {
 			for (var j = i + 1; j < _paramKeys.length; j++) {
 				for (var k = j + 1; k < _paramKeys.length; k++) {

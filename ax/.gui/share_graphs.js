@@ -57,10 +57,20 @@ function every_array_element_is_a_number (arr) {
 	return true;
 }
 
+function mapStrings(values, minNumericValue) {
+	var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
+	uniqueStrings.sort(); // Alphabetically sort the strings
+	var stringMapping = {};
+	var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
+	uniqueStrings.forEach((str, idx) => {
+			stringMapping[str] = baseNegativeValue - idx;
+			});
+	return stringMapping;
+}
+
 function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	showSpinnerOverlay("Plotting 3d scatter...");
 	var already_existing_plots = [];
-
 
 	$('#scatter_plot_3d_container').html("");
 
@@ -89,21 +99,6 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 					if (already_existing_plots.includes(_key)) {
 						warn(`Key already exists: ${_key}`);
 						continue;
-					}
-
-					function mapStrings(values, minNumericValue) {
-						var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
-						uniqueStrings.sort();
-						var stringMapping = {};
-						var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
-						uniqueStrings.forEach((str, idx) => {
-							stringMapping[str] = baseNegativeValue - idx;
-						});
-						return stringMapping;
-					}
-
-					function getMinNumericValue(values) {
-						return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
 					}
 
 					var xValuesRaw = _results_csv_json.map(row => row[map_x]);
@@ -142,6 +137,7 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 					function color_curried(value) {
 						return getColor(value, minResult, maxResult);
 					}
+
 					var colors = resultValues.map(color_curried);
 
 					var trace3d = {
@@ -172,33 +168,9 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 						showlegend: false
 					};
 
-					function getAxisConfig(stringMapping, rawValues, minValue, isNumeric, maxTicks = 10) {
-						var tickvals = [];
-						var ticktext = [];
-						Object.entries(stringMapping).forEach(([key, mappedValue]) => {
-							tickvals.push(mappedValue);
-							ticktext.push(key);
-						});
-
-						if (isNumeric) {
-							let numericValues = Array.from(new Set(rawValues.filter(v => !isNaN(parseFloat(v))).map(parseFloat)));
-							numericValues.sort((a, b) => a - b);
-
-							let interval = Math.ceil(numericValues.length / maxTicks);
-							numericValues.forEach((val, index) => {
-								if (index % interval === 0) {
-									tickvals.push(val);
-									ticktext.push(String(val));
-								}
-							});
-						}
-
-						return { tickvals, ticktext };
-					}
-
-					var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
-					var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
-					var zAxisConfig = getAxisConfig(stringMappingZ, zValuesRaw, minZValue, !isNaN(minZValue));
+					var xAxisConfig = getAxisConfigScatter3d(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
+					var yAxisConfig = getAxisConfigScatter3d(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
+					var zAxisConfig = getAxisConfigScatter3d(stringMappingZ, zValuesRaw, minZValue, !isNaN(minZValue));
 
 					var layout3d = {
 						title: `3D Scatter Plot: ${x_name} vs ${y_name} vs ${z_name}`,
@@ -255,186 +227,200 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 	$('#scatter_plot_3d_container').data("md5", data_md5);
 }
 
+function reduceNumericTicks(tickvals, ticktext, maxTicks) {
+	const step = Math.ceil(tickvals.length / maxTicks);
+	return {
+		tickvals: tickvals.filter((_, i) => i % step === 0),
+		ticktext: ticktext.filter((_, i) => i % step === 0)
+	};
+}
+
+function getAxisConfigScatter2d(stringMapping, rawValues, minValue, isNumeric) {
+	var tickvals = [];
+	var ticktext = [];
+
+	Object.entries(stringMapping).forEach(([key, mappedValue]) => {
+		tickvals.push(mappedValue);
+		ticktext.push(key);
+	});
+
+	if (isNumeric) {
+		rawValues.forEach(val => {
+			var parsed = parseFloat(val);
+			if (!isNaN(parsed)) {
+				tickvals.push(parsed);
+				ticktext.push(String(parsed));
+			}
+		});
+		// Reduce tick count if too many numeric values
+		return reduceNumericTicks(tickvals, ticktext, 10); // Allow a max of 10 ticks
+	}
+
+	return { tickvals, ticktext };
+}
+
+function getAxisConfigScatter3d(stringMapping, rawValues, minValue, isNumeric, maxTicks = 10) {
+	var tickvals = [];
+	var ticktext = [];
+	Object.entries(stringMapping).forEach(([key, mappedValue]) => {
+		tickvals.push(mappedValue);
+		ticktext.push(key);
+	});
+
+	if (isNumeric) {
+		let numericValues = Array.from(new Set(rawValues.filter(v => !isNaN(parseFloat(v))).map(parseFloat)));
+		numericValues.sort((a, b) => a - b);
+
+		let interval = Math.ceil(numericValues.length / maxTicks);
+		numericValues.forEach((val, index) => {
+			if (index % interval === 0) {
+				tickvals.push(val);
+				ticktext.push(String(val));
+			}
+		});
+	}
+
+	return { tickvals, ticktext };
+}
+
+function getMinNumericValue(values) {
+	return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
+}
+
 function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
-    showSpinnerOverlay("Plotting 2d scatter...");
-    var already_existing_plots = [];
-    var data_md5 = md5(JSON.stringify(_results_csv_json));
+	showSpinnerOverlay("Plotting 2d scatter...");
+	var already_existing_plots = [];
+	var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-    if ($('#scatter_plot_2d_container').data("md5") == data_md5) {
-        return;
-    }
+	if ($('#scatter_plot_2d_container').data("md5") == data_md5) {
+		return;
+	}
 
-    $('#scatter_plot_2d_container').html("");
+	$('#scatter_plot_2d_container').html("");
 
-    function mapStrings(values, minNumericValue) {
-        var uniqueStrings = [...new Set(values.filter(v => isNaN(parseFloat(v))))];
-        uniqueStrings.sort(); // Alphabetically sort the strings
-        var stringMapping = {};
-        var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
-        uniqueStrings.forEach((str, idx) => {
-            stringMapping[str] = baseNegativeValue - idx;
-        });
-        return stringMapping;
-    }
+	for (var i = 0; i < _paramKeys.length; i++) {
+		for (var j = i + 1; j < _paramKeys.length; j++) {
+			if (!$("#scatter_plot_2d_container").length) {
+				add_tab("scatter_plot_2d", "2d-Scatter-Plot", "<div id='scatter_plot_2d_container'></div>");
+			}
 
-    function getMinNumericValue(values) {
-        return Math.min(...values.filter(v => !isNaN(parseFloat(v))));
-    }
+			var map_x = mappingKeyNameToIndex[_paramKeys[i]];
+			var map_y = mappingKeyNameToIndex[_paramKeys[j]];
 
-    // Improved function to reduce tick marks and avoid overlap
-    function reduceNumericTicks(tickvals, ticktext, maxTicks) {
-        const step = Math.ceil(tickvals.length / maxTicks);
-        return {
-            tickvals: tickvals.filter((_, i) => i % step === 0),
-            ticktext: ticktext.filter((_, i) => i % step === 0)
-        };
-    }
+			var x_name = _paramKeys[i];
+			var y_name = _paramKeys[j];
 
-    for (var i = 0; i < _paramKeys.length; i++) {
-        for (var j = i + 1; j < _paramKeys.length; j++) {
-            if (!$("#scatter_plot_2d_container").length) {
-                add_tab("scatter_plot_2d", "2d-Scatter-Plot", "<div id='scatter_plot_2d_container'></div>");
-            }
+			var _key = [x_name, y_name].sort().join("!!!");
 
-            var map_x = mappingKeyNameToIndex[_paramKeys[i]];
-            var map_y = mappingKeyNameToIndex[_paramKeys[j]];
+			if (already_existing_plots.includes(_key)) {
+				warn(`Key already exists: ${_key}`);
+				continue;
+			}
 
-            var x_name = _paramKeys[i];
-            var y_name = _paramKeys[j];
+			var xValuesRaw = _results_csv_json.map(row => row[map_x]);
+			var yValuesRaw = _results_csv_json.map(row => row[map_y]);
 
-            var _key = [x_name, y_name].sort().join("!!!");
+			var minXValue = getMinNumericValue(xValuesRaw);
+			var minYValue = getMinNumericValue(yValuesRaw);
 
-            if (already_existing_plots.includes(_key)) {
-                warn(`Key already exists: ${_key}`);
-                continue;
-            }
+			var stringMappingX = mapStrings(xValuesRaw, minXValue);
+			var stringMappingY = mapStrings(yValuesRaw, minYValue);
 
-            var xValuesRaw = _results_csv_json.map(row => row[map_x]);
-            var yValuesRaw = _results_csv_json.map(row => row[map_y]);
+			var xValues = [];
+			var yValues = [];
+			var hoverText = [];
 
-            var minXValue = getMinNumericValue(xValuesRaw);
-            var minYValue = getMinNumericValue(yValuesRaw);
+			_results_csv_json.forEach(function (row) {
+				var xParsed = parseFloat(row[map_x]);
+				var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
+				xValues.push(xValue);
 
-            var stringMappingX = mapStrings(xValuesRaw, minXValue);
-            var stringMappingY = mapStrings(yValuesRaw, minYValue);
+				var yParsed = parseFloat(row[map_y]);
+				var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
+				yValues.push(yValue);
 
-            var xValues = [];
-            var yValues = [];
-            var hoverText = [];
+				hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}`);
+			});
 
-            _results_csv_json.forEach(function (row) {
-                var xParsed = parseFloat(row[map_x]);
-                var xValue = isNaN(xParsed) ? stringMappingX[row[map_x]] : xParsed;
-                xValues.push(xValue);
 
-                var yParsed = parseFloat(row[map_y]);
-                var yValue = isNaN(yParsed) ? stringMappingY[row[map_y]] : yParsed;
-                yValues.push(yValue);
+			function color_curried(value) {
+				return getColor(value, minResult, maxResult);
+			}
 
-                hoverText.push(`x: ${row[map_x]}, y: ${row[map_y]}`);
-            });
+			var colors = resultValues.map(color_curried);
 
-            function color_curried(value) {
-                return getColor(value, minResult, maxResult);
-            }
-            var colors = resultValues.map(color_curried);
+			var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
+			var customColorscale = uniqueValues.map(value => {
+				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
+			});
 
-            var uniqueValues = Array.from(new Set(resultValues)).sort((a, b) => a - b);
-            var customColorscale = uniqueValues.map(value => {
-                return [(value - minResult) / (maxResult - minResult), color_curried(value)];
-            });
+			var trace2d = {
+				x: xValues,
+				y: yValues,
+				mode: 'markers',
+				type: 'scatter',
+				marker: {
+					color: colors
+				},
+				text: hoverText,
+				hoverinfo: 'text'
+			};
 
-            var trace2d = {
-                x: xValues,
-                y: yValues,
-                mode: 'markers',
-                type: 'scatter',
-                marker: {
-                    color: colors
-                },
-                text: hoverText,
-                hoverinfo: 'text'
-            };
+			var colorScaleTrace = {
+				x: [null],
+				y: [null],
+				type: 'scatter',
+				mode: 'markers',
+				marker: {
+					color: [minResult, maxResult],
+					colorscale: customColorscale,
+					cmin: minResult,
+					cmax: maxResult,
+					showscale: true,
+					size: 60,
+					colorbar: {
+						title: 'Result Values',
+						titleside: 'right'
+					}
+				},
+				hoverinfo: 'none'
+			};
 
-            var colorScaleTrace = {
-                x: [null],
-                y: [null],
-                type: 'scatter',
-                mode: 'markers',
-                marker: {
-                    color: [minResult, maxResult],
-                    colorscale: customColorscale,
-                    cmin: minResult,
-                    cmax: maxResult,
-                    showscale: true,
-                    size: 60,
-                    colorbar: {
-                        title: 'Result Values',
-                        titleside: 'right'
-                    }
-                },
-                hoverinfo: 'none'
-            };
+			var xAxisConfig = getAxisConfigScatter2d(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
+			var yAxisConfig = getAxisConfigScatter2d(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
 
-            function getAxisConfig(stringMapping, rawValues, minValue, isNumeric) {
-                var tickvals = [];
-                var ticktext = [];
+			var layout2d = {
+				title: `Scatter Plot: ${x_name} vs ${y_name}`,
+				xaxis: {
+					title: x_name,
+					tickvals: xAxisConfig.tickvals,
+					ticktext: xAxisConfig.ticktext,
+					tickangle: -45 // Rotate tick labels for better readability
+				},
+				yaxis: {
+					title: y_name,
+					tickvals: yAxisConfig.tickvals,
+					ticktext: yAxisConfig.ticktext,
+					tickangle: -45 // Rotate tick labels for better readability
+				},
+				paper_bgcolor: 'rgba(0,0,0,0)',
+				plot_bgcolor: 'rgba(0,0,0,0)',
+				showlegend: false
+			};
 
-                Object.entries(stringMapping).forEach(([key, mappedValue]) => {
-                    tickvals.push(mappedValue);
-                    ticktext.push(key);
-                });
+			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
+			$('#scatter_plot_2d_container').append(new_plot_div);
 
-                if (isNumeric) {
-                    rawValues.forEach(val => {
-                        var parsed = parseFloat(val);
-                        if (!isNaN(parsed)) {
-                            tickvals.push(parsed);
-                            ticktext.push(String(parsed));
-                        }
-                    });
-                    // Reduce tick count if too many numeric values
-                    return reduceNumericTicks(tickvals, ticktext, 10); // Allow a max of 10 ticks
-                }
+			if ($('#scatter_plot_2d_container').length) {
+				Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
+				already_existing_plots.push(_key);
+			} else {
+				error("Cannot find #scatter_plot_2d_container");
+			}
+		}
+	}
 
-                return { tickvals, ticktext };
-            }
-
-            var xAxisConfig = getAxisConfig(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
-            var yAxisConfig = getAxisConfig(stringMappingY, yValuesRaw, minYValue, !isNaN(minYValue));
-
-            var layout2d = {
-                title: `Scatter Plot: ${x_name} vs ${y_name}`,
-                xaxis: {
-                    title: x_name,
-                    tickvals: xAxisConfig.tickvals,
-                    ticktext: xAxisConfig.ticktext,
-                    tickangle: -45 // Rotate tick labels for better readability
-                },
-                yaxis: {
-                    title: y_name,
-                    tickvals: yAxisConfig.tickvals,
-                    ticktext: yAxisConfig.ticktext,
-                    tickangle: -45 // Rotate tick labels for better readability
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                showlegend: false
-            };
-
-            var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-            $('#scatter_plot_2d_container').append(new_plot_div);
-
-            if ($('#scatter_plot_2d_container').length) {
-                Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
-                already_existing_plots.push(_key);
-            } else {
-                error("Cannot find #scatter_plot_2d_container");
-            }
-        }
-    }
-
-    $('#scatter_plot_2d_container').data("md5", data_md5);
+	$('#scatter_plot_2d_container').data("md5", data_md5);
 }
 
 async function load_results () {

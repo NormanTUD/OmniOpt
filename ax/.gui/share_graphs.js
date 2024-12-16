@@ -68,11 +68,19 @@ function mapStrings(values, minNumericValue) {
 	return stringMapping;
 }
 
-function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
+async function newPlot3d (name, trace3d, layout3d) {
+	Plotly.newPlot(name, [trace3d], layout3d);
+
+	return true;
+}
+
+async function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultValues, mappingKeyNameToIndex) {
 	showSpinnerOverlay("Plotting 3d scatter...");
 	var already_existing_plots = [];
 
 	$('#scatter_plot_3d_container').html("");
+
+	var promises = [];
 
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		var data_md5 = md5(JSON.stringify(_results_csv_json));
@@ -215,7 +223,7 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${x_name}_${y_name}_${z_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
 					if ($('#scatter_plot_3d_container').length) {
 						$('#scatter_plot_3d_container').append(new_plot_div);
-						Plotly.newPlot(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, [trace3d], layout3d);
+						promises.push(newPlot3d(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, trace3d, layout3d));
 						already_existing_plots.push(_key);
 					} else {
 						error("Cannot find #scatter_plot_3d_container");
@@ -224,6 +232,8 @@ function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, resultV
 			}
 		}
 	}
+
+	await Promise.all(promises)
 
 	$('#scatter_plot_3d_container').data("md5", data_md5);
 }
@@ -498,8 +508,8 @@ async function plot_all_possible () {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
+	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 
 	apply_theme_based_on_system_preferences();
 }

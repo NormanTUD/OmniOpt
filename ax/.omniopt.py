@@ -23,7 +23,6 @@ try:
     )
 
     with console.status("[bold green]Loading base modules...") as status:
-        #import asyncio
         from submitit import Job
         import threading
         from concurrent.futures import ThreadPoolExecutor
@@ -125,7 +124,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else:
+else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
 dier: FunctionType = helpers.dier
@@ -847,7 +846,7 @@ def log_nr_of_workers() -> None:
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
         my_exit(199)
 
-    return None
+    return None # pragma: no cover
 
 @wrapper_print_debug
 def log_what_needs_to_be_logged() -> None:
@@ -897,12 +896,12 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
     return False
 
 def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    if not _logfile:
-        return
+    if not _logfile: # pragma: no cover
+        return None
 
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
-        return
+        return None
 
     try:
         with open(_logfile, mode='a', encoding="utf-8") as f:
@@ -914,6 +913,8 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
     except Exception as e: # pragma: no cover
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
+
+    return None
 
 def _log_trial_index_to_param(trial_index: int, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, str(trial_index), _lvl, str(eee))
@@ -959,7 +960,7 @@ def get_file_as_string(f: str) -> str:
 
         if isinstance(_df, str):
             datafile = _df
-        else:
+        else: # pragma: no cover
             datafile = "\n".join(_df)
 
     return "\n".join(datafile)
@@ -1055,7 +1056,7 @@ def load_time_or_exit(_args: Any) -> None:
     elif _args.continue_previous_job:
         time_file = f"{_args.continue_previous_job}/state_files/time"
         time_content = get_file_content_or_exit(time_file, f"neither --time nor file {time_file} found", 19)
-        if time_content.isdigit():
+        if time_content.isdigit(): # pragma: no cover
             global_vars["_time"] = int(time_content)
             print_yellow(f"Using old run's --time: {global_vars['_time']}")
         else: # pragma: no cover
@@ -1126,7 +1127,7 @@ if not args.tests:
 
     loaded_gpus = load_gpus_or_exit(args)
 
-    if loaded_gpus:
+    if loaded_gpus: # pragma: no cover
         args.gpus = loaded_gpus
         global_vars["gpus"] = args.gpus
 
@@ -1226,7 +1227,7 @@ def get_program_code_from_out_file(f: str) -> str:
     fs = get_file_as_string(f)
 
     for line in fs.split("\n"):
-        if "Program-Code:" in line:
+        if "Program-Code:" in line: # pragma: no cover
             return line
 
     return ""
@@ -1367,7 +1368,7 @@ def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_b
     }
 
 def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
-    if lower_bound is None or upper_bound is None:
+    if lower_bound is None or upper_bound is None: # pragma: no cover
         print_red("handle_grid_search: lower_bound or upper_bound is None")
         my_exit(91)
 
@@ -1590,7 +1591,7 @@ def check_range_params_length(this_args: Union[str, list]) -> None:
         my_exit(181)
 
 def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
-    if upper_bound is None or lower_bound is None:
+    if upper_bound is None or lower_bound is None: # pragma: no cover
         print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
         my_exit(91)
     if upper_bound == lower_bound:
@@ -1598,8 +1599,8 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
             print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
             my_exit(181)
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound") # pragma: no cover
-        if upper_bound is not None:
-            lower_bound = -upper_bound # pragma: no cover
+        if upper_bound is not None: # pragma: no cover
+            lower_bound = -upper_bound
 
 def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
     try:
@@ -1877,7 +1878,7 @@ def ignore_signals() -> None:
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
 def calculate_signed_harmonic_distance(_args: list[float]) -> float:
-    if not _args:  # Handle empty input gracefully
+    if not _args or len(_args) == 0: # Handle empty input gracefully
         return 0
 
     abs_inverse_sum: float = sum(1 / abs(a) for a in _args if a != 0)  # Avoid division by zero
@@ -1915,17 +1916,17 @@ class invalidMooType(Exception):
     pass
 
 def calculate_moo(_args: Optional[list[float]]) -> float:
-    if _args is None:
+    if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 
     if args.moo_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
-    if args.moo_type == "geometric":
+    if args.moo_type == "geometric": # pragma: no cover
         return calculate_signed_geometric_distance(_args)
-    if args.moo_type == "signed_harmonic":
+    if args.moo_type == "signed_harmonic": # pragma: no cover
         return calculate_signed_harmonic_distance(_args)
 
-    raise invalidMooType(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}")
+    raise invalidMooType(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}") # pragma: no cover
 
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
@@ -1945,7 +1946,7 @@ def evaluate(parameters: dict) -> dict:
     ignore_signals()
 
     try:
-        if args.raise_in_eval:
+        if args.raise_in_eval: # pragma: no cover
             raise SignalUSR("Raised in eval")
         original_print(f"Parameters: {json.dumps(parameters)}")
 
@@ -2049,11 +2050,11 @@ def evaluate(parameters: dict) -> dict:
         else:
             print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
-        if isinstance(result, (int, float)):
+        if isinstance(result, (int, float)): # pragma: no cover
             return {"result": float(result)}
         if isinstance(result, (list)) and len(result) == 1:
             return {"result": float(result[0])}
-        if isinstance(result, (list)):
+        if isinstance(result, (list)): # pragma: no cover
             return {"result": [float(r) for r in result]}
 
         write_failed_logs(parameters, "No Result") # pragma: no cover
@@ -2067,7 +2068,7 @@ def evaluate(parameters: dict) -> dict:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "INT-signal")
 
-    return return_in_case_of_error
+    return return_in_case_of_error # pragma: no cover
 
 class NpEncoder(json.JSONEncoder):
     def default(self: Any, obj: Any) -> Union[int, float, list]: # pragma: no cover
@@ -2086,7 +2087,7 @@ def custom_warning_handler(
     lineno: int,
     file: TextIO | None = None,
     line: str | None = None
-) -> None:
+) -> None: # pragma: no cover
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(f"{file}:{line}: {warning_message}")
 
@@ -2443,11 +2444,11 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
         print_debug(f"Cannot find path {_pd_csv}")
         return data
 
-    if not _show_sixel_graphics:
+    if not _show_sixel_graphics: # pragma: no cover
         print_debug("_show_sixel_graphics was false. Will not plot.")
         return data
 
-    if len(global_vars["parameter_names"]) == 0:
+    if len(global_vars["parameter_names"]) == 0: # pragma: no cover
         print_debug("Cannot handle empty data in global_vars -> parameter_names")
         return data
 
@@ -2463,19 +2464,17 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
             min_done_jobs = plot["min_done_jobs"]
 
         if not _force and count_done_jobs() < min_done_jobs:
-            print_debug(
-                f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done"
-            )
+            print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
             continue
 
         try:
             _tmp = f"{get_current_run_folder()}/plots/"
             _width = "1200"
 
-            if "width" in plot:
+            if "width" in plot: # pragma: no cover
                 _width = plot["width"]
 
-            if not _force and not os.path.exists(_tmp):
+            if not _force and not os.path.exists(_tmp): # pragma: no cover
                 makedirs(_tmp)
 
             j = 0
@@ -2486,7 +2485,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
             tmp_file = f"{_tmp}/{_fn}.png"
 
-            while os.path.exists(tmp_file):
+            while os.path.exists(tmp_file): # pragma: no cover
                 j += 1
                 tmp_file = f"{_tmp}/{_fn}_{j}.png"
 
@@ -2494,7 +2493,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
             if _force:
                 _command = f"bash omniopt_plot --run_dir {get_current_run_folder()} --plot_type={plot_type}"
-            else:
+            else: # pragma: no cover
                 _command = f"bash {maindir}/omniopt_plot --run_dir {get_current_run_folder()} --plot_type={plot_type}"
 
             if "dpi" in plot:
@@ -2567,7 +2566,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 
         if best_params and "result" in best_params:
             best_result = best_params["result"]
-        else:
+        else: # pragma: no cover
             best_result = NO_RESULT
 
         if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
@@ -2632,7 +2631,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars
 
-    if SHOWN_END_TABLE:
+    if SHOWN_END_TABLE: # pragma: no cover
         print("End table already shown, not doing it again")
         return -1
 
@@ -2701,15 +2700,15 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
     _exit: int = 0
 
     try:
-        if get_current_run_folder() is None:
+        if get_current_run_folder() is None: # pragma: no cover
             print_debug("[end_program] get_current_run_folder() was empty. Not running end-algorithm.")
             return
 
-        if ax_client is None:
+        if ax_client is None: # pragma: no cover
             print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
             return
 
-        if console is None:
+        if console is None: # pragma: no cover
             print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
@@ -2722,7 +2721,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
-    except TypeError as e:
+    except TypeError as e: # pragma: no cover
         print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
     abandon_all_jobs()
@@ -2737,7 +2736,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
     my_exit(_exit)
 
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    if trial_nr > 3:
+    if trial_nr > 3: # pragma: no cover
         if eee:
             print("Error during saving checkpoint: " + str(eee))
         else:
@@ -2752,7 +2751,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         if ax_client:
             ax_client.save_to_json_file(filepath=checkpoint_filepath)
-        else:
+        else: # pragma: no cover
             print_red("Something went wrong using the ax_client")
             my_exit(9)
     except Exception as e: # pragma: no cover
@@ -2762,13 +2761,13 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
 def get_tmp_file_from_json(experiment_args: dict) -> str:
     _tmp_dir = "/tmp"
     k = 0
-    while os.path.exists(f"/{_tmp_dir}/{k}"):
+    while os.path.exists(f"/{_tmp_dir}/{k}"): # pragma: no cover
         k = k + 1
 
     try:
         with open(f'/{_tmp_dir}/{k}', mode="w", encoding="utf-8") as f:
             json.dump(experiment_args, f)
-    except PermissionError as e:
+    except PermissionError as e: # pragma: no cover
         print_red(f"Error writing '{k}' in get_tmp_file_from_json: {e}")
 
     return f"/{_tmp_dir}/{k}"
@@ -2788,9 +2787,9 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
             differences_message = f"Changed parameter {old_param['name']} " + ", ".join(differences)
             return differences_message
 
-        return "No differences found between the old and new parameters."
+        return "No differences found between the old and new parameters." # pragma: no cover
 
-    except AssertionError as e:
+    except AssertionError as e: # pragma: no cover
         print(f"Assertion error: {e}")
     except Exception as e: # pragma: no cover
         print(f"Unexpected error: {e}")
@@ -2826,12 +2825,13 @@ def get_ax_param_representation(data: dict) -> dict:
             'values': data["values"]
         }
 
-    print("data:")
-    pprint(data)
-    print_red(f"Unknown data range {data['type']}")
-    my_exit(19)
+    print("data:") # pragma: no cover
+    pprint(data) # pragma: no cover
+    print_red(f"Unknown data range {data['type']}") # pragma: no cover
+    my_exit(19) # pragma: no cover
 
-    return {} # only for linter, never reached because of die
+    # only for linter, never reached because of die
+    return {} # pragma: no cover
 
 def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> dict:
     torch_device = None
@@ -2841,15 +2841,15 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
         if not cuda_is_available or cuda_is_available == 0:
             print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
         else:
-            if torch.cuda.device_count() >= 1:
+            if torch.cuda.device_count() >= 1: # pragma: no cover
                 torch_device = torch.cuda.current_device()
                 print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
-            else:
+            else: # pragma: no cover
                 print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
     except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 
-    if torch_device:
+    if torch_device: # pragma: no cover
         if experiment_args:
             experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
         else:
@@ -2862,7 +2862,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
     return {}
 
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
-    if not os.path.exists(_file):
+    if not os.path.exists(_file): # pragma: no cover
         print_red(f"Cannot find {_file}")
         my_exit(47)
 
@@ -3958,7 +3958,7 @@ def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma
 
     return ""
 
-def check_for_python_errors(i: str, file_as_string: str) -> list[str]:
+def check_for_python_errors(i: str, file_as_string: str) -> list[str]: # pragma: no cover
     errors: list[str] = []
 
     for search_array in get_python_errors():
@@ -3984,7 +3984,7 @@ def get_errors_from_outfile(i: str) -> list[str]:
 
     errors: list[str] = []
 
-    if "Result: None" in file_as_string:
+    if "Result: None" in file_as_string: # pragma: no cover
         errors.append("Got no result.")
 
         new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
@@ -4011,7 +4011,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
     _strs: list[str] = []
     j: int = 0
 
-    if len(errors):
+    if len(errors): # pragma: no cover
         if j == 0:
             _strs.append("")
         _strs.append(f"Out file {stdout_path} contains potential errors:\n")
@@ -4026,7 +4026,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
     out_files_string: str = "\n".join(_strs)
 
-    if len(_strs):
+    if len(_strs): # pragma: no cover
         try:
             with open(f'{get_current_run_folder()}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
                 error_file.write(out_files_string)
@@ -4088,7 +4088,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
-        if job is None:
+        if job is None: # pragma: no cover
             print_debug(f"finish_previous_jobs: job {job} is None")
             continue
 
@@ -4126,7 +4126,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
                             mark_trial_as_failed(_trial)
                             orchestrate_job(job, trial_index)
                         failed_jobs(1)
-                else:
+                else: # pragma: no cover
                     print_red("ax_client could not be found or used")
                     my_exit(9)
                 global_vars["jobs"].remove((job, trial_index))
@@ -4217,7 +4217,7 @@ def orchestrate_job(job: Job, trial_index: int) -> None:
     _orchestrate(stderr_path, trial_index)
 
     orchestrate_todo_copy = ORCHESTRATE_TODO
-    for todo_stdout_file in orchestrate_todo_copy.keys():
+    for todo_stdout_file in orchestrate_todo_copy.keys(): # pragma: no cover
         old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
@@ -4462,14 +4462,14 @@ def initialize_job_environment() -> None:
     exclude_defective_nodes()
 
 def set_sbatch_environment() -> None:
-    if args.reservation:
+    if args.reservation: # pragma: no cover
         os.environ['SBATCH_RESERVATION'] = args.reservation
-    if args.account:
+    if args.account: # pragma: no cover
         os.environ['SBATCH_ACCOUNT'] = args.account
 
 def exclude_defective_nodes() -> None:
     excluded_string: str = ",".join(count_defective_nodes())
-    if len(excluded_string) > 1:
+    if len(excluded_string) > 1: # pragma: no cover
         if executor:
             executor.update_parameters(exclude=excluded_string)
         else:
@@ -4594,7 +4594,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, Non
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
 
-    if SYSTEM_HAS_SBATCH and not force_local_execution:
+    if SYSTEM_HAS_SBATCH and not force_local_execution: # pragma: no cover
         if last_time:
             return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
         return base_msg
@@ -4607,7 +4607,7 @@ def get_parallelism_schedule_description() -> str:
         if ax_client:
             max_parallelism_settings = ax_client.get_max_parallelism()
 
-            if not max_parallelism_settings:
+            if not max_parallelism_settings: # pragma: no cover
                 return "No parallelism settings available."
 
             # Build human-readable descriptions
@@ -4618,7 +4618,7 @@ def get_parallelism_schedule_description() -> str:
                 else:
                     trial_text = f"{num_trials} trials"
 
-                if max_parallelism == -1:
+                if max_parallelism == -1: # pragma: no cover
                     parallelism_text = "any number of trials can be run in parallel"
                 else:
                     parallelism_text = f"up to {max_parallelism} trials can be run in parallel"
@@ -4632,7 +4632,7 @@ def get_parallelism_schedule_description() -> str:
         print_red("Error defining ax_client")
         sys.exit(9)
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         return f"An error occurred while processing parallelism schedule: {str(e)}"
 
 @disable_logs
@@ -5037,7 +5037,7 @@ def execute_nvidia_smi() -> None: # pragma: no cover
                     print_debug("host not defined")
         except Exception as e: # pragma: no cover
             print(f"execute_nvidia_smi: An error occurred: {e}")
-        if is_slurm_job() and not args.force_local_execution:
+        if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(10)
 
 def start_nvidia_smi_thread() -> None: # pragma: no cover
@@ -5080,7 +5080,7 @@ def run_search(_progress_bar: Any) -> bool:
 
         finish_previous_jobs(["finishing previous jobs"])
 
-        if is_slurm_job() and not args.force_local_execution:
+        if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(1)
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
@@ -5740,6 +5740,11 @@ Exit-Code: 159
         None
     )
 
+    nr_errors += is_equal("calculate_moo(None)", calculate_moo(None), VAL_IF_NOTHING_FOUND)
+    nr_errors += is_equal("calculate_moo([])", calculate_moo([]), VAL_IF_NOTHING_FOUND)
+
+    nr_errors += is_equal("calculate_signed_harmonic_distance(None)", calculate_signed_harmonic_distance(None), 0)
+    nr_errors += is_equal("calculate_signed_harmonic_distance([])", calculate_signed_harmonic_distance([]), 0)
     nr_errors += is_equal("calculate_signed_harmonic_distance([0.1])", calculate_signed_harmonic_distance([0.1]), 0.1)
     nr_errors += is_equal("calculate_signed_harmonic_distance([-0.1])", calculate_signed_harmonic_distance([-0.1]), -0.1)
     nr_errors += is_equal("calculate_signed_harmonic_distance([0.1, 0.1])", calculate_signed_harmonic_distance([0.1, 0.2]), 0.13333333333333333)

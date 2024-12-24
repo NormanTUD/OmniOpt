@@ -1670,10 +1670,10 @@ def get_result(input_string: str) -> Optional[list[float]]:
         return None
 
     try:
-        pattern: str = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
+        _pattern: str = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
 
-        # Find all matches for the pattern
-        matches = re.findall(pattern, input_string)
+        # Find all matches for the _pattern
+        matches = re.findall(_pattern, input_string)
 
         if matches:
             # Convert matches to floats
@@ -1859,11 +1859,11 @@ def extract_info(data: str) -> Tuple[list[str], list[str]]:
     values: list[str] = []
 
     # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
-    pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
+    _pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
 
     # Gehe durch jede Zeile im String
     for line in data.splitlines():
-        match = pattern.search(line)
+        match = _pattern.search(line)
         if match:
             names.append("OO_Info_" + match.group(1))
             values.append(match.group(2))
@@ -3588,8 +3588,8 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
     error_message: str = str(_error_message)
     try:
         # Defining the regex pattern to match the required parts of the error message
-        pattern: str = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
-        match = re.search(pattern, error_message)
+        _pattern: str = r"Value for parameter (?P<parameter_name>\w+): .*? is of type <class '(?P<current_type>\w+)'>, expected\s*<class '(?P<expected_type>\w+)'>."
+        match = re.search(_pattern, error_message)
 
         # Asserting the match is found
         assert match is not None, "Pattern did not match the error message."
@@ -5128,9 +5128,9 @@ def human_readable_generation_strategy() -> Optional[str]:
     if ax_client:
         generation_strategy_str = str(ax_client.generation_strategy)
 
-        pattern: str = r'\[(.*?)\]'
+        _pattern: str = r'\[(.*?)\]'
 
-        match = re.search(pattern, generation_strategy_str)
+        match = re.search(_pattern, generation_strategy_str)
 
         if match:
             content = match.group(1)

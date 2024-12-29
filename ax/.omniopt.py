@@ -165,11 +165,12 @@ def _sleep(t: int) -> int:
 LOG_DIR: str = "logs"
 makedirs(LOG_DIR)
 
-logfile: str = f'{LOG_DIR}/{run_uuid}_log'
-logfile_nr_workers: str = f'{LOG_DIR}/{run_uuid}_nr_workers'
-logfile_progressbar: str = f'{LOG_DIR}/{run_uuid}_progressbar'
-logfile_worker_creation_logs: str = f'{LOG_DIR}/{run_uuid}_worker_creation_logs'
-logfile_trial_index_to_param_logs: str = f'{LOG_DIR}/{run_uuid}_trial_index_to_param_logs'
+log_uuid_dir = f"{LOG_DIR}/{run_uuid}"
+logfile: str = f'{log_uuid_dir}_log'
+logfile_nr_workers: str = f'{log_uuid_dir}_nr_workers'
+logfile_progressbar: str = f'{log_uuid_dir}_progressbar'
+logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
+logfile_trial_index_to_param_logs: str = f'{log_uuid_dir}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
 
 def print_red(text: str) -> None:

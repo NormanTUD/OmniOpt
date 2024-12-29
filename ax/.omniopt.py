@@ -297,7 +297,7 @@ class ConfigLoader:
     def __init__(self) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
-            description='A hyperparameter optimizer for slurmbased HPC-systems',
+            description='A hyperparameter optimizer for slurm-based HPC-systems',
             epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network ...",
             formatter_class=RichHelpFormatter
         )

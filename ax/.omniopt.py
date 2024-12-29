@@ -95,8 +95,6 @@ if not uuid_regex.match(run_uuid): # pragma: no cover
     print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
     run_uuid = new_uuid
 
-print(f"Run-UUID: {run_uuid}")
-
 jobs_finished: int = 0
 shown_live_share_counter: int = 0
 PD_CSV_FILENAME: str = "results.csv"
@@ -5779,6 +5777,8 @@ def start_live_share_background_job() -> None:
 
 @wrapper_print_debug
 def main_outside() -> None:
+    print(f"Run-UUID: {run_uuid}")
+
     print_logo()
 
     with warnings.catch_warnings():

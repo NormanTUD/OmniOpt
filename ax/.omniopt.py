@@ -2,10 +2,6 @@
 
 import sys
 import os
-from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
-from types import FunctionType
-import json
-from submitit import LocalExecutor, AutoExecutor
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -23,6 +19,10 @@ try:
     )
 
     with console.status("[bold green]Loading base modules...") as status:
+        import json
+        from types import FunctionType
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
+        from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
         import threading
         from concurrent.futures import ThreadPoolExecutor

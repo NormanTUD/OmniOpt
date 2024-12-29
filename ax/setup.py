@@ -123,7 +123,7 @@ setup(
     packages=['.',],
     data_files=[('bin', all_needed_files)],
     include_package_data=True,
-    python_requires=">=3.9"
+    python_requires=">=3.10"
 )
 
 if overlay_warning:

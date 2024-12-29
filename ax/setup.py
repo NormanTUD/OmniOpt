@@ -7,6 +7,9 @@ import sysconfig
 
 from setuptools import setup
 
+if not sys.platform.startswith("linux"):
+    raise OSError("OmniOpt can only be run on Linux.")
+
 def is_executable_in_path(executable_name):
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
@@ -120,6 +123,7 @@ setup(
     packages=['.',],
     data_files=[('bin', all_needed_files)],
     include_package_data=True,
+    python_requires=">=3.9"
 )
 
 if overlay_warning:

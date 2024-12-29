@@ -491,9 +491,7 @@ def wrapper_print_debug(func: Any) -> Any:
         return result
     return wrapper
 
-with console.status("[bold green]Loading ax logger...") as status:
-    from ax.utils.common.logger import disable_loggers
-disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
+disable_logs = None
 
 if not args.tests:
     try:
@@ -534,6 +532,10 @@ if not args.tests:
     except AttributeError: # pragma: no cover
         print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
         my_exit(7)
+
+with console.status("[bold green]Loading ax logger...") as status:
+    from ax.utils.common.logger import disable_loggers
+disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 
 NVIDIA_SMI_LOGS_BASE = None
 

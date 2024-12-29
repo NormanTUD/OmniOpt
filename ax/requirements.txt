@@ -3,7 +3,6 @@ wheel
 multidict
 numpy
 python-dateutil
-ax
 ax-platform
 art
 tzlocal

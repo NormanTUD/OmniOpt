@@ -98,8 +98,9 @@ python_files = [f for f in all_files if is_python_script(f)]
 all_needed_files = bash_files
 all_needed_files.extend(python_files)
 
+all_needed_files.append("LICENSE")
 all_needed_files.append("requirements.txt")
-#all_needed_files.append("apt-requirements.txt")
+all_needed_files.append("apt-dependencies.txt")
 
 print("Copying the following files:")
 print("=====================")
@@ -110,7 +111,7 @@ setup(
     long_description=open('README.md', encoding="utf-8").read(),
     long_description_content_type='text/markdown',
     name='omniopt2',
-    version='0.9',
+    version='0.95',
     description='Automatic hyperparameter optimizer based on Ax/Botorch',
     author='Norman Koch',
     author_email='norman.koch@tu-dresden.de',

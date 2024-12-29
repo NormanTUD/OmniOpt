@@ -95,14 +95,14 @@ if not uuid_regex.match(run_uuid): # pragma: no cover
     print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
     run_uuid = new_uuid
 
-jobs_finished: int = 0
-shown_live_share_counter: int = 0
+JOBS_FINISHED: int = 0
+SHOWN_LIVE_SHARE_COUNTER: int = 0
 PD_CSV_FILENAME: str = "results.csv"
-worker_percentage_usage: list = []
+WORKER_PERCENTAGE_USAGE: list = []
 END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
-time_next_trials_took: list[float] = []
+TIME_NEXT_TRIALS_TOOK: list[float] = []
 CURRENT_RUN_FOLDER: str = ""
 RESULT_CSV_FILE: str = ""
 SHOWN_END_TABLE: bool = False
@@ -592,7 +592,7 @@ def run_live_share_command() -> Tuple[str, str]:
 
 @wrapper_print_debug
 def live_share() -> bool:
-    global shown_live_share_counter
+    global SHOWN_LIVE_SHARE_COUNTER
 
     if not args.live_share: # pragma: no cover
         return False
@@ -602,10 +602,10 @@ def live_share() -> bool:
 
     stdout, stderr = run_live_share_command()
 
-    if shown_live_share_counter == 0 and stderr:
+    if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
         print_yellow(stderr)
 
-    shown_live_share_counter = shown_live_share_counter + 1
+    SHOWN_LIVE_SHARE_COUNTER = SHOWN_LIVE_SHARE_COUNTER + 1
 
     return True
 
@@ -775,18 +775,18 @@ def set_max_eval(new_max_eval: int) -> None:
     max_eval = new_max_eval
 
 def write_worker_usage() -> None:
-    if len(worker_percentage_usage): # pragma: no cover
+    if len(WORKER_PERCENTAGE_USAGE): # pragma: no cover
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
         with open(csv_filename, mode='w', encoding="utf-8", newline='') as csvfile:
             csv_writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            for row in worker_percentage_usage:
+            for row in WORKER_PERCENTAGE_USAGE:
                 csv_writer.writerow(row)
     else:
         if is_slurm_job(): # pragma: no cover
-            print_debug("worker_percentage_usage seems to be empty. Not writing worker_usage.csv")
+            print_debug("WORKER_PERCENTAGE_USAGE seems to be empty. Not writing worker_usage.csv")
 
 @wrapper_print_debug
 def log_system_usage() -> None:
@@ -2642,14 +2642,14 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     if best_result_exit > 0:
         _exit = best_result_exit
 
-    if args.show_worker_percentage_table_at_end and len(worker_percentage_usage) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: # pragma: no cover
+    if args.show_worker_percentage_table_at_end and len(WORKER_PERCENTAGE_USAGE) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: # pragma: no cover
         ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = True
 
         table = Table(header_style="bold", title="Worker usage over time:")
         columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
         for column in columns:
             table.add_column(column)
-        for row in worker_percentage_usage:
+        for row in WORKER_PERCENTAGE_USAGE:
             table.add_row(str(row["time"]), str(row["nr_current_workers"]), str(row["num_parallel_jobs"]), f'{row["percentage"]}%')
         console.print(table)
 
@@ -3357,8 +3357,8 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
             "time": this_time
         }
 
-        if len(worker_percentage_usage) == 0 or worker_percentage_usage[len(worker_percentage_usage) - 1] != this_values:
-            worker_percentage_usage.append(this_values)
+        if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
+            WORKER_PERCENTAGE_USAGE.append(this_values)
 
         workers_strings = get_workers_string()
         if workers_strings:
@@ -4077,7 +4077,7 @@ def mark_trial_as_completed(_trial: Any) -> None:
 def finish_previous_jobs(new_msgs: list[str]) -> None:
     global random_steps
     global ax_client
-    global jobs_finished
+    global JOBS_FINISHED
 
     this_jobs_finished = 0
 
@@ -4160,7 +4160,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
     elif this_jobs_finished > 0: # pragma: no cover
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
 
-    jobs_finished += this_jobs_finished
+    JOBS_FINISHED += this_jobs_finished
 
     clean_completed_jobs()
 
@@ -4573,11 +4573,11 @@ def break_run_search(_name: str, _max_eval: int, _progress_bar: Any) -> bool:
     return _ret
 
 def _get_last_and_avg_times() -> Union[Tuple[None, None], Tuple[float, float]]:
-    """Returns the last and average times from time_next_trials_took, or None if empty."""
-    if len(time_next_trials_took) == 0:
+    """Returns the last and average times from TIME_NEXT_TRIALS_TOOK, or None if empty."""
+    if len(TIME_NEXT_TRIALS_TOOK) == 0:
         return None, None
-    last_time = time_next_trials_took[-1]
-    avg_time = sum(time_next_trials_took) / len(time_next_trials_took)
+    last_time = TIME_NEXT_TRIALS_TOOK[-1]
+    avg_time = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
     return last_time, avg_time
 
 def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
@@ -4693,7 +4693,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[dict, bool]:
     end_time: float = time.time()
 
     # Log and update timing
-    time_next_trials_took.append(end_time - start_time)
+    TIME_NEXT_TRIALS_TOOK.append(end_time - start_time)
     cf = currentframe()
     if cf:
         _frame_info = getframeinfo(cf)
@@ -4855,7 +4855,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: str, _max_eval: int,
                             if is_slurm_job() and not args.force_local_execution:
                                 _sleep(5)
 
-                        if (jobs_finished - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
+                        if (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
                             break
 
                         if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
@@ -5060,7 +5060,7 @@ def run_search(_progress_bar: Any) -> bool:
         if break_run_search("run_search", max_eval, _progress_bar):
             break
 
-        if (jobs_finished - NR_INSERTED_JOBS) >= max_eval:
+        if (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval:
             break
 
         next_nr_steps: int = get_next_nr_steps(num_parallel_jobs, max_eval)

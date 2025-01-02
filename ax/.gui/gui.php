@@ -326,7 +326,7 @@
                     if(item.required) {
                         var this_error = "Field '" + item.label + "' is required.";
                         $("#" + item.id + "_error").html(this_error).show();
-                        $("#" + item.id).css("background-color", "#FFCCCC");
+                        $("#" + item.id).css("background-color", "#FFCCCC !important").css("color", "white !important");
 
                         errors.push(this_error);
                     }
@@ -538,7 +538,7 @@
                         var err_msg = `Parameter name "${parameterName}" already exists. Can only be defined once!`;
                         warn_msg.push(err_msg);
 
-                        $($(".parameterRow")[i]).css("background-color", "#e57373")
+                        $($(".parameterRow")[i]).css("background-color", "#e57373");
                     } else if(parameterName.match(/^[a-zA-Z_]+$/)) {
                         if (option === "range") {
                             var $this = $(this);

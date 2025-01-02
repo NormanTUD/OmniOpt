@@ -1,0 +1,17 @@
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+	background: #838383 !important;
+	border: 1px solid #898989 !important;
+}
+
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
+	color: #040404 !important;
+}
+
+.ui-state-default {
+	background: #141414 !important;
+	/*border: 1px solid #292929 !important;*/
+}
+
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited, a.ui-button, a:link.ui-button, a:visited.ui-button, .ui-button {
+	/*color: #ffffff !important;*/
+}

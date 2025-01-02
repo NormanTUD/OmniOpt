@@ -9,7 +9,6 @@
 
 .ui-state-default {
 	background: #141414 !important;
-	/*border: 1px solid #292929 !important;*/
 }
 
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited, a.ui-button, a:link.ui-button, a:visited.ui-button, .ui-button {
@@ -22,4 +21,10 @@ th {
 
 button {
 	background-color: #00015a !important;
+}
+
+.inactive_tab {
+	border: 1px solid #292929 !important;
+	background-color: #333333 !important;
+	color: #ffffff !important;
 }

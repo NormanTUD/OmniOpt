@@ -433,6 +433,10 @@ function generateTOC() {
 		var headers = $('h2, h3, h4, h5, h6');
 		var tocItems = [];
 
+		if (headers.length === 1) {
+			return;
+		}
+
 		headers.each(function() {
 			var $header = $(this);
 			var headerTag = $header.prop('tagName').toLowerCase();

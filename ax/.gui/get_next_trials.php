@@ -27,7 +27,7 @@
 		exit(0);
 	}
 
-	if(!preg_match("/^[a-zA-Z0-9_]+$/", $experiment_name)) {
+	if(!preg_match("/^[a-zA-Z0-9_-]+$/", $experiment_name)) {
 		print json_encode(array("error" => "Invalid experiment_name"));
 		exit(0);
 	}

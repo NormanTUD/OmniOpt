@@ -16,7 +16,7 @@
 	try {
 		$run_nr = validate_param("run_nr", "/^\d+$/", "Invalid run_nr");
 		$user_id = validate_param("user_id", "/^[a-zA-Z0-9_]+$/", "Invalid user_id");
-		$experiment_name = validate_param("experiment_name", "/^[a-zA-Z0-9_]+$/", "Invalid experiment_name");
+		$experiment_name = validate_param("experiment_name", "/^[a-zA-Z0-9_-]+$/", "Invalid experiment_name");
 		$environment_share_path = get_or_env("share_path");
 		$fn = get_or_env("fn");
 		$sharesPath = determine_share_path($environment_share_path, $sharesPath);

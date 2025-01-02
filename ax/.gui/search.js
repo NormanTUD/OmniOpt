@@ -45,6 +45,7 @@ async function start_search() {
 			$("#delete_search").hide();
 			$("#searchResults").hide();
 			$("#mainContent").show();
+			removeSpinnerOverlay();
 		}
 	}
 

@@ -15,3 +15,11 @@
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited, a.ui-button, a:link.ui-button, a:visited.ui-button, .ui-button {
 	color: #ffffff !important;
 }
+
+th {
+	background-color: #00015a !important;
+}
+
+button {
+	background-color: #00015a !important;
+}

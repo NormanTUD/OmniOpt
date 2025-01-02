@@ -1686,7 +1686,6 @@ def get_result(input_string: str) -> Optional[list[float]]:
         return None
 
 def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma: no cover
-    print_debug(f"add_to_csv({file_path}, {heading}, {data_line})")
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
     data_line = [helpers.to_int_when_possible(x) for x in data_line]

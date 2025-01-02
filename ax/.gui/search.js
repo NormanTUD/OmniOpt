@@ -60,7 +60,7 @@ async function start_search() {
 }
 
 function delete_search () {
-	$("#search").val("").trigger("change");
+	$("#search").val("").trigger("change").blur();
 }
 
 function mark_search_result_yellow(content, search) {

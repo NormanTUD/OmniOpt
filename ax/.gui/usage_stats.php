@@ -409,7 +409,7 @@ if (validate_csv($data_filepath)) {
     <?php
     if (count($regular_data)) {
         ?>
-                    <li><a href="#regular_data">Regular Users</a></li>
+                    <li class="invert_in_dark_mode"><a href="#regular_data">Regular Users</a></li>
         <?php
     }
     if (count($test_ids)) {

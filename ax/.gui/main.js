@@ -491,7 +491,7 @@ function add_tab(tab_id, tab_name, tab_html_content, container_id = "#main_tabbe
 		$(container_id).prepend(`<ul class="tabs" style="max-height: 200px; overflow: auto;" role="tablist"></ul>`);
 	}
 
-	var tabButton = $('<li id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');
+	var tabButton = $('<li class="invert_in_dark_mode" id="' + tab_id + '-tab"><a href="#' + tab_id + '-content">' + tab_name + '</a></li>');
 	$(container_id + " ul").append(tabButton);
 
 	var tabContent = $('<div id="' + tab_id + '-content">' + tab_html_content + '</div>');

@@ -81,7 +81,7 @@ def warn_versions() -> None:
         "six": ["1.16.0", "1.17.0"],
         "sixel": ["0.2.0"],
         "packaging": ["24.1", "20.1", "24.2"],
-        "pyparsing": ["3.1.4", "3.2.0"],
+        "pyparsing": ["3.1.4", "3.2.0", "3.2.1"],
         "cycler": ["0.12.1"],
         "kiwisolver": ["1.4.7", "1.4.8"],
         "threadpoolctl": ["3.5.0"],

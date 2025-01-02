@@ -2173,12 +2173,12 @@ def display_failed_jobs_table() -> None:
         with open(header_file, mode='r', encoding="utf-8") as file:
             reader = csv.reader(file)
             headers = next(reader)
-            print_debug(f"Headers: {headers}")
+            #print_debug(f"Headers: {headers}")
 
         with open(parameters_file, mode='r', encoding="utf-8") as file:
             reader = csv.reader(file)
             parameters = [row for row in reader]
-            print_debug(f"Parameters: {parameters}")
+            #print_debug(f"Parameters: {parameters}")
 
         # Create the table
         table = Table(show_header=True, header_style="bold red", title="Failed Jobs parameters:")

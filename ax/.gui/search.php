@@ -1,4 +1,7 @@
 <?php
+	$GLOBALS["max_results"] = 500;
+	$GLOBALS["cnt"] = 0;
+
 	function assertCondition($condition, $errorText) {
 		if (!$condition) {
 			throw new Exception($errorText);
@@ -46,7 +49,7 @@
 		$user_dirs = scandir($root_dir);
 
 		foreach ($user_dirs as $user_dir) {
-			if ($user_dir === '.' || $user_dir === '..') {
+			if ($user_dir === '.' || $user_dir === '..' || $GLOBALS["cnt"] > $GLOBALS["max_results"]) {
 				continue;
 			}
 
@@ -60,7 +63,7 @@
 			$experiment_dirs = scandir($user_path);
 
 			foreach ($experiment_dirs as $experiment_dir) {
-				if ($experiment_dir === '.' || $experiment_dir === '..') {
+				if ($experiment_dir === '.' || $experiment_dir === '..' || $GLOBALS["cnt"] > $GLOBALS["max_results"]) {
 					continue;
 				}
 
@@ -74,7 +77,7 @@
 				$run_dirs = scandir($experiment_path);
 
 				foreach ($run_dirs as $run_dir) {
-					if ($run_dir === '.' || $run_dir === '..') {
+					if ($run_dir === '.' || $run_dir === '..' || $GLOBALS["cnt"] > $GLOBALS["max_results"]) {
 						continue;
 					}
 
@@ -93,6 +96,8 @@
 							'content' => "OmniOpt2-Share: $run_path"
 						];
 						$output[] = $entry;
+
+						$GLOBALS["cnt"]++;
 					}
 				}
 			}
@@ -255,6 +260,7 @@
 								$tutorial_file = preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
 								$entry['link'] = "tutorials.php?tutorial=" . $tutorial_file . '#' . $result['context']['id'];
 								$output[] = $entry;
+								$GLOBALS["cnt"] += 1;
 							}
 						}
 					}

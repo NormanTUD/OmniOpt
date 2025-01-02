@@ -3,7 +3,7 @@
 
     $GLOBALS["files"] = array(
         "tutorials" => array(
-            "name" => "Tutorials and Help",
+            "name" => "Tutorials&Help",
             "entries" => array(
                 "basics" => "Basic info on OmniOpt2",
                 "run_sh" => "Create <tt>run.sh</tt>-file &amp; modify your program",

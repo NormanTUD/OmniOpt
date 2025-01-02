@@ -406,13 +406,11 @@ function menu {
 				accepts_min_max_string=", honors min/max"
 			fi
 
-			set +e
 			whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
 
 			if grep add_argument $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
 				whiptail_args+=("$possible_plot_type --save_to_file" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
 			fi
-			set -e
 		fi
 	done
 

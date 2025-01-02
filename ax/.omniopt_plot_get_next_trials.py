@@ -1,3 +1,5 @@
+# DESCRIPTION: Plot the number of wanted and expected trials
+# EXPECTED FILES: get_next_trials.csv
 # TEST_OUTPUT_MUST_CONTAIN: Got
 # TEST_OUTPUT_MUST_CONTAIN: Requested
 
@@ -55,7 +57,7 @@ def parse_log_file(args: Any, log_file_path: str) -> Union[pd.DataFrame, None]:
         raise
     except UnicodeDecodeError: # pragma: no cover
         if not os.environ.get("PLOT_TESTS"):
-            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+            print(f"{args.run_dir}/get_next_trials.csv seems to be invalid utf8.")
         sys.exit(7)
     except Exception as e: # pragma: no cover
         helpers.log_error(f"An unexpected error occurred: {e}")

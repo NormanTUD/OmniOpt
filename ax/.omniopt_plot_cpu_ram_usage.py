@@ -1,3 +1,6 @@
+# DESCRIPTION: Plot CPU and RAM Usage
+# EXPECTED FILES: cpu_ram_usage.csv
+
 import importlib.util
 from typing import Union
 import argparse

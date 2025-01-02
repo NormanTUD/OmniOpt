@@ -73,32 +73,23 @@
 					continue;
 				}
 
-				// Get the list of run numbers for the experiment
-				$run_dirs = scandir($experiment_path);
+				$run_path = $experiment_path . '/';
 
-				foreach ($run_dirs as $run_dir) {
-					if ($run_dir === '.' || $run_dir === '..' || $GLOBALS["cnt"] > $GLOBALS["max_results"]) {
-						continue;
-					}
+				if (!is_dir($run_path)) {
+					continue;
+				}
 
-					$run_path = $experiment_path . '/' . $run_dir;
+				// Check if the run directory name matches the regex pattern
+				if (preg_match($regex_pattern, $run_path, $matches)) {
+					$parsedPath = parsePath($run_path);
+					$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
+					$entry = [
+						'link' => $url,
+						'content' => "OmniOpt2-Share: $run_path"
+					];
+					$output[] = $entry;
 
-					if (!is_dir($run_path)) {
-						continue;
-					}
-
-					// Check if the run directory name matches the regex pattern
-					if (preg_match($regex_pattern, $run_path, $matches)) {
-						$parsedPath = parsePath($run_path);
-						$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
-						$entry = [
-							'link' => $url,
-							'content' => "OmniOpt2-Share: $run_path"
-						];
-						$output[] = $entry;
-
-						$GLOBALS["cnt"]++;
-					}
+					$GLOBALS["cnt"]++;
 				}
 			}
 		}

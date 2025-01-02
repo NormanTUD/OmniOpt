@@ -138,5 +138,9 @@
 	}
 
 	$run_nr = get_or_env("run_nr");
-
+?>
+	<div id='main_dir_or_plot_view'>
+<?php
 	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr);
+?>
+	</div>

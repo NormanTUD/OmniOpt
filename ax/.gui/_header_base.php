@@ -55,7 +55,7 @@
 <?php
 		if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 ?>
-			    <link href="tutorial.css" rel="stylesheet">
+			    <link href="_tutorial.css" rel="stylesheet">
 <?php
 		}
 ?>

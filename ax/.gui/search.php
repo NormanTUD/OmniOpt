@@ -1,13 +1,11 @@
 <?php
-	function assertCondition($condition, $errorText)
-	{
+	function assertCondition($condition, $errorText) {
 		if (!$condition) {
 			throw new Exception($errorText);
 		}
 	}
 
-	function parsePath($path)
-	{
+	function parsePath($path) {
 		try {
 			// Prüfen, ob der Pfad mit "shares/" beginnt
 			assertCondition(strpos($path, "shares/") === 0, "Der Pfad muss mit 'shares/' beginnen");
@@ -38,8 +36,7 @@
 		}
 	}
 
-	function scan_share_directories($output, $root_dir, $regex_pattern)
-	{
+	function scan_share_directories($output, $root_dir, $regex_pattern) {
 		// Check if the root directory exists
 		if (!is_dir($root_dir)) {
 			return $output;
@@ -105,8 +102,7 @@
 	}
 
 	// Funktion zum Lesen des Inhalts einer Datei
-	function read_file_content($file_path)
-	{
+	function read_file_content($file_path) {
 		try {
 			if (!file_exists($file_path)) {
 				throw new Exception("Datei nicht gefunden: $file_path");
@@ -122,8 +118,7 @@
 		}
 	}
 
-	function extract_html_from_php($filename)
-	{
+	function extract_html_from_php($filename) {
 		// Überprüfen, ob die Datei existiert
 		if (!file_exists($filename)) {
 			return 'Fehler: Datei existiert nicht.';
@@ -163,15 +158,13 @@
 
 
 	// Funktion zum Entfernen von HTML-Tags
-	function strip_html_tags($html_content)
-	{
+	function strip_html_tags($html_content) {
 		$res = strip_tags($html_content);
 		return $res;
 	}
 
 	// Funktion zum Durchsuchen des Textes und Finden der Positionen
-	function search_text_with_context($text_lines, $regex)
-	{
+	function search_text_with_context($text_lines, $regex) {
 		$results = [];
 		foreach ($text_lines as $line_number => $line) {
 			$clean_line = strip_html_tags($line);
@@ -187,8 +180,7 @@
 	}
 
 	// Funktion zum Finden der nächsten vor der Zeile liegenden <h1>, <h2>, ... mit ID
-	function find_nearest_heading($text_lines, $current_line)
-	{
+	function find_nearest_heading($text_lines, $current_line) {
 		for ($i = $current_line; $i >= 0; $i--) {
 			if (preg_match('/<(h[1-6])\s+[^>]*id=["\']([^"\']+)["\']/', $text_lines[$i], $matches)) {
 				return [
@@ -201,8 +193,7 @@
 	}
 
 	// Funktion zum Loggen von Fehlern
-	function log_error($message)
-	{
+	function log_error($message) {
 		error_log($message);
 		header('Content-Type: application/json');
 		echo json_encode(["error" => $message]);
@@ -244,7 +235,7 @@
 		exit(0);
 	}
 
-	    $output = [];
+	$output = [];
 
 	foreach ($php_files as $file_path) {
 		if ($file_path != "share.php" && $file_path != "usage_stats.php") {

@@ -3,6 +3,11 @@
 cnt=0
 
 for i in $(ls .omniopt_plot_*.py); do
+	if ! grep -q "# EXPECTED FILES" $i; then
+		echo "Missing '# EXPECTED FILES' in $i"
+		cnt=$(($cnt + 1))
+	fi
+
 	if ! grep -q "# DESCRIPTION" $i; then
 		echo "Missing '# DESCRIPTION' in $i"
 		cnt=$(($cnt + 1))

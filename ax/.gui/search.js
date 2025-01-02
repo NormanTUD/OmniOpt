@@ -3,6 +3,7 @@ var searchTimer;
 var lastSearch = "";
 
 async function start_search() {
+	showSpinnerOverlay("Searching...");
 	var searchTerm = $('#search').val();
 
 	if(searchTerm == lastSearch) {
@@ -33,9 +34,11 @@ async function start_search() {
 				data: { regex: searchTerm },
 				success: async function (response) {
 					await displaySearchResults(searchTerm, response);
+					removeSpinnerOverlay();
 				},
 				error: function (xhr, status, error) {
 					console.error(error);
+					removeSpinnerOverlay();
 				}
 			});
 		} else {

@@ -47,6 +47,10 @@
 		<?php js("search.js"); ?>
 		<?php js("initialization.js"); ?>
 
+		<script>
+			apply_theme_based_on_system_preferences();
+		</script>
+
 		<link href="style.css" rel="stylesheet">
 <?php
 		if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {

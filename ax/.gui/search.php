@@ -10,24 +10,17 @@
 
 	function parsePath($path) {
 		try {
-			// Prüfen, ob der Pfad mit "shares/" beginnt
-			assertCondition(strpos($path, "shares/") === 0, "Der Pfad muss mit 'shares/' beginnen");
+			assertCondition(strpos($path, "shares/") === 0, "Path must begin with 'shares/'");
 
-			// Entfernen des "shares/"-Teils
 			$trimmedPath = substr($path, strlen("shares/"));
 
-			// Aufteilen des Pfades in seine Bestandteile
 			$pathComponents = explode("/", $trimmedPath);
 
-			// Prüfen, ob die Anzahl der Komponenten korrekt ist
-			assertCondition(count($pathComponents) === 3, "Der Pfad muss genau drei Komponenten nach 'shares/' enthalten");
+			assertCondition(count($pathComponents) === 3, "Path must contain exactly 3 components after 'shares/'");
 
-			// Extrahieren der einzelnen Komponenten
 			$user = $pathComponents[0];
 			$directory = $pathComponents[1];
 			$file = $pathComponents[2];
-
-			// Ausgabe der extrahierten Komponenten
 
 			return [
 				'user' => $user,
@@ -40,12 +33,10 @@
 	}
 
 	function scan_share_directories($output, $root_dir, $regex_pattern) {
-		// Check if the root directory exists
 		if (!is_dir($root_dir)) {
 			return $output;
 		}
 
-		// Get the list of directories in the root directory
 		$user_dirs = scandir($root_dir);
 
 		foreach ($user_dirs as $user_dir) {
@@ -59,7 +50,6 @@
 				continue;
 			}
 
-			// Get the list of experiments for the user
 			$experiment_dirs = scandir($user_path);
 
 			foreach ($experiment_dirs as $experiment_dir) {
@@ -79,7 +69,6 @@
 					continue;
 				}
 
-				// Check if the run directory name matches the regex pattern
 				if (preg_match($regex_pattern, $run_path, $matches)) {
 					$parsedPath = parsePath($run_path);
 					$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
@@ -97,15 +86,14 @@
 		return $output;
 	}
 
-	// Funktion zum Lesen des Inhalts einer Datei
 	function read_file_content($file_path) {
 		try {
 			if (!file_exists($file_path)) {
-				throw new Exception("Datei nicht gefunden: $file_path");
+				throw new Exception("File not found: $file_path");
 			}
 			$content = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 			if ($content === false) {
-				throw new Exception("Fehler beim Lesen der Datei: $file_path");
+				throw new Exception("Error while reading file: $file_path");
 			}
 			return $content;
 		} catch (Exception $e) {
@@ -115,37 +103,27 @@
 	}
 
 	function extract_html_from_php($filename) {
-		// Überprüfen, ob die Datei existiert
 		if (!file_exists($filename)) {
-			return 'Fehler: Datei existiert nicht.';
+			return 'Error: File does not exist.';
 		}
 
-		// Initialisiere den Befehl zum Ausführen der PHP-Datei
 		$command = escapeshellcmd("php $filename");
 
-		// Starte die Ausgabe-Pufferung, um den Output des Systemaufrufs zu erfassen
 		ob_start();
 
 		try {
-			// Führe den Systemaufruf aus, um die PHP-Datei auszuführen
 			passthru($command, $return_var);
 
-			// Erfasse den gesamten Output des Systemaufrufs
 			$output = ob_get_clean();
 
-			// Überprüfen, ob die Ausführung erfolgreich war
 			if ($return_var !== 0) {
 				throw new Exception('Fehler beim Ausführen des PHP-Skripts.');
 			}
 
-			// Entferne <head> und dessen Inhalt aus dem HTML-Code
 			$html_content = preg_replace("/<head>.*<\/head>/is", "", $output);
 
-			// Gib den bereinigten HTML-Inhalt zurück
 			return $html_content;
-
 		} catch (Throwable $e) {
-			// Falls ein Fehler auftritt, beende das Buffering und gib den Fehler aus
 			ob_end_clean();
 			return 'Fehler: ' . $e->getMessage();
 		}
@@ -153,13 +131,11 @@
 
 
 
-	// Funktion zum Entfernen von HTML-Tags
 	function strip_html_tags($html_content) {
 		$res = strip_tags($html_content);
 		return $res;
 	}
 
-	// Funktion zum Durchsuchen des Textes und Finden der Positionen
 	function search_text_with_context($text_lines, $regex) {
 		$results = [];
 		foreach ($text_lines as $line_number => $line) {
@@ -175,7 +151,6 @@
 		return $results;
 	}
 
-	// Funktion zum Finden der nächsten vor der Zeile liegenden <h1>, <h2>, ... mit ID
 	function find_nearest_heading($text_lines, $current_line) {
 		for ($i = $current_line; $i >= 0; $i--) {
 			if (preg_match('/<(h[1-6])\s+[^>]*id=["\']([^"\']+)["\']/', $text_lines[$i], $matches)) {
@@ -188,7 +163,6 @@
 		return null;
 	}
 
-	// Funktion zum Loggen von Fehlern
 	function log_error($message) {
 		error_log($message);
 		header('Content-Type: application/json');
@@ -196,7 +170,6 @@
 		exit;
 	}
 
-	// Hauptprogramm
 	$php_files = []; // Liste der zu durchsuchenden Dateien
 
 	require "searchable_php_files.php";
@@ -211,7 +184,6 @@
 		}
 	}
 
-	// Überprüfen und Validieren des regulären Ausdrucks
 	if (isset($_GET['regex']) || getenv("regex")) {
 		$regex = isset($_GET['regex']) ? $_GET['regex'] : getenv("regex");
 

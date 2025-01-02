@@ -3,7 +3,6 @@ var searchTimer;
 var lastSearch = "";
 
 async function start_search() {
-	showSpinnerOverlay("Searching...");
 	var searchTerm = $('#search').val();
 
 	if(searchTerm == lastSearch) {
@@ -25,6 +24,7 @@ async function start_search() {
 		abortPreviousRequest();
 
 		if (!/^\s*$/.test(searchTerm)) {
+			showSpinnerOverlay("Searching...");
 			$("#delete_search").show();
 			$("#searchResults").show();
 			$("#mainContent").hide();
@@ -45,7 +45,6 @@ async function start_search() {
 			$("#delete_search").hide();
 			$("#searchResults").hide();
 			$("#mainContent").show();
-			removeSpinnerOverlay();
 		}
 	}
 

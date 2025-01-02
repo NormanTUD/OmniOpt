@@ -93,7 +93,7 @@
 						$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
 						$entry = [
 							'link' => $url,
-							'content' => "OmniOpt-Share: $run_path"
+							'content' => "OmniOpt2-Share: $run_path"
 						];
 						$output[] = $entry;
 					}

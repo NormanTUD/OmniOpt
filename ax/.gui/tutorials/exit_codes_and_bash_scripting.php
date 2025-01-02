@@ -9,7 +9,7 @@
 <p>0 means 'everything was fine', every other value (possible is 1-255) mean 'something went wrong' and you can assign errors or groups of errors
 to one exit code. This is what OmniOpt2 extensively does, to make scripting it easier.</p>
 
-<h2 id="exit_code_groups">Exit code groups in OmniOpt</h2>
+<h2 id="exit_code_groups">Exit code groups in OmniOpt2</h2>
 
 <p>Depending on the error, if any, occurred, OmniOpt2 ends with the following exit codes:</p>
 
@@ -20,7 +20,7 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 
 <h2 id="how_to_script_omniopt">How to script OmniOpt2 with exit codes</h2>
 
-<p>This example runs OmniOpt and, depending on the exit-code, does something else.</p>
+<p>This example runs OmniOpt2 and, depending on the exit-code, does something else.</p>
 
 <pre><code class="language-bash">
 #!/bin/bash
@@ -31,6 +31,6 @@ if [[ $exit_code -eq 0 ]]; then
     ./omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
 elif [[ $exit_code -eq 87 ]]; then # 87 = Search space exhausted
     echo "The search space was exhausted. Trying further will not find new points."
-    # OmniOpt call for expanded search space here
+    # OmniOpt2 call for expanded search space here
 fi
 </code></pre>

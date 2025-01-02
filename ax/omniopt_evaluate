@@ -56,7 +56,7 @@ fi
 
 function this_help {
 	cat <<'EOF'
-This helps graphically to use OmniOpt.
+This helps graphically to use OmniOpt2.
 
   --projectdir=/path/to/projects/                     Path to available projects
   --nogauge                                           Disables the gauges
@@ -477,8 +477,8 @@ function change_variables {
 		"PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" \
 		"DEBUG" "Debug evaluate-run (currently $DEBUG)" \
 		"SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" \
-		"s)" "Save current settings as default for this OmniOpt-installation" \
-		"S)" "Save current settings as default for all OmniOpt-installations on your account" \
+		"s)" "Save current settings as default for this OmniOpt2-installation" \
+		"S)" "Save current settings as default for all OmniOpt2-installations on your account" \
 		"m)" "Main menu" \
 		3>&1 1>&2 2>&3
 	)
@@ -759,7 +759,7 @@ if [[ $sourced == "0" ]]; then
 			debug_code "Software seems up-to-date ($CURRENTHASH)"
 		    else
 			eval "$(resize)"
-			if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+			if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 				git pull
 				bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
 				exit

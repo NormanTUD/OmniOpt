@@ -13,7 +13,7 @@
 </ul>
 
 <h2 id="script-example">Script Example</h2>
-<p>To make your script robust enough for the environment of OmniOpt on HPC-Systems,
+<p>To make your script robust enough for the environment of OmniOpt2 on HPC-Systems,
 it is recommended that you do not run your script directly in the objective program
 string. Rather, it is recommended that you create a <samp>run.sh</samp>-file from which
 your program gets run.</p>
@@ -78,7 +78,7 @@ print(f"RESULT: {loss}")
 
 <p>Example call:</p>
 <pre><code class="language-bash">python3 script.py 10 0.01 MyModel</code></pre>
-<p>Example OmniOpt-call:</p>
+<p>Example OmniOpt2-call:</p>
 <pre><code class="language-bash">python3 script.py %(epochs) %(learning_rate) %(model_name)</code></pre>
 
 <h3 id="argparse">Using argparse</h3>
@@ -114,7 +114,7 @@ print(f"RESULT: {loss}")
 
 <p>Example call:</p>
 <pre><code class="language-bash">python3 script.py --epochs 10 --learning_rate 0.01 --model_name MyModel</code></pre>
-<p>Example OmniOpt-call:</p>
+<p>Example OmniOpt2-call:</p>
 <pre><code class="language-bash">python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)</code></pre>
 
 <h4>Advantages of using <samp>argparse</samp>:</h4>

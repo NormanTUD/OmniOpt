@@ -111,7 +111,7 @@ RUN_DIR=$1
 function help {
 	exit_code=$1
 
-	echo "OmniOpt share - Share your hyperparameter optimization results with others. Options:"
+	echo "OmniOpt2 share - Share your hyperparameter optimization results with others. Options:"
 	echo ""
 	echo "Example:"
 	echo "  bash omniopt_share runs/my_experiment/0"

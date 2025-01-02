@@ -122,7 +122,7 @@ if [[ "$INTERACTIVE" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; th
 			percent=$(bc <<< "scale=2;100*($total/100)")
 			echo "$percent/1" | bc
 		done
-	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt for optimizing project..." 8 78 0 && echo_green 'Cloning successful' || echo_red 'Cloning failed'
+	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && echo_green 'Cloning successful' || echo_red 'Cloning failed'
 else
 	$CLONECOMMAND || {
 		echo_red "Git cloning failed."

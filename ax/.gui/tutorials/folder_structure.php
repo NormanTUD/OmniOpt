@@ -1,4 +1,4 @@
-<h1>Folder structure of OmniOpt runs</h1>
+<h1>Folder structure of OmniOpt2 runs</h1>
 
 <div id="toc"></div>
 

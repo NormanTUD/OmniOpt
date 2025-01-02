@@ -173,7 +173,7 @@
 			$("#main_tabbed").tabs();
 		}
 
-		load_content("Loading OmniOpt-Share...");
+		load_content("Loading OmniOpt2-Share...");
 
 		var share_internal_url = window.location.toString();
 		share_internal_url = share_internal_url.replace(/share\.php/, "share_internal.php");
@@ -197,5 +197,5 @@
 		}
 	});
 
-	showSpinnerOverlay("Initializing OmniOpt-Share...");
+	showSpinnerOverlay("Initializing OmniOpt2-Share...");
 </script>

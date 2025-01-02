@@ -9,7 +9,7 @@ There are many plots available and multiple options to show them. Here's a brief
 
 To plot over X11, make sure you are connected with <samp>ssh -X user@login2.barnard.hpc.tu-dresden.de</samp> (of course, use the HPC system you wish instead of barnard, if applicable, and change it to your user).
 
-Then, <samp>cd</samp> into your OmniOpt2 directory. Assuming you have already ran an OmniOpt-run and the results are in <samp>runs/my_experiment/0</samp>, run this:
+Then, <samp>cd</samp> into your OmniOpt2 directory. Assuming you have already ran an OmniOpt2-run and the results are in <samp>runs/my_experiment/0</samp>, run this:
 
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0</code></pre>
 
@@ -97,7 +97,7 @@ All plot scripts support to export your plot to a file.
 <h3 id="get_next_trials">get_next_trials got/requested</h3>
 <pre><code class="language-bash">./omniopt_plot --run_dir runs/my_experiment/0 --plot_type=get_next_trials</code></pre>
 <img alt="Get next trials" src="imgs/get_next_trials.png" /><br>
-<p>Each time the <samp>ax_client.get_next_trials()</samp>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt for debugging, but still, I included it here.</p>
+<p>Each time the <samp>ax_client.get_next_trials()</samp>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt2 for debugging, but still, I included it here.</p>
 
 <h4 id="get_next_trials_options"><samp>--plot_type=get_next_trials</samp> Options</h4>
 <pre><?php require "plot_helps/get_next_trials.txt"; ?></pre>

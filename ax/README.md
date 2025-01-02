@@ -1,4 +1,4 @@
-# OmniOpt - Hyperparameter Optimizer for SLURM-based Systems
+# OmniOpt2 - Hyperparameter Optimizer for SLURM-based Systems
 
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
 ![Latest Release](https://img.shields.io/github/v/release/NormanTUD/OmniOpt)
@@ -14,13 +14,13 @@
 ![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
 [![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
-OmniOpt is a tool designed to assist researchers, engineers, and data
+OmniOpt2 is a tool designed to assist researchers, engineers, and data
 scientists with hyperparameter optimization on SLURM-based clusters. It
 simplifies large-scale optimization tasks with built-in fault tolerance and
 flexibility. A graphical user interface (GUI) is available for command
-creation, accessible at [OmniOpt GUI](https://imageseg.scads.de/omniax/).
+creation, accessible at [OmniOpt2 GUI](https://imageseg.scads.de/omniax/).
 For tutorials on configuration, exit codes, and debugging, visit
-[OmniOpt Tutorials](https://imageseg.scads.de/omniax/tutorials.php).
+[OmniOpt2 Tutorials](https://imageseg.scads.de/omniax/tutorials.php).
 
 ## Main program
 
@@ -31,7 +31,7 @@ For tutorials on configuration, exit codes, and debugging, visit
     --parameter param range 0 1000 float
 ```
 
-This command initiates OmniOpt and installs dependencies if not already
+This command initiates OmniOpt2 and installs dependencies if not already
 installed. The parameter `--run_program` uses a Base64-encoded string to
 specify commands.
 
@@ -68,7 +68,7 @@ pip3 install omniopt2
 pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2
 ```
 
-Alternatively, it can be executed directly, as OmniOpt will install its
+Alternatively, it can be executed directly, as OmniOpt2 will install its
 dependencies automatically if required.
 
 ## Error Codes

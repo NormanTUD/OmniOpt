@@ -20,7 +20,7 @@ RESULT3: 1234
 RESULT4: 4321
 </pre>
 
-<p>OmniOpt will automatically parse all RESULTs from your output string and will try to merge them together,
+<p>OmniOpt2 will automatically parse all RESULTs from your output string and will try to merge them together,
 by default, with euclidean distance.</p>
 
 <h2 id='what_is_it_good_for'>What is MOO good for?</h2>

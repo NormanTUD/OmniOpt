@@ -886,7 +886,7 @@ if [[ -d ".git" ]]; then
 				if command -v resize 2>/dev/null >/dev/null; then
 					eval "$(resize)"
 				fi
-				if (whiptail --title "There is a new version of OmniOpt available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+				if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
 					git pull
 					eval "./$SCRIPT_DIR/omniopt $args_string"
 					exit

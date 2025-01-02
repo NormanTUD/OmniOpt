@@ -68,7 +68,7 @@ export gridsearch=0
 export num_random_steps=$num_parallel_jobs
 
 function help () {
-        echo "train_example_network: Trains an example network from asanAI for testing OmniOpt"
+        echo "train_example_network: Trains an example network from asanAI for testing OmniOpt2"
         echo "Possible options:"
         echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode"

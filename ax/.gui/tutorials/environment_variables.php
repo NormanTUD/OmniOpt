@@ -14,7 +14,7 @@
 		<th>What does it do?</th>
 	</tr>
 	<tr>
-		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt</th>
+		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt2</th>
 	</tr>
 	<tr>
 		<td><samp>export RUN_UUID=$(uuidgen)</samp></td>

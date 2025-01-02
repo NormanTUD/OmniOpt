@@ -844,7 +844,7 @@ def log_nr_of_workers() -> None:
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
         my_exit(99)
     except OSError as e: # pragma: no cover
-        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt probably cannot do anything about it.")
+        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt2 probably cannot do anything about it.")
         my_exit(199)
 
     return None # pragma: no cover
@@ -3103,7 +3103,7 @@ def get_experiment_parameters(_params: list) -> Any:
             print_red(f"An error has occurred while creating the experiment: {error}")
             die_something_went_wrong_with_parameters()
         except TypeError as error:
-            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt.")
+            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt2.")
             die_something_went_wrong_with_parameters()
 
     return ax_client, experiment_parameters, experiment_args

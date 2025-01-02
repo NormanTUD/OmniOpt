@@ -1222,7 +1222,7 @@ async function load_overview_data() {
 		// Insert table into the #overview_table element
 		$('.overview_table').html(table);
 	} else {
-		$('.overview_table').html(`Error: <span class="error_line">${res.error}</span>`);
+		$('.overview_table').html(`Error: <span class="error_line invert_in_dark_mode">${res.error}</span>`);
 	}
 }
 

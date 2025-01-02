@@ -238,7 +238,7 @@
 
 	function show_run($folder) {
 		$html = "<button id='refresh_button' class='invert_in_dark_mode' onclick='refresh()'>Refresh</button>\n";
-		$html .= "<div id='main_tabbed' style='width: fit-content'>\n";
+		$html .= "<div id='main_tabbed' style='width: max-content'>\n";
 		$html .= '<ul style="max-height: 200px; overflow: auto;">' . "\n";
 		$html .= "</ul>\n";
 		$html .= "</div>";

@@ -326,7 +326,7 @@ a, a:visited, a:active, a:hover, a:link {
 
 #main_tab {
 	overflow: scroll;
-	width: fit-content;
+	width: max-content;
 }
 
 .ui-tabs .ui-tabs-nav li {

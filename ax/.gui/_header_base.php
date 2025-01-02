@@ -190,6 +190,12 @@
 			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
 		</span>
 	</div>
+
+	<script>
+		apply_theme_based_on_system_preferences();
+	</script>
+
+
 	<div id="searchResults"></div>
 
 	<div id="mainContent">

@@ -40,6 +40,7 @@ function enable_dark_mode() {
 	theme = "dark";
 
 	loadCss("jquery-ui.structure.css");
+	loadCss("jquery-ui.theme.css");
 }
 
 function enable_light_mode() {
@@ -56,6 +57,7 @@ function enable_light_mode() {
 	theme = "light";
 
 	unloadCss("jquery-ui.structure.css");
+	unloadCss("jquery-ui.theme.css");
 }
 
 function apply_theme_based_on_system_preferences() {

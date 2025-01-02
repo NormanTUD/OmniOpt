@@ -572,7 +572,6 @@ function removeLinesStartingWith(inputString, ...startStrings) {
 
 function loadCss(cssFileName) {
 	if (document.querySelector(`link[href="${cssFileName}"]`)) {
-		console.warn(`CSS-Datei ${cssFileName} ist bereits geladen.`);
 		return;
 	}
 	const link = document.createElement('link');
@@ -587,7 +586,6 @@ function unloadCss(cssFileName) {
 	const link = document.querySelector(`link[href="${cssFileName}"]`);
 	if (link) {
 		link.parentElement.removeChild(link);
-		console.log(`CSS-File ${cssFileName} was removed.`);
 	} else {
 		console.warn(`CSS-File ${cssFileName} was not found.`);
 	}

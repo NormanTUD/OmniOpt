@@ -950,7 +950,7 @@
                     create_table_row(table, tbody, item)
                 });
 
-                tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter invert_in_dark_mode' id='main_add_row_button'>Add Parameter</button></td><td colspan='2'></td></tr>");
+                tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter invert_in_dark_mode' id='main_add_row_button'>Add variable</button></td><td colspan='2'></td></tr>");
 
                 var hidden_table = $("#hidden_config_table");
                 var hidden_tbody = hidden_table.find("tbody");

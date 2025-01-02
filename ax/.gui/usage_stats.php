@@ -414,16 +414,16 @@ if (validate_csv($data_filepath)) {
     }
     if (count($test_ids)) {
         ?>
-                    <li><a href="#test_ids">Tests</a></li>
+                    <li class="invert_in_dark_mode"><a href="#test_ids">Tests</a></li>
         <?php
     }
     if (count($developer_ids)) {
         ?>
-                    <li><a href="#developer_ids">Developer</a></li>
+                    <li class="invert_in_dark_mode"><a href="#developer_ids">Developer</a></li>
         <?php
     }
     ?>
-            <li><a href="#exit_codes">Exit-Codes</a></li>
+            <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
         </ul>
     <?php
     if (count($regular_data)) {

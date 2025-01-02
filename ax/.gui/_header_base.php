@@ -152,7 +152,7 @@
 						if (!file_exists($_link)) {
 							dier("Coult not find $_link");
 						}
-						echo "<td class='header_table'>";
+						echo "<td class='invert_in_dark_mode' style='border: 0' class='header_table'>";
 						echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
 						echo "</td>";
 					}

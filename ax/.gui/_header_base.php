@@ -1,5 +1,5 @@
 <?php
-	require_once "test_apache_php_config.php";
+	require_once "power_on_self_test.php";
 	require_once "_functions.php";
 
 	function get_dir_path () {

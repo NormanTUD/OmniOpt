@@ -895,6 +895,8 @@
                     var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
                     $(input).css({"width": "95%", "height": "95%"});
 
+		    $(input).addClass("invert_in_dark_mode");
+
                     if (item.type === "checkbox") {
                         input.prop("checked", item.value);
                     }
@@ -912,6 +914,8 @@
                     }
                 } else {
                     var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max }).css("width", "100%");
+
+		    $(input).addClass("invert_in_dark_mode");
 
                     if (item.type === "checkbox") {
                         input.prop("checked", item.value);

@@ -361,3 +361,7 @@ a, a:visited, a:active, a:hover, a:link {
 .img_auto_width {
 	max-width: revert !important;
 }
+
+#main_dir_or_plot_view {
+	display: inline-grid;
+}

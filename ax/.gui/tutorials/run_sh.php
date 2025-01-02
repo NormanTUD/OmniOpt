@@ -117,7 +117,7 @@ print(f"RESULT: {loss}")
 <p>Example OmniOpt2-call:</p>
 <pre><code class="language-bash">python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)</code></pre>
 
-<h4>Advantages of using <samp>argparse</samp>:</h4>
+<h4>Advantages of using <samp>argparse</samp></h4>
 <ul>
 	<li>Order of arguments does not matter; they are matched by name.</li>
 	<li>Type checking is automatically handled based on the type specified in <samp>add_argument</samp>.</li>

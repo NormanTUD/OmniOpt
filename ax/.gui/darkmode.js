@@ -38,6 +38,8 @@ function enable_dark_mode() {
 	set_cookie("theme", "dark");
 
 	theme = "dark";
+
+	loadCss("jquery-ui.structure.css");
 }
 
 function enable_light_mode() {
@@ -52,6 +54,8 @@ function enable_light_mode() {
 	set_cookie("theme", "light");
 
 	theme = "light";
+
+	unloadCss("jquery-ui.structure.css");
 }
 
 function apply_theme_based_on_system_preferences() {

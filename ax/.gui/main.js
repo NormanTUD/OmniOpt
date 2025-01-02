@@ -569,3 +569,26 @@ function removeLinesStartingWith(inputString, ...startStrings) {
 
 	return filteredLines.join("\n");
 }
+
+function loadCss(cssFileName) {
+	if (document.querySelector(`link[href="${cssFileName}"]`)) {
+		console.warn(`CSS-Datei ${cssFileName} ist bereits geladen.`);
+		return;
+	}
+	const link = document.createElement('link');
+	link.rel = 'stylesheet';
+	link.type = 'text/css';
+	link.href = cssFileName;
+	link.dataset.theme = cssFileName;
+	document.head.appendChild(link);
+}
+
+function unloadCss(cssFileName) {
+	const link = document.querySelector(`link[href="${cssFileName}"]`);
+	if (link) {
+		link.parentElement.removeChild(link);
+		console.log(`CSS-File ${cssFileName} was removed.`);
+	} else {
+		console.warn(`CSS-File ${cssFileName} was not found.`);
+	}
+}

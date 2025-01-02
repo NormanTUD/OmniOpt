@@ -29,9 +29,11 @@ async function start_search() {
 			$("#searchResults").show();
 			$("#mainContent").hide();
 			$.ajax({
-			url: 'search.php',
+				url: 'search.php',
 				type: 'GET',
-				data: { regex: searchTerm },
+				data: {
+					regex: searchTerm
+				},
 				success: async function (response) {
 					await displaySearchResults(searchTerm, response);
 					removeSpinnerOverlay();

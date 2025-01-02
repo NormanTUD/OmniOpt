@@ -365,3 +365,7 @@ a, a:visited, a:active, a:hover, a:link {
 #main_dir_or_plot_view {
 	display: inline-grid;
 }
+
+#refresh_button {
+	width: 100px;
+}

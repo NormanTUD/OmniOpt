@@ -97,11 +97,13 @@ axcoredata
 axcoreexperiment
 axcoreparameter
 axmodelbridgeaxmodelbridgebase
+axmodelbridgebase
 axmodelbridgetorch
 axmodelbridgetransforms
 axservice
 axserviceutils
 axserviceutilsinstantiation
+axutilscommonlogger
 backChars
 backcompat
 Backcompat
@@ -407,6 +409,7 @@ ddmanager
 deadcode
 Deadcode
 debian
+DebugJob
 DebugLayer
 debuglogs
 Dec
@@ -557,6 +560,7 @@ esac
 ESC
 escapedCharacter
 estatusText
+euclid
 eval
 evals
 evaluatex
@@ -965,6 +969,7 @@ lmod
 loadLayersModel
 localCache
 localhost
+LocalJob
 locationhostname
 locationUrl
 logBackup
@@ -1092,6 +1097,7 @@ mpmath
 mse
 msg
 multdimensional
+multi
 multibound
 multiline
 multipe
@@ -1101,6 +1107,7 @@ mx
 myKeyboard
 mymodel
 myOffset
+mypy
 mysqli
 MyType
 nameEQ
@@ -1209,6 +1216,7 @@ OK
 olddisplay
 oldNeuronWeights
 oldWeights
+omniax
 omniopt
 OmniOpt
 omnioptpy
@@ -1876,6 +1884,7 @@ tudresdende
 Tue
 Tuesday
 tuple
+tutorialshelp
 txt
 typeahead
 typeassert
@@ -2046,11 +2055,3 @@ zIndices
 zipContents
 zipWriter
 zsh
-euclid
-multi
-axmodelbridgebase
-axutilscommonlogger
-LocalJob
-DebugJob
-mypy
-omniax

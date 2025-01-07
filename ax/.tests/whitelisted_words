@@ -148,7 +148,9 @@ blockHeight
 blockSize
 blocksPerRow
 blockWidth
+bluetaskdescription
 blurEvent
+bmp
 bool
 boolean
 borderBottomColor
@@ -368,7 +370,14 @@ curtop
 customfunc
 customise
 customizable
+cyanEmpty
+cyanFace
+cyanGeneral
+cyanImage
+cyanOCR
+cyanPerson
 cyanSearching
+cyanYOLO
 darkgreen
 darkmode
 darkred
@@ -438,6 +447,8 @@ describedby
 descs
 deserializing
 Destructure
+detectionslabel
+detectionsmodel
 deviceId
 df
 dfd
@@ -507,6 +518,7 @@ dy
 easeIn
 easeInOut
 easeOut
+easyocr
 echoerr
 effectsEffectBlind
 effectsEffectBounce
@@ -725,7 +737,18 @@ graphWidth
 grayscale
 grayscaleValue
 greenAdded
+greenCreated
+greenCreating
+greenDeleted
+greenDeleting
+greenFinding
+greenImage
+greenIn
+greenInitializing
 greenLoading
+greenSaved
+greenSearching
+greenThe
 gremlinsspeciesformFiller
 grep
 greyscale
@@ -809,6 +832,7 @@ ii
 imageData
 ImageDataGenerator
 imageresizecontainer
+imagesid
 imageX
 imageY
 img
@@ -1057,6 +1081,7 @@ mixin
 Mixin
 mkdir
 ml
+mlterm
 mm
 MM
 Mo
@@ -1153,6 +1178,7 @@ nextSpacing
 nextText
 nitializer
 noActivation
+NOCASE
 noChange
 noDefault
 nodeIndex
@@ -1203,6 +1229,7 @@ obj
 Objectkeysactivationsjoin
 Objectkeystensorslength
 occured
+OCR
 Oct
 October
 offsetLeft
@@ -1312,6 +1339,8 @@ pdjson
 Penner
 perl
 Perl
+personid
+personname
 pformat
 PhantomJS
 photoscontainer
@@ -1414,6 +1443,7 @@ randomNormal
 randomUniform
 RangeParameter
 rawLength
+rb
 rck
 rcssescape
 readeronloadend
@@ -1430,6 +1460,18 @@ recurrentDropout
 recurrentInitializer
 recurrentRegularizer
 RecursionError
+redCannot
+redCould
+redDeleted
+redError
+redFile
+redImage
+redInvalid
+redModule
+redreader
+redThe
+redUnhandled
+redYou
 ReferenceError
 refreshItems
 refreshPositions
@@ -1702,6 +1744,7 @@ spinbutton
 splitted
 sprintf
 sqlalchemy
+SQLite
 sqrt
 squaredHinge
 squeue
@@ -1968,6 +2011,7 @@ vtype
 Wallclock
 WantedExitCodes
 Warnung
+wb
 wc
 webcam
 webcams
@@ -2042,8 +2086,15 @@ yCoord
 yearRange
 yearSuffix
 yellowContinuation
+yellowDatabase
+yellowIgnoring
+yellowImage
 yellowProcess
+yellowThe
 yellowVLC
+yolo
+Yolo
+YOLO
 yped
 yPos
 ys
@@ -2057,3 +2108,6 @@ zIndices
 zipContents
 zipWriter
 zsh
+detectionsconfidence
+setab
+yellowNo

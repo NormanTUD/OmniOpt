@@ -22,6 +22,7 @@ function _help {
 	echo ".tests/linters"
 	echo "--quick                                              Disable slow tests"
 	echo "--help                                               This help"
+	echo "--dont_fail_on_error                                 Don't fail on error"
 	echo "[files]                                              Run linters only on specified files"
 	echo "[linter]                                             Run a specific linter"
 
@@ -42,6 +43,7 @@ k=0
 quick=0
 specific_linter=""
 files=()
+fail_on_error=1
 
 # Parse arguments
 while [ $k -lt ${#args[@]} ]; do
@@ -49,6 +51,8 @@ while [ $k -lt ${#args[@]} ]; do
 
 	if [[ " ${linters[*]} " == *" $i "* ]]; then
 		specific_linter=$i
+	elif [[ "$i" == "--dont_fail_on_error" ]]; then
+		fail_on_error=0
 	elif [[ "$i" == "--quick" ]]; then
 		quick=1
 	elif [[ "$i" == "--help" ]]; then
@@ -74,7 +78,7 @@ run_linter() {
 	local linter="$1"
 	local file_args=("$@")
 
-	if [[ ${#errors[@]} -eq 0 ]]; then
+	if [[ ${#errors[@]} -eq 0 ]] || [[ "$fail_on_error" -eq "0" ]]; then
 		if [[ "${#file_args[@]}" -gt 1 ]]; then
 			yellow_text "Running $linter on files: ${file_args[*]:1}"
 			.tests/$linter "${file_args[@]:1}" || {

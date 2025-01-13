@@ -1277,7 +1277,7 @@ def get_program_code_from_out_file(f: str) -> str:
     return ""
 
 @typechecked
-def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, int, float], _type: str = "min") -> Optional[float]:
+def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, int, float], _type: str = "min") -> Optional[Union[np.int64, float]]:
     if not os.path.exists(pd_csv):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
 
@@ -1305,11 +1305,11 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
     return None
 
 @wrapper_print_debug
-def get_max_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[float]:
+def get_max_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[Union[np.int64, float]]:
     return get_min_or_max_column_value(pd_csv, column, _default, "max")
 
 @wrapper_print_debug
-def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[float]:
+def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[Union[np.int64, float]]:
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @wrapper_print_debug

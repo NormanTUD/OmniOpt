@@ -17,7 +17,7 @@ if [[ $# -gt 0 ]]; then
 	elif [[ -e $TARGET_PATH ]]; then
 		files=($TARGET_PATH)
 	else
-		echo "Fehler: Der angegebene Pfad '$TARGET_PATH' ist kein Verzeichnis."
+		echo "Error: The given path ('$TARGET_PATH') is not a directory or a file."
 		exit 1
 	fi
 else

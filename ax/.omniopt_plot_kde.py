@@ -17,6 +17,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from typeguard import typechecked
+
 fig = None
 args = None
 
@@ -41,6 +43,7 @@ parser.add_argument('--save_to_file', type=str, help='Save the plot to the speci
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
+@typechecked
 def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int, int]:
     if num_plots > 1:
         num_rows = int(num_plots ** 0.5)
@@ -48,6 +51,7 @@ def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int
 
     return num_rows, num_cols
 
+@typechecked
 def plot_histograms(dataframe: pd.DataFrame) -> None:
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
@@ -121,6 +125,7 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
     plt.tight_layout()
     save_to_file_or_show_canvas()
 
+@typechecked
 def save_to_file_or_show_canvas() -> None:
     if args is not None:
         if args.save_to_file:
@@ -131,6 +136,7 @@ def save_to_file_or_show_canvas() -> None:
                 if not args.no_plt_show:
                     plt.show()
 
+@typechecked
 def update_graph() -> None:
     if args is not None:
         pd_csv = args.run_dir + "/results.csv"

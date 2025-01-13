@@ -17,6 +17,8 @@ import pandas as pd
 import seaborn as sns
 from tzlocal import get_localzone
 
+from typeguard import typechecked
+
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -31,6 +33,7 @@ if spec is not None and spec.loader is not None:
 else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
+@typechecked
 def main() -> None:
     parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
     parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')

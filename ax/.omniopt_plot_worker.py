@@ -15,6 +15,8 @@ from typing import Any
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from typeguard import typechecked
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
@@ -27,6 +29,7 @@ if spec is not None and spec.loader is not None:
 else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
+@typechecked
 def plot_worker_usage(args: Any, pd_csv: str) -> None:
     try:
         data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])

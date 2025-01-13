@@ -17,6 +17,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from typeguard import typechecked
+
 args = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -41,6 +43,7 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
+@typechecked
 def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, str] = None) -> None:
     if dataframe is None or "result" not in dataframe:
         if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover

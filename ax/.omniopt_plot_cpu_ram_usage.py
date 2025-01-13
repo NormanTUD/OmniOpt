@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from typeguard import typechecked
+
 # Setup signal handling for interrupt
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -20,6 +22,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 args = None
 helpers = None
 
+@typechecked
 def load_helpers(script_dir: str) -> None:
     """Loads the helper module."""
     global helpers
@@ -37,6 +40,7 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
+@typechecked
 def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
     """Loads data from the given CSV file."""
     try:
@@ -58,6 +62,7 @@ def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
 
+@typechecked
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     """Generates and optionally saves/plots the graph."""
     plt.figure(figsize=(12, 8))
@@ -79,6 +84,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
         if plt is not None:
             plt.show()
 
+@typechecked
 def update_graph(csv_path: str) -> None:
     """Updates the graph by loading data and plotting."""
     dataframe = load_data(csv_path)
@@ -86,6 +92,7 @@ def update_graph(csv_path: str) -> None:
         if args is not None:
             plot_graph(dataframe, args.save_to_file)
 
+@typechecked
 def main() -> None:
     """Main function for handling the overall logic."""
 

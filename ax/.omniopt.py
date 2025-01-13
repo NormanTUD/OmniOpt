@@ -5537,7 +5537,7 @@ def print_generation_strategy() -> None:
         print(f"Generation strategy: {gs_hr}")
 
 @typechecked
-def save_experiment_parameters(filepath: str, experiment_parameters: dict) -> None:
+def save_experiment_parameters(filepath: str, experiment_parameters: Union[list, dict]) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 

@@ -66,11 +66,13 @@ try:
         import logging
         logging.basicConfig(level=logging.CRITICAL)
         from tqdm import tqdm
+        from typeguard import typechecked
 except ModuleNotFoundError as e: # pragma: no cover
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
 
+@typechecked
 def makedirs(p: str) -> bool:
     if not os.path.exists(p):
         try:
@@ -110,6 +112,7 @@ max_eval: int = 1
 random_steps: int = 1
 progress_bar: Optional[tqdm] = None
 
+@typechecked
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
@@ -151,11 +154,13 @@ class SignalINT (Exception):
 class SignalCONT (Exception):
     pass
 
+@typechecked
 def is_slurm_job() -> bool:
     if os.environ.get('SLURM_JOB_ID') is not None: # pragma: no cover
         return True
     return False
 
+@typechecked
 def _sleep(t: int) -> int:
     if args is not None and not args.no_sleep:
         time.sleep(t)
@@ -173,6 +178,7 @@ logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{log_uuid_dir}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
 
+@typechecked
 def print_red(text: str) -> None:
     helpers.print_color("red", text)
 

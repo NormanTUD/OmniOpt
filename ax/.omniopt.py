@@ -2177,6 +2177,8 @@ def disable_logging() -> None:
     logging.getLogger().setLevel(logging.CRITICAL)
     logging.getLogger().disabled = True
 
+    print_debug(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
+
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
     modules = [
@@ -2218,6 +2220,7 @@ def disable_logging() -> None:
     for module in modules:
         logging.getLogger(module).setLevel(logging.CRITICAL)
         logging.getLogger(module).disabled = True
+        print_debug(f"logging.getLogger({module}.disabled set to {logging.getLogger(module).disabled}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)
@@ -2225,6 +2228,8 @@ def disable_logging() -> None:
             warnings.filterwarnings("ignore", category=cat, module=module)
 
     warnings.showwarning = custom_warning_handler
+
+    print_debug(f"warnings.showwarning set to {warnings.showwarning}")
 
 @wrapper_print_debug
 def display_failed_jobs_table() -> None:
@@ -5532,7 +5537,7 @@ def print_generation_strategy() -> None:
         print(f"Generation strategy: {gs_hr}")
 
 @typechecked
-def save_experiment_parameters(filepath: str, experiment_parameters: list) -> None:
+def save_experiment_parameters(filepath: str, experiment_parameters: dict) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 

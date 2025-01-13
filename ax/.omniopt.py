@@ -4672,7 +4672,7 @@ def succeeded_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
 @typechecked
-def show_debug_table_for_break_run_search(_name: str, _max_eval: int, _progress_bar: Any, _ret: Any) -> None: # pragma: no cover
+def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None: # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -4695,20 +4695,22 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: int, _progress_
     console.print(table)
 
 @typechecked
-def break_run_search(_name: str, _max_eval: int, _progress_bar: Any) -> bool:
+def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
     _ret = False
 
     _counted_done_jobs = count_done_jobs()
 
     conditions = [
-        (lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),
-        (lambda: submitted_jobs() >= _progress_bar.total + 1, f"2. submitted_jobs() {submitted_jobs()} >= _progress_bar.total {_progress_bar.total} + 1"),
-        (lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),
         (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
-        (lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > _max_eval {_max_eval} + 1"),
+        (lambda: submitted_jobs() >= _progress_bar.total + 1, f"2. submitted_jobs() {submitted_jobs()} >= _progress_bar.total {_progress_bar.total} + 1"),
         (lambda: submitted_jobs() >= max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {max_eval} + 1"),
-        (lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})")
     ]
+
+    if _max_eval:
+        conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),)
+        conditions.append((lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"))
 
     for condition_func, debug_msg in conditions:
         if condition_func():
@@ -5017,7 +5019,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
                             if is_slurm_job() and not args.force_local_execution:
                                 _sleep(5)
 
-                        if (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
+                        if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
                             break
 
                         if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):

@@ -14,6 +14,8 @@ if [[ $# -gt 0 ]]; then
 	TARGET_PATH="$1"
 	if [[ -d $TARGET_PATH ]]; then
 		files=$(find "$TARGET_PATH" -type f -name "*.py")
+	elif [[ -e $TARGET_PATH ]]; then
+		files=($TARGET_PATH)
 	else
 		echo "Fehler: Der angegebene Pfad '$TARGET_PATH' ist kein Verzeichnis."
 		exit 1

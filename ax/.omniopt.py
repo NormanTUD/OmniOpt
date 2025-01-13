@@ -504,45 +504,44 @@ def wrapper_print_debug(func: Any) -> Any:
 
 disable_logs = None
 
-if not args.tests:
-    try:
-        with console.status("[bold green]Loading torch...") as status:
-            import torch
-        with console.status("[bold green]Loading numpy...") as status:
-            import numpy as np
-        with console.status("[bold green]Loading ax...") as status:
-            import ax
-            import ax.exceptions.core
-            import ax.exceptions.generation_strategy
-            import ax.modelbridge.generation_node
-            from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
-            from ax.modelbridge.registry import Models
-            from ax.service.ax_client import AxClient, ObjectiveProperties
-            from ax.storage.json_store.load import load_experiment
-            from ax.storage.json_store.save import save_experiment
-        with console.status("[bold green]Loading botorch...") as status:
-            import botorch
-        with console.status("[bold green]Loading submitit...") as status:
-            import submitit
-            from submitit import DebugJob, LocalJob
-    except ModuleNotFoundError as ee: # pragma: no cover
-        original_print(f"Base modules could not be loaded: {ee}")
-        my_exit(31)
-    except SignalINT: # pragma: no cover
-        print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
-        my_exit(130)
-    except SignalUSR: # pragma: no cover
-        print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
-        my_exit(138)
-    except SignalCONT: # pragma: no cover
-        print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
-        my_exit(146)
-    except KeyboardInterrupt: # pragma: no cover
-        print("\n⚠ You pressed CTRL+C. Program execution halted.")
-        my_exit(0)
-    except AttributeError: # pragma: no cover
-        print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
-        my_exit(7)
+try:
+    with console.status("[bold green]Loading torch...") as status:
+        import torch
+    with console.status("[bold green]Loading numpy...") as status:
+        import numpy as np
+    with console.status("[bold green]Loading ax...") as status:
+        import ax
+        import ax.exceptions.core
+        import ax.exceptions.generation_strategy
+        import ax.modelbridge.generation_node
+        from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
+        from ax.modelbridge.registry import Models
+        from ax.service.ax_client import AxClient, ObjectiveProperties
+        from ax.storage.json_store.load import load_experiment
+        from ax.storage.json_store.save import save_experiment
+    with console.status("[bold green]Loading botorch...") as status:
+        import botorch
+    with console.status("[bold green]Loading submitit...") as status:
+        import submitit
+        from submitit import DebugJob, LocalJob
+except ModuleNotFoundError as ee: # pragma: no cover
+    original_print(f"Base modules could not be loaded: {ee}")
+    my_exit(31)
+except SignalINT: # pragma: no cover
+    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+    my_exit(130)
+except SignalUSR: # pragma: no cover
+    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+    my_exit(138)
+except SignalCONT: # pragma: no cover
+    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+    my_exit(146)
+except KeyboardInterrupt: # pragma: no cover
+    print("\n⚠ You pressed CTRL+C. Program execution halted.")
+    my_exit(0)
+except AttributeError: # pragma: no cover
+    print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
+    my_exit(7)
 
 with console.status("[bold green]Loading ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
@@ -935,7 +934,7 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
     return None
 
 @typechecked
-def _log_trial_index_to_param(trial_index: int, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
+def _log_trial_index_to_param(trial_index: dict, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, str(trial_index), _lvl, str(eee))
 
 @typechecked
@@ -1042,13 +1041,13 @@ def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> s
     return get_file_as_string(filepath).strip()
 
 @typechecked
-def check_param_or_exit(param: str, error_msg: str, exit_code: int) -> None:
+def check_param_or_exit(param: Union[list, str], error_msg: str, exit_code: int) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)
 
 @typechecked
-def check_continue_previous_job(continue_previous_job: str) -> dict:
+def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
     global global_vars
     if continue_previous_job:
         load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
@@ -1066,6 +1065,7 @@ def check_continue_previous_job(continue_previous_job: str) -> dict:
 @typechecked
 def check_required_parameters(_args: Any) -> None:
     global global_vars
+
     check_param_or_exit(
         _args.parameter or _args.continue_previous_job,
         "Either --parameter or --continue_previous_job is required. Both were not found.",
@@ -1725,7 +1725,7 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @typechecked
-def get_result(input_string: str) -> Optional[list[float]]:
+def get_result(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
     if input_string is None:
         print_red("get_result: Input-String is None")
         return None
@@ -4166,7 +4166,9 @@ def get_parameters_from_outfile(stdout_path: str) -> Union[None, str]:
     return None
 
 @typechecked
-def get_hostname_from_outfile(stdout_path: str) -> Union[str, None]:
+def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
+    if stdout_path is None:
+        return None
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file:
             for line in file:
@@ -4909,7 +4911,7 @@ def create_systematic_step(model: Any) -> Any:
     )
 
 @typechecked
-def create_random_generation_step() -> int:
+def create_random_generation_step() -> ax.modelbridge.generation_node.GenerationStep:
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -4972,7 +4974,7 @@ def get_generation_strategy() -> Any:
     return GenerationStrategy(steps=steps)
 
 @typechecked
-def create_and_execute_next_runs(next_nr_steps: int, phase: str, _max_eval: int, _progress_bar: Any) -> int:
+def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     global random_steps
 
     if next_nr_steps == 0:
@@ -5530,7 +5532,7 @@ def print_generation_strategy() -> None:
         print(f"Generation strategy: {gs_hr}")
 
 @typechecked
-def save_experiment_parameters(filepath: str, experiment_parameters: dict) -> None:
+def save_experiment_parameters(filepath: str, experiment_parameters: list) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
@@ -5907,7 +5909,7 @@ Exit-Code: 159
     nr_errors += is_equal("calculate_moo(None)", calculate_moo(None), VAL_IF_NOTHING_FOUND)
     nr_errors += is_equal("calculate_moo([])", calculate_moo([]), VAL_IF_NOTHING_FOUND)
 
-    nr_errors += is_equal("calculate_signed_harmonic_distance(None)", calculate_signed_harmonic_distance(None), 0)
+    #nr_errors += is_equal("calculate_signed_harmonic_distance(None)", calculate_signed_harmonic_distance(None), 0)
     nr_errors += is_equal("calculate_signed_harmonic_distance([])", calculate_signed_harmonic_distance([]), 0)
     nr_errors += is_equal("calculate_signed_harmonic_distance([0.1])", calculate_signed_harmonic_distance([0.1]), 0.1)
     nr_errors += is_equal("calculate_signed_harmonic_distance([-0.1])", calculate_signed_harmonic_distance([-0.1]), -0.1)

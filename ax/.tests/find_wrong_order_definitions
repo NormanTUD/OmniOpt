@@ -10,15 +10,27 @@ source .shellscript_functions
 
 exit_code=0
 
+if [[ $# -gt 0 ]]; then
+	TARGET_PATH="$1"
+	if [[ -d $TARGET_PATH ]]; then
+		files=$(find "$TARGET_PATH" -type f -name "*.py")
+	else
+		echo "Fehler: Der angegebene Pfad '$TARGET_PATH' ist kein Verzeichnis."
+		exit 1
+	fi
+else
+	files=$(find . -type f -name "*.py")
+fi
 
-for i in $(ls .*.py .*/*.py); do
-	er=$(python3 .tests/find_wrong_order_definitions.py $i 2>&2)
+for i in $files; do
+	er=$(python3 .tests/find_wrong_order_definitions.py "$i" 2>&1)
 	ec=$?
 	if [[ $ec -ne 0 ]]; then
-		echo "===== $i ====>"; 
+		echo "===== $i ====>"
 		echo "$er"
-		exit_code=$(($exit_code+1))
+		exit_code=$((exit_code+1))
 	fi
 done
+
 
 exit $exit_code

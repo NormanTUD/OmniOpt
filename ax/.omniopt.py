@@ -5866,10 +5866,12 @@ Exit-Code: 159
         ["result_but_exit_code_stdout_stderr", "stderr", 5, None],
         ["exit_code_no_output", "", 5, None, True],
         ["exit_code_stdout", "STDERR", 5, None, False],
-        ["no_chmod_x", "Permission denied", 126, None, True],
         ["exit_code_stdout_stderr", "This has stderr", 5, None, True],
         ["module_not_found", "ModuleNotFoundError", 1, None, True]
     ]
+
+    if not is_slurm_job():
+        _complex_tests.append(["no_chmod_x", "Permission denied", 126, None, True])
 
     for _item in _complex_tests:
         nr_errors += complex_tests(*_item)

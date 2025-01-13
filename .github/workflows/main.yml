@@ -202,67 +202,6 @@ jobs:
         git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Copy coverage files
-      run: |
-        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        git config --global user.name "${{ github.actor }}"
-
-        git clone --depth 1 https://NormanTUD:${{ secrets.PRIVKEY }}@github.com/NormanTUD/omniopt2.github.io.git
-
-        mkdir -p omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
-
-        cp -r ./ax/htmlcov/* omniopt2.github.io/coverage_reports/${{ github.run_number }}/${{ matrix.os }}
-
-        cd omniopt2.github.io
-
-        git config pull.rebase false
-
-        git pull
-
-        base_dir="coverage_reports"
-        index_file="index.html"
-
-        cp "$index_file" "${index_file}.bak"
-
-        echo "<html><body>" > "$index_file"
-
-        for run_dir in $(ls -d "$base_dir"/* | tac); do
-          run_number=$(basename "$run_dir")
-
-          echo "<h1>Run #$run_number</h1>" >> "$index_file"
-          echo "<table border='1'>" >> "$index_file"
-          echo "<tr>" >> "$index_file"
-
-          for os_dir in "$run_dir"/*; do
-            os=$(basename "$os_dir")
-
-            report_link="coverage_reports/$run_number/$os/index.html"
-
-            echo "<td><a href='$report_link'>$os</a></td>" >> "$index_file"
-          done
-
-          echo "</tr>" >> "$index_file"
-          echo "</table>" >> "$index_file"
-        done
-
-        echo "</body></html>" >> "$index_file"
-
-        git add "$index_file"
-
-        rm "${index_file}.bak"
-
-        git add .
-        git commit -am "Add coverage report from run ${{ github.run_number }}/${{ matrix.os }} and update index.html"
-        git pull
-        git push origin main
-
-        cd ..
-
-        rm -rf omniopt2.github.io
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   markdown-lint:
     strategy:
       fail-fast: true

@@ -588,6 +588,29 @@
 		}
 	}
 
+	function deleteEmptyDirectories(string $directory): bool {
+		if (!is_dir($directory)) {
+			return false;
+		}
+
+		$files = array_diff(scandir($directory), ['.', '..']);
+
+		foreach ($files as $file) {
+			$path = $directory . DIRECTORY_SEPARATOR . $file;
+			if (is_dir($path)) {
+				deleteEmptyDirectories($path);
+			}
+		}
+
+		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
+		if (empty($filesAfterCheck)) {
+			rmdir($directory);
+			return true;
+		}
+
+		return false;
+	}
+
 	function _delete_old_shares($dir) {
 		$oldDirectories = [];
 		$currentTime = time();
@@ -610,10 +633,13 @@
 
 					// Check if the directory is older than the threshold and is either empty or meets the original condition
 					if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
-						if (is_dir_empty($subdir)) {
-							$oldDirectories[] = $subdir;
-							rrmdir($subdir); // Remove the directory
-						}
+						$oldDirectories[] = $subdir;
+						rrmdir($subdir);
+					}
+
+					if (is_dir($subdir) && is_dir_empty($subdir)) {
+						$oldDirectories[] = $subdir;
+						rrmdir($subdir);
 					}
 				}
 			}
@@ -624,7 +650,9 @@
 
 	function delete_old_shares () {
 		$directoryToCheck = 'shares';
+		deleteEmptyDirectories($directoryToCheck);
 		$oldDirs = _delete_old_shares($directoryToCheck);
+		deleteEmptyDirectories($directoryToCheck);
 
 		return $oldDirs;
 	}

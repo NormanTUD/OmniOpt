@@ -16,7 +16,7 @@
 
 <p>To run all tests, which takes a lot of time, run:</p>
 
-<pre><code class="language-bash">./.tests/main</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">./.tests/main</code></pre>
 
 <p>Possible options:</p>
 
@@ -80,4 +80,4 @@
 	<li>Basic documentation tests are done</li>
 </ul>
 
-<pre><code class="language-bash">./.tests/main --num_random_steps=1 --max_eval=2 --reallyquick</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">./.tests/main --num_random_steps=1 --max_eval=2 --reallyquick</code></pre>

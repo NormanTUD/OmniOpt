@@ -181,8 +181,6 @@
 					</td>
 				</tr>
 			</table>
-
-
 		<br>
 		<span style="display: inline-flex;">
 			<img src="images/search.svg" height=32 alt="Search">
@@ -194,7 +192,6 @@
 	<script>
 		apply_theme_based_on_system_preferences();
 	</script>
-
 
 	<div id="searchResults"></div>
 

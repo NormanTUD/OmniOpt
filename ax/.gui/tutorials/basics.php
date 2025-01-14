@@ -1,5 +1,7 @@
 <h1>Basics and Docker</h1>
 
+<!-- How to use OmniOpt locally, on HPC-Systems or in Docker -->
+
 <div id="toc"></div>
 
 <h2 id="what_is_omniopt">What is OmniOpt2 and what does it do?</h2>

@@ -26,7 +26,9 @@
 				if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
 					$name = $file;
 
-					$heading_content = get_first_heading_content("tutorials/$file");
+					$file_path = "tutorials/$file";
+
+					$heading_content = get_first_heading_content($file_path);
 
 					if ($heading_content !== null) {
 						$name = $heading_content;
@@ -34,7 +36,15 @@
 
 					$file = preg_replace("/\.php$/", "", $file);
 
-					print "<li class='li_list'><a href='tutorials.php?tutorial=$file'>$name</a></li>\n";
+					$comment = "";
+					$_comment = get_html_comment($file_path);
+
+					if($_comment) {
+						$comment = " &mdash; $_comment";
+					}
+
+
+					print "<li class='li_list'><a href='tutorials.php?tutorial=$file'>$name</a>$comment</li>\n";
 				}
 			}
 ?>

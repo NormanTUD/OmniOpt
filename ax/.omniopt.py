@@ -5435,6 +5435,9 @@ def main() -> None:
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
     experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
+    with open(f'{get_current_run_folder()}/job_start_time.txt', mode='w', encoding="utf-8") as f:
+        f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
     disable_logging()
     check_max_eval(max_eval)
 

@@ -19,8 +19,6 @@
 ?>
 		<h1>Tutorials</h1>
 
-		<p>Available tutorials/help files:</p>
-
 		<ul>
 <?php
 			$files = scandir('tutorials/');

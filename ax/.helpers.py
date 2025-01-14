@@ -36,7 +36,6 @@ if not check_environment_variable("RUN_VIA_RUNSH"): # pragma: no cover
 def in_venv() -> bool:
     return sys.prefix != sys.base_prefix
 
-
 if not in_venv(): # pragma: no cover
     print("No venv loaded. Cannot continue.")
     sys.exit(19)

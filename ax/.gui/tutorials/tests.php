@@ -38,8 +38,24 @@
 		<td>How many parallel jobs should be started (ignored on non-sbatch-systems)</td>
 	</tr>
 	<tr>
+		<td><samp>--run_with_coverage</samp></td>
+		<td>Allows to use coverage instead of python3 for coverage testing unit test coverage</td>
+	</tr>
+	<tr>
+		<td><samp>--exit_on_first_error</samp></td>
+		<td>Exit on first error</td>
+	</tr>
+	<tr>
 		<td><samp>--gpus=(INT)</samp></td>
 		<td>How many GPUs you want for each worker/need to allocate an sbatch job</td>
+	</tr>
+	<tr>
+		<td><samp>--debug</samp></td>
+		<td>Enables debug mode</td>
+	</tr>
+	<tr>
+		<td><samp>--no_plots</samp></td>
+		<td>Disables plot tests</td>
 	</tr>
 	<tr>
 		<td><samp>--quick</samp></td>

@@ -643,8 +643,6 @@ function run_when_document_ready () {
 
 	update_command();
 
-	initialized = true;
-
 	update_url();
 
 	document.getElementById("copytoclipboardbutton_curl").addEventListener(
@@ -665,4 +663,6 @@ function run_when_document_ready () {
 	$('.tooltip').tooltipster();
 
 	apply_theme_based_on_system_preferences();
+
+	initialized = true;
 }

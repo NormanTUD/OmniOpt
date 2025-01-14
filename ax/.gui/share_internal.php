@@ -166,3 +166,6 @@
 	show_dir_view_or_plot($sharesPath, $user_id, $experiment_name, $run_nr);
 ?>
 	</div>
+<?php
+	include("footer.php");
+?>

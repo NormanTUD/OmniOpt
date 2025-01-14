@@ -17,7 +17,7 @@
 		// Start table HTML
 		$html = '<table border="1" cellpadding="5" cellspacing="0">';
 		$html .= '<thead>';
-		$html .= '<tr>';
+		$html .= '<tr class="invert_in_dark_mode">';
 		$html .= '<th>Partition Name</th>';
 		$html .= '<th>Number of Workers</th>';
 		$html .= '<th>Computation Time (min)</th>';

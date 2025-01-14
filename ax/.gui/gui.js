@@ -734,15 +734,15 @@ function updateOptions(select) {
 			<table>
 			    <tr>
 				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
 			    <tr>
 				<td>Min:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='minValue'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
 			    </tr>
 			    <tr>
 				<td>Max:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='maxValue'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
 			    </tr>
 			    <tr>
 				<td>Type:</td>
@@ -766,11 +766,11 @@ function updateOptions(select) {
 			<table>
 			    <tr>
 				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
 			    <tr>
 				<td>Values (comma separated):</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='choiceValues'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
 			    </tr>
 			</table>
 		    `;
@@ -779,11 +779,11 @@ function updateOptions(select) {
 			<table>
 			    <tr>
 				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
 			    <tr>
 				<td>Value:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='fixedValue'></td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
 			    </tr>
 			</table>
 		    `;
@@ -792,6 +792,8 @@ function updateOptions(select) {
 	valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>"
 
 	update_command();
+
+	apply_theme_based_on_system_preferences();
 }
 
 function addRow(button) {

@@ -107,7 +107,7 @@ nodes that have running jobs on it with ssh.</p>
 
 
 <p>To add custom lines to this file, for example for analyzing certain parts of your program, you can print this to the standard output:</p>
-<pre><code class="language-python">print("OO-Info: outputname: 123")</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-python">print("OO-Info: outputname: 123")</code></pre>
 
 This will add the column <samp>OO_Info_outputname</samp> to the <samp>job_infos.csv</samp>, and each line will have it's own output values then.
 

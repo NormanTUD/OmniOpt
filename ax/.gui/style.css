@@ -371,3 +371,7 @@ a, a:visited, a:active, a:hover, a:link {
 #refresh_button {
 	width: 100px;
 }
+
+._share_link {
+	color: black !important;
+}

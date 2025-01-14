@@ -1,5 +1,7 @@
 <h1>Plot your results</h1>
 
+<!-- What kinds of plots are available and how to use them -->
+
 <div id="toc"></div>
 
 There are many plots available and multiple options to show them. Here's a brief overview.

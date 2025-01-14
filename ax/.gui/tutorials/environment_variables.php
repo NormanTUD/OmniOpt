@@ -1,5 +1,7 @@
 <h1>Environment Variables</h1>
 
+<!-- List of all environment variables that change how OmniOpt2 works -->
+
 <div id="toc"></div>
 
 <h2 id="what_are_environment_variables">What are environment variables?</h2>

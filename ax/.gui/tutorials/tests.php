@@ -1,5 +1,7 @@
 <h1>Run automated tests</h1>
 
+<!-- How to run automated tests and what options are available -->
+
 <div id="toc"></div>
 
 <h2 id="what_are_automated_tests">What are automated tests?</h2>

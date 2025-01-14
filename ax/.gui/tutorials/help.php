@@ -1,5 +1,7 @@
 <h1><samp>--help</samp></h1>
 
+<!-- The <samp>--help</samp> of OmniOpt2 -->
+
 <div id="toc"></div>
 
 <h2 id="available_parameters">Available parameters (<samp>--help</samp>)</h2>

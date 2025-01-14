@@ -1,5 +1,7 @@
 <h1>Orchestrator</h1>
 
+<!-- How to orchestrate how failing jobs should restart or be treated in general -->
+
 <div id="toc"></div>
 
 <h2 id="what_is_the_orchestrator">What is the Orchestrator?</h2>

@@ -1,5 +1,7 @@
 <h1>Exit-Codes and Bash-scripting</h1>
 
+<!-- How to script OmniOpt2 -->
+
 <div id="toc"></div>
 
 <h2 id="what_are_exit_codes">What are exit-codes?</h2>

@@ -1,5 +1,7 @@
 <h1>Continue jobs</h1>
 
+<!-- How to continue jobs after they have been run already -->
+
 <div id="toc"></div>
 
 <h2 id="continue_with_same_options">Continue an old job with the same options</h2>

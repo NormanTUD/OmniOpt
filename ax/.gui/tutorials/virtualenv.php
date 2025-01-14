@@ -1,5 +1,7 @@
 <h1>VirtualEnv</h1>
 
+<!-- What are Virtual Environments and how OmniOpt2 uses them -->
+
 <div id="toc"></div>
 
 <h2 id="what_are_virtual_environments">What is a virtual environment?</h2>

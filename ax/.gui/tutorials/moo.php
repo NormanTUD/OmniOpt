@@ -1,5 +1,7 @@
 <h1>What is multi-objective-optimization and how to use it?</h1>
 
+<!-- How to use OmniOpt2 with multiple results -->
+
 <div id="toc"></div>
 
 <h2 id="what_is_moo">What is MOO?</h2>

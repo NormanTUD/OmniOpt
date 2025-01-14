@@ -1,5 +1,7 @@
 <h1>Create <samp>run.sh</samp>-file &amp; modify your program</h1>
 
+<!-- This is needed to prepare your program for OmniOpt2 -->
+
 <div id="toc"></div>
 
 <h2 id="overview_what_needs_to_be_done">Overview: what needs to be done</h2>

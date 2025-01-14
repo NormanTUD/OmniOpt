@@ -1,5 +1,7 @@
 <h1>Debugging</h1>
 
+<!-- How to find and solve bugs -->
+
 <div id="toc"></div>
 
 <h2 id="debug">How to find errors in my runs?</h2>

@@ -1,5 +1,7 @@
 <h1>Folder structure of OmniOpt2 runs</h1>
 
+<!-- What files are created for each run? -->
+
 <div id="toc"></div>
 
 <h2 id="runs_folder"><samp>runs</samp>-folder</h2>

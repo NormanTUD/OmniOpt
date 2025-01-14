@@ -220,6 +220,7 @@ catN
 cc
 cd
 cdata
+cew
 cfg
 ch
 Chainable
@@ -656,6 +657,7 @@ focusableIfVisible
 focusedTab
 focusin
 focusout
+foldername
 fontSize
 forceAspectRatio
 forceSnowParam
@@ -796,6 +798,7 @@ heUniform
 hexscatter
 hexStr
 hexString
+hiddenTableData
 hideIfNoPrevNext
 HIDEMAXVALUESINPLOT
 Hitchcock
@@ -1232,6 +1235,7 @@ numberArray
 numberFormat
 numberOfMonths
 numberOfParams
+numberType
 numbervariable
 numBytes
 numBytesInGPU
@@ -1347,6 +1351,7 @@ palegreen
 panelId
 param
 Parameterized
+parameterName
 parameterscsv
 parameterstxt
 ParameterType

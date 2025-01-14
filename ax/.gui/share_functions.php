@@ -322,7 +322,21 @@
 			$run_nr = preg_replace("/.*\//", "", $run_nr);
 			$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
 			echo "<!-- show_run_selection " . __LINE__ . " -->\n";
-			echo "<a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$run_nr</a><br>";
+			$name = $run_nr;
+
+			$job_start_times_file = "$sharesPath/$user/$experiment_name/$run_nr/job_start_time.txt";
+
+			if (file_exists($job_start_times_file) && is_readable($job_start_times_file)) {
+				$file_content = file_get_contents($job_start_times_file);
+
+				$date_pattern = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/m';
+
+				if (preg_match($date_pattern, $file_content, $matches)) {
+					$name .= ' (' . trim($matches[0]) . ')';
+				}
+			}
+
+			echo "<a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$name</a><br>";
 		}
 	}
 

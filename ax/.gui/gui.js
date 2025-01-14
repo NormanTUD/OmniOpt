@@ -27,8 +27,8 @@ function input_to_time_picker (input_id) {
 
 	var $div = $(`
 		    <div class='time_picker_container'>
-			<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
-			<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
+			<input type='number' min=-1 max=159 class="invert_in_dark_mode time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
+			<input type='number' min=-1 step=31 class="invert_in_dark_mode time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
 		    </div>
 		`);
 

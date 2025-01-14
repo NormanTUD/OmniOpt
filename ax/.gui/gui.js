@@ -87,7 +87,7 @@ var l = log;
 var tableData = [
 	{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true, "help": "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
 	{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters)", "required": true, 'regex': '^[a-zA-Z0-9_]+$', "help": "Name of your experiment. Will be used for example for the foldername it's results will be saved in." },
-	{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$", "help": "If you have a reservation, use it here. It makes jobs start faster, but is not neccessary technically." },
+	{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$", "help": "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically." },
 	{ label: "Account", id: "account", type: "text", value: "", placeholder: "Account the job should run on", "help": "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account." },
 	{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1, max: 1000 },
 	{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program", min: 1, "help": "This is the maximum amount of time that your main job will run, spawn jobs and collect results." },
@@ -266,10 +266,8 @@ function set_min_max () {
 function quote_variables(input) {
 	return input.replace(/(["'])(.*?)\1|%(\((\w+)\)|(\w+))/g, function(match, quotes, insideQuotes, p1, p2, p3) {
 		if (quotes) {
-			// Wenn die Variable bereits in Anführungszeichen steht, gib sie unverändert zurück
 			return match;
 		} else {
-			// Wenn die Variable nicht in Anführungszeichen steht, füge Anführungszeichen hinzu
 			var variable = p2 || p3;
 			return "'%(" + variable + ")'";
 		}

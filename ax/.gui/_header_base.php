@@ -135,7 +135,7 @@
 							<tr class="header_table" style='background-color: revert !important;'>
 								<td class="header_table">
 									<a target="_blank" href="https://coveralls.io/github/NormanTUD/OmniOpt">
-										<img class="img_auto_width" width=116 height=24 style="width: 100% !important;" src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage">
+										<img class="img_auto_width" width=116 height=24 src="https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main" alt="Test coverage">
 									</a>
 								</td>
 							</tr>

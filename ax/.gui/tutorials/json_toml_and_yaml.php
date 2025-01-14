@@ -13,8 +13,7 @@
 <h2 id="example_files">Example files</h2>
 <h3 id="toml">TOML</h3>
 
-<pre><code class="language-bash">
-live_share = true
+<pre class="invert_in_dark_mode"><code class="language-bash">live_share = true
 partition = "alpha"
 experiment_name = "__main__tests__"
 mem_gb = 4
@@ -43,8 +42,7 @@ auto_exclude_defective_hosts = true
 hide_ascii_plots = true
 </code></pre>
 <h3 id="yaml">YAML</h3>
-<pre><code class="language-bash">
-live_share: true
+<pre class="invert_in_dark_mode"><code class="language-bash">live_share: true
 partition: alpha
 experiment_name: __main__tests__
 mem_gb: 4
@@ -87,8 +85,7 @@ parameter:
 </code></pre>
 
 <h3 id="json">JSON</h3>
-<pre><code class="language-bash">
-{
+<pre class="invert_in_dark_mode"><code class="language-bash">{
   "experiment_name": "__main__tests__",
   "gpus": 0,
   "live_share": true,

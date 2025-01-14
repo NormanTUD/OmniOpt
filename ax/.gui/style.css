@@ -28,7 +28,8 @@ h2 {
 }
 
 body {
-	font-family:  Verdana, sans-serif;
+	font-family: Verdana, sans-serif;
+	margin-bottom: 100px;
 }
 
 .dark_code_bg {

@@ -46,8 +46,30 @@
 
 	$experiment_name = get_or_env('experiment_name');
 
-	$acceptable_files = ["best_result", "job_infos", "parameters", "results", "ui_url", "cpu_ram_usage", "get_next_trials", "run_uuid", "outfile", "oo_errors", "evaluation_errors", "outfile", "log", "install_errors", "progressbar", "trial_index_to_params", "worker_usage", "job_start_time"];
-	$acceptable_file_names = ["best_result.txt", "job_infos.csv", "parameters.txt", "results.csv", "ui_url.txt", "cpu_ram_usage.csv", "get_next_trials.csv", "run_uuid", "outfile.txt", "oo_errors.txt", "evaluation_errors.log", "outfile", "log", "install_errors", "progressbar", "trial_index_to_params", "worker_usage.csv", "job_start_time.txt"];
+	$acceptable_file_names = [
+		"best_result.txt",
+		"job_infos.csv",
+		"parameters.txt",
+		"results.csv",
+		"ui_url.txt",
+		"cpu_ram_usage.csv",
+		"get_next_trials.csv",
+		"run_uuid",
+		"outfile.txt",
+		"oo_errors.txt",
+		"evaluation_errors.log",
+		"outfile",
+		"log",
+		"install_errors",
+		"progressbar",
+		"trial_index_to_params",
+		"worker_usage.csv",
+		"job_start_time.txt"
+	];
+
+	$acceptable_files = array_map(function($file) {
+		return preg_replace('/\.[^.]+$/', '', $file);
+	}, $acceptable_file_names);
 
 	$GLOBALS["time_start"] = microtime(true);
 

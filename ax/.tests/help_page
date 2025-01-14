@@ -50,9 +50,11 @@ GUI_PARAMS=$(cat .gui/tutorials/help.php | grep "<samp>--" | sed -e 's#.*--#--#'
 
 for gui_param in $GUI_PARAMS; do
 	if ! echo "$CLEANED_HELP" | grep -- "$gui_param" 2>&1 >/dev/null; then
-		errmsg="Help parameter $gui_param does appear in .gui/tutorials/help.php but not in ./omniopt --help"
-		red_text "$errmsg"
-		errors+=("$errmsg")
+		if [[ "$gui_param" != "-->" ]]; then
+			errmsg="Help parameter $gui_param does appear in .gui/tutorials/help.php but not in ./omniopt --help"
+			red_text "$errmsg"
+			errors+=("$errmsg")
+		fi
 	#else
 		#green_text "Help parameter $gui_param does appear in ./omniopt --help and .gui/tutorials/help.php"
 	fi

@@ -9,7 +9,7 @@
 <p>It is important that you run these commands before you run OmniOpt2, and also that you write <samp>export</samp> in front of them. Unexported variables are not passed to programs started by the shell.</p>
 
 <table>
-	<tr>
+	<tr class="invert_in_dark_mode">
 		<th>Name</th>
 		<th>What does it do?</th>
 	</tr>

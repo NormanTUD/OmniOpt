@@ -8,8 +8,8 @@
 
 <ul>
 	<li>Your program needs to be able to run on Linux, and especially on the HPC System, i.e. you need to use default dependencies or install the dependencies of your program into a virtual environment (or similar)</li>
-	<li>Your program needs to accept it's hyperparameters via the command like, so you can call it like this: <code class="language-python"><samp>python3 my_experiment.py --epochs=10 --learning_rate=0.05</samp></code> (or similar)</li>
-	<li>Your program needs to print it's result (i.e. e.g. it's loss) in a standardized form. This can be achieved in python by doing: <code class="language-python"><samp>print(f"RESULT: {loss}")</samp></code></li>
+	<li>Your program needs to accept it's hyperparameters via the command like, so you can call it like this: <span class="invert_in_dark_mode"><code class="language-python"><samp>python3 my_experiment.py --epochs=10 --learning_rate=0.05</samp></code></span> (or similar)</li>
+	<li>Your program needs to print it's result (i.e. e.g. it's loss) in a standardized form. This can be achieved in python by doing: <span class="invert_in_dark_mode"><code class="language-python"><samp>print(f"RESULT: {loss}")</samp></code></span></li>
 </ul>
 
 <h2 id="script-example">Script Example</h2>
@@ -20,7 +20,7 @@ your program gets run.</p>
 
 <p>It may look like this:</p>
 
-<pre><code class="language-bash">#!/bin/bash -l
+<pre class="invert_in_dark_mode"><code class="language-bash">#!/bin/bash -l
 # ^ Shebang-Line, so that it is known that this is a bash file
 # -l means 'load this as login shell', so that /etc/profile gets loaded and you can use 'module load' or 'ml' as usual
 
@@ -54,7 +54,7 @@ otherwise.</p>
 <h3 id="sys-argv">Using sys.argv</h3>
 <p>The following Python program demonstrates how to parse command line arguments using <samp>sys.argv</samp>:</p>
 
-<pre><code class="language-python">import sys
+<pre class="invert_in_dark_mode"><code class="language-python">import sys
 epochs = int(sys.argv[1])
 learning_rate = float(sys.argv[2])
 model_name = sys.argv[3]
@@ -77,14 +77,14 @@ print(f"RESULT: {loss}")
 </code></pre>
 
 <p>Example call:</p>
-<pre><code class="language-bash">python3 script.py 10 0.01 MyModel</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">python3 script.py 10 0.01 MyModel</code></pre>
 <p>Example OmniOpt2-call:</p>
-<pre><code class="language-bash">python3 script.py %(epochs) %(learning_rate) %(model_name)</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">python3 script.py %(epochs) %(learning_rate) %(model_name)</code></pre>
 
 <h3 id="argparse">Using argparse</h3>
 <p>The following Python program demonstrates how to parse command line arguments using <samp>argparse</samp>:</p>
 
-<pre><code class="language-python">import argparse
+<pre class="invert_in_dark_mode"><code class="language-python">import argparse
 import sys
 
 parser = argparse.ArgumentParser(description="Run a training script with specified parameters.")
@@ -113,9 +113,9 @@ print(f"RESULT: {loss}")
 </code></pre>
 
 <p>Example call:</p>
-<pre><code class="language-bash">python3 script.py --epochs 10 --learning_rate 0.01 --model_name MyModel</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">python3 script.py --epochs 10 --learning_rate 0.01 --model_name MyModel</code></pre>
 <p>Example OmniOpt2-call:</p>
-<pre><code class="language-bash">python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)</code></pre>
 
 <h4>Advantages of using <samp>argparse</samp></h4>
 <ul>

@@ -356,7 +356,6 @@ function update_table_row (item, errors, warnings, command) {
 			$("#num_parallel_jobs").val(1);
 		}
 
-
 		if (max_eval < parallel_evaluations) {
 			$("#num_parallel_jobs").val(max_eval);
 		}
@@ -1055,7 +1054,6 @@ $(document).ready(function() {
 		}
 	});
 
-
 	var num_parameters = urlParams.get("num_parameters");
 	if (num_parameters) {
 		for (var k = 0; k < num_parameters; k++) {
@@ -1086,7 +1084,6 @@ $(document).ready(function() {
 		}
 		parameterIndex++;
 	});
-
 
 	update_command();
 

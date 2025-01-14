@@ -1,5 +1,5 @@
 <h1><tt>config.toml</tt>, <tt>config.yaml</tt>, <tt>config.json</tt></h1>
-    
+
 <div id="toc"></div>
 
 <h2 id="what_is_omniopt">What are TOML, JSON and YAML files? What are they good for?</h2>

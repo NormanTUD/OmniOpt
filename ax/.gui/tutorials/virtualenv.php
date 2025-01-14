@@ -1,5 +1,5 @@
 <h1>VirtualEnv</h1>
-    
+
 <div id="toc"></div>
 
 <h2 id="what_are_virtual_environments">What is a virtual environment?</h2>

@@ -31,7 +31,7 @@
 		print json_encode(array("error" => "Invalid experiment_name"));
 		exit(0);
 	}
-	
+
 	if(!preg_match("/^[a-zA-Z0-9_]+$/", $user_id)) {
 		print json_encode(array("error" => "Invalid user_id"));
 		exit(0);

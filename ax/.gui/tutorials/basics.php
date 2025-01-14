@@ -1,10 +1,10 @@
 <h1>Basics and Docker</h1>
-    
+
 <div id="toc"></div>
 
 <h2 id="what_is_omniopt">What is OmniOpt2 and what does it do?</h2>
 
-<p>OmniOpt2 is a highly parallelized hyperparameter optimizer based on Ax/Botorch. It explores various combinations of parameters within a given search space, 
+<p>OmniOpt2 is a highly parallelized hyperparameter optimizer based on Ax/Botorch. It explores various combinations of parameters within a given search space,
 runs a program with these parameters, and identifies promising areas for further evaluations.</p>
 
 <h2 id="key_features">Key Features</h2>

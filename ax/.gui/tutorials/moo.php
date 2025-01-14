@@ -1,5 +1,5 @@
 <h1>What is multi-objective-optimization and how to use it?</h1>
-    
+
 <div id="toc"></div>
 
 <h2 id="what_is_moo">What is MOO?</h2>
@@ -24,7 +24,7 @@ by default, with euclidean distance.</p>
 <h2 id='what_is_it_good_for'>What is MOO good for?</h2>
 
 <p>Sometimes you have conflicting goals, for example, a neural network's accuracy is much better when it
-has larger neurons, but it also takes potentially exponentially longer to train. To find a sweet-spot between, 
+has larger neurons, but it also takes potentially exponentially longer to train. To find a sweet-spot between,
 for example, learning time and accuracy, MOO may help. It allows you to find a good spot, where both options are
 as best (i.e. lowest) as possible. Another possible measure would be time and accuracy or loss and validation loss.</p>
 

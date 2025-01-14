@@ -8,7 +8,7 @@ that have already been tested, is as simple as this, assuming your job is in <sa
 
 <pre><code class="language-bash">./omniopt --continue runs/my_experiment/0</code></pre>
 
-<p>This will start a new run with the same settings as the old one, but load all already tried out data points, and 
+<p>This will start a new run with the same settings as the old one, but load all already tried out data points, and
 continue the search from there.</p>
 
 <h2 id="continue_with_changed_options">Continue an old job with the changed options</h2>

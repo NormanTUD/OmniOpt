@@ -16,7 +16,7 @@ twice, the paths <samp>runs/my_experiment/0</samp> and <samp>runs/my_experiment/
 <p>This file contains an ANSI-table that shows you the best result and the parameters resulted in that result.</p>
 
 <pre>
-		      Best parameter:                              
+		      Best parameter:
 ┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┓
 ┃ width_and_height ┃ validation_split ┃ learning_rate ┃ epochs ┃ result   ┃
 ┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━┩
@@ -119,7 +119,7 @@ This will add the column <samp>OO_Info_outputname</samp> to the <samp>job_infos.
 
 <p>This file contains the parameter search space definition in a simple table. Example:
 
-<pre>                            Experiment parameters:                            
+<pre>                            Experiment parameters:
 ┏━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
 ┃ Name             ┃ Type  ┃ Lower bound ┃ Upper bound ┃ Values ┃ Value-Type ┃
 ┡━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩

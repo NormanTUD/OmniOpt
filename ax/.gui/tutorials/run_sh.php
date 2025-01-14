@@ -40,7 +40,7 @@ python3 /absolute/path/to_script.py $@
 exit $? # Exit with exit code of python
 </code></pre>
 
-<p>Even though <samp>sbatch</samp> may inherit shell variables like loaded modules, 
+<p>Even though <samp>sbatch</samp> may inherit shell variables like loaded modules,
 it is not recommended to rely on that heavily, because, especially when
 copying the <samp>curl</samp>-command from this website, you may forget loading
 the correct modules. This makes your script much more robust to changes.</p>

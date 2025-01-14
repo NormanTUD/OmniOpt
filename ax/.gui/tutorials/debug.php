@@ -7,7 +7,7 @@
 <p>OmniOpt2 saves many logs in the <a target="_blank" href="tutorials.php?tutorial=folder_structure"><samp>run</samp>-folder</a>. First, check the <samp>.stdout</samp>-file of
 the run. OmniOpt2 will tell you many things when it detects errors there.</p>
 
-<p>If you don't find anything useful in the <samp>.stdout</samp>-file, look into the 
+<p>If you don't find anything useful in the <samp>.stdout</samp>-file, look into the
 <samp>runs/my_experiment/0/single_runs/</samp>-folder. It contains the outputs of each
 worker in separate directories. It looks something like this:</p>
 
@@ -15,7 +15,7 @@ worker in separate directories. It looks something like this:</p>
 submitit INFO (2024-07-08 17:34:57,444) - Starting with JobEnvironment(job_id=2387026, hostname=thinkpad44020211128, local_rank=0(1), node=0(1), global_rank=0(1))
 submitit INFO (2024-07-08 17:34:57,445) - Loading pickle: /home/norman/repos/OmniOpt/ax/runs/__main__tests__/1/single_runs/2387026/2387026_submitted.pkl
 parameters: {'int_param': -100, 'float_param': -100.0, 'choice_param': 1, 'int_param_two': -5}
-Debug-Infos: 
+Debug-Infos:
 ========
 DEBUG INFOS START:
 Program-Code: ./.tests/optimization_example --int_param='-100' --float_param='-100.0' --choice_param='1'  --int_param_two='-5'

@@ -1,3 +1,8 @@
+var initialized = false;
+var shown_operation_insecure_without_server = false;
+
+var l = typeof log === 'function' ? log : console.log;
+
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent()
@@ -78,11 +83,6 @@ function highlight_all_bash () {
 		$(e).html(highlight_bash($(e).text()));
 	});
 }
-
-var initialized = false;
-var shown_operation_insecure_without_server = false;
-
-var l = log;
 
 var tableData = [
 	{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true, "help": "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
@@ -1032,82 +1032,6 @@ function update_url() {
 		}
 	}
 }
-
-$(document).ready(function() {
-	create_tables();
-	update_partition_options();
-
-	var urlParams = new URLSearchParams(window.location.search);
-	tableData.forEach(function(item) {
-		var paramValue = urlParams.get(item.id);
-		if (paramValue !== null) {
-			$("#" + item.id).val(paramValue).trigger('change');
-		}
-	});
-
-	hiddenTableData.forEach(function(item) {
-		var paramValue = urlParams.get(item.id);
-		if (paramValue !== null) {
-			$("#" + item.id).val(paramValue).trigger('change');
-		}
-	});
-
-	var num_parameters = urlParams.get("num_parameters");
-	if (num_parameters) {
-		for (var k = 0; k < num_parameters; k++) {
-			$("#main_add_row_button").click();
-		}
-	} else {
-		$("#main_add_row_button").click();
-	}
-
-	var parameterIndex = 0;
-	$(".parameterRow").each(function(index) {
-		var parameterName = urlParams.get("parameter_" + parameterIndex + "_name");
-		var option = urlParams.get("parameter_" + parameterIndex + "_type");
-
-		if (parameterName && option) {
-			$(this).find(".parameterName").val(parameterName);
-			$(this).find(".optionSelect").val(option).trigger('change');
-			if (option === 'range') {
-				$(this).find(".minValue").val(urlParams.get("parameter_" + parameterIndex + "_min"));
-				$(this).find(".maxValue").val(urlParams.get("parameter_" + parameterIndex + "_max"));
-				$(this).find(".numberTypeSelect").val(urlParams.get("parameter_" + parameterIndex + "_number_type"));
-				$(this).find(".log_scale").prop(urlParams.get("parameter_" + parameterIndex + "_log_scale") == "true" ? true : false);
-			} else if (option === 'choice') {
-				$(this).find(".choiceValues").val(urlParams.get("parameter_" + parameterIndex + "_values"));
-			} else if (option === 'fixed') {
-				$(this).find(".fixedValue").val(urlParams.get("parameter_" + parameterIndex + "_value"));
-			}
-		}
-		parameterIndex++;
-	});
-
-	update_command();
-
-	initialized = true;
-
-	update_url();
-
-	document.getElementById("copytoclipboardbutton_curl").addEventListener(
-		"click",
-		copy_bashcommand_to_clipboard_curl,
-		false
-	);
-
-	document.getElementById("copytoclipboardbutton_main").addEventListener(
-		"click",
-		copy_bashcommand_to_clipboard_main,
-		false
-	);
-
-	input_to_time_picker("time")
-	input_to_time_picker("worker_timeout")
-
-	$('.tooltip').tooltipster();
-
-	apply_theme_based_on_system_preferences();
-});
 
 function copy_to_clipboard(text) {
 	var dummy = document.createElement("textarea");

@@ -1,4 +1,6 @@
 <?php
+	$GLOBALS["time_start"] = microtime(true);
+
 	error_reporting(E_ALL);
 	set_error_handler(
 		function ($severity, $message, $file, $line) {
@@ -70,8 +72,6 @@
 	$acceptable_files = array_map(function($file) {
 		return preg_replace('/\.[^.]+$/', '', $file);
 	}, $acceptable_file_names);
-
-	$GLOBALS["time_start"] = microtime(true);
 
 	require_once "share_functions.php";
 

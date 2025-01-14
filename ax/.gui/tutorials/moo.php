@@ -1,5 +1,3 @@
-<marquee>This is preliminary content and about to change!</marquee>
-
 <h1>What is multi-objective-optimization and how to use it?</h1>
     
 <div id="toc"></div>

@@ -38,5 +38,6 @@
 			<script src="prism.js"></script>
 			<script src="footer.js"></script>
 		</div>
-	</body>
-</html>
+<?php
+	include("footer.php");
+?>

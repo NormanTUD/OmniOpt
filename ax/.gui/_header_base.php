@@ -80,7 +80,7 @@
 			function openURLInNewTab() {
 				var url = window.location.protocol + "//" + window.location.host + window.location.pathname +
 					'?partition=alpha&experiment_name=small_test_experiment&reservation=&account=&mem_gb=1&time=60&worker_timeout=60' +
-					'&max_eval=500&num_parallel_jobs=20&gpus=1&num_random_steps=20&follow=1&send_anonymized_usage_stats=1&show_sixel_graphics=1&' +
+					'&max_eval=5&num_parallel_jobs=20&gpus=1&num_random_steps=2&follow=1&send_anonymized_usage_stats=1&show_sixel_graphics=1&' +
 					'run_program=echo "RESULT%3A %25(x)%25(y)"&cpus_per_task=1&tasks_per_node=1&seed=&verbose=0&debug=0&maximize=0&gridsearch=0' +
 					'&model=BOTORCH_MODULAR&run_mode=local&constraints=&parameter_0_name=x&parameter_0_type=range&parameter_0_min=123' +
 					'&parameter_0_max=100000000&parameter_0_number_type=int&parameter_1_name=y&parameter_1_type=range&parameter_1_min=5431' +

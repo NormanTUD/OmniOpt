@@ -15,7 +15,7 @@ is_interactive=1
 depth=1
 reservation=""
 
-start_command_base64="$1"
+start_command_base64=""
 
 function set_debug {
 	trap 'echo -e "${cyan}$(date +"%Y-%m-%d %H:%M:%S")${nc} ${magenta}| Line: $LINENO ${nc}${yellow}-> ${nc}${blue}[DEBUG]${nc} ${green}$BASH_COMMAND${nc}"' DEBUG
@@ -94,7 +94,7 @@ function help {
 function parse_parameters {
 	args=$@
 
-	for i in "$args"; do
+	for i in $args; do
 		case $i in
 			--depth=*)
 				depth="${i#*=}"
@@ -110,6 +110,15 @@ function parse_parameters {
 				;;
 			--help)
 				help
+				;;
+			*)
+				echo "$i" | base64 --decode 2>/dev/null >/dev/null
+				start_command_base64="$i"
+				start_command_exit_code=$?
+				if [[ $start_command_exit_code -ne 0 ]]; then
+					red_text "Invalid parameter $i."
+					help
+				fi
 				;;
 		esac
 	done
@@ -160,7 +169,7 @@ function run_command {
 function install_and_run {
 	_start_command_base64="$1"
 
-	if [[ -z $_start_command_base64 ]]; then
+	if [[ -z $_start_command_base64 ]] || [[ $_start_command_base64 == "" ]]; then
 		red_text "Missing argument for start-command (must be in base64)"
 		exit 1
 	fi

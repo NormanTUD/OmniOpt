@@ -15,7 +15,7 @@ is_interactive=1
 depth=1
 reservation=""
 
-start_command_base64=$1
+start_command_base64="$1"
 
 function set_debug {
 	trap 'echo -e "${cyan}$(date +"%Y-%m-%d %H:%M:%S")${nc} ${magenta}| Line: $LINENO ${nc}${yellow}-> ${nc}${blue}[DEBUG]${nc} ${green}$BASH_COMMAND${nc}"' DEBUG
@@ -43,8 +43,8 @@ function calltracer {
 }
 
 function check_command {
-	local cmd=$1
-	local install_hint=$2
+	local cmd="$1"
+	local install_hint="$2"
 	if ! command -v "$cmd" >/dev/null 2>/dev/null; then
 		red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $install_hint' (depending on your distro)"
 		exit 1
@@ -157,10 +157,33 @@ function run_command {
 	fi
 }
 
-if [[ -z $start_command_base64 ]]; then
-	red_text "Missing argument for start-command (must be in base64)"
-	exit 1
-fi
+function clone_and_run {
+	_start_command_base64="$1"
+
+	if [[ -z $_start_command_base64 ]]; then
+		red_text "Missing argument for start-command (must be in base64)"
+		exit 1
+	fi
+
+	start_command=$(echo "$_start_command_base64" | base64 --decode)
+	start_command_exit_code=$?
+
+	if [[ $start_command_exit_code -eq 0 ]]; then
+		to_dir=$(get_to_dir)
+
+		clone_command="git clone --depth=$depth $github_repo_url $to_dir"
+
+		if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
+			clone_interactive "$clone_command"
+		else
+			clone_non_interactive "$clone_command"
+		fi
+
+		run_command "$to_dir" "$start_command"
+	else
+		red_text "Error: '$_start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
+	fi
+}
 
 check_if_everything_is_installed
 
@@ -173,22 +196,5 @@ parse_parameters $@
 set -o pipefail
 set -u
 
-start_command=$(echo "$start_command_base64" | base64 --decode)
-start_command_exit_code=$?
-
-if [[ $start_command_exit_code -eq 0 ]]; then
-	to_dir=$(get_to_dir)
-
-	clone_command="git clone --depth=$depth $github_repo_url $to_dir"
-
-	if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
-		clone_interactive "$clone_command"
-	else
-		clone_non_interactive "$clone_command"
-	fi
-
-	run_command "$to_dir" "$start_command"
-else
-	red_text "Error: '$start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
-fi
+clone_and_run "$start_command_base64"
 }

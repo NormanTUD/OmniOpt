@@ -135,9 +135,12 @@ function parse_parameters {
 				help
 				;;
 			*)
+				set +e
 				echo "$i" | base64 --decode 2>/dev/null >/dev/null
 				start_command_base64="$i"
 				start_command_exit_code=$?
+				set -e
+
 				if [[ $start_command_exit_code -ne 0 ]]; then
 					red_text "Invalid parameter $i."
 					help
@@ -206,8 +209,10 @@ function install_and_run {
 		exit 1
 	fi
 
+	set +e
 	start_command=$(echo "$_start_command_base64" | base64 --decode)
 	start_command_exit_code=$?
+	set -e
 
 	if [[ $start_command_exit_code -eq 0 ]]; then
 		to_dir=$(get_to_dir)

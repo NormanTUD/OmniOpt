@@ -22,6 +22,19 @@ installation_method="clone"
 
 start_command_base64=""
 
+function help {
+	echo "OmniOpt2-Installer"
+	echo ""
+	echo "<start-command>                                             Command that should be started after cloning (decoded in base64)"
+	echo "--depth=N                                                   Depth of git clone (default: 1)"
+	echo "--reservation=str                                           Name of your reservation, if any"
+	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
+	echo "--debug                                                     Enable debug mode"
+	echo "--help                                                      This help"
+
+	exit 0
+}
+
 function set_debug {
 	trap 'echo -e "${cyan}$(date +"%Y-%m-%d %H:%M:%S")${nc} ${magenta}| Line: $LINENO ${nc}${yellow}-> ${nc}${blue}[DEBUG]${nc} ${green}$BASH_COMMAND${nc}"' DEBUG
 }
@@ -101,19 +114,6 @@ function get_to_dir {
 	done
 
 	echo "$to_dir"
-}
-
-function help {
-	echo "OmniOpt2-Installer"
-	echo ""
-	echo "<start-command>                                             Command that should be started after cloning (decoded in base64)"
-	echo "--depth=N                                                   Depth of git clone (default: 1)"
-	echo "--reservation=str                                           Name of your reservation, if any"
-	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
-	echo "--debug                                                     Enable debug mode"
-	echo "--help                                                      This help"
-
-	exit 0
 }
 
 function parse_parameters {

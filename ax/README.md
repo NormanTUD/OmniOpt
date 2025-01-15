@@ -32,7 +32,7 @@ For tutorials on configuration, exit codes, and debugging, visit
 ```
 
 This command initiates OmniOpt2 and installs dependencies if not already
-installed. The parameter `--run_program` uses a Base64-encoded string to
+installed. The parameter `--run_program` uses a [Base64](https://de.wikipedia.org/wiki/Base64)-encoded string to
 specify commands.
 
 ## Plot Results
@@ -78,7 +78,7 @@ dependencies automatically if required.
 ## Error Codes
 
 For common issues and exit codes, see the
-[exit codes tutorial](https://imageseg.scads.de/omniax/tutorials.php?tutorial=exit_codes_and_bash_scripting).
+[exit codes tutorial-page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=exit_codes_and_bash_scripting).
 
 ## Contributions
 

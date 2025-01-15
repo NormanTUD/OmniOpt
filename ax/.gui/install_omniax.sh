@@ -182,11 +182,11 @@ function git_clone_non_interactive {
 	}
 }
 
-function run_command {
+function cd_and_run_command {
 	_to_dir="$1"
 	_start_command="$2"
 
-	dbg "run_command $_to_dir $_start_command"
+	dbg "cd_and_run_command $_to_dir $_start_command"
 
 	ax_dir="$_to_dir/ax/"
 
@@ -225,7 +225,7 @@ function install_and_run {
 			git_clone_non_interactive "$clone_command"
 		fi
 
-		run_command "$to_dir" "$start_command"
+		cd_and_run_command "$to_dir" "$start_command"
 	else
 		red_text "Error: '$_start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
 	fi

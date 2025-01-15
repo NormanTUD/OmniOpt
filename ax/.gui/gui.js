@@ -527,8 +527,10 @@ function update_command() {
 			if(item["type"] == "select") {
 				var val = $(`#${item["id"]}`).val();
 				curl_options = ` --${item["id"]}=${val} `;
+			} else if(item["type"] == "checkbox" && $(`#${item["id"]}`).is(":checked")) {
+				curl_options = ` --${item["id"]} `;
 			} else {
-				error(`use_in_curl_bash currently only supports select`);
+				error(`use_in_curl_bash currently only supports select and checkbox`);
 			}
 		}
 	});
@@ -543,8 +545,10 @@ function update_command() {
 			if(item["type"] == "select") {
 				var val = $(`#${item["id"]}`).val();
 				curl_options = ` --${item["id"]}=${val} `;
+			} else if(item["type"] == "checkbox" && $(`#${item["id"]}`).is(":checked")) {
+				curl_options = ` --${item["id"]} `;
 			} else {
-				error(`use_in_curl_bash currently only supports select`);
+				error(`use_in_curl_bash currently only supports select and checkbox`);
 			}
 		}
 	});

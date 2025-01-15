@@ -29,6 +29,7 @@ function help {
 	echo "--depth=N                                                   Depth of git clone (default: 1)"
 	echo "--reservation=str                                           Name of your reservation, if any"
 	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
+	echo "--omniopt_venv=str                                          Path to virtual env dir (only used for --installation_method=pip, default: omniopt_venv)"
 	echo "--debug                                                     Enable debug mode"
 	echo "--help                                                      This help"
 
@@ -121,6 +122,9 @@ function parse_parameters {
 
 	for i in $args; do
 		case $i in
+			--omniopt_venv=*)
+				omniopt_venv="${i#*=}"
+				;;
 			--installation_method=*)
 				installation_method="${i#*=}"
 				;;
@@ -238,24 +242,30 @@ function install_and_run {
 		fi
 	elif [[ $installation_method == "pip" ]]; then
 		if [[ ! -d $omniopt_venv ]]; then
+			mkdir -p $omniopt_venv
+		fi
+
+		venv_activate_file="$omniopt_venv/bin/activate"
+
+		if [[ ! -d $omniopt_venv ]]; then
 			dbg "Creating venv $omniopt_venv"
 			python3 -mvenv $omniopt_venv
 		fi
 
-		if [[ -e $omniopt_venv/bin/activate ]]; then
-			dbg "Activating venv $omniopt_venv/bin/activate"
-			source $omniopt_venv/bin/activate
+		if [[ -e "$venv_activate_file" ]]; then
+			dbg "Activating venv $venv_activate_file"
+			source "$venv_activate_file"
 
 			dbg "pip3 install omniopt2"
 			pip3 install omniopt2
 		else
-			red_text "Could not find $omniopt_venv/bin/activate. Cannot activate environment. OmniOpt2 installation cancelled."
+			red_text "Could not find $venv_activate_file. Cannot activate environment. OmniOpt2 installation cancelled."
 			exit 14
 		fi
 
-		if [[ -e $omniopt_venv/bin/activate ]]; then
-			dbg "Activating venv $omniopt_venv/bin/activate"
-			source $omniopt_venv/bin/activate
+		if [[ -e "$venv_activate_file" ]]; then
+			dbg "Activating venv $venv_activate_file"
+			source "$venv_activate_file"
 
 			dbg "pip3 install omniopt2"
 			pip3 install omniopt2
@@ -263,6 +273,7 @@ function install_and_run {
 			run_command=$(echo "$start_command" | sed -e 's#^\./##')
 
 			dbg "Run-command: $run_command"
+
 			$run_command
 		fi
 	else

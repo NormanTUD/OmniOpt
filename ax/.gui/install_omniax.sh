@@ -26,7 +26,7 @@ function help {
 	echo "OmniOpt2-Installer"
 	echo ""
 	echo "<start-command>                                             Command that should be started after cloning (decoded in base64)"
-	echo "--depth=N                                                   Depth of git clone (default: 1)"
+	echo "--depth=N                                                   Depth of git clone (default: 1, only used for --installation_method=clone)"
 	echo "--reservation=str                                           Name of your reservation, if any"
 	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
 	echo "--omniopt_venv=str                                          Path to virtual env dir (only used for --installation_method=pip, default: omniopt_venv)"

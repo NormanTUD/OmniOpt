@@ -79,6 +79,7 @@ function check_if_everything_is_installed {
 
 function check_interactive {
 	dbg "check_interactive"
+
 	if ! tty 2>/dev/null >/dev/null; then
 		is_interactive=0
 		dbg "check_interactive: tty not found, setting is_interactive to 0"
@@ -87,6 +88,7 @@ function check_interactive {
 
 function get_to_dir {
 	dbg "get_to_dir"
+
 	to_dir_base=omniopt
 	to_dir=$to_dir_base
 	to_dir_nr=0

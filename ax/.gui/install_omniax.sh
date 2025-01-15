@@ -1,21 +1,21 @@
 #!/bin/bash -i
 
 {
-start_command_base64=$1
+export LC_ALL=en_US.UTF-8
 
-if [[ -z $start_command_base64 ]]; then
-	red_text "Missing argument for start-command (must be in base64)"
-	exit 1
-fi
-
+github_repo_url="https://github.com/NormanTUD/OmniOpt.git"
 green='\033[0;32m'
 yellow='\033[0;33m'
 blue='\033[0;34m'
 cyan='\033[0;36m'
 magenta='\033[0;35m'
+red='\033[0;31m'
 nc='\033[0m'
 is_interactive=1
+depth=1
 reservation=""
+
+start_command_base64=$1
 
 function set_debug {
 	trap 'echo -e "${cyan}$(date +"%Y-%m-%d %H:%M:%S")${nc} ${magenta}| Line: $LINENO ${nc}${yellow}-> ${nc}${blue}[DEBUG]${nc} ${green}$BASH_COMMAND${nc}"' DEBUG
@@ -25,12 +25,16 @@ function echoerr() {
 	echo -e "$@" 1>&2
 }
 
+function green_text {
+	echoerr "${green}$1${nc}"
+}
+
 function red_text {
-	echoerr "\e[31m$1\e[0m"
+	echoerr "${red}$1${nc}"
 }
 
 function yellow_text {
-	echoerr "\e\033[0;33m$1\e[0m"
+	echoerr "${yellow}$1${nc}"
 }
 
 function calltracer {
@@ -56,55 +60,71 @@ function check_if_everything_is_installed {
 	check_command python3 "python3"
 }
 
-function set_interactive {
+function check_interactive {
 	if ! tty 2>/dev/null >/dev/null; then
 		is_interactive=0
 	fi
 }
 
-check_if_everything_is_installed
+function get_to_dir {
+	to_dir_base=omniopt
+	to_dir=$to_dir_base
+	to_dir_nr=0
 
-set_interactive
+	while [[ -d $to_dir ]]; do
+		to_dir_nr=$((to_dir_nr + 1))
+		to_dir=${to_dir_base}_${to_dir_nr}
+	done
 
-trap 'calltracer' ERR
+	echo "$to_dir"
+}
 
-export reservation=""
-for i in "$@"; do
-	case $i in
-		--reservation=*)
-			reservation="${i#*=}"
-			;;
-		--debug)
-			set_debug
-			;;
-	esac
-done
+function help {
+	echo "OmniOpt2-Installer"
+	echo ""
+	echo "<start-command>                                             Command that should be started after cloning (decoded in base64)"
+	echo "--depth=N                                                   Depth of git clone (default: 1)"
+	echo "--reservation=str                                           Name of your reservation, if any"
+	echo "--debug                                                     Enable debug mode"
+	echo "--help                                                      This help"
 
-if [[ $reservation != "" ]]; then
-	export SBATCH_RESERVATION=$reservation
-fi
+	exit 0
+}
 
-set -o pipefail
-set -u
+function parse_parameters {
+	args=$@
 
-export LC_ALL=en_US.UTF-8
+	for i in "$args"; do
+		case $i in
+			--depth=*)
+				depth="${i#*=}"
+				;;
+			--reservation=*)
+				reservation="${i#*=}"
+				;;
+			--debug)
+				set_debug
+				;;
+			-h)
+				help
+				;;
+			--help)
+				help
+				;;
+		esac
+	done
 
-github_repo="https://github.com/NormanTUD/OmniOpt.git"
+	if [[ $reservation != "" ]]; then
+		export SBATCH_RESERVATION=$reservation
+	fi
+}
 
-to_dir_base=omniopt
-to_dir=$to_dir_base
-to_dir_nr=0
+function clone_interactive {
+	_command="$1"
 
-while [[ -d $to_dir ]]; do
-	to_dir_nr=$((to_dir_nr + 1))
-	to_dir=${to_dir_base}_${to_dir_nr}
-done
+	total=0
 
-total=0
-clone_command="git clone --depth=1 $github_repo $to_dir"
-
-if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
-	$clone_command 2>&1 | tr \\r \\n | {
+	$_command 2>&1 | tr \\r \\n | {
 		while read -r line ; do
 			cur=`grep -oP '\d+(?=%)' <<< ${line}`
 			total=$((total+cur))
@@ -112,26 +132,56 @@ if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null;
 			echo "$percent/1" | bc
 		done
 	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && green_text 'Cloning successful' || red_text 'Cloning failed'
-else
-	$clone_command || {
+}
+
+function clone_non_interactive {
+	_command="$1"
+	$_command || {
 		red_text "Git cloning failed."
 		exit 2
 	}
+}
+
+if [[ -z $start_command_base64 ]]; then
+	red_text "Missing argument for start-command (must be in base64)"
+	exit 1
 fi
 
-ax_dir="$to_dir/ax/"
+check_if_everything_is_installed
 
-if [[ -d $ax_dir ]]; then
-	cd $ax_dir
+check_interactive
 
-	start_command=$(echo $start_command_base64 | base64 --decode)
+trap 'calltracer' ERR
 
-	if [[ $? -eq 0 ]]; then
+parse_parameters $@
+
+set -o pipefail
+set -u
+
+start_command=$(echo "$start_command_base64" | base64 --decode)
+start_command_exit_code=$?
+
+if [[ $start_command_exit_code -eq 0 ]]; then
+	to_dir=$(get_to_dir)
+
+	clone_command="git clone --depth=$depth $github_repo_url $to_dir"
+
+	if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
+		clone_interactive $clone_command
+	else
+		clone_non_interactive $clone_command
+	fi
+
+	ax_dir="$to_dir/ax/"
+
+	if [[ -d $ax_dir ]]; then
+		cd $ax_dir
+
 		$start_command
 	else
-		red_text "Error: $start_command_base64 was not valid base64 code"
+		red_text "Error: $ax_dir could not be found!"
 	fi
 else
-	red_text "Error: $ax_dir could not be found!"
+	red_text "Error: '$start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
 fi
 }

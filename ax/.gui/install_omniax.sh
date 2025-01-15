@@ -226,11 +226,11 @@ function install_and_run {
 	fi
 }
 
+parse_parameters $@
+
 check_if_everything_is_installed
 
 check_interactive
-
-parse_parameters $@
 
 install_and_run "$start_command_base64"
 }

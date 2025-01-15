@@ -64,7 +64,7 @@ function check_command {
 
 	if ! command -v "$cmd" >/dev/null 2>/dev/null; then
 		red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $install_hint' (depending on your distro)"
-		exit 1
+		exit 14
 	fi
 }
 
@@ -184,7 +184,7 @@ function git_clone_non_interactive {
 
 	$_command || {
 		red_text "Git cloning failed."
-		exit 2
+		exit 14
 	}
 }
 
@@ -212,7 +212,7 @@ function install_and_run {
 
 	if [[ -z $_start_command_base64 ]] || [[ $_start_command_base64 == "" ]]; then
 		red_text "Missing argument for start-command (must be in base64)"
-		exit 1
+		exit 14
 	fi
 
 	set +e
@@ -248,14 +248,22 @@ function install_and_run {
 
 			dbg "pip3 install omniopt2"
 			pip3 install omniopt2
+		else
+			red_text "Could not find $omniopt_venv/bin/activate. Cannot activate environment. OmniOpt2 installation cancelled."
+			exit 14
+		fi
+
+		if [[ -e $omniopt_venv/bin/activate ]]; then
+			dbg "Activating venv $omniopt_venv/bin/activate"
+			source $omniopt_venv/bin/activate
+
+			dbg "pip3 install omniopt2"
+			pip3 install omniopt2
 
 			run_command=$(echo "$start_command" | sed -e 's#^\./##')
 
 			dbg "Run-command: $run_command"
 			$run_command
-		else
-			red_text "Could not find $omniopt_venv/bin/activate. Cannot activate environment. OmniOpt2 installation cancelled."
-			exit 1
 		fi
 	else
 		red_text "Unknown installation method '$installation_method'. Valid ones are: clone, pip"

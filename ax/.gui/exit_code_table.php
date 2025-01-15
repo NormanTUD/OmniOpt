@@ -24,6 +24,7 @@
 			    11 => "Required program not found (check logs)",
 			    12 => "Error with pip, check logs.",
 			    13 => "Run folder already exists",
+			    14 => "Error installing OmniOpt2 via install_omniax.sh",
 			    15 => "Unimplemented error.",
 			    16 => "Wrongly called .py files: Probably you tried to call them directly instead of over the bash file",
 			    18 => "test_wronggoing_stuff program not found (only --tests).",

@@ -803,6 +803,7 @@ fi
 if [[ -e git_hash ]]; then
 	new_git_hash=$(cat git_hash)
 else
+	trap - ERR
 	set +e
 	new_git_hash=$(git rev-parse HEAD)
 	set -e

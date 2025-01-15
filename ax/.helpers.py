@@ -76,7 +76,7 @@ def warn_versions() -> None:
         "plotly": ["5.24.1"],
         "rich_argparse": ["1.5.2", "1.6.0"],
         "pytz": ["2024.2"],
-        "cloudpickle": ["3.0.0", "3.1.0"],
+        "cloudpickle": ["3.0.0", "3.1.0", "3.1.1"],
         "six": ["1.16.0", "1.17.0"],
         "sixel": ["0.2.0"],
         "packaging": ["24.1", "20.1", "24.2"],

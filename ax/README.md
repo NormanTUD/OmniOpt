@@ -32,7 +32,8 @@ For tutorials on configuration, exit codes, and debugging, visit
 ```
 
 This command initiates OmniOpt2 and installs dependencies if not already
-installed. The parameter `--run_program` uses a [Base64](https://de.wikipedia.org/wiki/Base64)-encoded string to
+installed. The parameter `--run_program` uses a
+[Base64](https://de.wikipedia.org/wiki/Base64)-encoded string to
 specify commands.
 
 ## Plot Results
@@ -56,7 +57,9 @@ jobs and ensuring program resilience.
 ./tests/main
 ```
 
-See [the automated tests tutorial page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=tests) for more details.
+See
+[the automated tests tutorial page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=tests)
+for more details.
 
 ## Install from pypi
 

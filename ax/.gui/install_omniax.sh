@@ -108,7 +108,7 @@ function help {
 	echo "<start-command>                                             Command that should be started after cloning (decoded in base64)"
 	echo "--depth=N                                                   Depth of git clone (default: 1)"
 	echo "--reservation=str                                           Name of your reservation, if any"
-	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone)"
+	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
 	echo "--debug                                                     Enable debug mode"
 	echo "--help                                                      This help"
 
@@ -235,8 +235,10 @@ function install_and_run {
 		else
 			red_text "Error: '$_start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
 		fi
+	elif [[ $installation_method == "pip" ]]; then
+		yellow_text "pip installation method not yet supported..."
 	else
-		red_text "Unknown installation method '$installation_method'. Valid ones are: clone"
+		red_text "Unknown installation method '$installation_method'. Valid ones are: clone, pip"
 	fi
 }
 

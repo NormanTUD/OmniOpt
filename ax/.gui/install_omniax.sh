@@ -42,6 +42,8 @@ function calltracer {
 	caller
 }
 
+trap 'calltracer' ERR
+
 function check_command {
 	local cmd="$1"
 	local install_hint="$2"
@@ -197,8 +199,6 @@ function install_and_run {
 check_if_everything_is_installed
 
 check_interactive
-
-trap 'calltracer' ERR
 
 parse_parameters $@
 

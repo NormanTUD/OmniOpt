@@ -43,8 +43,8 @@ Generates visualizations, such as scatter and hex scatter plots.
 Or, with `--min` and `--max`:
 
 ```command
-./plot --run_dir runs/example/0
-./plot --run_dir runs/example/0 --min 0 --max 100
+./omniopt_plot --run_dir runs/example/0
+./omniopt_plot --run_dir runs/example/0 --min 0 --max 100
 ```
 
 ## Run Tests (Developer Use Only)
@@ -53,10 +53,14 @@ The test suite simulates various scenarios, including handling faulty
 jobs and ensuring program resilience.
 
 ```command
-./tests/main_tests
+./tests/main
 ```
 
+See [the automated tests tutorial page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=tests) for more details.
+
 ## Install from pypi
+
+This may not use the latest version.
 
 ```command
 pip3 install omniopt2

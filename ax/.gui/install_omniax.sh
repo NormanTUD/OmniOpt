@@ -119,7 +119,7 @@ function parse_parameters {
 	fi
 }
 
-function clone_interactive {
+function git_clone_interactive {
 	_command="$1"
 
 	total=0
@@ -134,7 +134,7 @@ function clone_interactive {
 	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && green_text 'Cloning successful' || red_text 'Cloning failed'
 }
 
-function clone_non_interactive {
+function git_clone_non_interactive {
 	_command="$1"
 	$_command || {
 		red_text "Git cloning failed."
@@ -174,9 +174,9 @@ function install_and_run {
 		clone_command="git clone --depth=$depth $github_repo_url $to_dir"
 
 		if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
-			clone_interactive "$clone_command"
+			git_clone_interactive "$clone_command"
 		else
-			clone_non_interactive "$clone_command"
+			git_clone_non_interactive "$clone_command"
 		fi
 
 		run_command "$to_dir" "$start_command"

@@ -1,6 +1,8 @@
 #!/bin/bash -i
 
 {
+set -euo pipefail
+
 export LC_ALL=en_US.UTF-8
 
 github_repo_url="https://github.com/NormanTUD/OmniOpt.git"
@@ -201,9 +203,6 @@ check_if_everything_is_installed
 check_interactive
 
 parse_parameters $@
-
-set -o pipefail
-set -u
 
 install_and_run "$start_command_base64"
 }

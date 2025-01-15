@@ -80,9 +80,9 @@ function check_if_everything_is_installed {
 function check_interactive {
 	dbg "check_interactive"
 
-	if ! tty 2>/dev/null >/dev/null; then
+	if [[ $- == *i* ]]; then
 		is_interactive=0
-		dbg "check_interactive: tty not found, setting is_interactive to 0"
+		dbg "check_interactive: \$- ($-) does not contain 'i', setting is_interactive to 0"
 	fi
 }
 

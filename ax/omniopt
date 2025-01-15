@@ -803,7 +803,10 @@ fi
 if [[ -e git_hash ]]; then
 	new_git_hash=$(cat git_hash)
 else
+	set +e
 	new_git_hash=$(git rev-parse HEAD)
+	set -e
+	trap 'calltracer' ERR
 fi
 
 if [[ -n $new_git_hash ]]; then
@@ -820,8 +823,8 @@ git fetch --tags 2>/dev/null >/dev/null
 current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
 tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
 commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
-trap 'calltracer' ERR
 set -e
+trap 'calltracer' ERR
 
 if [[ -z "$SLURM_JOB_ID" ]]; then
 	if [[ -n $current_tag ]]; then

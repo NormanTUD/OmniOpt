@@ -85,8 +85,11 @@ AttributeError
 Aug
 autocomplete
 Autocomplete
+autocompletion
 autoset
 autoSize
+Autoskip
+Autostart
 autotable
 availableSpace
 avg
@@ -322,6 +325,7 @@ cookieOptions
 cookieValue
 coolwarm
 copyButton
+coreCount
 cornerClass
 cornsilk
 cosineProximity
@@ -622,6 +626,7 @@ fcssescape
 Feb
 February
 FF
+ffmpeg
 fi
 fieldset
 filecontent
@@ -737,6 +742,7 @@ GPSLatitudeRef
 GPSLongitude
 GPSLongitudeRef
 gpu
+GPU
 gpudisconnected
 gpus
 GPUs
@@ -777,6 +783,7 @@ gruCell
 gt
 guarnteed
 gui
+GUI
 guid
 hallollolololololololllllolololo
 handdrawn
@@ -864,6 +871,8 @@ IndentationError
 IndexError
 infos
 infoText
+ini
+INI
 init
 initialAccumulatorValue
 initialise
@@ -934,6 +943,7 @@ joblib
 jobsbatch
 jpeg
 jpg
+jq
 jqMinor
 jquery
 jqXHR
@@ -1104,6 +1114,7 @@ mixin
 Mixin
 mkdir
 ml
+ML
 mlterm
 mm
 MM
@@ -1121,6 +1132,8 @@ moduleversions
 Mon
 Monday
 monentum
+mongodb
+MongoDB
 monospace
 Montana
 monthNames
@@ -1212,6 +1225,7 @@ noir
 noiseShape
 nonContentHeight
 nonexisting
+noninteractive
 nonNeg
 nonsbatchsystems
 NONZERODIGITS
@@ -1277,6 +1291,7 @@ omniax
 omniopt
 OmniOpt
 OmniOpt2
+OmniOptProject
 omnioptpy
 omnioptrun
 omnioptshare
@@ -1447,6 +1462,7 @@ profilenewBytes
 profilenewTensors
 progressbar
 Progressbar
+projectdir
 Projectdir
 PROJECTDIR
 propertyName
@@ -1531,6 +1547,7 @@ relationScale
 releaseEvents
 relu
 ReLU
+REMOTEHASH
 removeAttr
 removeIdAttribute
 renderAxis
@@ -1572,6 +1589,7 @@ resultValues
 ret
 rethrow
 Rettung
+RETURNCODE
 returnSequences
 returnState
 returntext
@@ -1622,6 +1640,7 @@ SBATCH
 sbatchPlot
 scaledGrads
 scaleNestedArray
+scancel
 scattergenerationmethod
 scattergl
 SCIENTIFICNOTATION
@@ -1851,6 +1870,7 @@ submitit
 subprocess
 subscriptable
 substring
+succesfully
 sudo
 Sunday
 supertype
@@ -1888,7 +1908,9 @@ targetShape
 targetSize
 targetWidth
 taurus
+Taurus
 tb
+TB
 tbody
 td
 temml
@@ -1974,6 +1996,7 @@ trm
 truecolor
 truetriggerchange
 truncatedNormal
+tty
 tu
 tudresdende
 Tue
@@ -2061,6 +2084,7 @@ von
 vProps
 vsprintf
 vtype
+wallclock
 Wallclock
 WantedExitCodes
 warningsshowwarning
@@ -2165,28 +2189,4 @@ zIndices
 zipContents
 zipWriter
 zsh
-wallclock
-GPU
-tty
-TB
-MongoDB
-RETURNCODE
-projectdir
-coreCount
-noninteractive
-OmniOptProject
-ffmpeg
-Autostart
-REMOTEHASH
-jq
-mongodb
-Taurus
-ini
-autocompletion
-INI
-ML
-Autoskip
 ZSH
-succesfully
-GUI
-scancel

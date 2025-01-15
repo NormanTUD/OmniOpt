@@ -1,34 +1,72 @@
 #!/bin/bash -i
 
 {
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m'
+start_command_base64=$1
+
+if [[ -z $start_command_base64 ]]; then
+	red_text "Missing argument for start-command (must be in base64)"
+	exit 1
+fi
+
+green='\033[0;32m'
+yellow='\033[0;33m'
+blue='\033[0;34m'
+cyan='\033[0;36m'
+magenta='\033[0;35m'
+nc='\033[0m'
+is_interactive=1
+reservation=""
 
 function set_debug {
-	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
-}
-
-function unset_debug {
-	trap - DEBUG
+	trap 'echo -e "${cyan}$(date +"%Y-%m-%d %H:%M:%S")${nc} ${magenta}| Line: $LINENO ${nc}${yellow}-> ${nc}${blue}[DEBUG]${nc} ${green}$BASH_COMMAND${nc}"' DEBUG
 }
 
 function echoerr() {
-	echo "$@" 1>&2
+	echo -e "$@" 1>&2
 }
 
 function red_text {
-	echoerr -e "\e[31m$1\e[0m"
+	echoerr "\e[31m$1\e[0m"
 }
 
 function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
+	echoerr "\e\033[0;33m$1\e[0m"
 }
 
-START_COMMAND_BASE64=$1
+function calltracer {
+	yellow_text 'Last file/last line:'
+	caller
+}
+
+function check_command {
+	local cmd=$1
+	local install_hint=$2
+	if ! command -v "$cmd" >/dev/null 2>/dev/null; then
+		red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $install_hint' (depending on your distro)"
+		exit 1
+	fi
+}
+
+function check_if_everything_is_installed {
+	check_command base64 "base64"
+	check_command curl "curl"
+	check_command wget "wget"
+	check_command uuidgen "uuid-runtime"
+	check_command git "git"
+	check_command python3 "python3"
+}
+
+function set_interactive {
+	if ! tty 2>/dev/null >/dev/null; then
+		is_interactive=0
+	fi
+}
+
+check_if_everything_is_installed
+
+set_interactive
+
+trap 'calltracer' ERR
 
 export reservation=""
 for i in "$@"; do
@@ -42,101 +80,58 @@ for i in "$@"; do
 	esac
 done
 
-if [[ -z $START_COMMAND_BASE64 ]]; then
-	red_text "Missing argument for start-command (must be in base64)"
-	exit 1
+if [[ $reservation != "" ]]; then
+	export SBATCH_RESERVATION=$reservation
 fi
 
 set -o pipefail
 set -u
 
-function calltracer () {
-        yellow_text 'Last file/last line:'
-        caller
-}
-trap 'calltracer' ERR
-
-INTERACTIVE=1
-
-if ! tty 2>/dev/null >/dev/null; then
-	INTERACTIVE=0
-fi
-
 export LC_ALL=en_US.UTF-8
 
-function echo_green {
-        echo -e "\e[42m\e[97m$1\e[0m"
-}
+github_repo="https://github.com/NormanTUD/OmniOpt.git"
 
-function echo_yellow {
-        echo -e "\e[43m\e[97m$1\e[0m"
-}
+to_dir_base=omniopt
+to_dir=$to_dir_base
+to_dir_nr=0
 
-function echo_red {
-        echo -e "\e[41m\e[97m$1\e[0m"
-}
-
-function echo_headline {
-        echo -e "\e[4m\e[96m$1\e[0m"
-}
-
-if [[ ! -z $reservation ]]; then
-	export SBATCH_RESERVATION=$reservation
-fi
-
-COPY_FROM="https://github.com/NormanTUD/OmniOpt.git"
-
-TO_DIR_BASE=omniopt
-TO_DIR=$TO_DIR_BASE
-TO_DIR_NR=0
-
-while [[ -d $TO_DIR ]]; do
-	TO_DIR_NR=$((TO_DIR_NR + 1))
-	TO_DIR=${TO_DIR_BASE}_${TO_DIR_NR}
+while [[ -d $to_dir ]]; do
+	to_dir_nr=$((to_dir_nr + 1))
+	to_dir=${to_dir_base}_${to_dir_nr}
 done
 
-check_command() {
-	local cmd=$1
-	local install_hint=$2
-	if ! command -v "$cmd" >/dev/null 2>/dev/null; then
-		echo_red "❌$cmd not found. Try installing it with 'sudo apt-get install $install_hint' (depending on your distro)"
-		exit 1
-	fi
-}
-
-check_command base64 "base64"
-check_command curl "curl"
-check_command wget "wget"
-check_command uuidgen "uuid-runtime"
-check_command git "git"
-check_command python3 "python3"
-
 total=0
-CLONECOMMAND="git clone --depth=1 $COPY_FROM $TO_DIR"
+clone_command="git clone --depth=1 $github_repo $to_dir"
 
-if [[ "$INTERACTIVE" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
-	$CLONECOMMAND 2>&1 | tr \\r \\n | {
+if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
+	$clone_command 2>&1 | tr \\r \\n | {
 		while read -r line ; do
 			cur=`grep -oP '\d+(?=%)' <<< ${line}`
 			total=$((total+cur))
 			percent=$(bc <<< "scale=2;100*($total/100)")
 			echo "$percent/1" | bc
 		done
-	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && echo_green 'Cloning successful' || echo_red 'Cloning failed'
+	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && green_text 'Cloning successful' || red_text 'Cloning failed'
 else
-	$CLONECOMMAND || {
-		echo_red "Git cloning failed."
+	$clone_command || {
+		red_text "Git cloning failed."
 		exit 2
 	}
 fi
 
-cd $TO_DIR/ax/
+ax_dir="$to_dir/ax/"
 
-START_COMMAND=$(echo $START_COMMAND_BASE64 | base64 --decode)
+if [[ -d $ax_dir ]]; then
+	cd $ax_dir
 
-if [[ $? -eq 0 ]]; then
-	$START_COMMAND
+	start_command=$(echo $start_command_base64 | base64 --decode)
+
+	if [[ $? -eq 0 ]]; then
+		$start_command
+	else
+		red_text "Error: $start_command_base64 was not valid base64 code"
+	fi
 else
-	echo_red "Error: $START_COMMAND_BASE64 was not valid base64 code"
+	red_text "Error: $ax_dir could not be found!"
 fi
 }

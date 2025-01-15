@@ -17,6 +17,7 @@ is_interactive=1
 depth=1
 debug=0
 reservation=""
+omniopt_venv=omniopt_venv
 installation_method="clone"
 
 start_command_base64=""
@@ -236,7 +237,26 @@ function install_and_run {
 			red_text "Error: '$_start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
 		fi
 	elif [[ $installation_method == "pip" ]]; then
-		yellow_text "pip installation method not yet supported..."
+		if [[ ! -d $omniopt_venv ]]; then
+			dbg "Creating venv $omniopt_venv"
+			python3 -mvenv $omniopt_venv
+		fi
+
+		if [[ -e $omniopt_venv/bin/activate ]]; then
+			dbg "Activating venv $omniopt_venv/bin/activate"
+			source $omniopt_venv/bin/activate
+
+			dbg "pip3 install omniopt2"
+			pip3 install omniopt2
+
+			run_command=$(echo "$start_command" | sed -e 's#^\./##')
+
+			dbg "Run-command: $run_command"
+			$run_command
+		else
+			red_text "Could not find $omniopt_venv/bin/activate. Cannot activate environment. OmniOpt2 installation cancelled."
+			exit 1
+		fi
 	else
 		red_text "Unknown installation method '$installation_method'. Valid ones are: clone, pip"
 	fi

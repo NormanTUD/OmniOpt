@@ -3,6 +3,99 @@ var shown_operation_insecure_without_server = false;
 
 var l = typeof log === 'function' ? log : console.log;
 
+var tableData = [
+	{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true, "help": "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
+	{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters and numbers)", "required": true, 'regex': '^[a-zA-Z0-9_]+$', "help": "Name of your experiment. Will be used for example for the foldername it's results will be saved in." },
+	{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$", "help": "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically." },
+	{ label: "Account", id: "account", type: "text", value: "", placeholder: "Account the job should run on", "help": "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account." },
+	{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1, max: 1000 },
+	{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program", min: 1, "help": "This is the maximum amount of time that your main job will run, spawn jobs and collect results." },
+	{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker", min: 1, "help": "This is the maximum amount of time a single worker may run." },
+	{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000, "help": "This number determines how many successful workers in total are needed to end the job properly." },
+	{ label: "Max. number of Workers", id: "num_parallel_jobs", type: "number", value: 20, placeholder: "Maximum number of workers", 'min': 1, 'max': 100000000, "help": "The number maximum of workers that can run in parallel. While running, the number may be below this some times." },
+	{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10, "help": "How many GPUs each worker should have." },
+	{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1, "help": "At the beginning, some random jobs are started. By default, it is 20. This is needed to 'calibrate' the surrogate model." },
+	{ label: "Follow", id: "follow", type: "checkbox", value: 1, "help": "tail -f the .out-file automatically, so you can see the output as soon as it appears. This does not change the results of OmniOpt2, but only the user-experience. This way, you see results as soon as they are available without needing to manually look for the outfile. Due to it using tail -f internally, you can simply CTRL-c out of it without cancelling the job." },
+	{ label: "Live-Share", id: "live_share", type: "checkbox", value: 0, "help": "Automatically uploads the results to our servers for 30 days, so you can trace the output live in the browser, without needing SSH. By using this, you agree to have your username published online." },
+	{ label: "Send anonymized usage statistics?", id: "send_anonymized_usage_stats", type: "checkbox", value: 1, "help": "This contains the time the job was started and ended, it's exit code, and runtime-uuid to count the number of unique runs and a 'user-id', which is a hashed output of the aes256 encrypted username/groups combination and some other values, but cannot be traced back to any specific user." },
+	{ label: "Automatically checkout to latest checked version", id: "checkout_to_latest_tested_version", type: "checkbox", value: 1, "help": "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs." },
+	//{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 0, "info": "May not be supported on all terminals.", "help": "This will use the module sixel to try to print your the results to the command line. If this doesn't work for you, please disable it. It has no effect on the results of OmniOpt2." },
+	{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg invert_in_dark_mode">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="tutorials.php?tutorial=run_sh">this tutorial</a> to learn about the <code>run.sh</code>-file', "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
+];
+
+var hiddenTableData = [
+	{ label: "CPUs per Task", id: "cpus_per_task", type: "number", value: 1, placeholder: "CPUs per Task", min: 1, max: 10, "help": "How many CPUs should be assigned to each task (for workers)" },
+	{ label: "Number of nodes", id: "nodes_per_job", type: "number", value: 1, placeholder: "tasks", min: 1, "help": "How many nodes (for each worker)" },
+	{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.", required: false },
+	{ label: "Verbose", id: "verbose", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
+	{ label: "Debug", id: "debug", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
+	//{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0, "help": "When set, the job will be maximized instead of minimized. This option may not work with all plots currently (TODO).", 'info': 'Currently, this is in alpha and may give wrong results!' },
+	{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: 'Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.', "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
+	{ label: "Model", id: "model", type: "select", value: "",
+		options: [
+			{ "text": "BOTORCH_MODULAR", "value": "BOTORCH_MODULAR" },
+			{ "text": "SOBOL", "value": "SOBOL" },
+			{ "text": "GPEI", "value": "GPEI" },
+			{ "text": "FACTORIAL", "value": "FACTORIAL" },
+			{ "text": "SAASBO", "value": "SAASBO" },
+			{ "text": "FULLYBAYESIAN", "value": "FULLYBAYESIAN" },
+			//{ "text": "LEGACY_BOTORCH", "value": "LEGACY_BOTORCH" },
+			{ "text": "UNIFORM", "value": "UNIFORM" },
+			{ "text": "BO_MIXED", "value": "BO_MIXED" }
+		], "required": true,
+		info: `
+			<ul>
+			    <li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
+			    <li>SOBOL: Random search</li>
+			    <li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: Uses Expected Improvement based on a Gaussian Process model to choose the next evaluation point.</li>
+			    <li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
+			    <li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
+			    <li>FULLYBAYESIAN: Considers the full uncertainty of the Bayesian model in the optimization process</li>
+			    <!--<li>LEGACY_BOTORCH: ???</li>-->
+			    <li>UNIFORM: Random (uniformly distributed)</li>
+			    <li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
+			</ul>
+`,
+		"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
+	},
+
+	{ label: "Multi-Objective-Optimization mode", id: "moo_type", type: "select", value: "euclid", options: [
+		{ "text": "Calculate the euclidean distance to the origo of the search space", "value": "euclid" },
+		{ "text": "Calculate the geometric distance to the origo of the search space", "value": "geometric" },
+		{ "text": "Calculate the signed harmonic distance to the origo of the search space", "value": "signed_harmonic" },
+	], "required": true,
+		"info": `How to merge multiple results into one. Doesn't affect single result jobs.`,
+		"help": "How to merge multiple results into one."
+	},
+
+	{ label: "Installation-Method", id: "installation_method", type: "select", value: "", options: [
+		{ "text": "Use git clone to clone OmniOpt2", "value": "clone" },
+		{ "text": "Use pip and install OmniOpt2 from pypi (may not be the latest version)", "value": "pip" }
+	], "required": true,
+		"info": `Changes the way OmniOpt2 is installed.`,
+		"help": "If you want to install OmniOpt2 via pip, chose it here. It may not always have the latest version.",
+		"use_in_curl_bash": true
+	},
+
+	{ label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
+		{ "text": "Locally or on a HPC system", "value": "local" },
+		{ "text": "Docker", "value": "docker" }
+	], "required": true,
+		"info": `Changes the curl-command and how omniopt is installed and executed.`,
+		"help": "If set to docker, it will run in a local docker container."
+	},
+
+	{
+		label: "Constraints",
+		id: "constraints",
+		type: "text",
+		value: "",
+		placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisions: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
+	},
+];
+
+
+
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent()
@@ -83,82 +176,6 @@ function highlight_all_bash () {
 		$(e).html(highlight_bash($(e).text()));
 	});
 }
-
-var tableData = [
-	{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true, "help": "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
-	{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters and numbers)", "required": true, 'regex': '^[a-zA-Z0-9_]+$', "help": "Name of your experiment. Will be used for example for the foldername it's results will be saved in." },
-	{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$", "help": "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically." },
-	{ label: "Account", id: "account", type: "text", value: "", placeholder: "Account the job should run on", "help": "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account." },
-	{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1, max: 1000 },
-	{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program", min: 1, "help": "This is the maximum amount of time that your main job will run, spawn jobs and collect results." },
-	{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker", min: 1, "help": "This is the maximum amount of time a single worker may run." },
-	{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000, "help": "This number determines how many successful workers in total are needed to end the job properly." },
-	{ label: "Max. number of Workers", id: "num_parallel_jobs", type: "number", value: 20, placeholder: "Maximum number of workers", 'min': 1, 'max': 100000000, "help": "The number maximum of workers that can run in parallel. While running, the number may be below this some times." },
-	{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10, "help": "How many GPUs each worker should have." },
-	{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1, "help": "At the beginning, some random jobs are started. By default, it is 20. This is needed to 'calibrate' the surrogate model." },
-	{ label: "Follow", id: "follow", type: "checkbox", value: 1, "help": "tail -f the .out-file automatically, so you can see the output as soon as it appears. This does not change the results of OmniOpt2, but only the user-experience. This way, you see results as soon as they are available without needing to manually look for the outfile. Due to it using tail -f internally, you can simply CTRL-c out of it without cancelling the job." },
-	{ label: "Live-Share", id: "live_share", type: "checkbox", value: 0, "help": "Automatically uploads the results to our servers for 30 days, so you can trace the output live in the browser, without needing SSH. By using this, you agree to have your username published online." },
-	{ label: "Send anonymized usage statistics?", id: "send_anonymized_usage_stats", type: "checkbox", value: 1, "help": "This contains the time the job was started and ended, it's exit code, and runtime-uuid to count the number of unique runs and a 'user-id', which is a hashed output of the aes256 encrypted username/groups combination and some other values, but cannot be traced back to any specific user." },
-	{ label: "Automatically checkout to latest checked version", id: "checkout_to_latest_tested_version", type: "checkbox", value: 1, "help": "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs." },
-	//{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 0, "info": "May not be supported on all terminals.", "help": "This will use the module sixel to try to print your the results to the command line. If this doesn't work for you, please disable it. It has no effect on the results of OmniOpt2." },
-	{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg invert_in_dark_mode">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="tutorials.php?tutorial=run_sh">this tutorial</a> to learn about the <code>run.sh</code>-file', "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
-];
-
-var hiddenTableData = [
-	{ label: "CPUs per Task", id: "cpus_per_task", type: "number", value: 1, placeholder: "CPUs per Task", min: 1, max: 10, "help": "How many CPUs should be assigned to each task (for workers)" },
-	{ label: "Number of nodes", id: "nodes_per_job", type: "number", value: 1, placeholder: "tasks", min: 1, "help": "How many nodes (for each worker)" },
-	{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.", required: false },
-	{ label: "Verbose", id: "verbose", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
-	{ label: "Debug", id: "debug", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
-	//{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0, "help": "When set, the job will be maximized instead of minimized. This option may not work with all plots currently (TODO).", 'info': 'Currently, this is in alpha and may give wrong results!' },
-	{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: 'Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.', "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
-	{ label: "Model", id: "model", type: "select", value: "",
-		options: [
-			{ "text": "BOTORCH_MODULAR", "value": "BOTORCH_MODULAR" },
-			{ "text": "SOBOL", "value": "SOBOL" },
-			{ "text": "GPEI", "value": "GPEI" },
-			{ "text": "FACTORIAL", "value": "FACTORIAL" },
-			{ "text": "SAASBO", "value": "SAASBO" },
-			{ "text": "FULLYBAYESIAN", "value": "FULLYBAYESIAN" },
-			//{ "text": "LEGACY_BOTORCH", "value": "LEGACY_BOTORCH" },
-			{ "text": "UNIFORM", "value": "UNIFORM" },
-			{ "text": "BO_MIXED", "value": "BO_MIXED" }
-		], "required": true,
-		info: `
-			<ul>
-			    <li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
-			    <li>SOBOL: Random search</li>
-			    <li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: Uses Expected Improvement based on a Gaussian Process model to choose the next evaluation point.</li>
-			    <li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
-			    <li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
-			    <li>FULLYBAYESIAN: Considers the full uncertainty of the Bayesian model in the optimization process</li>
-			    <!--<li>LEGACY_BOTORCH: ???</li>-->
-			    <li>UNIFORM: Random (uniformly distributed)</li>
-			    <li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
-			</ul>
-`,
-		"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
-	},
-
-	{ label: "Multi-Objective-Optimization mode", id: "moo_type", type: "select", value: "euclid", options: [
-		{ "text": "Calculate the euclidean distance to the origo of the search space", "value": "euclid" },
-		{ "text": "Calculate the geometric distance to the origo of the search space", "value": "geometric" },
-		{ "text": "Calculate the signed harmonic distance to the origo of the search space", "value": "signed_harmonic" },
-	], "required": true,
-		info: `How to merge multiple results into one. Doesn't affect single result jobs.`,
-		"help": "How to merge multiple results into one."
-	},
-
-	{ label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
-		{ "text": "Locally or on a HPC system", "value": "local" },
-		{ "text": "Docker", "value": "docker" }
-	], "required": true,
-		info: `Changes the curl-command and how omniopt is installed and executed.`,
-		"help": "If set to docker, it will run in a local docker container."
-	},
-
-	{ label: "Constraints", id: "constraints", type: "text", value: "", placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisions: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters." },
-];
 
 function update_partition_options() {
 	var partitionSelect = $("#partition");
@@ -494,22 +511,42 @@ function update_command() {
 	var warnings = [];
 	var command = "./omniopt";
 
+	var curl_options = "";
+
 	if ($("#run_mode").val() == "docker") {
 		command = "bash omniopt_docker omniopt";
 	}
 
 	tableData.forEach(function(item) {
-		var cew = update_table_row(item, errors, warnings, command)
-		command = cew[0]
-		errors = cew[1]
-		warnings = cew[2]
+		if(!Object.keys(item).includes("use_in_curl_bash") || item["use_in_curl_bash"] === false) {
+			var cew = update_table_row(item, errors, warnings, command)
+			command = cew[0]
+			errors = cew[1]
+			warnings = cew[2]
+		} else {
+			if(item["type"] == "select") {
+				var val = $(`#${item["id"]}`).val();
+				curl_options = ` --${item["id"]}=${val} `;
+			} else {
+				error(`use_in_curl_bash currently only supports select`);
+			}
+		}
 	});
 
 	hiddenTableData.forEach(function(item) {
-		var cew = update_table_row(item, errors, warnings, command)
-		command = cew[0]
-		errors = cew[1]
-		warnings = cew[2]
+		if(!Object.keys(item).includes("use_in_curl_bash") || item["use_in_curl_bash"] === false) {
+			var cew = update_table_row(item, errors, warnings, command)
+			command = cew[0]
+			errors = cew[1]
+			warnings = cew[2]
+		} else {
+			if(item["type"] == "select") {
+				var val = $(`#${item["id"]}`).val();
+				curl_options = ` --${item["id"]}=${val} `;
+			} else {
+				error(`use_in_curl_bash currently only supports select`);
+			}
+		}
 	});
 
 	var parameters = [];
@@ -699,9 +736,9 @@ function update_command() {
 		var curl_command = "";
 
 		if(curl_or_cat == "curl") {
-			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -s -- "${base_64_string}"`;
+			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -s -- "${base_64_string}"${curl_options}`;
 		} else {
-			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"`;
+			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"${curl_options}`;
 		}
 
 		$("#command_element_highlighted").html(highlight_bash(command)).show().parent().show().parent().show();

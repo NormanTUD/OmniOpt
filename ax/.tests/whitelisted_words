@@ -513,6 +513,7 @@ drawingboard
 drawMonth
 drawYear
 Dredict
+dresden
 droparray
 dropdown
 dropOnEmpty
@@ -1482,6 +1483,7 @@ pyflakes
 Pyflakes
 pylint
 pyparsing
+pypi
 pythonCode
 pytz
 pyyaml
@@ -2190,4 +2192,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-dresden

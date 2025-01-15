@@ -142,6 +142,21 @@ function clone_non_interactive {
 	}
 }
 
+function run_command {
+	_to_dir="$1"
+	_start_command="$2"
+
+	ax_dir="$_to_dir/ax/"
+
+	if [[ -d $ax_dir ]]; then
+		cd $ax_dir
+
+		$start_command
+	else
+		red_text "Error: $ax_dir could not be found!"
+	fi
+}
+
 if [[ -z $start_command_base64 ]]; then
 	red_text "Missing argument for start-command (must be in base64)"
 	exit 1
@@ -167,20 +182,12 @@ if [[ $start_command_exit_code -eq 0 ]]; then
 	clone_command="git clone --depth=$depth $github_repo_url $to_dir"
 
 	if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
-		clone_interactive $clone_command
+		clone_interactive "$clone_command"
 	else
-		clone_non_interactive $clone_command
+		clone_non_interactive "$clone_command"
 	fi
 
-	ax_dir="$to_dir/ax/"
-
-	if [[ -d $ax_dir ]]; then
-		cd $ax_dir
-
-		$start_command
-	else
-		red_text "Error: $ax_dir could not be found!"
-	fi
+	run_command "$to_dir" "$start_command"
 else
 	red_text "Error: '$start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
 fi

@@ -15,6 +15,7 @@ red='\033[0;31m'
 nc='\033[0m'
 is_interactive=1
 depth=1
+debug=0
 reservation=""
 
 start_command_base64=""
@@ -44,11 +45,21 @@ function calltracer {
 	caller
 }
 
+function dbg {
+	msg="$1"
+	if [[ $debug -eq 1 ]]; then
+		yellow_text "DEBUG: $msg"
+	fi
+}
+
 trap 'calltracer' ERR
 
 function check_command {
 	local cmd="$1"
 	local install_hint="$2"
+
+	dbg "check_command $cmd $install_hint"
+
 	if ! command -v "$cmd" >/dev/null 2>/dev/null; then
 		red_text "❌$cmd not found. Try installing it with 'sudo apt-get install $install_hint' (depending on your distro)"
 		exit 1
@@ -56,6 +67,8 @@ function check_command {
 }
 
 function check_if_everything_is_installed {
+	dbg "check_if_everything_is_installed"
+
 	check_command base64 "base64"
 	check_command curl "curl"
 	check_command wget "wget"
@@ -65,12 +78,15 @@ function check_if_everything_is_installed {
 }
 
 function check_interactive {
+	dbg "check_interactive"
 	if ! tty 2>/dev/null >/dev/null; then
 		is_interactive=0
+		dbg "check_interactive: tty not found, setting is_interactive to 0"
 	fi
 }
 
 function get_to_dir {
+	dbg "get_to_dir"
 	to_dir_base=omniopt
 	to_dir=$to_dir_base
 	to_dir_nr=0
@@ -108,6 +124,7 @@ function parse_parameters {
 				;;
 			--debug)
 				set_debug
+				debug=1
 				;;
 			-h)
 				help
@@ -135,6 +152,8 @@ function parse_parameters {
 function git_clone_interactive {
 	_command="$1"
 
+	dbg "git_clone_interactive $_command"
+
 	total=0
 
 	$_command 2>&1 | tr \\r \\n | {
@@ -149,6 +168,9 @@ function git_clone_interactive {
 
 function git_clone_non_interactive {
 	_command="$1"
+
+	dbg "git_clone_non_interactive $_command"
+
 	$_command || {
 		red_text "Git cloning failed."
 		exit 2
@@ -158,6 +180,8 @@ function git_clone_non_interactive {
 function run_command {
 	_to_dir="$1"
 	_start_command="$2"
+
+	dbg "run_command $_to_dir $_start_command"
 
 	ax_dir="$_to_dir/ax/"
 
@@ -172,6 +196,8 @@ function run_command {
 
 function install_and_run {
 	_start_command_base64="$1"
+
+	dbg "install_and_run $_start_command_base64"
 
 	if [[ -z $_start_command_base64 ]] || [[ $_start_command_base64 == "" ]]; then
 		red_text "Missing argument for start-command (must be in base64)"

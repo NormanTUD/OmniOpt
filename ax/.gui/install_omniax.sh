@@ -17,6 +17,7 @@ is_interactive=1
 depth=1
 debug=0
 reservation=""
+installation_method="clone"
 
 start_command_base64=""
 
@@ -107,6 +108,7 @@ function help {
 	echo "<start-command>                                             Command that should be started after cloning (decoded in base64)"
 	echo "--depth=N                                                   Depth of git clone (default: 1)"
 	echo "--reservation=str                                           Name of your reservation, if any"
+	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone)"
 	echo "--debug                                                     Enable debug mode"
 	echo "--help                                                      This help"
 
@@ -118,6 +120,9 @@ function parse_parameters {
 
 	for i in $args; do
 		case $i in
+			--installation_method=*)
+				installation_method="${i#*=}"
+				;;
 			--depth=*)
 				depth="${i#*=}"
 				;;
@@ -214,20 +219,24 @@ function install_and_run {
 	start_command_exit_code=$?
 	set -e
 
-	if [[ $start_command_exit_code -eq 0 ]]; then
-		to_dir=$(get_to_dir)
+	if [[ $installation_method == "clone" ]]; then
+		if [[ $start_command_exit_code -eq 0 ]]; then
+			to_dir=$(get_to_dir)
 
-		clone_command="git clone --depth=$depth $github_repo_url $to_dir"
+			clone_command="git clone --depth=$depth $github_repo_url $to_dir"
 
-		if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
-			git_clone_interactive "$clone_command"
+			if [[ "$is_interactive" == "1" ]] && command -v whiptail >/dev/null 2>/dev/null; then
+				git_clone_interactive "$clone_command"
+			else
+				git_clone_non_interactive "$clone_command"
+			fi
+
+			cd_and_run_command "$to_dir" "$start_command"
 		else
-			git_clone_non_interactive "$clone_command"
+			red_text "Error: '$_start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
 		fi
-
-		cd_and_run_command "$to_dir" "$start_command"
 	else
-		red_text "Error: '$_start_command_base64' was not valid base64 code (base64 --decode exited with $start_command_exit_code)"
+		red_text "Unknown installation method '$installation_method'. Valid ones are: clone"
 	fi
 }
 

@@ -157,7 +157,7 @@ function run_command {
 	fi
 }
 
-function clone_and_run {
+function install_and_run {
 	_start_command_base64="$1"
 
 	if [[ -z $_start_command_base64 ]]; then
@@ -196,5 +196,5 @@ parse_parameters $@
 set -o pipefail
 set -u
 
-clone_and_run "$start_command_base64"
+install_and_run "$start_command_base64"
 }

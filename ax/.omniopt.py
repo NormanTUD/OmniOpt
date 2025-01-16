@@ -2200,6 +2200,7 @@ def disable_logging() -> None:
         "ax.modelbridge.dispatch_utils",
         "ax.modelbridge.torch",
         "ax.modelbridge.generation_node",
+        "ax.modelbridge.best_model_selector",
 
         "ax.service",
         "ax.service.utils",

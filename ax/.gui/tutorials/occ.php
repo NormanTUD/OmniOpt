@@ -1,15 +1,15 @@
-<h1>What is multi-objective-optimization and how to use it?</h1>
+<h1>What is optimization with combined criteria?</h1>
 
 <!-- How to use OmniOpt2 with multiple results -->
 
 <div id="toc"></div>
 
-<h2 id="what_is_moo">What is MOO?</h2>
+<h2 id="what_is_occ">What is OCC?</h2>
 
-<p>Multi-objective-optimization, or MOO, is a way of optimizing neural networks and simulations for
+<p>Optimization with combined criteria, or OCC, is a way of optimizing neural networks and simulations for
 multiple parameters instead of only one parameter.</p>
 
-<p>Usually, you optimize only one parameter. With MOO, multiple parameters can be optimized.</p>
+<p>Usually, you optimize only one parameter. With OCC, multiple parameters can be optimized.</p>
 
 <p>Your program needs to have one or multiple outputs, like this:</p>
 
@@ -23,11 +23,11 @@ RESULT4: 4321
 <p>OmniOpt2 will automatically parse all RESULTs from your output string and will try to merge them together,
 by default, with euclidean distance.</p>
 
-<h2 id='what_is_it_good_for'>What is MOO good for?</h2>
+<h2 id='what_is_it_good_for'>What is OCC good for?</h2>
 
 <p>Sometimes you have conflicting goals, for example, a neural network's accuracy is much better when it
 has larger neurons, but it also takes potentially exponentially longer to train. To find a sweet-spot between,
-for example, learning time and accuracy, MOO may help. It allows you to find a good spot, where both options are
+for example, learning time and accuracy, OCC may help. It allows you to find a good spot, where both options are
 as best (i.e. lowest) as possible. Another possible measure would be time and accuracy or loss and validation loss.</p>
 
 <p>You have to specify the way your different results are outputted yourself in your program. It is recommended you

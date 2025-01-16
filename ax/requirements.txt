@@ -15,7 +15,6 @@ plotext
 matplotlib
 textual
 tqdm
-plotille
 seaborn
 pytz
 pyqt5

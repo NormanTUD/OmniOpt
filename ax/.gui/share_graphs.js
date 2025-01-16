@@ -886,7 +886,7 @@ async function load_debug_log() {
 
 async function load_outfile () {
 	showSpinnerOverlay("Loading outfile...");
-	var data = await fetchJsonFromUrlFilenameOnly(`outfile`, true)
+	var data = await fetchJsonFromUrlFilenameOnly(`outfile`, false, true)
 	if(!data) {
 		return;
 	}
@@ -1226,7 +1226,7 @@ async function load_overview_data() {
 	}
 }
 
-async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false) {
+async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false) {
 	//debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
@@ -1234,6 +1234,10 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false) {
 
 	if(remove_ansi) {
 		url = url + "&remove_ansi=1";
+	}
+
+	if(parse_ansi) {
+		url = url + "&parse_ansi=1";
 	}
 
 	var _res = await fetchJsonFromUrl(url);

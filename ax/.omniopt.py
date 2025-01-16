@@ -3166,7 +3166,9 @@ def get_experiment_parameters(_params: list) -> Any:
         experiment_args = {
             "name": global_vars["experiment_name"],
             "parameters": experiment_parameters,
-            "objectives": {"result": ObjectiveProperties(minimize=minimize_or_maximize)},
+            "objectives": {
+                "result": ObjectiveProperties(minimize=minimize_or_maximize)
+            },
             "choose_generation_strategy_kwargs": {
                 "num_trials": max_eval,
                 "num_initialization_trials": num_parallel_jobs,

@@ -41,7 +41,7 @@
 			    100 => "--mem_gb or --gpus, which must be int, has received a value that is not int.",
 			    101 => "Error using ax_client: it was not defined where it should have been",
 			    103 => "--time is not in minutes or HH:MM format.",
-			    104 => "One of the parameters --mem_gb, --time, or --experiment_name is missing.",
+			    104 => "One of the parameters --mem_gb, --time, --run_program or --experiment_name is missing.",
 			    105 => "Continued job error: previous job has missing state files.",
 			    130 => "Interrupt-Signal detected",
 			    133 => "Error loading --config_toml, --config_json or --config_yaml",

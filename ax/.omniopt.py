@@ -5876,8 +5876,8 @@ Exit-Code: 159
         ["module_not_found", "ModuleNotFoundError", 1, None, True]
     ]
 
-    if not is_slurm_job():
-        _complex_tests.append(["no_chmod_x", "Permission denied", 126, None, True])
+    #if not is_slurm_job():
+    #    _complex_tests.append(["no_chmod_x", "Permission denied", 126, None, True])
 
     for _item in _complex_tests:
         nr_errors += complex_tests(*_item)

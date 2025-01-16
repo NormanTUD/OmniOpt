@@ -886,7 +886,7 @@ async function load_debug_log() {
 
 async function load_outfile () {
 	showSpinnerOverlay("Loading outfile...");
-	var data = await fetchJsonFromUrlFilenameOnly(`outfile`)
+	var data = await fetchJsonFromUrlFilenameOnly(`outfile`, true)
 	if(!data) {
 		return;
 	}

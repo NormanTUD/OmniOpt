@@ -3589,7 +3589,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         print_red(f"Failed to read the CSV file: {str(e)}")
         return None
 
-    if 'result' not in df.columns:
+    if "result" not in df.columns:
         print_red(f"Error: Could not get old result for {params} in {file_path}")
         return None
 
@@ -3864,7 +3864,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
 
     def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]]) -> None:
         try:
-            insert_job_into_ax_client(parameters, {'result': hashed_params_result[1]}, hashed_params_result[0])
+            insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
         except ValueError as e: # pragma: no cover
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
@@ -5889,13 +5889,13 @@ Exit-Code: 159
     nr_errors += is_equal(
             "evaluate({'x': 123})",
             json.dumps(evaluate({'x': 123.0})),
-            json.dumps({'result': 123.0})
+            json.dumps({"result": 123.0})
     )
 
     nr_errors += is_equal(
             "evaluate({'x': -0.05})",
             json.dumps(evaluate({'x': -0.05})),
-            json.dumps({'result': -0.05})
+            json.dumps({"result": -0.05})
     )
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):

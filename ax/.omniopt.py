@@ -3176,7 +3176,7 @@ def get_experiment_parameters(_params: list) -> Any:
             key, value = "", ""
 
             if "=" in rn:
-                key, value = rn.split('=')
+                key, value = rn.split('=', 1)
             else:
                 key = rn
                 value = ""

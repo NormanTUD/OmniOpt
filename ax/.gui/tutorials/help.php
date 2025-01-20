@@ -64,6 +64,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--result_names</samp></td>
+				<td>Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.</td>
+				<td><samp>result=<min, max></samp></td>
+			</tr>
+			<tr>
 				<td><samp>--moo_type</samp></td>
 				<td>Set the type of the multi-objective-parameter collection function. Options are geometric, signed harmonic, and euclid.</td>
 				<td><samp>euclid</samp></td>

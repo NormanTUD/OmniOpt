@@ -1754,13 +1754,13 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @typechecked
-def get_result(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
+def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
     if input_string is None:
-        print_red("get_result: Input-String is None")
+        print_red("get_results: Input-String is None")
         return None
 
     if not isinstance(input_string, str):
-        print_red(f"get_result: Type of input_string is not string, but {type(input_string)}")
+        print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
         return None
 
     try:
@@ -2088,7 +2088,7 @@ def evaluate(parameters: dict) -> dict:
         original_print("stdout:")
         original_print(stdout)
 
-        result = get_result(stdout)
+        result = get_results(stdout)
 
         unmooed_result = result
 
@@ -5661,7 +5661,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
         exit_code = stdout_stderr_exit_code_signal[2]
         _signal = stdout_stderr_exit_code_signal[3]
 
-        res = get_result(stdout)
+        res = get_results(stdout)
 
         if res_is_none:
             nr_errors += is_equal(f"{_program_name} res is None", None, res)
@@ -5878,12 +5878,12 @@ Exit-Code: 159
         ["helpers.convert_string_to_number('1')", 1],
         ["helpers.convert_string_to_number('-1')", -1],
         ["helpers.convert_string_to_number(None)", None],
-        ["get_result(None)", None],
+        ["get_results(None)", None],
         ["parse_parameter_type_error(None)", None],
         ["parse_parameter_type_error(\"Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>.\")", example_parse_parameter_type_error_result],
         ["get_hostname_from_outfile(None)", None],
-        ["get_result(123)", None],
-        ["get_result('RESULT: 10')", [10.0]],
+        ["get_results(123)", None],
+        ["get_results('RESULT: 10')", [10.0]],
         ["helpers.looks_like_float(10)", True],
         ["helpers.looks_like_float('hallo')", False],
         ["helpers.looks_like_int('hallo')", False],

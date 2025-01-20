@@ -49,6 +49,7 @@ for i in range(5):
     ax_client.complete_trial(trial_index=trial_index, raw_data=evaluate(parameters))
 
 objectives = ax_client.experiment.optimization_config.objective.objectives
+
 frontier = compute_posterior_pareto_frontier(
     experiment=ax_client.experiment,
     data=ax_client.experiment.fetch_data(),

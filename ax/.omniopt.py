@@ -505,15 +505,15 @@ if len(args.result_names) == 0:
     else:
         args.result_names = ["result=min"]
 
-for rn in args.result_names:
-    key = ""
+for _rn in args.result_names:
+    _key = ""
 
-    if "=" in rn:
-        key, _ = rn.split('=', 1)
+    if "=" in _rn:
+        _key, _ = _rn.split('=', 1)
     else:
-        key = rn
+        _key = _rn
 
-    arg_result_column_names.append(key)
+    arg_result_column_names.append(_key)
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:

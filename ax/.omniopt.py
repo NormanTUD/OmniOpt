@@ -2118,7 +2118,7 @@ def evaluate(parameters: dict) -> dict:
             "run_time",
             "program_string",
             *parameters_keys,
-            "result",
+            *arg_result_column_names,
             "exit_code",
             "signal",
             "hostname",

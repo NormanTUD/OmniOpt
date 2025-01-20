@@ -2452,7 +2452,7 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
 
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
+        df.dropna(subset=arg_result_column_names, inplace=True)
     except KeyError: # pragma: no cover
         _err = True
     except pd.errors.EmptyDataError: # pragma: no cover

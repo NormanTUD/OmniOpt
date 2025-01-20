@@ -2037,10 +2037,14 @@ def calculate_moo(_args: Optional[list[float]]) -> float:
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
-    return_in_case_of_error: dict = {"result": VAL_IF_NOTHING_FOUND}
+    return_in_case_of_error: dict = {}
+
+    for _rn in arg_result_column_names:
+        return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
 
     if args.maximize:
-        return_in_case_of_error = {"result": -VAL_IF_NOTHING_FOUND}
+        for _rn in arg_result_column_names:
+            return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
 

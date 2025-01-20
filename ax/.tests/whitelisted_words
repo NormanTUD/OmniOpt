@@ -2195,3 +2195,9 @@ ZSH
 occ
 resultmin
 resultmax
+typechecked
+OptionalUnionint
+Optionallistfloat
+floatmatch
+lenresults
+pragma

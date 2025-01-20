@@ -368,7 +368,7 @@ class ConfigLoader:
         optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--moo_type', help=f'MOO-type (valid types are {", ".join(valid_moo_types)})', type=str, default="euclid")
-        optional.add_argument("--result_names", nargs='+', default=[], help=f"Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
+        optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -3183,7 +3183,7 @@ def get_experiment_parameters(_params: list) -> Any:
 
             if value not in ["min", "max"]:
                 print_yellow(f"Value {value} for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
-                
+
                 value = "min"
 
                 if args.maximize:

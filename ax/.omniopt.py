@@ -66,7 +66,17 @@ try:
         import logging
         logging.basicConfig(level=logging.CRITICAL)
         from tqdm import tqdm
-        from typeguard import typechecked
+
+        from typing import Callable, TypeVar
+
+        F = TypeVar("F", bound=Callable[..., object])
+
+        if os.getenv("IS_TESTING") == "1":
+            import importlib
+            typechecked = importlib.import_module("typeguard").typechecked
+        else:
+            def typechecked(func: F) -> F:
+                return func
 except ModuleNotFoundError as e: # pragma: no cover
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
@@ -487,11 +497,23 @@ class ConfigLoader:
 loader = ConfigLoader()
 args = loader.parse_arguments()
 
+result_column_names = []
+
 if len(args.result_names) == 0:
     if args.maximize:
         args.result_names = ["result=max"]
     else:
         args.result_names = ["result=min"]
+
+for rn in args.result_names:
+    key = ""
+
+    if "=" in rn:
+        key, _ = rn.split('=', 1)
+    else:
+        key = rn
+
+    result_column_names.append(key)
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
@@ -1591,7 +1613,7 @@ def parse_experiment_parameters() -> list:
     search_space_reduction_warning = False
 
     valid_types = ["range", "fixed", "choice"]
-    invalid_names = ["start_time", "end_time", "run_time", "program_string", "result", "exit_code", "signal"]
+    invalid_names = ["start_time", "end_time", "run_time", "program_string", *result_column_names, "exit_code", "signal"]
 
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
@@ -5931,12 +5953,12 @@ Exit-Code: 159
 
     _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
     _best_results_from_example_file_minimize: str = json.dumps(get_best_params_from_csv(_example_csv_file, False))
-    _expected_best_result_minimize: str = json.dumps(json.loads('{'result': "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
+    _expected_best_result_minimize: str = json.dumps(json.loads('{\'result\': "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
 
     nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _expected_best_result_minimize, _best_results_from_example_file_minimize)
 
     _best_results_from_example_file_maximize: str = json.dumps(get_best_params_from_csv(_example_csv_file, True))
-    _expected_best_result_maximize: str = json.dumps(json.loads('{'result': "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
+    _expected_best_result_maximize: str = json.dumps(json.loads('{\'result\': "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
 
     nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _expected_best_result_maximize, _best_results_from_example_file_maximize)
 

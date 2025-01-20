@@ -2193,3 +2193,5 @@ zipWriter
 zsh
 ZSH
 occ
+resultmin
+resultmax

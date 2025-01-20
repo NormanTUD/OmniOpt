@@ -368,6 +368,7 @@ class ConfigLoader:
         optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--moo_type', help=f'MOO-type (valid types are {", ".join(valid_moo_types)})', type=str, default="euclid")
+        optional.add_argument("--result_names", nargs='+', default=[], help=f"Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -485,6 +486,12 @@ class ConfigLoader:
 
 loader = ConfigLoader()
 args = loader.parse_arguments()
+
+if len(args.result_names) == 0:
+    if args.maximize:
+        args.result_names = ["result=max"]
+    else:
+        args.result_names = ["result=min"]
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
@@ -3163,12 +3170,36 @@ def get_experiment_parameters(_params: list) -> Any:
             print_red("Something went wrong with the ax_client")
             my_exit(9)
     else:
+        objectives = {}
+
+        for rn in args.result_names:
+            key, value = "", ""
+
+            if "=" in rn:
+                key, value = rn.split('=')
+            else:
+                key = rn
+                value = ""
+
+            if value not in ["min", "max"]:
+                print_yellow(f"Value {value} for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
+                
+                value = "min"
+
+                if args.maximize:
+                    value = "max"
+
+            _min = True
+
+            if value == "max":
+                _min = False
+
+            objectives[key] = ObjectiveProperties(minimize=_min)
+
         experiment_args = {
             "name": global_vars["experiment_name"],
             "parameters": experiment_parameters,
-            "objectives": {
-                "result": ObjectiveProperties(minimize=minimize_or_maximize)
-            },
+            "objectives": objectives,
             "choose_generation_strategy_kwargs": {
                 "num_trials": max_eval,
                 "num_initialization_trials": num_parallel_jobs,

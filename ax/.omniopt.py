@@ -497,7 +497,7 @@ class ConfigLoader:
 loader = ConfigLoader()
 args = loader.parse_arguments()
 
-result_column_names = []
+arg_result_column_names = []
 
 if len(args.result_names) == 0:
     if args.maximize:
@@ -513,7 +513,7 @@ for rn in args.result_names:
     else:
         key = rn
 
-    result_column_names.append(key)
+    arg_result_column_names.append(key)
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
@@ -1613,7 +1613,7 @@ def parse_experiment_parameters() -> list:
     search_space_reduction_warning = False
 
     valid_types = ["range", "fixed", "choice"]
-    invalid_names = ["start_time", "end_time", "run_time", "program_string", *result_column_names, "exit_code", "signal"]
+    invalid_names = ["start_time", "end_time", "run_time", "program_string", *arg_result_column_names, "exit_code", "signal"]
 
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]

@@ -2044,7 +2044,7 @@ def evaluate(parameters: dict) -> dict:
 
     if args.maximize:
         for _rn in arg_result_column_names:
-            return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
+            return_in_case_of_error[_rn] = -VAL_IF_NOTHING_FOUND
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
 

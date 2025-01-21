@@ -5548,6 +5548,14 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
     return experiment_parameters, cli_params_experiment_parameters
 
 def plot_pareto_frontier_automatically() -> None:
+    if len(arg_result_column_names) == 1:
+        print(f"{len(arg_result_column_names} is 1")
+        return
+
+    if len(arg_result_column_names) != 2:
+        print(f"{len(arg_result_column_names} is not 2")
+        return
+
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
     from ax.plot.pareto_frontier import plot_pareto_frontier
     from ax.utils.notebook.plotting import render

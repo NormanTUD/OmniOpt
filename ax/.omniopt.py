@@ -531,15 +531,15 @@ if arg_result_column_names != 1:
     if len(arg_result_column_names) != len(arg_result_min_or_max):
         raise ValueError("The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.")
 
-    table = Table(title="Result-Names")
+    __table = Table(title="Result-Names")
 
-    table.add_column("Result-Name", justify="left", style="cyan")
-    table.add_column("Min or max?", justify="right", style="green")
+    __table.add_column("Result-Name", justify="left", style="cyan")
+    __table.add_column("Min or max?", justify="right", style="green")
 
     for __name, __value in zip(arg_result_column_names, arg_result_min_or_max):
-        table.add_row(str(__name), str(__value))
+        __table.add_row(str(__name), str(__value))
 
-    console.print(table)
+    console.print(__table)
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:

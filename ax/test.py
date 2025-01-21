@@ -3,6 +3,7 @@ from ax.plot.pareto_frontier import plot_pareto_frontier
 from ax.plot.pareto_utils import compute_posterior_pareto_frontier
 from ax.service.ax_client import AxClient
 from ax.service.utils.instantiation import ObjectiveProperties
+from pprint import pprint
 
 # Plotting imports and initialization
 from ax.utils.notebook.plotting import init_notebook_plotting, render
@@ -58,5 +59,9 @@ frontier = compute_posterior_pareto_frontier(
     absolute_metrics=["result1", "result2"],
     num_points=20,
 )
+
+print("frontier >>>>>>>>>>>>>>>>")
+pprint(frontier)
+print("<<<<<<<<<<<<<<<< frontier")
 
 render(plot_pareto_frontier(frontier, CI_level=0.90))

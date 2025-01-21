@@ -5558,10 +5558,10 @@ def is_in_x11_environment():
 def is_firefox_installed():
     try:
         result = subprocess.run(
-            ['which', 'firefox'], 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE, 
-            text=True, 
+            ['which', 'firefox'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
             check=False
         )
         return result.returncode == 0

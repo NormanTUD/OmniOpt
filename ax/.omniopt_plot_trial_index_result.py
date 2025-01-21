@@ -113,7 +113,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if not helpers.can_be_plotted(args.run_dir):
-        logging.error(f"{args.run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
+        print(f"{args.run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
         sys.exit(2)
 
     update_graph()

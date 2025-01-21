@@ -804,6 +804,17 @@ def check_args(_args: Any) -> None:
 
     check_path(_args.run_dir)
 
+def can_be_plotted(path: str) -> bool:
+    result_file = os.path.join(path, "result_names.txt")
+
+    if not os.path.exists(result_file):
+        return True
+    
+    with open(result_file, "r", encoding="utf-8") as file:
+        lines = [line.strip() for line in file if line.strip()]
+    
+    return len(lines) == 1
+
 check_python_version()
 
 warn_versions()

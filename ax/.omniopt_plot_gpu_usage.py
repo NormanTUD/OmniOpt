@@ -140,6 +140,10 @@ def save_to_file_or_show_canvas() -> None:
 if __name__ == "__main__":
     args = parser.parse_args()
     try:
+        if not helpers.can_be_plotted(args.run_dir):
+            helpers.log_error(f"{args.run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
+            sys.exit(2)
+
         plot_gpu_usage(args.run_dir)
     except UnicodeDecodeError:
         if not os.environ.get("PLOT_TESTS"): # pragma: no cover

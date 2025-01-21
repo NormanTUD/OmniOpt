@@ -159,11 +159,13 @@ function build_omniopt_command_standard() {
 				base_cmd+=("RESULT$i=min")
 			done
 		else
-			if (( i % 2 == 0 )); then
-				base_cmd+=("RESULT$i=max")
-			else
-				base_cmd+=("RESULT$i=min")
-			fi
+			for ((i = 1; i <= nr_results; i++)); do
+				if (( i % 2 == 0 )); then
+					base_cmd+=("RESULT$i=max")
+				else
+					base_cmd+=("RESULT$i=min")
+				fi
+			done
 		fi
 	fi
 

@@ -2763,9 +2763,9 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 
     crf = get_current_run_folder()
 
-    if crf == "" or crf == None:
+    if crf in ["", None]:
         console.print("[red]Could not find current run folder for _print_best_result[/]")
-        return
+        return -1
 
     i = 0
     with open(f'{crf}/best_result.txt', mode="w", encoding="utf-8") as text_file:

@@ -2097,7 +2097,7 @@ def evaluate(parameters: dict) -> dict:
         else:
             return_in_case_of_error[_rn] = -VAL_IF_NOTHING_FOUND
 
-        i = i +1
+        i = i + 1
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
 

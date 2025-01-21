@@ -58,4 +58,5 @@ frontier = compute_posterior_pareto_frontier(
     absolute_metrics=["result1", "result2"],
     num_points=20,
 )
+
 render(plot_pareto_frontier(frontier, CI_level=0.90))

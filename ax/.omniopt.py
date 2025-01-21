@@ -540,8 +540,6 @@ if arg_result_column_names != 1:
 
     console.print(table)
 
-dier(arg_result_column_names)
-
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
     def wrapper(*__args: Any, **kwargs: Any) -> Any:

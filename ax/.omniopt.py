@@ -2761,8 +2761,14 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
     global global_vars
     global SHOWN_END_TABLE
 
+    crf = get_current_run_folder()
+
+    if crf == "" or crf == None:
+        console.print("[red]Could not find current run folder for _print_best_result[/]")
+        return
+
     i = 0
-    with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+    with open(f'{crf}/best_result.txt', mode="w", encoding="utf-8") as text_file:
         for res_name in arg_result_column_names:
             try:
                 best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)

@@ -1753,10 +1753,8 @@ def execute_bash_code(code: str) -> list:
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-"""
-# This is the new get_results. It returns a dict instead of an array!
 @typechecked
-def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
+def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None
@@ -1785,10 +1783,16 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
-"""
 
 @typechecked
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
+    if len(arg_result_column_names) == 1:
+        return get_results_old(input_string)
+
+    return get_results_new(input_string)
+
+@typechecked
+def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None

@@ -5552,6 +5552,25 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
+def is_in_x11_environment():
+    # Überprüfen, ob die Umgebungsvariable DISPLAY gesetzt ist
+    return 'DISPLAY' in os.environ and bool(os.environ['DISPLAY'])
+
+def is_firefox_installed():
+    try:
+        # Überprüfen, ob der Firefox-Befehl verfügbar ist
+        result = subprocess.run(
+            ['which', 'firefox'], 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            text=True, 
+            check=False
+        )
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Fehler beim Überprüfen von Firefox: {e}")
+        return False
+
 def plot_pareto_frontier_automatically() -> None:
     if len(arg_result_column_names) == 1:
         print(f"{len(arg_result_column_names)} is 1")
@@ -5559,7 +5578,6 @@ def plot_pareto_frontier_automatically() -> None:
 
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
     from ax.plot.pareto_frontier import plot_pareto_frontier
-    from ax.utils.notebook.plotting import render
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
 
@@ -5573,7 +5591,11 @@ def plot_pareto_frontier_automatically() -> None:
             num_points=count_done_jobs()
         )
 
-        render(plot_pareto_frontier(frontier, CI_level=args.pareto_front_confidence))
+        if is_in_x11_environment() and is_firefox_installed():
+            from ax.utils.notebook.plotting import render
+            render(plot_pareto_frontier(frontier, CI_level=args.pareto_front_confidence))
+        else:
+            print("Can only plot pareto-front when your environment supports x11 and firefox is installed")
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

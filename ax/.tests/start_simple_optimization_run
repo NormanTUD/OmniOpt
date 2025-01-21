@@ -118,6 +118,10 @@ function parse_argument() {
 }
 
 function build_omniopt_command_all_float() {
+	if [[ $nr_results -ne 1 ]]; then
+		TESTNAME="${TESTNAME}_nr_results_$nr_results"
+	fi
+
 	local cmd=("./omniopt" "--partition=$PARTITION" "--experiment_name=example_all_float" "--mem_gb=$mem_gb" "--time=$time" "--worker_timeout=5" "--max_eval=$max_eval" "--num_parallel_jobs=$num_parallel_jobs" "--gpus=$NUM_GPUS" "--num_random_steps=$num_random_steps" "--follow" "--send_anonymized_usage_stats" "--run_program=$(echo ".tests/optimization_example_all_float --x=%(x) --y=%(y) --z=%(z) --a=%(a)" | base64 -w 0)" "--cpus_per_task=1" "--nodes_per_job=1" "--model=BOTORCH_MODULAR" "--run_mode=local" "--parameter" "x range -1000 1000 float" "--parameter" "y range -1000 1000 float" "--parameter" "z range -1000 1000 float" "--parameter" "a range -1000 1000 float" "--live_share")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
@@ -131,6 +135,23 @@ function build_omniopt_command_all_float() {
 
 	if [[ "$force_local_execution" -eq "1" ]]; then
 		cmd+=("--force_local_execution")
+	fi
+
+	if [[ $nr_results -ne 1 ]]; then
+		base_cmd+=("--result_names")
+		if [[ $alternate_min_max -eq 0 ]]; then
+			for ((i = 1; i <= nr_results; i++)); do
+				base_cmd+=("RESULT$i=min")
+			done
+		else
+			for ((i = 1; i <= nr_results; i++)); do
+				if (( i % 2 == 0 )); then
+					base_cmd+=("RESULT$i=max")
+				else
+					base_cmd+=("RESULT$i=min")
+				fi
+			done
+		fi
 	fi
 
 	echo "${cmd[@]}"
@@ -177,6 +198,10 @@ function build_omniopt_command_standard() {
 }
 
 function build_omniopt_command_one_param() {
+	if [[ $nr_results -ne 1 ]]; then
+		TESTNAME="${TESTNAME}_nr_results_$nr_results"
+	fi
+
 	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
@@ -192,10 +217,32 @@ function build_omniopt_command_one_param() {
 		cmd+=("--force_local_execution")
 	fi
 
+	if [[ $nr_results -ne 1 ]]; then
+		base_cmd+=("--result_names")
+		if [[ $alternate_min_max -eq 0 ]]; then
+			for ((i = 1; i <= nr_results; i++)); do
+				base_cmd+=("RESULT$i=min")
+			done
+		else
+			for ((i = 1; i <= nr_results; i++)); do
+				if (( i % 2 == 0 )); then
+					base_cmd+=("RESULT$i=max")
+				else
+					base_cmd+=("RESULT$i=min")
+				fi
+			done
+		fi
+	fi
+
+
 	echo "${cmd[@]}"
 }
 
 function build_omniopt_command_two_params() {
+	if [[ $nr_results -ne 1 ]]; then
+		TESTNAME="${TESTNAME}_nr_results_$nr_results"
+	fi
+
 	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
@@ -209,6 +256,23 @@ function build_omniopt_command_two_params() {
 
 	if [[ "$force_local_execution" -eq "1" ]]; then
 		cmd+=("--force_local_execution")
+	fi
+
+	if [[ $nr_results -ne 1 ]]; then
+		base_cmd+=("--result_names")
+		if [[ $alternate_min_max -eq 0 ]]; then
+			for ((i = 1; i <= nr_results; i++)); do
+				base_cmd+=("RESULT$i=min")
+			done
+		else
+			for ((i = 1; i <= nr_results; i++)); do
+				if (( i % 2 == 0 )); then
+					base_cmd+=("RESULT$i=max")
+				else
+					base_cmd+=("RESULT$i=min")
+				fi
+			done
+		fi
 	fi
 
 	echo "${cmd[@]}"
@@ -336,16 +400,10 @@ if [[ "$one_param" -eq "1" ]]; then
 fi
 
 if [[ "$one_param" -eq "1" ]]; then
-	if [[ $nr_results -ne 1 ]]; then echo "--one_param can only be used with --nr_results=1."; exit 1; fi
-
 	omniopt_cmd=$(build_omniopt_command_one_param)
 elif [[ "$all_float" -eq "1" ]]; then
-	if [[ $nr_results -ne 1 ]]; then echo "--all_float can only be used with --nr_results=1."; exit 1; fi
-
 	omniopt_cmd=$(build_omniopt_command_all_float)
 elif [[ "$two_params" -eq "1" ]]; then
-	if [[ $nr_results -ne 1 ]]; then echo "--two_params can only be used with --nr_results=1."; exit 1; fi
-
 	omniopt_cmd=$(build_omniopt_command_two_params)
 else
 	omniopt_cmd=$(build_omniopt_command_standard)

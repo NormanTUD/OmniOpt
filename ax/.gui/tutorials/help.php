@@ -164,6 +164,11 @@
 				<td><samp>False</samp></td>
 			</tr>
 			<tr>
+				<td><samp>--occ</samp></td>
+				<td>Enable optimization with combined criteria.</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--show_sixel_scatter</samp></td>
 				<td>Show <a href="https://en.wikipedia.org/wiki/Sixel" target="_blank">sixel</a> graphics of scatter plot in the end.</td>
 				<td><samp>False</samp></td>

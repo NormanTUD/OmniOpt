@@ -358,6 +358,7 @@ class ConfigLoader:
         optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
         optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
         optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
+        optional.add_argument('--occ', help='Use optimization with combined criteria (OCC)', action='store_true', default=False)
         optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
         optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
         optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
@@ -535,8 +536,8 @@ if arg_result_column_names != 1:
     table.add_column("Result-Name", justify="left", style="cyan")
     table.add_column("Min or max?", justify="right", style="green")
 
-    for name, value in zip(arg_result_column_names, arg_result_min_or_max):
-        table.add_row(str(name), str(value))
+    for __name, __value in zip(arg_result_column_names, arg_result_min_or_max):
+        table.add_row(str(__name), str(__value))
 
     console.print(table)
 
@@ -2083,7 +2084,7 @@ class invalidMooType(Exception):
     pass
 
 @typechecked
-def calculate_moo(_args: Optional[list[float]]) -> float:
+def calculate_occ(_args: Optional[list[float]]) -> float:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 
@@ -2158,12 +2159,12 @@ def evaluate(parameters: dict) -> dict:
         all_result_column_names = []
 
         _k = 1
-        if unmooed_result:
+        if unmooed_result and args.occ:
             for a in unmooed_result:
                 all_result_column_names.append(f"RESULT{_k}")
                 _k = _k + 1
 
-            mooed_result = calculate_moo(result)
+            mooed_result = calculate_occ(result)
 
             if mooed_result is not None:
                 result = [mooed_result]
@@ -6041,8 +6042,8 @@ Exit-Code: 159
         None
     )
 
-    nr_errors += is_equal("calculate_moo(None)", calculate_moo(None), VAL_IF_NOTHING_FOUND)
-    nr_errors += is_equal("calculate_moo([])", calculate_moo([]), VAL_IF_NOTHING_FOUND)
+    nr_errors += is_equal("calculate_cc(None)", calculate_occ(None), VAL_IF_NOTHING_FOUND)
+    nr_errors += is_equal("calculate_occ([])", calculate_occ([]), VAL_IF_NOTHING_FOUND)
 
     #nr_errors += is_equal("calculate_signed_harmonic_distance(None)", calculate_signed_harmonic_distance(None), 0)
     nr_errors += is_equal("calculate_signed_harmonic_distance([])", calculate_signed_harmonic_distance([]), 0)

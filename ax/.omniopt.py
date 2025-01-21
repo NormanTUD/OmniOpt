@@ -3481,8 +3481,6 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
 
         console.print(__table)
 
-
-
 @wrapper_print_debug
 def update_progress_bar(_progress_bar: Any, nr: int) -> None:
     #print(f"update_progress_bar(_progress_bar, {nr})")

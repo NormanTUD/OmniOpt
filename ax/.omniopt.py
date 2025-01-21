@@ -527,7 +527,7 @@ for _rn in args.result_names:
     arg_result_column_names.append(_key)
     arg_result_min_or_max.append(_min_or_max)
 
-if arg_result_column_names != 1:
+if len(arg_result_column_names) != 1:
     if len(arg_result_column_names) != len(arg_result_min_or_max):
         raise ValueError("The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.")
 
@@ -2200,13 +2200,21 @@ def evaluate(parameters: dict) -> dict:
                 if v:
                     unmooed_result_str.append(str(v))
 
+        result_values = []
+
+        if isinstance(result, dict):
+            for rkey in list(result.keys()):
+                rval = result[rkey]
+
+                result_values.append(str(rval))
+
         values: list[str] = [
             str(start_time),
             str(end_time),
             str(run_time),
             program_string_with_params,
             *str_parameters_values,
-            str(result),
+            *result_values,
             str(exit_code),
             str(_signal),
             socket.gethostname(),
@@ -2224,12 +2232,15 @@ def evaluate(parameters: dict) -> dict:
         else:
             print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
-        if isinstance(result, (int, float)): # pragma: no cover
-            return {"result": float(result)}
-        if isinstance(result, (list)) and len(result) == 1:
-            return {"result": float(result[0])}
-        if isinstance(result, (list)): # pragma: no cover
-            return {"result": [float(r) for r in result]}
+        if len(args.result_names) == 1:
+            if isinstance(result, (int, float)): # pragma: no cover
+                return {"result": float(result)}
+            if isinstance(result, (list)) and len(result) == 1:
+                return {"result": float(result[0])}
+            if isinstance(result, (list)): # pragma: no cover
+                return {"result": [float(r) for r in result]}
+        else:
+            return result
 
         write_failed_logs(parameters, "No Result") # pragma: no cover
     except SignalUSR: # pragma: no cover

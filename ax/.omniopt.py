@@ -527,20 +527,6 @@ for _rn in args.result_names:
     arg_result_column_names.append(_key)
     arg_result_min_or_max.append(_min_or_max)
 
-if len(arg_result_column_names) != 1:
-    if len(arg_result_column_names) != len(arg_result_min_or_max):
-        raise ValueError("The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.")
-
-    __table = Table(title="Result-Names")
-
-    __table.add_column("Result-Name", justify="left", style="cyan")
-    __table.add_column("Min or max?", justify="right", style="green")
-
-    for __name, __value in zip(arg_result_column_names, arg_result_min_or_max):
-        __table.add_row(str(__name), str(__value))
-
-    console.print(__table)
-
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
     def wrapper(*__args: Any, **kwargs: Any) -> Any:
@@ -3480,6 +3466,22 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
 
         with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
+
+    if len(arg_result_column_names) != 1:
+        if len(arg_result_column_names) != len(arg_result_min_or_max):
+            console.print(f"[red]The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.[/]")
+
+        __table = Table(title="Result-Names")
+
+        __table.add_column("Result-Name", justify="left", style="cyan")
+        __table.add_column("Min or max?", justify="right", style="green")
+
+        for __name, __value in zip(arg_result_column_names, arg_result_min_or_max):
+            __table.add_row(str(__name), str(__value))
+
+        console.print(__table)
+
+
 
 @wrapper_print_debug
 def update_progress_bar(_progress_bar: Any, nr: int) -> None:

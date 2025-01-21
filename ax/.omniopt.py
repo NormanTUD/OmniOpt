@@ -524,6 +524,10 @@ for _rn in args.result_names:
         console.print(f"[red]The --result_names option '{_key}' was specified multiple times![/]")
         sys.exit(50)
 
+    if not re.fullmatch(r'^[a-zA-Z0-9_]+$', _key):
+        console.print(f"[red]The --result_names option '{_key}' contains invalid characters! Must be one of a-z, A-Z, 0-9 or _[/]")
+        sys.exit(50)
+
     arg_result_column_names.append(_key)
     arg_result_min_or_max.append(_min_or_max)
 

@@ -5555,7 +5555,6 @@ def plot_pareto_frontier_automatically() -> None:
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
     from ax.plot.pareto_frontier import plot_pareto_frontier
     from ax.utils.notebook.plotting import render
-    from itertools import combinations
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
 

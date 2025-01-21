@@ -2756,6 +2756,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
     global global_vars
     global SHOWN_END_TABLE
 
+    i = 0
     for res_name in arg_result_column_names:
         try:
             best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
@@ -2781,7 +2782,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
                 if failed_jobs() >= 1:
                     failed_error_str = f", failed: {failed_jobs()}"
 
-            table = Table(show_header=True, header_style="bold", title=f"Best {res_name} ({total_str}{failed_error_str}):")
+            table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[i]} ({total_str}{failed_error_str}):")
 
             k = 0
             for key in best_params["parameters"].keys():
@@ -2812,6 +2813,8 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
         except Exception as e: # pragma: no cover
             tb = traceback.format_exc()
             print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
+
+        i = i + 1
 
     return -1
 

@@ -288,10 +288,6 @@ if [[ "$debug" -eq "1" ]]; then
 	set_debug
 fi
 
-if [[ $nr_results -ne 1 ]]; then
-
-fi
-
 PARTITION="alpha"
 TESTNAME="__main__tests__${model}__"
 

@@ -152,9 +152,11 @@ function build_omniopt_command_standard() {
 
 	if [[ $nr_results -ne 1 ]]; then
 		base_cmd+=("--result_names")
-		for ((i = 1; i <= nr_results; i++)); do
+		if (( i % 2 == 0 )); then
+			base_cmd+=("RESULT$i=max")
+		else
 			base_cmd+=("RESULT$i=min")
-		done
+		fi
 	fi
 
 	echo "${base_cmd[@]}"

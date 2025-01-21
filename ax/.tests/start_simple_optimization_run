@@ -62,6 +62,7 @@ function help () {
 	echo "  --all_float               Use all_float logic"
 	echo "  --one_param               One parameter"
 	echo "  --two_params              Two parameters"
+	echo "  --nr_results=1            Nr of 'RESULT's (default: 1)"
 	echo "  --help                    This help"
 	echo "  --debug                   Enable debug mode"
 	exit $1
@@ -88,6 +89,7 @@ model=BOTORCH_MODULAR
 mem_gb=4
 all_float=0
 one_param=0
+nr_results=1
 
 function parse_argument() {
 	local arg="$1"
@@ -133,7 +135,7 @@ function build_omniopt_command_all_float() {
 }
 
 function build_omniopt_command_standard() {
-	local base_cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts" "--hide_ascii_plots")
+	local base_cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --nr_results=$nr_results" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts" "--hide_ascii_plots")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
 		base_cmd+=("--gridsearch")
@@ -146,6 +148,12 @@ function build_omniopt_command_standard() {
 
 	if [[ "$force_local_execution" -eq "1" ]]; then
 		base_cmd+=("--force_local_execution")
+	fi
+
+	if [[ $nr_results -ne 1 ]]; then
+		for ((i = 1; i <= nr_results; i++)); do
+			base_cmd+=("--result_names RESULT$i=min")
+		done
 	fi
 
 	echo "${base_cmd[@]}"
@@ -277,6 +285,10 @@ if [[ "$debug" -eq "1" ]]; then
 	set_debug
 fi
 
+if [[ $nr_results -ne 1 ]]; then
+
+fi
+
 PARTITION="alpha"
 TESTNAME="__main__tests__${model}__"
 
@@ -305,10 +317,16 @@ if [[ "$one_param" -eq "1" ]]; then
 fi
 
 if [[ "$one_param" -eq "1" ]]; then
+	if [[ $nr_results -ne 1 ]]; then echo "--one_param can only be used with --nr_results=1."; exit 1; fi
+
 	omniopt_cmd=$(build_omniopt_command_one_param)
 elif [[ "$all_float" -eq "1" ]]; then
+	if [[ $nr_results -ne 1 ]]; then echo "--all_float can only be used with --nr_results=1."; exit 1; fi
+
 	omniopt_cmd=$(build_omniopt_command_all_float)
 elif [[ "$two_params" -eq "1" ]]; then
+	if [[ $nr_results -ne 1 ]]; then echo "--two_params can only be used with --nr_results=1."; exit 1; fi
+
 	omniopt_cmd=$(build_omniopt_command_two_params)
 else
 	omniopt_cmd=$(build_omniopt_command_standard)

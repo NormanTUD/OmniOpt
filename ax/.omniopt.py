@@ -498,6 +498,7 @@ loader = ConfigLoader()
 args = loader.parse_arguments()
 
 arg_result_column_names = []
+arg_result_min_or_max = []
 
 if len(args.result_names) == 0:
     if args.maximize:
@@ -507,13 +508,37 @@ if len(args.result_names) == 0:
 
 for _rn in args.result_names:
     _key = ""
+    _min_or_max = ""
 
     if "=" in _rn:
-        _key, _ = _rn.split('=', 1)
+        _key, _min_or_max = _rn.split('=', 1)
     else:
         _key = _rn
+        _min_or_max = "min"
+
+    if _min_or_max not in ["min", "max"]:
+        _min_or_max = "min"
+
+    if _key in arg_result_column_names:
+        console.print(f"[red]The --result_names option '{_key}' was specified multiple times![/]")
+        sys.exit(50)
 
     arg_result_column_names.append(_key)
+    arg_result_min_or_max.append(_min_or_max)
+
+if arg_result_column_names != 1:
+    if len(arg_result_column_names) != len(arg_result_min_or_max):
+        raise ValueError("The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.")
+
+    table = Table(title="Result-Names")
+
+    table.add_column("Result-Name", justify="left", style="cyan")
+    table.add_column("Min or max?", justify="right", style="green")
+
+    for name, value in zip(arg_result_column_names, arg_result_min_or_max):
+        table.add_row(str(name), str(value))
+
+    console.print(table)
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:

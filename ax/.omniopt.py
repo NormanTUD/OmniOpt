@@ -2438,9 +2438,9 @@ def replace_string_with_params(input_string: str, params: list) -> str:
     return ""
 
 @wrapper_print_debug
-def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
+def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict:
     results: dict = {
-        "result": None,
+        res_name: None,
         "parameters": {}
     }
 
@@ -2451,7 +2451,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
 
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=["result"], inplace=True)
+        df.dropna(subset=arg_result_column_names, inplace=True)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
         return results
 
@@ -2460,7 +2460,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
 
     best_line = None
 
-    result_idx = cols.index("result")
+    result_idx = cols.index(res_name)
 
     best_result = None
 
@@ -2487,7 +2487,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
                     best_result = this_line_result
 
     if best_line is None: # pragma: no cover
-        print_debug("Could not determine best result")
+        print_debug(f"Could not determine best {res_name}")
         return results
 
     for i in range(0, len(cols)):
@@ -2501,8 +2501,8 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool) -> dict:
             "run_time",
             "program_string"
         ]:
-            if col == "result":
-                results["result"] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
+            if col == res_name:
+                results[res_name] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
             else:
                 results["parameters"][col] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
 

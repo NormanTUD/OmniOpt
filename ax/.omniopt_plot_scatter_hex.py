@@ -193,6 +193,10 @@ def main() -> None:
     global args
 
     if args is not None:
+        if not helpers.can_be_plotted(args.run_dir):
+            print(f"{args.run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
+            sys.exit(2)
+
         helpers.use_matplotlib(args)
 
         csv_file_path = helpers.get_csv_file_path(args)

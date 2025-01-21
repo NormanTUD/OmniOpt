@@ -211,6 +211,11 @@
 				<td><samp>4</samp></td>
 			</tr>
 			<tr>
+				<td><samp>--pareto_front_confidence (INT)</samp></td>
+				<td>Confidence for pareto-front-plotting (between 0 and 1)</td>
+				<td><samp>0.95</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--max_nr_of_zero_results (INT)</samp></td>
 				<td>Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted.</td>
 				<td><samp>20</samp></td>

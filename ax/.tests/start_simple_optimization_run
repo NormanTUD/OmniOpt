@@ -151,8 +151,9 @@ function build_omniopt_command_standard() {
 	fi
 
 	if [[ $nr_results -ne 1 ]]; then
+		base_cmd+=("--result_names RESULT$i=min")
 		for ((i = 1; i <= nr_results; i++)); do
-			base_cmd+=("--result_names RESULT$i=min")
+			base_cmd+=("RESULT$i=min")
 		done
 	fi
 

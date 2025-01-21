@@ -653,6 +653,8 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Testing real MOO" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4" 0
 
+		_test "Testing real MOO with alternating results" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max" 0
+
 		if [[ "$quick" -eq "0" ]]; then
 			#_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
 			#_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0 87

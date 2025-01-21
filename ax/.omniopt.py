@@ -2509,10 +2509,10 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
     return results
 
 @typechecked
-def get_best_params() -> dict:
+def get_best_params(res_name: str = "result") -> dict:
     csv_file_path: str = save_pd_csv()
 
-    return get_best_params_from_csv(csv_file_path, args.maximize)
+    return get_best_params_from_csv(csv_file_path, args.maximize, res_name)
 
 @typechecked
 def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
@@ -3500,9 +3500,9 @@ def get_current_model() -> str:
     return "initializing model"
 
 @typechecked
-def get_best_params_str() -> str:
+def get_best_params_str(res_name: str = "result") -> str:
     if count_done_jobs() >= 0:
-        best_params = get_best_params()
+        best_params = get_best_params(res_name)
         if best_params and "result" in best_params:
             best_result = best_params["result"]
             if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
@@ -3587,9 +3587,10 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 
     this_time: float = time.time()
 
-    best_params_str: str = get_best_params_str()
-    if best_params_str:
-        in_brackets.append(best_params_str)
+    for res_name in arg_result_column_names:
+        best_params_str: str = get_best_params_str(res_name)
+        if best_params_str:
+            in_brackets.append(best_params_str)
 
     if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])

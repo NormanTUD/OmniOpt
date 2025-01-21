@@ -2762,9 +2762,9 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
     global SHOWN_END_TABLE
 
     i = 0
-    for res_name in arg_result_column_names:
-        try:
-            with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+    with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+        for res_name in arg_result_column_names:
+            try:
                 best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
 
                 best_result = None
@@ -2816,11 +2816,11 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
                 plot_sixel_imgs(csv_file_path)
 
                 SHOWN_END_TABLE = True
-        except Exception as e: # pragma: no cover
-            tb = traceback.format_exc()
-            print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
+            except Exception as e: # pragma: no cover
+                tb = traceback.format_exc()
+                print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
 
-        i = i + 1
+            i = i + 1
 
     return -1
 

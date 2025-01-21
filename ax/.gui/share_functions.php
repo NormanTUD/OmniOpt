@@ -63,7 +63,8 @@
 			"cpu_ram_usage.csv" => "CPU/RAM-usage of main worker",
 			"evaluation_errors.log" => "Evaluation Errors",
 			"oo_errors.txt" => "OmniOpt2-Errors",
-			"worker_usage.csv" => "Number of workers"
+			"worker_usage.csv" => "Number of workers",
+			"result_names.txt" => "Result-Names"
 		);
 
 		if (isset($names[$replaced_file])) {

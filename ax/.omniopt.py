@@ -5553,12 +5553,10 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
     return experiment_parameters, cli_params_experiment_parameters
 
 def is_in_x11_environment():
-    # Überprüfen, ob die Umgebungsvariable DISPLAY gesetzt ist
     return 'DISPLAY' in os.environ and bool(os.environ['DISPLAY'])
 
 def is_firefox_installed():
     try:
-        # Überprüfen, ob der Firefox-Befehl verfügbar ist
         result = subprocess.run(
             ['which', 'firefox'], 
             stdout=subprocess.PIPE, 
@@ -5568,7 +5566,6 @@ def is_firefox_installed():
         )
         return result.returncode == 0
     except Exception as e:
-        print(f"Fehler beim Überprüfen von Firefox: {e}")
         return False
 
 def plot_pareto_frontier_automatically() -> None:

@@ -2759,57 +2759,58 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
     i = 0
     for res_name in arg_result_column_names:
         try:
-            best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
+            with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+                best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
 
-            best_result = None
+                best_result = None
 
-            if best_params and res_name in best_params:
-                best_result = best_params[res_name]
-            else: # pragma: no cover
-                best_result = NO_RESULT
+                if best_params and res_name in best_params:
+                    best_result = best_params[res_name]
+                else: # pragma: no cover
+                    best_result = NO_RESULT
 
-            if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
-                print_red(f"Best {res_name} could not be determined")
-                return 87
+                if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
+                    print_red(f"Best {res_name} could not be determined")
+                    return 87
 
-            total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
+                total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
 
-            if NR_INSERTED_JOBS:
-                total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
+                if NR_INSERTED_JOBS:
+                    total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
 
-            failed_error_str = ""
-            if print_to_file:
-                if failed_jobs() >= 1:
-                    failed_error_str = f", failed: {failed_jobs()}"
+                failed_error_str = ""
+                if print_to_file:
+                    if failed_jobs() >= 1:
+                        failed_error_str = f", failed: {failed_jobs()}"
 
-            table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[i]} ({total_str}{failed_error_str}):")
+                table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[i]} ({total_str}{failed_error_str}):")
 
-            k = 0
-            for key in best_params["parameters"].keys():
-                if k > 2:
-                    table.add_column(key)
-                k += 1
+                k = 0
+                for key in best_params["parameters"].keys():
+                    if k > 2:
+                        table.add_column(key)
+                    k += 1
 
-            table.add_column(res_name)
+                table.add_column(res_name)
 
-            row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
-            row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
+                row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
+                row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
 
-            table.add_row(*row)
+                table.add_row(*row)
 
-            console.print(table)
+                if len(arg_result_column_names) == 1:
+                    console.print(table)
 
-            with console.capture() as capture:
-                console.print(table)
+                with console.capture() as capture:
+                    console.print(table)
 
-            if print_to_file:
-                table_str = capture.get()
-                with open(f'{get_current_run_folder()}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+                if print_to_file:
+                    table_str = capture.get()
                     text_file.write(table_str)
 
-            plot_sixel_imgs(csv_file_path)
+                plot_sixel_imgs(csv_file_path)
 
-            SHOWN_END_TABLE = True
+                SHOWN_END_TABLE = True
         except Exception as e: # pragma: no cover
             tb = traceback.format_exc()
             print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")

@@ -5579,7 +5579,7 @@ def plot_pareto_frontier_automatically() -> None:
     objectives = ax_client.experiment.optimization_config.objective.objectives
 
     for i, j in combinations(range(len(objectives)), 2):
-        frontier = compute_posterior_pareto_frontier(
+        calculated_frontier = compute_posterior_pareto_frontier(
             experiment=ax_client.experiment,
             data=ax_client.experiment.fetch_data(),
             primary_objective=objectives[i].metric,
@@ -5588,9 +5588,11 @@ def plot_pareto_frontier_automatically() -> None:
             num_points=count_done_jobs()
         )
 
+        pprint(calculated_frontier)
+
         if is_in_x11_environment() and is_firefox_installed():
             from ax.utils.notebook.plotting import render
-            render(plot_pareto_frontier(frontier, CI_level=args.pareto_front_confidence))
+            render(plot_pareto_frontier(calculated_frontier, CI_level=args.pareto_front_confidence))
         else:
             print("Can only plot pareto-front when your environment supports x11 and firefox is installed")
 

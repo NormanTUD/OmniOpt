@@ -187,7 +187,7 @@ if ($nr_results == 1) {
 	print qq#RESULT: #.shekel(@ARGV).qq#\n#;
 } else {
 	foreach my $r (1 .. $nr_results) {
-		print "RESULT$r: ".rand()."\n";
+		print "RESULT$r: ".($r + rand())."\n";
 	}
 }
 ' -- $nr_results $int_param $choice_param $float_param $int_param_two

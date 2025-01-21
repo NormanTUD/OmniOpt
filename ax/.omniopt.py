@@ -2090,12 +2090,14 @@ def evaluate(parameters: dict) -> dict:
 
     return_in_case_of_error: dict = {}
 
+    i = 0
     for _rn in arg_result_column_names:
-        return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
-
-    if args.maximize:
-        for _rn in arg_result_column_names:
+        if arg_result_min_or_max[i] == "min":
+            return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
+        else:
             return_in_case_of_error[_rn] = -VAL_IF_NOTHING_FOUND
+
+        i = i +1
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
 

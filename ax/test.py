@@ -64,4 +64,9 @@ print("frontier >>>>>>>>>>>>>>>>")
 pprint(frontier)
 print("<<<<<<<<<<<<<<<< frontier")
 
+
+print("plot_pareto_frontier >>>>>>>>>>>>>>>>")
+pprint(plot_pareto_frontier(frontier, CI_level=0.90))
+print("<<<<<<<<<<<<<<<< plot_pareto_frontier")
+
 render(plot_pareto_frontier(frontier, CI_level=0.90))

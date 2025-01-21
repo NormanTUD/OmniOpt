@@ -3473,7 +3473,7 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
         if len(arg_result_column_names) != len(arg_result_min_or_max):
             console.print("[red]The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.[/]")
 
-        __table = Table(title="Result-Names")
+        __table = Table(title="Result-Names:")
 
         __table.add_column("Result-Name", justify="left", style="cyan")
         __table.add_column("Min or max?", justify="right", style="green")

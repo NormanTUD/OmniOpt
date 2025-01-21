@@ -5565,7 +5565,7 @@ def is_firefox_installed():
             check=False
         )
         return result.returncode == 0
-    except Exception as e:
+    except Exception:
         return False
 
 def plot_pareto_frontier_automatically() -> None:

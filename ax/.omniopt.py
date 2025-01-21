@@ -1793,12 +1793,12 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[list[fl
         results = {}
 
         for column_name in arg_result_column_names:
-            _pattern = rf'\\s*{re.escape(column_name)}\\d*:\\s*(-?\\d+(?:\\.\\d+)?)'
+            _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
 
             matches = re.findall(_pattern, input_string)
 
             if matches:
-                results[column_name] = [float(match) for match in matches]
+                results[column_name] = [float(match) for match in matches][0]
             else:
                 results[column_name] = None
 
@@ -1809,6 +1809,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[list[fl
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
+#dier(get_results_new("RESULT1: 123\nRESULT2: 321\nRESULT3: 123456789\n"))
 
 @typechecked
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
@@ -4394,7 +4395,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
                 global_vars["jobs"].remove((job, trial_index))
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
                 if "None for metric" in str(error):
-                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}")
+                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
                 else:
                     print_red(f"\n⚠ {error}")
                 if job:

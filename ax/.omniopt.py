@@ -5559,22 +5559,24 @@ def plot_pareto_frontier_automatically() -> None:
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
     from ax.plot.pareto_frontier import plot_pareto_frontier
     from ax.utils.notebook.plotting import render
+    from itertools import combinations
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
 
     print("objectives:")
     print(objectives)
 
-    frontier = compute_posterior_pareto_frontier(
-        experiment=ax_client.experiment,
-        data=ax_client.experiment.fetch_data(),
-        primary_objective=objectives[0].metric,
-        secondary_objective=objectives[1].metric,
-        absolute_metrics=arg_result_column_names,
-        num_points=count_done_jobs()
-    )
+    for i, j in combinations(range(len(objectives)), 2):
+        frontier = compute_posterior_pareto_frontier(
+            experiment=ax_client.experiment,
+            data=ax_client.experiment.fetch_data(),
+            primary_objective=objectives[i].metric,
+            secondary_objective=objectives[j].metric,
+            absolute_metrics=arg_result_column_names,
+            num_points=count_done_jobs()
+        )
 
-    render(plot_pareto_frontier(frontier, CI_level=0.90))
+        render(plot_pareto_frontier(frontier, CI_level=0.90))
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

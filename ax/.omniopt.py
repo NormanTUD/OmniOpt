@@ -5568,8 +5568,8 @@ def plot_pareto_frontier_automatically() -> None:
     frontier = compute_posterior_pareto_frontier(
         experiment=ax_client.experiment,
         data=ax_client.experiment.fetch_data(),
-        primary_objective=objectives[1].metric,
-        secondary_objective=objectives[0].metric,
+        primary_objective=objectives[0].metric,
+        secondary_objective=objectives[1].metric,
         absolute_metrics=arg_result_column_names,
         num_points=count_done_jobs()
     )
@@ -5673,6 +5673,8 @@ def main() -> None:
 
     if len(arg_result_column_names) > 1:
         plot_pareto_frontier_automatically()
+    else:
+        original_print(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_column_names) is {len(arg_result_column_names)}")
 
     end_program(RESULT_CSV_FILE)
 

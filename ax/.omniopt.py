@@ -5559,7 +5559,12 @@ def main() -> None:
     check_slurm_job_id()
 
     set_run_folder()
+
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
+
+    with open(f"{get_current_run_folder()}/result_names.txt", mode="a", encoding="utf-8") as myfile:
+        for rarg in arg_result_column_names:
+            original_print(rarg, file=myfile)
 
     if os.getenv("CI"):
         data_dict: dict = {

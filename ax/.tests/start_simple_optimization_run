@@ -63,6 +63,7 @@ function help () {
 	echo "  --one_param               One parameter"
 	echo "  --two_params              Two parameters"
 	echo "  --nr_results=1            Nr of 'RESULT's (default: 1)"
+	echo "  --alternate_min_max       Alternate min/max when nr_results > 1"
 	echo "  --help                    This help"
 	echo "  --debug                   Enable debug mode"
 	exit $1
@@ -89,6 +90,7 @@ model=BOTORCH_MODULAR
 mem_gb=4
 all_float=0
 one_param=0
+alternate_min_max=0
 nr_results=1
 
 function parse_argument() {
@@ -152,10 +154,16 @@ function build_omniopt_command_standard() {
 
 	if [[ $nr_results -ne 1 ]]; then
 		base_cmd+=("--result_names")
-		if (( i % 2 == 0 )); then
-			base_cmd+=("RESULT$i=max")
+		if [[ $alternate_min_max -eq 0 ]]; then
+			for ((i = 1; i <= nr_results; i++)); do
+				base_cmd+=("RESULT$i=min")
+			done
 		else
-			base_cmd+=("RESULT$i=min")
+			if (( i % 2 == 0 )); then
+				base_cmd+=("RESULT$i=max")
+			else
+				base_cmd+=("RESULT$i=min")
+			fi
 		fi
 	fi
 
@@ -220,6 +228,9 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		--one_param)
 			one_param=1
+			;;
+		--alternate_min_max)
+			alternate_min_max=1
 			;;
 		--two_params)
 			two_params=1

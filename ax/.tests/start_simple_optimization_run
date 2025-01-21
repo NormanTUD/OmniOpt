@@ -239,6 +239,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--num_parallel_jobs=*|--num_parallel_jobs)
 			parse_argument "$i" "num_parallel_jobs" 1
 			;;
+		--nr_results=*|--nr_results)
+			parse_argument "$i" "nr_results" 1
+			;;
 		--gpus=*|--gpus)
 			parse_argument "$i" "NUM_GPUS" 1
 			;;

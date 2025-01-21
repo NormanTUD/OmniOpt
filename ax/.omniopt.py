@@ -4348,7 +4348,9 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
             try:
                 result = job.result()
                 raw_result = result
-                result = result["result"]
+                result_keys = list(result.keys())
+                pprint(result_keys)
+                result = result[result_keys[0]]
                 this_jobs_finished += 1
 
                 if ax_client:

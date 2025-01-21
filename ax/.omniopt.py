@@ -5559,9 +5559,6 @@ def plot_pareto_frontier_automatically() -> None:
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
 
-    print("objectives:")
-    print(objectives)
-
     for i, j in combinations(range(len(objectives)), 2):
         frontier = compute_posterior_pareto_frontier(
             experiment=ax_client.experiment,

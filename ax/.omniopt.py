@@ -5623,6 +5623,8 @@ def plot_pareto_frontier_automatically() -> None:
             num_points=count_done_jobs()
         )
 
+        plot_pareto_frontier_sixel(calculated_frontier)
+
         rich_table = pareto_front_as_rich_table(
             calculated_frontier.param_dicts,
             calculated_frontier.means,
@@ -5630,9 +5632,18 @@ def plot_pareto_frontier_automatically() -> None:
             calculated_frontier.absolute_metrics
         )
 
+        table_str = ""
+
+        with console.capture() as capture:
+            console.print(rich_table)
+
+        table_str = capture.get()
+
         console.print(rich_table)
 
-        plot_pareto_frontier_sixel(calculated_frontier)
+        if table_str:
+            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="w", encoding="utf-8") as text_file:
+                text_file.write(table_str)
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

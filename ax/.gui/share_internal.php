@@ -67,7 +67,8 @@
 		"trial_index_to_params",
 		"worker_usage.csv",
 		"job_start_time.txt",
-		"result_names.txt"
+		"result_names.txt",
+		"pareto_front_table.txt"
 	];
 
 	$acceptable_files = array_map(function($file) {

@@ -5558,22 +5558,6 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-def is_in_x11_environment():
-    return 'DISPLAY' in os.environ and bool(os.environ['DISPLAY'])
-
-def is_firefox_installed():
-    try:
-        result = subprocess.run(
-            ['which', 'firefox'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=False
-        )
-        return result.returncode == 0
-    except Exception:
-        return False
-
 def supports_sixel() -> bool:
     term = os.environ.get("TERM", "").lower()
     if "xterm" in term or "mlterm" in term:
@@ -5661,12 +5645,6 @@ def plot_pareto_frontier_automatically() -> None:
         )
 
         console.print(rich_table)
-
-        #if is_in_x11_environment() and is_firefox_installed():
-        #    from ax.utils.notebook.plotting import render
-        #    render(plot_pareto_frontier(calculated_frontier, CI_level=args.pareto_front_confidence))
-        #else:
-        #    print_debug("Can only plot pareto-front when your environment supports x11 and firefox is installed")
 
         if supports_sixel():
             plot_pareto_frontier_sixel(calculated_frontier)

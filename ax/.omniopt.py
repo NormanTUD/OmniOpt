@@ -5626,7 +5626,7 @@ def plot_pareto_frontier_automatically() -> None:
             from ax.utils.notebook.plotting import render
             render(plot_pareto_frontier(calculated_frontier, CI_level=args.pareto_front_confidence))
         else:
-            print("Can only plot pareto-front when your environment supports x11 and firefox is installed")
+            print_debug("Can only plot pareto-front when your environment supports x11 and firefox is installed")
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

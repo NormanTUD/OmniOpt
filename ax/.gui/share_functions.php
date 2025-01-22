@@ -735,9 +735,13 @@
 	}
 
 	function checkFolderPermissions($directory, $expectedUser, $expectedGroup, $alternativeUser, $alternativeGroup, $expectedPermissions) {
+		if (getenv('CI') === false) {
+			return false;
+		}
+
 		if (!is_dir($directory)) {
 			echo "<i>Error: '$directory' is not a valid directory</i>\n";
-			return;
+			return true;
 		}
 
 		// Get stat information

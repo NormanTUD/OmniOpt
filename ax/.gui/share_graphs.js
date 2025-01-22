@@ -536,8 +536,24 @@ async function load_parameter () {
 	}
 }
 
-function get_checkmark_if_contains_result(str) {
-	var regex = new RegExp(/RESULT:\s*[+-]?\d+(\.\d+)?/, 'g');
+async function get_result_names_data () {
+	var result_names_data = await fetchJsonFromUrlFilenameOnly(`result_names.txt`, 1)
+
+	var result_names = ["RESULT"];
+
+	if(result_names_data && Object.keys(result_names_data).includes("raw") && result_names_data["raw"] != "null" && result_names_data !== null) {
+		var parsed_json = result_names_data["raw"];
+
+		result_names = parsed_json.split(/\r?\n/);
+	}
+
+	return result_names;
+}
+
+function get_checkmark_if_contains_result(str, result_names) {
+        var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        var regexPattern = `(${escapedResultNames.join('|')}):\\s*[+-]?\\d+(\\.\\d+)?`;
+        var regex = new RegExp(regexPattern, 'g');
 
 	return regex.test(str) ? '✅' : '❌';
 }
@@ -594,6 +610,8 @@ async function load_out_files () {
 			await Promise.all(batchRequests);
 		}
 
+		var result_names = await get_result_names_data();
+
 		for (var i = 0; i < data.data.length; i++) {
 			var _d = got_data[i];
 			showSpinnerOverlay(`Adding log tab ${j + 1}/${data.data.length}`);
@@ -605,7 +623,7 @@ async function load_out_files () {
 				if($("#" + _new_tab_id).length == 0) {
 					var _fn = data.data[i].replaceAll(/.*\//g, ""); // Clean up filename
 					showSpinnerOverlay(`Loading log ${_fn} (${i + 1}/${got_data.length})...`);
-					var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span>${get_checkmark_if_contains_result(_d.data)}</span>`;
+					var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span>${get_checkmark_if_contains_result(_d.data, result_names)}</span>`;
 					var _new_tab_content = `<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${_d.data}</pre></div>`;
 
 					add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#" + main_tabs_div_id, false);

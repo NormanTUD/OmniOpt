@@ -5641,7 +5641,7 @@ def plot_pareto_frontier_automatically() -> None:
         console.print(rich_table)
 
         if table_str:
-            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="w", encoding="utf-8") as text_file:
+            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                 text_file.write(table_str)
 
 def main() -> None:

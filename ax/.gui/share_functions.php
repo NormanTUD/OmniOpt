@@ -733,3 +733,47 @@
 		}
 		return rtrim($output);
 	}
+
+	function checkFolderPermissions($directory, $expectedUser, $expectedGroup, $expectedPermissions) {
+		if (!is_dir($directory)) {
+			echo "<i>Error: '$directory' is not a valid directory</i>\n";
+			return;
+		}
+
+		// Get stat information
+		$stat = stat($directory);
+		if ($stat === false) {
+			echo "<i>Error: Unable to retrieve information for '$directory'</i><br>\n";
+			return;
+		}
+
+		// Get current ownership and permissions
+		$currentUser = posix_getpwuid($stat['uid'])['name'] ?? 'unknown';
+		$currentGroup = posix_getgrgid($stat['gid'])['name'] ?? 'unknown';
+		$currentPermissions = substr(sprintf('%o', $stat['mode']), -4);
+
+		$issues = false;
+
+		// Check user
+		if ($currentUser !== $expectedUser) {
+			$issues = true;
+			echo "<i>Ownership issue: Current user is '$currentUser'. Expected user is '$expectedUser'</i><br>\n";
+			echo "<samp>chown $expectedUser $directory</samp>\n<br>";
+		}
+
+		// Check group
+		if ($currentGroup !== $expectedGroup) {
+			$issues = true;
+			echo "<i>Ownership issue: Current group is '$currentGroup'. Expected group is '$expectedGroup'</i><br>\n";
+			echo "<samp>chown :$expectedGroup $directory</samp><br>\n";
+		}
+
+		// Check permissions
+		if (intval($currentPermissions, 8) !== $expectedPermissions) {
+			$issues = true;
+			echo "<i>Permissions issue: Current permissions are '$currentPermissions'. Expected permissions are '" . sprintf('%o', $expectedPermissions) . "'</i><br>\n";
+			echo "<samp>chmod " . sprintf('%o', $expectedPermissions) . " $directory\n</samp><br>";
+		}
+
+		return $issues;
+	}

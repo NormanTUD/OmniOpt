@@ -13,7 +13,6 @@
 	include_once "_functions.php";
 	include_once "share_functions.php";
 
-	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 	$sharesPath = './shares/';
 
 	if (getenv("share_path") || isset($_GET["share_path"])) {
@@ -41,6 +40,13 @@
 
 		print("Using sharesPath $sharesPath\n");
 	}
+
+
+	if(checkFolderPermissions($sharesPath, get_current_user(), get_current_user(), 0755)) {
+		exit(1);
+	}
+
+	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 
 	delete_old_shares();
 
@@ -155,6 +161,7 @@
 	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
 		$dir_path = "..";
 	}
+
 	if (!isset($_GET["get_hash_only"])) {
 ?>
 	    <div id="breadcrumb"></div>

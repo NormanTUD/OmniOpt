@@ -735,7 +735,7 @@
 	}
 
 	function checkFolderPermissions($directory, $expectedUser, $expectedGroup, $alternativeUser, $alternativeGroup, $expectedPermissions) {
-		if (getenv('CI') === false) {
+		if (getenv('CI') !== false) {
 			return false;
 		}
 

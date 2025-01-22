@@ -1,18 +1,18 @@
 var initialized = false;
 var shown_operation_insecure_without_server = false;
 
-var l = typeof log === 'function' ? log : console.log;
+var l = typeof log === "function" ? log : console.log;
 
 var tableData = [
 	{ label: "Partition", id: "partition", type: "select", value: "", options: [], "required": true, "help": "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
-	{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters and numbers)", "required": true, 'regex': '^[a-zA-Z0-9_]+$', "help": "Name of your experiment. Will be used for example for the foldername it's results will be saved in." },
+	{ label: "Experiment name", id: "experiment_name", type: "text", value: "", placeholder: "Name of your experiment (only letters and numbers)", "required": true, "regex": "^[a-zA-Z0-9_]+$", "help": "Name of your experiment. Will be used for example for the foldername it's results will be saved in." },
 	{ label: "Reservation", id: "reservation", type: "text", value: "", placeholder: "Name of your reservation (optional)", "required": false, "regex": "^[a-zA-Z0-9_]*$", "help": "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically." },
 	{ label: "Account", id: "account", type: "text", value: "", placeholder: "Account the job should run on", "help": "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account." },
 	{ label: "Memory (in GB)", id: "mem_gb", type: "number", value: 1, placeholder: "Memory in GB per worker", min: 1, max: 1000 },
 	{ label: "Timeout for the main program", id: "time", type: "number", value: 60, placeholder: "Timeout for the whole program", min: 1, "help": "This is the maximum amount of time that your main job will run, spawn jobs and collect results." },
 	{ label: "Timeout for a single worker", id: "worker_timeout", type: "number", value: 60, placeholder: "Timeout for a single worker", min: 1, "help": "This is the maximum amount of time a single worker may run." },
-	{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, 'max': 100000000, "help": "This number determines how many successful workers in total are needed to end the job properly." },
-	{ label: "Max. number of Workers", id: "num_parallel_jobs", type: "number", value: 20, placeholder: "Maximum number of workers", 'min': 1, 'max': 100000000, "help": "The number maximum of workers that can run in parallel. While running, the number may be below this some times." },
+	{ label: "Maximal number of evaluations", id: "max_eval", type: "number", value: 500, placeholder: "Maximum number of evaluations", min: 1, "max": 100000000, "help": "This number determines how many successful workers in total are needed to end the job properly." },
+	{ label: "Max. number of Workers", id: "num_parallel_jobs", type: "number", value: 20, placeholder: "Maximum number of workers", "min": 1, "max": 100000000, "help": "The number maximum of workers that can run in parallel. While running, the number may be below this some times." },
 	{ label: "GPUs per Worker", id: "gpus", type: "number", value: 0, placeholder: "Number of GPUs per worker", min: 0, max: 10, "help": "How many GPUs each worker should have." },
 	{ label: "Number of random steps", id: "num_random_steps", type: "number", value: 20, placeholder: "Number of random steps", min: 1, "help": "At the beginning, some random jobs are started. By default, it is 20. This is needed to 'calibrate' the surrogate model." },
 	{ label: "Follow", id: "follow", type: "checkbox", value: 1, "help": "tail -f the .out-file automatically, so you can see the output as soon as it appears. This does not change the results of OmniOpt2, but only the user-experience. This way, you see results as soon as they are available without needing to manually look for the outfile. Due to it using tail -f internally, you can simply CTRL-c out of it without cancelling the job." },
@@ -20,7 +20,7 @@ var tableData = [
 	{ label: "Send anonymized usage statistics?", id: "send_anonymized_usage_stats", type: "checkbox", value: 1, "help": "This contains the time the job was started and ended, it's exit code, and runtime-uuid to count the number of unique runs and a 'user-id', which is a hashed output of the aes256 encrypted username/groups combination and some other values, but cannot be traced back to any specific user." },
 	{ label: "Automatically checkout to latest checked version", id: "checkout_to_latest_tested_version", type: "checkbox", value: 1, "help": "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs." },
 	//{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 0, "info": "May not be supported on all terminals.", "help": "This will use the module sixel to try to print your the results to the command line. If this doesn't work for you, please disable it. It has no effect on the results of OmniOpt2." },
-	{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, 'info': 'Use Variable names like this: <br><code class="highlight_me dark_code_bg invert_in_dark_mode">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target="_blank" href="tutorials.php?tutorial=run_sh">this tutorial</a> to learn about the <code>run.sh</code>-file', "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
+	{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, "info": "Use Variable names like this: <br><code class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file", "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
 ];
 
 var hiddenTableData = [
@@ -30,7 +30,7 @@ var hiddenTableData = [
 	{ label: "Verbose", id: "verbose", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
 	{ label: "Debug", id: "debug", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
 	//{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0, "help": "When set, the job will be maximized instead of minimized. This option may not work with all plots currently (TODO).", 'info': 'Currently, this is in alpha and may give wrong results!' },
-	{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: 'Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.', "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
+	{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: "Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.", "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
 	{ label: "Model", id: "model", type: "select", value: "",
 		options: [
 			{ "text": "BOTORCH_MODULAR", "value": "BOTORCH_MODULAR" },
@@ -64,25 +64,25 @@ var hiddenTableData = [
 		{ "text": "Calculate the geometric distance to the origo of the search space", "value": "geometric" },
 		{ "text": "Calculate the signed harmonic distance to the origo of the search space", "value": "signed_harmonic" },
 	], "required": true,
-		"info": `How to merge multiple results into one. Doesn't affect single result jobs.`,
-		"help": "How to merge multiple results into one."
+	"info": "How to merge multiple results into one. Doesn't affect single result jobs.",
+	"help": "How to merge multiple results into one."
 	},
 
 	{ label: "Installation-Method", id: "installation_method", type: "select", value: "", options: [
 		{ "text": "Use git clone to clone OmniOpt2", "value": "clone" },
 		{ "text": "Use pip and install OmniOpt2 from pypi (may not be the latest version)", "value": "pip" }
 	], "required": true,
-		"info": `Changes the way OmniOpt2 is installed.`,
-		"help": "If you want to install OmniOpt2 via pip, chose it here. It may not always have the latest version.",
-		"use_in_curl_bash": true
+	"info": "Changes the way OmniOpt2 is installed.",
+	"help": "If you want to install OmniOpt2 via pip, chose it here. It may not always have the latest version.",
+	"use_in_curl_bash": true
 	},
 
 	{ label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
 		{ "text": "Locally or on a HPC system", "value": "local" },
 		{ "text": "Docker", "value": "docker" }
 	], "required": true,
-		"info": `Changes the curl-command and how omniopt is installed and executed.`,
-		"help": "If set to docker, it will run in a local docker container."
+	"info": "Changes the curl-command and how omniopt is installed and executed.",
+	"help": "If set to docker, it will run in a local docker container."
 	},
 
 	{
@@ -98,14 +98,14 @@ var hiddenTableData = [
 
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
-	var $parent = $($input).parent()
+	var $parent = $($input).parent();
 
 	if (
 		$parent.find(".time_picker_container").length ||
 		$parent.find(".time_picker_minutes").length ||
 		$parent.find(".time_picker_hours").length
 	) {
-		log(".time_picker_minutes or .time_picker_hours already found. Not reinstantiating for id " + input_id)
+		log(".time_picker_minutes or .time_picker_hours already found. Not reinstantiating for id " + input_id);
 		return;
 	}
 
@@ -127,28 +127,28 @@ function input_to_time_picker (input_id) {
 
 	$parent.prepend($div);
 
-	$input.hide()
+	$input.hide();
 }
 
 function update_original_time_element (original_element_id, new_element) {
 	var $parent = $(new_element).parent();
-	var $time_picker_minutes = $parent.find(".time_picker_minutes")
+	var $time_picker_minutes = $parent.find(".time_picker_minutes");
 	var $time_picker_hours = $parent.find(".time_picker_hours");
 
-	var _minutes = parseInt($time_picker_minutes.val())
-	var _hours = parseInt($time_picker_hours.val())
+	var _minutes = parseInt($time_picker_minutes.val());
+	var _hours = parseInt($time_picker_hours.val());
 
 	if (_minutes == -1) {
 		if (_hours > 0) {
 			_hours = _hours - 1;
-			_minutes = 55
+			_minutes = 55;
 		} else {
-			_hours = 0
+			_hours = 0;
 			_minutes = 5;
 		}
 	} else if (_minutes >= 60) {
 		_hours = _hours + 1;
-		_minutes = 0
+		_minutes = 0;
 	}
 
 	if (_hours == -1) {
@@ -159,8 +159,8 @@ function update_original_time_element (original_element_id, new_element) {
 		}
 	}
 
-	$time_picker_hours.val(_hours)
-	$time_picker_minutes.val(_minutes)
+	$time_picker_hours.val(_hours);
+	$time_picker_minutes.val(_minutes);
 
 	var new_val = (parseInt(_hours) * 60) + parseInt(_minutes);
 
@@ -168,7 +168,7 @@ function update_original_time_element (original_element_id, new_element) {
 }
 
 function highlight_bash (code) {
-	return Prism.highlight(code, Prism.languages.bash, 'bash');
+	return Prism.highlight(code, Prism.languages.bash, "bash");
 }
 
 function highlight_all_bash () {
@@ -241,10 +241,10 @@ function update_partition_options() {
 					}
 				});
 			} else {
-				error(`No partition info`)
+				error("No partition info");
 			}
 		} else {
-			error(`Cannot find ${partition} in partition_data.`)
+			error(`Cannot find ${partition} in partition_data.`);
 		}
 
 		update_url();
@@ -254,10 +254,10 @@ function update_partition_options() {
 }
 
 function set_min_max () {
-	document.querySelectorAll('input').forEach(input => {
-		if (input.hasAttribute('min') || input.hasAttribute('max')) {
-			var _min = input.hasAttribute('min') ? parseFloat(input.getAttribute('min')) : null;
-			var _max = input.hasAttribute('max') ? parseFloat(input.getAttribute('max')) : null;
+	document.querySelectorAll("input").forEach(input => {
+		if (input.hasAttribute("min") || input.hasAttribute("max")) {
+			var _min = input.hasAttribute("min") ? parseFloat(input.getAttribute("min")) : null;
+			var _max = input.hasAttribute("max") ? parseFloat(input.getAttribute("max")) : null;
 
 			let value = parseFloat(input.value);
 
@@ -288,7 +288,7 @@ function quote_variables(input) {
 			var variable = p2 || p3;
 			return "'%(" + variable + ")'";
 		}
-});
+	});
 }
 
 function get_var_names_from_run_program(run_program_string) {
@@ -298,8 +298,8 @@ function get_var_names_from_run_program(run_program_string) {
 	let match;
 	while ((match = pattern.exec(run_program_string)) !== null) {
 		let varName = match[0];
-		varName = varName.replace(/^(\$|%)/, '');
-		varName = varName.replace(/^(\$|%)?\(|\)$/g, '');
+		varName = varName.replace(/^(\$|%)/, "");
+		varName = varName.replace(/^(\$|%)?\(|\)$/g, "");
 		if (/^[a-zA-Z_]+$/.test(varName)) {
 			variableNames.push(varName);
 		}
@@ -312,13 +312,13 @@ function update_table_row (item, errors, warnings, command) {
 	var value = $("#" + item.id).val();
 
 	if(item.regex) {
-		var re = new RegExp(item.regex, "i")
+		var re = new RegExp(item.regex, "i");
 
 		var text = $("#" + item.id).val();
 
 		if(!text.match(re)) {
 			var this_error = `The element "${item.id}" does not match regex /${item.regex}/.`;
-			errors.push(this_error)
+			errors.push(this_error);
 			$("#" + item.id + "_error").html(this_error).show();
 		} else {
 			$("#" + item.id + "_error").html("").hide();
@@ -449,7 +449,7 @@ function update_table_row (item, errors, warnings, command) {
 
 			if(!existing_parameter_names.includes(test_this_var_name)) {
 				var err_msg = `<code>%(${test_this_var_name})</code> not in existing defined parameters.`;
-				new_errors.push(err_msg)
+				new_errors.push(err_msg);
 			}
 		}
 
@@ -458,7 +458,7 @@ function update_table_row (item, errors, warnings, command) {
 
 			if(!variables_in_run_program.includes(test_this_var_name)) {
 				var err_msg = `<code>%(${test_this_var_name})</code> is defined but not used.`;
-				new_errors.push(err_msg)
+				new_errors.push(err_msg);
 			}
 		}
 
@@ -488,7 +488,7 @@ function update_table_row (item, errors, warnings, command) {
 		}
 	}
 
-	return [command, errors, warnings]
+	return [command, errors, warnings];
 }
 
 function set_row_background_color_red_color(_row) {
@@ -519,10 +519,10 @@ function update_command() {
 
 	tableData.forEach(function(item) {
 		if(!Object.keys(item).includes("use_in_curl_bash") || item["use_in_curl_bash"] === false) {
-			var cew = update_table_row(item, errors, warnings, command)
-			command = cew[0]
-			errors = cew[1]
-			warnings = cew[2]
+			var cew = update_table_row(item, errors, warnings, command);
+			command = cew[0];
+			errors = cew[1];
+			warnings = cew[2];
 		} else {
 			if(item["type"] == "select") {
 				var val = $(`#${item["id"]}`).val();
@@ -530,17 +530,17 @@ function update_command() {
 			} else if(item["type"] == "checkbox" && $(`#${item["id"]}`).is(":checked")) {
 				curl_options = ` --${item["id"]} `;
 			} else {
-				error(`use_in_curl_bash currently only supports select and checkbox`);
+				error("use_in_curl_bash currently only supports select and checkbox");
 			}
 		}
 	});
 
 	hiddenTableData.forEach(function(item) {
 		if(!Object.keys(item).includes("use_in_curl_bash") || item["use_in_curl_bash"] === false) {
-			var cew = update_table_row(item, errors, warnings, command)
-			command = cew[0]
-			errors = cew[1]
-			warnings = cew[2]
+			var cew = update_table_row(item, errors, warnings, command);
+			command = cew[0];
+			errors = cew[1];
+			warnings = cew[2];
 		} else {
 			if(item["type"] == "select") {
 				var val = $(`#${item["id"]}`).val();
@@ -548,7 +548,7 @@ function update_command() {
 			} else if(item["type"] == "checkbox" && $(`#${item["id"]}`).is(":checked")) {
 				curl_options = ` --${item["id"]} `;
 			} else {
-				error(`use_in_curl_bash currently only supports select and checkbox`);
+				error("use_in_curl_bash currently only supports select and checkbox");
 			}
 		}
 	});
@@ -623,7 +623,7 @@ function update_command() {
 					choiceValues = choiceValues.replaceAll(/,,*$/g, "");
 					choiceValues = choiceValues.replaceAll(/^,,*/g, "");
 
-					choiceValues = [...new Set(choiceValues.split(','))].join(',');
+					choiceValues = [...new Set(choiceValues.split(","))].join(",");
 
 					_value = `${parameterName} choice ${choiceValues}`;
 
@@ -631,7 +631,7 @@ function update_command() {
 						warn_msg.push("Values are missing.");
 					}
 				} else {
-					warn_msg.push(`choiceValues not defined.`);
+					warn_msg.push("choiceValues not defined.");
 				}
 			} else if (option === "fixed") {
 				var fixedValue = $(this).find(".fixedValue").val();
@@ -640,7 +640,7 @@ function update_command() {
 					fixedValue = fixedValue.replace(/,*$/g, "");
 					fixedValue = fixedValue.replace(/,+/g, ",");
 
-					fixedValue = Array.from(new Set(fixedValue.split(','))).join(',');
+					fixedValue = Array.from(new Set(fixedValue.split(","))).join(",");
 
 					_value = `${parameterName} fixed ${fixedValue}`;
 				}
@@ -691,7 +691,7 @@ function update_command() {
 
 	if ($("#constraints").val()) {
 		var _constraints = $("#constraints").val().split(";");
-		_constraints = _constraints.filter(function(entry) { return entry.trim() != ''; }).map(function (el) {
+		_constraints = _constraints.filter(function(entry) { return entry.trim() != ""; }).map(function (el) {
 			return el.trim();
 		});
 		for (var r = 0; r < _constraints.length; r++) {
@@ -707,33 +707,33 @@ function update_command() {
 	});
 
 	if (!errors.length && $(".optionSelect").length && !errors_visible) {
-		var base_url = location.protocol + '//' + location.host + "/" + location.pathname + "/";
+		var base_url = location.protocol + "//" + location.host + "/" + location.pathname + "/";
 
 		base_url = base_url.replaceAll(/\/+/g, "/");
 
-		base_url = base_url.replace(/^http:\//, "http://")
-			base_url = base_url.replace(/^https:\//, "https://")
-				base_url = base_url.replace(/^file:\//, "file://")
+		base_url = base_url.replace(/^http:\//, "http://");
+		base_url = base_url.replace(/^https:\//, "https://");
+		base_url = base_url.replace(/^file:\//, "file://");
 
-					var ui_url = btoa(window.location.toString())
-					command += " --ui_url " + ui_url;
+		var ui_url = btoa(window.location.toString());
+		command += " --ui_url " + ui_url;
 
-					var base_64_string = btoa(command);
+		var base_64_string = btoa(command);
 
-					var curl_or_cat = "curl";
+		var curl_or_cat = "curl";
 
-					if (base_url.startsWith("file://")) {
-						curl_or_cat = "cat";
+		if (base_url.startsWith("file://")) {
+			curl_or_cat = "cat";
 
-						var filename = location.pathname.substring(location.pathname.lastIndexOf('/')+1)
+			var filename = location.pathname.substring(location.pathname.lastIndexOf("/")+1);
 
-						var _re_ = new RegExp(`${filename}/?$`);
+			var _re_ = new RegExp(`${filename}/?$`);
 
-						base_url = base_url.replace(_re_, "");
+			base_url = base_url.replace(_re_, "");
 
-						base_url = base_url.replace(/^file:\//, "/");
-							base_url = base_url.replace(/^\/\//, "/");
-					}
+			base_url = base_url.replace(/^file:\//, "/");
+			base_url = base_url.replace(/^\/\//, "/");
+		}
 		base_url = base_url.replace(/\/index.php/, "");
 		base_url = base_url.replace(/\/gui.php/, "");
 
@@ -770,7 +770,7 @@ function updateOptions(select) {
 		paramName = "";
 	}
 
-	if (selectedOption === 'range') {
+	if (selectedOption === "range") {
 		valueCell.innerHTML = `
 			<table>
 			    <tr>
@@ -802,7 +802,7 @@ function updateOptions(select) {
 			    </tr>
 			</table>
 		    `;
-	} else if (selectedOption === 'choice') {
+	} else if (selectedOption === "choice") {
 		valueCell.innerHTML = `
 			<table>
 			    <tr>
@@ -815,7 +815,7 @@ function updateOptions(select) {
 			    </tr>
 			</table>
 		    `;
-	} else if (selectedOption === 'fixed') {
+	} else if (selectedOption === "fixed") {
 		valueCell.innerHTML = `
 			<table>
 			    <tr>
@@ -830,7 +830,7 @@ function updateOptions(select) {
 		    `;
 	}
 
-	valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>"
+	valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>";
 
 	update_command();
 
@@ -854,8 +854,8 @@ function addRow(button) {
 
 	updateOptions(optionCell.firstChild);
 
-	newRow.classList.add('parameterRow');
-	optionCell.firstChild.classList.add('optionSelect');
+	newRow.classList.add("parameterRow");
+	optionCell.firstChild.classList.add("optionSelect");
 	//valueCell.firstChild.classList.add('valueInput');
 
 	update_command();
@@ -872,17 +872,17 @@ function removeRow(button) {
 }
 
 function string_or_array_to_list (input) {
-	if (typeof input === 'string') {
+	if (typeof input === "string") {
 		return input;
 	} else if (Array.isArray(input)) {
 		if (input.length === 1) {
 			return input[0];
 		} else {
 			const listItems = input.map(item => `<li>${item}</li>`);
-			return `<ul>${listItems.join('')}</ul>`;
+			return `<ul>${listItems.join("")}</ul>`;
 		}
 	} else {
-		throw new Error('Invalid input type. Only strings or arrays are allowed.');
+		throw new Error("Invalid input type. Only strings or arrays are allowed.");
 	}
 }
 
@@ -984,7 +984,7 @@ function create_tables() {
 	var tbody = table.find("tbody");
 
 	tableData.forEach(function(item) {
-		create_table_row(table, tbody, item)
+		create_table_row(table, tbody, item);
 	});
 
 	tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter invert_in_dark_mode' id='main_add_row_button'>Add variable</button></td><td colspan='2'></td></tr>");
@@ -993,7 +993,7 @@ function create_tables() {
 	var hidden_tbody = hidden_table.find("tbody");
 
 	hiddenTableData.forEach(function(item) {
-		create_table_row(hidden_table, hidden_tbody, item)
+		create_table_row(hidden_table, hidden_tbody, item);
 	});
 
 	highlight_all_bash();
@@ -1089,9 +1089,9 @@ function copy_bashcommand_to_clipboard_main () {
 	var serialized = $("#command_element").text();
 	copy_to_clipboard(serialized);
 
-	$('#copied_main').show();
+	$("#copied_main").show();
 	setTimeout(function() {
-		$('#copied_main').fadeOut();
+		$("#copied_main").fadeOut();
 	}, 5000);
 }
 
@@ -1099,14 +1099,14 @@ function copy_bashcommand_to_clipboard_curl () {
 	var serialized = $("#curl_command").text();
 	copy_to_clipboard(serialized);
 
-	$('#copied_curl').show();
+	$("#copied_curl").show();
 	setTimeout(function() {
-		$('#copied_curl').fadeOut();
+		$("#copied_curl").fadeOut();
 	}, 5000);
 }
 
 async function start_gremlins () {
-	javascript: (function() {
+	(function() {
 		function callback() {
 			var horde = gremlins.createHorde({
 				species: [
@@ -1135,5 +1135,5 @@ async function start_gremlins () {
 			s.onreadystatechange = callback;
 		}
 		document.body.appendChild(s);
-	})()
+	})();
 }

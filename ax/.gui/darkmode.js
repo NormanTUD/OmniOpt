@@ -29,11 +29,11 @@ function get_cookie(name) {
 function enable_dark_mode() {
 	$("#themeSelect").val("dark");
 
-	$('html').css('filter', 'invert(1)');
-	$('.invert_in_dark_mode').css('filter', 'invert(1)');
-	$('img').css('filter', 'invert(1)');
-	$('.share_graph').css('filter', 'invert(1)');
-	$('.usage_plot').css('filter', 'invert(1)');
+	$("html").css("filter", "invert(1)");
+	$(".invert_in_dark_mode").css("filter", "invert(1)");
+	$("img").css("filter", "invert(1)");
+	$(".share_graph").css("filter", "invert(1)");
+	$(".usage_plot").css("filter", "invert(1)");
 
 	set_cookie("theme", "dark");
 
@@ -47,11 +47,11 @@ function enable_dark_mode() {
 function enable_light_mode() {
 	$("#themeSelect").val("light");
 
-	$('html').css('filter', '');
-	$('.invert_in_dark_mode').css('filter', '');
-	$('img').css('filter', 'invert(0)');
-	$('.share_graph').css('filter', 'invert(0)');
-	$('.usage_plot').css('filter', 'invert(0)');
+	$("html").css("filter", "");
+	$(".invert_in_dark_mode").css("filter", "");
+	$("img").css("filter", "invert(0)");
+	$(".share_graph").css("filter", "invert(0)");
+	$(".usage_plot").css("filter", "invert(0)");
 
 	set_cookie("theme", "light");
 
@@ -70,7 +70,7 @@ function apply_theme_based_on_system_preferences() {
 			enable_light_mode();
 		}
 	} else {
-		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+		if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
 			enable_dark_mode();
 		} else {
 			enable_light_mode();

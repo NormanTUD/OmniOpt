@@ -5594,7 +5594,7 @@ def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
 
 def plot_pareto_frontier_automatically() -> None:
     if len(arg_result_column_names) == 1:
-        print(f"{len(arg_result_column_names)} is 1")
+        print_debug(f"{len(arg_result_column_names)} is 1")
         return
 
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
@@ -5612,14 +5612,13 @@ def plot_pareto_frontier_automatically() -> None:
             num_points=count_done_jobs()
         )
 
-        pprint(calculated_frontier)
-
         rich_table = pareto_front_as_rich_table(
             calculated_frontier.param_dicts,
             calculated_frontier.means,
             calculated_frontier.sems,
             calculated_frontier.absolute_metrics
         )
+
         console.print(rich_table)
 
         if is_in_x11_environment() and is_firefox_installed():

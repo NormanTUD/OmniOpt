@@ -564,23 +564,19 @@ function get_checkmark_if_contains_result(str, result_names) {
 		var foundResults = [];
 		var match;
 		while ((match = regex.exec(str)) !== null) {
-			foundResults.push(match[1]); // Speichere den gefundenen Schlüssel (z.B. "RESULT", "FOO")
+			foundResults.push(match[1]);
 		}
 
-		// Erstelle die Checkmarks/Xs basierend auf den gefundenen und nicht gefundenen Ergebnissen
 		var checkmarks = result_names.map(name => (foundResults.includes(name) ? '✅' : '❌'));
 
-		// Wenn alle da sind, nur ein ✅ zurückgeben
 		if (checkmarks.every(mark => mark === '✅')) {
 			return '✅';
 		}
 
-		// Wenn keine da sind, nur ein ❌ zurückgeben
 		if (checkmarks.every(mark => mark === '❌')) {
 			return '❌';
 		}
 
-		// Sonst, individuelle Checkmarks zurückgeben
 		return checkmarks.join('');
 	} catch (error) {
 		console.error("An error occurred:", error);

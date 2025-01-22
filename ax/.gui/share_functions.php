@@ -589,7 +589,7 @@
 		}
 	}
 
-	function deleteEmptyDirectories(string $directory): bool {
+	function deleteEmptyDirectories(string $directory, bool $is_recursive_call): bool {
 		if (!is_dir($directory)) {
 			return false;
 		}
@@ -599,12 +599,12 @@
 		foreach ($files as $file) {
 			$path = $directory . DIRECTORY_SEPARATOR . $file;
 			if (is_dir($path)) {
-				deleteEmptyDirectories($path);
+				deleteEmptyDirectories($path, true);
 			}
 		}
 
 		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
-		if (empty($filesAfterCheck)) {
+		if ($is_recursive_call && empty($filesAfterCheck)) {
 			rmdir($directory);
 			return true;
 		}
@@ -651,9 +651,9 @@
 
 	function delete_old_shares () {
 		$directoryToCheck = 'shares';
-		deleteEmptyDirectories($directoryToCheck);
+		deleteEmptyDirectories($directoryToCheck, false);
 		$oldDirs = _delete_old_shares($directoryToCheck);
-		deleteEmptyDirectories($directoryToCheck);
+		deleteEmptyDirectories($directoryToCheck, false);
 
 		return $oldDirs;
 	}

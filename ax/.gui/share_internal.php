@@ -42,7 +42,7 @@
 	}
 
 
-	if(checkFolderPermissions($sharesPath, get_current_user(), get_current_user(), 0755)) {
+	if(checkFolderPermissions($sharesPath, "www-data", "www-data", 0755)) {
 		exit(1);
 	}
 

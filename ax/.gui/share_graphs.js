@@ -962,8 +962,7 @@ async function load_best_result () {
 		$(".best_result_txt").html(`<pre>${removeAnsiCodes(data.raw)}</pre>`);
 	}
 
-	if (pareto_data.raw != "null" && pareto_data.raw !== null) {
-		console.log(pareto_data)
+	if (Object.keys(pareto_data).includes("raw") && pareto_data.raw != "null" && pareto_data.raw !== null) {
 		$(".best_result_txt").append(`<pre>${removeAnsiCodes(pareto_data.raw)}</pre>`);
 	}
 }

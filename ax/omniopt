@@ -411,6 +411,7 @@ function calltracer {
 	else
 		echo ""
 	fi
+
 	_tput bel
 }
 

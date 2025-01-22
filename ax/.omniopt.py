@@ -5558,20 +5558,6 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-def supports_sixel() -> bool:
-    term = os.environ.get("TERM", "").lower()
-    if "xterm" in term or "mlterm" in term:
-        return True
-
-    try:
-        output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
-        if output.returncode == 0 and "sixel" in output.stdout.lower():
-            return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-
-    return False
-
 def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
     table = Table(title="Pareto Frontier Results", show_lines=True)
 
@@ -5646,10 +5632,7 @@ def plot_pareto_frontier_automatically() -> None:
 
         console.print(rich_table)
 
-        if supports_sixel():
-            plot_pareto_frontier_sixel(calculated_frontier)
-        else:
-            print("display_sixel(): sixel not supported")
+        plot_pareto_frontier_sixel(calculated_frontier)
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

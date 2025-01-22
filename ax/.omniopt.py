@@ -5574,6 +5574,20 @@ def is_firefox_installed():
     except Exception:
         return False
 
+def supports_sixel() -> bool:
+    term = os.environ.get("TERM", "").lower()
+    if "xterm" in term or "mlterm" in term:
+        return True
+
+    try:
+        output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
+        if output.returncode == 0 and "sixel" in output.stdout.lower():
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    return False
+
 def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
     table = Table(title="Pareto Frontier Results", show_lines=True)
 
@@ -5591,6 +5605,33 @@ def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
         table.add_row(*row, style="bold green")
 
     return table
+
+def plot_pareto_frontier_sixel(data: Any) -> None:
+    import matplotlib.pyplot as plt
+    import tempfile
+
+    means = data.means
+    absolute_metrics = data.absolute_metrics
+
+    x_metric = absolute_metrics[0]
+    y_metric = absolute_metrics[1]
+
+    x_values = means[x_metric]
+    y_values = means[y_metric]
+
+    fig, ax = plt.subplots()
+
+    ax.scatter(x_values, y_values, s=50, marker='x', c='blue', label='Data Points')
+    ax.set_xlabel(x_metric)
+    ax.set_ylabel(y_metric)
+    ax.set_title('Pareto-Frontier')
+
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
+        plt.savefig(tmp_file.name, dpi=300)
+
+        print_image_to_cli(tmp_file.name, 600)
+
+    plt.close(fig)
 
 def plot_pareto_frontier_automatically() -> None:
     if len(arg_result_column_names) == 1:
@@ -5621,11 +5662,16 @@ def plot_pareto_frontier_automatically() -> None:
 
         console.print(rich_table)
 
-        if is_in_x11_environment() and is_firefox_installed():
-            from ax.utils.notebook.plotting import render
-            render(plot_pareto_frontier(calculated_frontier, CI_level=args.pareto_front_confidence))
+        #if is_in_x11_environment() and is_firefox_installed():
+        #    from ax.utils.notebook.plotting import render
+        #    render(plot_pareto_frontier(calculated_frontier, CI_level=args.pareto_front_confidence))
+        #else:
+        #    print_debug("Can only plot pareto-front when your environment supports x11 and firefox is installed")
+
+        if supports_sixel():
+            plot_pareto_frontier_sixel(calculated_frontier)
         else:
-            print_debug("Can only plot pareto-front when your environment supports x11 and firefox is installed")
+            print("display_sixel(): sixel not supported")
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

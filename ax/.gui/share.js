@@ -1,5 +1,5 @@
 "use strict";
-var current_folder = ""
+var current_folder = "";
 
 function parsePathAndGenerateLink(path) {
 	// Define the regular expression to capture the different parts of the path
@@ -8,18 +8,18 @@ function parsePathAndGenerateLink(path) {
 
 	// Check if the path matches the expected format
 	if (match) {
-		var user = match[1] || '';
-		var experiment = match[2] || '';
-		var runNr = match[3] || '';
+		var user = match[1] || "";
+		var experiment = match[2] || "";
+		var runNr = match[3] || "";
 
 
 		// Construct the query string
-		var queryString = 'share.php?user_id=' + encodeURIComponent(user);
+		var queryString = "share.php?user_id=" + encodeURIComponent(user);
 		if (experiment) {
-			queryString += '&experiment_name=' + encodeURIComponent(experiment);
+			queryString += "&experiment_name=" + encodeURIComponent(experiment);
 		}
 		if (runNr) {
-			queryString += '&run_nr=' + encodeURIComponent(runNr);
+			queryString += "&run_nr=" + encodeURIComponent(runNr);
 		}
 
 		return queryString;
@@ -29,23 +29,23 @@ function parsePathAndGenerateLink(path) {
 }
 
 function createBreadcrumb(currentFolderPath) {
-	var breadcrumb = document.getElementById('breadcrumb');
-	breadcrumb.innerHTML = '';
+	var breadcrumb = document.getElementById("breadcrumb");
+	breadcrumb.innerHTML = "";
 
-	var pathArray = currentFolderPath.split('/');
-	var fullPath = '';
+	var pathArray = currentFolderPath.split("/");
+	var fullPath = "";
 
-	var currentPath = "/Start/"
+	var currentPath = "/Start/";
 
 	pathArray.forEach(function(folderName, index) {
 		if (folderName == ".") {
 			folderName = "Start";
 		}
-		if (folderName !== '') {
+		if (folderName !== "") {
 			var originalFolderName = folderName;
-			fullPath += originalFolderName + '/';
+			fullPath += originalFolderName + "/";
 
-			var link = document.createElement('a');
+			var link = document.createElement("a");
 			link.classList.add("breadcrumb_nav");
 			link.classList.add("box-shadow");
 			link.textContent = decodeURI(folderName);
@@ -59,7 +59,7 @@ function createBreadcrumb(currentFolderPath) {
 				`);
 			} else {
 				currentPath += `/${folderName}`;
-				parsedPath = parsePathAndGenerateLink(currentPath)
+				parsedPath = parsePathAndGenerateLink(currentPath);
 
 				eval(`$(link).on("click", async function () {
 						window.location.href = parsedPath;
@@ -69,7 +69,7 @@ function createBreadcrumb(currentFolderPath) {
 
 			breadcrumb.appendChild(link);
 
-			breadcrumb.appendChild(document.createTextNode(' / '));
+			breadcrumb.appendChild(document.createTextNode(" / "));
 		}
 	});
 }

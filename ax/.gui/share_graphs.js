@@ -551,11 +551,41 @@ async function get_result_names_data () {
 }
 
 function get_checkmark_if_contains_result(str, result_names) {
-        var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        var regexPattern = `(${escapedResultNames.join('|')}):\\s*[+-]?\\d+(\\.\\d+)?`;
-        var regex = new RegExp(regexPattern, 'g');
+	try {
+		if (!Array.isArray(result_names) || result_names.length === 0) {
+			console.error("Error: result_names must be a non-empty array.");
+			return '❌';
+		}
 
-	return regex.test(str) ? '✅' : '❌';
+		var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+		var regexPattern = `(${escapedResultNames.join('|')}):\\s*[+-]?\\d+(\\.\\d+)?`;
+		var regex = new RegExp(regexPattern, 'g');
+
+		var foundResults = [];
+		var match;
+		while ((match = regex.exec(str)) !== null) {
+			foundResults.push(match[1]); // Speichere den gefundenen Schlüssel (z.B. "RESULT", "FOO")
+		}
+
+		// Erstelle die Checkmarks/Xs basierend auf den gefundenen und nicht gefundenen Ergebnissen
+		var checkmarks = result_names.map(name => (foundResults.includes(name) ? '✅' : '❌'));
+
+		// Wenn alle da sind, nur ein ✅ zurückgeben
+		if (checkmarks.every(mark => mark === '✅')) {
+			return '✅';
+		}
+
+		// Wenn keine da sind, nur ein ❌ zurückgeben
+		if (checkmarks.every(mark => mark === '❌')) {
+			return '❌';
+		}
+
+		// Sonst, individuelle Checkmarks zurückgeben
+		return checkmarks.join('');
+	} catch (error) {
+		console.error("An error occurred:", error);
+		return '❌';
+	}
 }
 
 async function load_out_files () {

@@ -5574,6 +5574,24 @@ def is_firefox_installed():
     except Exception:
         return False
 
+def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
+    table = Table(title="Pareto Frontier Results", show_lines=True)
+
+    headers = ["Index"] + list(param_dicts[0].keys()) + metrics
+    for header in headers:
+        table.add_column(header, justify="center", style="bold cyan")
+
+    for i, params in enumerate(param_dicts):
+        row = [str(i)]
+        row.extend(str(params[k]) for k in params.keys())  # Parameterwerte
+        for metric in metrics:
+            mean = means[metric][i]
+            sem = sems[metric][i]
+            row.append(f"{mean:.3f} ± {sem:.3f}")  # Mittelwert ± SEM
+        table.add_row(*row)
+
+    return table
+
 def plot_pareto_frontier_automatically() -> None:
     if len(arg_result_column_names) == 1:
         print(f"{len(arg_result_column_names)} is 1")
@@ -5595,6 +5613,14 @@ def plot_pareto_frontier_automatically() -> None:
         )
 
         pprint(calculated_frontier)
+
+        rich_table = pareto_front_as_rich_table(
+            calculated_frontier.param_dicts,
+            calculated_frontier.means,
+            calculated_frontier.sems,
+            calculated_frontier.absolute_metrics
+        )
+        console.print(rich_table)
 
         if is_in_x11_environment() and is_firefox_installed():
             from ax.utils.notebook.plotting import render
@@ -5700,7 +5726,7 @@ def main() -> None:
     if len(arg_result_column_names) > 1:
         plot_pareto_frontier_automatically()
     else:
-        original_print(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_column_names) is {len(arg_result_column_names)}")
+        print_debug(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_column_names) is {len(arg_result_column_names)}")
 
     end_program(RESULT_CSV_FILE)
 

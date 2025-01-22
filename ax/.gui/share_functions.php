@@ -167,7 +167,7 @@
 		try {
 			mkdir($newFolder, 0777, true); // Rechte 0777 für volle Zugriffsberechtigungen setzen
 		} catch (Exception $e) {
-			print("Error trying to create directory $newFolder");
+			print("Error trying to create directory $newFolder. Error:\n\n$e\n\n");
 			exit(1);
 		}
 		return $newFolder;

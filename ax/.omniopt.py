@@ -48,6 +48,13 @@ try:
         from itertools import combinations
         import signal
         import warnings
+
+        warnings.filterwarnings(
+            "ignore",
+            category=FutureWarning,
+            module="ax.modelbridge.best_model_selector"
+        )
+
         import pandas as pd
         from os import listdir
         from os.path import isfile, join

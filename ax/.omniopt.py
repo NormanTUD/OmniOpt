@@ -5589,12 +5589,12 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
     x_values = means[x_metric]
     y_values = means[y_metric]
 
-    fig, ax = plt.subplots()
+    fig, _ax = plt.subplots()
 
-    ax.scatter(x_values, y_values, s=50, marker='x', c='blue', label='Data Points')
-    ax.set_xlabel(x_metric)
-    ax.set_ylabel(y_metric)
-    ax.set_title('Pareto-Frontier')
+    _ax.scatter(x_values, y_values, s=50, marker='x', c='blue', label='Data Points')
+    _ax.set_xlabel(x_metric)
+    _ax.set_ylabel(y_metric)
+    _ax.set_title('Pareto-Frontier')
 
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
         plt.savefig(tmp_file.name, dpi=300)
@@ -5609,7 +5609,6 @@ def plot_pareto_frontier_automatically() -> None:
         return
 
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
-    from ax.plot.pareto_frontier import plot_pareto_frontier
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
 

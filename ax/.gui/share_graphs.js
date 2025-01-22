@@ -963,7 +963,7 @@ async function load_best_result () {
 	}
 
 	if (pareto_data.raw != "null" && pareto_data.raw !== null) {
-		consolelog(pareto_data)
+		console.log(pareto_data)
 		$(".best_result_txt").append(`<pre>${removeAnsiCodes(pareto_data.raw)}</pre>`);
 	}
 }

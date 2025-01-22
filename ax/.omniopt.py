@@ -6230,6 +6230,11 @@ def start_live_share_background_job() -> None:
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
+    current_pid = os.getpid()
+
+    # Print the current process ID
+    print(f"Current PID: {current_pid}")
+
     print_logo()
 
     with warnings.catch_warnings():

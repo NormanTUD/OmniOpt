@@ -391,14 +391,26 @@ slurmlogpath () {
 }
 
 function calltracer {
-	LINE_AND_FUNCTION="$(caller)"
-	if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
-		red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
-	fi
+	exit_code=$?
 
-	echo ""
-	caller
-	echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
+	values=(
+		"130"
+		"138"
+		"146"
+	)
+
+	if ! [[ " ${values[@]} " =~ " $exit_code" ]]; then
+		LINE_AND_FUNCTION="$(caller)"
+		if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
+			red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
+		fi
+
+		echo ""
+		caller
+		echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
+	else
+		echo ""
+	fi
 	_tput bel
 }
 

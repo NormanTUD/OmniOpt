@@ -5577,12 +5577,12 @@ def is_firefox_installed():
 def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
     table = Table(title="Pareto Frontier Results", show_lines=True)
 
-    headers = ["Index"] + list(param_dicts[0].keys()) + metrics
+    headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
 
     for i, params in enumerate(param_dicts):
-        row = [str(i)]
+        row = []
         row.extend(str(params[k]) for k in params.keys())
         for metric in metrics:
             mean = means[metric][i]

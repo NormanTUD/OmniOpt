@@ -165,7 +165,7 @@
 		} while (file_exists($newFolder));
 
 		try {
-			mkdir($newFolder, 0755, true); // Rechte 0777 für volle Zugriffsberechtigungen setzen
+			mkdir($newFolder, 0777, true);
 		} catch (Exception $e) {
 			print("Error trying to create directory $newFolder. Error:\n\n$e\n\n");
 			exit(1);

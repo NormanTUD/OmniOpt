@@ -734,7 +734,7 @@
 		return rtrim($output);
 	}
 
-	function checkFolderPermissions($directory, $expectedUser, $expectedGroup, $expectedPermissions) {
+	function checkFolderPermissions($directory, $expectedUser, $expectedGroup, $alternativeUser, $alternativeGroup, $expectedPermissions) {
 		if (!is_dir($directory)) {
 			echo "<i>Error: '$directory' is not a valid directory</i>\n";
 			return;
@@ -756,16 +756,20 @@
 
 		// Check user
 		if ($currentUser !== $expectedUser) {
-			$issues = true;
-			echo "<i>Ownership issue: Current user is '$currentUser'. Expected user is '$expectedUser'</i><br>\n";
-			echo "<samp>chown $expectedUser $directory</samp>\n<br>";
+			if ($currentUser !== $alternativeUser) {
+				$issues = true;
+				echo "<i>Ownership issue: Current user is '$currentUser'. Expected user is '$expectedUser'</i><br>\n";
+				echo "<samp>chown $expectedUser $directory</samp>\n<br>";
+			}
 		}
 
 		// Check group
 		if ($currentGroup !== $expectedGroup) {
-			$issues = true;
-			echo "<i>Ownership issue: Current group is '$currentGroup'. Expected group is '$expectedGroup'</i><br>\n";
-			echo "<samp>chown :$expectedGroup $directory</samp><br>\n";
+			if ($currentGroup !== $alternativeGroup) {
+				$issues = true;
+				echo "<i>Ownership issue: Current group is '$currentGroup'. Expected group is '$expectedGroup'</i><br>\n";
+				echo "<samp>chown :$expectedGroup $directory</samp><br>\n";
+			}
 		}
 
 		// Check permissions

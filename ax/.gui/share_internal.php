@@ -41,8 +41,11 @@
 		print("Using sharesPath $sharesPath\n");
 	}
 
+	$expected_user_and_group = "www-data";
 
-	if(checkFolderPermissions($sharesPath, "www-data", "www-data", 0755)) {
+	$alternative_user_and_group = get_current_user();
+
+	if(checkFolderPermissions($sharesPath, $expected_user_and_group, $expected_user_and_group, $alternative_user_and_group, $alternative_user_and_group, 0755)) {
 		exit(1);
 	}
 

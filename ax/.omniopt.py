@@ -5579,15 +5579,15 @@ def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
 
     headers = ["Index"] + list(param_dicts[0].keys()) + metrics
     for header in headers:
-        table.add_column(header, justify="center", style="bold cyan")
+        table.add_column(header, justify="center")
 
     for i, params in enumerate(param_dicts):
         row = [str(i)]
-        row.extend(str(params[k]) for k in params.keys())  # Parameterwerte
+        row.extend(str(params[k]) for k in params.keys())
         for metric in metrics:
             mean = means[metric][i]
             sem = sems[metric][i]
-            row.append(f"{mean:.3f} ± {sem:.3f}")  # Mittelwert ± SEM
+            row.append(f"{mean:.3f} ± {sem:.3f}")
         table.add_row(*row)
 
     return table

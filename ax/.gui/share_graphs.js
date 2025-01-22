@@ -8,7 +8,7 @@ function get_width() {
 }
 
 function get_height() {
-	return Math.max(800, 0.9 * window.innerHeight)
+	return Math.max(800, 0.9 * window.innerHeight);
 }
 
 function isIntegerOrFloat(value) {
@@ -63,8 +63,8 @@ function mapStrings(values, minNumericValue) {
 	var stringMapping = {};
 	var baseNegativeValue = minNumericValue - uniqueStrings.length - 1;
 	uniqueStrings.forEach((str, idx) => {
-			stringMapping[str] = baseNegativeValue - idx;
-			});
+		stringMapping[str] = baseNegativeValue - idx;
+	});
 	return stringMapping;
 }
 
@@ -78,14 +78,14 @@ async function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, r
 	showSpinnerOverlay("Plotting 3d scatter...");
 	var already_existing_plots = [];
 
-	$('#scatter_plot_3d_container').html("");
+	$("#scatter_plot_3d_container").html("");
 
 	var promises = [];
 
 	if (_paramKeys.length >= 3 && _paramKeys.length <= 6) {
 		var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-		if ($('#scatter_plot_3d_container').data("md5") == data_md5) {
+		if ($("#scatter_plot_3d_container").data("md5") == data_md5) {
 			return;
 		}
 
@@ -153,27 +153,27 @@ async function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, r
 						x: xValues,
 						y: yValues,
 						z: zValues,
-						mode: 'markers',
-						type: 'scatter3d',
+						mode: "markers",
+						type: "scatter3d",
 						marker: {
 							size: 5,
 							color: resultValues,
 							colorscale: [
-								[0, 'rgb(0, 255, 0)'],
-								[0.5, 'rgb(255, 255, 0)'],
-								[1, 'rgb(255, 0, 0)']
+								[0, "rgb(0, 255, 0)"],
+								[0.5, "rgb(255, 255, 0)"],
+								[1, "rgb(255, 0, 0)"]
 							],
 							cmin: minResult,
 							cmax: maxResult,
 							colorbar: {
-								title: 'Result Value',
+								title: "Result Value",
 								tickvals: [minResult, maxResult],
 								ticktext: [`Min (${minResult})`, `Max (${maxResult})`],
 								len: 0.8
 							}
 						},
 						text: hoverText,
-						hoverinfo: 'text',
+						hoverinfo: "text",
 						showlegend: false
 					};
 
@@ -210,19 +210,19 @@ async function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, r
 								ticktext: zAxisConfig.ticktext
 							}
 						},
-						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)',
+						paper_bgcolor: "rgba(0,0,0,0)",
+						plot_bgcolor: "rgba(0,0,0,0)",
 						showlegend: false,
 						legend: {
 							x: 0.1,
 							y: 1.1,
-							orientation: 'h'
+							orientation: "h"
 						}
 					};
 
 					var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-3d-${x_name}_${y_name}_${z_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-					if ($('#scatter_plot_3d_container').length) {
-						$('#scatter_plot_3d_container').append(new_plot_div);
+					if ($("#scatter_plot_3d_container").length) {
+						$("#scatter_plot_3d_container").append(new_plot_div);
 						promises.push(newPlot3d(`scatter-plot-3d-${x_name}_${y_name}_${z_name}`, trace3d, layout3d));
 						already_existing_plots.push(_key);
 					} else {
@@ -233,9 +233,9 @@ async function scatter_3d(_paramKeys, _results_csv_json, minResult, maxResult, r
 		}
 	}
 
-	await Promise.all(promises)
+	await Promise.all(promises);
 
-	$('#scatter_plot_3d_container').data("md5", data_md5);
+	$("#scatter_plot_3d_container").data("md5", data_md5);
 }
 
 function reduceNumericTicks(tickvals, ticktext, maxTicks) {
@@ -303,11 +303,11 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 	var already_existing_plots = [];
 	var data_md5 = md5(JSON.stringify(_results_csv_json));
 
-	if ($('#scatter_plot_2d_container').data("md5") == data_md5) {
+	if ($("#scatter_plot_2d_container").data("md5") == data_md5) {
 		return;
 	}
 
-	$('#scatter_plot_2d_container').html("");
+	$("#scatter_plot_2d_container").html("");
 
 	for (var i = 0; i < _paramKeys.length; i++) {
 		for (var j = i + 1; j < _paramKeys.length; j++) {
@@ -367,20 +367,20 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 			var trace2d = {
 				x: xValues,
 				y: yValues,
-				mode: 'markers',
-				type: 'scatter',
+				mode: "markers",
+				type: "scatter",
 				marker: {
 					color: colors
 				},
 				text: hoverText,
-				hoverinfo: 'text'
+				hoverinfo: "text"
 			};
 
 			var colorScaleTrace = {
 				x: [null],
 				y: [null],
-				type: 'scatter',
-				mode: 'markers',
+				type: "scatter",
+				mode: "markers",
 				marker: {
 					color: [minResult, maxResult],
 					colorscale: customColorscale,
@@ -389,11 +389,11 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 					showscale: true,
 					size: 60,
 					colorbar: {
-						title: 'Result Values',
-						titleside: 'right'
+						title: "Result Values",
+						titleside: "right"
 					}
 				},
-				hoverinfo: 'none'
+				hoverinfo: "none"
 			};
 
 			var xAxisConfig = getAxisConfigScatter2d(stringMappingX, xValuesRaw, minXValue, !isNaN(minXValue));
@@ -413,15 +413,15 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 					ticktext: yAxisConfig.ticktext,
 					tickangle: -45 // Rotate tick labels for better readability
 				},
-				paper_bgcolor: 'rgba(0,0,0,0)',
-				plot_bgcolor: 'rgba(0,0,0,0)',
+				paper_bgcolor: "rgba(0,0,0,0)",
+				plot_bgcolor: "rgba(0,0,0,0)",
 				showlegend: false
 			};
 
 			var new_plot_div = $(`<div class='share_graph scatter-plot' id='scatter-plot-${x_name}_${y_name}' style='width:${get_width()}px;height:${get_height()}px;'></div>`);
-			$('#scatter_plot_2d_container').append(new_plot_div);
+			$("#scatter_plot_2d_container").append(new_plot_div);
 
-			if ($('#scatter_plot_2d_container').length) {
+			if ($("#scatter_plot_2d_container").length) {
 				Plotly.newPlot(`scatter-plot-${x_name}_${y_name}`, [trace2d, colorScaleTrace], layout2d);
 				already_existing_plots.push(_key);
 			} else {
@@ -430,12 +430,12 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 		}
 	}
 
-	$('#scatter_plot_2d_container').data("md5", data_md5);
+	$("#scatter_plot_2d_container").data("md5", data_md5);
 }
 
 async function load_results () {
 	showSpinnerOverlay("Loading results...");
-	var data = await fetchJsonFromUrlFilenameOnly(`results.csv`);
+	var data = await fetchJsonFromUrlFilenameOnly("results.csv");
 	if(!data) {
 		warn("load_results: Could not fetch results.csv");
 		return;
@@ -448,7 +448,7 @@ async function load_results () {
 
 	add_tab("results", "Results", "<div id='results_csv'></div>");
 
-	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
+	$("#results_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 function isFullyNumeric(values) {
@@ -458,23 +458,23 @@ function isFullyNumeric(values) {
 async function plot_all_possible () {
 	showSpinnerOverlay("Trying to plot all possible plots...");
 
-	var _results_csv_json = await fetchJsonFromUrlFilenameOnly(`results.csv`)
+	var _results_csv_json = await fetchJsonFromUrlFilenameOnly("results.csv");
 
 	if(!_results_csv_json) {
 		return;
 	}
 
 	if(!Object.keys(_results_csv_json).includes("data")) {
-		warn(`plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found`);
+		warn("plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found");
 		return;
 	}
 
 	if(!Object.keys(_results_csv_json).includes("data") && !results_csv_json.data.length) {
-		warn(`plot_all_possible: Could not plot seemingly empty _results_csv_json`);
+		warn("plot_all_possible: Could not plot seemingly empty _results_csv_json");
 		return;
 	}
 
-	convertToIntAndFilter(_results_csv_json.data.map(Object.values))
+	convertToIntAndFilter(_results_csv_json.data.map(Object.values));
 
 	var header_line = _results_csv_json.data.shift();
 
@@ -484,7 +484,7 @@ async function plot_all_possible () {
 	for (var i = 0; i < header_line.length; i++) {
 		var this_element = header_line[i];
 
-		if(!['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result'].includes(this_element)) {
+		if(!["trial_index", "arm_name", "trial_status", "generation_method", "result"].includes(this_element)) {
 			paramKeys.push(this_element);
 			mappingKeyNameToIndex[this_element] = i;
 		}
@@ -521,13 +521,13 @@ function convertUnixTimeToReadable(unixTime) {
 
 async function load_parameter () {
 	showSpinnerOverlay("Loading parameters...");
-	var data = await fetchJsonFromUrlFilenameOnly(`parameters.txt`, 1)
+	var data = await fetchJsonFromUrlFilenameOnly("parameters.txt", 1);
 	if(!data) {
 		return;
 	}
 
 	if(!Object.keys(data).includes("raw")) {
-		warn(`load_parameter: Could not plot seemingly empty data: no raw found`);
+		warn("load_parameter: Could not plot seemingly empty data: no raw found");
 		return;
 	}
 
@@ -537,7 +537,7 @@ async function load_parameter () {
 }
 
 async function get_result_names_data () {
-	var result_names_data = await fetchJsonFromUrlFilenameOnly(`result_names.txt`, 1)
+	var result_names_data = await fetchJsonFromUrlFilenameOnly("result_names.txt", 1);
 
 	var result_names = ["RESULT"];
 
@@ -554,12 +554,12 @@ function get_checkmark_if_contains_result(str, result_names) {
 	try {
 		if (!Array.isArray(result_names) || result_names.length === 0) {
 			console.error("Error: result_names must be a non-empty array.");
-			return '❌';
+			return "❌";
 		}
 
-		var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-		var regexPattern = `(${escapedResultNames.join('|')}):\\s*[+-]?\\d+(\\.\\d+)?`;
-		var regex = new RegExp(regexPattern, 'g');
+		var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+		var regexPattern = `(${escapedResultNames.join("|")}):\\s*[+-]?\\d+(\\.\\d+)?`;
+		var regex = new RegExp(regexPattern, "g");
 
 		var foundResults = [];
 		var match;
@@ -567,20 +567,20 @@ function get_checkmark_if_contains_result(str, result_names) {
 			foundResults.push(match[1]);
 		}
 
-		var checkmarks = result_names.map(name => (foundResults.includes(name) ? '✅' : '❌'));
+		var checkmarks = result_names.map(name => (foundResults.includes(name) ? "✅" : "❌"));
 
-		if (checkmarks.every(mark => mark === '✅')) {
-			return '✅';
+		if (checkmarks.every(mark => mark === "✅")) {
+			return "✅";
 		}
 
-		if (checkmarks.every(mark => mark === '❌')) {
-			return '❌';
+		if (checkmarks.every(mark => mark === "❌")) {
+			return "❌";
 		}
 
-		return checkmarks.join('');
+		return checkmarks.join("");
 	} catch (error) {
 		console.error("An error occurred:", error);
-		return '❌';
+		return "❌";
 	}
 }
 
@@ -588,14 +588,14 @@ async function load_out_files () {
 	showSpinnerOverlay("Loading out files...");
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+	var data = await fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}`);
 
 	if(!data) {
 		return;
 	}
 	
 	if(!Object.keys(data).includes("data")) {
-		warn(`load_out_files: Could not plot seemingly empty data: no data found`);
+		warn("load_out_files: Could not plot seemingly empty data: no data found");
 		return;
 	}
 
@@ -623,7 +623,7 @@ async function load_out_files () {
 				}
 
 				var _fn = data.data[j].replaceAll(/.*\//g, ""); // Clean up filename
-				var requestPromise = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&fn=${_fn}`);
+				var requestPromise = fetchJsonFromUrl(`get_out_files.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}&fn=${_fn}`);
 
 				batchRequests.push(requestPromise);
 			}
@@ -679,7 +679,7 @@ async function load_evaluation_errors_and_oo_errors () {
 
 async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divname) {
 	//debug_function("_load_evaluation_errors_and_oo_errors()");
-	var data = await fetchJsonFromUrlFilenameOnly(`${_fn}`)
+	var data = await fetchJsonFromUrlFilenameOnly(`${_fn}`);
 	if(!data) {
 		return;
 	}
@@ -700,7 +700,7 @@ async function _load_evaluation_errors_and_oo_errors (tab_div, title, _fn, _divn
 
 async function load_progressbar_log() {
 	showSpinnerOverlay("Loading progressbar-log...");
-	var data = await fetchJsonFromUrlFilenameOnly(`progressbar`)
+	var data = await fetchJsonFromUrlFilenameOnly("progressbar");
 	if(!data) {
 		return;
 	}
@@ -710,22 +710,22 @@ async function load_progressbar_log() {
 		return;
 	}
 
-	add_tab("progressbar_log", "Progressbar-Log", `<div id='progressbar_log_element'></div>`);
+	add_tab("progressbar_log", "Progressbar-Log", "<div id='progressbar_log_element'></div>");
 
-	if($(`#progressbar_log_element`).length == 0) {
-		error(`Could not find #progressbar_log_element`);
+	if($("#progressbar_log_element").length == 0) {
+		error("Could not find #progressbar_log_element");
 	} else {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
-		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		const removeTrailingWhitespaces = (str) => str.split("\n").map(line => line.replace(/\s+$/, "")).join("\n");
 		converted = removeTrailingWhitespaces(converted);
-		$(`#progressbar_log_element`).html(`<pre class="progressbar_log_class" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("progressbar_log_class")}`);
+		$("#progressbar_log_element").html(`<pre class="progressbar_log_class" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("progressbar_log_class")}`);
 		$(".progressbar_log_class").addClass("invert_in_dark_mode");
 	}
 }
 
 async function load_trial_index_to_params_log () {
 	showSpinnerOverlay("Loading trial index to params log...");
-	var data = await fetchJsonFromUrlFilenameOnly(`trial_index_to_params`)
+	var data = await fetchJsonFromUrlFilenameOnly("trial_index_to_params");
 	if(!data) {
 		return;
 	}
@@ -735,22 +735,22 @@ async function load_trial_index_to_params_log () {
 		return;
 	}
 
-	add_tab("trial_index_to_params", "Trial Index to Param", `<div id='trial_index_to_params_element'></div>`);
+	add_tab("trial_index_to_params", "Trial Index to Param", "<div id='trial_index_to_params_element'></div>");
 
-	if($(`#trial_index_to_params_element`).length == 0) {
-		error(`Could not find #trial_index_to_params_element`);
+	if($("#trial_index_to_params_element").length == 0) {
+		error("Could not find #trial_index_to_params_element");
 	} else {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
-		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		const removeTrailingWhitespaces = (str) => str.split("\n").map(line => line.replace(/\s+$/, "")).join("\n");
 		converted = removeTrailingWhitespaces(converted);
-		$(`#trial_index_to_params_element`).html(`<pre class="trial_index_to_params_element_class" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("trial_index_to_params_element_class")}`);
+		$("#trial_index_to_params_element").html(`<pre class="trial_index_to_params_element_class" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("trial_index_to_params_element_class")}`);
 		$(".trial_index_to_params_element_class").addClass("invert_in_dark_mode");
 	}
 }
 
 async function load_install_errors() {
 	showSpinnerOverlay("Loading install-errors...");
-	var data = await fetchJsonFromUrlFilenameOnly(`install_errors`)
+	var data = await fetchJsonFromUrlFilenameOnly("install_errors");
 	if(!data) {
 		return;
 	}
@@ -760,15 +760,15 @@ async function load_install_errors() {
 		return;
 	}
 
-	add_tab("install_errors", "Install errors", `<div id='install_errors_element'></div>`);
+	add_tab("install_errors", "Install errors", "<div id='install_errors_element'></div>");
 
-	if($(`#install_errors_element`).length == 0) {
-		error(`Could not find #install_errors_element`);
+	if($("#install_errors_element").length == 0) {
+		error("Could not find #install_errors_element");
 	} else {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
-		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		const removeTrailingWhitespaces = (str) => str.split("\n").map(line => line.replace(/\s+$/, "")).join("\n");
 		converted = removeTrailingWhitespaces(converted);
-		$(`#install_errors_element`).html(`<pre class="install_errors_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("install_errors_class")}`);
+		$("#install_errors_element").html(`<pre class="install_errors_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("install_errors_class")}`);
 	}
 }
 
@@ -819,7 +819,7 @@ function createTable(data, id) {
 		if(Object.keys(item).includes("function_stack")) {
 			const formattedStack = item.function_stack
 				.map(func => `<samp>${func.function} (Line ${func.line_number})</samp>`)
-				.join('\n');
+				.join("\n");
 
 			stackCell.innerHTML = formattedStack;
 
@@ -894,7 +894,7 @@ function addSearchFunctionality(tableContainer, table) {
 
 async function load_debug_log() {
 	showSpinnerOverlay("Loading debug-log...");
-	var data = await fetchJsonFromUrlFilenameOnly(`log`)
+	var data = await fetchJsonFromUrlFilenameOnly("log");
 	if(!data) {
 		return;
 	}
@@ -904,17 +904,17 @@ async function load_debug_log() {
 		return;
 	}
 
-	add_tab("internal_log", "Debug-Log", `<div id='internal_log_element'></div>`);
+	add_tab("internal_log", "Debug-Log", "<div id='internal_log_element'></div>");
 
-	if($(`#internal_log_element`).length == 0) {
-		error(`Could not find #internal_log_element`);
+	if($("#internal_log_element").length == 0) {
+		error("Could not find #internal_log_element");
 	} else {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
-		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		const removeTrailingWhitespaces = (str) => str.split("\n").map(line => line.replace(/\s+$/, "")).join("\n");
 		converted = removeTrailingWhitespaces(converted);
-		$(`#internal_log_element`).html(`<pre style="display: none" class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}<div id="internal_log_table"></div>`);
+		$("#internal_log_element").html(`<pre style="display: none" class="internal_log_element_class" class='invert_in_dark_mode' style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("internal_log_element_class")}<div id="internal_log_table"></div>`);
 
-		var id = 'internal_log_table';
+		var id = "internal_log_table";
 
 		var parsed_log_data = parseLogData(data.raw);
 
@@ -930,7 +930,7 @@ async function load_debug_log() {
 
 async function load_outfile () {
 	showSpinnerOverlay("Loading outfile...");
-	var data = await fetchJsonFromUrlFilenameOnly(`outfile`, false, true)
+	var data = await fetchJsonFromUrlFilenameOnly("outfile", false, true);
 	if(!data) {
 		return;
 	}
@@ -940,15 +940,15 @@ async function load_outfile () {
 		return;
 	}
 
-	add_tab("outfile", "Main Log", `<div id='outfile'></div>`);
+	add_tab("outfile", "Main Log", "<div id='outfile'></div>");
 
-	if($(`#outfile`).length == 0) {
-		error(`Could not find #outfile`);
+	if($("#outfile").length == 0) {
+		error("Could not find #outfile");
 	} else {
 		var converted = ansi_to_html(removeLinesStartingWith(data.raw, "P7;1;75", "-$$$$$-$$$$$"));
-		const removeTrailingWhitespaces = (str) => str.split('\n').map(line => line.replace(/\s+$/, '')).join('\n');
+		const removeTrailingWhitespaces = (str) => str.split("\n").map(line => line.replace(/\s+$/, "")).join("\n");
 		converted = removeTrailingWhitespaces(converted);
-		$(`#outfile`).html(`<pre class="main_outfile" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("main_outfile")}`);
+		$("#outfile").html(`<pre class="main_outfile" style='color: white; background-color: black; white-space: break-spaces;'>${converted}</pre>${copy_button("main_outfile")}`);
 		$(".main_outfile").addClass("invert_in_dark_mode");
 	}
 }
@@ -957,7 +957,7 @@ async function load_next_trials () {
 	showSpinnerOverlay("Loading next-trials-log...");
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var data = await fetchJsonFromUrl(`get_next_trials.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+	var data = await fetchJsonFromUrl(`get_next_trials.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}`);
 	if(!data) {
 		return;
 	}
@@ -974,7 +974,7 @@ async function load_next_trials () {
 
 async function load_job_infos () {
 	showSpinnerOverlay("Loading job-infos...");
-	var data = await fetchJsonFromUrlFilenameOnly(`job_infos.csv`)
+	var data = await fetchJsonFromUrlFilenameOnly("job_infos.csv");
 	if(!data) {
 		return;
 	}
@@ -985,17 +985,17 @@ async function load_job_infos () {
 	}
 
 	add_tab("job_infos", "Job-Infos", "<div id='job_infos_csv'></div>");
-	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button('stdout_file')}`);
+	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 async function load_best_result () {
-	showSpinnerOverlay("Loading best results...")
-	var data = await fetchJsonFromUrlFilenameOnly(`best_result.txt`)
+	showSpinnerOverlay("Loading best results...");
+	var data = await fetchJsonFromUrlFilenameOnly("best_result.txt");
 	if(!data) {
 		return;
 	}
 
-	var pareto_data = await fetchJsonFromUrlFilenameOnly(`pareto_front_table.txt`)
+	var pareto_data = await fetchJsonFromUrlFilenameOnly("pareto_front_table.txt");
 
 	if(!Object.keys(data).includes("raw")) {
 		//warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
@@ -1013,7 +1013,7 @@ async function load_best_result () {
 
 async function plot_planned_vs_real_worker_over_time () {
 	showSpinnerOverlay("Plotting planned vs. real workers...");
-	var data = await fetchJsonFromUrlFilenameOnly(`worker_usage.csv`)
+	var data = await fetchJsonFromUrlFilenameOnly("worker_usage.csv");
 	if(!data) {
 		return;
 	}
@@ -1024,11 +1024,11 @@ async function plot_planned_vs_real_worker_over_time () {
 	}
 
 	if(!data.data.length) {
-		warn(`plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data`);
+		warn("plot_planned_vs_real_worker_over_time: Could not plot seemingly empty data");
 		return;
 	}
 
-	convertToIntAndFilter(data.data.map(Object.values))
+	convertToIntAndFilter(data.data.map(Object.values));
 
 	replaceZeroWithNull(data.data);
 
@@ -1040,58 +1040,58 @@ async function plot_planned_vs_real_worker_over_time () {
 	var tracePlanned = {
 		x: readableTime,
 		y: plannedWorkers,
-		mode: 'lines',
-		name: 'Planned Worker'
+		mode: "lines",
+		name: "Planned Worker"
 	};
 
 	var traceActual = {
 		x: readableTime,
 		y: actualWorkers,
-		mode: 'lines',
-		name: 'Real Worker'
+		mode: "lines",
+		name: "Real Worker"
 	};
 
 	var layout = {
-		title: 'Planned vs. real worker over time',
+		title: "Planned vs. real worker over time",
 		xaxis: {
-			title: 'Date'
+			title: "Date"
 		},
 		yaxis: {
-			title: 'Nr. Worker'
+			title: "Nr. Worker"
 		},
 		width: get_width(),
 		height: get_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)',
+		paper_bgcolor: "rgba(0,0,0,0)",
+		plot_bgcolor: "rgba(0,0,0,0)",
 
 		showlegend: true,
 		legend: {
 			x: 0.1,
 			y: 1.1,
-			orientation: 'h'
+			orientation: "h"
 		},
 	};
 
 	add_tab("worker_usage", "Worker-Usage", "<div id='worker_usage_plot'></div><div id='worker_usage_raw'></div>");
-	Plotly.newPlot('worker_usage_plot', [tracePlanned, traceActual], layout);
+	Plotly.newPlot("worker_usage_plot", [tracePlanned, traceActual], layout);
 
 	$("#worker_usage_raw").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 async function plot_cpu_ram_graph() {
 	showSpinnerOverlay("Plotting CPU/RAM Graph...");
-	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly(`cpu_ram_usage.csv`);
+	var cpu_ram_usage_json = await fetchJsonFromUrlFilenameOnly("cpu_ram_usage.csv");
 	if (!cpu_ram_usage_json) {
 		return;
 	}
 
 	if (!Object.keys(cpu_ram_usage_json).includes("data")) {
-		warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found`);
+		warn("plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json: no data found");
 		return;
 	}
 
 	if (!Object.keys(cpu_ram_usage_json).includes("data") || !cpu_ram_usage_json.data.length) {
-		warn(`plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json`);
+		warn("plot_cpu_ram_graph: Could not plot seemingly empty cpu_ram_usage_json");
 		return;
 	}
 
@@ -1113,60 +1113,60 @@ async function plot_cpu_ram_graph() {
 	const ramTrace = {
 		x: timestamps_ram,
 		y: ramUsage,
-		type: 'scatter',
-		mode: 'lines',
-		name: 'RAM Usage (MB)',
-		line: { color: 'lightblue' }
+		type: "scatter",
+		mode: "lines",
+		name: "RAM Usage (MB)",
+		line: { color: "lightblue" }
 	};
 
 	// CPU Usage Plot
 	const cpuTrace = {
 		x: timestamps_cpu,
 		y: cpuUsage,
-		type: 'scatter',
-		mode: 'lines',
-		name: 'CPU Usage (%)',
-		line: { color: 'orange' }
+		type: "scatter",
+		mode: "lines",
+		name: "CPU Usage (%)",
+		line: { color: "orange" }
 	};
 
 	const ramLayout = {
-		title: 'RAM Usage Over Time by the main worker',
+		title: "RAM Usage Over Time by the main worker",
 		xaxis: {
-			title: 'Time',
-			type: 'date'
+			title: "Time",
+			type: "date"
 		},
 		yaxis: {
-			title: 'RAM Usage (MB)',
+			title: "RAM Usage (MB)",
 			showline: true
 		},
 		showlegend: true,
 		legend: {
 			x: 0.1,
 			y: 1.1,
-			orientation: 'h'
+			orientation: "h"
 		},
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		paper_bgcolor: "rgba(0,0,0,0)",
+		plot_bgcolor: "rgba(0,0,0,0)"
 	};
 
 	const cpuLayout = {
-		title: 'CPU Usage Over Time by the main worker',
+		title: "CPU Usage Over Time by the main worker",
 		xaxis: {
-			title: 'Time',
-			type: 'date'
+			title: "Time",
+			type: "date"
 		},
 		yaxis: {
-			title: 'CPU Usage (%)',
+			title: "CPU Usage (%)",
 			showline: true
 		},
 		showlegend: true,
 		legend: {
 			x: 0.1,
 			y: 1.1,
-			orientation: 'h'
+			orientation: "h"
 		},
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		paper_bgcolor: "rgba(0,0,0,0)",
+		plot_bgcolor: "rgba(0,0,0,0)"
 	};
 
 	add_tab("cpu_ram_usage", "CPU/RAM Usage", `
@@ -1178,11 +1178,11 @@ async function plot_cpu_ram_graph() {
     `);
 
 	if ($("#ramChart").length) {
-		Plotly.newPlot('ramChart', [ramTrace], ramLayout);
+		Plotly.newPlot("ramChart", [ramTrace], ramLayout);
 	}
 
 	if ($("#cpuChart").length) {
-		Plotly.newPlot('cpuChart', [cpuTrace], cpuLayout);
+		Plotly.newPlot("cpuChart", [cpuTrace], cpuLayout);
 	}
 
 	$("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
@@ -1198,14 +1198,14 @@ function replaceZeroWithNull(arr) {
 			}
 		}
 	}
-};
+}
 
 async function fetchJsonFromUrl(url) {
 	//debug_function(`fetchJsonFromUrl("${url}")`);
 	try {
 		const response = await fetch(url);
 		if (!response.ok) {
-			throw new Error('Network response was not ok: ' + response.statusText);
+			throw new Error("Network response was not ok: " + response.statusText);
 		}
 		const data = await response.json();
 		if(Object.keys(data).includes("hash")) {
@@ -1228,7 +1228,7 @@ async function _get_overview_data () {
 	//debug_function("_get_overview_data()");
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var _res = await fetchJsonFromUrl(`get_overview_data.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}`)
+	var _res = await fetchJsonFromUrl(`get_overview_data.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}`);
 
 	return _res;
 }
@@ -1243,15 +1243,15 @@ async function load_overview_data() {
 	//log(res);
 	if(!Object.keys(res).includes("error")) {
 		// Create a table
-		var table = document.createElement('table');
-		table.style.borderCollapse = 'collapse';
+		var table = document.createElement("table");
+		table.style.borderCollapse = "collapse";
 
 		// Create table headers
-		var headerRow = document.createElement('tr');
-		['Failed', 'Succeeded', 'Total'].forEach(function (heading) {
-			var th = document.createElement('th');
-			th.style.border = '1px solid black';
-			th.style.padding = '8px';
+		var headerRow = document.createElement("tr");
+		["Failed", "Succeeded", "Total"].forEach(function (heading) {
+			var th = document.createElement("th");
+			th.style.border = "1px solid black";
+			th.style.padding = "8px";
 			th.classList.add("invert_in_dark_mode");
 			th.textContent = heading;
 			headerRow.appendChild(th);
@@ -1259,20 +1259,20 @@ async function load_overview_data() {
 		table.appendChild(headerRow);
 
 		// Create a data row
-		var dataRow = document.createElement('tr');
+		var dataRow = document.createElement("tr");
 		[res.failed, res.succeeded, res.total].forEach(function (value) {
-			var td = document.createElement('td');
-			td.style.border = '1px solid black';
-			td.style.padding = '8px';
+			var td = document.createElement("td");
+			td.style.border = "1px solid black";
+			td.style.padding = "8px";
 			td.textContent = value;
 			dataRow.appendChild(td);
 		});
 		table.appendChild(dataRow);
 
 		// Insert table into the #overview_table element
-		$('.overview_table').html(table);
+		$(".overview_table").html(table);
 	} else {
-		$('.overview_table').html(`Error: <span class="error_line invert_in_dark_mode">${res.error}</span>`);
+		$(".overview_table").html(`Error: <span class="error_line invert_in_dark_mode">${res.error}</span>`);
 	}
 }
 
@@ -1280,7 +1280,7 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_a
 	//debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
-	var url = `share_to_csv.php?user_id=${urlParams.get('user_id')}&experiment_name=${urlParams.get('experiment_name')}&run_nr=${urlParams.get('run_nr')}&filename=${filename}`;
+	var url = `share_to_csv.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}&filename=${filename}`;
 
 	if(remove_ansi) {
 		url = url + "&remove_ansi=1";

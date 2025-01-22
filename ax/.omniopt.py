@@ -5588,7 +5588,7 @@ def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
             mean = means[metric][i]
             sem = sems[metric][i]
             row.append(f"{mean:.3f} ± {sem:.3f}")
-        table.add_row(*row)
+        table.add_row(*row, style="green")
 
     return table
 

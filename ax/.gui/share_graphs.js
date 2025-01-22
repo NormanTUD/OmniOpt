@@ -951,6 +951,8 @@ async function load_best_result () {
 		return;
 	}
 
+	var pareto_data = await fetchJsonFromUrlFilenameOnly(`pareto_front_table.txt`)
+
 	if(!Object.keys(data).includes("raw")) {
 		//warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
 		return;
@@ -958,6 +960,10 @@ async function load_best_result () {
 
 	if (data.raw != "null" && data.raw !== null) {
 		$(".best_result_txt").html(`<pre>${removeAnsiCodes(data.raw)}</pre>`);
+	}
+
+	if (pareto_data.raw != "null" && pareto_data.raw !== null) {
+		$(".best_result_txt").append(`<pre>${removeAnsiCodes(pareto_data.raw)}</pre>`);
 	}
 }
 

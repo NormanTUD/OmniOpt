@@ -3,7 +3,7 @@ var searchTimer;
 var lastSearch = "";
 
 async function start_search() {
-	var searchTerm = $('#search').val();
+	var searchTerm = $("#search").val();
 
 	if(searchTerm == lastSearch) {
 		return;
@@ -29,8 +29,8 @@ async function start_search() {
 			$("#searchResults").show();
 			$("#mainContent").hide();
 			$.ajax({
-				url: 'search.php',
-				type: 'GET',
+				url: "search.php",
+				type: "GET",
 				data: {
 					regex: searchTerm
 				},
@@ -66,8 +66,8 @@ function delete_search () {
 function mark_search_result_yellow(content, search) {
 	try {
 		// Escape the search term to safely use it in a regular expression
-		var escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-		var regex = new RegExp("(" + escapedSearch + ")", 'gi');
+		var escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		var regex = new RegExp("(" + escapedSearch + ")", "gi");
 		return content.replace(regex, "<span class='marked_text'>$1</span>");
 	} catch (error) {
 		console.error("Error while marking search results: ", error);
@@ -76,12 +76,12 @@ function mark_search_result_yellow(content, search) {
 }
 
 async function displaySearchResults(searchTerm, results) {
-	var $searchResults = $('#searchResults');
+	var $searchResults = $("#searchResults");
 	$searchResults.empty();
 
 
 	if (results.length > 0) {
-		$searchResults.append('<h2>Search results:</h2>\n<p>To get back back to the original page, clear the search.</p>');
+		$searchResults.append("<h2>Search results:</h2>\n<p>To get back back to the original page, clear the search.</p>");
 
 		var result_lis = [];
 
@@ -95,6 +95,6 @@ async function displaySearchResults(searchTerm, results) {
 			$searchResults.append("<ul>\n" + result_lis.join("\n") + "</ul>");
 		}
 	} else {
-		$searchResults.append('<p>No results found.</p>');
+		$searchResults.append("<p>No results found.</p>");
 	}
 }

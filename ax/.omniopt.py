@@ -5744,6 +5744,8 @@ def main() -> None:
     else:
         print_debug(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_column_names) is {len(arg_result_column_names)}")
 
+    live_share()
+
     end_program(RESULT_CSV_FILE)
 
 def log_worker_creation() -> None:

@@ -5005,25 +5005,30 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[dict, bool]:
 
     # Fetching the next trials
     start_time: float = time.time()
-    trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
-    end_time: float = time.time()
+    try:
+        trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
+        end_time: float = time.time()
 
-    # Log and update timing
-    TIME_NEXT_TRIALS_TOOK.append(end_time - start_time)
-    cf = currentframe()
-    if cf:
-        _frame_info = getframeinfo(cf)
-        if _frame_info:
-            lineno: int = _frame_info.lineno
-            print_debug_get_next_trials(
-                len(trial_index_to_param.items()),
-                nr_of_jobs_to_get,
-                lineno
-            )
+        # Log and update timing
+        TIME_NEXT_TRIALS_TOOK.append(end_time - start_time)
+        cf = currentframe()
+        if cf:
+            _frame_info = getframeinfo(cf)
+            if _frame_info:
+                lineno: int = _frame_info.lineno
+                print_debug_get_next_trials(
+                    len(trial_index_to_param.items()),
+                    nr_of_jobs_to_get,
+                    lineno
+                )
 
-    _log_trial_index_to_param(trial_index_to_param)
+        _log_trial_index_to_param(trial_index_to_param)
 
-    return trial_index_to_param, optimization_complete
+        return trial_index_to_param, optimization_complete
+    except OverflowError as e:
+        print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_column_names)} parameters. Error: {e}")
+
+        return None, True
 
 @typechecked
 def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma: no cover

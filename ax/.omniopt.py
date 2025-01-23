@@ -5625,36 +5625,39 @@ def plot_pareto_frontier_automatically() -> None:
     objectives = ax_client.experiment.optimization_config.objective.objectives
 
     for i, j in combinations(range(len(objectives)), 2):
-        calculated_frontier = compute_posterior_pareto_frontier(
-            experiment=ax_client.experiment,
-            data=ax_client.experiment.fetch_data(),
-            primary_objective=objectives[i].metric,
-            secondary_objective=objectives[j].metric,
-            absolute_metrics=arg_result_column_names,
-            num_points=count_done_jobs()
-        )
+        try:
+            calculated_frontier = compute_posterior_pareto_frontier(
+                experiment=ax_client.experiment,
+                data=ax_client.experiment.fetch_data(),
+                primary_objective=objectives[i].metric,
+                secondary_objective=objectives[j].metric,
+                absolute_metrics=arg_result_column_names,
+                num_points=count_done_jobs()
+            )
 
-        plot_pareto_frontier_sixel(calculated_frontier)
+            plot_pareto_frontier_sixel(calculated_frontier)
 
-        rich_table = pareto_front_as_rich_table(
-            calculated_frontier.param_dicts,
-            calculated_frontier.means,
-            calculated_frontier.sems,
-            calculated_frontier.absolute_metrics
-        )
+            rich_table = pareto_front_as_rich_table(
+                calculated_frontier.param_dicts,
+                calculated_frontier.means,
+                calculated_frontier.sems,
+                calculated_frontier.absolute_metrics
+            )
 
-        table_str = ""
+            table_str = ""
 
-        with console.capture() as capture:
+            with console.capture() as capture:
+                console.print(rich_table)
+
+            table_str = capture.get()
+
             console.print(rich_table)
 
-        table_str = capture.get()
-
-        console.print(rich_table)
-
-        if table_str:
-            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
-                text_file.write(table_str)
+            if table_str:
+                with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
+                    text_file.write(table_str)
+        except ax.exceptions.core.DataRequiredError as e:
+            print_red(f"Error: Trying to calculate the pareto-front failed with the following Error. This may mean that previous values, like multiple result-values, were missing:\n{e}")
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval

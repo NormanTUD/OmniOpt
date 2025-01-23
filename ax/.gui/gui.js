@@ -485,7 +485,11 @@ function update_table_row (item, errors, warnings, command) {
 	} else {
 		if(!errors.length) {
 			if (item.id != "constraints") {
-				command += " --" + item.id + "=" + value;
+				if (item.id == "result_names") {
+					command += " --" + item.id + " " + value;
+				} else {
+					command += " --" + item.id + "=" + value;
+				}
 				$("#" + item.id + "_error").html("").hide();
 				$("#" + item.id).css("background-color", "");
 			}

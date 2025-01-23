@@ -1006,34 +1006,18 @@ def get_line_info() -> Tuple[str, str, int, str, str]:
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
 @typechecked
-def supports_sixel() -> bool:
-    term = os.environ.get("TERM", "").lower()
-    if "xterm" in term or "mlterm" in term:
-        return True
-
-    try:
-        output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
-        if output.returncode == 0 and "sixel" in output.stdout.lower():
-            return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-
-    return False
-
-
-@typechecked
 def print_image_to_cli(image_path: str, width: int) -> bool:
     print("")
     try:
-        if supports_sixel():
-            image = Image.open(image_path)
-            original_width, original_height = image.size
+        image = Image.open(image_path)
+        original_width, original_height = image.size
 
-            height = int((original_height / original_width) * width)
-            sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
-            sixel_converter.write(sys.stdout)
+        height = int((original_height / original_width) * width)
 
-            _sleep(2)
+        sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
+
+        sixel_converter.write(sys.stdout)
+        _sleep(2)
 
         return True
     except Exception as e: # pragma: no cover

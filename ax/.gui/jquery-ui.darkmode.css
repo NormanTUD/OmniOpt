@@ -37,3 +37,7 @@ input {
 input::placeholder {
 	color: gray;
 }
+
+#copied_curl {
+	color: white;
+}

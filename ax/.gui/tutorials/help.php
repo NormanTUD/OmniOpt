@@ -144,11 +144,6 @@
 				<td><samp>False</samp></td>
 			</tr>
 			<tr>
-				<td><samp>--load_previous_job_data LOAD_PREVIOUS_JOB_DATA [LOAD_PREVIOUS_JOB_DATA ...]</samp></td>
-				<td>Paths of previous jobs to load from.</td>
-				<td>-</td>
-			</tr>
-			<tr>
 				<td><samp>--hide_ascii_plots</samp></td>
 				<td>Hide ASCII-plots.</td>
 				<td><samp>False</samp></td>

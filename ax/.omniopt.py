@@ -321,7 +321,6 @@ class ConfigLoader:
     show_sixel_general: bool
     show_sixel_scatter: bool
     gpus: int
-    load_previous_job_data: Optional[str]
     model: str
     live_share: bool
     experiment_name: str
@@ -391,7 +390,6 @@ class ConfigLoader:
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
         optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
         optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
-        optional.add_argument('--load_previous_job_data', action="append", nargs="+", help='Paths of previous jobs to load from', type=str)
         optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
         optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
         optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
@@ -1456,12 +1454,6 @@ def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Unio
 
     found_in_file = False
 
-    if args.load_previous_job_data and len(args.load_previous_job_data):
-        prev_runs = helpers.flatten_extend(args.load_previous_job_data)
-        for prev_run in prev_runs:
-            pd_csv = f"{prev_run}/{PD_CSV_FILENAME}"
-
-            ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
     if args.continue_previous_job:
         pd_csv = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
 
@@ -3877,10 +3869,6 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
 def get_nr_of_imported_jobs() -> int:
     nr_jobs: int = 0
 
-    if args.load_previous_job_data:
-        for this_path in args.load_previous_job_data:
-            nr_jobs += simulate_load_data_from_existing_run_folders(this_path)
-
     if args.continue_previous_job:
         nr_jobs += simulate_load_data_from_existing_run_folders([args.continue_previous_job])
 
@@ -3889,10 +3877,6 @@ def get_nr_of_imported_jobs() -> int:
 @wrapper_print_debug
 def load_existing_job_data_into_ax_client() -> None:
     global NR_INSERTED_JOBS
-
-    if args.load_previous_job_data:
-        for this_path in args.load_previous_job_data:
-            load_data_from_existing_run_folders(this_path)
 
     if len(already_inserted_param_hashes.keys()):
         if len(missing_results):
@@ -5604,7 +5588,7 @@ def die_no_random_steps() -> None:
     my_exit(233)
 
 def check_if_has_random_steps() -> None:
-    if (not args.continue_previous_job and not args.load_previous_job_data and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
+    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         die_no_random_steps()
 

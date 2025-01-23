@@ -2283,7 +2283,9 @@ def evaluate(parameters: dict) -> dict:
         else:
             print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
-        if len(args.result_names) == 1:
+        print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
+
+        if len(arg_result_column_names) == 1:
             if isinstance(result, (int, float)): # pragma: no cover
                 return {"result": float(result)}
             if isinstance(result, (list)) and len(result) == 1:

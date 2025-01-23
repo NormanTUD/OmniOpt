@@ -594,9 +594,6 @@ if args.continue_previous_job is not None:
     else:
         print_yellow(f"{look_for_result_names_file} not found!")
 
-    if args.result_names:
-        print_yellow("WARNING: --result_names will be ignored for continued jobs. Will set the result names from the previous job!")
-
     found_result_min_max = []
     default_min_max = "min"
     if args.maximize:
@@ -1201,7 +1198,9 @@ def load_time_or_exit(_args: Any) -> None:
         global_vars["_time"] = _args.time
     elif _args.continue_previous_job:
         time_file = f"{_args.continue_previous_job}/state_files/time"
-        time_content = get_file_content_or_exit(time_file, f"neither --time nor file {time_file} found", 19)
+        time_content = get_file_content_or_exit(time_file, f"neither --time nor file {time_file} found", 19).rstrip()
+        time_content = time_content.replace("\n", "").replace(" ", "")
+
         if time_content.isdigit(): # pragma: no cover
             global_vars["_time"] = int(time_content)
             print_yellow(f"Using old run's --time: {global_vars['_time']}")
@@ -3777,7 +3776,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         return None
 
     if resname not in df.columns:
-        print_red(f"Error: Could not get RESULT-NAME {resname} old result for {params} in {file_path}")
+        print_red(f"Error: Could not get RESULT-NAME '{resname}' old result for {params} in {file_path}")
         return None
 
     try:
@@ -3863,7 +3862,8 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
 
             old_result_simple = None
             try:
-                old_result_simple = get_old_result_simple(this_path, old_arm_parameter)
+                for resname in arg_result_column_names:
+                    old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
             except Exception:
                 pass
 
@@ -4035,8 +4035,10 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]]:
+        result = []
         try:
-            result = get_old_result_simple(path, parameters)
+            for resname in arg_result_column_names:
+                result.append(get_old_result_simple(path, parameters, resname))
         except Exception:
             result = None
         return pformat(parameters) + "====" + pformat(result), result

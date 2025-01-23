@@ -1023,21 +1023,17 @@ def supports_sixel() -> bool:
 
 @typechecked
 def print_image_to_cli(image_path: str, width: int) -> bool:
-    if not supports_sixel():
-        print("Sixel is not supported on this terminal. Image will not be printed")
-        return False
-
     print("")
     try:
-        image = Image.open(image_path)
-        original_width, original_height = image.size
+        if supports_sixel():
+            image = Image.open(image_path)
+            original_width, original_height = image.size
 
-        height = int((original_height / original_width) * width)
+            height = int((original_height / original_width) * width)
+            sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
+            sixel_converter.write(sys.stdout)
 
-        sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
-
-        sixel_converter.write(sys.stdout)
-        _sleep(2)
+            _sleep(2)
 
         return True
     except Exception as e: # pragma: no cover

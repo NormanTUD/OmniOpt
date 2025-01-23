@@ -1005,10 +1005,28 @@ def log_what_needs_to_be_logged() -> None:
 def get_line_info() -> Tuple[str, str, int, str, str]:
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
-#print(f"sys.path: {sys.path}")
+@typechecked
+def supports_sixel() -> bool:
+    term = os.environ.get("TERM", "").lower()
+    if "xterm" in term or "mlterm" in term:
+        return True
+
+    try:
+        output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
+        if output.returncode == 0 and "sixel" in output.stdout.lower():
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    return False
+
 
 @typechecked
 def print_image_to_cli(image_path: str, width: int) -> bool:
+    if not supports_sixel():
+        print("Sixel is not supported on this terminal. Image will not be printed")
+        return False
+
     print("")
     try:
         image = Image.open(image_path)

@@ -3700,7 +3700,7 @@ def clean_completed_jobs() -> None:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
 
 @typechecked
-def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6) -> Any:
+def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Any:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
     Return the value of the 'result' column from that row.
@@ -3721,8 +3721,8 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         print_red(f"Failed to read the CSV file: {str(e)}")
         return None
 
-    if "result" not in df.columns:
-        print_red(f"Error: Could not get old result for {params} in {file_path}")
+    if resname not in df.columns:
+        print_red(f"Error: Could not get RESULT-NAME {resname} old result for {params} in {file_path}")
         return None
 
     try:
@@ -3761,8 +3761,8 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         raise
 
 @wrapper_print_debug
-def get_old_result_simple(this_path: str, old_arm_parameter: dict) -> Union[float, None, int]:
-    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter)
+def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
+    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
     if "result" in tmp_old_res:
         tmp_old_res = tmp_old_res["result"]
         tmp_old_res_list = list(set(list(tmp_old_res)))

@@ -3864,7 +3864,8 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
             try:
                 for resname in arg_result_column_names:
                     old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
-            except Exception:
+            except Exception as e:
+                print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}")
                 pass
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":

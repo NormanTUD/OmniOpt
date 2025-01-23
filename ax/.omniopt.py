@@ -270,6 +270,36 @@ def my_exit(_code: int = 0) -> None:
     print("Exit-Code: " + str(_code))
     sys.exit(_code)
 
+@typechecked
+def print_green(text: str) -> None:
+    helpers.print_color("green", text)
+
+    print_debug(text)
+
+@typechecked
+def print_yellow(text: str) -> None:
+    helpers.print_color("yellow", text)
+
+    print_debug(text)
+
+def get_min_max_from_file(continue_path: str, n: int, default_min_max: str) -> str:
+    path = f"{continue_path}/result_min_max.txt"
+
+    if not os.path.exists(path):
+        print_yellow(f"File {path} not found, will use {default_min_max}")
+        return default_min_max
+
+    with open(path, 'r') as file:
+        lines = file.read().splitlines()
+
+    line = lines[n] if 0 <= n < len(lines) else ""
+
+    if line in {"min", "max"}:
+        return line
+    else:
+        print_yellow(f"Line {n} did not contain min/max, will be set to {default_min_max}")
+        return default_min_max
+
 class ConfigLoader:
     run_tests_that_fail_on_taurus: bool
     enforce_sequential_optimization: bool
@@ -542,6 +572,45 @@ for _rn in args.result_names:
 
     arg_result_column_names.append(_key)
     arg_result_min_or_max.append(_min_or_max)
+
+if args.continue_previous_job is not None:
+    look_for_result_names_file = f"{args.continue_previous_job}/result_names.txt"
+    print_debug(f"--continue was set. Trying to figure out if there is a results file in {look_for_result_names_file} and, if so, trying to load it...")
+
+    found_result_names = []
+    
+    if os.path.exists(look_for_result_names_file):
+        try:
+            with open(look_for_result_names_file, 'r', encoding='utf-8') as file:
+                content = file.read()
+                found_result_names = content.split('\n')
+
+                if found_result_names and found_result_names[-1] == '':
+                    found_result_names.pop()
+        except FileNotFoundError:
+            print_red(f"Error: The file at '{look_for_result_names_file}' was not found.")
+        except IOError as e:
+            print_red(f"Error reading file '{look_for_result_names_file}': {e}")
+    else:
+        print_yellow(f"{look_for_result_names_file} not found!")
+
+
+    if args.result_names:
+        print_yellow(f"WARNING: --result_names will be ignored for continued jobs. Will set the result names from the previous job!")
+
+    found_result_min_max = []
+    default_min_max = "min"
+    if args.maximize:
+        default_min_max = "max"
+
+
+    for n in range(0, len(found_result_names)):
+        min_max = get_min_max_from_file(args.continue_previous_job, n, default_min_max)
+
+        found_result_min_max.append(min_max)
+
+    arg_result_column_names = found_result_names
+    arg_result_min_or_max = found_result_min_max
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
@@ -1009,18 +1078,6 @@ def _debug_get_next_trials(msg: str, _lvl: int = 0, eee: Union[None, str, Except
 @typechecked
 def _debug_progressbar(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, str(eee))
-
-@typechecked
-def print_green(text: str) -> None:
-    helpers.print_color("green", text)
-
-    print_debug(text)
-
-@typechecked
-def print_yellow(text: str) -> None:
-    helpers.print_color("yellow", text)
-
-    print_debug(text)
 
 @typechecked
 def decode_if_base64(input_str: str) -> str:
@@ -5676,6 +5733,10 @@ def main() -> None:
 
     with open(f"{get_current_run_folder()}/result_names.txt", mode="a", encoding="utf-8") as myfile:
         for rarg in arg_result_column_names:
+            original_print(rarg, file=myfile)
+
+    with open(f"{get_current_run_folder()}/result_min_max.txt", mode="a", encoding="utf-8") as myfile:
+        for rarg in arg_result_min_or_max:
             original_print(rarg, file=myfile)
 
     if os.getenv("CI"):

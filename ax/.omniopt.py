@@ -3817,8 +3817,8 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 @wrapper_print_debug
 def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
-    if "result" in tmp_old_res:
-        tmp_old_res = tmp_old_res["result"]
+    if resname in tmp_old_res:
+        tmp_old_res = tmp_old_res[resname]
         tmp_old_res_list = list(set(list(tmp_old_res)))
 
         if len(tmp_old_res_list) == 1:
@@ -3861,12 +3861,12 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
             old_arm_parameter = old_trial.arm.parameters
 
             old_result_simple = None
+
             try:
                 for resname in arg_result_column_names:
                     old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
             except Exception as e:
                 print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}")
-                pass
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 _counter += 1

@@ -24,6 +24,7 @@ var tableData = [
 ];
 
 var hiddenTableData = [
+	{ label: "Result-Names", id: "result_names", type: "text", value: "RESULT", placeholder: "Name of the value that should be searched for, like RESULT", "required": true, "regex": /^(((([a-zA-Z][a-zA-Z0-9_]*)(=(min|max))?)(,\s*)?)+)$/, "help": "A comma-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is RESULT=min.", "info": "This is used for the regex to search through the STDOUT of your program to find RESULT-values. You can define multiple result values like this: <tt>RESULT1, RESULT2, RESULT3</tt>. Can also be defined with min and max: <tt>LOSS=min, PERFORMANCE=max, ...</tt>" },
 	{ label: "CPUs per Task", id: "cpus_per_task", type: "number", value: 1, placeholder: "CPUs per Task", min: 1, max: 10, "help": "How many CPUs should be assigned to each task (for workers)" },
 	{ label: "Number of nodes", id: "nodes_per_job", type: "number", value: 1, placeholder: "tasks", min: 1, "help": "How many nodes (for each worker)" },
 	{ label: "Seed", id: "seed", type: "number", value: "", placeholder: "Seed for reproducibility", "info": "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.", required: false },
@@ -59,30 +60,33 @@ var hiddenTableData = [
 		"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 	},
 
-	{ label: "Multi-Objective-Optimization mode", id: "moo_type", type: "select", value: "euclid", options: [
-		{ "text": "Calculate the euclidean distance to the origo of the search space", "value": "euclid" },
-		{ "text": "Calculate the geometric distance to the origo of the search space", "value": "geometric" },
-		{ "text": "Calculate the signed harmonic distance to the origo of the search space", "value": "signed_harmonic" },
-	], "required": true,
-	"info": "How to merge multiple results into one. Doesn't affect single result jobs.",
-	"help": "How to merge multiple results into one."
+	{ label: "Multi-Objective-Optimization mode", id: "moo_type", type: "select", value: "euclid",
+		options: [
+			{ "text": "Calculate the euclidean distance to the origo of the search space", "value": "euclid" },
+			{ "text": "Calculate the geometric distance to the origo of the search space", "value": "geometric" },
+			{ "text": "Calculate the signed harmonic distance to the origo of the search space", "value": "signed_harmonic" },
+		], "required": true,
+		"info": "How to merge multiple results into one. Doesn't affect single result jobs.",
+		"help": "How to merge multiple results into one."
 	},
 
-	{ label: "Installation-Method", id: "installation_method", type: "select", value: "", options: [
-		{ "text": "Use git clone to clone OmniOpt2", "value": "clone" },
-		{ "text": "Use pip and install OmniOpt2 from pypi (may not be the latest version)", "value": "pip" }
-	], "required": true,
-	"info": "Changes the way OmniOpt2 is installed.",
-	"help": "If you want to install OmniOpt2 via pip, chose it here. It may not always have the latest version.",
-	"use_in_curl_bash": true
+	{ label: "Installation-Method", id: "installation_method", type: "select", value: "",
+		options: [
+			{ "text": "Use git clone to clone OmniOpt2", "value": "clone" },
+			{ "text": "Use pip and install OmniOpt2 from pypi (may not be the latest version)", "value": "pip" }
+		], "required": true,
+		"info": "Changes the way OmniOpt2 is installed.",
+		"help": "If you want to install OmniOpt2 via pip, chose it here. It may not always have the latest version.",
+		"use_in_curl_bash": true
 	},
 
-	{ label: "Run-Mode", id: "run_mode", type: "select", value: "", options: [
-		{ "text": "Locally or on a HPC system", "value": "local" },
-		{ "text": "Docker", "value": "docker" }
-	], "required": true,
-	"info": "Changes the curl-command and how omniopt is installed and executed.",
-	"help": "If set to docker, it will run in a local docker container."
+	{ label: "Run-Mode", id: "run_mode", type: "select", value: "",
+		options: [
+			{ "text": "Locally or on a HPC system", "value": "local" },
+			{ "text": "Docker", "value": "docker" }
+		], "required": true,
+		"info": "Changes the curl-command and how omniopt is installed and executed.",
+		"help": "If set to docker, it will run in a local docker container."
 	},
 
 	{

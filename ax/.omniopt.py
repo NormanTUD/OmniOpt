@@ -3586,13 +3586,13 @@ def get_current_model() -> str:
 def get_best_params_str(res_name: str = "result") -> str:
     if count_done_jobs() >= 0:
         best_params = get_best_params(res_name)
-        if best_params and "result" in best_params:
-            best_result = best_params["result"]
+        if best_params and res_name in best_params:
+            best_result = best_params[res_name]
             if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
                 best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
-                    return f"best result: {best_result_int_if_possible}"
+                    return f"best {res_name}: {best_result_int_if_possible}"
     return ""
 
 @typechecked
@@ -3990,6 +3990,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @wrapper_print_debug
+@typechecked
 def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None:
     done_converting = False
 
@@ -4022,6 +4023,7 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
 @wrapper_print_debug
+@typechecked
 def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global already_inserted_param_hashes
     global already_inserted_param_data

@@ -282,23 +282,23 @@ def print_yellow(text: str) -> None:
 
     print_debug(text)
 
-def get_min_max_from_file(continue_path: str, n: int, default_min_max: str) -> str:
+def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> str:
     path = f"{continue_path}/result_min_max.txt"
 
     if not os.path.exists(path):
-        print_yellow(f"File {path} not found, will use {default_min_max}")
-        return default_min_max
+        print_yellow(f"File {path} not found, will use {_default_min_max}")
+        return _default_min_max
 
-    with open(path, 'r') as file:
+    with open(path, encoding="utf-8", mode='r') as file:
         lines = file.read().splitlines()
 
     line = lines[n] if 0 <= n < len(lines) else ""
 
     if line in {"min", "max"}:
         return line
-    else:
-        print_yellow(f"Line {n} did not contain min/max, will be set to {default_min_max}")
-        return default_min_max
+
+    print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}")
+    return _default_min_max
 
 class ConfigLoader:
     run_tests_that_fail_on_taurus: bool
@@ -578,12 +578,12 @@ if args.continue_previous_job is not None:
     print_debug(f"--continue was set. Trying to figure out if there is a results file in {look_for_result_names_file} and, if so, trying to load it...")
 
     found_result_names = []
-    
+
     if os.path.exists(look_for_result_names_file):
         try:
-            with open(look_for_result_names_file, 'r', encoding='utf-8') as file:
-                content = file.read()
-                found_result_names = content.split('\n')
+            with open(look_for_result_names_file, 'r', encoding='utf-8') as _file:
+                _content = _file.read()
+                found_result_names = _content.split('\n')
 
                 if found_result_names and found_result_names[-1] == '':
                     found_result_names.pop()
@@ -594,18 +594,16 @@ if args.continue_previous_job is not None:
     else:
         print_yellow(f"{look_for_result_names_file} not found!")
 
-
     if args.result_names:
-        print_yellow(f"WARNING: --result_names will be ignored for continued jobs. Will set the result names from the previous job!")
+        print_yellow("WARNING: --result_names will be ignored for continued jobs. Will set the result names from the previous job!")
 
     found_result_min_max = []
     default_min_max = "min"
     if args.maximize:
         default_min_max = "max"
 
-
-    for n in range(0, len(found_result_names)):
-        min_max = get_min_max_from_file(args.continue_previous_job, n, default_min_max)
+    for _n in range(0, len(found_result_names)):
+        min_max = get_min_max_from_file(args.continue_previous_job, _n, default_min_max)
 
         found_result_min_max.append(min_max)
 

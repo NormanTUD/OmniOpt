@@ -2239,15 +2239,8 @@ def evaluate(parameters: dict) -> dict:
             "exit_code",
             "signal",
             "hostname",
-            *extra_vars_names,
-            *all_result_column_names
+            *extra_vars_names
         ]
-
-        unmooed_result_str = []
-        if unmooed_result:
-            for v in unmooed_result:
-                if v:
-                    unmooed_result_str.append(str(v))
 
         result_values = []
 
@@ -2267,8 +2260,7 @@ def evaluate(parameters: dict) -> dict:
             str(exit_code),
             str(_signal),
             socket.gethostname(),
-            *extra_vars_values,
-            *unmooed_result_str
+            *extra_vars_values
         ]
 
         original_print(f"EXIT_CODE: {exit_code}")

@@ -5665,6 +5665,10 @@ def plot_pareto_frontier_automatically() -> None:
         print_debug(f"{len(arg_result_column_names)} is 1")
         return
 
+    if ax_client is None:
+        print_red("plot_pareto_frontier_automatically: Cannot plot pareto-front. ax_client is undefined.")
+        return
+
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
 
     objectives = ax_client.experiment.optimization_config.objective.objectives

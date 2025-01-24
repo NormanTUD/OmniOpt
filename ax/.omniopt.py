@@ -1843,35 +1843,35 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @typechecked
-def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, float], list[float]]]:
-    if input_string is None:
+def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]:
+    if input_string is None:                             
         print_red("get_results: Input-String is None")
         return None
-
+                                                                   
     if not isinstance(input_string, str):
         print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
-        return None
-
-    try:
-        results = {}
-
+        return None                 
+                  
+    try:                       
+        results: dict[str, Optional[float]] = {}  # Typdefinition angepasst
+                        
         for column_name in arg_result_column_names:
             _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
-
+                  
             matches = re.findall(_pattern, input_string)
-
+                                                                          
             if matches:
                 results[column_name] = [float(match) for match in matches][0]
-            else:
-                results[column_name] = None
-
+            else:                                                            
+                results[column_name] = None                                                                                                                                                                  
+                                
         if len(results):
-            return results
-
-        return None
+            return results                               
+                        
+        return None    
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
-        return None
+        return None    
 
 @typechecked
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:

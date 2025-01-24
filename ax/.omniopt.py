@@ -41,6 +41,7 @@ try:
         import time
         import traceback
         import cowsay
+        import rich
         from rich_argparse import RichHelpFormatter
         import psutil
         import shutil
@@ -5609,7 +5610,7 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
     return experiment_parameters, cli_params_experiment_parameters
 
 @typechecked
-def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list):
+def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list) -> rich.table.Table:
     table = Table(title="Pareto Frontier Results", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + metrics

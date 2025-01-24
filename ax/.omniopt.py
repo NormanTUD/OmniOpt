@@ -5626,6 +5626,7 @@ def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
 
     return table
 
+@typechecked
 def plot_pareto_frontier_sixel(data: Any) -> None:
     import matplotlib.pyplot as plt
     import tempfile
@@ -5653,6 +5654,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
 
     plt.close(fig)
 
+@typechecked
 def convert_to_serializable(obj) -> list:
     if isinstance(obj, np.ndarray):
         return obj.tolist()  # Konvertiere ndarray in eine Liste

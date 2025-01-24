@@ -285,6 +285,7 @@ def print_yellow(text: str) -> None:
 
     print_debug(text)
 
+@typechecked
 def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> str:
     path = f"{continue_path}/result_min_max.txt"
 
@@ -353,6 +354,7 @@ class ConfigLoader:
     mem_gb: int
     continue_previous_job: Optional[str]
 
+    @typechecked
     def __init__(self) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
@@ -369,6 +371,7 @@ class ConfigLoader:
         # Initialize the remaining arguments
         self.add_arguments()
 
+    @typechecked
     def add_arguments(self) -> None:
         required = self.parser.add_argument_group('Required arguments', "These options have to be set")
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
@@ -445,6 +448,7 @@ class ConfigLoader:
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
 
+    @typechecked
     def load_config(self, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path): # pragma: no cover
             print("Exit-Code: 5")
@@ -467,6 +471,7 @@ class ConfigLoader:
 
         return {} # pragma: no cover
 
+    @typechecked
     def validate_and_convert(self, config: dict, arg_defaults: dict) -> dict:
         """
         Validates the config data and converts them to the right types based on argparse defaults.
@@ -493,6 +498,7 @@ class ConfigLoader:
 
         return converted_config
 
+    @typechecked
     def merge_args_with_config(self: Any, config: Any, cli_args: Any) -> Any:
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
@@ -506,6 +512,7 @@ class ConfigLoader:
 
         return cli_args
 
+    @typechecked
     def parse_arguments(self: Any) -> Any:
         # First, parse the CLI arguments to check if config files are provided
         _args = self.parser.parse_args()
@@ -809,6 +816,7 @@ missing_results: list = []
 already_inserted_param_hashes: dict = {}
 already_inserted_param_data: list = []
 
+@typechecked
 def print_logo() -> None:
     print_debug("print_logo()")
     if os.environ.get('NO_OO_LOGO') is not None:
@@ -912,6 +920,7 @@ def set_max_eval(new_max_eval: int) -> None:
 
     max_eval = new_max_eval
 
+@typechecked
 def write_worker_usage() -> None:
     if len(WORKER_PERCENTAGE_USAGE): # pragma: no cover
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
@@ -950,12 +959,14 @@ def log_system_usage() -> None:
 
         writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
 
+@typechecked
 def write_process_info() -> None:
     try:
         log_system_usage()
     except Exception as e: # pragma: no cover
         print_debug(f"Error retrieving process information: {str(e)}")
 
+@typechecked
 def log_nr_of_workers() -> None:
     try:
         write_process_info()
@@ -1331,6 +1342,7 @@ if is_executable_in_path("nvidia-smi"): # pragma: no cover
 if not SYSTEM_HAS_SBATCH:
     num_parallel_jobs = 1
 
+@typechecked
 def save_global_vars() -> None:
     state_files_folder = f"{get_current_run_folder()}/state_files"
     makedirs(state_files_folder)
@@ -1338,6 +1350,7 @@ def save_global_vars() -> None:
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
+@typechecked
 def check_slurm_job_id() -> None:
     print_debug("check_slurm_job_id()")
     if SYSTEM_HAS_SBATCH: # pragma: no cover
@@ -1737,6 +1750,7 @@ def parse_experiment_parameters() -> list:
 
     return params
 
+@typechecked
 def check_factorial_range() -> None: # pragma: no cover
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
@@ -2084,6 +2098,7 @@ def extract_info(data: str) -> Tuple[list[str], list[str]]:
 
     return names, values
 
+@typechecked
 def ignore_signals() -> None:
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -2322,6 +2337,7 @@ def custom_warning_handler(
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(f"{file}:{line}: {warning_message}")
 
+@typechecked
 def disable_logging() -> None:
     if args.verbose: # pragma: no cover
         return
@@ -2940,6 +2956,7 @@ def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
 
     return False
 
+@typechecked
 def abandon_all_jobs() -> None: # pragma: no cover
     for job, trial_index in global_vars["jobs"][:]:
         abandoned = abandon_job(job, trial_index)
@@ -3143,6 +3160,7 @@ def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
+@typechecked
 def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
     my_exit(49)
 
@@ -3703,6 +3721,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
         if in_brackets_clean:
             desc += f"{', '.join(in_brackets_clean)}"
 
+    @typechecked
     def capitalized_string(s: str) -> str:
         return s[0].upper() + s[1:] if s else ""
 
@@ -4008,6 +4027,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global double_hashes
     global missing_results
 
+    @typechecked
     def update_status(message: str, path_idx: Union[int, None] = None, trial_idx: Union[int, None] = None, total_trials: Union[int, None] = None) -> str:
         if len(_paths) > 1:
             folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
@@ -4015,6 +4035,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
         return f"{message}{get_list_import_as_string()}..."
 
+    @typechecked
     def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
         result = []
         try:
@@ -4024,6 +4045,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             result = None
         return pformat(parameters) + "====" + pformat(result), result
 
+    @typechecked
     def should_insert(hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> bool:
         result = hashed_params_result[1]
         res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
@@ -4032,6 +4054,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return True
         return False
 
+    @typechecked
     def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None:
         try:
             insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
@@ -4042,12 +4065,14 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
+    @typechecked
     def log_missing_result(parameters: dict, hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
+    @typechecked
     def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
@@ -4065,6 +4090,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
+    @typechecked
     def display_table() -> None:
         headers, rows = extract_headers_and_rows(already_inserted_param_data)
         if headers and rows:
@@ -4704,6 +4730,7 @@ def write_run_uuid_to_file() -> bool:
 
     return False # pragma: no cover
 
+@typechecked
 def save_state_files() -> None:
     global global_vars
 
@@ -4801,17 +4828,20 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
     return None # pragma: no cover
 
+@typechecked
 def initialize_job_environment() -> None:
     progressbar_description(["starting new job"])
     set_sbatch_environment()
     exclude_defective_nodes()
 
+@typechecked
 def set_sbatch_environment() -> None:
     if args.reservation: # pragma: no cover
         os.environ['SBATCH_RESERVATION'] = args.reservation
     if args.account: # pragma: no cover
         os.environ['SBATCH_ACCOUNT'] = args.account
 
+@typechecked
 def exclude_defective_nodes() -> None:
     excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1: # pragma: no cover
@@ -4855,9 +4885,11 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cove
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 
+@typechecked
 def update_progress() -> None:
     progressbar_description(["started new job"])
 
+@typechecked
 def handle_exit_signal() -> None: # pragma: no cover
     print_red("\n⚠ Detected signal. Will exit.")
     end_program(RESULT_CSV_FILE, False, 1)
@@ -5322,6 +5354,7 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
 
     return _random_steps, second_step_steps
 
+@typechecked
 def set_global_executor() -> None:
     global executor
 
@@ -5374,6 +5407,7 @@ def set_global_executor() -> None:
         print_red("executor could not be found")
         my_exit(9)
 
+@typechecked
 def execute_nvidia_smi() -> None: # pragma: no cover
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
@@ -5413,6 +5447,7 @@ def execute_nvidia_smi() -> None: # pragma: no cover
         if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(10)
 
+@typechecked
 def start_nvidia_smi_thread() -> None: # pragma: no cover
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
@@ -5569,6 +5604,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
 
     return None
 
+@typechecked
 def set_orchestrator() -> None:
     global orchestrator
 
@@ -5578,14 +5614,17 @@ def set_orchestrator() -> None:
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
+@typechecked
 def die_no_random_steps() -> None:
     my_exit(233)
 
+@typechecked
 def check_if_has_random_steps() -> None:
     if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         die_no_random_steps()
 
+@typechecked
 def add_exclude_to_defective_nodes() -> None:
     if args.exclude: # pragma: no cover
         entries = [entry.strip() for entry in args.exclude.split(',')]
@@ -5661,6 +5700,7 @@ def convert_to_serializable(obj: np.ndarray) -> list:
         return obj.tolist()  # Konvertiere ndarray in eine Liste
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
+@typechecked
 def plot_pareto_frontier_automatically() -> None:
     if len(arg_result_column_names) == 1:
         print_debug(f"{len(arg_result_column_names)} is 1")
@@ -5727,6 +5767,7 @@ def plot_pareto_frontier_automatically() -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
+@typechecked
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
@@ -5837,9 +5878,11 @@ def main() -> None:
 
     end_program(RESULT_CSV_FILE)
 
+@typechecked
 def log_worker_creation() -> None:
     _debug_worker_creation("time, nr_workers, got, requested, phase")
 
+@typechecked
 def set_run_folder() -> None:
     global CURRENT_RUN_FOLDER
     RUN_FOLDER_NUMBER: int = 0
@@ -5849,24 +5892,29 @@ def set_run_folder() -> None:
         RUN_FOLDER_NUMBER += 1
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
+@typechecked
 def handle_maximize_argument() -> None:
     if args.maximize: # pragma: no cover
         print_red("--maximize is not fully supported yet!")
 
+@typechecked
 def print_run_info() -> None:
     print(f"[yellow]Run-folder[/yellow]: [underline]{get_current_run_folder()}[/underline]")
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
 
+@typechecked
 def initialize_nvidia_logs() -> None:
     global NVIDIA_SMI_LOGS_BASE
     NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
 
+@typechecked
 def write_ui_url_if_present() -> None:
     if args.ui_url:
         with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
 
+@typechecked
 def handle_random_steps() -> None:
     global random_steps
     if args.parameter and args.continue_previous_job and random_steps <= 0: # pragma: no cover
@@ -5884,6 +5932,7 @@ def initialize_ax_client(gs: Any) -> None:
 
     ax_client = cast(AxClient, ax_client)
 
+@typechecked
 def print_generation_strategy() -> None:
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
@@ -6001,6 +6050,7 @@ def test_find_paths(program_code: str) -> int:
 
     return nr_errors
 
+@typechecked
 def run_tests() -> None:
     print_red("This should be red")
     print_yellow("This should be yellow")
@@ -6294,6 +6344,7 @@ def live_share_background(interval: int) -> None:
         live_share()
         time.sleep(interval)
 
+@typechecked
 def start_live_share_background_job() -> None:
     if not args.live_share: # pragma: no cover
         return
@@ -6304,6 +6355,7 @@ def start_live_share_background_job() -> None:
     thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
     thread.start()
 
+@typechecked
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 

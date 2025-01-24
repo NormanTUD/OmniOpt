@@ -5618,7 +5618,7 @@ def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metri
         table.add_column(header, justify="center")
 
     for i, params in enumerate(param_dicts):
-        row = []
+        row: list = []
         row.extend(str(params[k]) for k in params.keys())
         for metric in metrics:
             mean = means[metric][i]

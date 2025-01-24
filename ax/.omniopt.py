@@ -1844,34 +1844,34 @@ def execute_bash_code(code: str) -> list:
 
 @typechecked
 def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]:
-    if input_string is None:                             
+    if input_string is None:
         print_red("get_results: Input-String is None")
         return None
-                                                                   
+
     if not isinstance(input_string, str):
         print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
-        return None                 
-                  
-    try:                       
+        return None
+
+    try:
         results: dict[str, Optional[float]] = {}  # Typdefinition angepasst
-                        
+
         for column_name in arg_result_column_names:
             _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
-                  
+
             matches = re.findall(_pattern, input_string)
-                                                                          
+
             if matches:
                 results[column_name] = [float(match) for match in matches][0]
-            else:                                                            
-                results[column_name] = None                                                                                                                                                                  
-                                
+            else:
+                results[column_name] = None
+
         if len(results):
-            return results                               
-                        
-        return None    
+            return results
+
+        return None
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
-        return None    
+        return None
 
 @typechecked
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
@@ -4038,14 +4038,14 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     @typechecked
     def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
-        try:                                                             
+        try:
             for resname in arg_result_column_names:
                 if isinstance(result, list):
                     result.append(get_old_result_simple(path, parameters, resname))
                 else:
                     print_debug(f"Wrong type for generate_hashed_params: result-type: {type(result)}")
-        except Exception:                                                    
-            result = None                                                                                                                                                                                    
+        except Exception:
+            result = None
         return pformat(parameters) + "====" + pformat(result), result
 
     @typechecked

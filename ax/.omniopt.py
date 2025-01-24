@@ -5608,7 +5608,8 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-def pareto_front_as_rich_table(param_dicts, means, sems, metrics):
+@typechecked
+def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list):
     table = Table(title="Pareto Frontier Results", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + metrics
@@ -5655,7 +5656,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
     plt.close(fig)
 
 @typechecked
-def convert_to_serializable(obj) -> list:
+def convert_to_serializable(obj: np.ndarray) -> list:
     if isinstance(obj, np.ndarray):
         return obj.tolist()  # Konvertiere ndarray in eine Liste
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")

@@ -159,6 +159,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>defective_nodes</i>: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires <samp>--auto_exclude_defective_hosts</samp> to be set.</li>
 	<li><i>succeeded_jobs</i>: Contains one line for each succeeded job.</li>
 	<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
+	<li><i>pareto_front_data.json</i>: Data about the pareto-front (exists only for multi-objective-optimizations)</li>
 	<li><i>original_ax_client_before_loading_tmp_one.json</i>: Required to re-load generation strategy in continued jobs</li>
 	<li><i>cpu_ram_usage.csv</i>: Logs CPU and RAM usage</li>
 	<li><i>result_names.txt</i>: A list of RESULT names</li>

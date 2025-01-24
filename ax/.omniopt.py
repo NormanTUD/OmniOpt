@@ -5653,6 +5653,11 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
 
     plt.close(fig)
 
+def convert_to_serializable(obj) -> list:
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()  # Konvertiere ndarray in eine Liste
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
 def plot_pareto_frontier_automatically() -> None:
     if len(arg_result_column_names) == 1:
         print_debug(f"{len(arg_result_column_names)} is 1")
@@ -5662,18 +5667,33 @@ def plot_pareto_frontier_automatically() -> None:
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
 
+    pareto_front_data = {}
+
     for i, j in combinations(range(len(objectives)), 2):
         try:
+            metric_j = objectives[j].metric
+            metric_i = objectives[i].metric
+
             calculated_frontier = compute_posterior_pareto_frontier(
                 experiment=ax_client.experiment,
                 data=ax_client.experiment.fetch_data(),
-                primary_objective=objectives[i].metric,
-                secondary_objective=objectives[j].metric,
+                primary_objective=metric_i,
+                secondary_objective=metric_j,
                 absolute_metrics=arg_result_column_names,
                 num_points=count_done_jobs()
             )
 
             plot_pareto_frontier_sixel(calculated_frontier)
+
+            if metric_i.name not in pareto_front_data:
+                pareto_front_data[metric_i.name] = {}
+
+            pareto_front_data[metric_i.name][metric_j.name] = {
+                "param_dicts": calculated_frontier.param_dicts,
+                "means": calculated_frontier.means,
+                "sems": calculated_frontier.sems,
+                "absolute_metrics": calculated_frontier.absolute_metrics
+            }
 
             rich_table = pareto_front_as_rich_table(
                 calculated_frontier.param_dicts,
@@ -5696,6 +5716,9 @@ def plot_pareto_frontier_automatically() -> None:
                     text_file.write(table_str)
         except ax.exceptions.core.DataRequiredError as e:
             print_red(f"Error: Trying to calculate the pareto-front failed with the following Error. This may mean that previous values, like multiple result-values, were missing:\n{e}")
+
+    with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
+        json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
@@ -5802,6 +5825,8 @@ def main() -> None:
         print_debug(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_column_names) is {len(arg_result_column_names)}")
 
     live_share()
+
+    time.sleep(2)
 
     end_program(RESULT_CSV_FILE)
 

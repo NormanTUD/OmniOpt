@@ -187,7 +187,7 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 
 		for available_file in $(ls "$RUN_DIR" 2>/dev/null); do 
 			available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-			if echo "$available_file" | grep -Ei "\.(csv|txt|log)" 2>/dev/null > /dev/null; then
+			if echo "$available_file" | grep -Ei "\.(csv|txt|log|json)" 2>/dev/null > /dev/null; then
 				curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
 			fi
 		done

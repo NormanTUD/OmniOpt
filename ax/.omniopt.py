@@ -5030,7 +5030,7 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: 
         print_red(f"Error: {error}")
 
 @typechecked
-def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[dict, bool]:
+def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])

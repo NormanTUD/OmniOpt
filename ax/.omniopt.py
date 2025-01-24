@@ -1858,7 +1858,6 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
-#dier(get_results_new("RESULT1: 123\nRESULT2: 321\nRESULT3: 123456789\n"))
 
 @typechecked
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:

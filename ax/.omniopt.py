@@ -1828,7 +1828,7 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @typechecked
-def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
+def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, float], list[float]]]:
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None

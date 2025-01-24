@@ -5,7 +5,7 @@ async function plot_parallel_plot() {
 	if (!_results_csv_json) return;
 
 	// Preprocess data
-	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = preprocessData(_results_csv_json);
+	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json);
 
 	// Generate the plot
 	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
@@ -22,10 +22,12 @@ async function fetchData(filename) {
 	return jsonData;
 }
 
-function preprocessData(_results_csv_json) {
+async function preprocessData(_results_csv_json) {
+	//var result_names = await get_result_names_data();
+
 	let data = _results_csv_json.data.map(Object.values);
 	convertToIntAndFilter(data);
-	replaceZeroWithNull(data);
+	//replaceZeroWithNull(data);
 
 	let header_line = data.shift();
 	let mappingKeyNameToIndex = createMapping(header_line);

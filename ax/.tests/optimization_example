@@ -116,7 +116,6 @@ if [[ -z "$choice_param" ]]; then red_text "Parameter --choice_param cannot be e
 
 echo "OO-Info: int_param: $int_param"
 echo "OO-Info: int_param_two: $int_param_two"
-echo "OO-Info: nr_results: $nr_results"
 echo "OO-Info: float_param: $float_param"
 echo "OO-Info: choice_param: $choice_param"
 

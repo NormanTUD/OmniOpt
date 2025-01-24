@@ -4036,13 +4036,16 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     @typechecked
-    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
-        result = []
-        try:
+    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
+        result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
+        try:                                                             
             for resname in arg_result_column_names:
-                result.append(get_old_result_simple(path, parameters, resname))
-        except Exception:
-            result = None
+                if isinstance(result, list):
+                    result.append(get_old_result_simple(path, parameters, resname))
+                else:
+                    print_debug(f"Wrong type for generate_hashed_params: result-type: {type(result)}")
+        except Exception:                                                    
+            result = None                                                                                                                                                                                    
         return pformat(parameters) + "====" + pformat(result), result
 
     @typechecked

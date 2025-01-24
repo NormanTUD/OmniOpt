@@ -4015,7 +4015,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
         return f"{message}{get_list_import_as_string()}..."
 
-    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None]]:
+    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
         result = []
         try:
             for resname in arg_result_column_names:

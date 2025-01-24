@@ -4043,7 +4043,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
-    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, str] | tuple[str, float, tuple[str, int], Tuple[str, None]]]) -> None:
+    def log_missing_result(parameters: dict, hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]

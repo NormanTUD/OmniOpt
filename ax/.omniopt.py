@@ -279,6 +279,7 @@ def my_exit(_code: int = 0) -> None:
         time.sleep(2)
 
     print("Exit-Code: " + str(_code))
+    print_debug("Exit-Code: " + str(_code))
     sys.exit(_code)
 
 @typechecked

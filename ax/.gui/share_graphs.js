@@ -557,13 +557,13 @@ function get_checkmark_if_contains_result(str, result_names) {
 			return "❌";
 		}
 
-		var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+		var escapedResultNames = result_names.map(name => name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 		var regexPattern = `(${escapedResultNames.join("|")}):\\s*[+-]?\\d+(\\.\\d+)?`;
 		var regex = new RegExp(regexPattern, "gi");
 
 		var foundResults = [];
 		var match;
-		while ((match = regex.exec(str)) !== null) {
+		while ((match = regex.exec(str.toLowerCase())) !== null) {
 			foundResults.push(match[1]);
 		}
 

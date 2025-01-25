@@ -656,6 +656,7 @@ flattenSquareBottomY
 flattenSquareTopY
 flipLeftRight
 floatingpoint
+floatmatch
 floatval
 fn
 focusable
@@ -1000,6 +1001,7 @@ LeCun
 leCunNormal
 leCunUniform
 len
+lenresults
 levelnames
 Levenshtein
 lia
@@ -1270,6 +1272,7 @@ nw
 obj
 Objectkeysactivationsjoin
 Objectkeystensorslength
+occ
 occured
 OCR
 Oct
@@ -1322,6 +1325,8 @@ oppositeMotion
 optgroup
 optimizerInfos
 optimizerName
+Optionallistfloat
+OptionalUnionint
 optionCell
 optionsi
 optionslength
@@ -1380,6 +1385,7 @@ Params
 paramValue
 parcoords
 parentInstance
+Pareto
 parseDate
 parsedPath
 pathlike
@@ -1432,6 +1438,7 @@ ppt
 pptx
 pr
 PR
+pragma
 pre
 predictcontainer
 predictcontainershow
@@ -1583,6 +1590,8 @@ resizeStop
 resizeTo
 restartondifferentnode
 resultlink
+resultmax
+resultmin
 resultscsv
 resultsforEachfunctionresult
 resultslength
@@ -1696,6 +1705,7 @@ selectYear
 selectYearLabel
 selfinstalling
 selu
+sems
 Sep
 seperate
 seperated
@@ -1703,6 +1713,7 @@ seperator
 Seperator
 sepLen
 September
+serializable
 seriesa
 seriesA
 SeriesA
@@ -2008,6 +2019,7 @@ tutorialshelp
 txt
 typeahead
 typeassert
+typechecked
 TypeError
 typeguard
 typeof
@@ -2192,15 +2204,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-occ
-resultmin
-resultmax
-typechecked
-OptionalUnionint
-Optionallistfloat
-floatmatch
-lenresults
-pragma
-serializable
-sems
-Pareto

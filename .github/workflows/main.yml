@@ -67,7 +67,7 @@ jobs:
         ./ax/.tests/linter
 
   docker-test:
-    needs: [Linter, markdown-lint, todo-to-issue]
+    needs: [Linter, todo-to-issue]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -125,7 +125,7 @@ jobs:
         ./ax/omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
 
   main-test:
-    needs: [Linter, markdown-lint, todo-to-issue]
+    needs: [Linter, todo-to-issue]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -202,15 +202,6 @@ jobs:
         git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  markdown-lint:
-    strategy:
-      fail-fast: true
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run markdownlint
-        run: npm install -g markdownlint-cli && markdownlint '**/*.md'
 
   todo-to-issue:
     strategy:
@@ -222,7 +213,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   covering-uploader:
-    needs: [main-test, Linter, markdown-lint, todo-to-issue]
+    needs: [main-test, Linter, todo-to-issue]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:

@@ -11,11 +11,19 @@ valid_moo_types: list = ["geometric", "euclid", "signed_harmonic"]
 try:
     from rich.console import Console
 
+    terminal_width = 150
+
+    try:
+        terminal_width = os.get_terminal_size().columns
+    except OSError:
+        pass
+
     console: Console = Console(
         force_interactive=True,
         soft_wrap=True,
         color_system="256",
-        force_terminal=not ci_env
+        force_terminal=not ci_env,
+        width=max(200, terminal_width)
     )
 
     with console.status("[bold green]Loading base modules...") as status:
@@ -2403,8 +2411,6 @@ def disable_logging() -> None:
 
 @wrapper_print_debug
 def display_failed_jobs_table() -> None:
-    _console = Console()
-
     failed_jobs_file = f"{get_current_run_folder()}/failed_logs"
     header_file = os.path.join(failed_jobs_file, "headers.csv")
     parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
@@ -2449,7 +2455,7 @@ def display_failed_jobs_table() -> None:
                 added_rows.add(row_tuple)
 
         # Print the table to the console
-        _console.print(table)
+        console.print(table)
     except Exception as e: # pragma: no cover
         print_red(f"Error: {str(e)}")
 
@@ -5693,7 +5699,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
         plt.savefig(tmp_file.name, dpi=300)
 
-        print_image_to_cli(tmp_file.name, 600)
+        print_image_to_cli(tmp_file.name, 800)
 
     plt.close(fig)
 

@@ -559,7 +559,7 @@ function get_checkmark_if_contains_result(str, result_names) {
 
 		var escapedResultNames = result_names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 		var regexPattern = `(${escapedResultNames.join("|")}):\\s*[+-]?\\d+(\\.\\d+)?`;
-		var regex = new RegExp(regexPattern, "g");
+		var regex = new RegExp(regexPattern, "gi");
 
 		var foundResults = [];
 		var match;

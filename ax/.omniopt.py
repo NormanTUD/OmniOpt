@@ -6,7 +6,7 @@ import os
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
 
-valid_occ_types : list = ["geometric", "euclid", "signed_harmonic"]
+valid_occ_types: list = ["geometric", "euclid", "signed_harmonic"]
 
 try:
     from rich.console import Console

@@ -18,10 +18,10 @@ of which you can then chose one that best fits your needs.</p>
 
 <p>It's very similar to using <a href="tutorials.php?tutorial=run_sh" target="_blank">single-optimization</a>,
 the only differences being that, instead of using
-<span class="invert_in_dark_mode"><code class='language-bash'>print("RESULT: {loss}")</code></span>,
+<span class="invert_in_dark_mode"><code class='language-python'>print("RESULT: {loss}")</code></span>,
 you now need two lines: 
-<span class="invert_in_dark_mode"><code class='language-bash'>print("LOSS: {loss}")</code></span> and
-<span class="invert_in_dark_mode"><code class='language-bash'>print("PREDICTION_TIME: {prediction_time}")</code></span>,
+<span class="invert_in_dark_mode"><code class='language-python'>print("LOSS: {loss}")</code></span> and
+<span class="invert_in_dark_mode"><code class='language-python'>print("PREDICTION_TIME: {prediction_time}")</code></span>,
 and you need the option
 <span class="invert_in_dark_mode"><code class='language-bash'>--result_names LOSS PREDICTION_TIME</code></span>.</p>
 

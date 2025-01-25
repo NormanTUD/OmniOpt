@@ -6,7 +6,7 @@ import os
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
 
-valid_moo_types: list = ["geometric", "euclid", "signed_harmonic"]
+valid_occ_types : list = ["geometric", "euclid", "signed_harmonic"]
 
 try:
     from rich.console import Console
@@ -327,7 +327,7 @@ class ConfigLoader:
     num_parallel_jobs: int
     max_parallelism: int
     force_local_execution: bool
-    moo_type: str
+    occ_type: str
     raise_in_eval: bool
     maximize: bool
     show_sixel_general: bool
@@ -428,7 +428,7 @@ class ConfigLoader:
         optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
         optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
-        optional.add_argument('--moo_type', help=f'MOO-type (valid types are {", ".join(valid_moo_types)})', type=str, default="euclid")
+        optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
@@ -2152,7 +2152,7 @@ def calculate_signed_geometric_distance(_args: list[float]) -> float:
     geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
-class invalidMooType(Exception):
+class invalidOccType(Exception):
     pass
 
 @typechecked
@@ -2160,14 +2160,14 @@ def calculate_occ(_args: Optional[list[float]]) -> float:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 
-    if args.moo_type == "euclid":
+    if args.occ_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
-    if args.moo_type == "geometric": # pragma: no cover
+    if args.occ_type == "geometric": # pragma: no cover
         return calculate_signed_geometric_distance(_args)
-    if args.moo_type == "signed_harmonic": # pragma: no cover
+    if args.occ_type == "signed_harmonic": # pragma: no cover
         return calculate_signed_harmonic_distance(_args)
 
-    raise invalidMooType(f"Invalid moo type {args.moo_type}. Valid types are: {', '.join(valid_moo_types)}") # pragma: no cover
+    raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}") # pragma: no cover
 
 @typechecked
 def evaluate(parameters: dict) -> dict:
@@ -2228,20 +2228,20 @@ def evaluate(parameters: dict) -> dict:
 
         result = get_results(stdout)
 
-        unmooed_result = result
+        unocced_result = result
 
         all_result_column_names = []
 
         _k = 1
-        if unmooed_result and args.occ:
-            for a in unmooed_result:
+        if unocced_result and args.occ:
+            for a in unocced_result:
                 all_result_column_names.append(f"RESULT{_k}")
                 _k = _k + 1
 
-            mooed_result = calculate_occ(result)
+            occed_result = calculate_occ(result)
 
-            if mooed_result is not None:
-                result = [mooed_result]
+            if occed_result is not None:
+                result = [occed_result]
 
         extra_vars_names, extra_vars_values = extract_info(stdout)
 

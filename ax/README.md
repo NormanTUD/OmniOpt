@@ -15,11 +15,12 @@
 [![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
 OmniOpt2 is a tool designed to assist researchers, engineers, and data
-scientists with hyperparameter optimization on SLURM-based clusters. It
-simplifies large-scale optimization tasks with built-in fault tolerance and
-flexibility. A graphical user interface (GUI) is available for command
-creation, accessible at [OmniOpt2 GUI](https://imageseg.scads.de/omniax/).
-For tutorials on configuration, exit codes, and debugging, visit
+scientists with hyperparameter optimization on SLURM-based clusters, even
+though it works without it as well. It simplifies large-scale optimization
+tasks with built-in fault tolerance and flexibility. A graphical user interface
+(GUI) is available for command creation, accessible at 
+[OmniOpt2 GUI](https://imageseg.scads.de/omniax/). For tutorials on 
+configuration, exit codes, and debugging, visit
 [OmniOpt2 Tutorials](https://imageseg.scads.de/omniax/tutorials.php).
 
 ## Main program

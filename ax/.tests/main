@@ -661,7 +661,9 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Testing continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/0" 0
 
-		_test "Testing Continued Continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1" 0
+		_test "Testing continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1" 0
+
+		_test "Testing continued continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/2" 0
 
 		_test "Testing real MOO with alternating results with two_params" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params" 0
 

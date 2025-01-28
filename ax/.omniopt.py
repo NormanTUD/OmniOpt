@@ -3582,7 +3582,6 @@ def print_experiment_parameters_table(experiment_parameters: dict) -> None:
     filtered_columns = [columns[i] for i in non_empty_columns]
     filtered_data = [[row[i] for i in non_empty_columns] for row in data]
 
-    console = Console()
     table = Table(header_style="bold", title="Experiment parameters:")
     for column in filtered_columns:
         table.add_column(column)

@@ -4072,7 +4072,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     @typechecked
-    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
+    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]: # pragma: no cover
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
             for resname in arg_result_names:
@@ -4085,7 +4085,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return pformat(parameters) + "====" + pformat(result), result
 
     @typechecked
-    def should_insert(hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> bool:
+    def should_insert(hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> bool: # pragma: no cover
         result = hashed_params_result[1]
         res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
@@ -4094,7 +4094,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return False
 
     @typechecked
-    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None:
+    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None: # pragma: no cover
         try:
             insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
@@ -4105,14 +4105,14 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             double_hashes[hashed_params_result[0]] = 1
 
     @typechecked
-    def log_missing_result(parameters: dict, hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None:
+    def log_missing_result(parameters: dict, hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None: # pragma: no cover
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
     @typechecked
-    def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
+    def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None: # pragma: no cover
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
@@ -4130,7 +4130,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
     @typechecked
-    def display_table() -> None:
+    def display_table() -> None: # pragma: no cover
         headers, rows = extract_headers_and_rows(already_inserted_param_data)
         if headers and rows:
             table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")

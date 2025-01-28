@@ -353,7 +353,7 @@ declare -i exit_code=0
 				if [[ -z $CI ]]; then
 					green_reset_line "Currently waiting for jobs to end (currently $nr_bg_jobs)"
 				fi
-				wait -n  # Warte auf einen beliebigen Hintergrundprozess
+				wait -n
 
 				for pid in "${bg_pids[@]}"; do
 					wait "$pid"

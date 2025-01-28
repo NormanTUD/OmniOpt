@@ -3544,6 +3544,16 @@ def print_result_names_overview_table():
             text_file.write(table_str)
 
 @wrapper_print_debug
+def write_min_max_file():
+    min_or_max = "minimize"
+
+    if args.maximize:
+        min_or_max = "maximize"
+
+    with open(f"{get_current_run_folder()}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
+        print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
+
+@wrapper_print_debug
 def print_overview_tables(experiment_parameters: dict, experiment_args: dict) -> None:
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -3553,13 +3563,6 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
         print_red("Experiment parameters could not be determined for display")
         return
 
-    min_or_max = "minimize"
-    if args.maximize:
-        min_or_max = "maximize"
-
-    with open(f"{get_current_run_folder()}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
-        print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
-
     if "_type" in experiment_parameters:
         experiment_parameters = experiment_parameters["experiment"]["search_space"]["parameters"]
 
@@ -3568,12 +3571,12 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
     table = Table(header_style="bold", title="Experiment parameters:")
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
 
-    _param_name = ""
-
     for column in columns:
         table.add_column(column)
 
     k = 0
+
+    _param_name = ""
 
     for row in rows:
         _param_name = row[0]
@@ -5879,6 +5882,9 @@ def main() -> None:
 
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
+
+    write_min_max_file()
+
     print_overview_tables(experiment_parameters, experiment_args)
 
     try:

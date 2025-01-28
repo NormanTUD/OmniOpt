@@ -256,15 +256,27 @@
 				INSTALL_ERRORS_FILE="logs/${RUN_UUID}_install_errors"
 			fi
 
-			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
-				red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
+			if [[ -z $DEBUG ]]; then
+				pip3 --disable-pip-version-check install $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
+					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
 
-				if [[ -n $CI ]]; then
-					cat "$INSTALL_ERRORS_FILE" 
-				fi
+					if [[ -n $CI ]]; then
+						cat "$INSTALL_ERRORS_FILE" 
+					fi
 
-				exit 3
-			}
+					exit 3
+				}
+			else
+				pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
+					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
+
+					if [[ -n $CI ]]; then
+						cat "$INSTALL_ERRORS_FILE" 
+					fi
+
+					exit 3
+				}
+			fi
 
 			FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 

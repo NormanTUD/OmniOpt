@@ -3554,7 +3554,7 @@ def write_min_max_file() -> None:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
 @wrapper_print_debug
-def print_overview_tables(experiment_parameters: dict, experiment_args: dict) -> None:
+def print_experiment_parameters_table(experiment_parameters: dict) -> None:
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
@@ -3598,6 +3598,10 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
 
     with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
+
+@wrapper_print_debug
+def print_overview_tables(experiment_parameters: dict, experiment_args: dict) -> None:
+    print_experiment_parameters_table(experiment_parameters)
 
     print_parameter_constraints_table(experiment_args)
 

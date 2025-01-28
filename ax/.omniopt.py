@@ -818,7 +818,6 @@ class SearchSpaceExhausted (Exception):
     pass
 
 NR_INSERTED_JOBS: int = 0
-changed_grid_search_params: dict = {}
 executor: Union[LocalExecutor, AutoExecutor, None] = None
 
 NR_OF_0_RESULTS: int = 0
@@ -1704,7 +1703,6 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
 @wrapper_print_debug
 def parse_experiment_parameters() -> list:
     global global_vars
-    global changed_grid_search_params
 
     params: list = []
     param_names: list[str] = []
@@ -3575,7 +3573,7 @@ def print_experiment_parameters_table(experiment_parameters: dict) -> None:
         data.append(row)
 
     non_empty_columns = []
-    for col_index, col_name in enumerate(columns):
+    for col_index, _ in enumerate(columns):
         if any(row[col_index] not in (None, "") for row in data):
             non_empty_columns.append(col_index)
 

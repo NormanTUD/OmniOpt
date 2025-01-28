@@ -5033,14 +5033,12 @@ def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, Non
 @typechecked
 def get_parallelism_schedule_description() -> str:
     try:
-        # Retrieve parallelism settings
         if ax_client:
             max_parallelism_settings = ax_client.get_max_parallelism()
 
             if not max_parallelism_settings: # pragma: no cover
                 return "No parallelism settings available."
 
-            # Build human-readable descriptions
             descriptions = []
             for num_trials, max_parallelism in max_parallelism_settings:
                 if num_trials == -1:
@@ -5055,7 +5053,6 @@ def get_parallelism_schedule_description() -> str:
 
                 descriptions.append(f"For {trial_text}, {parallelism_text}.")
 
-            # Join descriptions into a single string
             human_readable_output: str = "\n".join(descriptions)
             return human_readable_output
 
@@ -5070,8 +5067,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
     """Attempts to fetch the next trials using the ax_client."""
     try:
         print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
-        #trial_index_to_param, optimization_complete = ax_client.get_next_trial(max_trials=nr_of_jobs_to_get)
-        #return trial_index_to_param, optimization_complete
 
         trials_dict: dict = {}
 

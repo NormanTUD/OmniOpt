@@ -3,8 +3,6 @@
 {
 set -euo pipefail
 
-export LC_ALL=en_US.UTF-8
-
 github_repo_url="https://github.com/NormanTUD/OmniOpt.git"
 green='\033[0;32m'
 yellow='\033[0;33m'

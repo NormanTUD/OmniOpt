@@ -3497,7 +3497,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list
     return rows
 
 @wrapper_print_debug
-def print_parameter_constraints_table(experiment_args: dict):
+def print_parameter_constraints_table(experiment_args: dict) -> None:
     if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
         constraints = experiment_args["parameter_constraints"]
         table = Table(header_style="bold", title="Constraints:")
@@ -3518,7 +3518,7 @@ def print_parameter_constraints_table(experiment_args: dict):
             text_file.write(table_str)
 
 @wrapper_print_debug
-def print_result_names_overview_table():
+def print_result_names_overview_table() -> None:
     if len(arg_result_names) != 1:
         if len(arg_result_names) != len(arg_result_min_or_max):
             console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
@@ -3544,7 +3544,7 @@ def print_result_names_overview_table():
             text_file.write(table_str)
 
 @wrapper_print_debug
-def write_min_max_file():
+def write_min_max_file() -> None:
     min_or_max = "minimize"
 
     if args.maximize:

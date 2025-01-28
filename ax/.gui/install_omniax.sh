@@ -90,6 +90,7 @@ function check_if_everything_is_installed {
 	check_command uuidgen "uuid-runtime"
 	check_command git "git"
 	check_command python3 "python3"
+	check_command whiptail "whiptail"
 }
 
 function check_interactive {

@@ -257,15 +257,13 @@
 			fi
 
 			pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
-				if [[ "$MODULE" == *">="* || "$MODULE" == *"<="* || "$MODULE" == *"<"* || "$MODULE" == *"=="* ]]; then
-					ppip "$MODULES_WITHOUT_VERSIONS" "$AS_REQUIREMENT_OF" "$NUMBER_OF_MAIN_MODULES"
-				else
-					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
-					if [[ -n $CI ]]; then
-						cat "$INSTALL_ERRORS_FILE" 
-					fi
-					exit 3
+				red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
+
+				if [[ -n $CI ]]; then
+					cat "$INSTALL_ERRORS_FILE" 
 				fi
+
+				exit 3
 			}
 
 			FROZEN=$(pip --disable-pip-version-check list --format=freeze)

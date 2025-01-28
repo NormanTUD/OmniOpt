@@ -63,7 +63,7 @@
 			if (preg_match("/^\d*$/", $_ec)) {
 				if(0 <= $_ec && $_ec <= 255) {
 					if(isset($exit_code_info[$_ec])) {
-						print $exit_code_info[$_ec];
+						print "Exit-Code $_ec, this means: ".$exit_code_info[$_ec]."\n";
 					} else {
 						print "Exit code $_ec not found.";
 					}				

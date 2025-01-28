@@ -216,6 +216,21 @@ function myexit {
 		send_status_report "$CODE"
 	fi
 
+	BASEURL="https://imageseg.scads.de/omniax"
+
+	if [[ -e "$HOME/.oo_base_url" ]]; then
+		BASEURL=$(cat "$HOME/.oo_base_url")
+		yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
+	fi
+
+	if [[ $CODE != 0 ]]; then
+		set +e
+		curl "$BASEURL/exit_code_table.php?exit_code=$CODE" 
+
+		echo ""
+		set -e
+	fi
+
 	exit $CODE
 }
 

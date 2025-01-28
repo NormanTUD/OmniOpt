@@ -388,7 +388,7 @@ export ORIGINAL_PWD
 
 mkdir -p "$ORIGINAL_PWD/logs" || {
 	red_text "Failed: mkdir -p $ORIGINAL_PWD/logs"
-	exit 1
+	myexit 45
 }
 
 set -e
@@ -788,7 +788,7 @@ function get_config_from_config_file {
 		parse_toml "$config_toml" "$key" || {
 			if [[ $warn_and_exit == 1 ]]; then
 				red_text "Error parsing $config_toml"
-				exit 133
+				myexit 133
 			else
 				return 133
 			fi
@@ -797,7 +797,7 @@ function get_config_from_config_file {
 		parse_yaml "$config_yaml" "$key" || {
 			if [[ $warn_and_exit == 1 ]]; then
 				red_text "Error parsing $config_yaml"
-				exit 133
+				myexit 133
 			else
 				return 133
 			fi
@@ -806,7 +806,7 @@ function get_config_from_config_file {
 		parse_json "$config_json" "$key" || {
 			if [[ $warn_and_exit == 1 ]]; then
 				red_text "Error parsing $config_json"
-				exit 133
+				myexit 133
 			else
 				return 133
 			fi
@@ -814,7 +814,7 @@ function get_config_from_config_file {
 	else
 		if [[ $warn_and_exit == 1 ]]; then
 			red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
-			exit 133
+			myexit 133
 		else
 			return 133
 		fi
@@ -825,7 +825,7 @@ git_hash="NOT_DETERMININABLE"
 
 if ! command -v git 2>/dev/null >/dev/null; then
 	red_text "git not found. Cannot continue."
-	exit 11
+	myexit 11
 fi
 
 if [[ -e git_hash ]]; then
@@ -883,13 +883,13 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 					yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
 					git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
 						red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
-						exit 211
+						myexit 211
 					}
 
 					bash omniopt $*
 					exit_code=$?
 
-					exit $exit_code
+					myexit $exit_code
 				else
 					yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
 					yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
@@ -905,7 +905,7 @@ fi
 
 if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
 	echo "--continue was set, but empty."
-	exit 19
+	myexit 19
 fi
 
 if [[ -d ".git" ]]; then
@@ -950,7 +950,7 @@ elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; th
 	true
 else
 	red_text "Error: Of these settings, maximally one can be set: --config_toml, --config_json, --config_yaml."
-	exit 5
+	myexit 5
 fi
 
 if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[ "$continue_previous_job" == "" ]]; then
@@ -1115,7 +1115,7 @@ if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
 	source "$SCRIPT_DIR/.shellscript_functions"
 else
 	red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
-	exit 2
+	myexit 2
 fi
 
 mycd "$ORIGINAL_PWD"
@@ -1124,7 +1124,7 @@ if [[ "$workdir" != "" ]]; then
 	if [[ ! -d "$workdir" ]]; then
 		mkdir -p "$workdir" || {
 			red_text "$workdir could not be created. Cannot continue."
-			exit 191
+			myexit 191
 		}
 	fi
 
@@ -1166,7 +1166,7 @@ function help_and_test_py {
 if [[ "$help" -eq "1" ]]; then
 	python3 "$SCRIPT_DIR/.omniopt.py" --help
 
-	exit 0
+	myexit 0
 fi
 
 if [[ "$tests" -eq "1" ]]; then
@@ -1178,7 +1178,7 @@ if [[ "$tests" -eq "1" ]]; then
 		help_and_test_py "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
 		exit_code=$?
 	fi
-	exit $exit_code
+	myexit $exit_code
 fi
 
 kill_tail_when_squeue_job_empty () {

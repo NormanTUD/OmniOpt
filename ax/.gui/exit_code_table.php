@@ -1,7 +1,7 @@
 <?php
 		$exit_code_info = [
 			0 => "Seems to have worked properly",
-			1 => "Could not create log dir",
+			1 => "There was an error regarding the python-syntax. Is your python-version too old?",
 			2 => "Loading of Environment failed",
 			3 => "Invalid exit code detected",
 			4 => "Failed loading modules",
@@ -24,6 +24,7 @@
 			22 => "Python header-files not found.",
 			31 => "Basic modules could not be loaded or you cancelled loading them.",
 			44 => "Continuation of previous job failed.",
+			45 => "Could not create log dir",
 			47 => "Missing checkpoint or defective file or state files (check output).",
 			49 => "Something went wrong while creating the experiment.",
 			50 => "Something went wrong with the --result_names option (check output).",

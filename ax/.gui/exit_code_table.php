@@ -1,6 +1,4 @@
 <?php
-                $exit_code_info = [];
-
 		$exit_code_info = [
 			0 => "Seems to have worked properly",
 			1 => "Could not create log dir",

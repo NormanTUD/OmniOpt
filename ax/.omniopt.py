@@ -624,8 +624,6 @@ if args.continue_previous_job is not None:
     arg_result_names = found_result_names
     arg_result_min_or_max = found_result_min_max
 
-dier(arg_result_names)
-
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
     def wrapper(*__args: Any, **kwargs: Any) -> Any:

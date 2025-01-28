@@ -3568,32 +3568,33 @@ def print_experiment_parameters_table(experiment_parameters: dict) -> None:
 
     rows = parse_single_experiment_parameter_table(experiment_parameters)
 
-    table = Table(header_style="bold", title="Experiment parameters:")
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
 
-    for column in columns:
+    data = []
+    for row in rows:
+        data.append(row)
+
+    non_empty_columns = []
+    for col_index, col_name in enumerate(columns):
+        if any(row[col_index] not in (None, "") for row in data):
+            non_empty_columns.append(col_index)
+
+    filtered_columns = [columns[i] for i in non_empty_columns]
+    filtered_data = [[row[i] for i in non_empty_columns] for row in data]
+
+    console = Console()
+    table = Table(header_style="bold", title="Experiment parameters:")
+    for column in filtered_columns:
         table.add_column(column)
 
-    k = 0
-
-    _param_name = ""
-
-    for row in rows:
-        _param_name = row[0]
-
-        if _param_name in changed_grid_search_params:
-            changed_text = changed_grid_search_params[_param_name]
-            row[1] = "gridsearch"
-            row[4] = changed_text
-
-        table.add_row(*row, style='bright_green')
-
-        k += 1
+    for row in filtered_data:
+        table.add_row(*[str(cell) if cell is not None else "" for cell in row], style="bright_green")
 
     console.print(table)
 
     with console.capture() as capture:
         console.print(table)
+
     table_str = capture.get()
 
     with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:

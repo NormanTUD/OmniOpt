@@ -26,7 +26,7 @@ configuration, exit codes, and debugging, visit
 ## Main program
 
 ```command
-./omniopt --partition=alpha --experiment_name=example --mem_gb=1 --time=60 \
+omniopt --partition=alpha --experiment_name=example --mem_gb=1 --time=60 \
     --worker_timeout=60 --max_eval=500 --num_parallel_jobs=500 --gpus=1 \
     --follow --run_program=ZWNobyAiUkVTVUxUOiAlKHBhcmFtKSI= \
     --parameter param range 0 1000 float
@@ -45,8 +45,8 @@ Generates visualizations, such as scatter and hex scatter plots.
 Or, with `--min` and `--max`:
 
 ```command
-./omniopt_plot --run_dir runs/example/0
-./omniopt_plot --run_dir runs/example/0 --min 0 --max 100
+omniopt_plot --run_dir runs/example/0
+omniopt_plot --run_dir runs/example/0 --min 0 --max 100
 ```
 
 ## Run Tests (Developer Use Only)

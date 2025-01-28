@@ -194,7 +194,7 @@
 
 			$write_success = file_put_contents($destinationPath, $new_upload_md5);
 			assert($write_success !== false, "Failed to write to file: $destinationPath");
-		} catch (AssertionError $e) {
+		} catch (\Throwable $e) {
 			print($e->getMessage());
 		}
 

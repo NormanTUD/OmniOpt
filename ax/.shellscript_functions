@@ -257,7 +257,7 @@
 			fi
 
 			if [[ -z $DEBUG ]]; then
-				pip3 --disable-pip-version-check install $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
+				pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
 					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
 
 					if [[ -n $CI ]]; then
@@ -267,7 +267,7 @@
 					exit 3
 				}
 			else
-				pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
+				pip3 --disable-pip-version-check install $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
 					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
 
 					if [[ -n $CI ]]; then

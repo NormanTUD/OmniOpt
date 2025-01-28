@@ -73,7 +73,7 @@ def warn_versions() -> None:
         "multipledispatch": ["1.0.0"],
         "joblib": ["1.4.2"],
         "triton": ["3.0.0", "3.1.0"],
-        "plotly": ["5.24.1"],
+        "plotly": ["5.24.1", "6.0.0"],
         "rich_argparse": ["1.5.2", "1.6.0"],
         "pytz": ["2024.2"],
         "cloudpickle": ["3.0.0", "3.1.0", "3.1.1"],

@@ -5708,7 +5708,26 @@ def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metri
     return table
 
 @typechecked
+def supports_sixel() -> bool:
+    term = os.environ.get("TERM", "").lower()
+    if "xterm" in term or "mlterm" in term:
+        return True
+
+    try:
+        output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
+        if output.returncode == 0 and "sixel" in output.stdout.lower():
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    return False
+
+@typechecked
 def plot_pareto_frontier_sixel(data: Any) -> None:
+    if not supports_sixel():
+        console.print("[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot.[/]")
+        return
+
     import matplotlib.pyplot as plt
     import tempfile
 
@@ -5742,13 +5761,13 @@ def convert_to_serializable(obj: np.ndarray) -> list:
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @typechecked
-def plot_pareto_frontier_automatically() -> None:
+def show_pareto_frontier_data() -> None:
     if len(arg_result_names) == 1:
         print_debug(f"{len(arg_result_names)} is 1")
         return
 
     if ax_client is None:
-        print_red("plot_pareto_frontier_automatically: Cannot plot pareto-front. ax_client is undefined.")
+        print_red("show_pareto_frontier_data: Cannot plot pareto-front. ax_client is undefined.")
         return
 
     from ax.plot.pareto_utils import compute_posterior_pareto_frontier
@@ -5912,9 +5931,9 @@ def main() -> None:
     wait_for_jobs_to_complete(0)
 
     if len(arg_result_names) > 1:
-        plot_pareto_frontier_automatically()
+        show_pareto_frontier_data()
     else:
-        print_debug(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
+        print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
     live_share()
 

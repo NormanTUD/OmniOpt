@@ -4024,7 +4024,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
 
 @wrapper_print_debug
 @typechecked
-def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None:
+def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None: # pragma: no cover
     done_converting = False
 
     if ax_client is None or not ax_client:

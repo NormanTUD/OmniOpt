@@ -29,7 +29,7 @@
 			47 => "Missing checkpoint or defective file or state files (check output).",
 			49 => "Something went wrong while creating the experiment.",
 			50 => "Something went wrong with the --result_names option (check output).",
-			87 => "Search space exhausted or search cancelled.",
+			87 => "Search space exhausted or search was cancelled.",
 			88 => "Search was done according to ax",
 			90 => "Error creating the experiment_args",
 			91 => "Error creating the experiment_args",

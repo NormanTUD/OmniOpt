@@ -3365,7 +3365,7 @@ def get_experiment_parameters(_params: list) -> Any:
                 value = ""
 
             if value not in ["min", "max"]:
-                print_yellow(f"Value {value} for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
+                print_yellow(f"Value '{value}' for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
 
                 value = "min"
 

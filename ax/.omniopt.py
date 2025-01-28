@@ -557,7 +557,7 @@ if not 0 <= args.pareto_front_confidence <= 1:
     print("--pareto_front_confidence must be between 0 and 1, will be set to 1")
     args.pareto_front_confidence = 1
 
-arg_result_column_names = []
+arg_result_names = []
 arg_result_min_or_max = []
 
 if len(args.result_names) == 0:
@@ -579,7 +579,7 @@ for _rn in args.result_names:
     if _min_or_max not in ["min", "max"]:
         _min_or_max = "min"
 
-    if _key in arg_result_column_names:
+    if _key in arg_result_names:
         console.print(f"[red]The --result_names option '{_key}' was specified multiple times![/]")
         sys.exit(50)
 
@@ -587,7 +587,7 @@ for _rn in args.result_names:
         console.print(f"[red]The --result_names option '{_key}' contains invalid characters! Must be one of a-z, A-Z, 0-9 or _[/]")
         sys.exit(50)
 
-    arg_result_column_names.append(_key)
+    arg_result_names.append(_key)
     arg_result_min_or_max.append(_min_or_max)
 
 if args.continue_previous_job is not None:
@@ -621,8 +621,10 @@ if args.continue_previous_job is not None:
 
         found_result_min_max.append(min_max)
 
-    arg_result_column_names = found_result_names
+    arg_result_names = found_result_names
     arg_result_min_or_max = found_result_min_max
+
+dier(arg_result_names)
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
@@ -1711,7 +1713,7 @@ def parse_experiment_parameters() -> list:
     search_space_reduction_warning = False
 
     valid_types = ["range", "fixed", "choice"]
-    invalid_names = ["start_time", "end_time", "run_time", "program_string", *arg_result_column_names, "exit_code", "signal"]
+    invalid_names = ["start_time", "end_time", "run_time", "program_string", *arg_result_names, "exit_code", "signal"]
 
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
@@ -1865,7 +1867,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
     try:
         results: dict[str, Optional[float]] = {}  # Typdefinition angepasst
 
-        for column_name in arg_result_column_names:
+        for column_name in arg_result_names:
             _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
 
             matches = re.findall(_pattern, input_string)
@@ -1885,7 +1887,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
 
 @typechecked
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
-    if len(arg_result_column_names) == 1:
+    if len(arg_result_names) == 1:
         return get_results_old(input_string)
 
     return get_results_new(input_string)
@@ -2178,7 +2180,7 @@ def evaluate(parameters: dict) -> dict:
     return_in_case_of_error: dict = {}
 
     i = 0
-    for _rn in arg_result_column_names:
+    for _rn in arg_result_names:
         if arg_result_min_or_max[i] == "min":
             return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
         else:
@@ -2262,7 +2264,7 @@ def evaluate(parameters: dict) -> dict:
             "run_time",
             "program_string",
             *parameters_keys,
-            *arg_result_column_names,
+            *arg_result_names,
             "exit_code",
             "signal",
             "hostname",
@@ -2302,7 +2304,7 @@ def evaluate(parameters: dict) -> dict:
 
         print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
 
-        if len(arg_result_column_names) == 1:
+        if len(arg_result_names) == 1:
             if isinstance(result, (int, float)): # pragma: no cover
                 return {"result": float(result)}
             if isinstance(result, (list)) and len(result) == 1:
@@ -2519,7 +2521,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
 
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=arg_result_column_names, inplace=True)
+        df.dropna(subset=arg_result_names, inplace=True)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
         return results
 
@@ -2600,7 +2602,7 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
 
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=arg_result_column_names, inplace=True)
+        df.dropna(subset=arg_result_names, inplace=True)
     except KeyError: # pragma: no cover
         _err = True
     except pd.errors.EmptyDataError: # pragma: no cover
@@ -2840,7 +2842,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 
     i = 0
     with open(f'{crf}/best_result.txt', mode="w", encoding="utf-8") as text_file:
-        for res_name in arg_result_column_names:
+        for res_name in arg_result_names:
             try:
                 best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
 
@@ -2880,7 +2882,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 
                 table.add_row(*row)
 
-                if len(arg_result_column_names) == 1:
+                if len(arg_result_names) == 1:
                     console.print(table)
 
                 with console.capture() as capture:
@@ -3415,7 +3417,7 @@ def get_experiment_parameters(_params: list) -> Any:
             if ax_client:
                 ax_client.create_experiment(**experiment_args)
 
-                new_metrics = [Metric(k) for k in arg_result_column_names if k not in ax_client.metric_names]
+                new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
                 ax_client.experiment.add_tracking_metrics(new_metrics)
             else:
                 print_red("ax_client could not be found!")
@@ -3564,16 +3566,16 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
         with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
-    if len(arg_result_column_names) != 1:
-        if len(arg_result_column_names) != len(arg_result_min_or_max):
-            console.print("[red]The arrays 'arg_result_column_names' and 'arg_result_min_or_max' must have the same length.[/]")
+    if len(arg_result_names) != 1:
+        if len(arg_result_names) != len(arg_result_min_or_max):
+            console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
 
         __table = Table(title="Result-Names:")
 
         __table.add_column("Result-Name", justify="left", style="cyan")
         __table.add_column("Min or max?", justify="right", style="green")
 
-        for __name, __value in zip(arg_result_column_names, arg_result_min_or_max):
+        for __name, __value in zip(arg_result_names, arg_result_min_or_max):
             __table.add_row(str(__name), str(__value))
 
         console.print(__table)
@@ -3685,7 +3687,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 
     this_time: float = time.time()
 
-    for res_name in arg_result_column_names:
+    for res_name in arg_result_names:
         best_params_str: str = get_best_params_str(res_name)
         if best_params_str:
             in_brackets.append(best_params_str)
@@ -3879,7 +3881,7 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
             old_result_simple = None
 
             try:
-                for resname in arg_result_column_names:
+                for resname in arg_result_names:
                     old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
             except Exception as e:
                 print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}")
@@ -4050,7 +4052,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]:
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
-            for resname in arg_result_column_names:
+            for resname in arg_result_names:
                 if isinstance(result, list):
                     result.append(get_old_result_simple(path, parameters, resname))
                 else:
@@ -5117,7 +5119,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
 
         return trial_index_to_param, optimization_complete
     except OverflowError as e:
-        print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_column_names)} parameters. Error: {e}")
+        print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_names)} parameters. Error: {e}")
 
         return None, True
 
@@ -5716,8 +5718,8 @@ def convert_to_serializable(obj: np.ndarray) -> list:
 
 @typechecked
 def plot_pareto_frontier_automatically() -> None:
-    if len(arg_result_column_names) == 1:
-        print_debug(f"{len(arg_result_column_names)} is 1")
+    if len(arg_result_names) == 1:
+        print_debug(f"{len(arg_result_names)} is 1")
         return
 
     if ax_client is None:
@@ -5740,7 +5742,7 @@ def plot_pareto_frontier_automatically() -> None:
                 data=ax_client.experiment.fetch_data(),
                 primary_objective=metric_i,
                 secondary_objective=metric_j,
-                absolute_metrics=arg_result_column_names,
+                absolute_metrics=arg_result_names,
                 num_points=count_done_jobs()
             )
 
@@ -5798,7 +5800,7 @@ def main() -> None:
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
     with open(f"{get_current_run_folder()}/result_names.txt", mode="a", encoding="utf-8") as myfile:
-        for rarg in arg_result_column_names:
+        for rarg in arg_result_names:
             original_print(rarg, file=myfile)
 
     with open(f"{get_current_run_folder()}/result_min_max.txt", mode="a", encoding="utf-8") as myfile:
@@ -5881,10 +5883,10 @@ def main() -> None:
 
     wait_for_jobs_to_complete(0)
 
-    if len(arg_result_column_names) > 1:
+    if len(arg_result_names) > 1:
         plot_pareto_frontier_automatically()
     else:
-        print_debug(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_column_names) is {len(arg_result_column_names)}")
+        print_debug(f"plot_pareto_frontier_automatically will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
     live_share()
 

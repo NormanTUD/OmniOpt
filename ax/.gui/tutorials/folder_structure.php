@@ -155,6 +155,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>phase_systematic_steps</i>: How many non-random steps have been generated</li>
 	<li><i>run.sh</i>: A bash-file that allows you to re-run this program</li>
 	<li><i>submitted_jobs</i>: The number of submitted jobs</li>
+	<li><i>result_names_overview.txt</i>: The rich overview-table of all result names</li>
 	<li><i>time</i>: The time this job-sbatch has allocated</li>
 	<li><i>defective_nodes</i>: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires <samp>--auto_exclude_defective_hosts</samp> to be set.</li>
 	<li><i>succeeded_jobs</i>: Contains one line for each succeeded job.</li>

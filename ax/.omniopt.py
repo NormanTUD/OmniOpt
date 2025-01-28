@@ -3497,6 +3497,53 @@ def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list
     return rows
 
 @wrapper_print_debug
+def print_parameter_constraints_table(experiment_args: dict):
+    if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
+        constraints = experiment_args["parameter_constraints"]
+        table = Table(header_style="bold", title="Constraints:")
+        columns = ["Constraints"]
+        for column in columns:
+            table.add_column(column)
+        for column in constraints:
+            table.add_row(column)
+
+        with console.capture() as capture:
+            console.print(table)
+
+        table_str = capture.get()
+
+        console.print(table)
+
+        with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
+            text_file.write(table_str)
+
+@wrapper_print_debug
+def print_result_names_overview_table():
+    if len(arg_result_names) != 1:
+        if len(arg_result_names) != len(arg_result_min_or_max):
+            console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
+
+            return
+
+        __table = Table(title="Result-Names:")
+
+        __table.add_column("Result-Name", justify="left", style="cyan")
+        __table.add_column("Min or max?", justify="right", style="green")
+
+        for __name, __value in zip(arg_result_names, arg_result_min_or_max):
+            __table.add_row(str(__name), str(__value))
+
+        console.print(__table)
+
+        with console.capture() as capture:
+            console.print(__table)
+
+        table_str = capture.get()
+
+        with open(f"{get_current_run_folder()}/result_names_overview.txt", mode="w", encoding="utf-8") as text_file:
+            text_file.write(table_str)
+
+@wrapper_print_debug
 def print_overview_tables(experiment_parameters: dict, experiment_args: dict) -> None:
     if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -3549,38 +3596,9 @@ def print_overview_tables(experiment_parameters: dict, experiment_args: dict) ->
     with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
-    if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
-        constraints = experiment_args["parameter_constraints"]
-        table = Table(header_style="bold", title="Constraints:")
-        columns = ["Constraints"]
-        for column in columns:
-            table.add_column(column)
-        for column in constraints:
-            table.add_row(column)
+    print_parameter_constraints_table(experiment_args)
 
-        with console.capture() as capture:
-            console.print(table)
-
-        table_str = capture.get()
-
-        console.print(table)
-
-        with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
-            text_file.write(table_str)
-
-    if len(arg_result_names) != 1:
-        if len(arg_result_names) != len(arg_result_min_or_max):
-            console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
-
-        __table = Table(title="Result-Names:")
-
-        __table.add_column("Result-Name", justify="left", style="cyan")
-        __table.add_column("Min or max?", justify="right", style="green")
-
-        for __name, __value in zip(arg_result_names, arg_result_min_or_max):
-            __table.add_row(str(__name), str(__value))
-
-        console.print(__table)
+    print_result_names_overview_table()
 
 @wrapper_print_debug
 def update_progress_bar(_progress_bar: Any, nr: int) -> None:

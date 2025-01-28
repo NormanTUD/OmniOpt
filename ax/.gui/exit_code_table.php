@@ -47,7 +47,7 @@
 			181 => "Error parsing --parameter. Check output for more details.",
 			191 => "Could not create workdir ",
 			192 => "Unknown data type (--tests).",
-			193 => "Error in printing logs. You may be on a read only file system.",
+			193 => "Error in printing logs. You may be on a read only file system or your hard disk is full.",
 			199 => "This happens on unstable file systems when trying to write a file.",
 			203 => "Unsupported --model.",
 			206 => "Invalid orchestrator file.",

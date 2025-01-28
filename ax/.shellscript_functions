@@ -235,7 +235,7 @@
 						ppip "$i" "$MODULE" "$NUMBER_OF_MAIN_MODULES" || {
 							red_reset_line "❌Failed to install $i."
 
-							exit 3
+							exit 20
 						}
 
 						k=$((k+1))
@@ -264,7 +264,7 @@
 						cat "$INSTALL_ERRORS_FILE" 
 					fi
 
-					exit 3
+					exit 20
 				}
 			else
 				pip3 --disable-pip-version-check install $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
@@ -274,7 +274,7 @@
 						cat "$INSTALL_ERRORS_FILE" 
 					fi
 
-					exit 3
+					exit 20
 				}
 			fi
 

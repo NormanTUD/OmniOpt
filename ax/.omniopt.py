@@ -5028,7 +5028,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, Non
             return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
         return base_msg
 
-    return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "(no sbatch)")
+    return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "")
 
 @typechecked
 def get_parallelism_schedule_description() -> str:

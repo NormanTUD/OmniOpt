@@ -7,3 +7,4 @@ unzip curl
 python3-lib2to3
 python3-toolz
 php-mbstring
+bc

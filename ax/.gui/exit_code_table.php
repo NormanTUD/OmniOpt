@@ -2,7 +2,7 @@
 		$exit_code_info = [
 			0 => "Seems to have worked properly",
 			1 => "There was an error regarding the python-syntax. Is your python-version too old?",
-			2 => "Loading of Environment failed",
+			2 => "Wrong CLI arguments",
 			3 => "Invalid exit code detected",
 			4 => "Failed loading modules",
 			5 => "Errors regarding toml or yaml config files",
@@ -22,6 +22,7 @@
 			20 => "Something went wrong installing the required modules.",
 			21 => "requirements.txt not found",
 			22 => "Python header-files not found.",
+			23 => "Loading of Environment failed",
 			31 => "Basic modules could not be loaded or you cancelled loading them.",
 			44 => "Continuation of previous job failed.",
 			45 => "Could not create log dir",

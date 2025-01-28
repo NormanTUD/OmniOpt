@@ -1115,7 +1115,7 @@ if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
 	source "$SCRIPT_DIR/.shellscript_functions"
 else
 	red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
-	myexit 2
+	myexit 23
 fi
 
 mycd "$ORIGINAL_PWD"

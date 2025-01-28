@@ -131,6 +131,7 @@ batchnr
 batchsize
 batchSize
 Bayesian
+bc
 BC
 beforeActivate
 beforeClose
@@ -1328,6 +1329,7 @@ optimizerName
 Optionallistfloat
 OptionalUnionint
 optionCell
+optionSelect
 optionsi
 optionslength
 orchestratoryaml
@@ -1373,6 +1375,7 @@ pageY
 palegreen
 panelId
 param
+parameterError
 parameterIndex
 Parameterized
 parameterName
@@ -1388,6 +1391,8 @@ parentInstance
 Pareto
 parseDate
 parsedPath
+partitionInfo
+partitionSelect
 pathlike
 pc
 pcielinkgencurrent
@@ -2073,6 +2078,7 @@ valofparam
 valsplit
 valueCell
 ValueError
+valueInput
 valueToWrite
 valuetype
 VALUEVALUEVALUE
@@ -2204,9 +2210,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-partitionSelect
-partitionInfo
-parameterError
-optionSelect
-valueInput
-bc

@@ -8,7 +8,7 @@
 
 	if [ ! -f "$SCRIPT_DIR/requirements.txt" ]; then
 		echo "The file $SCRIPT_DIR/requirements.txt doesn't exist."
-		exit 1
+		exit 21
 	fi
 
 	while IFS= read -r line
@@ -389,14 +389,14 @@
 				if [[ "$OSTYPE" == "darwin"* ]]; then
 					red_text "Not exiting because I am not sure if you need it on Macs"
 				else
-					exit 5
+					exit 22
 				fi
 			fi
 
 			green_reset_line "${PROGRESSBAR}➤Environment $VENV_DIR was not found. Creating it$(bg_jobs_str)..."
 			python3 -mvenv "$VENV_DIR/" || {
 				red_text "❌Failed to create Virtual Environment in $VENV_DIR"
-				exit 1
+				exit 20
 			}
 
 			green_reset_line "✅Virtual Environment $VENV_DIR created. Activating it..."
@@ -404,11 +404,11 @@
 			if [[ -e "$VENV_DIR/bin/activate" ]]; then
 				source "$VENV_DIR/bin/activate" || {
 					red_text "❌Failed to activate $VENV_DIR"
-					exit 2
+					exit 20
 				}
 			else
 				red_text "❌Failed to activate $VENV_DIR"
-				exit 2
+				exit 20
 			fi
 
 			green_reset_line "✅Virtual Environment activated. Now installing software. This may take some time."
@@ -424,12 +424,12 @@
 			python3 -mvenv "$VENV_DIR/" || {
 				red_text "❌Failed to create Virtual Environment in $VENV_DIR"
 				rm -rf "$VENV_DIR"
-				exit 1
+				exit 20
 			}
 
 			source "$VENV_DIR/bin/activate" || {
 				red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
-				exit 1
+				exit 20
 			}
 
 			install_required_modules
@@ -440,14 +440,14 @@
 
 		python3 -mvenv "$VENV_DIR/" || {
 			red_text "❌Failed to create Virtual Environment in $VENV_DIR"
-			exit 1
+			exit 20
 		}
 
 		if [[ -e "$VENV_DIR/bin/activate" ]]; then
 			source "$VENV_DIR/bin/activate" || {
 				red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
 				rm -rf "$VENV_DIR"
-				exit 1
+				exit 20
 			}
 
 			downgrade_output=$(pip3 --disable-pip-version-check install -q pip==24.0) || {
@@ -457,7 +457,7 @@
 		else
 			red_reset_line "❌Failed to activate recreated $VENV_DIR. Deleting venv and NOT trying again..."
 			rm -rf "$VENV_DIR"
-			exit 1
+			exit 20
 		fi
 
 		install_required_modules

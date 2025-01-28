@@ -3735,8 +3735,6 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
         if workers_strings:
             in_brackets.append(workers_strings)
 
-    #in_brackets.append(f"jobs {count_done_jobs()}/{max_eval}")
-
     if args.verbose_tqdm:
         if submitted_jobs():
             in_brackets.append(f"total submitted: {submitted_jobs()}")

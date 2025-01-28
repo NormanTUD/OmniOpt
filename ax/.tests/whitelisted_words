@@ -2204,3 +2204,8 @@ zipContents
 zipWriter
 zsh
 ZSH
+partitionSelect
+partitionInfo
+parameterError
+optionSelect
+valueInput

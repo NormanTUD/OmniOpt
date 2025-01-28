@@ -85,6 +85,7 @@ function check_command {
 function check_if_everything_is_installed {
 	dbg "check_if_everything_is_installed"
 
+	check_command bc "bc"
 	check_command base64 "base64"
 	check_command curl "curl"
 	check_command wget "wget"

@@ -649,6 +649,7 @@ try:
         import numpy as np
     with console.status("[bold green]Loading ax...") as status:
         import ax
+        from ax.core import Metric
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
         import ax.modelbridge.generation_node
@@ -3413,6 +3414,9 @@ def get_experiment_parameters(_params: list) -> Any:
         try:
             if ax_client:
                 ax_client.create_experiment(**experiment_args)
+
+                new_metrics = [Metric(k) for k in arg_result_column_names if k not in ax_client.metric_names]
+                ax_client.experiment.add_tracking_metrics(new_metrics)
             else:
                 print_red("ax_client could not be found!")
                 sys.exit(9)

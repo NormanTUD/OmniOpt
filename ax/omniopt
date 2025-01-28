@@ -225,7 +225,7 @@ function myexit {
 
 	if [[ $CODE != 0 ]]; then
 		set +e
-		curl "$BASEURL/exit_code_table.php?exit_code=$CODE" 
+		curl -s "$BASEURL/exit_code_table.php?exit_code=$CODE" 
 
 		echo ""
 		set -e

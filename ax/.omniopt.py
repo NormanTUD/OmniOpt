@@ -681,6 +681,9 @@ except KeyboardInterrupt: # pragma: no cover
 except AttributeError: # pragma: no cover
     print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
     my_exit(7)
+except FileNotFoundError as e:
+    print(f"\n⚠ Error {e}. This probably means that your hard disk is full")
+    my_exit(92)
 
 with console.status("[bold green]Loading ax logger...") as status:
     from ax.utils.common.logger import disable_loggers

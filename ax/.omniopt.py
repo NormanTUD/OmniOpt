@@ -87,7 +87,7 @@ try:
 
         F = TypeVar("F", bound=Callable[..., object])
 
-        if os.getenv("IS_TESTING") == "1":
+        if os.getenv("OO_MAIN_TESTS") == "1":
             import importlib
             typechecked = importlib.import_module("typeguard").typechecked
         else:

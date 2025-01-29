@@ -5856,6 +5856,9 @@ def main() -> None:
         write_failed_logs(data_dict, error_description)
 
     save_state_files()
+
+    helpers.write_loaded_modules_versions_to_json("{get_current_run_folder()/loaded_modules.json}")
+
     write_run_uuid_to_file()
 
     handle_maximize_argument()

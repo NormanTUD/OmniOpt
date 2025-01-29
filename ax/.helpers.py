@@ -1,3 +1,4 @@
+import sys
 import json
 from typing import Union, Tuple, Any, Optional
 from datetime import datetime
@@ -10,7 +11,7 @@ import platform
 import re
 import sys
 import traceback
-from importlib.metadata import version
+from importlib.metadata import version, PackageNotFoundError
 from pprint import pprint
 import matplotlib
 from matplotlib.widgets import Button, TextBox
@@ -39,6 +40,18 @@ def in_venv() -> bool:
 if not in_venv(): # pragma: no cover
     print("No venv loaded. Cannot continue.")
     sys.exit(19)
+
+def write_loaded_modules_versions_to_json(output_file: str) -> None:
+    modules_versions = {}
+
+    for module_name in sys.modules.keys():
+        try:
+            modules_versions[module_name] = version(module_name)
+        except PackageNotFoundError:
+            continue
+
+    with open(output_file, "w") as f:
+        json.dump(modules_versions, f, indent=4)
 
 def warn_versions() -> None:
     wrns = []

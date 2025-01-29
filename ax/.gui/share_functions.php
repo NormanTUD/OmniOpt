@@ -64,7 +64,8 @@
 			"evaluation_errors.log" => "Evaluation Errors",
 			"oo_errors.txt" => "OmniOpt2-Errors",
 			"worker_usage.csv" => "Number of workers",
-			"result_names.txt" => "Result-Names"
+			"result_names.txt" => "Result-Names",
+			"loaded_modules.json" => "A file containing all modules loaded that have versioning data"
 		);
 
 		if (isset($names[$replaced_file])) {

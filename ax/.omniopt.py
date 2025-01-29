@@ -1885,7 +1885,10 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
         return None
 
 @typechecked
-def get_results(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
+def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]:
+    if input_string is None:
+        return None
+
     if len(arg_result_names) == 1:
         return get_results_old(input_string)
 

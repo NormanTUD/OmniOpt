@@ -103,9 +103,7 @@ def main() -> None:
     if args.debug: # pragma: no cover
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
-    if not helpers.can_be_plotted(args.run_dir):
-        helpers.log_error(f"{args.run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
-        sys.exit(2)
+    helpers.die_if_cannot_be_plotted(args.run_dir)
 
     if args.run_dir:
         worker_usage_csv = os.path.join(args.run_dir, "worker_usage.csv")

@@ -193,9 +193,7 @@ def main() -> None:
     global args
 
     if args is not None:
-        if not helpers.can_be_plotted(args.run_dir):
-            print(f"{args.run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
-            sys.exit(2)
+        helpers.die_if_cannot_be_plotted(args.run_dir)
 
         helpers.use_matplotlib(args)
 

@@ -717,7 +717,7 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 		coverage json -i 2>/dev/null >/dev/null
 		coverage html -i 2>/dev/null >/dev/null
 
-		coverage report
+		coverage report -i
 
 		if [[ -n $GITHUB_STEP_SUMMARY ]]; then
 			echo "$(coverage report --format=markdown)" >> "$GITHUB_STEP_SUMMARY"

@@ -456,6 +456,7 @@ kill_python_if_started () {
 	fi
 
 	echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
+
 	_tput bel
 }
 

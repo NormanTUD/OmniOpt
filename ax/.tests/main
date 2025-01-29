@@ -712,7 +712,7 @@ fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v coverage 2>/dev/null >/dev/null; then
-		coverage combine 2>/dev/null >/dev/null
+		coverage combine -i 2>/dev/null >/dev/null
 		coverage xml -i 2>/dev/null >/dev/null
 		coverage json -i 2>/dev/null >/dev/null
 		coverage html -i 2>/dev/null >/dev/null

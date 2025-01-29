@@ -4057,7 +4057,7 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
 
 @wrapper_print_debug
 @typechecked
-def load_data_from_existing_run_folders(_paths: Union[str, list[str]]) -> None:
+def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes
@@ -6231,7 +6231,7 @@ Exit-Code: 159
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 
-    nr_errors += is_equal('load_data_from_existing_run_folders("/dev/i/dont/exist/0")', load_data_from_existing_run_folders("/dev/i/dont/exist/0"), None)
+    nr_errors += is_equal('load_data_from_existing_run_folders(["/dev/i/dont/exist/0"])', load_data_from_existing_run_folders(["/dev/i/dont/exist/0"]), None)
 
     nr_errors += is_equal('load_data_from_existing_run_folders(["/dev/i/dont/exist/0", "/dev/i/dont/exist/1"])', load_data_from_existing_run_folders(["/dev/i/dont/exist/0", "/dev/i/dont/exist/1"]), None)
 

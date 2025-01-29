@@ -16,7 +16,6 @@ matplotlib
 tqdm
 seaborn
 pytz
-pyqt5
 psutil
 coverage
 deadcode

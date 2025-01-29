@@ -881,6 +881,13 @@ def print_logo() -> None:
         "Tuning hyperparameters with the finesse of a cat trying not to knock over the vase.",
         "Optimizing parameters with the flair of a magician pulling rabbits out of hats.",
         "Optimizing like a koala climbing a tree—slowly but surely reaching the perfect spot.",
+        "Tuning so deep, even Lovecraft would be scared!",
+        "Dialing in parameters like Homer Simpson at an all-you-can-eat buffet - endless tweaks!",
+        "Optimizing like Schrödinger’s cat—until you look, it's both perfect and terrible.",
+        "Hyperparameter tuning: the art of making educated guesses look scientific!",
+        "Cranking the dials like a mad scientist - IT’S ALIIIIVE!",
+        "Tuning like a pirate - arr, where be the optimal values?",
+        "Hyperparameter tuning: the extreme sport of machine learning!"
     ]
 
     spruch = random.choice(sprueche)

@@ -5750,7 +5750,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
 @typechecked
 def convert_to_serializable(obj: np.ndarray) -> list:
     if isinstance(obj, np.ndarray):
-        return obj.tolist()  # Konvertiere ndarray in eine Liste
+        return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @typechecked

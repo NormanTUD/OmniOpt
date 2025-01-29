@@ -5857,7 +5857,7 @@ def main() -> None:
 
     save_state_files()
 
-    helpers.write_loaded_modules_versions_to_json("{get_current_run_folder()/loaded_modules.json}")
+    helpers.write_loaded_modules_versions_to_json(f"{get_current_run_folder()/loaded_modules.json}")
 
     write_run_uuid_to_file()
 

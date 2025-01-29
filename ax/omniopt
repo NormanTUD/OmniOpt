@@ -1,5 +1,33 @@
 #!/bin/bash
 
+# Idea for how this works and is implemented technically:
+# This main script that is supposed to be called is a bash script.
+# Step 1:
+# It checks whether the environment already exists, and
+# if so, loads it.
+# If it doesn't exist. it creates it in 
+# ~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
+# i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ . This is done so that there
+# is no need for multiple installations, so that, once installed, it doesn't 
+# need to be installed again.
+# Then it installs all modules. Then it loads the environment and the job
+# continues. It also does pip freeze to check if new modules need to be
+# installed and if the environment already exists, but the new modules are 
+# missing, they will be installed automatically.
+# These steps are skipped, when you installed it as a module. Then,
+# the module environment is the used environment.
+# Step 2:
+# It checks whether sbatch is installed. If so, it will re-start
+# itself as a bashscript in a slurmjob.
+# If not, the python-script with the parsed parameters are run directly.
+# Otherwise, the python-script is started inside the sbatch-script,
+# which's end is awaited (by checking squeue every 10 seconds in the
+# background if the started job is still there, and, if --follow is
+# defined, a tail -f on the slurm.out file is loaded in the foreground).
+# This way, the whole slurm procedure is transparent to the user,
+# and the program looks basically the same on every device.
+# This logic is defined in .shellscript_functions
+
 #SBATCH --signal=B:USR1@200
 
 {
@@ -165,37 +193,14 @@ function _tput {
 		return 0
 	fi
 
-	tput "$CHAR"
+	if [[ "$CHAR" -eq "bel" ]] && [[ $OO_MAIN_TESTS -eq 1 ]]; then
+		echo "Not print BEL-character for main-test-suite"
+	else
+		tput "$CHAR"
+	fi
+
 	set +e
 }
-
-# Idea for how this works and is implemented technically:
-# This main script that is supposed to be called is a bash script.
-# Step 1:
-# It checks whether the environment already exists, and
-# if so, loads it.
-# If it doesn't exist. it creates it in 
-# ~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
-# i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ . This is done so that there
-# is no need for multiple installations, so that, once installed, it doesn't 
-# need to be installed again.
-# Then it installs all modules. Then it loads the environment and the job
-# continues. It also does pip freeze to check if new modules need to be
-# installed and if the environment already exists, but the new modules are 
-# missing, they will be installed automatically.
-# These steps are skipped, when you installed it as a module. Then,
-# the module environment is the used environment.
-# Step 2:
-# It checks whether sbatch is installed. If so, it will re-start
-# itself as a bashscript in a slurmjob.
-# If not, the python-script with the parsed parameters are run directly.
-# Otherwise, the python-script is started inside the sbatch-script,
-# which's end is awaited (by checking squeue every 10 seconds in the
-# background if the started job is still there, and, if --follow is
-# defined, a tail -f on the slurm.out file is loaded in the foreground).
-# This way, the whole slurm procedure is transparent to the user,
-# and the program looks basically the same on every device.
-# This logic is defined in .shellscript_functions
 
 int_re='^[+-]?[0-9]+$'
 

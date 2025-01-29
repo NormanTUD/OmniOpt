@@ -348,6 +348,12 @@
 
 		PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")
 
+
+		if [[ $(uname -m) == "ppc64le" ]]; then
+			# Required for powerpc systems. Without this, scipy will fail, which will lead to ax-platform not being able to install
+			pip3 install gast==0.5.0
+		fi
+
 		for key in "${!install_those[@]}"; do
 			install_this=${install_those[$key]}
 			PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")

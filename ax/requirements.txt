@@ -13,7 +13,6 @@ sixel
 scikit-learn
 submitit
 matplotlib
-textual
 tqdm
 seaborn
 pytz

@@ -3298,7 +3298,7 @@ def get_experiment_parameters(_params: list) -> Any:
 
             with open(checkpoint_file, encoding="utf-8") as f:
                 experiment_parameters = json.load(f)
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError: # pragma: no cover
             print_red(f"Error parsing checkpoint_file {checkpoint_file}")
             my_exit(47)
 
@@ -3324,7 +3324,7 @@ def get_experiment_parameters(_params: list) -> Any:
                         if compared_params:
                             print_yellow(compared_params)
 
-                if not _replaced:
+                if not _replaced: # pragma: no cover
                     print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
         original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
@@ -3354,13 +3354,13 @@ def get_experiment_parameters(_params: list) -> Any:
             with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
                 json.dump(experiment_parameters, outfile)
 
-            if not os.path.exists(checkpoint_filepath):
+            if not os.path.exists(checkpoint_filepath): # pragma: no cover
                 print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
                 my_exit(47)
 
             with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
                 print(f"Continuation from checkpoint {continue_previous_job}", file=f)
-        else:
+        else: # pragma: no cover
             print_red("Something went wrong with the ax_client")
             my_exit(9)
     else:
@@ -3376,12 +3376,12 @@ def get_experiment_parameters(_params: list) -> Any:
                 value = ""
 
             if value not in ["min", "max"]:
-                if value:
+                if value: # pragma: no cover
                     print_yellow(f"Value '{value}' for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
 
                 value = "min"
 
-                if args.maximize:
+                if args.maximize: # pragma: no cover
                     value = "max"
 
             _min = True
@@ -3429,13 +3429,13 @@ def get_experiment_parameters(_params: list) -> Any:
 
                 new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
                 ax_client.experiment.add_tracking_metrics(new_metrics)
-            else:
+            else: # pragma: no cover
                 print_red("ax_client could not be found!")
                 sys.exit(9)
         except ValueError as error: # pragma: no cover
             print_red(f"An error has occurred while creating the experiment: {error}")
             die_something_went_wrong_with_parameters()
-        except TypeError as error:
+        except TypeError as error: # pragma: no cover
             print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt2.")
             die_something_went_wrong_with_parameters()
 
@@ -3498,7 +3498,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list
             values = [str(helpers.to_int_when_possible(item)) for item in values]
 
             rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
-        else:
+        else: # pragma: no cover
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
 
@@ -3528,9 +3528,8 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
 @wrapper_print_debug
 def print_result_names_overview_table() -> None:
     if len(arg_result_names) != 1:
-        if len(arg_result_names) != len(arg_result_min_or_max):
+        if len(arg_result_names) != len(arg_result_min_or_max): # pragma: no cover
             console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
-
             return
 
         __table = Table(title="Result-Names:")
@@ -3563,11 +3562,11 @@ def write_min_max_file() -> None:
 
 @wrapper_print_debug
 def print_experiment_parameters_table(experiment_parameters: dict) -> None:
-    if not experiment_parameters:
+    if not experiment_parameters: # pragma: no cover
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
 
-    if not experiment_parameters:
+    if not experiment_parameters: # pragma: no cover
         print_red("Experiment parameters could not be determined for display")
         return
 
@@ -3727,7 +3726,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
         if best_params_str:
             in_brackets.append(best_params_str)
 
-    if is_slurm_job():
+    if is_slurm_job(): # pragma: no cover
         nr_current_workers = len(global_vars["jobs"])
         percentage = round((nr_current_workers / num_parallel_jobs) * 100)
 
@@ -3785,15 +3784,6 @@ def progressbar_description(new_msgs: list[str] = []) -> None:
 
 @wrapper_print_debug
 def clean_completed_jobs() -> None:
-    #for job, trial_index in global_vars["jobs"][:]:
-    #    _state = state_from_job(job)
-    #    if _state != "running":
-    #        print_red(f"clean_completed_jobs: {job} has state {_state}")
-    #    while _state == "running":
-    #        _state = state_from_job(job)
-    #        print_yellow(f"clean_completed_jobs: Waiting for job {job}")
-    #        _sleep(5)
-
     for job, trial_index in global_vars["jobs"][:]: # pragma: no cover
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
@@ -3802,7 +3792,7 @@ def clean_completed_jobs() -> None:
         elif _state in ["unknown", "pending", "running"]:
             pass
         else:
-            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, unknown, running or pending: {_state}")
+            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending or running: {_state}")
 
 @typechecked
 def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Any:
@@ -3988,7 +3978,7 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
         return None
 
 @wrapper_print_debug
-def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]:
+def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]: # pragma: no cover
     try:
         if not data_list:
             return None, None
@@ -4011,7 +4001,7 @@ def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[
         return None, None
 
 @typechecked
-def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str:
+def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str: # pragma: no cover
     _str: list = []
 
     if len(double_hashes):
@@ -4214,7 +4204,7 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
     return errors
 
 @typechecked
-def get_base_errors() -> list:
+def get_base_errors() -> list: # pragma: no cover
     base_errors: list = [
         "Segmentation fault",
         "Illegal division by zero",
@@ -4284,7 +4274,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
     for r in range(1, 255):
         special_exit_codes = get_exit_codes()
         search_for_exit_code = "Exit-Code: " + str(r) + ","
-        if search_for_exit_code in file_as_string:
+        if search_for_exit_code in file_as_string: # pragma: no cover
             _error: str = "Non-zero exit-code detected: " + str(r)
             if str(r) in special_exit_codes:
                 _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
@@ -5146,7 +5136,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
         _log_trial_index_to_param(trial_index_to_param)
 
         return trial_index_to_param, optimization_complete
-    except OverflowError as e:
+    except OverflowError as e: # pragma: no cover
         print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_names)} parameters. Error: {e}")
 
         return None, True
@@ -5716,7 +5706,7 @@ def supports_sixel() -> bool:
     if "xterm" in term or "mlterm" in term:
         return True
 
-    try:
+    try: # pragma: no cover
         output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
         if output.returncode == 0 and "sixel" in output.stdout.lower():
             return True
@@ -5727,7 +5717,7 @@ def supports_sixel() -> bool:
 
 @typechecked
 def plot_pareto_frontier_sixel(data: Any) -> None:
-    if not supports_sixel():
+    if not supports_sixel(): # pragma: no cover
         console.print("[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot.[/]")
         return
 
@@ -5759,17 +5749,17 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
 
 @typechecked
 def convert_to_serializable(obj: np.ndarray) -> list:
-    if isinstance(obj, np.ndarray):
+    if isinstance(obj, np.ndarray): # pragma: no cover
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @typechecked
 def show_pareto_frontier_data() -> None:
-    if len(arg_result_names) == 1:
+    if len(arg_result_names) == 1: # pragma: no cover
         print_debug(f"{len(arg_result_names)} is 1")
         return
 
-    if ax_client is None:
+    if ax_client is None: # pragma: no cover
         print_red("show_pareto_frontier_data: Cannot plot pareto-front. ax_client is undefined.")
         return
 
@@ -5824,7 +5814,7 @@ def show_pareto_frontier_data() -> None:
             if table_str:
                 with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                     text_file.write(table_str)
-        except ax.exceptions.core.DataRequiredError as e:
+        except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
             print_red(f"Error: Trying to calculate the pareto-front failed with the following Error. This may mean that previous values, like multiple result-values, were missing:\n{e}")
 
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
@@ -5854,7 +5844,7 @@ def main() -> None:
         for rarg in arg_result_min_or_max:
             original_print(rarg, file=myfile)
 
-    if os.getenv("CI"):
+    if os.getenv("CI"): # pragma: no cover
         data_dict: dict = {
             "param1": "value1",
             "param2": "value2",

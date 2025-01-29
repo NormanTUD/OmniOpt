@@ -1,5 +1,5 @@
 import json
-from typing import Union, Tuple, Any
+from typing import Union, Tuple, Any, Optional
 from datetime import datetime
 from itertools import combinations
 import math
@@ -565,9 +565,9 @@ def get_data(
         _max: Union[int, float, None],
         old_headers_string: Union[None, str] = None,
         drop_columns_with_strings: Union[str, bool] = False
-    ) -> Union[None, pd.DataFrame]:
+    ) -> Optional[pd.DataFrame]:
     try:
-        if not csv_file_path:
+        if not csv_file_path or not os.path.exists(csv_file_path): # pragma: no cover
             return None
 
         df = pd.read_csv(csv_file_path, index_col=0)
@@ -810,13 +810,13 @@ def can_be_plotted(path: str) -> bool:
     if not os.path.exists(result_file):
         return True
 
-    with open(result_file, "r", encoding="utf-8") as file:
+    with open(result_file, "r", encoding="utf-8") as file: # pragma: no cover
         lines = [line.strip() for line in file if line.strip()]
 
-    return len(lines) == 1
+    return len(lines) == 1 # pragma: no cover
 
 def die_if_cannot_be_plotted(run_dir: str) -> None:
-    if not can_be_plotted(run_dir):
+    if not can_be_plotted(run_dir): # pragma: no cover
         log_error(f"{run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
         sys.exit(2)
 

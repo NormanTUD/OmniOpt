@@ -9,7 +9,6 @@ import logging
 import os
 import platform
 import re
-import sys
 import traceback
 from importlib.metadata import version, PackageNotFoundError
 from pprint import pprint
@@ -50,7 +49,7 @@ def write_loaded_modules_versions_to_json(output_file: str) -> None:
         except PackageNotFoundError:
             continue
 
-    with open(output_file, "w") as f:
+    with open(output_file, mode="w", encoding="utf-8") as f:
         json.dump(modules_versions, f, indent=4)
 
 def warn_versions() -> None:

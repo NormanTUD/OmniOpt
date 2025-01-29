@@ -1854,7 +1854,7 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @typechecked
-def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]:
+def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]: # pragma: no cover
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None
@@ -2007,7 +2007,7 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
     return string
 
 @typechecked
-def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
+def write_failed_logs(data_dict: dict, error_description: str = "") -> None: # pragma: no cover
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
 

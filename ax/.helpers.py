@@ -817,7 +817,7 @@ def can_be_plotted(path: str) -> bool:
 
 def die_if_cannot_be_plotted(run_dir):
     if not can_be_plotted(run_dir):
-        helpers.log_error(f"{run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
+        log_error(f"{run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
         sys.exit(2)
 
 check_python_version()

@@ -1,9 +1,21 @@
 #!/bin/bash
 
-declare -a bg_pids
-declare -i exit_code=0
-
 {
+	declare -a bg_pids
+	declare -i exit_code=0
+
+	function set_debug {
+		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+	}
+
+	function unset_debug {
+		trap - DEBUG
+	}
+
+	if [[ -n $DEBUG ]]; then
+		set_debug
+	fi
+
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 	cd "$SCRIPT_DIR"
 

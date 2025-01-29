@@ -4057,7 +4057,7 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
 
 @wrapper_print_debug
 @typechecked
-def load_data_from_existing_run_folders(_paths: list[str]) -> None:
+def load_data_from_existing_run_folders(_paths: Union[str, list[str]]) -> None:
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes

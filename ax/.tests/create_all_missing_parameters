@@ -5,7 +5,6 @@ params=(
 	"--max_eval=2"
 	"--num_parallel_jobs=1"
 	"--num_random_steps=1"
-	"--run_program='ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI='"
 	"--result_names result"
 	"--parameter x range 123 100000000 int false"
 	"--parameter y range 5431 1234 float false"
@@ -19,7 +18,7 @@ echo "total_combinations: $total_combinations" >&2
 for ((i = 1; i <= total_combinations; i++)); do
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo "<><><><><><><><> $i of $total_combinations"
-	cmd="./omniopt"
+	cmd="./omniopt --run_program='ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI='"
 
 	for ((j = 0; j < num_params; j++)); do
 		if (( (i >> j) & 1 )); then

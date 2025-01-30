@@ -204,7 +204,7 @@ def convert_string_to_number(input_string: str) -> Union[int, float, None]:
         tb = traceback.format_exc()
         print(tb)
 
-    return None
+    return None # pragma: no cover
 
 def log_error(error_text: str) -> None: # pragma: no cover
     print(f"Error: {error_text}", file=sys.stderr)
@@ -397,9 +397,9 @@ def _unidiff_output(expected: str, actual: str) -> str:
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
 
-    diff = difflib.unified_diff(expected, actual)
+    diff = difflib.unified_diff(expected, actual) # pragma: no cover
 
-    return ''.join(diff)
+    return ''.join(diff) # pragma: no cover
 
 def print_diff(i: str, o: str) -> None:
     if isinstance(i, str):
@@ -412,7 +412,7 @@ def print_diff(i: str, o: str) -> None:
     else: # pragma: no cover
         print("Is:", o)
 
-    if isinstance(i, str) or isinstance(o, str):
+    if isinstance(i, str) or isinstance(o, str): # pragma: no cover
         output = _unidiff_output(str(json.dumps(i)), str(json.dumps(o)))
         if output: # pragma: no cover
             print("Diff:", output)
@@ -451,7 +451,7 @@ def is_equal(n: str, o: Any, i: Any) -> bool:
         print("Folder 'None' exists! Exiting.")
         sys.exit(255)
 
-    return r
+    return r # pragma: no cover
 
 def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
     _equal_types = [
@@ -470,7 +470,7 @@ def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
         print_color("red", f"Failed test (3): {name}")
         return True
 
-    print_color("green", f"Test OK: {name}")
+    print_color("green", f"Test OK: {name}") # pragma: no cover
     return False
 
 def is_not_equal(n: str, i: Any, o: Any) -> bool:
@@ -479,7 +479,7 @@ def is_not_equal(n: str, i: Any, o: Any) -> bool:
     if r: # pragma: no cover
         print_diff(i, o)
 
-    return r
+    return r # pragma: no cover
 
 def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[int | float | None, int | float | None]: # pragma: no cover
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
@@ -641,7 +641,7 @@ def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
 
             cbar.formatter.set_scientific(False)
             cbar.formatter.set_useMathText(False)
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
 def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:

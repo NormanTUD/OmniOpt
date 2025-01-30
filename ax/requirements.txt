@@ -28,3 +28,4 @@ lxml
 toml
 rich_argparse
 typeguard
+pyyaml

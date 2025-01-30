@@ -1,103 +1,79 @@
 import ast
-import os
-import importlib.util
-import sys
-from collections import defaultdict
+import argparse
+from rich.console import Console
+from rich.table import Table
 
-def find_raised_exceptions(node):
-    """Durchsucht den AST nach `raise`-Statements und extrahiert die Exception-Typen."""
-    exceptions = set()
-    for stmt in ast.walk(node):
-        if isinstance(stmt, ast.Raise) and stmt.exc:
-            if isinstance(stmt.exc, ast.Call) and isinstance(stmt.exc.func, ast.Name):
-                exceptions.add(stmt.exc.func.id)
-            elif isinstance(stmt.exc, ast.Name):
-                exceptions.add(stmt.exc.id)
-    return exceptions
+class ExceptionAnalyzer(ast.NodeVisitor):
+    def __init__(self, filename):
+        self.filename = filename
+        self.try_blocks = []
+        self.imports = []
+        self.console = Console()
+        self.unhandled_exceptions = []
 
-def find_caught_exceptions(node):
-    """Sammelt alle Exception-Typen, die in `except`-Blöcken abgefangen werden."""
-    caught_exceptions = set()
-    for stmt in ast.walk(node):
-        if isinstance(stmt, ast.ExceptHandler) and stmt.type:
-            if isinstance(stmt.type, ast.Name):
-                caught_exceptions.add(stmt.type.id)
-            elif isinstance(stmt.type, ast.Tuple):
-                for exc in stmt.type.elts:
-                    if isinstance(exc, ast.Name):
-                        caught_exceptions.add(exc.id)
-    return caught_exceptions
+    def analyze(self):
+        with open(self.filename, 'r') as f:
+            tree = ast.parse(f.read())
+            self.visit(tree)
+        return self.unhandled_exceptions
 
-def analyze_script(filename):
-    """Analysiert eine Python-Datei und gibt die nicht abgefangenen Exceptions aus."""
-    with open(filename, "r", encoding="utf-8") as f:
-        tree = ast.parse(f.read(), filename)
-    
-    raised_exceptions = find_raised_exceptions(tree)
-    caught_exceptions = find_caught_exceptions(tree)
-    
-    uncaught_exceptions = raised_exceptions - caught_exceptions
-    return raised_exceptions, caught_exceptions, uncaught_exceptions
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.imports.append(alias.name)
+        self.generic_visit(node)
 
-def find_imported_modules(node):
-    """Findet alle importierten Module in einem Python-Skript."""
-    modules = set()
-    for stmt in ast.walk(node):
-        if isinstance(stmt, ast.Import):
-            for alias in stmt.names:
-                modules.add(alias.name)
-        elif isinstance(stmt, ast.ImportFrom) and stmt.module:
-            modules.add(stmt.module)
-    return modules
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            self.imports.append(f"{node.module}.{alias.name}")
+        self.generic_visit(node)
 
-def locate_module(module_name):
-    """Versucht, den Speicherort eines Moduls zu finden."""
-    spec = importlib.util.find_spec(module_name)
-    if spec and spec.origin and spec.origin.endswith(".py"):
-        return spec.origin
-    return None
+    def visit_Try(self, node):
+        for handler in node.handlers:
+            exc_types = handler.type
+            if isinstance(exc_types, ast.Name):
+                print(f"Found exception: {exc_types.id} at line {node.lineno}")
+                self.try_blocks.append((exc_types.id, node.lineno))
+            elif isinstance(exc_types, ast.Tuple):
+                for exc_type in exc_types.elts:
+                    if isinstance(exc_type, ast.Name):
+                        print(f"Found exception: {exc_type.id} at line {node.lineno}")
+                        self.try_blocks.append((exc_type.id, node.lineno))
+            elif isinstance(exc_types, ast.Attribute):
+                module_name = exc_types.value.id if isinstance(exc_types.value, ast.Name) else None
+                attr_name = exc_types.attr
+                if module_name:
+                    exc_type_name = f"{module_name}.{attr_name}"
+                else:
+                    exc_type_name = f"{attr_name}"
+                print(f"Found exception: {exc_type_name} at line {node.lineno}")
+                self.try_blocks.append((exc_type_name, node.lineno))
+            else:
+                print(f"Unexpected exception type found: {exc_types} at line {node.lineno}")
+        self.generic_visit(node)
 
-def analyze_script_and_modules(filename):
-    """Analysiert eine Python-Datei und ihre importierten Module auf Exception-Handling."""
-    with open(filename, "r", encoding="utf-8") as f:
-        tree = ast.parse(f.read(), filename)
-    
-    imported_modules = find_imported_modules(tree)
-    all_exceptions = defaultdict(set)
-    
-    # Analysiere Hauptskript
-    raised, caught, uncaught = analyze_script(filename)
-    all_exceptions[filename] = uncaught
-    
-    # Analysiere importierte Module
-    for module in imported_modules:
-        module_path = locate_module(module)
-        if module_path and os.path.isfile(module_path):
-            mod_raised, mod_caught, mod_uncaught = analyze_script(module_path)
-            all_exceptions[module_path] = mod_uncaught
-    
-    return all_exceptions
+    def report_unhandled_exceptions(self):
+        table = Table(title="Unhandled Exceptions")
+        table.add_column("Line", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Exception Type", style="magenta")
+        table.add_column("Description", justify="center", style="dim")
+        
+        # Debugging-Ausgabe der erfassten Ausnahmen
+        print(f"Total uncaught exceptions found: {len(self.unhandled_exceptions)}")
+        
+        for exc in self.unhandled_exceptions:
+            table.add_row(str(exc[0]), exc[1], exc[2])
+        
+        self.console.print(table)
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python check_exceptions.py <script.py>")
-        sys.exit(1)
-    
-    filename = sys.argv[1]
-    if not os.path.isfile(filename):
-        print(f"Error: File '{filename}' not found.")
-        sys.exit(1)
-    
-    results = analyze_script_and_modules(filename)
-    
-    for script, uncaught_exceptions in results.items():
-        print(f"In Datei: {script}")
-        if uncaught_exceptions:
-            print("  ⚠️ Nicht abgefangene Exceptions:")
-            for exc in uncaught_exceptions:
-                print(f"    - {exc}")
-        else:
-            print("  ✅ Alle Exceptions werden abgefangen.")
+    parser = argparse.ArgumentParser(description="Analyze Python script for uncaught exceptions")
+    parser.add_argument("filename", type=str, help="Path to the Python file to analyze")
+    args = parser.parse_args()
+
+    analyzer = ExceptionAnalyzer(args.filename)
+    uncaught_exceptions = analyzer.analyze()
+    analyzer.report_unhandled_exceptions()
 
 if __name__ == "__main__":
     main()
+

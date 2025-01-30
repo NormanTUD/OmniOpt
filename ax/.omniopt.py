@@ -4746,7 +4746,6 @@ def write_continue_run_uuid_to_file() -> bool:
         continue_dir = args.continue_previous_job
 
         try:
-
             with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
                 continue_from_uuid = f.readline()
 

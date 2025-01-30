@@ -254,6 +254,7 @@ def print_color(color: str, text: str) -> None:
         "underline": bcolors.underline,
         "yellow": bcolors.yellow
     }
+
     end_color = bcolors.endc
 
     try:

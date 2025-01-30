@@ -290,7 +290,7 @@ def print_green(text: str) -> None:
 
 @typechecked
 def print_yellow(text: str) -> None:
-    helpers.print_color("yellow", text)
+    helpers.print_color("yellow", f"⚠ {text}")
 
     print_debug(text)
 
@@ -766,7 +766,7 @@ def live_share() -> bool:
     stdout, stderr = run_live_share_command()
 
     if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
-        print_yellow(stderr)
+        print_green(stderr)
 
     SHOWN_LIVE_SHARE_COUNTER = SHOWN_LIVE_SHARE_COUNTER + 1
 

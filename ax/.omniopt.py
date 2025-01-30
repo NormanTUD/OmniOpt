@@ -90,7 +90,7 @@ try:
         if os.getenv("OO_MAIN_TESTS") == "1":
             import importlib
             typechecked = importlib.import_module("typeguard").typechecked
-        else:
+        else: # pragma: co cover
             def typechecked(func: F) -> F:
                 return func
 except ModuleNotFoundError as e: # pragma: no cover

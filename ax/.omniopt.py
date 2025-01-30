@@ -554,7 +554,7 @@ loader = ConfigLoader()
 args = loader.parse_arguments()
 
 if not 0 <= args.pareto_front_confidence <= 1:
-    print("--pareto_front_confidence must be between 0 and 1, will be set to 1")
+    print_yellow("--pareto_front_confidence must be between 0 and 1, will be set to 1")
     args.pareto_front_confidence = 1
 
 arg_result_names = []

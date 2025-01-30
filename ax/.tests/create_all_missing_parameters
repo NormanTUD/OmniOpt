@@ -27,5 +27,3 @@ for ((i = 1; i <= total_combinations; i++)); do
 
 	echo "$cmd"
 done
-
-echo "./omniopt"

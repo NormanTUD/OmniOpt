@@ -13,5 +13,4 @@ pandas-stubs
 types-tqdm
 deadcode
 pylint
-pyspellchecker
 bashlex

@@ -26,4 +26,6 @@ for ((i = 1; i <= total_combinations; i++)); do
 	done
 
 	echo "$cmd"
+
+	$cmd
 done

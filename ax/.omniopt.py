@@ -583,7 +583,7 @@ for _rn in args.result_names:
 
     if _min_or_max not in ["min", "max"]:
         if _min_or_max:
-            print_yellow(f"Value for determining whether to minimize or maximize was neither 'min' nor 'max', but '{_min_or_max}'. It will be set to the default, which is '{__default_min_max}' instead.")
+            print_yellow(f"Value for determining whether to minimize or maximize was neither 'min' nor 'max' for key '{_key}', but '{_min_or_max}'. It will be set to the default, which is '{__default_min_max}' instead.")
         _min_or_max = __default_min_max
 
     if _key in arg_result_names:

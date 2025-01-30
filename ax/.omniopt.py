@@ -1032,14 +1032,14 @@ def log_what_needs_to_be_logged() -> None:
     if "write_process_info" in globals():
         try:
             write_process_info()
-        except Exception: # pragma: no cover
-            pass
+        except Exception as e: # pragma: no cover
+            print_debug(f"Error in write_process_info: {e}")
 
     if "log_nr_of_workers" in globals():
         try:
             log_nr_of_workers()
-        except Exception: # pragma: no cover
-            pass
+        except Exception as e: # pragma: no cover
+            print_debug(f"Error in log_nr_of_workers: {e}")
 
 @typechecked
 def get_line_info() -> Tuple[str, str, int, str, str]:
@@ -3067,7 +3067,9 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
 @wrapper_print_debug
 def get_tmp_file_from_json(experiment_args: dict) -> str:
     _tmp_dir = "/tmp"
+
     k = 0
+
     while os.path.exists(f"/{_tmp_dir}/{k}"): # pragma: no cover
         k = k + 1
 

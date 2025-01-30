@@ -1,3 +1,4 @@
+shellcheck-py
 vulture
 flake8
 radon

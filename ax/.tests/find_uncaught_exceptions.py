@@ -1,78 +1,111 @@
 import ast
-import argparse
+import os
+import sys
+import traceback
+import importlib
+import inspect
+from typing import List
 from rich.console import Console
 from rich.table import Table
+import argparse
 
-class ExceptionAnalyzer(ast.NodeVisitor):
-    def __init__(self, filename):
-        self.filename = filename
-        self.try_blocks = []
-        self.imports = []
-        self.console = Console()
-        self.unhandled_exceptions = []
+console = Console()
 
-    def analyze(self):
-        with open(self.filename, 'r') as f:
-            tree = ast.parse(f.read())
-            self.visit(tree)
-        return self.unhandled_exceptions
+class ExceptionTracker:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.imports = {}
+        self.exceptions = []
+        self.parsed_code = self._parse_file()
 
-    def visit_Import(self, node):
-        for alias in node.names:
-            self.imports.append(alias.name)
-        self.generic_visit(node)
+    def _parse_file(self):
+        """ Parse the given Python file and return the AST. """
+        with open(self.file_path, "r", encoding="utf-8") as file:
+            file_content = file.read()
+        return ast.parse(file_content)
 
-    def visit_ImportFrom(self, node):
-        for alias in node.names:
-            self.imports.append(f"{node.module}.{alias.name}")
-        self.generic_visit(node)
+    def check_try_except(self, node):
+        """ Check for try-except blocks and log any unhandled exceptions. """
+        if isinstance(node, ast.Try):
+            for handler in node.handlers:
+                # Capture the exceptions in the except block
+                if handler.type:
+                    exception_type = handler.type.id if isinstance(handler.type, ast.Name) else str(handler.type)
+                    self.imports[exception_type] = True
 
-    def visit_Try(self, node):
-        for handler in node.handlers:
-            exc_types = handler.type
-            if isinstance(exc_types, ast.Name):
-                print(f"Found exception: {exc_types.id} at line {node.lineno}")
-                self.try_blocks.append((exc_types.id, node.lineno))
-            elif isinstance(exc_types, ast.Tuple):
-                for exc_type in exc_types.elts:
-                    if isinstance(exc_type, ast.Name):
-                        print(f"Found exception: {exc_type.id} at line {node.lineno}")
-                        self.try_blocks.append((exc_type.id, node.lineno))
-            elif isinstance(exc_types, ast.Attribute):
-                module_name = exc_types.value.id if isinstance(exc_types.value, ast.Name) else None
-                attr_name = exc_types.attr
-                if module_name:
-                    exc_type_name = f"{module_name}.{attr_name}"
-                else:
-                    exc_type_name = f"{attr_name}"
-                print(f"Found exception: {exc_type_name} at line {node.lineno}")
-                self.try_blocks.append((exc_type_name, node.lineno))
-            else:
-                print(f"Unexpected exception type found: {exc_types} at line {node.lineno}")
-        self.generic_visit(node)
+    def find_raise_statements(self, node):
+        """ Find and track any raise statements in the code. """
+        if isinstance(node, ast.Raise):
+            exc_type = node.exc
+            if exc_type:
+                exception_type = str(exc_type)
+                self.exceptions.append((node.lineno, exception_type))
 
-    def report_unhandled_exceptions(self):
-        table = Table(title="Unhandled Exceptions")
-        table.add_column("Line", justify="right", style="cyan", no_wrap=True)
+    def track_imports_and_functions(self, node):
+        """ Track imported modules and functions used in the script. """
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                self.imports[alias.name] = False
+        elif isinstance(node, ast.ImportFrom):
+            self.imports[node.module] = False
+
+    def check_code(self):
+        """ Traverse the AST to check for unhandled exceptions. """
+        for node in ast.walk(self.parsed_code):
+            self.check_try_except(node)
+            self.find_raise_statements(node)
+            self.track_imports_and_functions(node)
+
+    def resolve_imports(self):
+        """ Resolve import modules and check their functions for raise statements. """
+        for module_name in self.imports.keys():
+            try:
+                module = importlib.import_module(module_name)
+                for name, obj in inspect.getmembers(module):
+                    if callable(obj):
+                        self.check_for_raises_in_function(obj)
+            except ModuleNotFoundError:
+                continue
+
+    def check_for_raises_in_function(self, func):
+        """ Check for raise statements within the function from imported modules. """
+        try:
+            func_code = inspect.getsource(func)
+            parsed_func_code = ast.parse(func_code)
+            for node in ast.walk(parsed_func_code):
+                self.find_raise_statements(node)
+        except Exception as e:
+            console.print(f"Error inspecting function {func.__name__}: {str(e)}")
+
+    def summarize_results(self):
+        """ Summarize and output the results. """
+        table = Table(title="Unhandled Exceptions Summary")
+        table.add_column("Line", style="cyan")
         table.add_column("Exception Type", style="magenta")
-        table.add_column("Description", justify="center", style="dim")
-        
-        # Debugging-Ausgabe der erfassten Ausnahmen
-        print(f"Total uncaught exceptions found: {len(self.unhandled_exceptions)}")
-        
-        for exc in self.unhandled_exceptions:
-            table.add_row(str(exc[0]), exc[1], exc[2])
-        
-        self.console.print(table)
+        table.add_column("Description", style="green")
+
+        # Add all raised exceptions in main code
+        for line, exception_type in self.exceptions:
+            table.add_row(str(line), exception_type, f"Exception '{exception_type}' not caught")
+
+        # Add all imports and check for exceptions they might raise
+        self.resolve_imports()
+
+        # Print the table with the results
+        console.print(table)
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyze Python script for uncaught exceptions")
-    parser.add_argument("filename", type=str, help="Path to the Python file to analyze")
+    parser = argparse.ArgumentParser(description="Analyze Python script for unhandled exceptions.")
+    parser.add_argument("file", type=str, help="The path to the Python script to analyze.")
     args = parser.parse_args()
 
-    analyzer = ExceptionAnalyzer(args.filename)
-    uncaught_exceptions = analyzer.analyze()
-    analyzer.report_unhandled_exceptions()
+    if not os.path.exists(args.file):
+        print(f"File {args.file} does not exist!")
+        sys.exit(1)
+
+    tracker = ExceptionTracker(args.file)
+    tracker.check_code()
+    tracker.summarize_results()
 
 if __name__ == "__main__":
     main()

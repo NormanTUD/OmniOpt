@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Vollständige Befehlsliste als Array
+params=(
+    "--experiment_name=small_test_experiment"
+    "--mem_gb=1"
+    "--time=60"
+    "--worker_timeout=60"
+    "--max_eval=2"
+    "--num_parallel_jobs=1"
+    "--num_random_steps=1"
+    "--run_program='ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI='"
+    "--result_names result"
+    "--run_mode=local"
+    "--parameter x range 123 100000000 int false"
+    "--parameter y range 5431 1234 float false"
+)
+
+num_params=${#params[@]}
+total_combinations=$((2**num_params - 1))
+
+# Durch alle möglichen Kombinationen iterieren
+for ((i = 1; i <= total_combinations; i++)); do
+    cmd="./omniopt"
+    
+    # Prüfen, welche Parameter enthalten sind
+    for ((j = 0; j < num_params; j++)); do
+        if (( (i >> j) & 1 )); then
+            cmd+=" ${params[j]}"
+        fi
+    done
+    
+    echo "$cmd"
+done
+
+# Den Fall ohne jegliche Parameter explizit ausgeben
+echo "./omniopt"

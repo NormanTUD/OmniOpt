@@ -17,6 +17,7 @@ total_combinations=$((2**num_params - 1))
 echo "total_combinations: $total_combinations" >&2
 
 for ((i = 1; i <= total_combinations; i++)); do
+	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	cmd="./omniopt"
 
 	for ((j = 0; j < num_params; j++)); do
@@ -28,4 +29,10 @@ for ((i = 1; i <= total_combinations; i++)); do
 	echo "$cmd"
 
 	$cmd
+
+	_ec=$?
+
+	echo "Exit-code: $_ec"
+
+	echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 done

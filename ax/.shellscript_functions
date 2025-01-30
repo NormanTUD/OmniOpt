@@ -35,7 +35,7 @@
 		install_those+=("$line")
 	done < "$SCRIPT_DIR/requirements.txt"
 
-	if [[ $install_tests == 1 ]]; then
+	if [[ -n $install_tests ]]; then
 		while IFS= read -r line; do
 			install_those+=("$line")
 		done < "$SCRIPT_DIR/test_requirements.txt"
@@ -510,7 +510,7 @@
 	if [[ -z $DONT_INSTALL_MODULES ]]; then
 		if [[ -z $SLURM_JOB_ID ]]; then
 			REQUIREMENTS_HASH_MAIN=$(md5sum requirements.txt | awk '{print $1}')
-			REQUIREMENTS_HASH_TESTS=$(md5sum test_requirements.txt | awk '{print $1}')
+			REQUIREMENTS_HASH_TEST=$(md5sum test_requirements.txt | awk '{print $1}')
 
 			hash_is_different() {
 				hash_file=$1
@@ -529,7 +529,7 @@
 			}
 
 
-			if ! hash_is_different "$VENV_DIR/hash" "$REQUIREMENTS_HASH_MAIN" || ! hash_is_different "$VENV_DIR/hash_test" "$REQUIREMENTS_HASH_TESTS"; then
+			if ! hash_is_different "$VENV_DIR/hash" "$REQUIREMENTS_HASH_MAIN" || ! hash_is_different "$VENV_DIR/hash_test" "$REQUIREMENTS_HASH_TEST"; then
 				set +e
 				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 				exit_code_pip=$?
@@ -543,7 +543,7 @@
 				install_required_modules
 
 				echo "$REQUIREMENTS_HASH_MAIN" > "$VENV_DIR/hash"
-				echo "$REQUIREMENTS_HASH_TESTS" > "$VENV_DIR/hash_test"
+				echo "$REQUIREMENTS_HASH_TEST" > "$VENV_DIR/hash_test"
 			fi
 
 		fi

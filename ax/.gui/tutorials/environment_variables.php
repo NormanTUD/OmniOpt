@@ -19,6 +19,10 @@
 		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt2</th>
 	</tr>
 	<tr>
+		<td><samp>export install_tests=1</samp></td>
+		<td>Install test modules</td>
+	</tr>
+	<tr>
 		<td><samp>export RUN_UUID=$(uuidgen)</samp></td>
 		<td>Sets the UUID for the run. Default is a new one via <samp>uuidgen</samp></td>
 	</tr>

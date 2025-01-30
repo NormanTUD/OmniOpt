@@ -570,14 +570,21 @@ for _rn in args.result_names:
     _key = ""
     _min_or_max = ""
 
+    __default_min_max = "min"
+
+    if args.maximize:
+        __default_min_max = "max"
+
     if "=" in _rn:
         _key, _min_or_max = _rn.split('=', 1)
     else:
         _key = _rn
-        _min_or_max = "min"
+        _min_or_max = __default_min_max
 
     if _min_or_max not in ["min", "max"]:
-        _min_or_max = "min"
+        if _min_or_max:
+            print_yellow(f"Value for determining whether to minimize or maximize was neither 'min' nor 'max', but '{_min_or_max}'. It will be set to the default, which is '{__default_min_max}' instead.")
+        _min_or_max = __default_min_max
 
     if _key in arg_result_names:
         console.print(f"[red]The --result_names option '{_key}' was specified multiple times![/]")
@@ -3927,7 +3934,7 @@ def get_nr_of_imported_jobs() -> int:
 def load_existing_job_data_into_ax_client() -> None:
     global NR_INSERTED_JOBS
 
-    if len(already_inserted_param_hashes.keys()):
+    if len(already_inserted_param_hashes.keys()): # pragma: no cover
         if len(missing_results):
             print(f"Missing results: {len(missing_results)}")
             #NR_INSERTED_JOBS += len(double_hashes)
@@ -3973,8 +3980,8 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
             "current_type": current_type,
             "expected_type": expected_type
         }
-    except AssertionError:
-        # Logging the error
+    except AssertionError as e: # pragma: no cover
+        print_debug(f"Assertion Error in parse_parameter_type_error: {e}")
         return None
 
 @wrapper_print_debug
@@ -4149,10 +4156,10 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
                 print_red(f"{this_path_json} does not exist, cannot load data from it")
                 return
 
-            old_experiments = load_experiment(this_path_json)
-            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx)
+            old_experiments = load_experiment(this_path_json) # pragma: no cover
+            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx) # pragma: no cover
 
-    display_table()
+    display_table() # pragma: no cover
 
 @wrapper_print_debug
 def get_first_line_of_file(file_paths: list[str]) -> str:
@@ -4282,7 +4289,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
     return errors
 
 @typechecked
-def get_python_errors() -> list[list[str]]:
+def get_python_errors() -> list[list[str]]: # pragma: no cover
     synerr: str = "Python syntax error detected. Check log file."
 
     return [
@@ -5156,7 +5163,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
 def check_max_parallelism_arg(possible_values: list) -> bool:
     if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
         return True
-    return False
+    return False # pragma: no cover
 
 @typechecked
 def _get_max_parallelism() -> int: # pragma: no cover
@@ -5581,7 +5588,7 @@ def human_readable_generation_strategy() -> Optional[str]:
             content = match.group(1)
             return content
 
-    return None
+    return None # pragma: no cover
 
 @typechecked
 def die_orchestrator_exit_code_206(_test: bool) -> None: # pragma: no cover
@@ -5597,7 +5604,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
             try:
                 data = yaml.safe_load(file)
 
-                if "errors" not in data:
+                if "errors" not in data: # pragma: no cover
                     print_red(f"{_f} file does not contain key 'errors'")
                     die_orchestrator_exit_code_206(_test)
 
@@ -5633,7 +5640,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
                 return data
             except Exception as e: # pragma: no cover
                 print(f"Error while parse_experiment_parameters({_f}): {e}")
-    else:
+    else: # pragma: no cover
         print_red(f"{_f} could not be found")
 
     return None
@@ -5710,7 +5717,7 @@ def supports_sixel() -> bool:
         output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
         if output.returncode == 0 and "sixel" in output.stdout.lower():
             return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError): # pragma: no cover
         pass
 
     return False
@@ -5751,7 +5758,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
 def convert_to_serializable(obj: np.ndarray) -> list:
     if isinstance(obj, np.ndarray): # pragma: no cover
         return obj.tolist()
-    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable") # pragma: no cover
 
 @typechecked
 def show_pareto_frontier_data() -> None:

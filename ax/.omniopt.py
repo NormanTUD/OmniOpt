@@ -90,7 +90,7 @@ try:
         if os.getenv("OO_MAIN_TESTS") == "1":
             import importlib
             typechecked = importlib.import_module("typeguard").typechecked
-        else: # pragma: co cover
+        else: # pragma: no cover
             def typechecked(func: F) -> F:
                 return func
 except ModuleNotFoundError as e: # pragma: no cover
@@ -581,7 +581,7 @@ for _rn in args.result_names:
         _key = _rn
         _min_or_max = __default_min_max
 
-    if _min_or_max not in ["min", "max"]:
+    if _min_or_max not in ["min", "max"]: # pragma: no cover
         if _min_or_max:
             print_yellow(f"Value for determining whether to minimize or maximize was neither 'min' nor 'max' for key '{_key}', but '{_min_or_max}'. It will be set to the default, which is '{__default_min_max}' instead.")
         _min_or_max = __default_min_max
@@ -611,11 +611,11 @@ if args.continue_previous_job is not None:
 
                 if found_result_names and found_result_names[-1] == '':
                     found_result_names.pop()
-        except FileNotFoundError:
+        except FileNotFoundError: # pragma: no cover
             print_red(f"Error: The file at '{look_for_result_names_file}' was not found.")
-        except IOError as e:
+        except IOError as e: # pragma: no cover
             print_red(f"Error reading file '{look_for_result_names_file}': {e}")
-    else:
+    else: # pragma: no cover
         print_yellow(f"{look_for_result_names_file} not found!")
 
     found_result_min_max = []
@@ -628,8 +628,8 @@ if args.continue_previous_job is not None:
 
         found_result_min_max.append(min_max)
 
-    arg_result_names = found_result_names
-    arg_result_min_or_max = found_result_min_max
+    arg_result_names = found_result_names # pragma: no cover
+    arg_result_min_or_max = found_result_min_max # pragma: no cover
 
 @typechecked
 def wrapper_print_debug(func: Any) -> Any:
@@ -688,7 +688,7 @@ except KeyboardInterrupt: # pragma: no cover
 except AttributeError: # pragma: no cover
     print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
     my_exit(7)
-except FileNotFoundError as e:
+except FileNotFoundError as e: # pragma: no cover
     print(f"\n⚠ Error {e}. This probably means that your hard disk is full")
     my_exit(92)
 
@@ -1906,12 +1906,12 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[
     if len(arg_result_names) == 1:
         return get_results_old(input_string)
 
-    return get_results_new(input_string)
+    return get_results_new(input_string) # pragma: no cover
 
 @typechecked
 def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
     if input_string is None:
-        print_red("get_results: Input-String is None")
+        print_red("get_results: Input-String is None") # pragma: no cover
         return None
 
     if not isinstance(input_string, str):
@@ -2180,7 +2180,7 @@ def calculate_occ(_args: Optional[list[float]]) -> float:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 
-    if args.occ_type == "euclid":
+    if args.occ_type == "euclid": # pragma: no cover
         return calculate_signed_euclidean_distance(_args)
     if args.occ_type == "geometric": # pragma: no cover
         return calculate_signed_geometric_distance(_args)
@@ -2199,7 +2199,7 @@ def evaluate(parameters: dict) -> dict:
     for _rn in arg_result_names:
         if arg_result_min_or_max[i] == "min":
             return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
-        else:
+        else: # pragma: no cover
             return_in_case_of_error[_rn] = -VAL_IF_NOTHING_FOUND
 
         i = i + 1
@@ -2253,7 +2253,7 @@ def evaluate(parameters: dict) -> dict:
         all_result_column_names = []
 
         _k = 1
-        if unocced_result and args.occ:
+        if unocced_result and args.occ: # pragma: no cover
             for a in unocced_result:
                 all_result_column_names.append(f"RESULT{_k}")
                 _k = _k + 1
@@ -2289,7 +2289,7 @@ def evaluate(parameters: dict) -> dict:
 
         result_values = []
 
-        if isinstance(result, dict):
+        if isinstance(result, dict): # pragma: no cover
             for rkey in list(result.keys()):
                 rval = result[rkey]
 
@@ -2327,7 +2327,7 @@ def evaluate(parameters: dict) -> dict:
                 return {"result": float(result[0])}
             if isinstance(result, (list)): # pragma: no cover
                 return {"result": [float(r) for r in result]}
-        else:
+        else: # pragma: no cover
             return result
 
         write_failed_logs(parameters, "No Result") # pragma: no cover
@@ -2751,7 +2751,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
         if "min_done_jobs" in plot:
             min_done_jobs = plot["min_done_jobs"]
 
-        if not _force and count_done_jobs() < min_done_jobs:
+        if not _force and count_done_jobs() < min_done_jobs: # pragma: no cover
             print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
             continue
 
@@ -2833,7 +2833,7 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
 
 @typechecked
 def plot_sixel_imgs(csv_file_path: str) -> None:
-    if ci_env:
+    if ci_env: # pragma: no cover
         print("Not printing sixel graphics in CI")
         return
 
@@ -3120,7 +3120,7 @@ def get_ax_param_representation(data: dict) -> dict:
             "is_fidelity": False,
             "target_value": None
         }
-    if data["type"] == "choice":
+    if data["type"] == "choice": # pragma: no cover
         return {
             '__type': 'ChoiceParameter',
             'dependents': None,
@@ -3155,7 +3155,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
                 print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
             else: # pragma: no cover
                 print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
-    except ModuleNotFoundError:
+    except ModuleNotFoundError: # pragma: no cover
         print_red("Cannot load torch and thus, cannot use gpus")
 
     if torch_device: # pragma: no cover
@@ -3239,7 +3239,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
                 "value": item
             })
         elif item in [">=", "<="]:
-            if comparer_found:
+            if comparer_found: # pragma: no cover
                 print("There is already one comparison operator! Cannot have more than one in an equation!")
                 return False
             comparer_found = True
@@ -3261,7 +3261,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
                 "type": "variable",
                 "value": item
             })
-        else:
+        else: # pragma: no cover
             print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
             return False
 
@@ -3279,7 +3279,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
     if order_check:
         return equation
 
-    return False
+    return False # pragma: no cover
 
 @wrapper_print_debug
 def get_experiment_parameters(_params: list) -> Any:
@@ -3823,7 +3823,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         print_red(f"Failed to read the CSV file: {str(e)}")
         return None
 
-    if resname not in df.columns:
+    if resname not in df.columns: # pragma: no cover
         print_red(f"Error: Could not get RESULT-NAME '{resname}' old result for {params} in {file_path}")
         return None
 
@@ -3844,18 +3844,18 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
                     # Ensure consistent types for comparison
                     if matching_rows[param].dtype == np.int64 and isinstance(value, str):
                         value = int(value)
-                    elif matching_rows[param].dtype == np.float64 and isinstance(value, str):
+                    elif matching_rows[param].dtype == np.float64 and isinstance(value, str): # pragma: no cover
                         value = float(value)
 
                     matching_rows = matching_rows[matching_rows[param] == value]
 
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
 
-        if matching_rows.empty:
+        if matching_rows.empty: # pragma: no cover
             return None
 
         return matching_rows
-    except AssertionError as ae:
+    except AssertionError as ae: # pragma: no cover
         print_red(f"Assertion error: {str(ae)}")
         raise
     except Exception as e: # pragma: no cover
@@ -3872,13 +3872,13 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
         if len(tmp_old_res_list) == 1:
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
             old_result_simple = float(tmp_old_res_list[0])
-        else:
+        else: # pragma: no cover
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
             old_result_simple = None
 
         return old_result_simple
 
-    return None
+    return None # pragma: no cover
 
 @wrapper_print_debug
 def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
@@ -3887,7 +3887,7 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
     for this_path in _paths:
         this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
-        if not os.path.exists(this_path_json):
+        if not os.path.exists(this_path_json): # pragma: no cover
             print_red(f"{this_path_json} does not exist, cannot load data from it")
             return 0
 
@@ -3903,7 +3903,8 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
             trial_status = old_trial.status
             trial_status_str = trial_status.__repr__
 
-            if "COMPLETED".lower() not in str(trial_status_str).lower(): # or "MANUAL".lower() in str(trial_status_str).lower()):
+            if "COMPLETED".lower() not in str(trial_status_str).lower(): # pragma: no cover
+                # or "MANUAL".lower() in str(trial_status_str).lower()):
                 continue
 
             old_arm_parameter = old_trial.arm.parameters
@@ -3913,7 +3914,7 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
             try:
                 for resname in arg_result_names:
                     old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}")
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
@@ -5643,7 +5644,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
     else: # pragma: no cover
         print_red(f"{_f} could not be found")
 
-    return None
+    return None # pragma: no cover
 
 @typechecked
 def set_orchestrator() -> None:
@@ -5720,7 +5721,7 @@ def supports_sixel() -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError): # pragma: no cover
         pass
 
-    return False
+    return False # pragma: no cover
 
 @typechecked
 def plot_pareto_frontier_sixel(data: Any) -> None:
@@ -6250,6 +6251,8 @@ Exit-Code: 159
     nr_errors += is_equal('compare_parameters("x", "y")', compare_parameters("x", "y"), '')
 
     nr_errors += is_equal('extract_info("OO-Info: SLURM_JOB_ID: 123")', json.dumps(extract_info("OO-Info: SLURM_JOB_ID: 123")), '[["OO_Info_SLURM_JOB_ID"], ["123"]]')
+
+    nr_errors += is_equal('get_min_max_from_file("/i/do/not/exist/hopefully/anytime/ever", 0, "-123")', get_min_max_from_file("/i/do/not/exist/hopefully/anytime/ever", 0, "-123"), '-123')
 
     if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:
         nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus

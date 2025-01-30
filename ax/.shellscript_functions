@@ -26,10 +26,20 @@
 		exit 21
 	fi
 
-	while IFS= read -r line
-	do
+	if [ ! -f "$SCRIPT_DIR/test_requirements.txt" ]; then
+		echo "The file $SCRIPT_DIR/test_requirements.txt doesn't exist."
+		exit 21
+	fi
+
+	while IFS= read -r line; do
 		install_those+=("$line")
 	done < "$SCRIPT_DIR/requirements.txt"
+
+	if [[ $install_tests == 1 ]]; then
+		while IFS= read -r line; do
+			install_those+=("$line")
+		done < "$SCRIPT_DIR/test_requirements.txt"
+	fi
 
 	FROZEN=""
 
@@ -499,14 +509,16 @@
 
 	if [[ -z $DONT_INSTALL_MODULES ]]; then
 		if [[ -z $SLURM_JOB_ID ]]; then
-			REQUIREMENTS_HASH=$(md5sum requirements.txt | awk '{print $1}')
+			REQUIREMENTS_HASH_MAIN=$(md5sum requirements.txt | awk '{print $1}')
+			REQUIREMENTS_HASH_TESTS=$(md5sum test_requirements.txt | awk '{print $1}')
 
 			hash_is_different() {
-				local hash_file="$VENV_DIR/hash"
+				hash_file=$1
+				required_hash=$2
 
 				if [[ -f "$hash_file" ]]; then
 					stored_hash=$(cat "$hash_file")
-					if [[ "$stored_hash" == "$REQUIREMENTS_HASH" ]]; then
+					if [[ "$stored_hash" == "$required_hash" ]]; then
 						return 0
 					else
 						return 1
@@ -517,7 +529,7 @@
 			}
 
 
-			if ! hash_is_different; then
+			if ! hash_is_different "$VENV_DIR/hash" "$REQUIREMENTS_HASH_MAIN" || ! hash_is_different "$VENV_DIR/hash_test" "$REQUIREMENTS_HASH_TESTS"; then
 				set +e
 				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 				exit_code_pip=$?
@@ -530,7 +542,8 @@
 
 				install_required_modules
 
-				echo "$REQUIREMENTS_HASH" > "$VENV_DIR/hash"
+				echo "$REQUIREMENTS_HASH_MAIN" > "$VENV_DIR/hash"
+				echo "$REQUIREMENTS_HASH_TESTS" > "$VENV_DIR/hash_test"
 			fi
 
 		fi

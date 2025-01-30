@@ -1,0 +1,16 @@
+vulture
+flake8
+radon
+bandit
+linkchecker
+ruff
+mypy
+types-PyYAML
+types-toml
+types-psutil
+pandas-stubs
+types-tqdm
+deadcode
+pylint
+pyspellchecker
+bashlex

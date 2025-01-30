@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export install_tests=1
+
 FROZEN=""
 
 function ppip {

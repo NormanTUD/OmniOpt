@@ -68,10 +68,16 @@ if "install" in sys.argv:
             break
 
 lib_folder = os.path.dirname(os.path.realpath(__file__))
-requirement_path = f"{lib_folder}/requirements.txt"
 install_requires = []
+
+requirement_path = f"{lib_folder}/requirements.txt"
 if os.path.isfile(requirement_path):
     with open(requirement_path, mode="r", encoding="utf-8") as f:
+        install_requires = f.read().splitlines()
+
+test_requirement_path = f"{lib_folder}/test_requirements.txt"
+if os.path.isfile(test_requirement_path):
+    with open(test_requirement_path, mode="r", encoding="utf-8") as f:
         install_requires = f.read().splitlines()
 
 def is_python_script(file_path):
@@ -100,6 +106,7 @@ all_needed_files.extend(python_files)
 
 all_needed_files.append("LICENSE")
 all_needed_files.append("requirements.txt")
+all_needed_files.append("test_requirements.txt")
 all_needed_files.append("apt-dependencies.txt")
 
 print("Copying the following files:")

@@ -10,7 +10,7 @@ import random
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
 
-valid_occ_types: list = ["geometric", "euclid", "signed_harmonic"]
+valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
 try:
     from rich.console import Console
@@ -379,6 +379,8 @@ class ConfigLoader:
     max_nr_of_zero_results: int
     mem_gb: int
     continue_previous_job: Optional[str]
+    minkowski_p: float
+    signed_weighted_euclidean_weights: str
 
     @typechecked
     def __init__(self) -> None:
@@ -448,6 +450,8 @@ class ConfigLoader:
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
+        optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
+        optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -2189,6 +2193,38 @@ def calculate_signed_geometric_distance(_args: list[float]) -> float:
     geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
+def calculate_signed_minkowski_distance(_args: list[float], p: float = 2) -> float:
+    if p <= 0:
+        raise ValueError("p must be greater than 0.")
+
+    sign: int = -1 if any(a < 0 for a in _args) else 1
+    minkowski_sum: float = sum(abs(a) ** p for a in _args) ** (1 / p)
+    return sign * minkowski_sum
+
+def calculate_signed_weighted_euclidean_distance(_args: list[float], weights_string: str) -> float:
+    pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
+
+    if not re.fullmatch(pattern, weights_string):
+        print_red(f"String '{weights_string}' does not match pattern {pattern}")
+        my_exit(32)
+
+    weights = [float(w.strip()) for w in weights_string.split(",") if w.strip()]
+
+    if len(weights) > len(_args):
+        print_yellow(f"Warning: Trimming {len(weights) - len(_args)} extra weight(s): {weights[len(_args):]}")
+        weights = weights[:len(_args)]
+
+    if len(weights) < len(_args):
+        print_yellow("Warning: Not enough weights, filling with 1s")
+        weights.extend([1] * (len(_args) - len(weights)))
+
+    if len(_args) != len(weights):
+        raise ValueError("Length of _args and weights must match.")
+
+    weighted_sum: float = sum(w * (a ** 2) for a, w in zip(_args, weights))
+    sign: int = -1 if any(a < 0 for a in _args) else 1
+    return sign * (weighted_sum ** 0.5)
+
 class invalidOccType(Exception):
     pass
 
@@ -2203,6 +2239,10 @@ def calculate_occ(_args: Optional[list[float]]) -> float:
         return calculate_signed_geometric_distance(_args)
     if args.occ_type == "signed_harmonic": # pragma: no cover
         return calculate_signed_harmonic_distance(_args)
+    if args.occ_type == "minkowski":  # Include Minkowski distance
+        return calculate_signed_minkowski_distance(_args, args.minkowski_p)
+    if args.occ_type == "weighted_euclidean":  # Include Weighted Euclidean distance
+        return calculate_signed_weighted_euclidean_distance(_args, args.signed_weighted_euclidean_weights)
 
     raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}") # pragma: no cover
 
@@ -6419,6 +6459,29 @@ Exit-Code: 159
     nr_errors += is_equal("calculate_signed_geometric_distance([0.1])", calculate_signed_geometric_distance([0.1]), 0.1)
     nr_errors += is_equal("calculate_signed_geometric_distance([-0.1])", calculate_signed_geometric_distance([-0.1]), -0.1)
     nr_errors += is_equal("calculate_signed_geometric_distance([0.1, 0.1])", calculate_signed_geometric_distance([0.1, 0.2]), 0.14142135623730953)
+
+    nr_errors += is_equal("calculate_signed_minkowski_distance([0.1], 3)", calculate_signed_minkowski_distance([0.1], p=3), 0.10000000000000002)
+    nr_errors += is_equal("calculate_signed_minkowski_distance([-0.1], 3)", calculate_signed_minkowski_distance([-0.1], p=3), -0.10000000000000002)
+    nr_errors += is_equal(
+        "calculate_signed_minkowski_distance([0.1, 0.2], 3)", calculate_signed_minkowski_distance([0.1, 0.2], p=3), 0.20800838230519045
+    )
+
+    # Signed Weighted Euclidean Distance
+    nr_errors += is_equal(
+        "calculate_signed_weighted_euclidean_distance([0.1], '1.0')",
+        calculate_signed_weighted_euclidean_distance([0.1], "1.0"),
+        0.1
+    )
+    nr_errors += is_equal(
+        "calculate_signed_weighted_euclidean_distance([-0.1], '1.0')",
+        calculate_signed_weighted_euclidean_distance([-0.1], "1.0"),
+        -0.1
+    )
+    nr_errors += is_equal(
+        "calculate_signed_weighted_euclidean_distance([0.1, 0.2], '0.5,2.0')",
+        calculate_signed_weighted_euclidean_distance([0.1, 0.2], "0.5,2.0"),
+        0.29154759474226505
+    )
 
     my_exit(nr_errors)
 

@@ -235,6 +235,7 @@ changefunctionevent
 changeMonth
 changeYear
 charsToShow
+chebyshev
 checkbox
 checkboxes
 checkboxradio
@@ -1108,6 +1109,7 @@ min
 minContentHeight
 minDate
 minHeight
+minkowski
 minMaxNorm
 minNorm
 minSize

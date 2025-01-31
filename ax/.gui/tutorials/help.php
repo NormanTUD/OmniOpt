@@ -64,6 +64,16 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--minkowski_p</samp></td>
+				<td>Minkowski order of distance (default: 2), needs to be larger than 0</td>
+				<td><samp>2</samp></td>
+			</tr>
+			<tr>
+				<td><samp>--signed_weighted_euclidean_weights</samp></td>
+				<td>A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.'</td>
+				<td><samp>1</samp> for every parameter</td>
+			</tr>
+			<tr>
 				<td><samp>--result_names</samp></td>
 				<td>Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.</td>
 				<td><samp>result=<min, max></samp></td>

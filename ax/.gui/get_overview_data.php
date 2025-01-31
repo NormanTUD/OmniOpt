@@ -80,7 +80,7 @@
 		exit(1);
 	}
 
-	if(file_exists("run_folder/results.csv")) {
+	if(file_exists("$run_folder/results.csv")) {
 		print(getCsvStatusSummary("$run_folder/results.csv"));
 	} else {
 		$statuses = [

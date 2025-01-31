@@ -318,8 +318,8 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
     if line in {"min", "max"}:
         return line
 
-    print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}")
-    return _default_min_max
+    print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}") # pragma: no cover
+    return _default_min_max # pragma: no cover
 
 class ConfigLoader:
     run_tests_that_fail_on_taurus: bool
@@ -632,7 +632,7 @@ if args.continue_previous_job is not None:
 
     found_result_min_max = []
     default_min_max = "min"
-    if args.maximize:
+    if args.maximize: # pragma: no cover
         default_min_max = "max"
 
     for _n in range(0, len(found_result_names)):
@@ -2195,7 +2195,7 @@ def calculate_signed_minkowski_distance(_args: list[float], p: float = 2) -> flo
 def calculate_signed_weighted_euclidean_distance(_args: list[float], weights_string: str) -> float:
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
-    if not re.fullmatch(pattern, weights_string):
+    if not re.fullmatch(pattern, weights_string): # pragma: no cover
         print_red(f"String '{weights_string}' does not match pattern {pattern}")
         my_exit(32)
 
@@ -2209,7 +2209,7 @@ def calculate_signed_weighted_euclidean_distance(_args: list[float], weights_str
         print_yellow("Warning: Not enough weights, filling with 1s")
         weights.extend([1] * (len(_args) - len(weights)))
 
-    if len(_args) != len(weights):
+    if len(_args) != len(weights): # pragma: no cover
         raise ValueError("Length of _args and weights must match.")
 
     weighted_sum: float = sum(w * (a ** 2) for a, w in zip(_args, weights))
@@ -2230,9 +2230,9 @@ def calculate_occ(_args: Optional[list[float]]) -> float:
         return calculate_signed_geometric_distance(_args)
     if args.occ_type == "signed_harmonic": # pragma: no cover
         return calculate_signed_harmonic_distance(_args)
-    if args.occ_type == "minkowski":  # Include Minkowski distance
+    if args.occ_type == "minkowski":  # pragma: no cover
         return calculate_signed_minkowski_distance(_args, args.minkowski_p)
-    if args.occ_type == "weighted_euclidean":  # Include Weighted Euclidean distance
+    if args.occ_type == "weighted_euclidean":  # pragma: no cover
         return calculate_signed_weighted_euclidean_distance(_args, args.signed_weighted_euclidean_weights)
 
     raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}") # pragma: no cover
@@ -6451,11 +6451,14 @@ Exit-Code: 159
     nr_errors += is_equal("calculate_signed_geometric_distance([-0.1])", calculate_signed_geometric_distance([-0.1]), -0.1)
     nr_errors += is_equal("calculate_signed_geometric_distance([0.1, 0.1])", calculate_signed_geometric_distance([0.1, 0.2]), 0.14142135623730953)
 
-    nr_errors += is_equal("calculate_signed_minkowski_distance([0.1], 3)", calculate_signed_minkowski_distance([0.1], p=3), 0.10000000000000002)
-    nr_errors += is_equal("calculate_signed_minkowski_distance([-0.1], 3)", calculate_signed_minkowski_distance([-0.1], p=3), -0.10000000000000002)
-    nr_errors += is_equal(
-        "calculate_signed_minkowski_distance([0.1, 0.2], 3)", calculate_signed_minkowski_distance([0.1, 0.2], p=3), 0.20800838230519045
-    )
+    nr_errors += is_equal("calculate_signed_minkowski_distance([0.1], 3)", calculate_signed_minkowski_distance([0.1], 3), 0.10000000000000002)
+    nr_errors += is_equal("calculate_signed_minkowski_distance([-0.1], 3)", calculate_signed_minkowski_distance([-0.1], 3), -0.10000000000000002)
+    nr_errors += is_equal("calculate_signed_minkowski_distance([0.1, 0.2], 3)", calculate_signed_minkowski_distance([0.1, 0.2], 3), 0.20800838230519045)
+    try:
+        calculate_signed_minkowski_distance([0.1, 0.2], -1)
+        nr_errors = nr_errors + 1
+    except ValueError:
+        pass
 
     # Signed Weighted Euclidean Distance
     nr_errors += is_equal(
@@ -6472,6 +6475,16 @@ Exit-Code: 159
         "calculate_signed_weighted_euclidean_distance([0.1, 0.2], '0.5,2.0')",
         calculate_signed_weighted_euclidean_distance([0.1, 0.2], "0.5,2.0"),
         0.29154759474226505
+    )
+    nr_errors += is_equal(
+        "calculate_signed_weighted_euclidean_distance([0.1], '1')",
+        calculate_signed_weighted_euclidean_distance([0.1], "1"),
+        0.1
+    )
+    nr_errors += is_equal(
+        "calculate_signed_weighted_euclidean_distance([0.1], '1,1,1,1')",
+        calculate_signed_weighted_euclidean_distance([0.1], "1,1,1,1"),
+        0.1
     )
 
     my_exit(nr_errors)

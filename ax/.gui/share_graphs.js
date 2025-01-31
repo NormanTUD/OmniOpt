@@ -547,7 +547,11 @@ async function get_result_names_data () {
 		result_names = parsed_json.split(/\r?\n/);
 	}
 
-	return result_names;
+	let trimmedStrings = result_names.map(function(str) {
+		return str.trim();
+	});
+
+	return trimmedStrings;
 }
 
 function get_checkmark_if_contains_result(str, result_names) {

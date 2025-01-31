@@ -1252,7 +1252,7 @@ async function load_overview_data() {
 
 		// Create table headers
 		var headerRow = document.createElement("tr");
-		["Failed", "Succeeded", "Total"].forEach(function (heading) {
+		["Failed", "Running", "Succeeded", "Total"].forEach(function (heading) {
 			var th = document.createElement("th");
 			th.style.border = "1px solid black";
 			th.style.padding = "8px";
@@ -1264,7 +1264,7 @@ async function load_overview_data() {
 
 		// Create a data row
 		var dataRow = document.createElement("tr");
-		[res.failed, res.succeeded, res.total].forEach(function (value) {
+		[res.failed, res.running, res.succeeded, res.total].forEach(function (value) {
 			var td = document.createElement("td");
 			td.style.border = "1px solid black";
 			td.style.padding = "8px";

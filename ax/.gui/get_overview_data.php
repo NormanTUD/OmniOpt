@@ -1,4 +1,38 @@
 <?php
+	function getCsvStatusSummary($filePath) {
+		if (!file_exists($filePath) || !is_readable($filePath)) {
+			return json_encode(["error" => "File not found or not readable"], JSON_PRETTY_PRINT);
+		}
+
+		$statuses = [
+			"failed" => 0,
+			"succeeded" => 0,
+			"running" => 0,
+			"total" => 0
+		];
+
+		if (($handle = fopen($filePath, "r")) !== false) {
+			$header = fgetcsv($handle); // Erste Zeile überspringen (Header)
+			while (($data = fgetcsv($handle)) !== false) {
+				if (count($data) < 3) continue; // Sicherstellen, dass es genug Spalten gibt
+
+				$statuses["total"]++;
+				$status = strtolower(trim($data[2]));
+
+				if ($status === "completed") {
+					$statuses["succeeded"]++;
+				} elseif ($status === "failed") {
+					$statuses["failed"]++;
+				} elseif ($status === "running") {
+					$statuses["running"]++;
+				}
+			}
+			fclose($handle);
+		}
+
+		return json_encode($statuses, JSON_PRETTY_PRINT);
+	}
+
 	error_reporting(E_ALL);
 	set_error_handler(
 		function ($severity, $message, $file, $line) {
@@ -46,30 +80,16 @@
 		exit(1);
 	}
 
-	$run_files = glob("$run_folder/*");
+	if(file_exists("run_folder/results.csv")) {
+		print(getCsvStatusSummary("$run_folder/results.csv"));
+	} else {
+		$statuses = [
+			"failed" => 0,
+			"succeeded" => 0,
+			"running" => 0,
+			"total" => 0
+		];
 
-	$out_or_err_files = [];
-
-	foreach ($run_files as $file) {
-		if (!preg_match("/\/\.\.\/?/", $file) && preg_match("/\/\d*_\d*_log\.(err|out)$/", $file)) {
-			$out_or_err_files[] = $file;
-		}
+		print(json_encode($statuses, JSON_PRETTY_PRINT));
 	}
-
-	$stat = array(
-		"failed" => 0,
-		"succeeded" => 0,
-		"total" => 0
-	);
-
-	foreach ($out_or_err_files as $file) {
-		if(checkForResult(file_get_contents($file)) != false) {
-			$stat["succeeded"]++;
-		} else {
-			$stat["failed"]++;
-		}
-
-		$stat["total"]++;
-	}
-
-	print json_encode($stat);
+?>

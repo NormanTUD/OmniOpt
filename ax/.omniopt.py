@@ -2,6 +2,9 @@
 
 import sys
 import os
+import re
+import math
+import time
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -27,35 +30,9 @@ try:
     )
 
     with console.status("[bold green]Loading base modules...") as status:
-        import json
-        from types import FunctionType
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
-        from submitit import LocalExecutor, AutoExecutor
-        from submitit import Job
-        import threading
-        from concurrent.futures import ThreadPoolExecutor
-        import argparse
-        import datetime
-        import importlib.util
-        import inspect
-        import platform
-        import random
-        from inspect import currentframe, getframeinfo
-        from pathlib import Path
-        import uuid
-        import yaml
-        import re
-        import toml
-        import time
-        import traceback
-        import cowsay
-        import rich
-        from rich_argparse import RichHelpFormatter
-        import psutil
-        import shutil
-        import math
-        from itertools import combinations
-        import signal
+        import logging
+        logging.basicConfig(level=logging.CRITICAL)
+
         import warnings
 
         warnings.filterwarnings(
@@ -64,23 +41,64 @@ try:
             module="ax.modelbridge.best_model_selector"
         )
 
-        import pandas as pd
-        from os import listdir
-        from os.path import isfile, join
+        import argparse
+        import datetime
+
         import socket
         import stat
         import pwd
         import base64
+        import signal
+
         from pprint import pformat
-        import sixel
-        from PIL import Image
+
+        import json
+        import yaml
+        import toml
+        import csv
+
+        import rich
+        from rich_argparse import RichHelpFormatter
         from rich.table import Table
         from rich import print
-        import csv
         from rich.pretty import pprint
+
+        from types import FunctionType
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
+
+        from submitit import LocalExecutor, AutoExecutor
+        from submitit import Job
+
+        import threading
+        from concurrent.futures import ThreadPoolExecutor
+
+        import importlib.util
+        import inspect
+        import platform
+        import random
+
+        from inspect import currentframe, getframeinfo
+        from pathlib import Path
+        import uuid
+
+        import traceback
+        import cowsay
+
+        import psutil
+        import shutil
+
+        from itertools import combinations
+
+        import pandas as pd
+
+        from os import listdir
+        from os.path import isfile, join
+
+        from PIL import Image
+        import sixel
+
         import subprocess
-        import logging
-        logging.basicConfig(level=logging.CRITICAL)
+
         from tqdm import tqdm
 
         from typing import Callable, TypeVar

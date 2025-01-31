@@ -470,6 +470,7 @@ export DONT_INSTALL_MODULES=1
 
 #_test "php linter" ".tests/phpcs" 0 255
 _test "Find missing metadata in plots" ".tests/missing_plot_metadata" 0
+_test "Find double defined js functions" ".tests/find_double_function_names" 0
 _test "Plot Documentation" ".tests/plot_documentation_has_all_plot_types" 0
 _test "php_search" ".tests/php_search" 0 255
 _test "php_search" ".tests/php_search" 0 255

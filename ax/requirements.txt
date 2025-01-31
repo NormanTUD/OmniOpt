@@ -21,7 +21,6 @@ pyflakes
 cowsay
 beautifulsoup4
 emoji
-slimit
 hiplot
 html5lib
 lxml

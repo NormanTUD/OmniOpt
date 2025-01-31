@@ -20,7 +20,7 @@
 			18 => "test_wronggoing_stuff program not found (only --tests)",
 			19 => "Something was wrong with your parameters. See output for details",
 			20 => "Something went wrong installing the required modules",
-			21 => "requirements.txt not found",
+			21 => "requirements.txt or test_requirements.txt not found",
 			22 => "Python header-files not found",
 			23 => "Loading of Environment failed",
 			31 => "Basic modules could not be loaded or you cancelled loading them",

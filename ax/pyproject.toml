@@ -14,4 +14,4 @@ dynamic = ["dependencies"]
 py-modules = []
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = {file = ["requirements.txt", "test_requirements.txt"]}

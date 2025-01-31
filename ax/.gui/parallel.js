@@ -44,7 +44,7 @@ async function preprocessData(_results_csv_json, resnames) {
 		let result_idx = header_line.indexOf(resname);
 
 		if(result_idx == -1) {
-			error("Could not find '{resname}' column")
+			error(`Could not find '${resname}' column`)
 		}
 
 		let resultValue = extractResultValues(data, result_idx);

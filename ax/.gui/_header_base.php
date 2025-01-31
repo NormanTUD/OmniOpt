@@ -100,7 +100,14 @@
 
 			document.addEventListener('keydown', handleKeyDown);
 		</script>
-		<script id="MathJax-script" async src="tex-mml-chtml.js"></script>
+<?php
+		if(preg_match("/tutorials.php/", $_SERVER["PHP_SELF"])) {
+?>
+			<script id="MathJax-script" async src="tex-mml-chtml.js"></script>
+
+<?php
+		}
+?>
 	</head>
 	<body>
 		<div id="scads_bar">

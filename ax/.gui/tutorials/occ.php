@@ -43,7 +43,7 @@ $$
 	-1 & \text{if } \exists x \in \_\text{args} \text{ such that } x < 0, \\
 	1 & \text{otherwise}.
 \end{cases}
-$$.
+$$
 
 <h3 id="signed_euclidean_distance">Signed Euclidean Distance</h3>
 

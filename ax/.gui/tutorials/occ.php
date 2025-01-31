@@ -35,7 +35,7 @@ normalize large numbers to a certain scale, so that for example all the result v
 technically not needed, but large values may skew the results.</p>
 
 <h2 id="occ_types">Different types of OCC</h2>
-The \( \text{sign} \)-variable-detection method is the same for all signed functions:
+The \( \text{sign} \)-variable-detection method is the same for all signed functions, while \( \_\text{args} \) being the set of all given parameters:
 
 $$
 \text{sign} = 

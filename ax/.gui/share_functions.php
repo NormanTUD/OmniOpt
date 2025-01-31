@@ -346,20 +346,6 @@
 		echo "\n<script>createBreadcrumb('./$folder');</script>\n";
 	}
 
-	function checkForResult($content) {
-		// Regulärer Ausdruck, der nach "RESULT: " gefolgt von einer Zahl sucht (int, negativ, float)
-		$pattern = '/RESULT:\s*(-?\d+(\.\d+)?)/';
-
-		// Überprüfe, ob der String mit dem Muster übereinstimmt
-		if (preg_match($pattern, $content, $matches)) {
-			// Wenn ein Treffer gefunden wurde, gibt $matches[1] die Zahl zurück
-			return $matches[1];
-		} else {
-			// Kein Treffer gefunden
-			return false;
-		}
-	}
-
 	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name, $run_nr="") {
 		$probe_dir = "$sharesPath/$user_id/$experiment_name/$run_nr";
 

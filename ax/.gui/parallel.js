@@ -1,11 +1,15 @@
 async function plot_parallel_plot() {
+	var resnames = await get_result_names_data();
+
 	// Fetch and validate data
 	showSpinnerOverlay("Plotting parallel-plot");
 	let _results_csv_json = await fetchData("job_infos.csv");
-	if (!_results_csv_json) return;
+	if (!_results_csv_json) {
+		return;
+	}
 
 	// Preprocess data
-	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json);
+	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json, resnames);
 
 	// Generate the plot
 	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
@@ -22,23 +26,38 @@ async function fetchData(filename) {
 	return jsonData;
 }
 
-async function preprocessData(_results_csv_json) {
-	//var result_names = await get_result_names_data();
-
+async function preprocessData(_results_csv_json, resnames) {
 	let data = _results_csv_json.data.map(Object.values);
 	convertToIntAndFilter(data);
-	//replaceZeroWithNull(data);
 
 	let header_line = data.shift();
 	let mappingKeyNameToIndex = createMapping(header_line);
 	let paramKeys = extractParameterKeys(header_line);
-	let result_idx = header_line.indexOf("result");
-	let resultValues = extractResultValues(data, result_idx);
 
-	let minResult = Math.min(...resultValues);
-	let maxResult = Math.max(...resultValues);
+	let minResults = {};
+	let maxResults = {};
+	let resultValues = {};
 
-	return { header_line, data, mappingKeyNameToIndex, paramKeys, resultValues, minResult, maxResult };
+	for (var i = 0; i < resnames.length; i++) {
+		var resname = resnames[i];
+
+		let result_idx = header_line.indexOf(resname);
+
+		if(result_idx == -1) {
+			error("Could not find '{resname}' column")
+		}
+
+		let resultValue = extractResultValues(data, result_idx);
+
+		let minResult = Math.min(...resultValue);
+		let maxResult = Math.max(...resultValue);
+
+		minResults[resname] = minResult;
+		maxResults[resname] = maxResult;
+		resultValues[resname] = resultValue;
+	}
+
+	return { header_line, data, mappingKeyNameToIndex, paramKeys, resultValues, minResults, maxResults };
 }
 
 function createMapping(header_line) {
@@ -87,7 +106,12 @@ function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues
 			: createStringDimension(key, values, stringMapping);
 	});
 
-	dimensions.push(createResultDimension(resultValues, minResult, maxResult));
+	var resnames = Object.keys(resultValues);
+
+	for (var i = 0; i < resnames; i++) {
+		var resname = resnames[i];
+		dimensions.push(createResultDimension(resultValues[resname], minResult[resname], maxResult[resname]));
+	}
 	return dimensions;
 }
 function createNumericDimension(key, values) {

@@ -100,6 +100,7 @@
 
 			document.addEventListener('keydown', handleKeyDown);
 		</script>
+		<script id="MathJax-script" async src="tex-mml-chtml.js"></script>
 	</head>
 	<body>
 		<div id="scads_bar">

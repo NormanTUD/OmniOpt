@@ -99,11 +99,14 @@ function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues
 	let dimensions = header_line.map(key => {
 		let idx = mappingKeyNameToIndex[key];
 		let values = cleanValues(data.map(row => row[idx]));
-		let stringMapping = mapStrings(values);
 
-		return (isNumericArray(values))
-			? createNumericDimension(key, values)
-			: createStringDimension(key, values, stringMapping);
+		if(isNumericArray(values)) {
+			return createNumericDimension(key, values);
+		} else {
+			let stringMapping = mapStringsParallel(values);
+
+			return createStringDimension(key, values, stringMapping);
+		}
 	});
 
 	var resnames = Object.keys(resultValues);
@@ -112,6 +115,7 @@ function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues
 		var resname = resnames[i];
 		dimensions.push(createResultDimension(resultValues[resname], minResult[resname], maxResult[resname]));
 	}
+
 	return dimensions;
 }
 function createNumericDimension(key, values) {
@@ -132,13 +136,15 @@ function createStringDimension(key, values, stringMapping) {
 	let valueIndices = values.map(value => stringMapping[cleanValue(value)]);
 	let uniqueValues = Object.keys(stringMapping).sort();
 
-	return {
+	var res = {
 		range: [0, uniqueValues.length - 1],
 		label: key,
 		values: valueIndices,
-		tickvals: Object.values(stringMapping), // Show all unique values
-		ticktext: uniqueValues // Ensure all string values are displayed
+		tickvals: Object.values(stringMapping),
+		ticktext: uniqueValues
 	};
+
+	return res;
 }
 
 function createResultDimension(resultValues, minResult, maxResult) {
@@ -204,7 +210,7 @@ function isNumericArray(values) {
 	return values.every(value => !isNaN(parseFloat(value)));
 }
 
-function mapStrings(values) {
+function mapStringsParallel(values) {
 	let uniqueStrings = [...new Set(values.map(cleanValue))].sort();
 	return uniqueStrings.reduce((acc, str, idx) => {
 		acc[str] = idx;

@@ -5,6 +5,7 @@ import os
 import re
 import math
 import time
+import random
 
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -47,8 +48,8 @@ try:
         import socket
         import stat
         import pwd
-        import base64
         import signal
+        import base64
 
         from pprint import pformat
 
@@ -64,7 +65,7 @@ try:
         from rich.pretty import pprint
 
         from types import FunctionType
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, Callable, TypeVar
 
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
@@ -75,10 +76,10 @@ try:
         import importlib.util
         import inspect
         import platform
-        import random
 
         from inspect import currentframe, getframeinfo
         from pathlib import Path
+
         import uuid
 
         import traceback
@@ -100,8 +101,6 @@ try:
         import subprocess
 
         from tqdm import tqdm
-
-        from typing import Callable, TypeVar
 
         F = TypeVar("F", bound=Callable[..., object])
 

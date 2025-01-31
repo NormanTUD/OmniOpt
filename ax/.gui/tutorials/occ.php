@@ -113,5 +113,5 @@ Explanation:
 
 $$ \text{distance} = \text{sign} \cdot \sqrt{\sum_{i=1}^{n} w_i \cdot a_i^2} $$ 
 
-where $$ w_i $$ is the weight assigned to each value, which can be specified by using <samp>--signed_weighted_euclidean_weights</samp>.
+where \( w_i \) is the weight assigned to each value, which can be specified by using <samp>--signed_weighted_euclidean_weights</samp>.
 

@@ -43,8 +43,6 @@ The \( \text{sign} \)-variable-detection method is the same for all signed funct
 \end{cases}
 \).
 
-<h3 id="signed_euclidean_distance">Signed Euclidean Distance (\( \text{distance} = \text{sign} \cdot \sqrt{\sum_{i=1}^{n} a_i^2} \))</h3>
-
 Computes the Euclidean distance, which is the square root of the sum of squared values.
 
 <h3 id="signed_geometric_distance">Signed Geometric Distance (\( \text{distance} = \text{sign} \cdot \left( \prod_{i=1}^{n} |a_i| \right)^{\frac{1}{n}} \))</h3>
@@ -52,8 +50,8 @@ Computes the Euclidean distance, which is the square root of the sum of squared 
 Explanation:
 
 <ul>
-        <li>Computes the geometric mean instead of a sum-based distance.</li>
-        <li>The geometric mean is the th root of the product of the absolute values.</li>
+	<li>Computes the geometric mean instead of a sum-based distance.</li>
+	<li>The geometric mean is the th root of the product of the absolute values.</li>
 </ul>
 
 <h3 id="signed_harmonic">Signed Harmonic Distance (\( \text{distance} = \text{sign} \cdot \frac{n}{\sum_{i=1}^{n} \frac{1}{|a_i|}} \))</h3>
@@ -61,8 +59,8 @@ Explanation:
 Explanation:
 
 <ul>
-        <li>Computes the harmonic mean instead of an arithmetic or geometric mean.</li>
-        <li>The harmonic mean is the inverse of the average of reciprocals.</li>
+	<li>Computes the harmonic mean instead of an arithmetic or geometric mean.</li>
+	<li>The harmonic mean is the inverse of the average of reciprocals.</li>
 </ul>
 
 <h3 id="signed_minkowski_distance">Signed Minkowski Distance (\( \text{distance} = \text{sign} \cdot \left( \sum_{i=1}^{n} |a_i|^p \right)^{\frac{1}{p}} \))</h3>

@@ -40,7 +40,7 @@ The \( \text{sign} \)-variable-detection method is the same for all signed funct
 $$
 \text{sign} = 
 \begin{cases} 
-	-1 & \text{if } \exists x \in \_\text{args} \text{ such that } x < 0, \\
+	-1 & \text{if any negative value } \exists x \in \_\text{args} \text{ such that } x < 0, \\
 	1 & \text{otherwise}.
 \end{cases}
 $$

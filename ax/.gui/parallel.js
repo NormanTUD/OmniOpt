@@ -41,7 +41,7 @@ async function preprocessData(_results_csv_json, resnames) {
 	for (var i = 0; i < resnames.length; i++) {
 		var resname = resnames[i];
 
-		let result_idx = header_line.indexOf(resname);
+		let result_idx = header_line.toLowerCase().indexOf(resname.toLowerCase());
 
 		if(result_idx == -1) {
 			error(`Could not find '${resname}' column`)

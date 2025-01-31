@@ -41,7 +41,7 @@ The \( \text{sign} \)-variable-detection method is the same for all signed funct
         -1 & \text{if } \exists x \in \_\text{args} \text{ such that } x < 0, \\
         1 & \text{otherwise}.
 \end{cases}
-\)
+\).
 
 <h3 id="signed_euclidean_distance">Signed Euclidean Distance (\( \text{distance} = \text{sign} \cdot \sqrt{\sum_{i=1}^{n} a_i^2} \))</h3>
 

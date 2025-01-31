@@ -35,7 +35,9 @@ normalize large numbers to a certain scale, so that for example all the result v
 technically not needed, but large values may skew the results.</p>
 
 <h2 id="occ_types">Different types of OCC</h2>
-The $$ \text{sign} $$-variable-detection method is the same for all signed functions: $$
+The \( \text{sign} \)-variable-detection method is the same for all signed functions:
+
+$$
 \text{sign} = 
 \begin{cases} 
 	-1 & \text{if } \exists x \in \_\text{args} \text{ such that } x < 0, \\
@@ -47,18 +49,17 @@ $$.
 
 $$ \text{distance} = \text{sign} \cdot \sqrt{\sum_{i=1}^{n} a_i^2} $$
 
-Where: $$ \text{sign} = -1$$ if any value in _args is negative, otherwise $$ \text{sign} = 1 $$.
-
 Explanation:
 
 <ul>
 	<li>Computes the Euclidean distance, which is the square root of the sum of squared values.</li>
 	<li>Maintains the sign:</li>
-	<li>If any value in _args is negative, the result is negative.</li>
 	<li>Otherwise, it remains positive.</li>
 </ul>
 
 <h3 id="signed_geometric_distance">Signed Geometric Distance</h3>
+
+$$ \text{distance} = \text{sign} \cdot \left( \prod_{i=1}^{n} |a_i| \right)^{\frac{1}{n}} $$
 
 Explanation:
 
@@ -72,10 +73,10 @@ Explanation:
 	</ul>
 </ul>
 
-$$ \text{distance} = \text{sign} \cdot \left( \prod_{i=1}^{n} |a_i| \right)^{\frac{1}{n}} $$
-
 
 <h3 id="signed_harmonic">Signed Harmonic Distance</h3>
+
+$$ \text{distance} = \text{sign} \cdot \frac{n}{\sum_{i=1}^{n} \frac{1}{|a_i|}} $$
 
 Explanation:
 
@@ -87,9 +88,9 @@ Explanation:
 	<li>Otherwise, it’s positive.</li>
 </ul>
 
-$$ \text{distance} = \text{sign} \cdot \frac{n}{\sum_{i=1}^{n} \frac{1}{|a_i|}} $$
-
 <h3 id="signed_minkowski_distance">Signed Minkowski Distance</h3>
+
+$$ \text{distance} = \text{sign} \cdot \left( \sum_{i=1}^{n} |a_i|^p \right)^{\frac{1}{p}} $$
 
 Explanation:
 
@@ -100,9 +101,11 @@ Explanation:
 	<li>When p > 2, it gives more weight to larger differences.</li>
 </ul>
 
-$$ \text{distance} = \text{sign} \cdot \left( \sum_{i=1}^{n} |a_i|^p \right)^{\frac{1}{p}} $$
-
 <h3 id="signed_weighted_euclidean_distance">Signed Weighted Euclidean Distance</h3>
+
+$$ \text{distance} = \text{sign} \cdot \sqrt{\sum_{i=1}^{n} w_i \cdot a_i^2} $$ 
+
+where \( w_i \) is the weight assigned to each value, which can be specified by using <samp>--signed_weighted_euclidean_weights</samp>.
 
 Explanation:
 
@@ -110,8 +113,3 @@ Explanation:
 	<li>Similar to Euclidean distance but weights each dimension differently.</li>
 	<li>Gives more importance to certain hyperparameters.</li>
 </ul>
-
-$$ \text{distance} = \text{sign} \cdot \sqrt{\sum_{i=1}^{n} w_i \cdot a_i^2} $$ 
-
-where \( w_i \) is the weight assigned to each value, which can be specified by using <samp>--signed_weighted_euclidean_weights</samp>.
-

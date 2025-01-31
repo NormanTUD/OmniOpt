@@ -175,7 +175,7 @@ dier: FunctionType = helpers.dier
 is_equal: FunctionType = helpers.is_equal
 is_not_equal: FunctionType = helpers.is_not_equal
 
-SUPPORTED_MODELS: list = ["SOBOL", "GPEI", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR","UNIFORM", "BO_MIXED"]
+SUPPORTED_MODELS: list = ["SOBOL", "GPEI", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
 ORCHESTRATE_TODO: dict = {}
 

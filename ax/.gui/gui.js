@@ -1084,15 +1084,6 @@ function update_url() {
 	}
 }
 
-function copy_to_clipboard(text) {
-	var dummy = document.createElement("textarea");
-	document.body.appendChild(dummy);
-	dummy.value = text;
-	dummy.select();
-	document.execCommand("copy");
-	document.body.removeChild(dummy);
-}
-
 function copy_bashcommand_to_clipboard_main () {
 	var serialized = $("#command_element").text();
 	copy_to_clipboard(serialized);

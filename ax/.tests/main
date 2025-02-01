@@ -344,7 +344,9 @@ function run_tests {
                 local end_time=$(date +%s)
                 local duration=$((end_time - start_time))
 
-                RUN_TIMES+=("$duration")
+		if [[ $duration -gt 10 ]]; then
+			RUN_TIMES+=("$duration")
+		fi
 
                 if ((${#RUN_TIMES[@]} > 1)); then
                         local sorted_times=($(printf "%s\n" "${RUN_TIMES[@]}" | sort -n))

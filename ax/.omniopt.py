@@ -6482,6 +6482,11 @@ Exit-Code: 159
         0.1
     )
     nr_errors += is_equal(
+        "calculate_signed_weighted_euclidean_distance([0.1], '')",
+        calculate_signed_weighted_euclidean_distance([0.1], ""),
+        0.1
+    )
+    nr_errors += is_equal(
         "calculate_signed_weighted_euclidean_distance([0.1], '1,1,1,1')",
         calculate_signed_weighted_euclidean_distance([0.1], "1,1,1,1"),
         0.1

@@ -211,6 +211,7 @@ if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visu
 fi
 
 send_anonymized_usage_stats=0
+already_shown_oo_base_url_msg=0
 
 function myexit {
 	CODE=$1
@@ -226,7 +227,10 @@ function myexit {
 
 		if [[ -e "$HOME/.oo_base_url" ]]; then
 			BASEURL=$(cat "$HOME/.oo_base_url")
-			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
+			if [[ $already_shown_oo_base_url_msg == 0 ]]; then
+				yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
+				already_shown_oo_base_url_msg=1
+			fi
 		fi
 
 		set +e
@@ -258,7 +262,10 @@ function send_status_report {
 
 		if [[ -e "$HOME/.oo_base_url" ]]; then
 			BASEURL=$(cat "$HOME/.oo_base_url")
-			yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
+			if [[ $already_shown_oo_base_url_msg == 0 ]]; then
+				yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
+				already_shown_oo_base_url_msg=1
+			fi
 		fi
 
 		if [[ -n $ITWORKSONMYMACHINE ]]; then
@@ -897,8 +904,10 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 
 					myexit $exit_code
 				else
-					yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
-					yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
+					if [[ -z $OO_MAIN_TESTS ]]; then
+						yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
+						yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
+					fi
 				fi
 			fi
 		else

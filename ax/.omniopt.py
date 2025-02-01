@@ -3892,7 +3892,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
                     # Ensure consistent types for comparison
-                    if matching_rows[param].dtype == np.int64 and isinstance(value, str):
+                    if matching_rows[param].dtype == np.int64 and isinstance(value, str): # pragma: no cover
                         value = int(value)
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str): # pragma: no cover
                         value = float(value)
@@ -6456,7 +6456,7 @@ Exit-Code: 159
     nr_errors += is_equal("calculate_signed_minkowski_distance([0.1, 0.2], 3)", calculate_signed_minkowski_distance([0.1, 0.2], 3), 0.20800838230519045)
     try:
         calculate_signed_minkowski_distance([0.1, 0.2], -1)
-        nr_errors = nr_errors + 1
+        nr_errors = nr_errors + 1 # pragma: no cover
     except ValueError:
         pass
 
@@ -6482,9 +6482,9 @@ Exit-Code: 159
         0.1
     )
     nr_errors += is_equal(
-        "calculate_signed_weighted_euclidean_distance([0.1], '')",
-        calculate_signed_weighted_euclidean_distance([0.1], ""),
-        0.1
+        "calculate_signed_weighted_euclidean_distance([0.1, 0.1], '1')",
+        calculate_signed_weighted_euclidean_distance([0.1, 0.1], "1"),
+        0.14142135623730953
     )
     nr_errors += is_equal(
         "calculate_signed_weighted_euclidean_distance([0.1], '1,1,1,1')",

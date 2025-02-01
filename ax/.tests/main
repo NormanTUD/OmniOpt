@@ -361,7 +361,9 @@ function run_tests {
                                 readable_time="${remaining}s"
                         fi
 
-                        _green_text_bold_underline "  -> Estimated time remaining: $readable_time"
+			if [[ $remaining -gt 0 ]]; then
+				_green_text_bold_underline "  -> Estimated time remaining: $readable_time"
+			fi
                 fi
         done
 }

@@ -325,17 +325,45 @@ function _test {
 	TEST_CASES+=("_test_internal \"$NAME\" \"$COMMAND\" \"$WANTED_EXIT_CODE\" \"$ALTERNATIVE_OK_EXIT_CODE\"")
 }
 
+declare -a RUN_TIMES=()
+
 function run_tests {
-	local total=${#TEST_CASES[@]}
-	local count=0
+        local total=${#TEST_CASES[@]}
+        local count=0
 
-	for test_case in "${TEST_CASES[@]}"; do
-		count=$((count + 1))
-		local percent=$((count * 100 / total))
+        for test_case in "${TEST_CASES[@]}"; do
+                count=$((count + 1))
+                local percent=$((count * 100 / total))
 
-		_green_text_bold_underline "[$count/$total] (${percent}%) Running: $test_case"
-		eval "$test_case"
-	done
+                local start_time=$(date +%s)
+
+                _green_text_bold_underline "[$count/$total] (${percent}%) Running: $test_case"
+
+                eval "$test_case"
+
+                local end_time=$(date +%s)
+                local duration=$((end_time - start_time))
+
+                RUN_TIMES+=("$duration")
+
+                if ((${#RUN_TIMES[@]} > 1)); then
+                        local sorted_times=($(printf "%s\n" "${RUN_TIMES[@]}" | sort -n))
+                        local mid_index=$((${#sorted_times[@]} / 2))
+                        local median=${sorted_times[$mid_index]}
+                        local remaining=$((median * (total - count)))
+
+                        local readable_time
+                        if ((remaining >= 3600)); then
+                                readable_time="$(($remaining / 3600))h $(($remaining % 3600 / 60))m"
+                        elif ((remaining >= 60)); then
+                                readable_time="$(($remaining / 60))m $(($remaining % 60))s"
+                        else
+                                readable_time="${remaining}s"
+                        fi
+
+                        _green_text_bold_underline "  -> Estimated time remaining: $readable_time"
+                fi
+        done
 }
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"

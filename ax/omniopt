@@ -228,8 +228,10 @@ function myexit {
 		if [[ -e "$HOME/.oo_base_url" ]]; then
 			BASEURL=$(cat "$HOME/.oo_base_url")
 			if [[ $already_shown_oo_base_url_msg == 0 ]]; then
-				yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
-				already_shown_oo_base_url_msg=1
+				if [[ -z $OO_MAIN_TESTS ]]; then
+					yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
+					already_shown_oo_base_url_msg=1
+				fi
 			fi
 		fi
 
@@ -263,8 +265,10 @@ function send_status_report {
 		if [[ -e "$HOME/.oo_base_url" ]]; then
 			BASEURL=$(cat "$HOME/.oo_base_url")
 			if [[ $already_shown_oo_base_url_msg == 0 ]]; then
-				yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
-				already_shown_oo_base_url_msg=1
+				if [[ -z $OO_MAIN_TESTS ]]; then
+					yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
+					already_shown_oo_base_url_msg=1
+				fi
 			fi
 		fi
 

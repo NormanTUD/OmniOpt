@@ -6454,6 +6454,7 @@ Exit-Code: 159
     nr_errors += is_equal("calculate_signed_minkowski_distance([0.1], 3)", calculate_signed_minkowski_distance([0.1], 3), 0.10000000000000002)
     nr_errors += is_equal("calculate_signed_minkowski_distance([-0.1], 3)", calculate_signed_minkowski_distance([-0.1], 3), -0.10000000000000002)
     nr_errors += is_equal("calculate_signed_minkowski_distance([0.1, 0.2], 3)", calculate_signed_minkowski_distance([0.1, 0.2], 3), 0.20800838230519045)
+
     try:
         calculate_signed_minkowski_distance([0.1, 0.2], -1)
         nr_errors = nr_errors + 1 # pragma: no cover

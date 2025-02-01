@@ -5800,7 +5800,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
         plt.savefig(tmp_file.name, dpi=300)
 
-        print_image_to_cli(tmp_file.name, 800)
+        print_image_to_cli(tmp_file.name, 1000)
 
     plt.close(fig)
 

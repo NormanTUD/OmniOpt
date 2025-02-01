@@ -850,7 +850,7 @@ already_inserted_param_data: list = []
 @typechecked
 def print_logo() -> None:
     print_debug("print_logo()")
-    if os.environ.get('NO_OO_LOGO') is not None:
+    if os.environ.get('NO_OO_LOGO') is not None: # pragma: no cover
         return
 
     sprueche = [

@@ -322,7 +322,7 @@ function _test {
 	WANTED_EXIT_CODE=$3
 	ALTERNATIVE_OK_EXIT_CODE=$4
 
-	TEST_CASES+=("_test_internal \"$NAME\" \"$COMMAND\" \"$WANTED_EXIT_CODE\" \"$ALTERNATIVE_OK_EXIT_CODE\"")
+	TEST_CASES+=("_test_internal \"$NAME\" \"$COMMAND\" $WANTED_EXIT_CODE $ALTERNATIVE_OK_EXIT_CODE")
 }
 
 declare -a RUN_TIMES=()

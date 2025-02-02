@@ -108,7 +108,7 @@ try:
 
         if os.getenv("OO_MAIN_TESTS") == "1":
             import importlib
-            typechecked = importlib.import_module("typeguard").typechecked
+            typechecked = importlib.import_module("beartype").beartype
         else: # pragma: no cover
             def typechecked(func: F) -> F:
                 return func
@@ -2154,7 +2154,7 @@ def ignore_signals() -> None:
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
 @typechecked
-def calculate_signed_harmonic_distance(_args: list[float]) -> float:
+def calculate_signed_harmonic_distance(_args: list[Union[int, float]]) -> Union[int, float]:
     if not _args or len(_args) == 0: # Handle empty input gracefully
         return 0
 
@@ -2227,7 +2227,7 @@ class invalidOccType(Exception):
     pass
 
 @typechecked
-def calculate_occ(_args: Optional[list[float]]) -> float:
+def calculate_occ(_args: Optional[list[Union[int, float]]]) -> Union[int, float]:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 

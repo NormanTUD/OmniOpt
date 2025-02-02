@@ -5746,8 +5746,8 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
     return experiment_parameters, cli_params_experiment_parameters
 
 @typechecked
-def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list) -> rich.table.Table:
-    table = Table(title="Pareto Frontier Results", show_lines=True)
+def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_j: str, metric_i: str) -> rich.table.Table:
+    table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
@@ -5863,7 +5863,9 @@ def show_pareto_frontier_data() -> None:
                 calculated_frontier.param_dicts,
                 calculated_frontier.means,
                 calculated_frontier.sems,
-                calculated_frontier.absolute_metrics
+                calculated_frontier.absolute_metrics,
+                metric_j,
+                metric_i
             )
 
             table_str = ""

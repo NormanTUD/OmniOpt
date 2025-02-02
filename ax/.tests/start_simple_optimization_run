@@ -80,11 +80,19 @@ fi
 
 export gridsearch=0
 debug=0
+
 max_eval=30
 num_parallel_jobs=20
+num_random_steps=$num_parallel_jobs
+
+if ! command -v sbatch 2>/dev/null >/dev/null; then
+	max_eval=2
+	num_parallel_jobs=1
+	num_random_steps=$num_parallel_jobs
+fi
+
 allow_failure=0
 force_local_execution=0
-num_random_steps=$num_parallel_jobs
 time=60
 model=BOTORCH_MODULAR
 mem_gb=4

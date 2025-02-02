@@ -936,7 +936,7 @@ def print_logo() -> None:
     else:
         fonts = ["slant", "big", "doom", "larry3d", "starwars", "colossal", "avatar", "pebbles", "script", "stop", "banner3", "nancyj", "poison"]
         f = Figlet(font=random.choice(fonts))
-        print(f.renderText('OmniOpt2'))
+        original_print(f.renderText('OmniOpt2'))
 
 process = psutil.Process(os.getpid())
 

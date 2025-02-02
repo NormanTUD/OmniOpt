@@ -912,15 +912,38 @@ print_table() {
 	printf "%s\n" "$end_line"
 }
 
+print_table_markdown() {
+	headers=("Failed" "Name" "TestRunTime" "ExitCode" "WantedExitCodes" "Success")
+
+	header_line="| "
+	separator_line="|"
+	for header in "${headers[@]}"; do
+		header_line+="$header | "
+		separator_line+="--- | "
+	done
+
+	printf "%s\n" "$header_line"
+	printf "%s\n" "$separator_line"
+
+	for entry in "${LOG_TIMES[@]}"; do
+		IFS=',' read -r -a fields <<< "$entry"
+		line="| "
+		for field in "${fields[@]}"; do
+			line+="$field | "
+		done
+		printf "%s\n" "$line"
+	done
+}
+
 print_table
+
+if [[ -n $GITHUB_STEP_SUMMARY ]]; then
+	print_table_markdown >> "$GITHUB_STEP_SUMMARY"
+fi
 
 if [[ $DEBUG -eq 1 ]]; then
 	set_debug
 fi
-
-#if [[ -n $GITHUB_STEP_SUMMARY ]]; then
-#	echo "{$(print_table)}" >> "$GITHUB_STEP_SUMMARY"
-#fi
 
 echo -e "\nTest took $(displaytime $SECONDS)"
 

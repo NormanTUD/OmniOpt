@@ -1588,19 +1588,19 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
 
         return {}
 
-    values: list[float] = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
+    values: list[float] = cast(list[float], np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist())
 
     if value_type == "int":
         values = [int(value) for value in values]
 
     values = sorted(set(values))
-    values = [str(helpers.to_int_when_possible(value)) for value in values]
+    values_str: list[str] = [str(helpers.to_int_when_possible(value)) for value in values]
 
     return {
         "name": name,
         "type": "choice",
         "is_ordered": True,
-        "values": values
+        "values": values_str
     }
 
 @typechecked

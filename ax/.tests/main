@@ -139,6 +139,13 @@ debug=0
 max_eval=30
 num_parallel_jobs=20
 num_random_steps=$num_parallel_jobs
+
+if ! command -v sbatch 2>/dev/null >/dev/null; then
+	max_eval=2
+	num_parallel_jobs=1
+	num_random_steps=$num_parallel_jobs
+fi
+
 superquick=0
 reallyquick=0
 quick=0
@@ -849,21 +856,21 @@ print_table() {
 	header_line=""
 	separator_line=""
 	for header in "${headers[@]}"; do
-		header_line+="│ ${header}$(printf '%*s' $((max_lengths[$header] - ${#header} + 1)))"
-		separator_line+="│$(for i in $(seq $((max_lengths[$header] + 1))); do printf '─'; done)─"
+		header_line+="| ${header}$(printf '%*s' $((max_lengths[$header] - ${#header} + 1)))"
+		separator_line+="|$(for i in $(seq $((max_lengths[$header] + 1))); do printf '─'; done)─"
 	done
 
-	header_line+="│"
+	header_line+="|"
 
-	border_line="┌${separator_line:1}┐"
-	separator_line="├${separator_line:1}┤"
+	border_line="/${separator_line:1}\\"
+	separator_line="+${separator_line:1}+"
 
 	separator_line_cut_last=$(echo "$separator_line" | sed -e 's#.$##')
-	end_line="└${separator_line_cut_last:1}┘"
-	end_line=$(echo "$end_line" | sed -e 's#│#┴#g')
+	end_line="└${separator_line_cut_last:1}+"
+	end_line=$(echo "$end_line" | sed -e 's#|#+#g')
 
-	border_line=$(echo "$border_line" | sed -e 's#│#┬#g')
-	separator_line=$(echo "$separator_line" | sed -e 's#│#┼#g')
+	border_line=$(echo "$border_line" | sed -e 's#|#+#g')
+	separator_line=$(echo "$separator_line" | sed -e 's#|#+#g')
 
 	# Print the table
 	printf "%s\n" "$border_line"
@@ -882,10 +889,10 @@ print_table() {
 				fi
 
 		# Append the field value to the line
-		line+="│ ${fields[$j]}$(printf '%*s' $((max_lengths[${headers[$j]}] + 1 - ${#fields[$j]})))"
+		line+="| ${fields[$j]}$(printf '%*s' $((max_lengths[${headers[$j]}] + 1 - ${#fields[$j]})))"
 	done
 
-	line+="│"
+	line+="|"
 	printf "%s\n\033[0m" "$line"  # Reset color
 		fi
 		i=$(($i+1))

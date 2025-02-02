@@ -572,6 +572,8 @@ _test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name te
 
 _test "mypy" ".tests/mypy" 0
 
+_test "pyright" "pyright ." 0
+
 TESTNAME="__main__tests__BOTORCH_MODULAR___nogridsearch"
 
 if [[ -d "runs/$TESTNAME" ]]; then

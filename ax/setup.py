@@ -55,6 +55,8 @@ if _error >= 1:
 # cause issues where files that were deleted from a more recent OmniOpt2 are
 # still present in site-packages. See #18115.
 overlay_warning = False
+existing_path = ""
+
 if "install" in sys.argv:
     lib_paths = [sysconfig.get_path('purelib')]
     if lib_paths[0].startswith("/usr/lib/"):

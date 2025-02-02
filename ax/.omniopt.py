@@ -83,7 +83,9 @@ try:
         import uuid
 
         import traceback
+
         import cowsay
+        from pyfiglet import Figlet
 
         import psutil
         import shutil
@@ -853,83 +855,88 @@ def print_logo() -> None:
     if os.environ.get('NO_OO_LOGO') is not None: # pragma: no cover
         return
 
-    sprueche = [
-        "Fine-tuning like a boss!",
-        "Finding the needle in the hyper haystack!",
-        "Hyperparameters? Nailed it!",
-        "Optimizing with style!",
-        "Dialing in the magic numbers.",
-        "Turning knobs since day one!",
-        "When in doubt, optimize!",
-        "Tuning like a maestro!",
-        "In search of the perfect fit.",
-        "Hyper-sanity check complete!",
-        "Taking parameters to the next level.",
-        "Cracking the code of perfect parameters!",
-        "Turning dials like a DJ!",
-        "In pursuit of the ultimate accuracy!",
-        "May the optimal values be with you.",
-        "Tuning up for success!",
-        "Animals are friends, not food!",
-        "Hyperparam magic, just add data!",
-        "Unlocking the secrets of the grid.",
-        "Tuning: because close enough isn't good enough.",
-        "When it clicks, it sticks!",
-        "Adjusting the dials, one click at a time.",
-        "Finding the sweet spot in the matrix.",
-        "Like a hyperparameter whisperer.",
-        "Cooking up some optimization!",
-        "Because defaults are for amateurs.",
-        "Maximizing the model mojo!",
-        "Hyperparameter alchemy in action!",
-        "Precision tuning, no shortcuts.",
-        "Climbing the hyperparameter mountain... Montana Sacra style!",
-        "better than OmniOpt1!",
-        "Optimizing like it's the Matrix, but I am the One.",
-        "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
-        "Inception-level optimization: going deeper with every layer.",
-        "Hyperparameter quest: It's dangerous to go alone, take this!",
-        "Tuning like a Jedi: Feel the force of the optimal values.",
-        "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
-        "Like Neo, dodging suboptimal hyperparameters in slow motion.",
-        "Hyperparameters: The Hitchcock thriller of machine learning.",
-        "Dialing in hyperparameters like a classic noir detective.",
-        "It’s a hyperparameter life – every tweak counts!",
-        "As timeless as Metropolis, but with better optimization.",
-        "Adjusting parameters with the precision of a laser-guided squirrel.",
-        "Tuning hyperparameters with the finesse of a cat trying not to knock over the vase.",
-        "Optimizing parameters with the flair of a magician pulling rabbits out of hats.",
-        "Optimizing like a koala climbing a tree—slowly but surely reaching the perfect spot.",
-        "Tuning so deep, even Lovecraft would be scared!",
-        "Dialing in parameters like Homer Simpson at an all-you-can-eat buffet - endless tweaks!",
-        "Optimizing like Schrödinger’s cat—until you look, it's both perfect and terrible.",
-        "Hyperparameter tuning: the art of making educated guesses look scientific!",
-        "Cranking the dials like a mad scientist - IT’S ALIIIIVE!",
-        "Tuning like a pirate - arr, where be the optimal values?",
-        "Hyperparameter tuning: the extreme sport of machine learning!"
-    ]
+    if random.choice([True, False]):
+        sprueche = [
+            "Fine-tuning like a boss!",
+            "Finding the needle in the hyper haystack!",
+            "Hyperparameters? Nailed it!",
+            "Optimizing with style!",
+            "Dialing in the magic numbers.",
+            "Turning knobs since day one!",
+            "When in doubt, optimize!",
+            "Tuning like a maestro!",
+            "In search of the perfect fit.",
+            "Hyper-sanity check complete!",
+            "Taking parameters to the next level.",
+            "Cracking the code of perfect parameters!",
+            "Turning dials like a DJ!",
+            "In pursuit of the ultimate accuracy!",
+            "May the optimal values be with you.",
+            "Tuning up for success!",
+            "Animals are friends, not food!",
+            "Hyperparam magic, just add data!",
+            "Unlocking the secrets of the grid.",
+            "Tuning: because close enough isn't good enough.",
+            "When it clicks, it sticks!",
+            "Adjusting the dials, one click at a time.",
+            "Finding the sweet spot in the matrix.",
+            "Like a hyperparameter whisperer.",
+            "Cooking up some optimization!",
+            "Because defaults are for amateurs.",
+            "Maximizing the model mojo!",
+            "Hyperparameter alchemy in action!",
+            "Precision tuning, no shortcuts.",
+            "Climbing the hyperparameter mountain... Montana Sacra style!",
+            "better than OmniOpt1!",
+            "Optimizing like it's the Matrix, but I am the One.",
+            "Channeling my inner Gandalf: ‘You shall not pass... without fine-tuning!’",
+            "Inception-level optimization: going deeper with every layer.",
+            "Hyperparameter quest: It's dangerous to go alone, take this!",
+            "Tuning like a Jedi: Feel the force of the optimal values.",
+            "Welcome to the Hyperparameter Games: May the odds be ever in your favor!",
+            "Like Neo, dodging suboptimal hyperparameters in slow motion.",
+            "Hyperparameters: The Hitchcock thriller of machine learning.",
+            "Dialing in hyperparameters like a classic noir detective.",
+            "It’s a hyperparameter life – every tweak counts!",
+            "As timeless as Metropolis, but with better optimization.",
+            "Adjusting parameters with the precision of a laser-guided squirrel.",
+            "Tuning hyperparameters with the finesse of a cat trying not to knock over the vase.",
+            "Optimizing parameters with the flair of a magician pulling rabbits out of hats.",
+            "Optimizing like a koala climbing a tree—slowly but surely reaching the perfect spot.",
+            "Tuning so deep, even Lovecraft would be scared!",
+            "Dialing in parameters like Homer Simpson at an all-you-can-eat buffet - endless tweaks!",
+            "Optimizing like Schrödinger’s cat—until you look, it's both perfect and terrible.",
+            "Hyperparameter tuning: the art of making educated guesses look scientific!",
+            "Cranking the dials like a mad scientist - IT’S ALIIIIVE!",
+            "Tuning like a pirate - arr, where be the optimal values?",
+            "Hyperparameter tuning: the extreme sport of machine learning!"
+        ]
 
-    spruch = random.choice(sprueche)
+        spruch = random.choice(sprueche)
 
-    _cn = [
-        'cow',
-        'daemon',
-        'dragon',
-        'fox',
-        'ghostbusters',
-        'kitty',
-        'milk',
-        'pig',
-        'stegosaurus',
-        'stimpy',
-        'trex',
-        'turtle',
-        'tux'
-    ]
+        _cn = [
+            'cow',
+            'daemon',
+            'dragon',
+            'fox',
+            'ghostbusters',
+            'kitty',
+            'milk',
+            'pig',
+            'stegosaurus',
+            'stimpy',
+            'trex',
+            'turtle',
+            'tux'
+        ]
 
-    char = random.choice(_cn)
+        char = random.choice(_cn)
 
-    cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
+        cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
+    else:
+        fonts = ["slant", "big", "doom", "larry3d", "starwars", "colossal", "avatar", "pebbles", "script", "stop", "banner3", "nancyj", "poison"]
+        f = Figlet(font=random.choice(fonts))
+        print(f.renderText('OmniOpt2'))
 
 process = psutil.Process(os.getpid())
 

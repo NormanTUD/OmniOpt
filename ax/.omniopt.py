@@ -2288,13 +2288,9 @@ def evaluate(parameters: dict) -> dict:
 
         start_time: float = int(time.time())
 
-        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
+        stdout, stderr, exit_code, _signal = execute_bash_code(program_string_with_params)
 
         end_time: float = int(time.time())
-
-        stdout = stdout_stderr_exit_code_signal[0]
-        exit_code = stdout_stderr_exit_code_signal[2]
-        _signal = stdout_stderr_exit_code_signal[3]
 
         run_time: float = end_time - start_time
 
@@ -6113,15 +6109,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
     )
 
     try:
-        stdout_stderr_exit_code_signal = execute_bash_code(program_string_with_params)
-
-        print("stdout_stderr_exit_code_signal:")
-        print(stdout_stderr_exit_code_signal)
-
-        stdout = stdout_stderr_exit_code_signal[0]
-        stderr = stdout_stderr_exit_code_signal[1]
-        exit_code = stdout_stderr_exit_code_signal[2]
-        _signal = stdout_stderr_exit_code_signal[3]
+        stdout, stderr, exit_code, _signal = execute_bash_code(program_string_with_params)
 
         res = get_results(stdout)
 

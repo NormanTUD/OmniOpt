@@ -328,46 +328,58 @@ function _test {
 declare -a RUN_TIMES=()
 
 function run_tests {
-        local total=${#TEST_CASES[@]}
-        local count=0
+	local total=${#TEST_CASES[@]}
+	local count=0
+	local sum_time=0
 
-        for test_case in "${TEST_CASES[@]}"; do
-                count=$((count + 1))
-                local percent=$((count * 100 / total))
+	for test_case in "${TEST_CASES[@]}"; do
+		count=$((count + 1))
+		local percent=$((count * 100 / total))
 
-                local start_time=$(date +%s)
+		local start_time=$(date +%s)
 
-                _green_text_bold_underline "[$count/$total] (${percent}%) Running: $test_case"
+		_green_text_bold_underline "[$count/$total] (${percent}%) Running: $test_case"
 
-                eval "$test_case"
+		eval "$test_case"
 
-                local end_time=$(date +%s)
-                local duration=$((end_time - start_time))
+		local end_time=$(date +%s)
+		local duration=$((end_time - start_time))
 
 		if [[ $duration -gt 10 ]]; then
 			RUN_TIMES+=("$duration")
+			sum_time=$((sum_time + duration))
 		fi
 
-                if ((${#RUN_TIMES[@]} > 1)); then
-                        local sorted_times=($(printf "%s\n" "${RUN_TIMES[@]}" | sort -n))
-                        local mid_index=$((${#sorted_times[@]} / 2))
-                        local median=${sorted_times[$mid_index]}
-                        local remaining=$((median * (total - count)))
+		if ((${#RUN_TIMES[@]} > 1)); then
+			local sorted_times=($(printf "%s\n" "${RUN_TIMES[@]}" | sort -n))
+			local mid_index=$((${#sorted_times[@]} / 2))
+			local median=${sorted_times[$mid_index]}
+			local average=$((sum_time / ${#RUN_TIMES[@]}))
 
-                        local readable_time
-                        if ((remaining >= 3600)); then
-                                readable_time="$(($remaining / 3600))h $(($remaining % 3600 / 60))m"
-                        elif ((remaining >= 60)); then
-                                readable_time="$(($remaining / 60))m $(($remaining % 60))s"
-                        else
-                                readable_time="${remaining}s"
-                        fi
+			local remaining_median=$((median * (total - count)))
+			local remaining_average=$((average * (total - count)))
 
-			if [[ $remaining -gt 0 ]]; then
-				_green_text_bold_underline "  -> Estimated time remaining: $readable_time"
+			local min_time=$((remaining_median < remaining_average ? remaining_median : remaining_average))
+			local max_time=$((remaining_median > remaining_average ? remaining_median : remaining_average))
+
+			local readable_min
+			local readable_max
+
+			for time in min_time max_time; do
+				if ((${!time} >= 3600)); then
+					eval readable_$time="\"$((${!time} / 3600))h $((${!time} % 3600 / 60))m\""
+				elif ((${!time} >= 60)); then
+					eval readable_$time="\"$((${!time} / 60))m $((${!time} % 60))s\""
+				else
+					eval readable_$time="\"${!time}s\""
+				fi
+			done
+
+			if [[ $max_time -gt 0 ]]; then
+				_green_text_bold_underline "  -> Estimated time remaining: ~$readable_min - ~$readable_max"
 			fi
-                fi
-        done
+		fi
+	done
 }
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"

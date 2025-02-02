@@ -125,7 +125,7 @@ jobs:
         ./ax/omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
 
   main-test:
-    needs: [Linter, todo-to-issue]
+    needs: [Linter, todo-to-issue, docker-test]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true

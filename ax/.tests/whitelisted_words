@@ -162,6 +162,7 @@ batchSize
 Bayesian
 bc
 BC
+beartype
 beforeActivate
 beforeClose
 beforeShow
@@ -1652,6 +1653,7 @@ Pyflakes
 pylint
 pyparsing
 pypi
+pyright
 pythonCode
 pytz
 pyyaml
@@ -2405,4 +2407,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-pyright

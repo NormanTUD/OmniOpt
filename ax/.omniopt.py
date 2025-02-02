@@ -2395,7 +2395,7 @@ def evaluate(parameters: dict) -> dict:
     return return_in_case_of_error # pragma: no cover
 
 class NpEncoder(json.JSONEncoder):
-    def default(self: Any, obj: Any) -> Union[int, float, list]: # pragma: no cover
+    def default(self: Any, obj: Any) -> Union[int, float, list, str]: # pragma: no cover
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
@@ -5808,7 +5808,7 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
     plt.close(fig)
 
 @typechecked
-def convert_to_serializable(obj: np.ndarray) -> list:
+def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
     if isinstance(obj, np.ndarray): # pragma: no cover
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable") # pragma: no cover

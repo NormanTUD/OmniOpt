@@ -1320,6 +1320,7 @@ mysqli
 MyType
 nameEQ
 NameError
+nancyj
 NativeMML
 nav
 navbarSelected
@@ -2022,6 +2023,7 @@ startColor
 startDate
 startPosition
 startValue
+starwars
 stat
 stateFINISHED
 stateful
@@ -2403,5 +2405,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-nancyj
-starwars

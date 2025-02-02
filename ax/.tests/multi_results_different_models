@@ -16,6 +16,7 @@ function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
 
+{
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
@@ -54,3 +55,4 @@ else
 	red_text "Some of the tests failed. Check the logs for more details"
 	exit 1
 fi
+}

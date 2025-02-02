@@ -5864,8 +5864,8 @@ def show_pareto_frontier_data() -> None:
                 calculated_frontier.means,
                 calculated_frontier.sems,
                 calculated_frontier.absolute_metrics,
-                metric_j,
-                metric_i
+                metric_j.name,
+                metric_i.name
             )
 
             table_str = ""

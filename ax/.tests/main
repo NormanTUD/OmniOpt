@@ -344,7 +344,11 @@ function run_tests {
 
                 local start_time=$(date +%s)
 
-                _green_text_bold_underline "[$count/$total] (${percent}%) Running: $test_case"
+		_running_string="[$count/$total] (${percent}%) Running: $test_case"
+
+		_running_string=$(echo "$_running_string" | sed -e 's#\s*$##')
+
+                _green_text_bold_underline $_running_string
 
                 eval "$test_case"
 
@@ -857,16 +861,16 @@ print_table() {
 	separator_line=""
 	for header in "${headers[@]}"; do
 		header_line+="| ${header}$(printf '%*s' $((max_lengths[$header] - ${#header} + 1)))"
-		separator_line+="|$(for i in $(seq $((max_lengths[$header] + 1))); do printf '─'; done)─"
+		separator_line+="|$(for i in $(seq $((max_lengths[$header] + 1))); do printf '-'; done)-"
 	done
 
 	header_line+="|"
 
-	border_line="/${separator_line:1}\\"
+	border_line="+${separator_line:1}+"
 	separator_line="+${separator_line:1}+"
 
 	separator_line_cut_last=$(echo "$separator_line" | sed -e 's#.$##')
-	end_line="└${separator_line_cut_last:1}+"
+	end_line="+${separator_line_cut_last:1}+"
 	end_line=$(echo "$end_line" | sed -e 's#|#+#g')
 
 	border_line=$(echo "$border_line" | sed -e 's#|#+#g')

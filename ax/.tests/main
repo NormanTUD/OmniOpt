@@ -125,6 +125,7 @@ function help () {
         echo "  --run_with_coverage                                Allows to use coverage instead of python3 for coverage testing unit test coverage"
         echo "  --quick                                            Only run quick tests"
         echo "  --reallyquick                                      Only run really quick tests"
+	echo "  --superquick                                       Only run super quick tests"
         echo "  --debug                                            Enables debug mode"
         echo "  --no_plots                                         Disables plot tests"
         exit $1
@@ -595,11 +596,9 @@ _test "Find wrong order definitions" ".tests/find_wrong_order_definitions" 0
 
 #_test "find_functions_with_missing_types" ".tests/find_functions_with_missing_types" 0
 
-if ! command -v sbatch 2>/dev/null >/dev/null; then
+if command -v sbatch 2>/dev/null >/dev/null; then
 	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3" 0
 fi
-
-_test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int false --parameter y range 5431 1234 float true" 0
 
 if [[ -z $CI ]]; then
 	if [[ $quick -eq 0 ]]; then
@@ -704,6 +703,8 @@ if [[ $superquick -eq 0 ]]; then
 		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 
 		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+
+		_test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int false --parameter y range 5431 1234 float true" 0
 
 		if [[ "$quick" -eq "0" ]]; then
 			for model_name in SOBOL GPEI SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED; do

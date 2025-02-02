@@ -570,7 +570,9 @@ fi
 
 _test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
 
-_test "mypy" ".tests/mypy" 0
+for i in $(ls .*.py); do
+	_test "mypy" ".tests/mypy $i" 0
+done
 
 _test "pyright" "pyright ." 0
 

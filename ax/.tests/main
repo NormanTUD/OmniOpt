@@ -570,6 +570,8 @@ fi
 
 _test "Basic tests" "./omniopt --tests --mem_gb 1 --time 10 --experiment_name test_name --hide_ascii_plots --gpus $NUM_GPUS" 0
 
+_test "mypy" ".tests/mypy" 0
+
 TESTNAME="__main__tests__BOTORCH_MODULAR___nogridsearch"
 
 if [[ -d "runs/$TESTNAME" ]]; then

@@ -39,6 +39,8 @@ for model in "${models[@]}"; do
 			if [[ $exit_code -ne 0 ]]; then
 				failed=1
 			fi
+		else
+			yellow_text "Skipping model FACTORIAL. Incompatible with range"
 		fi
 	else
 		yellow_text "Skipping model $model because previous models have failed already"

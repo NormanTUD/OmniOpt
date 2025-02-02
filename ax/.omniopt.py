@@ -1588,7 +1588,7 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
 
         return {}
 
-    values = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
+    values: list[float] = np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist()
 
     if value_type == "int":
         values = [int(value) for value in values]

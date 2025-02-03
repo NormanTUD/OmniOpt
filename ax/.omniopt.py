@@ -3409,7 +3409,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list[str]], exper
     return experiment_args
 
 @typechecked
-def replace_parameters_for_continued_jobs(parameter: Optional[dict], cli_params_experiment_parameters: Optional[list], experiment_parameters: list):
+def replace_parameters_for_continued_jobs(parameter: Optional[dict], cli_params_experiment_parameters: Optional[list], experiment_parameters: dict):
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
@@ -4290,7 +4290,7 @@ def get_first_line_of_file(file_paths: list[str]) -> str:
     return first_line
 
 @typechecked
-def find_exec_errors(errors: list[str], file_as_string: str) -> list[str]:
+def find_exec_errors(errors: list[str], file_as_string: str, file_paths: list[str]) -> list[str]:
     if "Exec format error" in file_as_string:
         current_platform = platform.machine()
         file_output = ""
@@ -4314,7 +4314,7 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
     if "Permission denied" in file_as_string and "/bin/sh" in file_as_string: # pragma: no cover
         errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
 
-    errors = find_exec_errors(errors, file_as_string)
+    errors = find_exec_errors(errors, file_as_string, file_paths)
 
     if "/bin/sh" in file_as_string and "not found" in file_as_string: # pragma: no cover
         errors.append("Wrong path? File not found")
@@ -4595,6 +4595,46 @@ def mark_trial_as_completed(_trial: Any) -> None:
     _trial.mark_completed(unsafe=True)
 
 @typechecked
+def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
+    result = job.result()
+    raw_result = result
+    result_keys = list(result.keys())
+    result = result[result_keys[0]]
+    this_jobs_finished += 1
+
+    if ax_client:
+        _trial = ax_client.get_trial(trial_index)
+
+        if result != VAL_IF_NOTHING_FOUND:
+            ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+
+            #count_done_jobs(1)
+            try:
+                progressbar_description([f"new result: {result}"])
+                mark_trial_as_completed(_trial)
+                succeeded_jobs(1)
+                update_progress_bar(progress_bar, 1)
+            except Exception as e: # pragma: no cover
+                print(f"ERROR in line {get_line_info()}: {e}")
+        else:
+            if job:
+                try:
+                    progressbar_description(["job_failed"])
+                    ax_client.log_trial_failure(trial_index=trial_index)
+                except Exception as e: # pragma: no cover
+                    print(f"ERROR in line {get_line_info()}: {e}")
+                job.cancel()
+                mark_trial_as_failed(_trial)
+                orchestrate_job(job, trial_index)
+            failed_jobs(1)
+    else: # pragma: no cover
+        print_red("ax_client could not be found or used")
+        my_exit(9)
+    global_vars["jobs"].remove((job, trial_index))
+
+    return this_jobs_finished
+
+@typechecked
 def finish_previous_jobs(new_msgs: list[str]) -> None:
     global random_steps
     global ax_client
@@ -4615,41 +4655,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
 
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
-                result = job.result()
-                raw_result = result
-                result_keys = list(result.keys())
-                result = result[result_keys[0]]
-                this_jobs_finished += 1
-
-                if ax_client:
-                    _trial = ax_client.get_trial(trial_index)
-
-                    if result != VAL_IF_NOTHING_FOUND:
-                        ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
-
-                        #count_done_jobs(1)
-                        try:
-                            progressbar_description([f"new result: {result}"])
-                            mark_trial_as_completed(_trial)
-                            succeeded_jobs(1)
-                            update_progress_bar(progress_bar, 1)
-                        except Exception as e: # pragma: no cover
-                            print(f"ERROR in line {get_line_info()}: {e}")
-                    else:
-                        if job:
-                            try:
-                                progressbar_description(["job_failed"])
-                                ax_client.log_trial_failure(trial_index=trial_index)
-                            except Exception as e: # pragma: no cover
-                                print(f"ERROR in line {get_line_info()}: {e}")
-                            job.cancel()
-                            mark_trial_as_failed(_trial)
-                            orchestrate_job(job, trial_index)
-                        failed_jobs(1)
-                else: # pragma: no cover
-                    print_red("ax_client could not be found or used")
-                    my_exit(9)
-                global_vars["jobs"].remove((job, trial_index))
+                this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
                 if "None for metric" in str(error):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")

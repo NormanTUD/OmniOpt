@@ -3410,7 +3410,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list[str]], exper
 
 @typechecked
 def replace_parameters_for_continued_jobs(parameter: Optional[dict], cli_params_experiment_parameters: Optional[list], experiment_parameters: list):
-    if parameter:
+    if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
             for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):

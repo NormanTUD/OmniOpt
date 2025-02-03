@@ -3389,6 +3389,25 @@ def set_objectives() -> dict:
 
     return objectives
 
+@typechecked
+def set_parameter_constraints(experiment_constraints: Optional[list[str]], experiment_args: dict, experiment_parameters: list) -> dict:
+    if experiment_constraints and len(experiment_constraints):
+        experiment_args["parameter_constraints"] = []
+        for _l in range(0, len(experiment_constraints)):
+            constraints_string = " ".join(experiment_constraints[_l])
+
+            variables = [item['name'] for item in experiment_parameters]
+
+            equation = check_equation(variables, constraints_string)
+
+            if equation:
+                experiment_args["parameter_constraints"].append(constraints_string)
+            else:
+                print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
+                my_exit(19)
+
+    return experiment_args
+
 @wrapper_print_debug
 def get_experiment_parameters(_params: list) -> Any:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
@@ -3498,20 +3517,7 @@ def get_experiment_parameters(_params: list) -> Any:
 
         experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
-        if experiment_constraints and len(experiment_constraints):
-            experiment_args["parameter_constraints"] = []
-            for _l in range(0, len(experiment_constraints)):
-                constraints_string = " ".join(experiment_constraints[_l])
-
-                variables = [item['name'] for item in experiment_parameters]
-
-                equation = check_equation(variables, constraints_string)
-
-                if equation:
-                    experiment_args["parameter_constraints"].append(constraints_string)
-                else:
-                    print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
-                    my_exit(19)
+        experiment_args = set_parameter_constraints(experiment_constraints, experiment_args, experiment_parameters)
 
         try:
             if ax_client:

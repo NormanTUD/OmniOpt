@@ -3433,6 +3433,21 @@ def replace_parameters_for_continued_jobs(parameter: dict, cli_params_experiment
 
     return experiment_parameters
 
+@typechecked
+def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dict:
+    try:
+        f = open(checkpoint_file, encoding="utf-8")
+        experiment_parameters = json.load(f)
+        f.close()
+
+        with open(checkpoint_file, encoding="utf-8") as f:
+            experiment_parameters = json.load(f)
+    except json.decoder.JSONDecodeError: # pragma: no cover
+        print_red(f"Error parsing checkpoint_file {checkpoint_file}")
+        my_exit(47)
+
+    return experiment_parameters
+
 @wrapper_print_debug
 def get_experiment_parameters(_params: list) -> Any:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
@@ -3450,16 +3465,7 @@ def get_experiment_parameters(_params: list) -> Any:
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
         die_with_47_if_file_doesnt_exists(checkpoint_file)
 
-        try:
-            f = open(checkpoint_file, encoding="utf-8")
-            experiment_parameters = json.load(f)
-            f.close()
-
-            with open(checkpoint_file, encoding="utf-8") as f:
-                experiment_parameters = json.load(f)
-        except json.decoder.JSONDecodeError: # pragma: no cover
-            print_red(f"Error parsing checkpoint_file {checkpoint_file}")
-            my_exit(47)
+        experiment_parameters: dict = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
 
         experiment_args = set_torch_device_to_experiment_args(experiment_args)
 

@@ -3409,7 +3409,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list[str]], exper
     return experiment_args
 
 @typechecked
-def replace_parameters_for_continued_jobs(parameter: Optional[dict], cli_params_experiment_parameters: list, experiment_parameters: list):
+def replace_parameters_for_continued_jobs(parameter: Optional[dict], cli_params_experiment_parameters: Optional[list], experiment_parameters: list):
     if parameter:
         for _item in cli_params_experiment_parameters:
             _replaced = False
@@ -3811,6 +3811,32 @@ def submitted_jobs(nr: int = 0) -> int:
 
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
+@typechecked
+def get_slurm_in_brackets(in_brackets: list):
+    global WORKER_PERCENTAGE_USAGE
+
+    if is_slurm_job(): # pragma: no cover
+        nr_current_workers = len(global_vars["jobs"])
+        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+
+        this_time: float = time.time()
+
+        this_values = {
+            "nr_current_workers": nr_current_workers,
+            "num_parallel_jobs": num_parallel_jobs,
+            "percentage": percentage,
+            "time": this_time
+        }
+
+        if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
+            WORKER_PERCENTAGE_USAGE.append(this_values)
+
+        workers_strings = get_workers_string()
+        if workers_strings:
+            in_brackets.append(workers_strings)
+
+    return in_brackets
+
 @wrapper_print_debug
 def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     global global_vars
@@ -3828,30 +3854,12 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 
     in_brackets.append(f"{current_model}")
 
-    this_time: float = time.time()
-
     for res_name in arg_result_names:
         best_params_str: str = get_best_params_str(res_name)
         if best_params_str:
             in_brackets.append(best_params_str)
 
-    if is_slurm_job(): # pragma: no cover
-        nr_current_workers = len(global_vars["jobs"])
-        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-
-        this_values = {
-            "nr_current_workers": nr_current_workers,
-            "num_parallel_jobs": num_parallel_jobs,
-            "percentage": percentage,
-            "time": this_time
-        }
-
-        if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
-            WORKER_PERCENTAGE_USAGE.append(this_values)
-
-        workers_strings = get_workers_string()
-        if workers_strings:
-            in_brackets.append(workers_strings)
+    in_brackets = get_slurm_in_brackets(in_brackets)
 
     if args.verbose_tqdm:
         if submitted_jobs():

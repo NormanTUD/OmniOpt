@@ -2335,6 +2335,24 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]):
         original_print("stderr was empty")
 
 @typechecked
+def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]):
+    original_print(f"Parameters: {json.dumps(parameters)}")
+
+    print_debug_infos(program_string_with_params)
+
+    original_print(program_string_with_params)
+
+    print_stdout_and_stderr(stdout, stderr)
+
+    original_print(f"Result: {result}")
+
+    write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
+
+    original_print(f"EXIT_CODE: {exit_code}")
+
+    print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
+
+@typechecked
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
@@ -2352,13 +2370,8 @@ def evaluate(parameters: dict) -> dict:
     try:
         if args.raise_in_eval: # pragma: no cover
             raise SignalUSR("Raised in eval")
-        original_print(f"Parameters: {json.dumps(parameters)}")
 
         program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
-
-        print_debug_infos(program_string_with_params)
-
-        original_print(program_string_with_params)
 
         start_time: Union[int, float] = int(time.time())
 
@@ -2368,8 +2381,6 @@ def evaluate(parameters: dict) -> dict:
 
         run_time: Union[int, float] = end_time - start_time
 
-        print_stdout_and_stderr(stdout, stderr)
-
         result = get_results(stdout)
 
         if result and args.occ: # pragma: no cover
@@ -2378,13 +2389,7 @@ def evaluate(parameters: dict) -> dict:
             if occed_result is not None:
                 result = [occed_result]
 
-        original_print(f"Result: {result}")
-
-        write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
-
-        original_print(f"EXIT_CODE: {exit_code}")
-
-        print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
+        evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, run_time)
 
         if len(arg_result_names) == 1:
             if isinstance(result, (int, float)): # pragma: no cover

@@ -3401,7 +3401,7 @@ def set_objectives() -> dict:
     return objectives
 
 @typechecked
-def set_parameter_constraints(experiment_constraints: Optional[list[str]], experiment_args: dict, experiment_parameters: list) -> dict:
+def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: list) -> dict:
     if experiment_constraints and len(experiment_constraints):
         experiment_args["parameter_constraints"] = []
         for _l in range(0, len(experiment_constraints)):

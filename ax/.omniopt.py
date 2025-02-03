@@ -3462,6 +3462,7 @@ def get_experiment_parameters(_params: list) -> Any:
                     print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
         original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
+
         if ax_client:
             ax_client.save_to_json_file(filepath=original_ax_client_file)
 

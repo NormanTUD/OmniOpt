@@ -2323,6 +2323,18 @@ def print_debug_infos(program_string_with_params: str) -> None:
     original_print("Debug-Infos:", string)
 
 @typechecked
+def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]):
+    if stdout:
+        original_print("stdout:", stdout)
+    else:
+        original_print("stdout was empty")
+
+    if stderr:
+        original_print("stderr:", stderr)
+    else:
+        original_print("stderr was empty")
+
+@typechecked
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
@@ -2356,15 +2368,7 @@ def evaluate(parameters: dict) -> dict:
 
         run_time: Union[int, float] = end_time - start_time
 
-        if stdout:
-            original_print("stdout:", stdout)
-        else:
-            original_print("stdout was empty")
-
-        if stderr:
-            original_print("stderr:", stderr)
-        else:
-            original_print("stderr was empty")
+        print_stdout_and_stderr(stdout, stderr)
 
         result = get_results(stdout)
 

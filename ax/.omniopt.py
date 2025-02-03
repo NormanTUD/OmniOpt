@@ -5376,6 +5376,9 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
         if is_slurm_job() and not args.force_local_execution:
             _sleep(5)
 
+    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar): # pragma: no cover
+        return True
+
     if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
         return True
 
@@ -5408,9 +5411,6 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
                 i = 1
                 with ThreadPoolExecutor() as con_exe:
                     for trial_index, parameters in trial_index_to_param.items():
-                        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar): # pragma: no cover
-                            break
-
                         if wait_for_jobs_or_break(_max_eval, _progress_bar):
                             break
 

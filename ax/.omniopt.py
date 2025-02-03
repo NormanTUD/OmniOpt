@@ -3268,7 +3268,7 @@ def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
     my_exit(49)
 
 @typechecked
-def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_order: list, variables: list, equation: str) -> Tuple[bool, bool, list]:
+def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_order: list, variables: list, equation: str) -> Tuple[bool, bool, list, list]:
     return_totally = False
 
     if item in ["+", "*", "-", "/"]:
@@ -3348,7 +3348,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
     comparer_found = False
 
     for item in result_array:
-        return_totally, comparer_found, parsed = parse_equation_item(comparer_found, item, parsed, parsed_order, variables, equation)
+        return_totally, comparer_found, parsed, parsed_order = parse_equation_item(comparer_found, item, parsed, parsed_order, variables, equation)
 
         if return_totally:
             return False

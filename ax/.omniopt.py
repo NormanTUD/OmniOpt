@@ -2356,8 +2356,7 @@ def evaluate(parameters: dict) -> dict:
 
         run_time: Union[int, float] = end_time - start_time
 
-        original_print("stdout:")
-        original_print(stdout)
+        original_print("stdout:", stdout)
 
         result = get_results(stdout)
 

@@ -3408,6 +3408,31 @@ def set_parameter_constraints(experiment_constraints: Optional[list[str]], exper
 
     return experiment_args
 
+@typechecked
+def replace_parameters_for_continued_jobs(parameter: dict, cli_params_experiment_parameters: list, experiment_parameters: list):
+    if parameter:
+        for _item in cli_params_experiment_parameters:
+            _replaced = False
+            for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
+                if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
+                    old_param_json = json.dumps(
+                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                    )
+                    experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
+                    new_param_json = json.dumps(
+                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                    )
+                    _replaced = True
+
+                    compared_params = compare_parameters(old_param_json, new_param_json)
+                    if compared_params:
+                        print_yellow(compared_params)
+
+            if not _replaced: # pragma: no cover
+                print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
+
+    return experiment_parameters
+
 @wrapper_print_debug
 def get_experiment_parameters(_params: list) -> Any:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
@@ -3440,26 +3465,7 @@ def get_experiment_parameters(_params: list) -> Any:
 
         copy_state_files_from_previous_job(continue_previous_job)
 
-        if parameter:
-            for _item in cli_params_experiment_parameters:
-                _replaced = False
-                for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
-                    if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
-                        old_param_json = json.dumps(
-                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
-                        )
-                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
-                        new_param_json = json.dumps(
-                            experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
-                        )
-                        _replaced = True
-
-                        compared_params = compare_parameters(old_param_json, new_param_json)
-                        if compared_params:
-                            print_yellow(compared_params)
-
-                if not _replaced: # pragma: no cover
-                    print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
+        replace_parameters_for_continued_jobs(parameter, cli_params_experiment_parameters, experiment_parameters)
 
         original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
 

@@ -1,4 +1,5 @@
 "use strict";
+
 var current_folder = "";
 
 function parsePathAndGenerateLink(path) {

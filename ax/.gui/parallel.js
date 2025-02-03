@@ -1,3 +1,5 @@
+"use strict";
+
 async function plot_parallel_plot() {
 	var resnames = await get_result_names_data();
 

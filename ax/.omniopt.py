@@ -2356,7 +2356,15 @@ def evaluate(parameters: dict) -> dict:
 
         run_time: Union[int, float] = end_time - start_time
 
-        original_print("stdout:", stdout)
+        if stdout:
+            original_print("stdout:", stdout)
+        else:
+            original_print("stdout was empty")
+
+        if stderr:
+            original_print("stderr:", stderr)
+        else:
+            original_print("stderr was empty")
 
         result = get_results(stdout)
 

@@ -1836,6 +1836,9 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
             input_string = input_string.replace(f"%{param_item}", str(parameters[param_item]))
             input_string = input_string.replace(f"%({param_item})", str(parameters[param_item]))
 
+
+        input_string = input_string.replace('\r', ' ').replace('\n', ' ')
+
         return input_string
     except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Error: {e}")
@@ -2279,10 +2282,7 @@ def evaluate(parameters: dict) -> dict:
             raise SignalUSR("Raised in eval")
         original_print(f"Parameters: {json.dumps(parameters)}")
 
-
         program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
-
-        program_string_with_params = program_string_with_params.replace('\r', ' ').replace('\n', ' ')
 
         string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 

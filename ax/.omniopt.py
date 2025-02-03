@@ -3267,6 +3267,45 @@ def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
 def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
     my_exit(49)
 
+@typechecked
+def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_order: list, variables: list, equation: str) -> Tuple[bool, bool, list]:
+    return_totally = False
+
+    if item in ["+", "*", "-", "/"]:
+        parsed_order.append("operator")
+        parsed.append({
+            "type": "operator",
+            "value": item
+        })
+    elif item in [">=", "<="]:
+        if comparer_found: # pragma: no cover
+            print("There is already one comparison operator! Cannot have more than one in an equation!")
+            return_totally = True
+        comparer_found = True
+
+        parsed_order.append("comparer")
+        parsed.append({
+            "type": "comparer",
+            "value": item
+        })
+    elif re.match(r'^\d+$', item):
+        parsed_order.append("number")
+        parsed.append({
+            "type": "number",
+            "value": item
+        })
+    elif item in variables:
+        parsed_order.append("variable")
+        parsed.append({
+            "type": "variable",
+            "value": item
+        })
+    else: # pragma: no cover
+        print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
+        return_totally = True
+
+    return return_totally, comparer_found, parsed, parsed_order
+
 @wrapper_print_debug
 def check_equation(variables: list, equation: str) -> Union[str, bool]:
     print_debug(f"check_equation({variables}, {equation})")
@@ -3309,37 +3348,9 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
     comparer_found = False
 
     for item in result_array:
-        if item in ["+", "*", "-", "/"]:
-            parsed_order.append("operator")
-            parsed.append({
-                "type": "operator",
-                "value": item
-            })
-        elif item in [">=", "<="]:
-            if comparer_found: # pragma: no cover
-                print("There is already one comparison operator! Cannot have more than one in an equation!")
-                return False
-            comparer_found = True
+        return_totally, comparer_found, parsed = parse_equation_item(comparer_found, item, parsed, parsed_order, variables, equation)
 
-            parsed_order.append("comparer")
-            parsed.append({
-                "type": "comparer",
-                "value": item
-            })
-        elif re.match(r'^\d+$', item):
-            parsed_order.append("number")
-            parsed.append({
-                "type": "number",
-                "value": item
-            })
-        elif item in variables:
-            parsed_order.append("variable")
-            parsed.append({
-                "type": "variable",
-                "value": item
-            })
-        else: # pragma: no cover
-            print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
+        if return_totally:
             return False
 
     parsed_order_string = ";".join(parsed_order)

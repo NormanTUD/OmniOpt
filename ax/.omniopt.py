@@ -3409,7 +3409,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list[str]], exper
     return experiment_args
 
 @typechecked
-def replace_parameters_for_continued_jobs(parameter: dict, cli_params_experiment_parameters: list, experiment_parameters: list):
+def replace_parameters_for_continued_jobs(parameter: Optional[dict], cli_params_experiment_parameters: list, experiment_parameters: list):
     if parameter:
         for _item in cli_params_experiment_parameters:
             _replaced = False

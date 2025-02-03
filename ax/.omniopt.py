@@ -2323,7 +2323,7 @@ def print_debug_infos(program_string_with_params: str) -> None:
     original_print("Debug-Infos:", string)
 
 @typechecked
-def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]):
+def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> None:
     if stdout:
         original_print("stdout:", stdout)
     else:
@@ -2335,7 +2335,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]):
         original_print("stderr was empty")
 
 @typechecked
-def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]):
+def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
     original_print(f"Parameters: {json.dumps(parameters)}")
 
     print_debug_infos(program_string_with_params)
@@ -2351,6 +2351,18 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
     original_print(f"EXIT_CODE: {exit_code}")
 
     print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
+
+@typechecked
+def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[str, Optional[float]], list[float]]]]:
+    result = get_results(stdout)
+
+    if result and args.occ: # pragma: no cover
+        occed_result = calculate_occ(result)
+
+        if occed_result is not None:
+            result = [occed_result]
+
+    return result
 
 @typechecked
 def evaluate(parameters: dict) -> dict:
@@ -2379,17 +2391,9 @@ def evaluate(parameters: dict) -> dict:
 
         end_time: Union[int, float] = int(time.time())
 
-        run_time: Union[int, float] = end_time - start_time
+        result = get_results_with_occ(stdout)
 
-        result = get_results(stdout)
-
-        if result and args.occ: # pragma: no cover
-            occed_result = calculate_occ(result)
-
-            if occed_result is not None:
-                result = [occed_result]
-
-        evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, run_time)
+        evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, end_time - start_time)
 
         if len(arg_result_names) == 1:
             if isinstance(result, (int, float)): # pragma: no cover

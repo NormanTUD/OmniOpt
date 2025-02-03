@@ -3358,6 +3358,37 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
 
     return False # pragma: no cover
 
+@typechecked
+def set_objectives() -> dict:
+    objectives = {}
+
+    for rn in args.result_names:
+        key, value = "", ""
+
+        if "=" in rn:
+            key, value = rn.split('=', 1)
+        else:
+            key = rn
+            value = ""
+
+        if value not in ["min", "max"]:
+            if value: # pragma: no cover
+                print_yellow(f"Value '{value}' for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
+
+            value = "min"
+
+            if args.maximize: # pragma: no cover
+                value = "max"
+
+        _min = True
+
+        if value == "max":
+            _min = False
+
+        objectives[key] = ObjectiveProperties(minimize=_min)
+
+    return objectives
+
 @wrapper_print_debug
 def get_experiment_parameters(_params: list) -> Any:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
@@ -3448,32 +3479,7 @@ def get_experiment_parameters(_params: list) -> Any:
             print_red("Something went wrong with the ax_client")
             my_exit(9)
     else:
-        objectives = {}
-
-        for rn in args.result_names:
-            key, value = "", ""
-
-            if "=" in rn:
-                key, value = rn.split('=', 1)
-            else:
-                key = rn
-                value = ""
-
-            if value not in ["min", "max"]:
-                if value: # pragma: no cover
-                    print_yellow(f"Value '{value}' for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
-
-                value = "min"
-
-                if args.maximize: # pragma: no cover
-                    value = "max"
-
-            _min = True
-
-            if value == "max":
-                _min = False
-
-            objectives[key] = ObjectiveProperties(minimize=_min)
+        objectives = set_objectives()
 
         experiment_args = {
             "name": global_vars["experiment_name"],

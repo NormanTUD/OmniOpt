@@ -2385,11 +2385,11 @@ def evaluate(parameters: dict) -> dict:
 
         program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
 
-        start_time: Union[int, float] = int(time.time())
+        start_time: int = int(time.time())
 
         stdout, stderr, exit_code, _signal = execute_bash_code(program_string_with_params)
 
-        end_time: Union[int, float] = int(time.time())
+        end_time: int = int(time.time())
 
         result = get_results_with_occ(stdout)
 

@@ -5366,6 +5366,22 @@ def get_generation_strategy() -> Any:
     return GenerationStrategy(steps=steps)
 
 @typechecked
+def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
+    while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
+        finish_previous_jobs(["finishing previous jobs"])
+
+        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+            return True
+
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(5)
+
+    if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
+        return True
+
+    return False
+
+@typechecked
 def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     global random_steps
 
@@ -5395,16 +5411,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
                         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar): # pragma: no cover
                             break
 
-                        while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
-                            finish_previous_jobs(["finishing previous jobs"])
-
-                            if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                                break
-
-                            if is_slurm_job() and not args.force_local_execution:
-                                _sleep(5)
-
-                        if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
+                        if wait_for_jobs_or_break(_max_eval, _progress_bar):
                             break
 
                         if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):

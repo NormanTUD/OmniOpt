@@ -2245,10 +2245,8 @@ def calculate_occ(_args: Optional[list[Union[int, float]]]) -> Union[int, float]
     raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}") # pragma: no cover
 
 @typechecked
-def evaluate(parameters: dict) -> dict:
-    start_nvidia_smi_thread()
-
-    return_in_case_of_error: dict = {}
+def get_return_in_case_of_errors() -> dict:
+    return_in_case_of_error = {}
 
     i = 0
     for _rn in arg_result_names:
@@ -2258,6 +2256,14 @@ def evaluate(parameters: dict) -> dict:
             return_in_case_of_error[_rn] = -VAL_IF_NOTHING_FOUND
 
         i = i + 1
+
+    return return_in_case_of_error
+
+@typechecked
+def evaluate(parameters: dict) -> dict:
+    start_nvidia_smi_thread()
+
+    return_in_case_of_error: dict = get_return_in_case_of_errors()
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
 
@@ -2273,8 +2279,6 @@ def evaluate(parameters: dict) -> dict:
             raise SignalUSR("Raised in eval")
         original_print(f"Parameters: {json.dumps(parameters)}")
 
-        parameters_keys = list(parameters.keys())
-        parameters_values = list(parameters.values())
 
         program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
 
@@ -2323,8 +2327,9 @@ def evaluate(parameters: dict) -> dict:
 
         original_print(f"Result: {result}")
 
-        str_parameters_values: list[str] = [str(v) for v in parameters_values]
+        str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
 
+        parameters_keys = list(parameters.keys())
         headline: list[str] = [
             "start_time",
             "end_time",

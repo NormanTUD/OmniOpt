@@ -12,6 +12,8 @@ original_print = print
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
+DECIMALROUNDING = int(os.environ.get('DECIMALROUNDING', 4))
+
 try:
     from rich.console import Console
 
@@ -1519,7 +1521,7 @@ def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Unio
         ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
 
     if ret_val:
-        return round(ret_val, 4), found_in_file
+        return round(ret_val, DECIMALROUNDING), found_in_file
 
     return ret_val, False
 

@@ -2317,6 +2317,12 @@ def write_job_infos_csv(parameters: dict, stdout: str, program_string_with_param
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
 @typechecked
+def print_debug_infos(program_string_with_params: str) -> None:
+    string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
+
+    original_print("Debug-Infos:", string)
+
+@typechecked
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
@@ -2338,9 +2344,7 @@ def evaluate(parameters: dict) -> dict:
 
         program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
 
-        string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
-
-        original_print("Debug-Infos:", string)
+        print_debug_infos(program_string_with_params)
 
         original_print(program_string_with_params)
 
@@ -2357,16 +2361,7 @@ def evaluate(parameters: dict) -> dict:
 
         result = get_results(stdout)
 
-        unocced_result = result
-
-        all_result_column_names = []
-
-        _k = 1
-        if unocced_result and args.occ: # pragma: no cover
-            for a in unocced_result:
-                all_result_column_names.append(f"RESULT{_k}")
-                _k = _k + 1
-
+        if result and args.occ: # pragma: no cover
             occed_result = calculate_occ(result)
 
             if occed_result is not None:

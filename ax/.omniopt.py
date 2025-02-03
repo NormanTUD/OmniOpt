@@ -1836,7 +1836,6 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
             input_string = input_string.replace(f"%{param_item}", str(parameters[param_item]))
             input_string = input_string.replace(f"%({param_item})", str(parameters[param_item]))
 
-
         input_string = input_string.replace('\r', ' ').replace('\n', ' ')
 
         return input_string
@@ -2263,6 +2262,61 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @typechecked
+def write_job_infos_csv(parameters: dict, stdout: str, program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
+    str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
+
+    extra_vars_names, extra_vars_values = extract_info(stdout)
+
+    _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
+    if _SLURM_JOB_ID: # pragma: no cover
+        extra_vars_names.append("OO_Info_SLURM_JOB_ID")
+        extra_vars_values.append(str(_SLURM_JOB_ID))
+
+    parameters_keys = list(parameters.keys())
+
+    headline: list[str] = [
+        "start_time",
+        "end_time",
+        "run_time",
+        "program_string",
+        *parameters_keys,
+        *arg_result_names,
+        "exit_code",
+        "signal",
+        "hostname",
+        *extra_vars_names
+    ]
+
+    result_values = []
+
+    if isinstance(result, dict): # pragma: no cover
+        for rkey in list(result.keys()):
+            rval = result[rkey]
+
+            result_values.append(str(rval))
+
+    values: list[str] = [
+        str(start_time),
+        str(end_time),
+        str(run_time),
+        program_string_with_params,
+        *str_parameters_values,
+        *result_values,
+        str(exit_code),
+        str(_signal),
+        socket.gethostname(),
+        *extra_vars_values
+    ]
+
+    headline = ['None' if element is None else element for element in headline]
+    values = ['None' if element is None else element for element in values]
+
+    if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()): # pragma: no cover
+        add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
+    else:
+        print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
+
+@typechecked
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
@@ -2290,13 +2344,13 @@ def evaluate(parameters: dict) -> dict:
 
         original_print(program_string_with_params)
 
-        start_time: float = int(time.time())
+        start_time: Union[int, float] = int(time.time())
 
         stdout, stderr, exit_code, _signal = execute_bash_code(program_string_with_params)
 
-        end_time: float = int(time.time())
+        end_time: Union[int, float] = int(time.time())
 
-        run_time: float = end_time - start_time
+        run_time: Union[int, float] = end_time - start_time
 
         original_print("stdout:")
         original_print(stdout)
@@ -2318,61 +2372,11 @@ def evaluate(parameters: dict) -> dict:
             if occed_result is not None:
                 result = [occed_result]
 
-        extra_vars_names, extra_vars_values = extract_info(stdout)
-
-        _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-        if _SLURM_JOB_ID: # pragma: no cover
-            extra_vars_names.append("OO_Info_SLURM_JOB_ID")
-            extra_vars_values.append(str(_SLURM_JOB_ID))
-
         original_print(f"Result: {result}")
 
-        str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
-
-        parameters_keys = list(parameters.keys())
-        headline: list[str] = [
-            "start_time",
-            "end_time",
-            "run_time",
-            "program_string",
-            *parameters_keys,
-            *arg_result_names,
-            "exit_code",
-            "signal",
-            "hostname",
-            *extra_vars_names
-        ]
-
-        result_values = []
-
-        if isinstance(result, dict): # pragma: no cover
-            for rkey in list(result.keys()):
-                rval = result[rkey]
-
-                result_values.append(str(rval))
-
-        values: list[str] = [
-            str(start_time),
-            str(end_time),
-            str(run_time),
-            program_string_with_params,
-            *str_parameters_values,
-            *result_values,
-            str(exit_code),
-            str(_signal),
-            socket.gethostname(),
-            *extra_vars_values
-        ]
+        write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
 
         original_print(f"EXIT_CODE: {exit_code}")
-
-        headline = ['None' if element is None else element for element in headline]
-        values = ['None' if element is None else element for element in values]
-
-        if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()): # pragma: no cover
-            add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
-        else:
-            print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
         print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
 

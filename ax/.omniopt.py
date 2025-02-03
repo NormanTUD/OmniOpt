@@ -4290,15 +4290,7 @@ def get_first_line_of_file(file_paths: list[str]) -> str:
     return first_line
 
 @typechecked
-def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: list[str], program_code: str) -> list[str]:
-    errors: list[str] = []
-
-    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"): # pragma: no cover
-        errors.append("First line does not seem to be a shebang line: " + first_line)
-
-    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string: # pragma: no cover
-        errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
-
+def find_exec_errors(errors: list[str], file_as_string: str) -> list[str]:
     if "Exec format error" in file_as_string:
         current_platform = platform.machine()
         file_output = ""
@@ -4309,6 +4301,20 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
                 file_output = ", " + file_result[0].strip()
 
         errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
+
+    return errors
+
+@typechecked
+def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: list[str], program_code: str) -> list[str]:
+    errors: list[str] = []
+
+    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"): # pragma: no cover
+        errors.append("First line does not seem to be a shebang line: " + first_line)
+
+    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string: # pragma: no cover
+        errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
+
+    errors = find_exec_errors(errors, file_as_string)
 
     if "/bin/sh" in file_as_string and "not found" in file_as_string: # pragma: no cover
         errors.append("Wrong path? File not found")

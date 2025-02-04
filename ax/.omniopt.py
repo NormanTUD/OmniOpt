@@ -2801,11 +2801,11 @@ def get_plot_filename(plot: dict, _tmp: str) -> str:
     j = 0
     _fn = plot.get("filename", plot["type"])
     tmp_file = f"{_tmp}/{_fn}.png"
-    
+
     while os.path.exists(tmp_file):
         j += 1
         tmp_file = f"{_tmp}/{_fn}_{j}.png"
-    
+
     return tmp_file
 
 @wrapper_print_debug
@@ -2813,61 +2813,61 @@ def build_command(plot_type: str, plot: dict, _force: bool) -> str:
     maindir = os.path.dirname(os.path.realpath(__file__))
     base_command = "bash omniopt_plot" if _force else f"bash {maindir}/omniopt_plot"
     command = f"{base_command} --run_dir {get_current_run_folder()} --plot_type={plot_type}"
-    
+
     if "dpi" in plot:
         command += f" --dpi={plot['dpi']}"
-    
+
     return command
 
 @wrapper_print_debug
 def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
-    
+
     if _force:
         _show_sixel_graphics = True
-    
+
     data = []
-    
+
     if not os.path.exists(_pd_csv):
         print_debug(f"Cannot find path {_pd_csv}")
         return data
-    
+
     if not _show_sixel_graphics: # pragma: no cover
         print_debug("_show_sixel_graphics was false. Will not plot.")
         return data
-    
+
     if len(global_vars["parameter_names"]) == 0: # pragma: no cover
         print_debug("Cannot handle empty data in global_vars -> parameter_names")
         return data
-    
+
     x_y_combinations = get_x_y_combinations()
     plot_types = get_plot_types(x_y_combinations, _force)
-    
+
     for plot in plot_types:
         plot_type = plot["type"]
         min_done_jobs = plot.get("min_done_jobs", 1)
-        
+
         if not _force and count_done_jobs() < min_done_jobs: # pragma: no cover
             print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
             continue
-        
+
         try:
             _tmp = f"{get_current_run_folder()}/plots/"
             _width = plot.get("width", "1200")
-            
+
             if not _force and not os.path.exists(_tmp): # pragma: no cover
                 makedirs(_tmp)
-            
+
             tmp_file = get_plot_filename(plot, _tmp)
             _command = build_command(plot_type, plot, _force)
-            
+
             _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
             data.append(_params)
         except Exception as e: # pragma: no cover
             tb = traceback.format_exc()
             print_red(f"Error trying to print {plot_type} to CLI: {e}, {tb}")
             print_debug(f"Error trying to print {plot_type} to CLI: {e}")
-    
+
     return data
 
 @beartype
@@ -5414,91 +5414,87 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
 
     return False
 
+
+def handle_optimization_completion(optimization_complete: bool) -> bool:
+    if optimization_complete:
+        return True
+    return False
+
+def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> list:
+    results = []
+    i = 1
+    with ThreadPoolExecutor() as con_exe:
+        for trial_index, parameters in trial_index_to_param.items():
+            if wait_for_jobs_or_break(_max_eval, _progress_bar):
+                break
+            if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+                break
+            progressbar_description(["starting parameter set"])
+            _args = [trial_index, parameters, i, next_nr_steps, phase]
+            results.append(con_exe.submit(execute_evaluation, _args))
+            i += 1
+    return results
+
+@beartype
+def process_results(results: list) -> None:
+    for r in results:
+        r.result()
+
+@beartype
+def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
+    if isinstance(e, TypeError):
+        print_red(f"Error 1: {e}")
+    elif isinstance(e, botorch.exceptions.errors.InputDataError):
+        print_red(f"Error 2: {e}")
+    elif isinstance(e, ax.exceptions.core.DataRequiredError):
+        if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
+            print_red(f"Error 3: {e} Increase --num_random_steps to at least 1 to continue.")
+            die_no_random_steps()
+        else:
+            print_debug(f"Error 4: {e}")
+    elif isinstance(e, RuntimeError):
+        print_red(f"\n⚠ Error 5: {e}")
+    elif isinstance(e, botorch.exceptions.errors.ModelFittingError):
+        print_red(f"\n⚠ Error 6: {e}")
+        end_program(RESULT_CSV_FILE, False, 1)
+    elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)):
+        print_red(f"\n⚠ Error 7 {e}")
+        end_program(RESULT_CSV_FILE, False, 87)
+    return 0
+
 @beartype
 def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     global random_steps
-
     if next_nr_steps == 0:
         return 0
 
     trial_index_to_param = None
-
-    done_optimizing: bool = False
+    done_optimizing = False
 
     try:
         nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
-
         results = []
 
         for _ in range(nr_of_jobs_to_get + 1):
             trial_index_to_param, optimization_complete = _get_next_trials(1)
-
-            if optimization_complete:
-                done_optimizing = True
+            done_optimizing = handle_optimization_completion(optimization_complete)
+            if done_optimizing:
                 continue
-
             if trial_index_to_param:
-                i = 1
-                with ThreadPoolExecutor() as con_exe:
-                    for trial_index, parameters in trial_index_to_param.items():
-                        if wait_for_jobs_or_break(_max_eval, _progress_bar):
-                            break
+                results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
 
-                        if not break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                            progressbar_description(["starting parameter set"])
-
-                            _args = [
-                                trial_index,
-                                parameters,
-                                i,
-                                next_nr_steps,
-                                phase
-                            ]
-
-                            results.append(con_exe.submit(execute_evaluation, _args))
-
-                            i += 1
-                        else: # pragma: no cover
-                            break
-
-        for r in results:
-            r.result()
-
+        process_results(results)
         finish_previous_jobs(["finishing jobs after starting them"])
 
         if done_optimizing:
             end_program(RESULT_CSV_FILE, False, 0)
-    except TypeError as e: # pragma: no cover
-        print_red(f"Error 1: {e}")
-        return 0
-    except botorch.exceptions.errors.InputDataError as e: # pragma: no cover
-        print_red(f"Error 2: {e}")
-        return 0
-    except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
-        if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-            print_red(f"Error 3: {e} This may happen when there are no random_steps, but you tried to get a model anyway. Increase --num_random_steps to at least 1 to continue.")
-            die_no_random_steps()
-        else:
-            print_debug(f"Error 4: {e}")
-            return 0
-    except RuntimeError as e: # pragma: no cover
-        print_red("\n⚠ Error 5: " + str(e))
-    except botorch.exceptions.errors.ModelFittingError as e: # pragma: no cover
-        print_red("\n⚠ Error 6: " + str(e))
-        end_program(RESULT_CSV_FILE, False, 1)
-    except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints) as e: # pragma: no cover
-        print_red("\n⚠ Error 7" + str(e))
-        end_program(RESULT_CSV_FILE, False, 87)
-
-    num_new_keys = 0
+    except Exception as e:  # pragma: no cover
+        return handle_exceptions_create_and_execute_next_runs(e)
 
     try:
-        if trial_index_to_param:
-            num_new_keys = len(trial_index_to_param.keys())
-    except Exception: # pragma: no cover
-        pass
-
-    return num_new_keys
+        return len(trial_index_to_param.keys()) if trial_index_to_param else 0
+    except Exception:  # pragma: no cover
+        return 0
 
 @beartype
 def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:

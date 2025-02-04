@@ -4234,10 +4234,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return False
 
     @beartype
-    def insert_or_log_result(
-            parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]],
-            hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]
-        ) -> None: # pragma: no cover
+    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None: # pragma: no cover
         try:
             insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")

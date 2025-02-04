@@ -2258,7 +2258,17 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @beartype
-def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
+def write_job_infos_csv(
+        parameters: dict,
+        stdout: Optional[str],
+        program_string_with_params: str,
+        exit_code: Optional[int],
+        _signal: Optional[int],
+        result: Optional[Union[dict[str, Optional[float]], list[float], int, float]],
+        start_time: Union[int, float],
+        end_time: Union[int, float],
+        run_time: Union[float, int]
+    ) -> None:
     str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
 
     extra_vars_names, extra_vars_values = extract_info(stdout)
@@ -2331,7 +2341,18 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
         original_print("stderr was empty")
 
 @beartype
-def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
+def evaluate_print_stuff(
+        parameters: dict,
+        program_string_with_params: str,
+        stdout: Optional[str],
+        stderr: Optional[str],
+        exit_code: Optional[int],
+        _signal: Optional[int],
+        result: Optional[Union[dict[str, Optional[float]], list[float], int, float]],
+        start_time: Union[float, int],
+        end_time: Union[float, int],
+        run_time: Union[float, int]
+    ) -> None:
     original_print(f"Parameters: {json.dumps(parameters)}")
 
     print_debug_infos(program_string_with_params)
@@ -2361,7 +2382,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[s
     return result
 
 @beartype
-def evaluate(parameters: dict) -> Union[dict, int, float]:
+def evaluate(parameters: dict) -> Optional[Union[dict, int, float]]:
     start_nvidia_smi_thread()
 
     return_in_case_of_error: dict = get_return_in_case_of_errors()

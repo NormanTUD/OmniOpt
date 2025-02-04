@@ -65,7 +65,7 @@ try:
         from rich.pretty import pprint
 
         from types import FunctionType
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, Callable, TypeVar
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
 
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job

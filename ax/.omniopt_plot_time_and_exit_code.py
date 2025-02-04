@@ -43,7 +43,7 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 args = parser.parse_args()
 
 @beartype
-def load_csv(filepath: str) -> pd.DataFrame:
+def load_from_csv(filepath: str) -> pd.DataFrame:
     if not os.path.exists(filepath):  # pragma: no cover
         print(f"Error: {filepath} not found")
         sys.exit(1)
@@ -145,7 +145,7 @@ def handle_output(fig: plt.Figure) -> None:
 @beartype
 def main() -> None:
     _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
-    df: pd.DataFrame = load_csv(_job_infos_csv)
+    df: pd.DataFrame = load_from_csv(_job_infos_csv)
 
     if df:
         validate_dataframe(df)

@@ -507,7 +507,7 @@ minutes_to_hh_mm_ss() {
 	elif [[ $var =~ $time_re ]]; then
 		echo $var
 	else
-		red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS"
+		red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS\n"
 
 		myexit 103
 	fi

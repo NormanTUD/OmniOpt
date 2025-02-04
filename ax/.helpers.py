@@ -586,70 +586,79 @@ def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_f
 def contains_strings(series: Any) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
+
+def file_exists(csv_file_path: Optional[str]) -> bool:
+    return bool(csv_file_path) and os.path.exists(csv_file_path)
+
+def load_csv(csv_file_path: str) -> pd.DataFrame:
+    return pd.read_csv(csv_file_path, index_col=0)
+
+def headers_match(df: pd.DataFrame, old_headers_string: Optional[str]) -> bool:
+    if old_headers_string is None:
+        return True
+    df_header_string = ','.join(sorted(df.columns))
+    return df_header_string == old_headers_string
+
+def filter_by_result_range(df: pd.DataFrame, res_col_name: str, _min: Optional[Union[int, float]], _max: Optional[Union[int, float]]) -> pd.DataFrame:
+    if res_col_name not in df:
+        handle_missing_result_column(df, res_col_name)
+
+    if _min is not None:
+        df = df[df[res_col_name] >= _min]
+    if _max is not None:
+        df = df[df[res_col_name] <= _max]
+    return df.dropna(subset=[res_col_name])
+
+def handle_missing_result_column(df: pd.DataFrame, res_col_name: str) -> None:
+    if not os.environ.get("NO_NO_RESULT_ERROR"):
+        print(f"There was no '{res_col_name}' column. This may mean all tests failed. Cannot continue.")
+    sys.exit(10)
+
+def drop_string_columns(df: pd.DataFrame) -> pd.DataFrame:
+    columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
+    df = df.drop(columns=columns_with_strings)
+    if len(df.columns) <= 1 and columns_with_strings:
+        print("All available columns contained strings instead of numbers. Cannot plot.")
+        sys.exit(19)
+    return df
+
+def handle_csv_exceptions(csv_file_path: str, error: Exception) -> None:
+    error_messages = {
+        pd.errors.EmptyDataError: f"{csv_file_path} has no lines to parse.",
+        pd.errors.ParserError: f"{csv_file_path} is invalid CSV. Parsing error: {str(error).rstrip()}",
+        UnicodeDecodeError: f"{csv_file_path} does not seem to be a text-file or has invalid UTF-8 encoding."
+    }
+    if not os.environ.get("PLOT_TESTS"):
+        print(error_messages.get(type(error), "Unknown error."))
+    sys.exit({pd.errors.EmptyDataError: 19, pd.errors.ParserError: 12, UnicodeDecodeError: 7}.get(type(error), 1))
+
 def get_data(
-        NO_RESULT: Any,
-        csv_file_path: Union[None, str],
-        _min: Union[int, float, None],
-        _max: Union[int, float, None],
-        old_headers_string: Union[None, str] = None,
-        drop_columns_with_strings: Union[str, bool] = False
-    ) -> Optional[pd.DataFrame]:
+    NO_RESULT: Any,
+    csv_file_path: Optional[str],
+    _min: Optional[Union[int, float]],
+    _max: Optional[Union[int, float]],
+    old_headers_string: Optional[str] = None,
+    drop_columns_with_strings: Union[str, bool] = False
+) -> Optional[pd.DataFrame]:
     res_col_name = "result"
 
+    if not file_exists(csv_file_path):
+        return None
+
     try:
-        if not csv_file_path or not os.path.exists(csv_file_path): # pragma: no cover
+        df = load_csv(csv_file_path)
+        if not headers_match(df, old_headers_string):
+            print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers: {','.join(sorted(df.columns))}")
             return None
-
-        df = pd.read_csv(csv_file_path, index_col=0)
-
-        if old_headers_string: # pragma: no cover
-            df_header_string = ','.join(sorted(df.columns))
-            if df_header_string != old_headers_string:
-                print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers {df_header_string}")
-                return None
-
-        try:
-            if _min is not None:
-                df = df[df[res_col_name] >= _min]
-            if _max is not None:
-                df = df[df[res_col_name] <= _max]
-        except KeyError: # pragma: no cover
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"There was no '{res_col_name}' in {csv_file_path}. This may means all tests failed. Cannot continue.")
-            sys.exit(10)
-        if res_col_name not in df:
-            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
-                print(f"There was no '{res_col_name}' in {csv_file_path}. This may means all tests failed. Cannot continue.")
-            sys.exit(10)
-        df.dropna(subset=[res_col_name], inplace=True)
-
+        df = filter_by_result_range(df, res_col_name, _min, _max)
         if drop_columns_with_strings:
-            columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
-            df = df.drop(columns=columns_with_strings)
-
-        if len(df.columns.tolist()) <= 1 and len(columns_with_strings) >= 1: # pragma: no cover
-            print("It seems like all available columns had strings instead of numbers. String columns cannot currently be plotted with scatter_hex.")
-            sys.exit(19)
-    except pd.errors.EmptyDataError:
-        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-            print(f"{csv_file_path} has no lines to parse.")
-        sys.exit(19)
-    except pd.errors.ParserError as e:
-        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-            print(f"{csv_file_path} is invalid CSV. Parsing error: {str(e).rstrip()}")
-        sys.exit(12) # pragma: no cover
-    except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-            print(f"{csv_file_path} does not seem to be a text-file or it has invalid UTF8 encoding.")
-        sys.exit(7)
-
-    try:
-        df = drop_empty_results(NO_RESULT, df)
-    except KeyError: # pragma: no cover
-        print(f"column named `{res_col_name}` could not be found in {csv_file_path}.")
+            df = drop_string_columns(df)
+        return drop_empty_results(NO_RESULT, df)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
+        handle_csv_exceptions(csv_file_path, e)
+    except KeyError:
+        print(f"Column '{res_col_name}' could not be found in {csv_file_path}.")
         sys.exit(6)
-
-    return df
 
 def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
     res_col_name = "result"

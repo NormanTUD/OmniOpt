@@ -579,7 +579,7 @@ def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_f
         else:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print_no_results_message(csv_file_path, _min, _max)
-        
+
         if _exit:
             sys.exit(4)
 

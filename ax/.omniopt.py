@@ -2258,17 +2258,7 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @beartype
-def write_job_infos_csv(
-        parameters: dict,
-        stdout: Optional[str],
-        program_string_with_params: str,
-        exit_code: Optional[int],
-        _signal: Optional[int],
-        result: Optional[Union[dict[str, Optional[float]], list[float], int, float]],
-        start_time: Union[int, float],
-        end_time: Union[int, float],
-        run_time: Union[float, int]
-    ) -> None:
+def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
     str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
 
     extra_vars_names, extra_vars_values = extract_info(stdout)
@@ -2341,18 +2331,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
         original_print("stderr was empty")
 
 @beartype
-def evaluate_print_stuff(
-        parameters: dict,
-        program_string_with_params: str,
-        stdout: Optional[str],
-        stderr: Optional[str],
-        exit_code: Optional[int],
-        _signal: Optional[int],
-        result: Optional[Union[dict[str, Optional[float]], list[float], int, float]],
-        start_time: Union[float, int],
-        end_time: Union[float, int],
-        run_time: Union[float, int]
-    ) -> None:
+def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
     original_print(f"Parameters: {json.dumps(parameters)}")
 
     print_debug_infos(program_string_with_params)
@@ -2616,7 +2595,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
     return ""
 
 @beartype
-def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> Tuple[Optional[str], Optional[str]]:
+def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> Tuple[np.ndarray, float]:
     best_line: Optional[str] = None
     best_result: Optional[str] = None
 
@@ -4255,7 +4234,10 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
         return False
 
     @beartype
-    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None: # pragma: no cover
+    def insert_or_log_result(
+            parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]],
+            hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]
+        ) -> None: # pragma: no cover
         try:
             insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")

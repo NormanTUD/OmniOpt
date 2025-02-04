@@ -2793,80 +2793,81 @@ def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
     return plot_types
 
 @wrapper_print_debug
+def get_x_y_combinations() -> list:
+    return list(combinations(global_vars["parameter_names"], 2))
+
+@wrapper_print_debug
+def get_plot_filename(plot: dict, _tmp: str) -> str:
+    j = 0
+    _fn = plot.get("filename", plot["type"])
+    tmp_file = f"{_tmp}/{_fn}.png"
+    
+    while os.path.exists(tmp_file):
+        j += 1
+        tmp_file = f"{_tmp}/{_fn}_{j}.png"
+    
+    return tmp_file
+
+@wrapper_print_debug
+def build_command(plot_type: str, plot: dict, _force: bool) -> str:
+    maindir = os.path.dirname(os.path.realpath(__file__))
+    base_command = "bash omniopt_plot" if _force else f"bash {maindir}/omniopt_plot"
+    command = f"{base_command} --run_dir {get_current_run_folder()} --plot_type={plot_type}"
+    
+    if "dpi" in plot:
+        command += f" --dpi={plot['dpi']}"
+    
+    return command
+
+@wrapper_print_debug
 def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
-
+    
     if _force:
         _show_sixel_graphics = True
-
-    data: list = []
-
+    
+    data = []
+    
     if not os.path.exists(_pd_csv):
         print_debug(f"Cannot find path {_pd_csv}")
         return data
-
+    
     if not _show_sixel_graphics: # pragma: no cover
         print_debug("_show_sixel_graphics was false. Will not plot.")
         return data
-
+    
     if len(global_vars["parameter_names"]) == 0: # pragma: no cover
         print_debug("Cannot handle empty data in global_vars -> parameter_names")
         return data
-
-    x_y_combinations = list(combinations(global_vars["parameter_names"], 2))
-
+    
+    x_y_combinations = get_x_y_combinations()
     plot_types = get_plot_types(x_y_combinations, _force)
-
+    
     for plot in plot_types:
         plot_type = plot["type"]
-        min_done_jobs = 1
-
-        if "min_done_jobs" in plot:
-            min_done_jobs = plot["min_done_jobs"]
-
+        min_done_jobs = plot.get("min_done_jobs", 1)
+        
         if not _force and count_done_jobs() < min_done_jobs: # pragma: no cover
             print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
             continue
-
+        
         try:
             _tmp = f"{get_current_run_folder()}/plots/"
-            _width = "1200"
-
-            if "width" in plot: # pragma: no cover
-                _width = plot["width"]
-
+            _width = plot.get("width", "1200")
+            
             if not _force and not os.path.exists(_tmp): # pragma: no cover
                 makedirs(_tmp)
-
-            j = 0
-            _fn = plot_type
-
-            if "filename" in plot:
-                _fn = plot['filename']
-
-            tmp_file = f"{_tmp}/{_fn}.png"
-
-            while os.path.exists(tmp_file): # pragma: no cover
-                j += 1
-                tmp_file = f"{_tmp}/{_fn}_{j}.png"
-
-            maindir = os.path.dirname(os.path.realpath(__file__))
-
-            if _force:
-                _command = f"bash omniopt_plot --run_dir {get_current_run_folder()} --plot_type={plot_type}"
-            else: # pragma: no cover
-                _command = f"bash {maindir}/omniopt_plot --run_dir {get_current_run_folder()} --plot_type={plot_type}"
-
-            if "dpi" in plot:
-                _command += " --dpi=" + str(plot["dpi"])
-
+            
+            tmp_file = get_plot_filename(plot, _tmp)
+            _command = build_command(plot_type, plot, _force)
+            
             _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
             data.append(_params)
         except Exception as e: # pragma: no cover
             tb = traceback.format_exc()
-            print_red(f"Error trying to print {plot_type} to to CLI: {e}, {tb}")
-            print_debug(f"Error trying to print {plot_type} to to CLI: {e}")
-
+            print_red(f"Error trying to print {plot_type} to CLI: {e}, {tb}")
+            print_debug(f"Error trying to print {plot_type} to CLI: {e}")
+    
     return data
 
 @beartype

@@ -2598,31 +2598,9 @@ def replace_string_with_params(input_string: str, params: list) -> str:
 
     return ""
 
-@wrapper_print_debug
-def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict:
-    results: dict = {
-        res_name: None,
-        "parameters": {}
-    }
-
-    if not os.path.exists(csv_file_path): # pragma: no cover
-        return results
-
-    df = None
-
-    try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
-        df.dropna(subset=arg_result_names, inplace=True)
-    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
-        return results
-
-    cols = df.columns.tolist()
-    nparray = df.to_numpy()
-
+@typechecked
+def get_best_line_and_best_result(nparray, result_idx, maximize):
     best_line = None
-
-    result_idx = cols.index(res_name)
-
     best_result = None
 
     for i in range(0, len(nparray)):
@@ -2646,6 +2624,33 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
                 if this_line_result <= best_result:
                     best_line = this_line
                     best_result = this_line_result
+
+    return best_line, best_result
+
+@wrapper_print_debug
+def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict:
+    results: dict = {
+        res_name: None,
+        "parameters": {}
+    }
+
+    if not os.path.exists(csv_file_path): # pragma: no cover
+        return results
+
+    df = None
+
+    try:
+        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
+        df.dropna(subset=arg_result_names, inplace=True)
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
+        return results
+
+    cols = df.columns.tolist()
+    nparray = df.to_numpy()
+
+    result_idx = cols.index(res_name)
+
+    best_line, best_result = get_best_line_and_best_result(nparray, result_idx, maximize)
 
     if best_line is None: # pragma: no cover
         print_debug(f"Could not determine best {res_name}")

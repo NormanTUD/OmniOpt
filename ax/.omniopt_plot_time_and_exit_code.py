@@ -43,70 +43,138 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 args = parser.parse_args()
 
 @beartype
-def main() -> None:
-    _job_infos_csv = f'{args.run_dir}/job_infos.csv'
-
-    if not os.path.exists(_job_infos_csv): # pragma: no cover
-        print(f"Error: {_job_infos_csv} not found")
+def load_csv(filepath: str) -> pd.DataFrame:
+    """Lädt eine CSV-Datei und gibt ein DataFrame zurück."""
+    if not os.path.exists(filepath):  # pragma: no cover
+        print(f"Error: {filepath} not found")
         sys.exit(1)
 
-    df = None
-
     try:
-        df = pd.read_csv(_job_infos_csv)
+        return pd.read_csv(filepath)
     except pd.errors.EmptyDataError:
-        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
-            print(f"Could not find values in file {_job_infos_csv}")
-        sys.exit(19)
+        handle_empty_data(filepath)
     except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
-            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
-        sys.exit(7)
-    df = df.sort_values(by='exit_code')
+        handle_unicode_error(filepath)
 
-    fig, axes = plt.subplots(2, 2, figsize=(20, 30))
 
-    plt.subplots_adjust(hspace=0.4, wspace=0.4)
+@beartype
+def handle_empty_data(filepath: str) -> None:
+    """Behandelt den Fall einer leeren CSV-Datei."""
+    if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
+        print(f"Could not find values in file {filepath}")
+    sys.exit(19)
 
+
+@beartype
+def handle_unicode_error(filepath: str) -> None:
+    """Behandelt den Fall einer ungültigen UTF-8-codierten Datei."""
+    if not os.environ.get("PLOT_TESTS"):  # pragma: no cover
+        print(f"{filepath} seems to be invalid utf8.")
+    sys.exit(7)
+
+
+@beartype
+def validate_dataframe(df: pd.DataFrame) -> None:
+    """Validiert das DataFrame, insbesondere auf die Spalte 'run_time'."""
     if "run_time" not in df:
-        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
+        if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
             print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
         sys.exit(2)
 
-    axes[0, 0].hist(df['run_time'], bins=args.bins)
-    axes[0, 0].set_title('Distribution of Run Time')
-    axes[0, 0].set_xlabel('Run Time')
-    axes[0, 0].set_ylabel(f'Number of jobs in this runtime ({args.bins} bins)')
+
+@beartype
+def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Sortiert das DataFrame und konvertiert Zeitspalten in das lokale Zeitzonenformat."""
+    df = df.sort_values(by='exit_code')
 
     local_tz = get_localzone()
-
     df['start_time'] = pd.to_datetime(df['start_time'], unit='s', utc=True).dt.tz_convert(local_tz)
     df['end_time'] = pd.to_datetime(df['end_time'], unit='s', utc=True).dt.tz_convert(local_tz)
 
-    df['start_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
-    df['end_time'] = df['start_time'].apply(lambda x: datetime.utcfromtimestamp(int(float(x))).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
+    df['start_time'] = df['start_time'].apply(format_timestamp)
+    df['end_time'] = df['end_time'].apply(format_timestamp)
 
-    sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes[0, 1])
-    sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes[0, 1])
+    df["exit_code"] = df["exit_code"].astype(int).astype(str)
 
-    axes[0, 1].set_title('Result over Time')
+    return df
 
-    df["exit_code"] = [str(int(x)) for x in df["exit_code"]]
 
-    sns.violinplot(data=df, x='exit_code', y='run_time', ax=axes[1, 0])
-    axes[1, 0].set_title('Run Time Distribution by Exit Code')
+@beartype
+def format_timestamp(value: object) -> str:
+    """Formatiert einen Zeitstempel als lesbare Zeichenkette."""
+    return datetime.utcfromtimestamp(int(float(value))).strftime('%Y-%m-%d %H:%M:%S') \
+        if helpers.looks_like_number(value) else str(value)
 
-    sns.boxplot(data=df, x='hostname', y='run_time', ax=axes[1, 1])
-    axes[1, 1].set_title('Run Time by Hostname')
 
+@beartype
+def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
+    """Erstellt ein Histogramm der Laufzeiten."""
+    axes.hist(df['run_time'], bins=bins)
+    axes.set_title('Distribution of Run Time')
+    axes.set_xlabel('Run Time')
+    axes.set_ylabel(f'Number of jobs in this runtime ({bins} bins)')
+
+
+@beartype
+def plot_time_scatter(df: pd.DataFrame, axes: plt.Axes) -> None:
+    """Erstellt ein Streudiagramm für Start- und Endzeiten."""
+    sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes)
+    sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes)
+    axes.set_title('Result over Time')
+
+
+@beartype
+def plot_violinplot(df: pd.DataFrame, axes: plt.Axes) -> None:
+    """Erstellt ein Violinplot der Laufzeitverteilung nach Exit-Code."""
+    sns.violinplot(data=df, x='exit_code', y='run_time', ax=axes)
+    axes.set_title('Run Time Distribution by Exit Code')
+
+
+@beartype
+def plot_boxplot(df: pd.DataFrame, axes: plt.Axes) -> None:
+    """Erstellt ein Boxplot der Laufzeiten nach Hostnamen."""
+    sns.boxplot(data=df, x='hostname', y='run_time', ax=axes)
+    axes.set_title('Run Time by Hostname')
+
+
+@beartype
+def create_plots(df: pd.DataFrame, args: object) -> plt.Figure:
+    """Erstellt alle Plots in einer 2x2 Anordnung."""
+    fig, axes = plt.subplots(2, 2, figsize=(20, 30))
+    plt.subplots_adjust(hspace=0.4, wspace=0.4)
+
+    plot_histogram(df, axes[0, 0], args.bins)
+    plot_time_scatter(df, axes[0, 1])
+    plot_violinplot(df, axes[1, 0])
+    plot_boxplot(df, axes[1, 1])
+
+    return fig
+
+
+@beartype
+def handle_output(fig: plt.Figure, args: object) -> None:
+    """Speichert oder zeigt die erstellten Plots an."""
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-    else: # pragma: no cover
+    else:  # pragma: no cover
         window_title = f'Times and exit codes for {args.run_dir}'
-        if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
+        if fig.canvas.manager is not None:
             fig.canvas.manager.set_window_title(window_title)
             if not args.no_plt_show:
                 plt.show()
+
+
+@beartype
+def main() -> None:
+    """Hauptfunktion des Programms."""
+    _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
+    df: pd.DataFrame = load_csv(_job_infos_csv)
+
+    validate_dataframe(df)
+    df = preprocess_dataframe(df)
+
+    fig = create_plots(df, args)
+    handle_output(fig, args)
 
 if __name__ == "__main__":
     main()

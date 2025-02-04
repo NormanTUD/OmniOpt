@@ -2124,7 +2124,10 @@ def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]
     return None
 
 @beartype
-def extract_info(data: str) -> Tuple[list[str], list[str]]:
+def extract_info(data: Optional[str]) -> Tuple[list[str], list[str]]:
+    if data is None:
+        return [], []
+
     names: list[str] = []
     values: list[str] = []
 
@@ -2255,7 +2258,7 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @beartype
-def write_job_infos_csv(parameters: dict, stdout: str, program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
+def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
     str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
 
     extra_vars_names, extra_vars_values = extract_info(stdout)
@@ -2358,7 +2361,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[s
     return result
 
 @beartype
-def evaluate(parameters: dict) -> dict:
+def evaluate(parameters: dict) -> Union[dict, int, float]:
     start_nvidia_smi_thread()
 
     return_in_case_of_error: dict = get_return_in_case_of_errors()
@@ -2592,9 +2595,9 @@ def replace_string_with_params(input_string: str, params: list) -> str:
     return ""
 
 @beartype
-def get_best_line_and_best_result(nparray, result_idx, maximize):
-    best_line = None
-    best_result = None
+def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> Tuple[Optional[str], Optional[str]]:
+    best_line: Optional[str] = None
+    best_result: Optional[str] = None
 
     for i in range(0, len(nparray)):
         this_line = nparray[i]
@@ -2643,7 +2646,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
 
     result_idx = cols.index(res_name)
 
-    best_line, best_result = get_best_line_and_best_result(nparray, result_idx, maximize)
+    best_line, _ = get_best_line_and_best_result(nparray, result_idx, maximize)
 
     if best_line is None: # pragma: no cover
         print_debug(f"Could not determine best {res_name}")
@@ -2826,7 +2829,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     if _force:
         _show_sixel_graphics = True
 
-    data = []
+    data: list = []
 
     if not os.path.exists(_pd_csv):
         print_debug(f"Cannot find path {_pd_csv}")
@@ -2932,7 +2935,7 @@ def write_to_file(file_path: str, content: str) -> None:
         text_file.write(content)
 
 @beartype
-def create_result_table(res_name: str, best_params: dict[str, Any], best_result: Any, total_str: str, failed_error_str: str) -> Table:
+def create_result_table(res_name: str, best_params: dict[str, Any], total_str: str, failed_error_str: str) -> Table:
     table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[arg_result_names.index(res_name)]} ({total_str}{failed_error_str}):")
 
     for key in list(best_params["parameters"].keys())[3:]:
@@ -2971,7 +2974,7 @@ def process_best_result(csv_file_path: str, res_name: str, maximize: bool, print
 
     failed_error_str = f", failed: {failed_jobs()}" if print_to_file and failed_jobs() >= 1 else ""
 
-    table = create_result_table(res_name, best_params, best_result, total_str, failed_error_str)
+    table = create_result_table(res_name, best_params, total_str, failed_error_str)
     add_table_row(table, best_params, best_result)
 
     if len(arg_result_names) == 1:
@@ -3350,8 +3353,8 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
     result_array = re.split(regex_pattern, equation)
     result_array = [item for item in result_array if item.strip()]
 
-    parsed = []
-    parsed_order = []
+    parsed: list = []
+    parsed_order: list = []
 
     comparer_found = False
 
@@ -3428,7 +3431,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
     return experiment_args
 
 @beartype
-def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list], experiment_parameters: dict):
+def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list], experiment_parameters: dict) -> dict:
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
@@ -3484,7 +3487,7 @@ def get_experiment_parameters(_params: list) -> Any:
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
         die_with_47_if_file_doesnt_exists(checkpoint_file)
 
-        experiment_parameters: dict = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
+        experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
 
         experiment_args = set_torch_device_to_experiment_args(experiment_args)
 
@@ -3831,7 +3834,7 @@ def submitted_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
 @beartype
-def get_slurm_in_brackets(in_brackets: list):
+def get_slurm_in_brackets(in_brackets: list) -> list:
     global WORKER_PERCENTAGE_USAGE
 
     if is_slurm_job(): # pragma: no cover

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+export install_tests=1
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+exit_code=0
+
+if command -v lizard 2>/dev/null >/dev/null; then
+	lizard .*.py
+	exit_code=$?
+else
+	echo "Warning: lizard is not installed. Cannot run lizard"
+fi
+
+exit $exit_code

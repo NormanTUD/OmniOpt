@@ -552,27 +552,34 @@ def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
 
     return df_filtered
 
-def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None, _exit: bool = True) -> None: # pragma: no cover
+def print_filtering_message(_min: Union[int, float, None], _max: Union[int, float, None]) -> None:
+    if _min and not _max:
+        print("Using --min filtered out all results")
+    elif not _min and _max:
+        print("Using --max filtered out all results")
+    elif _min and _max:
+        print("Using --min and --max filtered out all results")
+    else:
+        print("For some reason, there were values in the beginning but not after filtering")
+
+def print_no_results_message(csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
+    if _min is not None and _max is not None:
+        print(f"No applicable values could be found in {csv_file_path} (min: {_min}, max: {_max}).")
+    elif _min is not None:
+        print(f"No applicable values could be found in {csv_file_path} (min: {_min}).")
+    elif _max is not None:
+        print(f"No applicable values could be found in {csv_file_path} (max: {_max}).")
+    else:
+        print(f"No applicable values could be found in {csv_file_path}.")
+
+def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None, _exit: bool = True) -> None:
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
-            if _min and not _max:
-                print("Using --min filtered out all results")
-            elif not _min and _max:
-                print("Using --max filtered out all results")
-            elif _min and _max:
-                print("Using --min and --max filtered out all results")
-            else:
-                print("For some reason, there were values in the beginning but not after filtering")
+            print_filtering_message(_min, _max)
         else:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                if _min is not None and _max is not None:
-                    print(f"No applicable values could be found in {csv_file_path} (min: {_min}, max: {_max}).")
-                elif _min is not None:
-                    print(f"No applicable values could be found in {csv_file_path} (min: {_min}).")
-                elif _max is not None:
-                    print(f"No applicable values could be found in {csv_file_path} (max: {_max}).")
-                else:
-                    print(f"No applicable values could be found in {csv_file_path}.")
+                print_no_results_message(csv_file_path, _min, _max)
+        
         if _exit:
             sys.exit(4)
 

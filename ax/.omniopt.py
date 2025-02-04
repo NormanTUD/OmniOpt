@@ -2385,6 +2385,10 @@ def evaluate(parameters: dict) -> Optional[Union[dict, int, float]]:
 
         stdout, stderr, exit_code, _signal = execute_bash_code(program_string_with_params)
 
+        original_print(stdout)
+
+        original_print(stderr)
+
         end_time: int = int(time.time())
 
         result = get_results_with_occ(stdout)

@@ -364,17 +364,21 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
 			});
 
-			var trace2d = {
+			var trace2d = { 
 				x: xValues,
 				y: yValues,
 				mode: "markers",
 				type: "scatter",
 				marker: {
-					color: colors
-				},
+					color: colors,
+					size: 15,
+					sizemode: "diameter",
+					sizeref: 1
+				},      
 				text: hoverText,
 				hoverinfo: "text"
 			};
+
 
 			var colorScaleTrace = {
 				x: [null],
@@ -387,7 +391,6 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 					cmin: minResult,
 					cmax: maxResult,
 					showscale: true,
-					size: 60,
 					colorbar: {
 						title: "Result Values",
 						titleside: "right"

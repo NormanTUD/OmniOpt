@@ -68,7 +68,7 @@ function createMapping(header_line) {
 }
 
 function extractParameterKeys(header_line) {
-	const excludedKeys = ["trial_index", "arm_name", "run_time", "trial_status", "generation_method", "result", "start_time", "end_time", "program_string", "hostname", "signal", "exit_code"];
+	const excludedKeys = ["trial_index", "arm_name", "run_time", "trial_status", "generation_method", "start_time", "end_time", "program_string", "hostname", "signal", "exit_code"];
 	// Filter out any keys that are in the excludedKeys list
 	return excludedKeys; // Now return excluded keys directly
 }
@@ -82,11 +82,9 @@ function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, m
 	let data_md5 = md5(JSON.stringify(data));
 	if ($("#parallel_plot_container").data("md5") == data_md5) return;
 
-	// Filter out excluded columns (hostname, program_string, start_time, etc.)
 	let excludedKeys = extractParameterKeys(header_line); // Use this to get the list of excluded keys
 	let filtered_header_line = header_line.filter(key => !excludedKeys.includes(key));
 
-	// Now create dimensions only with the filtered header line
 	let dimensions = createDimensions(filtered_header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
 	let layout = createParallelLayout();

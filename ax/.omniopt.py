@@ -3571,10 +3571,13 @@ def get_experiment_parameters(_params: list) -> Any:
                 print_red("ax_client could not be found!")
                 sys.exit(9)
         except ValueError as error: # pragma: no cover
-            print_red(f"An error has occurred while creating the experiment: {error}")
+            print_red(f"An error has occurred while creating the experiment (1): {error}")
             die_something_went_wrong_with_parameters()
         except TypeError as error: # pragma: no cover
-            print_red(f"An error has occurred while creating the experiment: {error}. This is probably a bug in OmniOpt2.")
+            print_red(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.")
+            die_something_went_wrong_with_parameters()
+        except ax.exceptions.core.UserInputError as error:
+            print_red(f"An error occured while creating the experiment (3): {error}")
             die_something_went_wrong_with_parameters()
 
     return ax_client, experiment_parameters, experiment_args

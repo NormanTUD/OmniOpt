@@ -3,17 +3,14 @@
 async function plot_parallel_plot() {
 	var resnames = await get_result_names_data();
 
-	// Fetch and validate data
 	showSpinnerOverlay("Plotting parallel-plot");
 	let _results_csv_json = await fetchData("job_infos.csv");
 	if (!_results_csv_json) {
 		return;
 	}
 
-	// Preprocess data
 	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json, resnames);
 
-	// Generate the plot
 	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 
 	apply_theme_based_on_system_preferences();

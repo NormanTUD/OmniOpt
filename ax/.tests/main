@@ -564,6 +564,8 @@ _test "Find missing env vars documentation" ".tests/find_missing_env_vars_docume
 _test "Find typos in bash" ".tests/find_typos_in_bash" 0
 _test "Find typos in js" ".tests/find_typos_in_js" 0
 _test "Find typos in php" ".tests/find_typos_in_php" 0
+_test "Lizard" ".tests/lizard" 0
+
 if [[ -z $CI ]]; then
 	_test "Find typos in python" "bash .tests/find_typos_in_python" 0
 fi

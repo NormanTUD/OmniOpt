@@ -2285,7 +2285,10 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
 
     result_values = []
 
-    if isinstance(result, dict): # pragma: no cover
+    if isinstance(result, list): # pragma: no cover
+        for rkey in result:
+            result_values.append(str(rkey))
+    elif isinstance(result, dict): # pragma: no cover
         for rkey in list(result.keys()):
             rval = result[rkey]
 

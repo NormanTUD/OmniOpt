@@ -70,7 +70,6 @@ def handle_unicode_error(filepath: str) -> None:
 
 @beartype
 def update_graph() -> None:
-    """Lädt Daten, filtert sie optional und erstellt ein Diagramm."""
     if args is None:
         return
 
@@ -106,7 +105,6 @@ def update_graph() -> None:
 
 @beartype
 def ensure_directory_exists(file_path: str) -> None:
-    """Stellt sicher, dass das Verzeichnis für die Datei existiert."""
     directory = os.path.dirname(file_path)
     if directory:  # pragma: no cover
         os.makedirs(directory, exist_ok=True)

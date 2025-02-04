@@ -57,6 +57,18 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -
                 plt.show()
 
 @beartype
+def handle_empty_data(filepath: str) -> None:
+    if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
+        print(f"Could not find values in file {filepath}")
+    sys.exit(19)
+
+@beartype
+def handle_unicode_error(filepath: str) -> None:
+    if not os.environ.get("PLOT_TESTS"):  # pragma: no cover
+        print(f"{filepath} seems to be invalid utf8.")
+    sys.exit(7)
+
+@beartype
 def update_graph() -> None:
     """Lädt Daten, filtert sie optional und erstellt ein Diagramm."""
     if args is None:
@@ -91,7 +103,6 @@ def update_graph() -> None:
             print(f"{csv_path} seems to have no 'result' column.")
     except Exception as exception:  # pragma: no cover
         print(f"An unexpected error occurred: {exception}")
-
 
 @beartype
 def ensure_directory_exists(file_path: str) -> None:

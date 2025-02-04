@@ -63,13 +63,11 @@ def handle_empty_data(filepath: str) -> None:
         print(f"Could not find values in file {filepath}")
     sys.exit(19)
 
-
 @beartype
 def handle_unicode_error(filepath: str) -> None:
     if not os.environ.get("PLOT_TESTS"):  # pragma: no cover
         print(f"{filepath} seems to be invalid utf8.")
     sys.exit(7)
-
 
 @beartype
 def validate_dataframe(df: pd.DataFrame) -> None:
@@ -77,7 +75,6 @@ def validate_dataframe(df: pd.DataFrame) -> None:
         if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
             print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
         sys.exit(2)
-
 
 @beartype
 def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
@@ -94,12 +91,10 @@ def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-
 @beartype
 def format_timestamp(value: object) -> str:
     return datetime.utcfromtimestamp(int(float(value))).strftime('%Y-%m-%d %H:%M:%S') \
         if helpers.looks_like_number(value) else str(value)
-
 
 @beartype
 def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
@@ -108,25 +103,21 @@ def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
     axes.set_xlabel('Run Time')
     axes.set_ylabel(f'Number of jobs in this runtime ({bins} bins)')
 
-
 @beartype
 def plot_time_scatter(df: pd.DataFrame, axes: plt.Axes) -> None:
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes)
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes)
     axes.set_title('Result over Time')
 
-
 @beartype
 def plot_violinplot(df: pd.DataFrame, axes: plt.Axes) -> None:
     sns.violinplot(data=df, x='exit_code', y='run_time', ax=axes)
     axes.set_title('Run Time Distribution by Exit Code')
 
-
 @beartype
 def plot_boxplot(df: pd.DataFrame, axes: plt.Axes) -> None:
     sns.boxplot(data=df, x='hostname', y='run_time', ax=axes)
     axes.set_title('Run Time by Hostname')
-
 
 @beartype
 def create_plots(df: pd.DataFrame) -> plt.Figure:
@@ -140,9 +131,8 @@ def create_plots(df: pd.DataFrame) -> plt.Figure:
 
     return fig
 
-
 @beartype
-def handle_output(fig: plt.Figure, args: object) -> None:
+def handle_output(fig: plt.Figure) -> None:
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else:  # pragma: no cover
@@ -151,7 +141,6 @@ def handle_output(fig: plt.Figure, args: object) -> None:
             fig.canvas.manager.set_window_title(window_title)
             if not args.no_plt_show:
                 plt.show()
-
 
 @beartype
 def main() -> None:
@@ -163,7 +152,7 @@ def main() -> None:
         df = preprocess_dataframe(df)
 
         fig = create_plots(df)
-        handle_output(fig, args)
+        handle_output(fig)
     else:
         print("df was empty")
 

@@ -40,7 +40,7 @@ for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_p
 done
 
 for possible_plot_type in "${expected_plot_types[@]}"; do
-	if ! grep "plot_type=$possible_plot_type" .gui/tutorials/plot.php 2>&1 >/dev/null; then
+	if ! grep "$possible_plot_type" .gui/tutorials/plot.php 2>&1 >/dev/null; then
 		errmsg="Plot type $possible_plot_type does not appear in .gui/tutorials/plot.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")

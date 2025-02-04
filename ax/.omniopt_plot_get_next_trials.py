@@ -14,7 +14,7 @@ from typing import Any, Union
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from typeguard import typechecked
+from beartype import beartype
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
@@ -30,7 +30,7 @@ else: # pragma: no cover
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-@typechecked
+@beartype
 def parse_log_file(args: Any, log_file_path: str) -> Union[pd.DataFrame, None]:
     try:
         data = pd.read_csv(log_file_path, header=None, names=['time', 'got', 'requested'])
@@ -69,7 +69,7 @@ def parse_log_file(args: Any, log_file_path: str) -> Union[pd.DataFrame, None]:
 
     return None # pragma: no cover
 
-@typechecked
+@beartype
 def plot_trial_usage(args: Any, log_file_path: str) -> None:
     try:
         data = parse_log_file(args, log_file_path)
@@ -104,7 +104,7 @@ def plot_trial_usage(args: Any, log_file_path: str) -> None:
         helpers.log_error(f"An error occurred while plotting: {e}")
         raise
 
-@typechecked
+@beartype
 def main() -> None:
     parser = argparse.ArgumentParser(description='Plot trial usage from log file')
     parser.add_argument('--run_dir', type=str, help='Directory containing log file')

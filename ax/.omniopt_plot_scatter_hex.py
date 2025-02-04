@@ -14,7 +14,7 @@ import sys
 import traceback
 from typing import Any, Union
 import pandas as pd
-from typeguard import typechecked
+from beartype import beartype
 
 button = None
 
@@ -90,14 +90,14 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
-@typechecked
+@beartype
 def set_title(df_filtered: pd.DataFrame, result_column_values: pd.core.series.Series, num_entries: int, _min: Union[float, int, None] = None, _max: Union[float, int, None] = None) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:
         fig.suptitle(title)
 
-@typechecked
+@beartype
 def plot_multiple_graphs(_params: list) -> None:
     if args is not None:
         non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
@@ -148,7 +148,7 @@ def plot_multiple_graphs(_params: list) -> None:
 
         helpers.show_legend(args, fig, scatter, axs)
 
-@typechecked
+@beartype
 def plot_single_graph(_params: list) -> None:
     if args is not None:
         axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
@@ -171,7 +171,7 @@ def plot_single_graph(_params: list) -> None:
         axs.set_xlabel(non_empty_graphs[0][0])
         axs.set_ylabel("result")
 
-@typechecked
+@beartype
 def plot_graphs(_params: list) -> None:
     global fig
     df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
@@ -188,7 +188,7 @@ def plot_graphs(_params: list) -> None:
 
     axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
-@typechecked
+@beartype
 def main() -> None:
     global args
 

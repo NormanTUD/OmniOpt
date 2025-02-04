@@ -17,7 +17,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from typeguard import typechecked
+from beartype import beartype
+
+warnings.filterwarnings("ignore")
 
 fig = None
 args = None
@@ -43,7 +45,7 @@ parser.add_argument('--save_to_file', type=str, help='Save the plot to the speci
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-@typechecked
+@beartype
 def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int, int]:
     if num_plots > 1:
         num_rows = int(num_plots ** 0.5)
@@ -51,9 +53,20 @@ def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int
 
     return num_rows, num_cols
 
-@typechecked
+@beartype
+def check_rows_cols_or_die(num_rows, num_cols):
+    if num_rows == 0 or num_cols == 0:
+        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
+            print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
+        sys.exit(42)
+
+@beartype
 def plot_histograms(dataframe: pd.DataFrame) -> None:
-    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'result']
+    global fig
+
+    res_col_name = "result"
+
+    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', res_col_name]
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
 
     num_plots = len(numeric_columns)
@@ -62,12 +75,7 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
 
     num_rows, num_cols = get_num_rows_cols(num_plots, num_rows, num_cols)
 
-    if num_rows == 0 or num_cols == 0:
-        if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
-            print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
-        sys.exit(42)
-
-    global fig
+    check_rows_cols_or_die(num_rows, num_cols)
 
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
     try:
@@ -87,11 +95,11 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
             ax = axes
 
         values = dataframe[col]
-        if "result" not in dataframe:
+        if res_col_name not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
-                print("KDE: Result column not found in dataframe. That may mean that the job had no valid runs")
+                print(f"KDE: {res_col_name} column not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
-        result_values = dataframe['result']
+        result_values = dataframe[res_col_name]
         if args is not None:
             bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
             colormap = plt.get_cmap('RdYlGn_r')
@@ -120,12 +128,10 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
     for j in range(num_plots, nr_axes):
         axes[j].axis('off')
 
-    warnings.filterwarnings("ignore")
-
     plt.tight_layout()
     save_to_file_or_show_canvas()
 
-@typechecked
+@beartype
 def save_to_file_or_show_canvas() -> None:
     if args is not None:
         if args.save_to_file:
@@ -136,7 +142,7 @@ def save_to_file_or_show_canvas() -> None:
                 if not args.no_plt_show:
                     plt.show()
 
-@typechecked
+@beartype
 def update_graph() -> None:
     if args is not None:
         pd_csv = args.run_dir + "/results.csv"

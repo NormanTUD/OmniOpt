@@ -17,7 +17,7 @@ import pandas as pd
 import seaborn as sns
 from tzlocal import get_localzone
 
-from typeguard import typechecked
+from beartype import beartype
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -33,17 +33,17 @@ if spec is not None and spec.loader is not None:
 else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
-@typechecked
+parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
+parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
+
+parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+
+parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+args = parser.parse_args()
+
+@beartype
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
-    parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
-
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-
-    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-    args = parser.parse_args()
-
     _job_infos_csv = f'{args.run_dir}/job_infos.csv'
 
     if not os.path.exists(_job_infos_csv): # pragma: no cover

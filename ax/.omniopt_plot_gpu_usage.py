@@ -14,7 +14,7 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from typeguard import typechecked
+from beartype import beartype
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--run_dir', type=str, help='Directory where to search for CSV files')
@@ -40,7 +40,7 @@ else: # pragma: no cover
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-@typechecked
+@beartype
 def get_names_array() -> list:
     return [
         "timestamp",
@@ -58,7 +58,7 @@ def get_names_array() -> list:
         "memory.used [MiB]"
     ]
 
-@typechecked
+@beartype
 def plot_gpu_usage(run_dir: str) -> None:
     global fig
 
@@ -127,7 +127,7 @@ def plot_gpu_usage(run_dir: str) -> None:
 
     save_to_file_or_show_canvas()
 
-@typechecked
+@beartype
 def save_to_file_or_show_canvas() -> None:
     if args:
         if args.save_to_file:

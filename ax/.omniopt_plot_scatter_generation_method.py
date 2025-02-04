@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from typeguard import typechecked
+from beartype import beartype
 
 args = None
 
@@ -37,7 +37,7 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-@typechecked
+@beartype
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -> None:
     exclude_columns: list = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
 
@@ -56,7 +56,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -
             if not args.no_plt_show:
                 plt.show()
 
-@typechecked
+@beartype
 def update_graph() -> None:
     if args is not None:
         try:

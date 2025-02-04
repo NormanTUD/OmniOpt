@@ -104,20 +104,13 @@ try:
 
         from tqdm import tqdm
 
-        F = TypeVar("F", bound=Callable[..., object])
-
-        if os.getenv("OO_MAIN_TESTS") == "1":
-            import importlib
-            typechecked = importlib.import_module("beartype").beartype
-        else: # pragma: no cover
-            def typechecked(func: F) -> F:
-                return func
+        from beartype import beartype
 except ModuleNotFoundError as e: # pragma: no cover
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
 
-@typechecked
+@beartype
 def makedirs(p: str) -> bool:
     if not os.path.exists(p):
         try:
@@ -157,7 +150,7 @@ max_eval: int = 1
 random_steps: int = 1
 progress_bar: Optional[tqdm] = None
 
-@typechecked
+@beartype
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
@@ -190,13 +183,13 @@ class SignalINT (Exception):
 class SignalCONT (Exception):
     pass
 
-@typechecked
+@beartype
 def is_slurm_job() -> bool:
     if os.environ.get('SLURM_JOB_ID') is not None: # pragma: no cover
         return True
     return False
 
-@typechecked
+@beartype
 def _sleep(t: int) -> int:
     if args is not None and not args.no_sleep:
         time.sleep(t)
@@ -214,7 +207,7 @@ logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{log_uuid_dir}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
 
-@typechecked
+@beartype
 def print_red(text: str) -> None:
     helpers.print_color("red", text)
 
@@ -228,7 +221,7 @@ def print_red(text: str) -> None:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
-@typechecked
+@beartype
 def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if _lvl > 3: # pragma: no cover
         original_print(f"Cannot write _debug, error: {eee}")
@@ -246,7 +239,7 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
 
         _debug(msg, _lvl + 1, e)
 
-@typechecked
+@beartype
 def _get_debug_json(time_str: str, msg: str) -> str:
     stack = inspect.stack()
     function_stack = []
@@ -261,7 +254,7 @@ def _get_debug_json(time_str: str, msg: str) -> str:
 
     return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
-@typechecked
+@beartype
 def print_debug(msg: str) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -274,7 +267,7 @@ def print_debug(msg: str) -> None:
 
     _debug(msg)
 
-@typechecked
+@beartype
 def my_exit(_code: int = 0) -> None:
     tb = traceback.format_exc()
 
@@ -292,19 +285,19 @@ def my_exit(_code: int = 0) -> None:
     print_debug("Exit-Code: " + str(_code))
     sys.exit(_code)
 
-@typechecked
+@beartype
 def print_green(text: str) -> None:
     helpers.print_color("green", text)
 
     print_debug(text)
 
-@typechecked
+@beartype
 def print_yellow(text: str) -> None:
     helpers.print_color("yellow", f"⚠ {text}")
 
     print_debug(text)
 
-@typechecked
+@beartype
 def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> str:
     path = f"{continue_path}/result_min_max.txt"
 
@@ -375,7 +368,7 @@ class ConfigLoader:
     minkowski_p: float
     signed_weighted_euclidean_weights: str
 
-    @typechecked
+    @beartype
     def __init__(self) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
@@ -392,7 +385,7 @@ class ConfigLoader:
         # Initialize the remaining arguments
         self.add_arguments()
 
-    @typechecked
+    @beartype
     def add_arguments(self) -> None:
         required = self.parser.add_argument_group('Required arguments', "These options have to be set")
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
@@ -471,7 +464,7 @@ class ConfigLoader:
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
 
-    @typechecked
+    @beartype
     def load_config(self, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path): # pragma: no cover
             print("Exit-Code: 5")
@@ -494,7 +487,7 @@ class ConfigLoader:
 
         return {} # pragma: no cover
 
-    @typechecked
+    @beartype
     def validate_and_convert(self, config: dict, arg_defaults: dict) -> dict:
         """
         Validates the config data and converts them to the right types based on argparse defaults.
@@ -521,7 +514,7 @@ class ConfigLoader:
 
         return converted_config
 
-    @typechecked
+    @beartype
     def merge_args_with_config(self: Any, config: Any, cli_args: Any) -> Any:
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
@@ -535,7 +528,7 @@ class ConfigLoader:
 
         return cli_args
 
-    @typechecked
+    @beartype
     def parse_arguments(self: Any) -> Any:
         # First, parse the CLI arguments to check if config files are provided
         _args = self.parser.parse_args()
@@ -645,7 +638,7 @@ if args.continue_previous_job is not None:
     arg_result_names = found_result_names # pragma: no cover
     arg_result_min_or_max = found_result_min_max # pragma: no cover
 
-@typechecked
+@beartype
 def wrapper_print_debug(func: Any) -> Any:
     def wrapper(*__args: Any, **kwargs: Any) -> Any:
         start_time = time.time()
@@ -712,7 +705,7 @@ disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRIT
 
 NVIDIA_SMI_LOGS_BASE = None
 
-@typechecked
+@beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
     try:
         with open(file, mode='a+', encoding="utf-8") as f:
@@ -822,7 +815,7 @@ def save_pd_csv() -> str:
 
     return pd_csv
 
-@typechecked
+@beartype
 def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":
         run_folder = get_current_run_folder()
@@ -849,7 +842,7 @@ missing_results: list = []
 already_inserted_param_hashes: dict = {}
 already_inserted_param_data: list = []
 
-@typechecked
+@beartype
 def print_logo() -> None:
     print_debug("print_logo()")
     if os.environ.get('NO_OO_LOGO') is not None: # pragma: no cover
@@ -956,7 +949,7 @@ global_vars["parameter_names"] = []
 
 main_pid = os.getpid()
 
-@typechecked
+@beartype
 def set_max_eval(new_max_eval: int) -> None:
     global max_eval
 
@@ -965,7 +958,7 @@ def set_max_eval(new_max_eval: int) -> None:
 
     max_eval = new_max_eval
 
-@typechecked
+@beartype
 def write_worker_usage() -> None:
     if len(WORKER_PERCENTAGE_USAGE): # pragma: no cover
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
@@ -1004,14 +997,14 @@ def log_system_usage() -> None:
 
         writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
 
-@typechecked
+@beartype
 def write_process_info() -> None:
     try:
         log_system_usage()
     except Exception as e: # pragma: no cover
         print_debug(f"Error retrieving process information: {str(e)}")
 
-@typechecked
+@beartype
 def log_nr_of_workers() -> None:
     try:
         write_process_info()
@@ -1060,11 +1053,11 @@ def log_what_needs_to_be_logged() -> None:
         except Exception as e: # pragma: no cover
             print_debug(f"Error in log_nr_of_workers: {e}")
 
-@typechecked
+@beartype
 def get_line_info() -> Tuple[str, str, int, str, str]:
     return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
 
-@typechecked
+@beartype
 def print_image_to_cli(image_path: str, width: int) -> bool:
     print("")
     try:
@@ -1087,7 +1080,7 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
 
     return False
 
-@typechecked
+@beartype
 def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if not _logfile: # pragma: no cover
         return None
@@ -1109,27 +1102,27 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
 
     return None
 
-@typechecked
+@beartype
 def _log_trial_index_to_param(trial_index: dict, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, str(trial_index), _lvl, str(eee))
 
-@typechecked
+@beartype
 def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, str(eee))
 
-@typechecked
+@beartype
 def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None: # pragma: no cover
     log_message_to_file(_file, result, _lvl, str(eee))
 
-@typechecked
+@beartype
 def _debug_get_next_trials(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, str(eee))
 
-@typechecked
+@beartype
 def _debug_progressbar(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, str(eee))
 
-@typechecked
+@beartype
 def decode_if_base64(input_str: str) -> str:
     try:
         decoded_bytes = base64.b64decode(input_str)
@@ -1138,7 +1131,7 @@ def decode_if_base64(input_str: str) -> str:
     except Exception:
         return input_str
 
-@typechecked
+@beartype
 def get_file_as_string(f: str) -> str:
     datafile: str = ""
     if not os.path.exists(f):
@@ -1180,7 +1173,7 @@ if not args.tests and len(global_vars["joined_run_program"]) == 0:
 
 global_vars["experiment_name"] = args.experiment_name
 
-@typechecked
+@beartype
 def load_global_vars(_file: str) -> None:
     if not os.path.exists(_file): # pragma: no cover
         print_red(f"You've tried to continue a non-existing job: {_file}")
@@ -1193,24 +1186,24 @@ def load_global_vars(_file: str) -> None:
         print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
-@typechecked
+@beartype
 def load_or_exit(filepath: str, error_msg: str, exit_code: int) -> None:
     if not os.path.exists(filepath): # pragma: no cover
         print_red(error_msg)
         my_exit(exit_code)
 
-@typechecked
+@beartype
 def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> str:
     load_or_exit(filepath, error_msg, exit_code)
     return get_file_as_string(filepath).strip()
 
-@typechecked
+@beartype
 def check_param_or_exit(param: Optional[Union[list, str]], error_msg: str, exit_code: int) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)
 
-@typechecked
+@beartype
 def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
     global global_vars
     if continue_previous_job:
@@ -1226,7 +1219,7 @@ def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
             )
     return global_vars
 
-@typechecked
+@beartype
 def check_required_parameters(_args: Any) -> None:
     global global_vars
 
@@ -1246,7 +1239,7 @@ def check_required_parameters(_args: Any) -> None:
         19
     )
 
-@typechecked
+@beartype
 def load_time_or_exit(_args: Any) -> None:
     global global_vars
     if _args.time:
@@ -1265,7 +1258,7 @@ def load_time_or_exit(_args: Any) -> None:
         print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
-@typechecked
+@beartype
 def load_mem_gb_or_exit(_args: Any) -> Optional[int]: # pragma: no cover
     if _args.mem_gb:
         return int(_args.mem_gb)
@@ -1286,7 +1279,7 @@ def load_mem_gb_or_exit(_args: Any) -> Optional[int]: # pragma: no cover
 
     return None
 
-@typechecked
+@beartype
 def load_gpus_or_exit(_args: Any) -> Optional[int]:
     if _args.continue_previous_job and not _args.gpus:
         gpus_file = f"{_args.continue_previous_job}/state_files/gpus"
@@ -1299,7 +1292,7 @@ def load_gpus_or_exit(_args: Any) -> Optional[int]:
         print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number") # pragma: no cover
     return _args.gpus
 
-@typechecked
+@beartype
 def load_max_eval_or_exit(_args: Any) -> None:
     if _args.max_eval:
         set_max_eval(_args.max_eval)
@@ -1350,15 +1343,15 @@ def print_debug_progressbar(msg: str) -> None:
 
     _debug_progressbar(msg)
 
-@typechecked
+@beartype
 def receive_usr_signal_one(signum: int, stack: Any) -> None: # pragma: no cover
     raise SignalUSR(f"USR1-signal received ({signum})")
 
-@typechecked
+@beartype
 def receive_usr_signal_int(signum: int, stack: Any) -> None: # pragma: no cover
     raise SignalINT(f"INT-signal received ({signum})")
 
-@typechecked
+@beartype
 def receive_signal_cont(signum: int, stack: Any) -> None: # pragma: no cover
     raise SignalCONT(f"CONT-signal received ({signum})")
 
@@ -1368,7 +1361,7 @@ signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_int)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
-@typechecked
+@beartype
 def is_executable_in_path(executable_name: str) -> bool:
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
@@ -1387,7 +1380,7 @@ if is_executable_in_path("nvidia-smi"): # pragma: no cover
 if not SYSTEM_HAS_SBATCH:
     num_parallel_jobs = 1
 
-@typechecked
+@beartype
 def save_global_vars() -> None:
     state_files_folder = f"{get_current_run_folder()}/state_files"
     makedirs(state_files_folder)
@@ -1395,7 +1388,7 @@ def save_global_vars() -> None:
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
-@typechecked
+@beartype
 def check_slurm_job_id() -> None:
     print_debug("check_slurm_job_id()")
     if SYSTEM_HAS_SBATCH: # pragma: no cover
@@ -1408,7 +1401,7 @@ def check_slurm_job_id() -> None:
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM-job."
             )
 
-@typechecked
+@beartype
 def create_folder_and_file(folder: str) -> str:
     print_debug(f"create_folder_and_file({folder})")
 
@@ -1418,7 +1411,7 @@ def create_folder_and_file(folder: str) -> str:
 
     return file_path
 
-@typechecked
+@beartype
 def sort_numerically_or_alphabetically(arr: list) -> list:
     try:
         new_arr = [float(item) for item in arr]
@@ -1429,7 +1422,7 @@ def sort_numerically_or_alphabetically(arr: list) -> list:
     sorted_arr = sorted(arr)
     return sorted_arr
 
-@typechecked
+@beartype
 def get_program_code_from_out_file(f: str) -> str:
     if not os.path.exists(f):
         print_debug(f"{f} not found")
@@ -1444,7 +1437,7 @@ def get_program_code_from_out_file(f: str) -> str:
 
     return ""
 
-@typechecked
+@beartype
 def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, int, float], _type: str = "min") -> Optional[Union[np.int64, float]]:
     if not os.path.exists(pd_csv):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
@@ -1507,7 +1500,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
 
     return ret_val, found_in_file
 
-@typechecked
+@beartype
 def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Union[float, int]) -> Union[Tuple[float | int, bool], Any]:
     ret_val = _default
 
@@ -1523,7 +1516,7 @@ def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Unio
 
     return ret_val, False
 
-@typechecked
+@beartype
 def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
         print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
@@ -1531,7 +1524,7 @@ def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[
 
     return lower_bound, upper_bound
 
-@typechecked
+@beartype
 def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[int | float, int | float]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
@@ -1544,7 +1537,7 @@ def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int
 
     return lower_bound, upper_bound
 
-@typechecked
+@beartype
 def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
@@ -1560,7 +1553,7 @@ def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
 
     return lower_bound, upper_bound
 
-@typechecked
+@beartype
 def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Union[Tuple[float, float], Tuple[int, int]]:
     lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
 
@@ -1570,7 +1563,7 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 
     return lower_bound, upper_bound
 
-@typechecked
+@beartype
 def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
     return {
         "name": name,
@@ -1580,7 +1573,7 @@ def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_b
         "log_scale": log_scale
     }
 
-@typechecked
+@beartype
 def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
     if lower_bound is None or upper_bound is None: # pragma: no cover
         print_red("handle_grid_search: lower_bound or upper_bound is None")
@@ -1603,13 +1596,13 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
         "values": values_str
     }
 
-@typechecked
+@beartype
 def get_bounds_from_previous_data(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[float | int, float | int]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-@typechecked
+@beartype
 def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
@@ -1625,7 +1618,7 @@ def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound:
 
     return search_space_reduction_warning
 
-@typechecked
+@beartype
 def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[int, str, bool]:
     skip = 5
     try:
@@ -1642,7 +1635,7 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
 
     return skip, value_type, log_scale
 
-@typechecked
+@beartype
 def parse_range_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
@@ -1677,12 +1670,12 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: U
     j += skip
     return j, params, search_space_reduction_warning
 
-@typechecked
+@beartype
 def validate_value_type(value_type: str) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-@typechecked
+@beartype
 def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
@@ -1706,7 +1699,7 @@ def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: U
 
     return j, params, search_space_reduction_warning
 
-@typechecked
+@beartype
 def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
@@ -1794,26 +1787,26 @@ def parse_experiment_parameters() -> list:
 
     return params
 
-@typechecked
+@beartype
 def check_factorial_range() -> None: # pragma: no cover
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
 
-@typechecked
+@beartype
 def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -> None:
     if value_type not in valid_value_types:
         valid_value_types_string = ", ".join(valid_value_types)
         print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
         my_exit(181)
 
-@typechecked
+@beartype
 def check_range_params_length(this_args: Union[str, list]) -> None:
     if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
         print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
         my_exit(181)
 
-@typechecked
+@beartype
 def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
     if upper_bound is None or lower_bound is None: # pragma: no cover
         print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
@@ -1826,7 +1819,7 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
         if upper_bound is not None: # pragma: no cover
             lower_bound = -upper_bound
 
-@typechecked
+@beartype
 def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
     try:
         for param_item in parameters:
@@ -1843,7 +1836,7 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
         print_red(f"\n⚠ Error: {e}")
         return ""
 
-@typechecked
+@beartype
 def execute_bash_code(code: str) -> list:
     try:
         result = subprocess.run(
@@ -1888,7 +1881,7 @@ def execute_bash_code(code: str) -> list:
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-@typechecked
+@beartype
 def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]: # pragma: no cover
     if input_string is None:
         print_red("get_results: Input-String is None")
@@ -1919,7 +1912,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
-@typechecked
+@beartype
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]:
     if input_string is None:
         return None
@@ -1929,7 +1922,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[
 
     return get_results_new(input_string) # pragma: no cover
 
-@typechecked
+@beartype
 def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
     if input_string is None:
         print_red("get_results: Input-String is None") # pragma: no cover
@@ -1954,7 +1947,7 @@ def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[fl
         print_red(f"Error extracting the RESULT-string: {e}")
         return None
 
-@typechecked
+@beartype
 def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma: no cover
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
@@ -1970,7 +1963,7 @@ def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma
         data_line = ["{:.20f}".format(x) if isinstance(x, float) else x for x in data_line]
         csv_writer.writerow(data_line)
 
-@typechecked
+@beartype
 def find_file_paths(_text: str) -> list[str]:
     file_paths = []
 
@@ -1985,7 +1978,7 @@ def find_file_paths(_text: str) -> list[str]:
 
     return [] # pragma: no cover
 
-@typechecked
+@beartype
 def check_file_info(file_path: str) -> str:
     if not os.path.exists(file_path):
         print(f"check_file_info: The file {file_path} does not exist.")
@@ -2026,7 +2019,7 @@ def check_file_info(file_path: str) -> str:
 
     return string
 
-@typechecked
+@beartype
 def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
     file_paths = find_file_paths(_text)
 
@@ -2044,7 +2037,7 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
 
     return string
 
-@typechecked
+@beartype
 def write_failed_logs(data_dict: dict, error_description: str = "") -> None: # pragma: no cover
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
@@ -2089,7 +2082,7 @@ def write_failed_logs(data_dict: dict, error_description: str = "") -> None: # p
     except Exception as e: # pragma: no cover
         print_red(f"Unexpected error: {e}")
 
-@typechecked
+@beartype
 def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None) -> list:
     if file_path is None:
         file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
@@ -2114,7 +2107,7 @@ def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None)
         print(f"An error has occurred: {e}")
         return []
 
-@typechecked
+@beartype
 def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]: # pragma: no cover
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
@@ -2130,7 +2123,7 @@ def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]
 
     return None
 
-@typechecked
+@beartype
 def extract_info(data: str) -> Tuple[list[str], list[str]]:
     names: list[str] = []
     values: list[str] = []
@@ -2147,7 +2140,7 @@ def extract_info(data: str) -> Tuple[list[str], list[str]]:
 
     return names, values
 
-@typechecked
+@beartype
 def ignore_signals() -> None:
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -2155,7 +2148,7 @@ def ignore_signals() -> None:
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
-@typechecked
+@beartype
 def calculate_signed_harmonic_distance(_args: list[Union[int, float]]) -> Union[int, float]:
     if not _args or len(_args) == 0: # Handle empty input gracefully
         return 0
@@ -2169,7 +2162,7 @@ def calculate_signed_harmonic_distance(_args: list[Union[int, float]]) -> Union[
 
     return sign * harmonic_mean
 
-@typechecked
+@beartype
 def calculate_signed_euclidean_distance(_args: list[float]) -> float:
     _sum: float = 0
     for a in _args:
@@ -2179,7 +2172,7 @@ def calculate_signed_euclidean_distance(_args: list[float]) -> float:
     sign: int = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)
 
-@typechecked
+@beartype
 def calculate_signed_geometric_distance(_args: list[float]) -> float:
     product: float = 1  # Startwert für Multiplikation
     for a in _args:
@@ -2228,7 +2221,7 @@ def calculate_signed_weighted_euclidean_distance(_args: list[float], weights_str
 class invalidOccType(Exception):
     pass
 
-@typechecked
+@beartype
 def calculate_occ(_args: Optional[list[Union[int, float]]]) -> Union[int, float]:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
@@ -2246,7 +2239,7 @@ def calculate_occ(_args: Optional[list[Union[int, float]]]) -> Union[int, float]
 
     raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}") # pragma: no cover
 
-@typechecked
+@beartype
 def get_return_in_case_of_errors() -> dict:
     return_in_case_of_error = {}
 
@@ -2261,7 +2254,7 @@ def get_return_in_case_of_errors() -> dict:
 
     return return_in_case_of_error
 
-@typechecked
+@beartype
 def write_job_infos_csv(parameters: dict, stdout: str, program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
     str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
 
@@ -2316,13 +2309,13 @@ def write_job_infos_csv(parameters: dict, stdout: str, program_string_with_param
     else:
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
-@typechecked
+@beartype
 def print_debug_infos(program_string_with_params: str) -> None:
     string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
     original_print("Debug-Infos:", string)
 
-@typechecked
+@beartype
 def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> None:
     if stdout:
         original_print("stdout:", stdout)
@@ -2334,7 +2327,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
     else:
         original_print("stderr was empty")
 
-@typechecked
+@beartype
 def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float]]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
     original_print(f"Parameters: {json.dumps(parameters)}")
 
@@ -2352,7 +2345,7 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
 
     print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
 
-@typechecked
+@beartype
 def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[str, Optional[float]], list[float]]]]:
     result = get_results(stdout)
 
@@ -2364,7 +2357,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[s
 
     return result
 
-@typechecked
+@beartype
 def evaluate(parameters: dict) -> dict:
     start_nvidia_smi_thread()
 
@@ -2428,7 +2421,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-@typechecked
+@beartype
 def custom_warning_handler(
     message: Warning | str,
     category: type[Warning],
@@ -2440,7 +2433,7 @@ def custom_warning_handler(
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(f"{file}:{line}: {warning_message}")
 
-@typechecked
+@beartype
 def disable_logging() -> None:
     if args.verbose: # pragma: no cover
         return
@@ -2598,7 +2591,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
 
     return ""
 
-@typechecked
+@beartype
 def get_best_line_and_best_result(nparray, result_idx, maximize):
     best_line = None
     best_result = None
@@ -2674,13 +2667,13 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
 
     return results
 
-@typechecked
+@beartype
 def get_best_params(res_name: str = "result") -> dict:
     csv_file_path: str = save_pd_csv()
 
     return get_best_params_from_csv(csv_file_path, args.maximize, res_name)
 
-@typechecked
+@beartype
 def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED"]:
         print_red(f"_type is not in Sobol or COMPLETED, but is {_type}")
@@ -2727,21 +2720,21 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
 
     return count
 
-@typechecked
+@beartype
 def _count_sobol_steps(csv_file_path: str) -> int:
     return _count_sobol_or_completed(csv_file_path, "Sobol")
 
-@typechecked
+@beartype
 def _count_done_jobs(csv_file_path: str) -> int:
     return _count_sobol_or_completed(csv_file_path, "COMPLETED")
 
-@typechecked
+@beartype
 def count_sobol_steps() -> int:
     csv_file_path: str = save_pd_csv()
 
     return _count_sobol_steps(csv_file_path)
 
-@typechecked
+@beartype
 def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
@@ -2753,7 +2746,7 @@ def get_random_steps_from_prev_job() -> int:
 
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job) # pragma: no cover
 
-@typechecked
+@beartype
 def failed_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
@@ -2761,13 +2754,13 @@ def failed_jobs(nr: int = 0) -> int:
 
     return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
 
-@typechecked
+@beartype
 def count_done_jobs() -> int:
     csv_file_path: str = save_pd_csv()
 
     return _count_done_jobs(csv_file_path)
 
-@typechecked
+@beartype
 def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
     plot_types: list = []
 
@@ -2876,7 +2869,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
     return data
 
-@typechecked
+@beartype
 def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[list[str]]:
     plot_commands: list[list[str]] = []
     if "params" in plot.keys():
@@ -2911,7 +2904,7 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
 
     return plot_commands
 
-@typechecked
+@beartype
 def plot_sixel_imgs(csv_file_path: str) -> None:
     if ci_env: # pragma: no cover
         print("Not printing sixel graphics in CI")
@@ -2925,7 +2918,7 @@ def plot_sixel_imgs(csv_file_path: str) -> None:
         for command in commands:
             plot_command(*command)
 
-@typechecked
+@beartype
 def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool = True) -> int:
     global global_vars
     global SHOWN_END_TABLE
@@ -2999,7 +2992,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 
     return -1
 
-@typechecked
+@beartype
 def print_best_result() -> int:
     csv_file_path = save_pd_csv()
 
@@ -3040,7 +3033,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
 
     return _exit
 
-@typechecked
+@beartype
 def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
     global global_vars
 
@@ -3062,14 +3055,14 @@ def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
 
     return False
 
-@typechecked
+@beartype
 def abandon_all_jobs() -> None: # pragma: no cover
     for job, trial_index in global_vars["jobs"][:]:
         abandoned = abandon_job(job, trial_index)
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
-@typechecked
+@beartype
 def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global global_vars, END_PROGRAM_RAN
 
@@ -3121,7 +3114,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
 
     my_exit(_exit)
 
-@typechecked
+@beartype
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if trial_nr > 3: # pragma: no cover
         if eee:
@@ -3185,7 +3178,7 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
 
     return ""
 
-@typechecked
+@beartype
 def get_ax_param_representation(data: dict) -> dict:
     if data["type"] == "range":
         return {
@@ -3223,7 +3216,7 @@ def get_ax_param_representation(data: dict) -> dict:
     # only for linter, never reached because of die
     return {} # pragma: no cover
 
-@typechecked
+@beartype
 def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> dict:
     torch_device = None
     try:
@@ -3252,7 +3245,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
 
     return {}
 
-@typechecked
+@beartype
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
     if not os.path.exists(_file): # pragma: no cover
         print_red(f"Cannot find {_file}")
@@ -3268,11 +3261,11 @@ def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
-@typechecked
+@beartype
 def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
     my_exit(49)
 
-@typechecked
+@beartype
 def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_order: list, variables: list, equation: str) -> Tuple[bool, bool, list, list]:
     return_totally = False
 
@@ -3374,7 +3367,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
 
     return False # pragma: no cover
 
-@typechecked
+@beartype
 def set_objectives() -> dict:
     objectives = {}
 
@@ -3405,7 +3398,7 @@ def set_objectives() -> dict:
 
     return objectives
 
-@typechecked
+@beartype
 def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: list) -> dict:
     if experiment_constraints and len(experiment_constraints):
         experiment_args["parameter_constraints"] = []
@@ -3424,7 +3417,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
 
     return experiment_args
 
-@typechecked
+@beartype
 def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list], experiment_parameters: dict):
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
@@ -3449,7 +3442,7 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 
     return experiment_parameters
 
-@typechecked
+@beartype
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dict:
     try:
         f = open(checkpoint_file, encoding="utf-8")
@@ -3566,7 +3559,7 @@ def get_experiment_parameters(_params: list) -> Any:
 
     return ax_client, experiment_parameters, experiment_args
 
-@typechecked
+@beartype
 def get_type_short(typename: str) -> str:
     if typename == "RangeParameter":
         return "range"
@@ -3746,7 +3739,7 @@ def update_progress_bar(_progress_bar: Any, nr: int) -> None:
 
     _progress_bar.update(nr)
 
-@typechecked
+@beartype
 def get_current_model() -> str:
     global ax_client
 
@@ -3758,7 +3751,7 @@ def get_current_model() -> str:
 
     return "initializing model"
 
-@typechecked
+@beartype
 def get_best_params_str(res_name: str = "result") -> str:
     if count_done_jobs() >= 0:
         best_params = get_best_params(res_name)
@@ -3771,7 +3764,7 @@ def get_best_params_str(res_name: str = "result") -> str:
                     return f"best {res_name}: {best_result_int_if_possible}"
     return ""
 
-@typechecked
+@beartype
 def state_from_job(job: Union[str, Job]) -> str:
     job_string = f'{job}'
     match = re.search(r'state="([^"]+)"', job_string)
@@ -3785,7 +3778,7 @@ def state_from_job(job: Union[str, Job]) -> str:
 
     return state
 
-@typechecked
+@beartype
 def get_workers_string() -> str:
     string = ""
 
@@ -3827,7 +3820,7 @@ def submitted_jobs(nr: int = 0) -> int:
 
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
-@typechecked
+@beartype
 def get_slurm_in_brackets(in_brackets: list):
     global WORKER_PERCENTAGE_USAGE
 
@@ -3899,7 +3892,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
         if in_brackets_clean:
             desc += f"{', '.join(in_brackets_clean)}"
 
-    @typechecked
+    @beartype
     def capitalized_string(s: str) -> str:
         return s[0].upper() + s[1:] if s else ""
 
@@ -3927,7 +3920,7 @@ def clean_completed_jobs() -> None:
         else:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending or running: {_state}")
 
-@typechecked
+@beartype
 def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Any:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -4134,7 +4127,7 @@ def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[
         print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
-@typechecked
+@beartype
 def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str: # pragma: no cover
     _str: list = []
 
@@ -4157,7 +4150,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @wrapper_print_debug
-@typechecked
+@beartype
 def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None: # pragma: no cover
     done_converting = False
 
@@ -4190,14 +4183,14 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
 @wrapper_print_debug
-@typechecked
+@beartype
 def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes
     global missing_results
 
-    @typechecked
+    @beartype
     def update_status(message: str, path_idx: Union[int, None] = None, trial_idx: Union[int, None] = None, total_trials: Union[int, None] = None) -> str:
         if len(_paths) > 1:
             folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
@@ -4205,7 +4198,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
         return f"{message}{get_list_import_as_string()}..."
 
-    @typechecked
+    @beartype
     def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]: # pragma: no cover
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
@@ -4218,7 +4211,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             result = None
         return pformat(parameters) + "====" + pformat(result), result
 
-    @typechecked
+    @beartype
     def should_insert(hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> bool: # pragma: no cover
         result = hashed_params_result[1]
         res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
@@ -4227,7 +4220,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             return True
         return False
 
-    @typechecked
+    @beartype
     def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None: # pragma: no cover
         try:
             insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
@@ -4238,14 +4231,14 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
-    @typechecked
+    @beartype
     def log_missing_result(parameters: dict, hashed_params_result: tuple[str, str] | tuple[str, float] | tuple[str, int] | tuple[str, None] | tuple[str, list[Any]]) -> None: # pragma: no cover
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
-    @typechecked
+    @beartype
     def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None: # pragma: no cover
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
@@ -4263,7 +4256,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
-    @typechecked
+    @beartype
     def display_table() -> None: # pragma: no cover
         headers, rows = extract_headers_and_rows(already_inserted_param_data)
         if headers and rows:
@@ -4305,7 +4298,7 @@ def get_first_line_of_file(file_paths: list[str]) -> str:
 
     return first_line
 
-@typechecked
+@beartype
 def find_exec_errors(errors: list[str], file_as_string: str, file_paths: list[str]) -> list[str]:
     if "Exec format error" in file_as_string:
         current_platform = platform.machine()
@@ -4320,7 +4313,7 @@ def find_exec_errors(errors: list[str], file_as_string: str, file_paths: list[st
 
     return errors
 
-@typechecked
+@beartype
 def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: list[str], program_code: str) -> list[str]:
     errors: list[str] = []
 
@@ -4343,7 +4336,7 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
 
     return errors
 
-@typechecked
+@beartype
 def get_base_errors() -> list: # pragma: no cover
     base_errors: list = [
         "Segmentation fault",
@@ -4354,7 +4347,7 @@ def get_base_errors() -> list: # pragma: no cover
 
     return base_errors
 
-@typechecked
+@beartype
 def check_for_base_errors(file_as_string: str) -> list: # pragma: no cover
     errors: list = []
     for err in get_base_errors():
@@ -4368,7 +4361,7 @@ def check_for_base_errors(file_as_string: str) -> list: # pragma: no cover
             print_red(f"Wrong type, should be list or string, is {type(err)}")
     return errors
 
-@typechecked
+@beartype
 def get_exit_codes() -> dict:
     return {
         "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
@@ -4408,7 +4401,7 @@ def get_exit_codes() -> dict:
         "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
     }
 
-@typechecked
+@beartype
 def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
     errors: list[str] = []
     for r in range(1, 255):
@@ -4421,7 +4414,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
             errors.append(_error)
     return errors
 
-@typechecked
+@beartype
 def get_python_errors() -> list[list[str]]: # pragma: no cover
     synerr: str = "Python syntax error detected. Check log file."
 
@@ -4456,7 +4449,7 @@ def get_python_errors() -> list[list[str]]: # pragma: no cover
         ["CUDNN_STATUS_NOT_INITIALIZED", "Cuda had a problem. Try to delete ~/.nv and try again."]
     ]
 
-@typechecked
+@beartype
 def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma: no cover
     if not os.path.exists(i):
         print_debug(f"File {i} not found")
@@ -4483,7 +4476,7 @@ def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma
 
     return ""
 
-@typechecked
+@beartype
 def check_for_python_errors(i: str, file_as_string: str) -> list[str]: # pragma: no cover
     errors: list[str] = []
 
@@ -4500,7 +4493,7 @@ def check_for_python_errors(i: str, file_as_string: str) -> list[str]: # pragma:
 
     return errors
 
-@typechecked
+@beartype
 def get_errors_from_outfile(i: str) -> list[str]:
     file_as_string = get_file_as_string(i)
 
@@ -4532,7 +4525,7 @@ def get_errors_from_outfile(i: str) -> list[str]:
 
     return errors
 
-@typechecked
+@beartype
 def print_outfile_analyzed(stdout_path: str) -> None:
     errors = get_errors_from_outfile(stdout_path)
 
@@ -4563,7 +4556,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
         print_red(out_files_string)
 
-@typechecked
+@beartype
 def get_parameters_from_outfile(stdout_path: str) -> Union[None, str]:
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
@@ -4579,7 +4572,7 @@ def get_parameters_from_outfile(stdout_path: str) -> Union[None, str]:
 
     return None
 
-@typechecked
+@beartype
 def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
     if stdout_path is None:
         return None
@@ -4597,7 +4590,7 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
         print(f"There was an error: {e}")
         return None
 
-@typechecked
+@beartype
 def mark_trial_as_failed(_trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
@@ -4605,12 +4598,12 @@ def mark_trial_as_failed(_trial: Any) -> None:
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
 
-@typechecked
+@beartype
 def mark_trial_as_completed(_trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
-@typechecked
+@beartype
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     result = job.result()
     raw_result = result
@@ -4650,7 +4643,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
     return this_jobs_finished
 
-@typechecked
+@beartype
 def finish_previous_jobs(new_msgs: list[str]) -> None:
     global random_steps
     global ax_client
@@ -4709,7 +4702,7 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
 
     clean_completed_jobs()
 
-@typechecked
+@beartype
 def check_orchestrator(stdout_path: str, trial_index: int) -> list: # pragma: no cover
     behavs: list = []
 
@@ -4738,7 +4731,7 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> list: # pragma: no
 
     return behavs
 
-@typechecked
+@beartype
 def orchestrate_job(job: Job, trial_index: int) -> None:
     stdout_path = str(job.paths.stdout.resolve())
     stderr_path = str(job.paths.stderr.resolve())
@@ -4767,7 +4760,7 @@ def orchestrate_job(job: Job, trial_index: int) -> None:
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
 
-@typechecked
+@beartype
 def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
     file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
@@ -4788,7 +4781,7 @@ def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
 
     return False
 
-@typechecked
+@beartype
 def orchestrator_start_trial(params_from_out_file: str, trial_index: int) -> None: # pragma: no cover
     global global_vars
 
@@ -4809,7 +4802,7 @@ def orchestrator_start_trial(params_from_out_file: str, trial_index: int) -> Non
         print_red("executor or ax_client could not be found properly")
         my_exit(9)
 
-@typechecked
+@beartype
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
@@ -4820,7 +4813,7 @@ def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, st
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-@typechecked
+@beartype
 def handle_restart(stdout_path: str, trial_index: int) -> None: # pragma: no cover
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
@@ -4828,7 +4821,7 @@ def handle_restart(stdout_path: str, trial_index: int) -> None: # pragma: no cov
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
-@typechecked
+@beartype
 def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
@@ -4840,7 +4833,7 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
-@typechecked
+@beartype
 def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None: # pragma: no cover
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
@@ -4851,7 +4844,7 @@ def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file
     else:
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
-@typechecked
+@beartype
 def _orchestrate(stdout_path: str, trial_index: int) -> None: # pragma: no cover
     behavs = check_orchestrator(stdout_path, trial_index)
 
@@ -4876,7 +4869,7 @@ def _orchestrate(stdout_path: str, trial_index: int) -> None: # pragma: no cover
             print_red(f"Orchestrator: {behav} not yet implemented!")
             my_exit(210)
 
-@typechecked
+@beartype
 def write_continue_run_uuid_to_file() -> bool:
     if args.continue_previous_job:
         continue_dir = args.continue_previous_job
@@ -4898,7 +4891,7 @@ def write_continue_run_uuid_to_file() -> bool:
 
     return False
 
-@typechecked
+@beartype
 def write_run_uuid_to_file() -> bool:
     try:
         file_path: str = f"{get_current_run_folder()}/state_files/run_uuid"
@@ -4914,7 +4907,7 @@ def write_run_uuid_to_file() -> bool:
 
     return False # pragma: no cover
 
-@typechecked
+@beartype
 def save_state_files() -> None:
     global global_vars
 
@@ -4948,7 +4941,7 @@ def save_state_files() -> None:
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
-@typechecked
+@beartype
 def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:
     try:
         if executor:
@@ -4964,7 +4957,7 @@ def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:
 
     return None # pragma: no cover
 
-@typechecked
+@beartype
 def execute_evaluation(_params: list) -> Optional[int]:
     global global_vars
 
@@ -5012,20 +5005,20 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
     return None # pragma: no cover
 
-@typechecked
+@beartype
 def initialize_job_environment() -> None:
     progressbar_description(["starting new job"])
     set_sbatch_environment()
     exclude_defective_nodes()
 
-@typechecked
+@beartype
 def set_sbatch_environment() -> None:
     if args.reservation: # pragma: no cover
         os.environ['SBATCH_RESERVATION'] = args.reservation
     if args.account: # pragma: no cover
         os.environ['SBATCH_ACCOUNT'] = args.account
 
-@typechecked
+@beartype
 def exclude_defective_nodes() -> None:
     excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1: # pragma: no cover
@@ -5035,7 +5028,7 @@ def exclude_defective_nodes() -> None:
             print_red("executor could not be found")
             my_exit(9)
 
-@typechecked
+@beartype
 def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Job) -> None: # pragma: no cover
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -5047,7 +5040,7 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
     except Exception as e: # pragma: no cover
         print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
 
-@typechecked
+@beartype
 def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cover
     print_debug("Trying to cancel job that failed")
     if new_job:
@@ -5069,22 +5062,22 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cove
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 
-@typechecked
+@beartype
 def update_progress() -> None:
     progressbar_description(["started new job"])
 
-@typechecked
+@beartype
 def handle_exit_signal() -> None: # pragma: no cover
     print_red("\n⚠ Detected signal. Will exit.")
     end_program(RESULT_CSV_FILE, False, 1)
 
-@typechecked
+@beartype
 def handle_generic_error(e: Union[Exception, str]) -> None: # pragma: no cover
     tb = traceback.format_exc()
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
 
-@typechecked
+@beartype
 def succeeded_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
@@ -5092,7 +5085,7 @@ def succeeded_jobs(nr: int = 0) -> int:
 
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-@typechecked
+@beartype
 def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None: # pragma: no cover
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
@@ -5115,7 +5108,7 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
 
     console.print(table)
 
-@typechecked
+@beartype
 def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
     _ret = False
 
@@ -5143,7 +5136,7 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
 
     return _ret
 
-@typechecked
+@beartype
 def _get_last_and_avg_times() -> Union[Tuple[None, None], Tuple[float, float]]:
     """Returns the last and average times from TIME_NEXT_TRIALS_TOOK, or None if empty."""
     if len(TIME_NEXT_TRIALS_TOOK) == 0:
@@ -5152,7 +5145,7 @@ def _get_last_and_avg_times() -> Union[Tuple[None, None], Tuple[float, float]]:
     avg_time = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
     return last_time, avg_time
 
-@typechecked
+@beartype
 def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
@@ -5161,7 +5154,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
         num_parallel_jobs - currently_running_jobs
     )
 
-@typechecked
+@beartype
 def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, None], avg_time: Union[int, float, None], force_local_execution: bool) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
@@ -5173,7 +5166,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, Non
 
     return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "")
 
-@typechecked
+@beartype
 def get_parallelism_schedule_description() -> str:
     try:
         if ax_client:
@@ -5231,7 +5224,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
 
     return None # pragma: no cover
 
-@typechecked
+@beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: no cover
     """Handles the np.linalg.LinAlgError based on the model being used."""
     if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
@@ -5239,7 +5232,7 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: 
     else:
         print_red(f"Error: {error}")
 
-@typechecked
+@beartype
 def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
     global global_vars
 
@@ -5286,7 +5279,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
 
         return None, True
 
-@typechecked
+@beartype
 def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma: no cover
     if not SYSTEM_HAS_SBATCH:
         return 1
@@ -5297,13 +5290,13 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
 
     return requested
 
-@typechecked
+@beartype
 def check_max_parallelism_arg(possible_values: list) -> bool:
     if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
         return True
     return False # pragma: no cover
 
-@typechecked
+@beartype
 def _get_max_parallelism() -> int: # pragma: no cover
     possible_values: list = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
 
@@ -5327,7 +5320,7 @@ def _get_max_parallelism() -> int: # pragma: no cover
 
     return ret
 
-@typechecked
+@beartype
 def create_systematic_step(model: Any) -> Any:
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
@@ -5338,7 +5331,7 @@ def create_systematic_step(model: Any) -> Any:
         should_deduplicate=args.should_deduplicate
     )
 
-@typechecked
+@beartype
 def create_random_generation_step() -> ax.modelbridge.generation_node.GenerationStep:
     """Creates a generation step for random models."""
     return GenerationStep(
@@ -5352,7 +5345,7 @@ def create_random_generation_step() -> ax.modelbridge.generation_node.Generation
         should_deduplicate=args.should_deduplicate
     )
 
-@typechecked
+@beartype
 def select_model(model_arg: Any) -> Any:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
@@ -5370,7 +5363,7 @@ def select_model(model_arg: Any) -> Any:
 
     return chosen_model
 
-@typechecked
+@beartype
 def get_generation_strategy() -> Any:
     global random_steps
 
@@ -5401,7 +5394,7 @@ def get_generation_strategy() -> Any:
     # Create and return the GenerationStrategy
     return GenerationStrategy(steps=steps)
 
-@typechecked
+@beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
         finish_previous_jobs(["finishing previous jobs"])
@@ -5420,7 +5413,7 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
 
     return False
 
-@typechecked
+@beartype
 def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     global random_steps
 
@@ -5506,7 +5499,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
     return num_new_keys
 
-@typechecked
+@beartype
 def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
     _random_steps = args.num_random_steps
 
@@ -5540,7 +5533,7 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
 
     return _random_steps, second_step_steps
 
-@typechecked
+@beartype
 def set_global_executor() -> None:
     global executor
 
@@ -5593,7 +5586,7 @@ def set_global_executor() -> None:
         print_red("executor could not be found")
         my_exit(9)
 
-@typechecked
+@beartype
 def execute_nvidia_smi() -> None: # pragma: no cover
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
@@ -5633,13 +5626,13 @@ def execute_nvidia_smi() -> None: # pragma: no cover
         if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(10)
 
-@typechecked
+@beartype
 def start_nvidia_smi_thread() -> None: # pragma: no cover
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
 
-@typechecked
+@beartype
 def run_search(_progress_bar: Any) -> bool:
     global NR_OF_0_RESULTS
 
@@ -5707,7 +5700,7 @@ def run_search(_progress_bar: Any) -> bool:
     log_what_needs_to_be_logged()
     return False
 
-@typechecked
+@beartype
 def wait_for_jobs_to_complete(_num_parallel_jobs: int) -> None: # pragma: no cover
     if SYSTEM_HAS_SBATCH: # pragma: no cover
         while len(global_vars["jobs"]) > _num_parallel_jobs:
@@ -5720,7 +5713,7 @@ def wait_for_jobs_to_complete(_num_parallel_jobs: int) -> None: # pragma: no cov
 
             clean_completed_jobs()
 
-@typechecked
+@beartype
 def human_readable_generation_strategy() -> Optional[str]:
     if ax_client:
         generation_strategy_str = str(ax_client.generation_strategy)
@@ -5735,14 +5728,14 @@ def human_readable_generation_strategy() -> Optional[str]:
 
     return None # pragma: no cover
 
-@typechecked
+@beartype
 def die_orchestrator_exit_code_206(_test: bool) -> None: # pragma: no cover
     if _test:
         print_yellow("Not exiting, because _test was True")
     else:
         my_exit(206)
 
-@typechecked
+@beartype
 def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
@@ -5790,7 +5783,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
 
     return None # pragma: no cover
 
-@typechecked
+@beartype
 def set_orchestrator() -> None:
     global orchestrator
 
@@ -5800,17 +5793,17 @@ def set_orchestrator() -> None:
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
-@typechecked
+@beartype
 def die_no_random_steps() -> None:
     my_exit(233)
 
-@typechecked
+@beartype
 def check_if_has_random_steps() -> None:
     if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
         die_no_random_steps()
 
-@typechecked
+@beartype
 def add_exclude_to_defective_nodes() -> None:
     if args.exclude: # pragma: no cover
         entries = [entry.strip() for entry in args.exclude.split(',')]
@@ -5818,13 +5811,13 @@ def add_exclude_to_defective_nodes() -> None:
         for entry in entries:
             count_defective_nodes(None, entry)
 
-@typechecked
+@beartype
 def check_max_eval(_max_eval: int) -> None:
     if not _max_eval: # pragma: no cover
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
-@typechecked
+@beartype
 def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None, Any | None]]:
     experiment_parameters = None
     cli_params_experiment_parameters = None
@@ -5833,7 +5826,7 @@ def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None,
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-@typechecked
+@beartype
 def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_j: str, metric_i: str) -> rich.table.Table:
     table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
 
@@ -5852,7 +5845,7 @@ def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metri
 
     return table
 
-@typechecked
+@beartype
 def supports_sixel() -> bool:
     term = os.environ.get("TERM", "").lower()
     if "xterm" in term or "mlterm" in term:
@@ -5867,7 +5860,7 @@ def supports_sixel() -> bool:
 
     return False # pragma: no cover
 
-@typechecked
+@beartype
 def plot_pareto_frontier_sixel(data: Any) -> None:
     if not supports_sixel(): # pragma: no cover
         console.print("[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot.[/]")
@@ -5899,13 +5892,13 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
 
     plt.close(fig)
 
-@typechecked
+@beartype
 def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
     if isinstance(obj, np.ndarray): # pragma: no cover
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable") # pragma: no cover
 
-@typechecked
+@beartype
 def show_pareto_frontier_data() -> None:
     if len(arg_result_names) == 1: # pragma: no cover
         print_debug(f"{len(arg_result_names)} is 1")
@@ -5974,7 +5967,7 @@ def show_pareto_frontier_data() -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
-@typechecked
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
@@ -6091,11 +6084,11 @@ def main() -> None:
 
     end_program(RESULT_CSV_FILE)
 
-@typechecked
+@beartype
 def log_worker_creation() -> None:
     _debug_worker_creation("time, nr_workers, got, requested, phase")
 
-@typechecked
+@beartype
 def set_run_folder() -> None:
     global CURRENT_RUN_FOLDER
     RUN_FOLDER_NUMBER: int = 0
@@ -6105,36 +6098,36 @@ def set_run_folder() -> None:
         RUN_FOLDER_NUMBER += 1
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
-@typechecked
+@beartype
 def handle_maximize_argument() -> None:
     if args.maximize: # pragma: no cover
         print_red("--maximize is not fully supported yet!")
 
-@typechecked
+@beartype
 def print_run_info() -> None:
     print(f"[yellow]Run-folder[/yellow]: [underline]{get_current_run_folder()}[/underline]")
     if args.continue_previous_job:
         print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
 
-@typechecked
+@beartype
 def initialize_nvidia_logs() -> None:
     global NVIDIA_SMI_LOGS_BASE
     NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
 
-@typechecked
+@beartype
 def write_ui_url_if_present() -> None:
     if args.ui_url:
         with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
             myfile.write(decode_if_base64(args.ui_url))
 
-@typechecked
+@beartype
 def handle_random_steps() -> None:
     global random_steps
     if args.parameter and args.continue_previous_job and random_steps <= 0: # pragma: no cover
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
-@typechecked
+@beartype
 def initialize_ax_client(gs: Any) -> None:
     global ax_client
     ax_client = AxClient(
@@ -6145,18 +6138,18 @@ def initialize_ax_client(gs: Any) -> None:
 
     ax_client = cast(AxClient, ax_client)
 
-@typechecked
+@beartype
 def print_generation_strategy() -> None:
     gs_hr = human_readable_generation_strategy()
     if gs_hr:
         print(f"Generation strategy: {gs_hr}")
 
-@typechecked
+@beartype
 def save_experiment_parameters(filepath: str, experiment_parameters: Union[list, dict]) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-@typechecked
+@beartype
 def run_search_with_progress_bar(disable_tqdm: bool) -> None:
     with tqdm(total=max_eval, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
@@ -6170,7 +6163,7 @@ def run_search_with_progress_bar(disable_tqdm: bool) -> None:
 
         wait_for_jobs_to_complete(num_parallel_jobs)
 
-@typechecked
+@beartype
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:
     print_yellow(f"Test suite: {_program_name}")
 
@@ -6255,7 +6248,7 @@ def test_find_paths(program_code: str) -> int:
 
     return nr_errors
 
-@typechecked
+@beartype
 def run_tests() -> None:
     print_red("This should be red")
     print_yellow("This should be yellow")
@@ -6584,7 +6577,7 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-@typechecked
+@beartype
 def live_share_background(interval: int) -> None:
     if not args.live_share: # pragma: no cover
         return
@@ -6593,7 +6586,7 @@ def live_share_background(interval: int) -> None:
         live_share()
         time.sleep(interval)
 
-@typechecked
+@beartype
 def start_live_share_background_job() -> None:
     if not args.live_share: # pragma: no cover
         return
@@ -6604,7 +6597,7 @@ def start_live_share_background_job() -> None:
     thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
     thread.start()
 
-@typechecked
+@beartype
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 

@@ -31,4 +31,3 @@ pyyaml
 pyspellchecker
 pyfiglet
 setuptools
-typeguard

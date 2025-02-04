@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from typeguard import typechecked
+from beartype import beartype
 
 args = None
 
@@ -32,7 +32,7 @@ if spec is not None and spec.loader is not None:
 else: # pragma: no cover
     raise ImportError(f"Could not load module from {helpers_file}")
 
-@typechecked
+@beartype
 def parse_arguments() -> Any:
     parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
     parser.add_argument('--min', type=float, help='Minimum value for result filtering')
@@ -44,7 +44,7 @@ def parse_arguments() -> Any:
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     return parser.parse_args()
 
-@typechecked
+@beartype
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     if args is not None:
         if "result" not in dataframe:
@@ -91,7 +91,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
             if not args.no_plt_show: # pragma: no cover
                 plt.show()
 
-@typechecked
+@beartype
 def update_graph() -> None:
     if args is not None:
         try:

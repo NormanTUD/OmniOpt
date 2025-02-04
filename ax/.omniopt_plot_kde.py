@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from typeguard import typechecked
+from beartype import beartype
 
 warnings.filterwarnings("ignore")
 
@@ -45,7 +45,7 @@ parser.add_argument('--save_to_file', type=str, help='Save the plot to the speci
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
-@typechecked
+@beartype
 def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int, int]:
     if num_plots > 1:
         num_rows = int(num_plots ** 0.5)
@@ -53,14 +53,14 @@ def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int
 
     return num_rows, num_cols
 
-@typechecked
+@beartype
 def check_rows_cols_or_die(num_rows, num_cols):
     if num_rows == 0 or num_cols == 0:
         if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
         sys.exit(42)
 
-@typechecked
+@beartype
 def plot_histograms(dataframe: pd.DataFrame) -> None:
     global fig
 
@@ -131,7 +131,7 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
     plt.tight_layout()
     save_to_file_or_show_canvas()
 
-@typechecked
+@beartype
 def save_to_file_or_show_canvas() -> None:
     if args is not None:
         if args.save_to_file:
@@ -142,7 +142,7 @@ def save_to_file_or_show_canvas() -> None:
                 if not args.no_plt_show:
                     plt.show()
 
-@typechecked
+@beartype
 def update_graph() -> None:
     if args is not None:
         pd_csv = args.run_dir + "/results.csv"

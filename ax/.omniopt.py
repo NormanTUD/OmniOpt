@@ -2152,7 +2152,7 @@ def ignore_signals() -> None:
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
 @beartype
-def calculate_signed_harmonic_distance(_args: list[Union[int, float]]) -> Union[int, float]:
+def calculate_signed_harmonic_distance(_args: Union[dict, list[Union[int, float]]]) -> Union[int, float]:
     if not _args or len(_args) == 0: # Handle empty input gracefully
         return 0
 
@@ -2166,7 +2166,7 @@ def calculate_signed_harmonic_distance(_args: list[Union[int, float]]) -> Union[
     return sign * harmonic_mean
 
 @beartype
-def calculate_signed_euclidean_distance(_args: list[float]) -> float:
+def calculate_signed_euclidean_distance(_args: Union[dict, list[float]]) -> float:
     _sum: float = 0
     for a in _args:
         _sum += a ** 2
@@ -2176,7 +2176,7 @@ def calculate_signed_euclidean_distance(_args: list[float]) -> float:
     return sign * math.sqrt(_sum)
 
 @beartype
-def calculate_signed_geometric_distance(_args: list[float]) -> float:
+def calculate_signed_geometric_distance(_args: Union[dict, list[float]]) -> float:
     product: float = 1  # Startwert für Multiplikation
     for a in _args:
         product *= abs(a)  # Absolutwerte für das Produkt verwenden
@@ -2189,7 +2189,7 @@ def calculate_signed_geometric_distance(_args: list[float]) -> float:
     geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
-def calculate_signed_minkowski_distance(_args: list[float], p: float = 2) -> float:
+def calculate_signed_minkowski_distance(_args: Union[dict, list[float]], p: float = 2) -> float:
     if p <= 0:
         raise ValueError("p must be greater than 0.")
 
@@ -2197,7 +2197,7 @@ def calculate_signed_minkowski_distance(_args: list[float], p: float = 2) -> flo
     minkowski_sum: float = sum(abs(a) ** p for a in _args) ** (1 / p)
     return sign * minkowski_sum
 
-def calculate_signed_weighted_euclidean_distance(_args: list[float], weights_string: str) -> float:
+def calculate_signed_weighted_euclidean_distance(_args: Union[dict, list[float]], weights_string: str) -> float:
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
     if not re.fullmatch(pattern, weights_string): # pragma: no cover
@@ -2225,7 +2225,7 @@ class invalidOccType(Exception):
     pass
 
 @beartype
-def calculate_occ(_args: Optional[list[Union[int, float]]]) -> Union[int, float]:
+def calculate_occ(_args: Optional[Union[dict, list[Union[int, float]]]]) -> Union[int, float]:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 

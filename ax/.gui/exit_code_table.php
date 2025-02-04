@@ -1,7 +1,7 @@
 <?php
 		$exit_code_info = [
 			0 => "Seems to have worked properly",
-			1 => "There was an error regarding the python-syntax. Is your python-version too old?",
+			1 => "There was an error regarding the python-syntax. Is your python-version too old? If you are on a slurm-system, this may mean that the job cannot be started. Check stdout.",
 			2 => "Wrong CLI arguments",
 			3 => "Invalid exit code detected",
 			4 => "Failed loading modules",

@@ -44,7 +44,6 @@ args = parser.parse_args()
 
 @beartype
 def load_csv(filepath: str) -> pd.DataFrame:
-    """Lädt eine CSV-Datei und gibt ein DataFrame zurück."""
     if not os.path.exists(filepath):  # pragma: no cover
         print(f"Error: {filepath} not found")
         sys.exit(1)
@@ -59,7 +58,6 @@ def load_csv(filepath: str) -> pd.DataFrame:
 
 @beartype
 def handle_empty_data(filepath: str) -> None:
-    """Behandelt den Fall einer leeren CSV-Datei."""
     if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
         print(f"Could not find values in file {filepath}")
     sys.exit(19)
@@ -67,7 +65,6 @@ def handle_empty_data(filepath: str) -> None:
 
 @beartype
 def handle_unicode_error(filepath: str) -> None:
-    """Behandelt den Fall einer ungültigen UTF-8-codierten Datei."""
     if not os.environ.get("PLOT_TESTS"):  # pragma: no cover
         print(f"{filepath} seems to be invalid utf8.")
     sys.exit(7)
@@ -75,7 +72,6 @@ def handle_unicode_error(filepath: str) -> None:
 
 @beartype
 def validate_dataframe(df: pd.DataFrame) -> None:
-    """Validiert das DataFrame, insbesondere auf die Spalte 'run_time'."""
     if "run_time" not in df:
         if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
             print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
@@ -84,7 +80,6 @@ def validate_dataframe(df: pd.DataFrame) -> None:
 
 @beartype
 def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """Sortiert das DataFrame und konvertiert Zeitspalten in das lokale Zeitzonenformat."""
     df = df.sort_values(by='exit_code')
 
     local_tz = get_localzone()
@@ -101,14 +96,12 @@ def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 @beartype
 def format_timestamp(value: object) -> str:
-    """Formatiert einen Zeitstempel als lesbare Zeichenkette."""
     return datetime.utcfromtimestamp(int(float(value))).strftime('%Y-%m-%d %H:%M:%S') \
         if helpers.looks_like_number(value) else str(value)
 
 
 @beartype
 def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
-    """Erstellt ein Histogramm der Laufzeiten."""
     axes.hist(df['run_time'], bins=bins)
     axes.set_title('Distribution of Run Time')
     axes.set_xlabel('Run Time')
@@ -117,7 +110,6 @@ def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
 
 @beartype
 def plot_time_scatter(df: pd.DataFrame, axes: plt.Axes) -> None:
-    """Erstellt ein Streudiagramm für Start- und Endzeiten."""
     sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes)
     sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes)
     axes.set_title('Result over Time')
@@ -125,21 +117,18 @@ def plot_time_scatter(df: pd.DataFrame, axes: plt.Axes) -> None:
 
 @beartype
 def plot_violinplot(df: pd.DataFrame, axes: plt.Axes) -> None:
-    """Erstellt ein Violinplot der Laufzeitverteilung nach Exit-Code."""
     sns.violinplot(data=df, x='exit_code', y='run_time', ax=axes)
     axes.set_title('Run Time Distribution by Exit Code')
 
 
 @beartype
 def plot_boxplot(df: pd.DataFrame, axes: plt.Axes) -> None:
-    """Erstellt ein Boxplot der Laufzeiten nach Hostnamen."""
     sns.boxplot(data=df, x='hostname', y='run_time', ax=axes)
     axes.set_title('Run Time by Hostname')
 
 
 @beartype
 def create_plots(df: pd.DataFrame, args: object) -> plt.Figure:
-    """Erstellt alle Plots in einer 2x2 Anordnung."""
     fig, axes = plt.subplots(2, 2, figsize=(20, 30))
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
@@ -153,7 +142,6 @@ def create_plots(df: pd.DataFrame, args: object) -> plt.Figure:
 
 @beartype
 def handle_output(fig: plt.Figure, args: object) -> None:
-    """Speichert oder zeigt die erstellten Plots an."""
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else:  # pragma: no cover
@@ -166,7 +154,6 @@ def handle_output(fig: plt.Figure, args: object) -> None:
 
 @beartype
 def main() -> None:
-    """Hauptfunktion des Programms."""
     _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
     df: pd.DataFrame = load_csv(_job_infos_csv)
 

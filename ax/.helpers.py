@@ -219,7 +219,9 @@ def check_if_results_are_empty(result_column_values: Any, csv_file_path: str) ->
         sys.exit(11)
 
 def get_result_column_values(df: pd.DataFrame, csv_file_path: str) -> Any:
-    result_column_values = df["result"]
+    res_col_name = "result"
+
+    result_column_values = df[res_col_name]
 
     check_if_results_are_empty(result_column_values, csv_file_path)
 
@@ -337,8 +339,10 @@ def get_csv_file_path(_args: Any) -> str:
     return csv_file_path
 
 def drop_empty_results (NO_RESULT: Any, df: pd.DataFrame) -> pd.DataFrame:
-    negative_rows_to_remove = df[df["result"].astype(str) == '-' + NO_RESULT].index
-    positive_rows_to_remove = df[df["result"].astype(str) == NO_RESULT].index
+    res_col_name = "result"
+
+    negative_rows_to_remove = df[df[res_col_name].astype(str) == '-' + NO_RESULT].index
+    positive_rows_to_remove = df[df[res_col_name].astype(str) == NO_RESULT].index
 
     df.drop(negative_rows_to_remove, inplace=True)
     df.drop(positive_rows_to_remove, inplace=True)
@@ -354,6 +358,8 @@ def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int,
     return axs
 
 def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
+    res_col_name = "result"
+
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
         extreme_index = result_column_values.idxmax()
@@ -371,7 +377,7 @@ def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.Da
     title_values = []
 
     for _l in extreme_values_items:
-        if "result" not in _l:
+        if res_col_name not in _l:
             key = _l[0]
             value = to_int_when_possible(_l[1])
             title_values.append(f"{key} = {value}")
@@ -527,6 +533,8 @@ def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame
     return non_empty_graphs
 
 def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
+    res_col_name = "result"
+
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
     existing_columns = df.columns.values.tolist()
@@ -537,7 +545,7 @@ def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
 
     if len(_args.allow_axes): # pragma: no cover
         for col in existing_columns:
-            if col != "result" and col not in flatten_extend(_args.allow_axes):
+            if col != res_col_name and col not in flatten_extend(_args.allow_axes):
                 columns_to_remove.append(col)
 
     df_filtered = df.drop(columns=columns_to_remove)
@@ -579,6 +587,8 @@ def get_data(
         old_headers_string: Union[None, str] = None,
         drop_columns_with_strings: Union[str, bool] = False
     ) -> Optional[pd.DataFrame]:
+    res_col_name = "result"
+
     try:
         if not csv_file_path or not os.path.exists(csv_file_path): # pragma: no cover
             return None
@@ -593,18 +603,18 @@ def get_data(
 
         try:
             if _min is not None:
-                df = df[df["result"] >= _min]
+                df = df[df[res_col_name] >= _min]
             if _max is not None:
-                df = df[df["result"] <= _max]
+                df = df[df[res_col_name] <= _max]
         except KeyError: # pragma: no cover
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
+                print(f"There was no '{res_col_name}' in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
-        if "result" not in df:
+        if res_col_name not in df:
             if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
-                print(f"There was no 'result' in {csv_file_path}. This may means all tests failed. Cannot continue.")
+                print(f"There was no '{res_col_name}' in {csv_file_path}. This may means all tests failed. Cannot continue.")
             sys.exit(10)
-        df.dropna(subset=["result"], inplace=True)
+        df.dropna(subset=[res_col_name], inplace=True)
 
         if drop_columns_with_strings:
             columns_with_strings = [col for col in df.columns if contains_strings(df[col])]
@@ -629,16 +639,18 @@ def get_data(
     try:
         df = drop_empty_results(NO_RESULT, df)
     except KeyError: # pragma: no cover
-        print(f"column named `result` could not be found in {csv_file_path}.")
+        print(f"column named `{res_col_name}` could not be found in {csv_file_path}.")
         sys.exit(6)
 
     return df
 
 def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
+    res_col_name = "result"
+
     try:
         if not _args.no_legend:
             cbar = _fig.colorbar(_scatter, ax=axs, orientation='vertical', fraction=0.02, pad=0.05)
-            cbar.set_label("result", rotation=270, labelpad=15)
+            cbar.set_label(res_col_name, rotation=270, labelpad=15)
 
             cbar.formatter.set_scientific(False)
             cbar.formatter.set_useMathText(False)
@@ -646,11 +658,13 @@ def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
 def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
+    res_col_name = "result"
+
     r = get_r(df_filtered)
 
     df_filtered_cols = df_filtered.columns.tolist()
 
-    del df_filtered_cols[df_filtered_cols.index("result")]
+    del df_filtered_cols[df_filtered_cols.index(res_col_name)]
 
     parameter_combinations: list = list(combinations(df_filtered_cols, r))
 
@@ -660,12 +674,14 @@ def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
     return parameter_combinations
 
 def get_colors(df: pd.DataFrame) -> Any:
+    res_col_name = "result"
+
     colors = None
 
     try:
-        colors = df["result"]
+        colors = df[res_col_name]
     except KeyError as e: # pragma: no cover
-        if str(e) == "'result'":
+        if str(e) == f"'{res_col_name}'":
             print("Could not find any results")
             sys.exit(3)
         else:
@@ -787,11 +803,13 @@ def use_matplotlib(_args: Any) -> None:
         sys.exit(33)
 
 def filter_data(_args: Any, dataframe: pd.DataFrame, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None) -> pd.DataFrame:
+    res_col_name = "result"
+
     try:
         if min_value is not None:
-            dataframe = dataframe[dataframe['result'] >= min_value]
+            dataframe = dataframe[dataframe[res_col_name] >= min_value]
         if max_value is not None:
-            dataframe = dataframe[dataframe['result'] <= max_value]
+            dataframe = dataframe[dataframe[res_col_name] <= max_value]
     except KeyError:
         print_if_not_plot_tests_and_exit(f"{_args.run_dir}/results.csv seems to have no results column.", 19)
 

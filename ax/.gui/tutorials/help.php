@@ -79,6 +79,11 @@
 				<td><samp>result=<min, max></samp></td>
 			</tr>
 			<tr>
+				<td><samp>--decimalrounding INT</samp></td>
+				<td>Set the number of decimal rounding places, like how many places decimal numbers should be rounded to.</td>
+				<td><samp>4</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--occ_type</samp></td>
 				<td>Set the type of the optimization-with-combined-criteria collection function. Options are geometric, signed harmonic, and euclid.</td>
 				<td><samp>euclid</samp></td>

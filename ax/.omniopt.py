@@ -12,8 +12,6 @@ original_print = print
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-DECIMALROUNDING = int(os.environ.get('DECIMALROUNDING', 4))
-
 try:
     from rich.console import Console
 
@@ -368,6 +366,7 @@ class ConfigLoader:
     mem_gb: int
     continue_previous_job: Optional[str]
     minkowski_p: float
+    decimalrounding: int
     signed_weighted_euclidean_weights: str
 
     @beartype
@@ -410,6 +409,7 @@ class ConfigLoader:
         optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
         optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
+        optional.add_argument('--decimalrounding', help='Number of decimal places for rounding', type=int, default=4)
         optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
         optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
         optional.add_argument('--hide_ascii_plots', help='Hide ASCII-plots.', action='store_true', default=False)
@@ -1514,7 +1514,7 @@ def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Unio
         ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
 
     if ret_val:
-        return round(ret_val, DECIMALROUNDING), found_in_file
+        return round(ret_val, args.decimalrounding), found_in_file
 
     return ret_val, False
 

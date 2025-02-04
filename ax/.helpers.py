@@ -601,7 +601,7 @@ def headers_match(df: pd.DataFrame, old_headers_string: Optional[str]) -> bool:
 
 def filter_by_result_range(df: pd.DataFrame, res_col_name: str, _min: Optional[Union[int, float]], _max: Optional[Union[int, float]]) -> pd.DataFrame:
     if res_col_name not in df:
-        handle_missing_result_column(df, res_col_name)
+        handle_missing_result_column(res_col_name)
 
     if _min is not None:
         df = df[df[res_col_name] >= _min]
@@ -609,7 +609,7 @@ def filter_by_result_range(df: pd.DataFrame, res_col_name: str, _min: Optional[U
         df = df[df[res_col_name] <= _max]
     return df.dropna(subset=[res_col_name])
 
-def handle_missing_result_column(df: pd.DataFrame, res_col_name: str) -> None:
+def handle_missing_result_column(res_col_name: str) -> None:
     if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(f"There was no '{res_col_name}' column. This may mean all tests failed. Cannot continue.")
     sys.exit(10)
@@ -659,6 +659,8 @@ def get_data(
     except KeyError:
         print(f"Column '{res_col_name}' could not be found in {csv_file_path}.")
         sys.exit(6)
+
+    return None
 
 def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
     res_col_name = "result"

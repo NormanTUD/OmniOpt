@@ -55,6 +55,7 @@ def load_csv(filepath: str) -> pd.DataFrame:
     except UnicodeDecodeError:
         handle_unicode_error(filepath)
 
+    return None
 
 @beartype
 def handle_empty_data(filepath: str) -> None:
@@ -128,7 +129,7 @@ def plot_boxplot(df: pd.DataFrame, axes: plt.Axes) -> None:
 
 
 @beartype
-def create_plots(df: pd.DataFrame, args: object) -> plt.Figure:
+def create_plots(df: pd.DataFrame) -> plt.Figure:
     fig, axes = plt.subplots(2, 2, figsize=(20, 30))
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
@@ -157,11 +158,14 @@ def main() -> None:
     _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
     df: pd.DataFrame = load_csv(_job_infos_csv)
 
-    validate_dataframe(df)
-    df = preprocess_dataframe(df)
+    if df:
+        validate_dataframe(df)
+        df = preprocess_dataframe(df)
 
-    fig = create_plots(df, args)
-    handle_output(fig, args)
+        fig = create_plots(df)
+        handle_output(fig, args)
+    else:
+        print("df was empty")
 
 if __name__ == "__main__":
     main()

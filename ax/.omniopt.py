@@ -2919,79 +2919,88 @@ def plot_sixel_imgs(csv_file_path: str) -> None:
         for command in commands:
             plot_command(*command)
 
+def get_crf() -> str:
+    crf = get_current_run_folder()
+    if crf in ["", None]:
+        console.print("[red]Could not find current run folder[/]")
+        return ""
+    return crf
+
+@beartype
+def write_to_file(file_path: str, content: str) -> None:
+    with open(file_path, mode="w", encoding="utf-8") as text_file:
+        text_file.write(content)
+
+@beartype
+def create_result_table(res_name: str, best_params: dict[str, Any], best_result: Any, total_str: str, failed_error_str: str) -> Table:
+    table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[arg_result_names.index(res_name)]} ({total_str}{failed_error_str}):")
+
+    for key in list(best_params["parameters"].keys())[3:]:
+        table.add_column(key)
+
+    table.add_column(res_name)
+    return table
+
+@beartype
+def add_table_row(table: Table, best_params: dict[str, Any], best_result: Any) -> None:
+    row = [
+        str(helpers.to_int_when_possible(best_params["parameters"][key]))
+        for key in best_params["parameters"].keys()
+    ][3:] + [str(helpers.to_int_when_possible(best_result))]
+    table.add_row(*row)
+
+@beartype
+def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> None:
+    with console.capture() as capture:
+        console.print(table)
+    if print_to_file:
+        write_to_file(file_path, capture.get())
+
+@beartype
+def process_best_result(csv_file_path: str, res_name: str, maximize: bool, print_to_file: bool) -> int:
+    best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
+    best_result = best_params.get(res_name, NO_RESULT) if best_params else NO_RESULT
+
+    if str(best_result) in [NO_RESULT, None, "None"]:
+        print_red(f"Best {res_name} could not be determined")
+        return 87
+
+    total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
+    if NR_INSERTED_JOBS:
+        total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
+
+    failed_error_str = f", failed: {failed_jobs()}" if print_to_file and failed_jobs() >= 1 else ""
+
+    table = create_result_table(res_name, best_params, best_result, total_str, failed_error_str)
+    add_table_row(table, best_params, best_result)
+
+    if len(arg_result_names) == 1:
+        console.print(table)
+
+    print_and_write_table(table, print_to_file, f"{get_crf()}/best_result.txt")
+    plot_sixel_imgs(csv_file_path)
+
+    return 0
+
 @beartype
 def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool = True) -> int:
-    global global_vars
     global SHOWN_END_TABLE
 
-    crf = get_current_run_folder()
-
-    if crf in ["", None]:
-        console.print("[red]Could not find current run folder for _print_best_result[/]")
+    crf = get_crf()
+    if not crf:
         return -1
 
-    i = 0
-    with open(f'{crf}/best_result.txt', mode="w", encoding="utf-8") as text_file:
+    try:
         for res_name in arg_result_names:
-            try:
-                best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
+            result_code = process_best_result(csv_file_path, res_name, maximize, print_to_file)
+            if result_code != 0:
+                return result_code
+        SHOWN_END_TABLE = True
+    except Exception as e:
+        print_red(f"[_print_best_result] Error: {e}, tb: {traceback.format_exc()}")
+        return -1
 
-                best_result = None
-
-                if best_params and res_name in best_params:
-                    best_result = best_params[res_name]
-                else: # pragma: no cover
-                    best_result = NO_RESULT
-
-                if str(best_result) == NO_RESULT or best_result is None or best_result == "None":
-                    print_red(f"Best {res_name} could not be determined")
-                    return 87
-
-                total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
-
-                if NR_INSERTED_JOBS:
-                    total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
-
-                failed_error_str = ""
-                if print_to_file:
-                    if failed_jobs() >= 1:
-                        failed_error_str = f", failed: {failed_jobs()}"
-
-                table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[i]} ({total_str}{failed_error_str}):")
-
-                k = 0
-                for key in best_params["parameters"].keys():
-                    if k > 2:
-                        table.add_column(key)
-                    k += 1
-
-                table.add_column(res_name)
-
-                row_without_result = [str(helpers.to_int_when_possible(best_params["parameters"][key])) for key in best_params["parameters"].keys()]
-                row = [*row_without_result, str(helpers.to_int_when_possible(best_result))][3:]
-
-                table.add_row(*row)
-
-                if len(arg_result_names) == 1:
-                    console.print(table)
-
-                with console.capture() as capture:
-                    console.print(table)
-
-                if print_to_file:
-                    table_str = capture.get()
-                    text_file.write(table_str)
-
-                plot_sixel_imgs(csv_file_path)
-
-                SHOWN_END_TABLE = True
-            except Exception as e: # pragma: no cover
-                tb = traceback.format_exc()
-                print_red(f"[_print_best_result] Error during _print_best_result: {e}, tb: {tb}")
-
-            i = i + 1
-
-    return -1
+    return 0
 
 @beartype
 def print_best_result() -> int:

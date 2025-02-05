@@ -3225,6 +3225,7 @@ def get_ax_param_representation(data: dict) -> dict:
             'name': data["name"],
             'parameter_type': {
                 "__type": "ParameterType", "name": data["value_type"].upper()
+            },
             'target_value': None,
             'values': data["values"]
         }

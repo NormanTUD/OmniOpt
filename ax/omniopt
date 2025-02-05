@@ -1093,6 +1093,15 @@ if [[ "$continue_previous_job" != "" ]]; then
 		fi
 	fi
 
+	if [[ -z "$experiment_name" ]]; then
+		if [[ -e "$continue_previous_job/state_files/experiment_name" ]]; then
+			experiment_name=$(cat "$continue_previous_job/state_files/experiment_name")
+		else
+			echo "Experiment name could not be determined from previous run or --experiment_name"
+			myexit 105
+		fi
+	fi
+
 	if [[ -z "$time" ]]; then
 		if [[ -e "$continue_previous_job/state_files/time" ]]; then
 			time=$(cat "$continue_previous_job/state_files/time")

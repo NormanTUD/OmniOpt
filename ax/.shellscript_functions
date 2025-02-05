@@ -148,10 +148,14 @@
 	}
 
 	if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-		myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
+		if [[ -n "$CLUSTERHOST" && "$CLUSTERHOST" == *capella* ]]; then
+			myml release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1
+		else
+			myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
 
-		if [[ $(uname -m) == "ppc64le" ]]; then
-			myml zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+			if [[ $(uname -m) == "ppc64le" ]]; then
+				myml zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+			fi
 		fi
 	fi
 

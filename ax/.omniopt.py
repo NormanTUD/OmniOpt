@@ -4020,9 +4020,9 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
         if len(tmp_old_res_list) == 1:
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
 
-            if looks_like_float(tmp_old_res_list[0]):
+            if helpers.looks_like_float(tmp_old_res_list[0]):
                 old_result_simple = float(tmp_old_res_list[0])
-            elif looks_like_int(tmp_old_res_list[0]):
+            elif helpers.looks_like_int(tmp_old_res_list[0]):
                 old_result_simple = int(tmp_old_res_list[0])
             else:
                 old_result_simple = tmp_old_res_list[0]

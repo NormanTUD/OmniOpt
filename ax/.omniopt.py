@@ -4019,7 +4019,13 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
 
         if len(tmp_old_res_list) == 1:
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-            old_result_simple = float(tmp_old_res_list[0])
+
+            if looks_like_float(tmp_old_res_list[0]):
+                old_result_simple = float(tmp_old_res_list[0])
+            elif looks_like_int(tmp_old_res_list[0]):
+                old_result_simple = int(tmp_old_res_list[0])
+            else:
+                old_result_simple = tmp_old_res_list[0]
         else: # pragma: no cover
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
             old_result_simple = None
@@ -4063,7 +4069,7 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
                 for resname in arg_result_names:
                     old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
             except Exception as e: # pragma: no cover
-                print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}")
+                print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}/{PD_CSV_FILENAME}")
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 _counter += 1

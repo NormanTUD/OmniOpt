@@ -3995,7 +3995,16 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str): # pragma: no cover
                         value = float(value)
 
-                    matching_rows = matching_rows[matching_rows[param] == value]
+                    new_matching_rows = matching_rows[matching_rows[param] == value]
+
+                    if new_matching_rows.empty:
+                        if isinstance(value, str) and value.lower() in ["true", "false"]:
+                            if isinstance(value, str) and value.lower() in ["true", "false"]:
+                                value = value.lower() == "true"
+
+                            new_matching_rows = matching_rows[matching_rows[param] == value]
+
+                    matching_rows = new_matching_rows
 
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
 

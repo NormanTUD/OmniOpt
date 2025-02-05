@@ -3981,15 +3981,12 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         for param, value in params.items():
             if param in df.columns:
                 if isinstance(value, float):
-                    # Log current state before filtering
-
                     is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
 
                     matching_rows = matching_rows[is_close_array]
 
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
-                    # Ensure consistent types for comparison
                     if matching_rows[param].dtype == np.int64 and isinstance(value, str): # pragma: no cover
                         value = int(value)
                     elif matching_rows[param].dtype == np.float64 and isinstance(value, str): # pragma: no cover

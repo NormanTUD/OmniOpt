@@ -7,7 +7,7 @@ cd $SCRIPT_DIR
 cd ..
 
 if [[ -d runs/constraint_test_to_be_continued/0 ]]; then
-	SHARE_URL=$(bash omniopt_share runs/constraint_test_to_be_continued/0 --username=$USER 2>&1 | sed -e 's#See ##' | sed -e 's# for.*##')
+	SHARE_URL=$(bash omniopt_share runs/constraint_test_to_be_continued/0 --no_color --username=$USER 2>&1 | sed -e 's#See ##' | sed -e 's# for.*##')
 
 	bash omniopt --continue "$SHARE_URL" --follow
 

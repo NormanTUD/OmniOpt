@@ -3999,10 +3999,9 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 
                     if new_matching_rows.empty:
                         if isinstance(value, str) and value.lower() in ["true", "false"]:
-                            if isinstance(value, str) and value.lower() in ["true", "false"]:
-                                value = value.lower() == "true"
+                            value = value.lower() == "true"
 
-                            new_matching_rows = matching_rows[matching_rows[param] == value]
+                        new_matching_rows = matching_rows[matching_rows[param] == value]
 
                     matching_rows = new_matching_rows
 

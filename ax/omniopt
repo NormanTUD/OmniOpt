@@ -31,6 +31,7 @@
 #SBATCH --signal=B:USR1@200
 
 {
+SCRIPT_DIR=$(dirname $(realpath "$0"))
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
@@ -918,6 +919,79 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 	fi
 fi
 
+
+if [[ $continue_previous_job =~ ^https?:// ]]; then
+	if echo "$continue_previous_job" | grep -Eq 'share\.php\?.*(user_id=[^&]+&.*experiment_name=[^&]+&.*run_nr=[0-9]+|experiment_name=[^&]+&.*user_id=[^&]+&.*run_nr=[0-9]+|run_nr=[0-9]+&.*user_id=[^&]+&.*experiment_name=[^&]+)'; then
+		zip_download_url=$(echo "$continue_previous_job" | sed -e 's#share\.php#download_share_all.php#')
+
+		echo $zip_download_url
+
+		oo_tmp_dir=/tmp/oo_download/
+
+		oo_tmp_file="$oo_tmp_dir/tmp.zip"
+
+		mkdir -p $oo_tmp_dir
+
+		if [[ $continue_previous_job =~ user_id=([^&]+) ]]; then
+			user_id="${BASH_REMATCH[1]}"
+		else
+			red_text "Error: user_id parameter is missing in the URL."
+			exit 1
+		fi
+
+		if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
+			experiment_name="${BASH_REMATCH[1]}"
+		else
+			red_text "Error: experiment_name parameter is missing in the URL."
+			exit 1
+		fi
+
+		if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
+			run_nr="${BASH_REMATCH[1]}"
+		else
+			red_text "Error: run_nr parameter is missing in the URL."
+			exit 1
+		fi
+
+		yellow_text "Downloaded file $oo_tmp_file"
+
+		wget -q "$zip_download_url" -O "$oo_tmp_file"
+
+		if unzip -tq "$oo_tmp_file" >/dev/null 2>&1; then
+			new_folder_base="runs/$user_id/$experiment_name"
+
+			i=0
+			new_folder="$new_folder_base/$i"
+
+			while [[ -d $new_folder ]]; do
+				new_folder="$new_folder_base/$i"
+				i=$((i+1))
+			done
+
+			mkdir -p "$new_folder"
+
+			unzip -q "$oo_tmp_file" -d "$new_folder"
+
+			yellow_text "Extracted file to $new_folder"
+
+			new_args_string=$(echo "$args_string" | sed -e "s#--continue\s*[^ ]*#--continue $new_folder#")
+
+			eval "bash $SCRIPT_DIR/omniopt $new_args_string"
+			exit $?
+		elif [[ -s "$oo_tmp_file" ]]; then
+			cat $oo_tmp_file
+		fi
+
+
+		rm -rf $oo_tmp_dir
+
+		exit
+	else 
+		red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr"
+		exit 19;
+	fi
+fi
+
 if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
 	echo "--continue was set, but empty."
 	myexit 19
@@ -1129,8 +1203,6 @@ fi
 
 python_pid=""
 
-#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 #echo "\$0: $0, SCRIPT_DIR: $SCRIPT_DIR"
 

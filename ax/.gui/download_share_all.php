@@ -60,7 +60,7 @@
 
 	if($errors == 0) {
 		if (!is_dir($dir)) {
-			echo "";
+			echo "$dir is not a dir\n";
 			$errors++;
 		}
 	}
@@ -80,7 +80,7 @@
 	}
 
 	if($errors) {
-		echo "$errors errors in total\n";
+		echo "download_share_all: $errors errors in total\n";
 		exit(1);
 	}
 

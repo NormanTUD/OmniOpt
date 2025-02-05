@@ -6034,6 +6034,9 @@ def main() -> None:
         for rarg in arg_result_min_or_max:
             original_print(rarg, file=myfile)
 
+    with open(f"{get_current_run_folder()}/state_files/follow", mode="a", encoding="utf-8") as myfile:
+        original_print("True", file=myfile)
+
     if os.getenv("CI"): # pragma: no cover
         data_dict: dict = {
             "param1": "value1",

@@ -981,12 +981,14 @@ if [[ $continue_previous_job =~ ^https?:// ]]; then
 			exit_code=$?
 			rm -rf $oo_tmp_dir
 
-			exit $?
+			exit $exit_code
 		elif [[ -s "$oo_tmp_file" ]]; then
 			cat $oo_tmp_file
 		fi
 
 		rm -rf $oo_tmp_dir
+
+		exit 19
 	else 
 		red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr"
 		myexit 19

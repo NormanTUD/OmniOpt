@@ -11,6 +11,8 @@ if [[ -d runs/constraint_test_to_be_continued/0 ]]; then
 
 	echo ">>>$SHARE_URL<<<"
 
+	exit
+
 	bash omniopt --continue "$SHARE_URL" --follow
 
 	exit_code=$?

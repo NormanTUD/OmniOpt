@@ -978,18 +978,18 @@ if [[ $continue_previous_job =~ ^https?:// ]]; then
 			new_args_string=$(echo "$args_string" | sed -e "s#--continue\s*[^ ]*#--continue $new_folder#")
 
 			eval "bash $SCRIPT_DIR/omniopt $new_args_string"
+			exit_code=$?
+			rm -rf $oo_tmp_dir
+
 			exit $?
 		elif [[ -s "$oo_tmp_file" ]]; then
 			cat $oo_tmp_file
 		fi
 
-
 		rm -rf $oo_tmp_dir
-
-		exit
 	else 
 		red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr"
-		exit 19;
+		myexit 19
 	fi
 fi
 

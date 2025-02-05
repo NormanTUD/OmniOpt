@@ -1326,6 +1326,11 @@ else
 				estimated_start_time_original=""
 				_remaining_time=""
 
+
+				if [[ $debug -eq 1 ]]; then
+					trap - DEBUG
+				fi
+
 				while ! [[ -e $LOG_PATH ]]; do
 					current_time=$(date +%s)
 
@@ -1383,6 +1388,7 @@ else
 						fi
 					fi
 
+
 					for i in "${spin[@]}"; do
 						print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
 
@@ -1394,7 +1400,14 @@ else
 						echo -ne "$print_line"
 						sleep 0.2
 					done
+
+
 				done
+
+				if [[ $debug -eq 1 ]]; then
+					set_debug
+				fi
+
 				set -e
 
 				printf "\r"

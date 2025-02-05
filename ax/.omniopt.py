@@ -3201,11 +3201,13 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
 @beartype
 def get_ax_param_representation(data: dict) -> dict:
     if data["type"] == "range":
+        parameter_type = data["value_type"].upper()
         return {
             "__type": "RangeParameter",
             "name": data["name"],
             "parameter_type": {
-                "__type": "ParameterType", "name": data["value_type"].upper()
+                "__type": "ParameterType",
+                "name": parameter_type
             },
             "lower": data["bounds"][0],
             "upper": data["bounds"][1],
@@ -3216,6 +3218,8 @@ def get_ax_param_representation(data: dict) -> dict:
             "target_value": None
         }
     if data["type"] == "choice": # pragma: no cover
+        parameter_type = "FLOAT" if all(isinstance(i, float) for i in data["values"]) else ("INT" if all(isinstance(i, int) for i in data["values"]) else "STRING")
+
         return {
             '__type': 'ChoiceParameter',
             'dependents': None,
@@ -3224,7 +3228,8 @@ def get_ax_param_representation(data: dict) -> dict:
             'is_task': False,
             'name': data["name"],
             'parameter_type': {
-                "__type": "ParameterType", "name": data["value_type"].upper()
+                "__type": "ParameterType",
+                "name": parameter_type
             },
             'target_value': None,
             'values': data["values"]

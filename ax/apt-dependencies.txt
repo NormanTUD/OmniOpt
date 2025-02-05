@@ -9,3 +9,4 @@ python3-toolz
 php-mbstring
 bc
 2to3
+zip

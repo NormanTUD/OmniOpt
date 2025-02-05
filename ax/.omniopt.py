@@ -3444,13 +3444,12 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
             _replaced = False
             for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
                 if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
-                    old_param_json = json.dumps(
-                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
-                    )
+                    old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+
                     experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
-                    new_param_json = json.dumps(
-                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
-                    )
+
+                    new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+
                     _replaced = True
 
                     compared_params = compare_parameters(old_param_json, new_param_json)

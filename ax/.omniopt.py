@@ -4063,7 +4063,7 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
                 for resname in arg_result_names:
                     old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
             except Exception as e: # pragma: no cover
-                print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}")
+                print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}")
 
             if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
                 _counter += 1

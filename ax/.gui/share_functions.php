@@ -65,7 +65,9 @@
 			"oo_errors.txt" => "OmniOpt2-Errors",
 			"worker_usage.csv" => "Number of workers",
 			"result_names.txt" => "Result-Names",
-			"loaded_modules.json" => "A file containing all modules loaded that have versioning data"
+			"loaded_modules.json" => "A file containing all modules loaded that have versioning data",
+			"everything_but_singleruns.zip" => "Everything in the projects folder, except the single_runs, as a zip",
+			"everything.zip" => "Everything in the projects folder, as a zip"
 		);
 
 		if (isset($names[$replaced_file])) {

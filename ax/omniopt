@@ -947,7 +947,8 @@ if [[ $continue_previous_job =~ ^https?:// ]]; then
 		fi
 
 		if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
-			run_nr="${BASH_REMATCH[1]}"
+			#run_nr="${BASH_REMATCH[1]}"
+			true
 		else
 			red_text "Error: run_nr parameter is missing in the URL."
 			exit 1

@@ -1084,12 +1084,9 @@ if [[ "$continue_previous_job" != "" ]]; then
 		fi
 	fi
 
-	if [[ -z "$gpus" ]]; then
+	if [[ -z "$gpus" ]] || [[ $gpus -eq 0 ]]; then
 		if [[ -e "$continue_previous_job/state_files/gpus" ]]; then
 			gpus=$(cat "$continue_previous_job/state_files/gpus")
-		else
-			echo "gpus could not be determined from previous run or --gpus"
-			myexit 105
 		fi
 	fi
 

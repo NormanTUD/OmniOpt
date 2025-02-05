@@ -220,36 +220,6 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			done
 		fi
 
-		OO_tmp_dir=/tmp/oo_tmp
-
-		mkdir -p $OO_tmp_dir || {
-			red_text "mkdir -p $OO_tmp_dir failed"
-			exit 1
-		}
-
-		everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
-
-		original_pwd="$(pwd)"
-
-		cd $RUN_DIR
-
-		zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
-			red_text "zip -r $OO_tmp_dir/everything_but_singleruns.zip $RUN_DIR -x \"$RUN_DIR/single_runs/*\" failed"
-			curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
-			exit 1
-		}
-
-		cd "$original_pwd"
-
-		if [[ $keep_tmp_dir -eq 0 ]]; then
-			rm -rf $OO_tmp_dir || {
-				red_text "rm -rf $OO_tmp_dir failed"
-				exit 1
-			}
-		else
-			yellow_text "Temporary file: $everything_but_singleruns"
-		fi
-
 		if [[ "$k" -eq "0" ]]; then
 			if [[ -z $DONT_ASK_USERNAME ]]; then
 				eval "$(resize)"
@@ -291,6 +261,37 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			url="$url&update_uuid=$run_uuid"
 
 			curl_options+=("-F" "run_uuid=@$run_uuid_path")
+
+			OO_tmp_dir=/tmp/oo_tmp
+
+			mkdir -p $OO_tmp_dir || {
+				red_text "mkdir -p $OO_tmp_dir failed"
+				exit 1
+			}
+
+			everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
+
+			original_pwd="$(pwd)"
+
+			cd $RUN_DIR
+
+			zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
+				red_text "zip -r $OO_tmp_dir/everything_but_singleruns.zip $RUN_DIR -x \"$RUN_DIR/single_runs/*\" failed"
+				exit 1
+			}
+
+			curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
+
+			cd "$original_pwd"
+
+			if [[ $keep_tmp_dir -eq 0 ]]; then
+				rm -rf $OO_tmp_dir || {
+					red_text "rm -rf $OO_tmp_dir failed"
+					exit 1
+				}
+			else
+				yellow_text "Temporary file: $everything_but_singleruns"
+			fi
 
 			if [[ -n $outfile ]]; then
 				if [[ -e $outfile ]]; then

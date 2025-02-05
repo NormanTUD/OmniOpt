@@ -64,7 +64,7 @@ fi
 
 checkout_to_latest_tested_version=0
 debug=0
-main_process_gb=4
+main_process_gb=
 run_tests_that_fail_on_taurus=0
 force_local_execution=0
 has_sbatch=0
@@ -859,10 +859,6 @@ if [[ -n $new_git_hash ]]; then
 	git_hash=$new_git_hash
 fi
 
-if [[ -n $mem_gb ]]; then
-	main_process_gb=$mem_gb
-fi
-
 set +e
 trap - ERR
 git fetch --tags 2>/dev/null >/dev/null
@@ -1084,6 +1080,14 @@ if [[ "$continue_previous_job" != "" ]]; then
 		fi
 	fi
 
+	if [[ -z "$main_process_gb" ]]; then
+		if [[ -e "$continue_previous_job/state_files/main_process_gb" ]]; then
+			main_process_gb=$(cat "$continue_previous_job/state_files/main_process_gb")
+		else
+			main_process_gb=$mem_gb
+		fi
+	fi
+
 	if [[ -z "$gpus" ]] || [[ $gpus -eq 0 ]]; then
 		if [[ -e "$continue_previous_job/state_files/gpus" ]]; then
 			gpus=$(cat "$continue_previous_job/state_files/gpus")
@@ -1112,6 +1116,14 @@ if [[ "$continue_previous_job" != "" ]]; then
 			echo "Time could not be determined from previous run or --time"
 			myexit 105
 		fi
+	fi
+fi
+
+if [[ -z $main_process_gb ]]; then
+	if [[ -n $mem_gb ]]; then
+		main_process_gb=$mem_gb
+	else
+		main_process_gb=4 # default value
 	fi
 fi
 

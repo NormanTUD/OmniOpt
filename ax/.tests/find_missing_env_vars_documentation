@@ -49,7 +49,7 @@ for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
 		"old_continue" "previous_job_var" "result" "mem_gb" "RUN_DIR" "DONT_ASK_USERNAME"
 		"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z" "FROZEN" "LOAD_MODULES"
 		"MYCLUSTER_HOST" "output" "specific_linter" "TEMP_BACKUP_FILE" "COMMAND"
-		"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG"
+		"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG" "CLUSTERHOST"
 	)
 
 	filtered_params=()

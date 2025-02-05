@@ -84,8 +84,6 @@
 		exit(1);
 	}
 
-	echo "$zip_file_path";
-
 	header('Content-Type: application/zip');
 	header('Content-Disposition: attachment; filename="' . basename($zip_file_path) . '"');
 	header('Content-Length: ' . filesize($zip_file_path));

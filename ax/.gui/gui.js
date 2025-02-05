@@ -96,7 +96,7 @@ var hiddenTableData = [
 		value: "",
 		placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisons: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
 	},
-	{ label: "Decimal places", id: "gpus", type: "number", value: 4, placeholder: "Number of decimal places to be rounded to", min: 1, max: 32 },
+	{ label: "Decimal places", id: "gpus", type: "number", value: 4, placeholder: "Number of decimal places to be rounded to", min: 0, max: 32 },
 ];
 
 
@@ -419,7 +419,7 @@ function update_table_row (item, errors, warnings, command) {
 		if (isNaN(numValue) && ((Object.keys(item).includes("required") && item.required) || !Object.keys(item).includes("required"))) {
 			errors.push("Invalid value for '" + item.label + "'. Must be a number.");
 		} else if (item.min && item.max && (numValue < item.min || numValue > item.max)) {
-			errors.push("Value for '" + item.label + "' must be between " + item.min + " and " + item.max + ".");
+			errors.push("Value for '" + item.label + "' must be between " + item.min + " and " + item.max + ", is " + numValue + ".");
 		} else if (item.min && (numValue < item.min)) {
 			errors.push("Value for '" + item.label + "' must be larger than " + item.min + ".");
 		} else if (item.max && (numValue > item.max)) {

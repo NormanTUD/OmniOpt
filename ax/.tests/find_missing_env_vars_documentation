@@ -47,7 +47,9 @@ for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
 		"git_hash" "_follow" "follow" "experiment_name" "current_tag" "BASH_VERSION" "gpus"
 		"tag_commit_hash" "ORIGINAL_ARGS" "AVAILABLE_PROJECTS" "already_sent_signal" "bash_logname"
 		"old_continue" "previous_job_var" "result" "mem_gb" "RUN_DIR" "DONT_ASK_USERNAME"
-		"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z"
+		"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z" "FROZEN" "LOAD_MODULES"
+		"MYCLUSTER_HOST" "output" "specific_linter" "TEMP_BACKUP_FILE" "COMMAND"
+		"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG"
 	)
 
 	filtered_params=()

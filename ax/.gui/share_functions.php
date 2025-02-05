@@ -313,12 +313,10 @@
 
 		$experiment_subfolders = check_and_filter_folders($experiment_subfolders);
 
-		/*
 		if (count($experiment_subfolders) == 0) {
 			echo "No runs found in $folder_glob";
 			exit(1);
 		}
-		 */
 
 		usort($experiment_subfolders, 'custom_sort');
 

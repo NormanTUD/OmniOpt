@@ -188,6 +188,9 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 	if [[ "$ok" -eq "1" ]]; then
 		experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
 
+		OO_tmp_dir=/tmp/oo_tmp
+		everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
+
 		curl_options=()
 
 		for available_file in $(ls "$RUN_DIR" 2>/dev/null); do 
@@ -262,36 +265,23 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 
 			curl_options+=("-F" "run_uuid=@$run_uuid_path")
 
-			OO_tmp_dir=/tmp/oo_tmp
-
 			mkdir -p $OO_tmp_dir || {
 				red_text "mkdir -p $OO_tmp_dir failed"
 				exit 1
 			}
-
-			everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
 
 			original_pwd="$(pwd)"
 
 			cd $RUN_DIR
 
 			zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
-				red_text "zip -r $OO_tmp_dir/everything_but_singleruns.zip $RUN_DIR -x \"$RUN_DIR/single_runs/*\" failed"
+				red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
 				exit 1
 			}
 
 			curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
 
 			cd "$original_pwd"
-
-			if [[ $keep_tmp_dir -eq 0 ]]; then
-				rm -rf $OO_tmp_dir || {
-					red_text "rm -rf $OO_tmp_dir failed"
-					exit 1
-				}
-			else
-				yellow_text "Temporary file: $everything_but_singleruns"
-			fi
 
 			if [[ -n $outfile ]]; then
 				if [[ -e $outfile ]]; then
@@ -344,6 +334,15 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			fi
 		else
 			green_text "$CURL_OUTPUT"
+		fi
+
+		if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
+			rm -rf $OO_tmp_dir || {
+				red_text "rm -rf $OO_tmp_dir failed"
+				exit 1
+			}
+		else
+			yellow_text "Temporary file: $everything_but_singleruns"
 		fi
 	fi
 	k=$(($k+1))

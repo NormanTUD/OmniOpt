@@ -78,7 +78,9 @@
 		"job_start_time.txt",
 		"result_names.txt",
 		"pareto_front_table.txt",
-		"pareto_front_data.json"
+		"pareto_front_data.json",
+		"everything_but_singleruns.zip",
+		"everything.zip"
 	];
 
 	$acceptable_files = array_map(function($file) {

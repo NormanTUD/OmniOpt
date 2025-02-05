@@ -3950,6 +3950,13 @@ def clean_completed_jobs() -> None:
             print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending or running: {_state}")
 
 @beartype
+def value_to_true_or_false(value: str) -> Union[str, bool]:
+    if isinstance(value, str) and value.lower() in ["true", "false"]:
+        value = value.lower() == "true"
+
+    return value
+
+@beartype
 def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Any:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
@@ -3987,16 +3994,16 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
-                    if matching_rows[param].dtype == np.int64 and isinstance(value, str): # pragma: no cover
-                        value = int(value)
-                    elif matching_rows[param].dtype == np.float64 and isinstance(value, str): # pragma: no cover
-                        value = float(value)
+                    if isinstance(value, str):
+                        if matching_rows[param].dtype == np.int64: # pragma: no cover
+                            value = int(value)
+                        elif matching_rows[param].dtype == np.float64: # pragma: no cover
+                            value = float(value)
 
                     new_matching_rows = matching_rows[matching_rows[param] == value]
 
                     if new_matching_rows.empty:
-                        if isinstance(value, str) and value.lower() in ["true", "false"]:
-                            value = value.lower() == "true"
+                        value = value_to_true_or_false(value)
 
                         new_matching_rows = matching_rows[matching_rows[param] == value]
 

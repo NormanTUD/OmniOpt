@@ -4988,6 +4988,10 @@ def save_state_files() -> None:
     with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
         original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
 
+    if args.follow:
+        with open(f"{state_files_folder}/follow", mode="w", encoding="utf-8") as myfile:
+            original_print("True", file=myfile)
+
 @beartype
 def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:
     try:
@@ -6033,9 +6037,6 @@ def main() -> None:
     with open(f"{get_current_run_folder()}/result_min_max.txt", mode="a", encoding="utf-8") as myfile:
         for rarg in arg_result_min_or_max:
             original_print(rarg, file=myfile)
-
-    with open(f"{get_current_run_folder()}/state_files/follow", mode="w", encoding="utf-8") as myfile:
-        original_print("True", file=myfile)
 
     if os.getenv("CI"): # pragma: no cover
         data_dict: dict = {

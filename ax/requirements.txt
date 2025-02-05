@@ -31,3 +31,4 @@ pyyaml
 pyspellchecker
 pyfiglet
 setuptools
+pyright

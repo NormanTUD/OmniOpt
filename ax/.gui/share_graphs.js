@@ -1281,6 +1281,20 @@ async function load_overview_data() {
 	} else {
 		$(".overview_table").html(`Error: <span class="error_line invert_in_dark_mode">${res.error}</span>`);
 	}
+
+	try {
+		var ui_url = await fetchJsonFromUrlFilenameOnly("ui_url.txt");
+
+		if(ui_url && Object.keys(ui_url).includes("raw")) {
+			var raw_url = ui_url.raw;
+
+			var link_code = `<a target='_blank' href='${raw_url}'>Link to the GUI page with all the settings of this job</a><br>`;
+
+			$("#overview_data-content").prepend(link_code);
+		}
+	} catch (e) {
+		console.error(e);
+	}
 }
 
 async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false) {

@@ -41,17 +41,13 @@ for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
 	found_params=($(egrep -ri 'if\s..?\s-[nz]' "$bash_file" | sed -e 's#^\s*##' -e 's#.*if\s*\[\[*\s*##' -e 's#\s\]\]*\s*.*##' -e 's#^-[zn]\s*##' | sed -e 's#"##g' | sort | uniq))
 
 	exclude_vars=(
-		"{" "old_" "CHAR" "RUN_DIR" "reservation" "min" "max" "_VERSION" "account"
-		"SLURM_" "DISPLAY" "config_toml" "config_yaml" "config_json" "CODE" "no_color"
-		"time" "mem_gb" "exit_code" "already_sent_signal" "tag_commit_hash" "ORIGINAL_ARGS"
-		"ZSH_EVAL_CONTEXT" "DONT_ASK_USERNAME" "gpus" "new_git_hash" "AVAILABLE_PROJECTS"
-		"git_hash" "follow" "experiment_name" "current_tag" "result" "OUTPUT" "omniopt"
-		"force_local" "bash_logname" "outfile" "choice_param" "COMMAND" "float_param"
-		"FROZEN" "int_param" "int_param_two" "LOAD_MODULES" "msg" "MYCLUSTER_HOST"
-		"NAME" "param" "param_four" "param_three" "param_two" "start_command_base64"
-		"TEMP_BACKUP_FILE" "test_types_regex" "plot_type" "GITHUB_OUTPUT" "value"
-		"GITHUB_STEP_SUMMARY" "specific_linter" "output" "DEBUG" "FOUND_FUNCS"
-		"CLUSTERHOST" "capella"
+		"time" "DISPLAY" "maxvalue" "minvalue" "KSH_VERSION" "SLURM_JOB_ID" "ZSH_EVAL_CONTEXT"
+		"config_toml" "config_yaml" "min" "max" "CHAR" "CODE" "_reservation" "reservation"
+		"force_local_execution" "_force_local_execution" "account" "_account" "exit_code"
+		"git_hash" "_follow" "follow" "experiment_name" "current_tag" "BASH_VERSION" "gpus"
+		"tag_commit_hash" "ORIGINAL_ARGS" "AVAILABLE_PROJECTS" "already_sent_signal" "bash_logname"
+		"old_continue" "previous_job_var" "result" "mem_gb" "RUN_DIR" "DONT_ASK_USERNAME"
+		"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z"
 	)
 
 	filtered_params=()

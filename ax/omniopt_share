@@ -313,7 +313,7 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		fi
 
 		if [[ $DEBUG -eq 1 ]]; then
-			echo "DEBUG: curl -s ${curl_options[@]} $url"
+			echo "curl -s ${curl_options[@]} $url"
 		fi
 
 		set +e

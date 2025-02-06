@@ -6038,10 +6038,9 @@ def write_args_overview_table() -> None:
     table = Table(title="Arguments Overview:")
     table.add_column("Key", justify="left", style="bold")
     table.add_column("Value", justify="left", style="dim")
-    table.add_column("Type", justify="left", style="dim")
 
     for key, value in vars(args).items():
-        table.add_row(key, str(value), str(type(value)))
+        table.add_row(key, str(value))
 
     table_str = ""
 

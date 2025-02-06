@@ -113,7 +113,7 @@
 			return 0
 		fi
 
-		if [[ "$CHAR" == "bel" ]] && [[ "$OO_MAIN_TESTS" == "1" ]]; then
+		if [[ "$CHAR" == "bel" ]] && [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
 			echo "Not print BEL-character for main-test-suite"
 		else
 			tput "$CHAR"

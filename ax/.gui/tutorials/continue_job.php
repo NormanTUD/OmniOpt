@@ -38,6 +38,14 @@ this new run, all old values will be considered, but new values of epochs can be
 experiment. If you continue the job <samp>0</samp>, it's job data will be in the subfolder <samp>3</samp> then, since it is the first
 non-existing folder for that project..</p>
 
+<h2 id="Shared">How to continue shared run</h2>
+
+<p>You can also continue runs from an OmniOpt-Share-URL, like: 
+
+<pre class="invert_in_dark_mode"><code class="language-bash">./omniopt --continue https://imageseg.scads.de/omniax/share.php?user_id=s3811141&experiment_name=__main__tests__&run_nr=14 --time=360</code></pre>
+
+<p>You can set the variables as if this was a normal continued run.</p>
+
 <h2 id="Caveat">Caveat</h2>
 <p>It is currently not possible to decrease the search space on a continued run. Attempts to do that will be ignored and the
 original limits will automatically be restored.</p>

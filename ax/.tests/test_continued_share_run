@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+if [[ -d runs/constraint_test_to_be_continued/0 ]]; then
+	SHARE_URL=$(bash omniopt_share runs/constraint_test_to_be_continued/0 --no_color --username=$USER 2>&1 | sed -e 's#See ##' | sed -e 's# for.*##')
+
+	echo ">>>$SHARE_URL<<<"
+
+	bash omniopt --continue "$SHARE_URL" --follow
+
+	exit_code=$?
+
+	exit $exit_code
+else
+	echo "runs/constraint_test_to_be_continued/0 not found"
+	exit 1
+fi

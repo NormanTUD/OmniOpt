@@ -78,7 +78,10 @@
 		"job_start_time.txt",
 		"result_names.txt",
 		"pareto_front_table.txt",
-		"pareto_front_data.json"
+		"pareto_front_data.json",
+		"everything_but_singleruns.zip",
+		"everything_but_singleruns_zip",
+		"everything.zip"
 	];
 
 	$acceptable_files = array_map(function($file) {
@@ -101,7 +104,7 @@
 	$i = $offered_files_i[1];
 
 	foreach ($_FILES as $_file) {
-		if (preg_match("/log.(err|out)$/", $_file["name"])) {
+		if (preg_match("/log.(zip|err|out)$/", $_file["name"])) {
 			$_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);
 			if (!isset($offered_files[$_file_without_ending])) {
 				if (isset($_file["name"])) {

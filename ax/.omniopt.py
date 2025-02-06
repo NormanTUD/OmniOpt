@@ -4057,34 +4057,37 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
             print_red(f"{this_path_json} does not exist, cannot load data from it")
             return 0
 
-        old_experiments = load_experiment(this_path_json)
+        try:
+            old_experiments = load_experiment(this_path_json)
 
-        old_trials = old_experiments.trials
+            old_trials = old_experiments.trials
 
-        trial_idx = 0
-        for old_trial_index in old_trials:
-            trial_idx += 1
+            trial_idx = 0
+            for old_trial_index in old_trials:
+                trial_idx += 1
 
-            old_trial = old_trials[old_trial_index]
-            trial_status = old_trial.status
-            trial_status_str = trial_status.__repr__
+                old_trial = old_trials[old_trial_index]
+                trial_status = old_trial.status
+                trial_status_str = trial_status.__repr__
 
-            if "COMPLETED".lower() not in str(trial_status_str).lower(): # pragma: no cover
-                # or "MANUAL".lower() in str(trial_status_str).lower()):
-                continue
+                if "COMPLETED".lower() not in str(trial_status_str).lower(): # pragma: no cover
+                    # or "MANUAL".lower() in str(trial_status_str).lower()):
+                    continue
 
-            old_arm_parameter = old_trial.arm.parameters
+                old_arm_parameter = old_trial.arm.parameters
 
-            old_result_simple = None
+                old_result_simple = None
 
-            try:
-                for resname in arg_result_names:
-                    old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
-            except Exception as e: # pragma: no cover
-                print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}/{PD_CSV_FILENAME}")
+                try:
+                    for resname in arg_result_names:
+                        old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
+                except Exception as e: # pragma: no cover
+                    print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}/{PD_CSV_FILENAME}")
 
-            if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
-                _counter += 1
+                if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
+                    _counter += 1
+        except ValueError as e:
+            print_red(f"Error while simulating loading data: {e}")
 
     return _counter
 
@@ -6018,6 +6021,16 @@ def show_pareto_frontier_data() -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
+def available_cpus():
+    cpu_count = os.cpu_count()
+
+    try:
+        cpu_count = len(os.sched_getaffinity(0))  # Nur unter Linux verfügbar
+    except AttributeError:
+        pass
+
+    print_yellow(f"You have {cpu_count} CPUs available for the main process.")
+
 @beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
@@ -6093,6 +6106,7 @@ def main() -> None:
     ])
 
     set_orchestrator()
+    available_cpus()
     print_generation_strategy()
 
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"

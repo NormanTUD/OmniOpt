@@ -84,6 +84,7 @@ NC='\033[0m'
 
 function set_debug {
 	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+	true
 }
 
 function unset_debug {
@@ -93,6 +94,7 @@ function unset_debug {
 no_color=0
 DEBUG=0
 update=0
+keep_tmp_dir=0
 folders_to_share=()
 username=$USER
 outfile=
@@ -121,6 +123,7 @@ function help {
 	echo "  --debug                                            Enable debug options"
 	echo "  --no_color                                         Disables color output"
 	echo "  --username=s3811141                                Specify username (with or without = sign)"
+	echo "  --keep_tmp_dir                                     Keeps the tmp dir, prints it as well"
 	echo "  --outfile=slurm-12345.out                          Path to the outfile"
 
 	exit $exit_code
@@ -134,6 +137,8 @@ for arg in "$@"; do
                 help 0
         elif [ "$arg" == "--update" ]; then
                 update=1
+	elif [ "$arg" == "--keep_tmp_dir" ]; then
+		keep_tmp_dir=1
         elif [ "$arg" == "--no_color" ]; then
 		no_color=1
 		function yellow_text {
@@ -182,6 +187,9 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 
 	if [[ "$ok" -eq "1" ]]; then
 		experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
+
+		OO_tmp_dir=/tmp/oo_tmp
+		everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
 
 		curl_options=()
 
@@ -257,6 +265,24 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 
 			curl_options+=("-F" "run_uuid=@$run_uuid_path")
 
+			mkdir -p $OO_tmp_dir || {
+				red_text "mkdir -p $OO_tmp_dir failed"
+				exit 1
+			}
+
+			original_pwd="$(pwd)"
+
+			cd $RUN_DIR
+
+			zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
+				red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
+				exit 1
+			}
+
+			curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
+
+			cd "$original_pwd"
+
 			if [[ -n $outfile ]]; then
 				if [[ -e $outfile ]]; then
 					curl_options+=("-F" "outfile=@$outfile")
@@ -291,8 +317,10 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 		fi
 
 		set +e
+
 		CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
 		exit_code=$?
+
 		set -e
 
 		if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
@@ -306,6 +334,15 @@ for RUN_DIR in "${folders_to_share[@]}"; do
 			fi
 		else
 			green_text "$CURL_OUTPUT"
+		fi
+
+		if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
+			rm -rf $OO_tmp_dir || {
+				red_text "rm -rf $OO_tmp_dir failed"
+				exit 1
+			}
+		else
+			yellow_text "Temporary file: $everything_but_singleruns"
 		fi
 	fi
 	k=$(($k+1))

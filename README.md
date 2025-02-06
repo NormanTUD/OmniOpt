@@ -1,5 +1,7 @@
 # What is OmniOpt?
 
+# The new version of OmniOpt is in the ax subdirectory! Everything outside of that directory is deprecated!
+
 ## CI Status for OmniOpt2
 
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)

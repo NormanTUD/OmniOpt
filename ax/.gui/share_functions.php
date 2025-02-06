@@ -65,7 +65,7 @@
 			"oo_errors.txt" => "OmniOpt2-Errors",
 			"worker_usage.csv" => "Number of workers",
 			"result_names.txt" => "Result-Names",
-			"loaded_modules.json" => "A file containing all modules loaded that have versioning data"
+			"loaded_modules.json" => "A file containing all modules loaded that have versioning data",
 		);
 
 		if (isset($names[$replaced_file])) {
@@ -449,6 +449,22 @@
 		}
 	}
 
+	function is_valid_zip_file($path) {
+		if (!file_exists($path) || !is_readable($path)) {
+			return false;
+		}
+
+		$handle = fopen($path, 'rb');
+		if (!$handle) {
+			return false;
+		}
+
+		$signature = fread($handle, 4);
+		fclose($handle);
+
+		// ZIP-Files begin with "PK\x03\x04"
+		return $signature === "PK\x03\x04";
+	}
 
 	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg) {
 		$empty_files = [];
@@ -461,7 +477,7 @@
 				if(file_exists($file)) {
 					$content = file_get_contents($file);
 					$content_encoding = mb_detect_encoding($content);
-					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8") {
+					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8" || is_valid_zip_file($file)) {
 						if (filesize($file)) {
 							move_uploaded_file($file, "$userFolder/$filename");
 							$added_files++;

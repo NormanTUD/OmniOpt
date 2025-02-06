@@ -5387,10 +5387,16 @@ def create_systematic_step(model: Any) -> Any:
         max_parallelism=_get_max_parallelism(),
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    )
+    ), {
+        "model": model,
+        "num_trials_": -1,
+        "max_parallelism": _get_max_parallelism(),
+        "model_gen_kwargs": {'enforce_num_arms': False},
+        "should_deduplicate": args.should_deduplicate
+    }
 
 @beartype
-def create_random_generation_step() -> ax.modelbridge.generation_node.GenerationStep:
+def create_random_generation_step() -> Any:
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -5401,7 +5407,15 @@ def create_random_generation_step() -> ax.modelbridge.generation_node.Generation
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    )
+    ), {
+        "model": Models.SOBOL,
+        "num_trials": max(num_parallel_jobs, random_steps),
+        "min_trials_observed": min(max_eval, random_steps),
+        "max_parallelism":_get_max_parallelism(),
+        "model_kwargs": {"seed": args.seed},
+        "model_gen_kwargs": {'enforce_num_arms': False},
+        "should_deduplicate": args.should_deduplicate
+    }
 
 @beartype
 def select_model(model_arg: Any) -> Any:
@@ -5427,6 +5441,7 @@ def get_generation_strategy() -> Any:
 
     # Initialize steps for the generation strategy
     steps: list = []
+    step_data: list = []
 
     # Get the number of imported jobs and update max evaluations
     num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5441,16 +5456,20 @@ def get_generation_strategy() -> Any:
 
     # Add a random generation step if conditions are met
     if random_steps >= 1 and num_imported_jobs < random_steps:
-        steps.append(create_random_generation_step())
+        this_step, this_step_data = create_random_generation_step()
+        steps.append(this_step)
+        step_data.append(this_step_data)
 
     # Choose a model for the non-random step
     chosen_non_random_model = select_model(args.model)
 
     # Append the Bayesian optimization step
-    steps.append(create_systematic_step(chosen_non_random_model))
+    sys_step, sys_step_data = create_systematic_step(chosen_non_random_model)
+    steps.append(sys_step)
+    step_data.append(sys_step_data)
 
     # Create and return the GenerationStrategy
-    return GenerationStrategy(steps=steps)
+    return GenerationStrategy(steps=steps), step_data
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6029,7 +6048,37 @@ def available_cpus():
     except AttributeError:
         pass
 
-    print_yellow(f"You have {cpu_count} CPUs available for the main process.")
+    print_green(f"You have {cpu_count} CPUs available for the main process.")
+
+@beartype
+def show_experiment_overview_table(gs_data: Any) -> None:
+    table = Table(title="Experiment Overview:", show_header=True)
+
+    #random_step = gs_data[0]
+    #systematic_step = gs_data[1]
+
+    table.add_column("Setting", style="green")
+    table.add_column("Value", style="green")
+
+    if args.model:
+        table.add_row("Model for non-random steps", str(args.model))
+    table.add_row("Max. nr. evaluations", str(max_eval))
+    if args.max_eval and args.max_eval != max_eval:
+        table.add_row("Max. nr. evaluations (from arguments)", str(args.max_eval))
+    table.add_row("Number random steps", str(args.num_random_steps))
+    table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
+    #table.add_row("Max. parallelism", str(args.max_parallelism))
+
+    if NR_INSERTED_JOBS:
+        table.add_row("Nr. imported jobs", str(NR_INSERTED_JOBS))
+
+    #if args.max_parallelism != random_step["max_parallelism"]:
+    #    table.add_row("Max. nr. workers (calculated)", str(random_step["max_parallelism"]))
+
+    if args.seed is not None:
+        table.add_row("Seed", str(args.seed))
+
+    console.print(table)
 
 @beartype
 def main() -> None:
@@ -6073,6 +6122,7 @@ def main() -> None:
     write_run_uuid_to_file()
 
     handle_maximize_argument()
+
     print_run_info()
 
     initialize_nvidia_logs()
@@ -6091,7 +6141,7 @@ def main() -> None:
     add_exclude_to_defective_nodes()
     handle_random_steps()
 
-    gs = get_generation_strategy()
+    gs, gs_data = get_generation_strategy()
     initialize_ax_client(gs)
 
     minimize_or_maximize: bool = not args.maximize
@@ -6124,6 +6174,8 @@ def main() -> None:
 
     load_existing_job_data_into_ax_client()
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
+
+    show_experiment_overview_table(gs_data)
 
     save_global_vars()
     write_process_info()

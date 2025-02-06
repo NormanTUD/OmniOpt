@@ -1240,6 +1240,19 @@ async function _get_overview_data () {
 	return _res;
 }
 
+async function load_arg_overview () {
+	showSpinnerOverlay("Loading arg-overview data...");
+
+	var res = await fetchJsonFromUrlFilenameOnly("args_overview.txt");
+
+	if(!Object.keys(res).includes("error")) {
+		add_tab("arg_overview_data", "Args-Overview", "<div class='arg_overview'></div>");
+		$(".arg_overview").html(`<pre>${res.raw}</pre>`);
+	} else {
+		$(".arg_overview").html(`Error: <span class="error_line invert_in_dark_mode">${res.error}</span>`);
+	}
+}
+
 async function load_overview_data() {
 	showSpinnerOverlay("Loading overview data...");
 
@@ -1345,6 +1358,7 @@ async function load_all_data() {
 		promises.push(load_trial_index_to_params_log());
 		promises.push(load_progressbar_log());
 		promises.push(load_parameter());
+		promises.push(load_arg_overview());
 
 		promises.push(plot_all_possible());
 		promises.push(plot_cpu_ram_graph());

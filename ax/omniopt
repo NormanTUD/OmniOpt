@@ -1198,7 +1198,7 @@ if [[ -z $main_process_gb ]]; then
 	if [[ -n $mem_gb ]]; then
 		main_process_gb=$mem_gb
 	else
-		main_process_gb=4 # default value
+		main_process_gb=8 # default value
 	fi
 fi
 

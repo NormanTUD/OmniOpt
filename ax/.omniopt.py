@@ -424,7 +424,7 @@ class ConfigLoader:
         optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
         optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")})', default=os.getenv("HOME"), type=str)
         optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
-        optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 1GB)', type=float, default=4)
+        optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 8GB)', type=float, default=8)
         optional.add_argument('--pareto_front_confidence', help='Confidence for pareto-front-plotting (between 0 and 1, default: 1)', type=float, default=1)
         optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client.get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=50)
         optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)

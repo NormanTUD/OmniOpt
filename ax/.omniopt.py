@@ -5387,7 +5387,13 @@ def create_systematic_step(model: Any) -> Any:
         max_parallelism=_get_max_parallelism(),
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    )
+    ), {
+        "model": model,
+        "num_trials": -1,
+        "max_parallelism": _get_max_parallelism(),
+        "model_gen_kwargs":{'enforce_num_arms': False},
+        "should_deduplicate": args.should_deduplicate
+    }
 
 @beartype
 def create_random_generation_step() -> Any:
@@ -5397,11 +5403,18 @@ def create_random_generation_step() -> Any:
         num_trials=max(num_parallel_jobs, random_steps),
         min_trials_observed=min(max_eval, random_steps),
         max_parallelism=_get_max_parallelism(),
-        #enforce_num_trials=True,
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    )
+    ), {
+        "model": Models.SOBOL,
+        "num_trials": max(num_parallel_jobs, random_steps),
+        "min_trials_observed": min(max_eval, random_steps),
+        "max_parallelism": _get_max_parallelism(),
+        "model_kwargs": {"seed": args.seed},
+        "model_gen_kwargs": {'enforce_num_arms': False},
+        "should_deduplicate": args.should_deduplicate
+    }
 
 @beartype
 def select_model(model_arg: Any) -> Any:
@@ -5427,6 +5440,7 @@ def get_generation_strategy() -> Any:
 
     # Initialize steps for the generation strategy
     steps: list = []
+    gs_readable: list = []
 
     # Get the number of imported jobs and update max evaluations
     num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5441,18 +5455,20 @@ def get_generation_strategy() -> Any:
 
     # Add a random generation step if conditions are met
     if random_steps >= 1 and num_imported_jobs < random_steps:
-        this_step = create_random_generation_step()
+        this_step, readable_random_step = create_random_generation_step()
         steps.append(this_step)
+        gs_readable.append(readable_random_step)
 
     # Choose a model for the non-random step
     chosen_non_random_model = select_model(args.model)
 
     # Append the Bayesian optimization step
-    sys_step = create_systematic_step(chosen_non_random_model)
+    sys_step, readable_systematic_step = create_systematic_step(chosen_non_random_model)
     steps.append(sys_step)
+    gs_readable.append(readable_systematic_step)
 
     # Create and return the GenerationStrategy
-    return GenerationStrategy(steps=steps)
+    return GenerationStrategy(steps=steps), gs_readable
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6146,7 +6162,12 @@ def main() -> None:
     add_exclude_to_defective_nodes()
     handle_random_steps()
 
-    gs = get_generation_strategy()
+    gs, gs_array = get_generation_strategy()
+
+
+    with open(f"{get_current_run_folder()}/generation_strategy.txt", mode="w", encoding="utf-8") as text_file:
+        original_print(gs_array, file=text_file)
+
     initialize_ax_client(gs)
 
     minimize_or_maximize: bool = not args.maximize

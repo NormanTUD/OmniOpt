@@ -480,8 +480,12 @@
 					$content_encoding = mb_detect_encoding($content);
 					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8" || is_valid_zip_file($file)) {
 						if (filesize($file)) {
-							move_uploaded_file($file, "$userFolder/$filename");
-							$added_files++;
+							try {
+								move_uploaded_file($file, "$userFolder/$filename");
+								$added_files++;
+							} catch (Exception $e) {
+								echo "An exception occured trying to move $file to $userFolder/$filename";
+							}
 						} else {
 							$empty_files[] = $filename;
 						}

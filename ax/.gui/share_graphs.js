@@ -1243,7 +1243,7 @@ async function _get_overview_data () {
 async function load_arg_overview () {
 	showSpinnerOverlay("Loading arg-overview data...");
 
-	var res = await fetchJsonFromUrlFilenameOnly("args_overview.txt");
+	var res = await fetchJsonFromUrlFilenameOnly("args_overview.txt", true);
 
 	if(!Object.keys(res).includes("error")) {
 		add_tab("arg_overview_data", "Args-Overview", "<div class='arg_overview'></div>");

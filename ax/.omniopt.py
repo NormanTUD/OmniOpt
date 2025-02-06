@@ -5726,7 +5726,7 @@ def run_search(_progress_bar: Any) -> bool:
         if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(1)
 
-        if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
+        if next_nr_steps and nr_of_items == 0 and len(global_vars["jobs"]) == 0:
             _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
             NR_OF_0_RESULTS += 1
             progressbar_description([_wrn])

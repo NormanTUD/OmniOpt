@@ -5391,7 +5391,7 @@ def create_systematic_step(model: Any) -> Any:
         "model": model,
         "num_trials": -1,
         "max_parallelism": _get_max_parallelism(),
-        "model_gen_kwargs":{'enforce_num_arms': False},
+        "model_gen_kwargs": {'enforce_num_arms': False},
         "should_deduplicate": args.should_deduplicate
     }
 
@@ -6163,7 +6163,6 @@ def main() -> None:
     handle_random_steps()
 
     gs, gs_array = get_generation_strategy()
-
 
     with open(f"{get_current_run_folder()}/generation_strategy.txt", mode="w", encoding="utf-8") as text_file:
         original_print(gs_array, file=text_file)

@@ -6090,7 +6090,7 @@ def show_experiment_overview_table() -> None:
     table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
     #table.add_row("Max. parallelism", str(args.max_parallelism))
 
-    if SYSTEM_HAS_SBATCH:
+    if SYSTEM_HAS_SBATCH: # pragma: no cover
         table.add_row("Main process memory (GB)", str(args.main_process_gb))
         table.add_row("Worker memory (GB)", str(args.mem_gb))
 

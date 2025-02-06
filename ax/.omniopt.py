@@ -5523,7 +5523,6 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
 
 @beartype
 def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
-    global random_steps
     if next_nr_steps == 0:
         return 0
 
@@ -6067,7 +6066,11 @@ def show_experiment_overview_table() -> None:
     table.add_row("Max. nr. evaluations", str(max_eval))
     if args.max_eval and args.max_eval != max_eval:
         table.add_row("Max. nr. evaluations (from arguments)", str(args.max_eval))
-    table.add_row("Number random steps", str(args.num_random_steps))
+
+    table.add_row("Number random steps", str(random_steps))
+    if args.num_random_steps != random_steps:
+        table.add_row("Number random steps (from arguments)", str(args.num_random_steps))
+
     table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
     #table.add_row("Max. parallelism", str(args.max_parallelism))
 

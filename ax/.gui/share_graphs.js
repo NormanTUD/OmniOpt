@@ -1301,9 +1301,11 @@ async function load_overview_data() {
 		if(ui_url && Object.keys(ui_url).includes("raw")) {
 			var raw_url = ui_url.raw;
 
-			var link_code = `<a target='_blank' href='${raw_url}'>Link to the GUI page with all the settings of this job</a><br>`;
+			var link_code = `<a id='link_to_gui_element' target='_blank' href='${raw_url}'>Link to the GUI page with all the settings of this job</a><br>`;
 
-			$("#overview_data-content").prepend(link_code);
+			if($("#link_to_gui_element").length == 0) {
+				$("#overview_data-content").prepend(link_code);
+			}
 		}
 	} catch (e) {
 		console.error(e);

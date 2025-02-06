@@ -924,8 +924,6 @@ if [[ $continue_previous_job =~ ^https?:// ]]; then
 	if echo "$continue_previous_job" | grep -Eq 'share\.php\?.*(user_id=[^&]+&.*experiment_name=[^&]+&.*run_nr=[0-9]+|experiment_name=[^&]+&.*user_id=[^&]+&.*run_nr=[0-9]+|run_nr=[0-9]+&.*user_id=[^&]+&.*experiment_name=[^&]+)'; then
 		zip_download_url=$(echo "$continue_previous_job" | sed -e 's#share\.php#download_share_all.php#')
 
-		echo $zip_download_url
-
 		oo_tmp_dir=/tmp/oo_download/
 
 		oo_tmp_file="$oo_tmp_dir/tmp.zip"

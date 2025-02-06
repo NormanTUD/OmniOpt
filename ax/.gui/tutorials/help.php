@@ -217,8 +217,8 @@
 			</tr>
 			<tr>
 				<td><samp>--main_process_gb (INT)</samp></td>
-				<td>Amount of RAM the main process should have</td>
-				<td><samp>4</samp></td>
+				<td>Amount of RAM the main process should have. Only relevant on SLURM systems</td>
+				<td><samp>8</samp></td>
 			</tr>
 			<tr>
 				<td><samp>--pareto_front_confidence (INT)</samp></td>
